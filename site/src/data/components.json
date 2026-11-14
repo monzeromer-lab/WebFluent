@@ -26,6 +26,10 @@
    "signature": "Container(fluid: Bool) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "fluid:",
@@ -95,6 +99,10 @@
    "signature": "Row(gap: Enum, align: Enum, justify: Enum, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "gap:",
@@ -245,6 +253,10 @@
    "signature": "Column(span: Number, stacks: Bool) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "span:",
@@ -324,6 +336,10 @@
    "signature": "Grid(columns: Number, gap: Enum, align: Enum, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "columns:",
@@ -462,6 +478,10 @@
    "signature": "Stack(gap: Enum, align: Enum, justify: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "gap:",
@@ -582,6 +602,10 @@
    "signature": "Spacer(size: Enum)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "size:",
@@ -654,6 +678,10 @@
    "signature": "VirtualList(rowHeight: Number, estimate: Number, reveal: Any, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "rowHeight:",
@@ -740,6 +768,10 @@
    "signature": "Splitter(bind: State, min: Number, max: Number, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -846,6 +878,10 @@
    "signature": "Divider",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -892,6 +928,10 @@
    "signature": "Host(tag: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "tag:",
@@ -961,6 +1001,10 @@
    "signature": "Portal(into: Any) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "into:",
@@ -1025,11 +1069,15 @@
    "family": "Layout",
    "owner": "",
    "ownerSlug": "",
-   "summary": "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishable-key: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
-   "plain": "A custom element a script defines, placed by its tag: Element(\"stripe-pricing-table\", publishable-key: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.",
+   "summary": "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishableKey: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
+   "plain": "A custom element a script defines, placed by its tag: Element(\"stripe-pricing-table\", publishableKey: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.",
    "signature": "Element(_ tag: String) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "tag",
@@ -1099,6 +1147,10 @@
    "signature": "Navbar { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1176,6 +1228,10 @@
    "signature": "Navbar.Brand { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1234,6 +1290,10 @@
    "signature": "Navbar.Links { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1292,6 +1352,10 @@
    "signature": "Navbar.Actions { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1350,6 +1414,10 @@
    "signature": "Sidebar { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1427,6 +1495,10 @@
    "signature": "Sidebar.Header { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1485,6 +1557,10 @@
    "signature": "Sidebar.Item(to: Path, icon: String, active: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "to:",
@@ -1585,6 +1661,10 @@
    "signature": "Sidebar.Divider",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1636,6 +1716,10 @@
    "signature": "Link(_ label: String, to: Path, active: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -1741,6 +1825,10 @@
    "signature": "Tabs { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1806,6 +1894,10 @@
    "signature": "Tabs.Page(_ label: String) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -1872,6 +1964,10 @@
    "signature": "Breadcrumb { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -1932,6 +2028,10 @@
    "signature": "Breadcrumb.Item(to: Path) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "to:",
@@ -2004,6 +2104,10 @@
    "signature": "Menu(trigger: String, label: String, visible: State, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "trigger:",
@@ -2163,6 +2267,10 @@
    "signature": "Menu.Item(shortcut: String, checked: Bool, disabled: Bool, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "shortcut:",
@@ -2281,6 +2389,10 @@
    "signature": "Menu.Sub(label: String) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label:",
@@ -2352,6 +2464,10 @@
    "signature": "Menu.Divider",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -2403,6 +2519,10 @@
    "signature": "Router(transition: Enum, duration: String) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "transition:",
@@ -2499,6 +2619,10 @@
    "signature": "Card(surface: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "surface:",
@@ -2593,6 +2717,10 @@
    "signature": "Card.Header { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -2651,6 +2779,10 @@
    "signature": "Card.Body { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -2709,6 +2841,10 @@
    "signature": "Card.Footer { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -2767,6 +2903,10 @@
    "signature": "Table(caption: String) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "caption:",
@@ -2803,13 +2943,13 @@
     {
      "name": "Table.Body",
      "kind": "table-body",
-     "detail": "Body section.",
+     "detail": "The body of a table: its rows of data.",
      "fallback": ""
     },
     {
      "name": "Table.Row",
      "kind": "table-row",
-     "detail": "A row.",
+     "detail": "A row of cells.",
      "fallback": ""
     },
     {
@@ -2863,6 +3003,10 @@
    "signature": "Table.Head { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -2916,11 +3060,15 @@
    "family": "Data display",
    "owner": "Table",
    "ownerSlug": "table",
-   "summary": "Body section.",
-   "plain": "Body section.",
+   "summary": "The body of a table: its rows of data.",
+   "plain": "The body of a table: its rows of data.",
    "signature": "Table.Body { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -2974,11 +3122,15 @@
    "family": "Data display",
    "owner": "Table",
    "ownerSlug": "table",
-   "summary": "A row.",
-   "plain": "A row.",
+   "summary": "A row of cells.",
+   "plain": "A row of cells.",
    "signature": "Table.Row { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -3037,6 +3189,10 @@
    "signature": "Table.Cell(_ content: Any, header: Bool) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "content",
@@ -3112,6 +3268,10 @@
    "signature": "List(ordered: Bool) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "ordered:",
@@ -3188,6 +3348,10 @@
    "signature": "List.Item { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -3246,6 +3410,10 @@
    "signature": "Badge(_ label: String, tone: Enum, pill: Bool)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -3338,6 +3506,10 @@
    "signature": "Tag(_ label: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -3392,6 +3564,10 @@
    "signature": "Avatar(src: String, alt: String, initials: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "src:",
@@ -3508,6 +3684,10 @@
    "signature": "Tooltip(_ text: String, shortcut: String, placement: Enum, delay: Number) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "text",
@@ -3621,6 +3801,10 @@
    "signature": "Chart(kind: Enum, data: Any, x: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "kind:",
@@ -3788,6 +3972,10 @@
    "signature": "QrCode(_ value: String, color: String, background: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "value",
@@ -3864,6 +4052,10 @@
    "signature": "Input(bind: State, label: String, hint: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4107,6 +4299,10 @@
    "signature": "Select(bind: State, value: Any, label: String, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4269,6 +4465,10 @@
    "signature": "Select.Option(_ label: String, value: Any)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -4333,6 +4533,10 @@
    "signature": "Checkbox(bind: State, checked: Bool, label: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4447,6 +4651,10 @@
    "signature": "Radio(bind: State, value: Any, checked: Bool, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4561,6 +4769,10 @@
    "signature": "Switch(bind: State, checked: Bool, label: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4670,6 +4882,10 @@
    "signature": "Slider(bind: State, min: Number, max: Number, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4782,11 +4998,15 @@
    "family": "Form",
    "owner": "",
    "ownerSlug": "",
-   "summary": "Date input.",
-   "plain": "Date input.",
+   "summary": "A date field: the reader picks a day, and the bound state holds a `Date`.",
+   "plain": "A date field: the reader picks a day, and the bound state holds a Date.",
    "signature": "DatePicker(bind: State, label: String, min: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -4900,6 +5120,10 @@
    "signature": "FileUpload(accept: String, label: String, multiple: Bool, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "accept:",
@@ -5017,6 +5241,10 @@
    "signature": "Form(bind: State, show: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -5116,6 +5344,10 @@
    "signature": "Textarea(bind: State, label: String, hint: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "bind:",
@@ -5292,6 +5524,10 @@
    "signature": "Alert(_ message: String, tone: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "message",
@@ -5375,6 +5611,10 @@
    "signature": "Toast(_ message: String, tone: Enum)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "message",
@@ -5456,6 +5696,10 @@
    "signature": "Modal(visible: State, title: String, closable: Bool) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "visible:",
@@ -5571,6 +5815,10 @@
    "signature": "Modal.Title { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -5629,6 +5877,10 @@
    "signature": "Modal.Footer { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -5687,6 +5939,10 @@
    "signature": "Popover(visible: State, anchor: Any, at: Any, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "visible:",
@@ -5829,6 +6085,10 @@
    "signature": "Dialog(visible: State, title: String, closable: Bool) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "visible:",
@@ -5938,6 +6198,10 @@
    "signature": "Dialog.Title { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -5996,6 +6260,10 @@
    "signature": "Spinner(size: Enum)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "size:",
@@ -6064,6 +6332,10 @@
    "signature": "Progress(value: Number, max: Number)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "value:",
@@ -6121,6 +6393,10 @@
    "signature": "Skeleton(height: String, width: String, size: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "height:",
@@ -6211,11 +6487,15 @@
    "family": "Actions",
    "owner": "",
    "ownerSlug": "",
-   "summary": "Button. Its block holds what it shows; `on click` what it does.",
-   "plain": "Button. Its block holds what it shows; on click what it does.",
+   "summary": "A button: its label or block is what it shows, `on click` what it does.",
+   "plain": "A button: its label or block is what it shows, on click what it does.",
    "signature": "Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -6255,7 +6535,7 @@
     {
      "name": "to:",
      "type": "Path",
-     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+     "meaning": "The route to go to when it is pressed"
     },
     {
      "name": "disabled:",
@@ -6402,6 +6682,10 @@
    "signature": "IconButton(icon: String, label: String, size: Enum, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "icon:",
@@ -6570,6 +6854,10 @@
    "signature": "ButtonGroup { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -6628,6 +6916,10 @@
    "signature": "Dropdown(_ label: String) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -6707,6 +6999,10 @@
    "signature": "Dropdown.Item { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -6772,6 +7068,10 @@
    "signature": "Dropdown.Divider",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -6823,6 +7123,10 @@
    "signature": "Image(_ source: Any, src: String, sizes: String, placeholder: Enum, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "source",
@@ -6996,6 +7300,10 @@
    "signature": "Video(src: String, controls: Bool, autoplay: Bool, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "src:",
@@ -7181,6 +7489,10 @@
    "signature": "Audio(src: String, controls: Bool, autoplay: Bool, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "src:",
@@ -7331,6 +7643,10 @@
    "signature": "Frame(src: String, srcdoc: String, title: String, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "src:",
@@ -7480,6 +7796,10 @@
    "signature": "Icon(_ name: String, size: Enum, tone: Enum, muted: Bool)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "name",
@@ -7596,6 +7916,10 @@
    "signature": "Carousel(label: String, autoplay: Bool, interval: Number) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label:",
@@ -7645,7 +7969,7 @@
     {
      "name": "Carousel.Slide",
      "kind": "carousel-slide",
-     "detail": "One slide.",
+     "detail": "One slide of a carousel.",
      "fallback": ""
     }
    ],
@@ -7693,11 +8017,15 @@
    "family": "Media",
    "owner": "Carousel",
    "ownerSlug": "carousel",
-   "summary": "One slide.",
-   "plain": "One slide.",
+   "summary": "One slide of a carousel.",
+   "plain": "One slide of a carousel.",
    "signature": "Carousel.Slide { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -7756,6 +8084,10 @@
    "signature": "Text(_ content: Any, tone: Enum, size: Enum, align: Enum, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "content",
@@ -7932,6 +8264,10 @@
    "signature": "Heading(_ content: Any, level: Enum, align: Enum, muted: Bool)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "content",
@@ -8052,6 +8388,10 @@
    "signature": "Code(_ content: Any, block: Bool, language: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "content",
@@ -8125,6 +8465,10 @@
    "signature": "Markdown(_ text: String, inert: Bool)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "text",
@@ -8193,6 +8537,10 @@
    "signature": "Unsafe",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -8246,6 +8594,10 @@
    "signature": "Unsafe.Html(_ markup: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "markup",
@@ -8310,6 +8662,10 @@
    "signature": "Blockquote(_ content: Any) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "content",
@@ -8364,6 +8720,10 @@
    "signature": "TableOfContents(levels: Number, title: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "levels:",
@@ -8430,6 +8790,10 @@
    "signature": "Document(page_size: Enum, size: String, landscape: Bool, …) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "page_size:",
@@ -8583,6 +8947,10 @@
    "signature": "Section { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -8638,6 +9006,10 @@
    "signature": "Paragraph(_ content: Any, tone: Enum, size: Enum, align: Enum, …)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "content",
@@ -8816,6 +9188,10 @@
    "signature": "Header(on: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "on:",
@@ -8897,6 +9273,10 @@
    "signature": "Footer(on: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "on:",
@@ -8978,6 +9358,10 @@
    "signature": "Background(on: Enum) { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "on:",
@@ -9059,6 +9443,10 @@
    "signature": "Watermark(_ text: String, on: Enum)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "text",
@@ -9139,6 +9527,10 @@
    "signature": "PageBreak",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9187,6 +9579,10 @@
    "signature": "Presentation { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9242,6 +9638,10 @@
    "signature": "Slide { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9297,6 +9697,10 @@
    "signature": "TitleSlide(_ title: String, subtitle: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "title",
@@ -9364,6 +9768,10 @@
    "signature": "SectionSlide(_ label: String, tone: Enum)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "label",
@@ -9444,6 +9852,10 @@
    "signature": "TwoColumn { … }",
    "block": true,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9499,6 +9911,10 @@
    "signature": "ImageSlide(src: String, caption: String)",
    "block": false,
    "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
    "props": [
     {
      "name": "src:",
@@ -9571,6 +9987,10 @@
    "signature": "TabPage(_ label: String) { … }",
    "block": true,
    "legacy": true,
+   "modern": [
+    "Tabs.Page",
+    "/reference/tabs-page"
+   ],
    "props": [
     {
      "name": "label",
@@ -9632,6 +10052,10 @@
    "signature": "Thead { … }",
    "block": true,
    "legacy": true,
+   "modern": [
+    "Table.Head",
+    "/reference/table-head"
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9685,6 +10109,10 @@
    "signature": "Tbody { … }",
    "block": true,
    "legacy": true,
+   "modern": [
+    "Table.Body",
+    "/reference/table-body"
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9738,6 +10166,10 @@
    "signature": "Trow { … }",
    "block": true,
    "legacy": true,
+   "modern": [
+    "Table.Row",
+    "/reference/table-row"
+   ],
    "props": [],
    "controls": [],
    "flags": [],
@@ -9791,6 +10223,10 @@
    "signature": "Tcell(_ content: Any, header: Bool) { … }",
    "block": true,
    "legacy": true,
+   "modern": [
+    "Table.Cell",
+    "/reference/table-cell"
+   ],
    "props": [
     {
      "name": "content",
@@ -9861,6 +10297,10 @@
    "signature": "Option(_ label: String, value: Any)",
    "block": false,
    "legacy": true,
+   "modern": [
+    "Select.Option",
+    "/reference/select-option"
+   ],
    "props": [
     {
      "name": "label",
@@ -9920,6 +10360,10 @@
    "signature": "Route(path: Path, page: Declaration)",
    "block": false,
    "legacy": true,
+   "modern": [
+    "page",
+    "/learn/05-pages-and-routing"
+   ],
    "props": [
     {
      "name": "path:",

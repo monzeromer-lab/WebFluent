@@ -24,10 +24,12 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
     resource hits = fetch("/api/search?q={q}")
     Heading("Search").h1
     Input(bind: typed, placeholder: "Search", aria-label: "Search")
-    match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text("{list.length} results for {q}") }
+    if q != "" {
+        match hits {
+            loading { Spinner.sm }
+            error(e) { Text(e.message).danger }
+            ready(list) { Text("{list.length} results for {q}") }
+        }
     }
 }
 ```
@@ -44,7 +46,10 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
   and does nothing, so only the last pause gets through.
 - The [resource](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource) splices
   `q` into its address, so it asks again each time `q` changes — once per
-  pause, not once per key.
+  pause, not once per key. It also asks once as the page opens, for
+  `/api/search?q=`, before anything is typed; the `if q != ""` shows
+  nothing of that answer, so the server only has to answer it quickly
+  (an empty list will do).
 
 The timer is the browser's `setTimeout`, because
 [`after(ms)`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers) is a declaration

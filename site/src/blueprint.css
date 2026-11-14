@@ -109,7 +109,7 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 .bp-prose .wf-markdown p, .bp-prose .wf-markdown li, .bp-prose > p { color: var(--ink); font-size: var(--type-body); line-height: var(--type-body-leading); }
 .bp-prose .wf-markdown > * + * { margin-top: var(--space-3); }
 .bp-prose a, .bp-prose .wf-markdown a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
-.bp-prose :not(pre) > code:not(.wf-code--block) { padding: 1px 5px; border: 1px solid var(--line); border-radius: var(--radius-label); background: var(--raised); font-family: var(--font-family-mono); font-size: 0.86em; color: var(--ink); overflow-wrap: anywhere; }
+.bp-prose :not(pre) > code:not(.wf-code--block) { padding: 1px 5px; border: 1px solid var(--line); border-radius: var(--radius-label); background: var(--raised); font-family: var(--font-family-mono); font-size: max(0.86em, 12.5px); color: var(--ink); overflow-wrap: anywhere; }
 .bp-prose table { width: 100%; border-collapse: collapse; font-size: 14px; }
 .bp-prose th, .bp-prose td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); text-align: start; vertical-align: top; }
 .bp-prose th { font-weight: 600; color: var(--muted); }
@@ -185,7 +185,7 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-aside .wf-markdown p, .bp-aside .wf-markdown li { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink); }
 .bp-aside .wf-markdown > * + * { margin-top: var(--space-2); }
 .bp-aside .wf-markdown a { color: var(--link); }
-.bp-aside .wf-markdown code { padding: 1px 4px; border: 1px solid var(--line); border-radius: var(--radius-label); background: var(--raised); font-size: 0.86em; }
+.bp-aside .wf-markdown code { padding: 1px 4px; border: 1px solid var(--line); border-radius: var(--radius-label); background: var(--raised); font-size: max(0.86em, 12.5px); }
 
 /* ── Fields ──────────────────────────────────────────────────────────── */
 .bp-field { display: flex; align-items: center; gap: var(--space-2); min-height: 40px; box-sizing: border-box; padding: 0 var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--raised); color: var(--muted); font-family: inherit; font-size: 13px; text-align: start; cursor: pointer; }

@@ -149,8 +149,8 @@ page Counter(path: "/", title: "Counter", description: "A number that goes up.")
 ### Separating statements
 
 Statements need no separator. You usually put one per line. To put two on one
-line, separate them with `;` or with nothing at all; the house style is two
-spaces, because it reads well:
+line, separate them with `;` or with whitespace. Two spaces is the
+house style, because it reads well:
 
 ```wf
 page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {

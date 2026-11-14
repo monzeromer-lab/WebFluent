@@ -1,9 +1,9 @@
 ---
-chapter: 24
-kind: "about"
-route: "/about/upgrading"
-from: ["/docs/guide/upgrading"]
-group: "about"
+chapter: 45
+kind: "error"
+route: "/errors/upgrading"
+from: ["/docs/guide/upgrading", "/about/upgrading"]
+group: "help"
 blurb: "What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward."
 description: "How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate."
 ---
@@ -642,4 +642,4 @@ the result in the indented layout.
 
 ## Next
 
-[Contributing](contributing.md): how the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide.
+[Troubleshooting](troubleshooting.md): the problems people meet, what causes each, and the fix.

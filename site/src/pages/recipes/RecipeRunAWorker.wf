@@ -1,7 +1,34 @@
 // A recipe, written from md-docs/recipes/run-a-worker.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeRunAWorker(path: "/recipes/run-a-worker", title: "Run a script in a worker — Recipes", description: "Keep slow work — a language service, a parser — off the page's thread with a `worker`: ask it and wait, tell it, and hear what it posts.") {
-    RecipeShell("Run a script in a worker", summary: "A `worker` runs a script of your site beside the page, off its thread, so slow work — a language service, a parser, anything that would make typing stutter — never holds up the page. It is held like a socket: owned by what opened it, and stopped when that leaves. Here a store holds one for the whole app, and a page shows what it reports:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Talk to the site's other tabs", to: "/recipes/talk-between-tabs")], source: "md-docs/recipes/run-a-worker.md", how: true, hasVariations: false) {
+    RecipeShell("Run a script in a worker", summary: "A `worker` runs a script of your site beside the page, off its thread, so slow work — a language service, a parser, anything that would make typing stutter — never holds up the page. It is held like a socket: owned by what opened it, and stopped when that leaves. Here a store holds one for the whole app, and a page shows what it reports:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Talk to the site's other tabs", to: "/recipes/talk-between-tabs")], source: "md-docs/recipes/run-a-worker.md", how: true, hasVariations: false, project: { "src/pages/RunAWorker.wf": #"store Lang {
+    state problems: [Map] = []
+    state restarts = 0
+    worker css = spawn("/workers/css.js", restart: 1, timeout: 5000) {
+        on message(m) { if m.type == "diagnostics" { problems = m.items } }
+        on restart(e) { restarts = restarts + 1 }
+    }
+    action complete(text: String, at: Number) {
+        return await css.request("complete", { text: text, at: at }, { supersede: true })
+    }
+    action check(text: String) { css.send({ method: "check", params: { text: text } }) }
+}
+
+page Editor(path: "/", title: "Editor", description: "A worker beside the page.") {
+    Heading("Editor").h1
+    match Lang.css {
+        open     { Text(if Lang.css.pending > 0 { "Checking…" } else { "Checked" }) }
+        error(e) { Alert("The CSS service stopped: {e.message}").danger }
+        else     { Text("Stopped") }
+    }
+    Text("{Lang.problems.length} problems, {Lang.restarts} restarts")
+    Button("Complete") { on click { Lang.complete("a { col", 7) } }
+    Button("Check") { on click { Lang.check("a { col") } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "run-a-worker"
+}
+"# }) {
         code {
             Markdown("**Needs:** the worker's script at `public/workers/css.js`, which [How it works](#how-it-works) shows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"store Lang {

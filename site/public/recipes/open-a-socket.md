@@ -127,7 +127,7 @@ Every connection is a *handle*: a value whose members follow the
 connection. A `match` reads its state, and text, an `if` or an `effect`
 reads what arrived:
 
-| | `socket` | `stream` | `channel` | `peer` |
+| Member | `socket` | `stream` | `channel` | `peer` |
 |---|---|---|---|---|
 | `.state` | `connecting`, `open`, `closed`, `error` — the arms of a `match` | the same | `open` or `closed` | the same as a socket |
 | `.messages` | the messages, in order: the last 500, or `keep:` | the same | — | the same |

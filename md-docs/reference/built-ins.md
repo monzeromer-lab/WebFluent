@@ -25,29 +25,29 @@ The functions, in alphabetical order:
 
 | Function | Does |
 |---|---|
-| `after(interval) { }` | Runs a block once, after a delay |
-| `ago(date)` | The distance from now, in words |
-| `animate(element, name, duration)` | Plays an animation on an element handle |
-| `beacon(url, data)` | Sends a small post that survives the page unloading |
-| `broadcast(name)` | Opens a channel the site's other tabs hear |
-| `every(interval) { }` | Runs a block repeatedly |
-| `fetch(url, options)` | Sends a request through the same engine as `api` |
-| `format(value, .style, option)` | A number, date or money as text, in the locale |
-| `keyIs(event, combination)` | Whether a key event is a shortcut |
-| `keyLabel(combination)` | A shortcut as this system writes it |
-| `log(x)` | Prints a value to the console |
-| `navigate(path)` | Moves to a route |
-| `optimistic(holder, change)` | Shows a change now, and takes it back if the action throws |
-| `replayAnimation(element, name)` | Plays an element's animation again |
-| `rtc(signal: …)` | Opens a data channel to another reader's page |
-| `sanitize(html)` | Markup through an allow-list |
-| `setLocale(locale)` | Switches the locale, and the direction with it |
-| `setTheme(choice)` | Switches between light, dark and the system's choice |
-| `spawn(path)` | Starts a script of `public/` in a worker |
-| `sse(url)` | Opens a stream of server-sent events |
-| `t("key", values)` | A translation |
-| `uuid()` | A fresh `Uuid` |
-| `ws(url)` | Opens a WebSocket |
+| [`after(interval) { }`](#after) | Runs a block once, after a delay |
+| [`ago(date)`](#ago) | The distance from now, in words |
+| [`animate(element, name, duration)`](#animate) | Plays an animation on an element handle |
+| [`beacon(url, data)`](#beacon) | Sends a small post that survives the page unloading |
+| [`broadcast(name)`](#broadcast) | Opens a channel the site's other tabs hear |
+| [`every(interval) { }`](#every) | Runs a block repeatedly |
+| [`fetch(url, options)`](#fetch) | Sends a request through the same engine as `api` |
+| [`format(value, .style, option)`](#format) | A number, date or money as text, in the locale |
+| [`keyIs(event, combination)`](#keyis) | Whether a key event is a shortcut |
+| [`keyLabel(combination)`](#keylabel) | A shortcut as this system writes it |
+| [`log(x)`](#log) | Prints a value to the console |
+| [`navigate(path)`](#navigate) | Moves to a route |
+| [`optimistic(holder, change)`](#optimistic) | Shows a change now, and takes it back if the action throws |
+| [`replayAnimation(element, name)`](#replayanimation) | Plays an element's animation again |
+| [`rtc(signal: …)`](#rtc) | Opens a data channel to another reader's page |
+| [`sanitize(html)`](#sanitize) | Markup through an allow-list |
+| [`setLocale(locale)`](#setlocale) | Switches the locale, and the direction with it |
+| [`setTheme(choice)`](#settheme) | Switches between light, dark and the system's choice |
+| [`spawn(path)`](#spawn) | Starts a script of `public/` in a worker |
+| [`sse(url)`](#sse) | Opens a stream of server-sent events |
+| [`t("key", values)`](#t) | A translation |
+| [`uuid()`](#uuid) | A fresh `Uuid` |
+| [`ws(url)`](#ws) | Opens a WebSocket |
 
 Every name in this list but `spawn` belongs to the language: a `state`,
 prop, parameter, loop item or `const` with one of these names is an
@@ -359,7 +359,7 @@ Signature: `sanitize(html)` → `String`
 Returns the markup without scripts, styles, frames, forms, `on*`
 attributes, or an `href` or `src` a browser would run. It runs at build
 time and in the browser from the same list. Where: anywhere. See
-[Show markup you did not write](../about/security.md#show-markup-you-did-not-write).
+[Show markup you did not write](../about/security.md#one-door-for-markup).
 
 ```wf
 Unsafe.Html(sanitize(post.body))
@@ -505,15 +505,15 @@ prop or parameter with one of these names is an `E118`.
 
 | Value | Holds |
 |---|---|
-| `viewport` | The window's size and breakpoints |
-| `query` | The address's query string |
-| `hash` | The address's fragment |
-| `theme` | The reader's light or dark choice |
-| `now` | The current moment |
-| `network` | The connection's state |
-| `update` | A new version of an offline site |
-| `locale`, `dir` | The reader's language and its direction |
-| `params` | The route's parameters |
+| [`viewport`](#viewport) | The window's size and breakpoints |
+| [`query`](#query) | The address's query string |
+| [`hash`](#hash) | The address's fragment |
+| [`theme`](#theme) | The reader's light or dark choice |
+| [`now`](#now) | The current moment |
+| [`network`](#network) | The connection's state |
+| [`update`](#update) | A new version of an offline site |
+| [`locale`, `dir`](#locale-and-dir) | The reader's language and its direction |
+| [`params`](#params) | The route's parameters |
 
 ### `viewport`
 

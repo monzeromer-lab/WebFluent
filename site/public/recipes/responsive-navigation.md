@@ -8,13 +8,13 @@ A row of links fits a laptop but not a phone. To show the links on a wide
 screen and a menu button that opens them on a narrow one, branch on
 `viewport`:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides this code. It is a whole project's `app` and
+pages: paste it into a new project, replacing `src/App.wf` and the
+starter's pages.
 
 ```wf
-page Nav(path: "/", title: "Home", description: "Navigation that fits the screen.") {
+app {
     state open = false
-    Heading("Home").h1
     if viewport.md {
         Row(gap: .md) {
             Link("Home", to: "/")
@@ -27,17 +27,24 @@ page Nav(path: "/", title: "Home", description: "Navigation that fits the screen
         }
         show open {
             Stack(gap: .sm, animate: .slideDown, id: "nav-menu") {
+                on click { open = false }
                 Link("Home", to: "/")
                 Link("Docs", to: "/docs")
                 Link("Pricing", to: "/pricing")
             }
         }
     }
+    Router
 }
 
+page Home(path: "/", title: "Home", description: "Navigation that fits the screen.") { Heading("Home").h1 }
 page Docs(path: "/docs", title: "Docs", description: "How it works.") { Heading("Docs").h1 }
 page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") { Heading("Pricing").h1 }
 ```
+
+On a wide window the three links sit in a row above every page. Narrow the
+window and they give way to a menu button; press it and the links slide
+down beneath it.
 
 ## How it works
 
@@ -50,7 +57,10 @@ page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") 
   `aria-expanded: open` tells a screen reader whether the menu it controls
   (`aria-controls`, the `Stack`'s `id`) is open.
 - `show open` keeps the links in the page and hides them while `open` is
-  false. `animate: .slideDown` plays as they appear.
+  false. `animate: .slideDown` plays as they appear, and a click on a link
+  closes the menu again.
+- The navigation is in `app`, around the `Router`, so every page shows it
+  and `open` lives on from page to page.
 
 The pre-rendered page does not know the window's width, so what depends on
 `viewport` is drawn once the page is live. For layout alone — a row that
@@ -58,6 +68,5 @@ becomes a column — prefer
 [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values), which are
 right in the first paint.
 
-`Docs` and `Pricing` are there so every link lands on a page; in a site of
-your own the links name the pages you have, and the navigation usually
-lives in `app`, around the `Router`, so every page shows it.
+The three pages are there so every link lands on one; in a site of your
+own the links name the pages you have.

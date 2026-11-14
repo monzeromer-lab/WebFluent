@@ -414,7 +414,9 @@ So choose the tool by how far the change reaches:
 To style each variant of your own component from a stylesheet, use its enum
 props. A component writes each enum prop to its root element as a
 `data-<prop>` attribute, such as `data-tone="loud"`, so one rule styles one
-variant ([Components](https://webfluent.monzeromer.dev/learn/10-components.md#enum-props)):
+variant. The `Note` component of
+[Components](https://webfluent.monzeromer.dev/learn/10-components.md#enum-props) gives its root `class: "note"`,
+so this rule styles its loud notes and nothing else:
 
 ```css
 .note[data-tone="loud"] { font-weight: 700; color: var(--color-danger) }

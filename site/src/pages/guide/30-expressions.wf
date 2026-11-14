@@ -36,6 +36,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
     state accent = $primary                       // a design token
     Heading("Literals").h1
     Text("{label} {count} {ratio} {open} {sizes.length} {owner.name}")
+    Text("{note ?? \"none\"} {slug.test(label)} {accent}")
 }"#, title: "wf")
 
         Markdown("How each kind behaves:\n\n- **Strings** are double-quoted and read the escapes `\\n`, `\\t`, `\\r`, `\\\\`, `\\\"`, `\\\{` and `\\\}`. A raw string `#\"…\"#` and a block string `\"\"\"…\"\"\"` are in [Language basics](/learn/04-language-basics#three-ways-to-write-one).\n- **Lists and maps** may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read `owner.name` and refuse a misspelled field.\n- **`null`** is the absence of a value. Only a type that ends in `?` holds it.\n\nThe language's own types have literals too ([Types](/learn/12-types#the-types-the-language-brings-with-it)):")
@@ -397,7 +398,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sanitize(html)`") }
-                    Table.Cell { Markdown("Passes markup through an allow-list ([Security](/about/security#show-markup-you-did-not-write))") }
+                    Table.Cell { Markdown("Passes markup through an allow-list ([Security](/about/security#one-door-for-markup))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`uuid()`") }

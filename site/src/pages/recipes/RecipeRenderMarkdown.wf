@@ -1,14 +1,24 @@
 // A recipe, written from md-docs/recipes/render-markdown.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeRenderMarkdown(path: "/recipes/render-markdown", title: "Render Markdown — Recipes", description: "Show Markdown text on a page with `Markdown(text)`: headings, lists, tables, code and links, drawn the same at build time and in the browser.") {
-    RecipeShell("Render Markdown", summary: "`Markdown(text)` shows Markdown text on a page: release notes, a post's body, a field a user wrote. It renders a small, predictable Markdown, the same at build time and in the browser, so a hydrated page repaints exactly what was painted. This page shows release notes held in a state, and one line of inline Markdown:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews")], source: "md-docs/recipes/render-markdown.md", how: true, hasVariations: true) {
-        code {
-            Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(##"page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
-    state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    RecipeShell("Render Markdown", summary: "`Markdown(text)` shows Markdown text on a page: release notes, a post's body, a field a user wrote. It renders a small, predictable Markdown, the same at build time and in the browser, so a hydrated page repaints exactly what was painted. This page shows release notes held in a state, and one line of inline Markdown:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Show HTML from outside the project", to: "/recipes/show-html-from-outside"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews")], source: "md-docs/recipes/render-markdown.md", how: true, hasVariations: true, project: { "src/pages/RenderMarkdown.wf": ###"page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
+    state body = "## Version 3.3\n\nThis release adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    Heading("Release notes").h1
     Markdown(body)
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
-}"##, title: "wf")
+}
+"###, "webfluent.app.json": #"{
+  "name": "render-markdown"
+}
+"# }) {
+        code {
+            Markdown("**Needs:** a picture `img.png` in `public/`, which the last line shows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
+            CodeBlock(###"page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
+    state body = "## Version 3.3\n\nThis release adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    Heading("Release notes").h1
+    Markdown(body)
+    Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
+}"###, title: "wf")
         }
         variations {
             Heading("Show text somebody else wrote with .inert", id: "show-text-somebody-else-wrote-with-inert").h3
@@ -24,7 +34,7 @@ page RecipeRenderMarkdown(path: "/recipes/render-markdown", title: "Render Markd
             Markdown("It draws one paragraph, `Returns a list of <T> — see the guide.`, with no link in it, and leaves the badge out. Under `.inert`:\n\n- **Entities are decoded, then escaped.** `&lt;color&gt;` shows as `<color>`, and a `<script>`, written out or encoded, is shown as text. In `` `code` `` and in a fence an entity stays as written, as CommonMark leaves it. The named entities are the ones documentation is written with — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` `&nbsp;`, the dashes, quotes and arrows, and a few signs — and any numeric entity works (`&#60;`, `&#x3C;`).\n- **A link is drawn as its words**, with no `<a>`.\n- **A picture is left out**, with the space after it. A paragraph of nothing but pictures is left out with them.\n- **Everything else is drawn as plain `Markdown` draws it**: paragraphs, fences, `code`, `**strong**`, `*em*` and `_em_`, headings, lists, quotes, rules and backslash escapes. A language server escapes its documentation this way: the CSS one writes `margin\\-top` and `&lt;length\\-percentage&gt;\\\{1,4\\\}`, which `.inert` shows as `margin-top` and `<length-percentage>\{1,4\}`. An escaped `&` begins no entity: `\\&lt;` shows the four characters `&lt;`.\n\n`inert:` also takes a value, `Markdown(docs, inert: untrusted)`, and follows it. Plain `Markdown` is unchanged: an entity in it shows as it was written, so a page that wrote `&lt;` to mean those four characters still shows them.")
 
         }
-        Markdown("The page shows a \"Release notes\" heading, a paragraph with **3.3** in bold, a two-item list and a quote, then a line with emphasis, a link and a picture.\n\nWhat `Markdown` supports:")
+        Markdown("The page shows a \"Release notes\" heading, then the body: a \"Version 3.3\" heading, a paragraph, a two-item list and a quote, then a line with emphasis, a link and a picture.\n\nThe page's `h1` is a `Heading` of its own. A `#` heading inside `Markdown` is drawn as an `h1` too, but the build cannot see into text that may change, so a page whose only `h1` comes from Markdown draws an `A12` warning.\n\nWhat `Markdown` supports:")
 
         Table(caption: "Render Markdown") {
             Table.Head {

@@ -132,6 +132,11 @@ cd hello
 ```text
 Created new WebFluent project: hello (template: spa)
   AGENTS.md is the language reference, for you and your coding agent
+  .agents/skills/ and .claude/skills/ teach your coding agent to write it well
+
+  cd hello
+  wf build
+  wf serve
 ```
 
 `wf init` writes a small application so you have something real to read:
@@ -274,7 +279,9 @@ cd WebFluent && cargo install --path .
 is in `src/translations/`, one file per language, and the first locale is
 the default ([Internationalisation](/recipes/translate-a-site#start-a-project-translated)).
 
-If you are unsure between `spa` and `static`, start with `static`. Every
+This chapter starts with an `spa` because its starter is a small
+application, with state, stores and tests to read. For a site of your own,
+if you are unsure between `spa` and `static`, start with `static`. Every
 page is real HTML before any script runs, which is better for search and for
 the first paint, and the page is still fully interactive once the script
 loads. [Static or single-page](/about/static-or-single-page) explains the
@@ -2053,8 +2060,8 @@ page Counter(path: "/", title: "Counter", description: "A number that goes up.")
 ### Separating statements
 
 Statements need no separator. You usually put one per line. To put two on one
-line, separate them with `;` or with nothing at all; the house style is two
-spaces, because it reads well:
+line, separate them with `;` or with whitespace. Two spaces is the
+house style, because it reads well:
 
 ```wf
 page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
@@ -2302,7 +2309,7 @@ The page's header takes these attributes:
 | `layout:` | | The component that frames the page ([Layouts](#layouts)) |
 | `guard:` | | An expression that must hold for the route to render ([Guards](#guards)) |
 | `redirect:` | | Where the reader goes when the guard fails. The default is `/` |
-| `paths:` | | The values a static build renders a `:param` page for ([Static or single-page](/about/static-or-single-page#pre-render-a-dynamic-route-with-paths)) |
+| `paths:` | | The values a static build renders a `:param` page for ([Pre-render a page for each item](/recipes/pre-render-each-item)) |
 | `name: Type` | | A route parameter, typed ([Route parameters](#route-parameters)) |
 
 A page without a `title:` builds with warning `S01`, and one without a
@@ -2420,7 +2427,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
 A parameter is a `String` unless you declare another type, such as
 `id: Number`. A static build renders a `:param` page once for each value its
-`paths:` names ([Pre-render a dynamic route](/about/static-or-single-page#pre-render-a-dynamic-route-with-paths)).
+`paths:` names ([Pre-render a page for each item](/recipes/pre-render-each-item)).
 
 ## Query strings and fragments
 
@@ -2765,7 +2772,9 @@ Name(positional, prop: value, prop: value).flag.flag { block }
   expression.
 - **Flags**, `.name`, are written tight against the closing parenthesis, or
   against the name when there are no parentheses: `Button("Save").primary.lg`,
-  `Spacer.sm`, `Card.elevated { … }`.
+  `Spacer.sm`, `Card.elevated { … }`. An element or a component called with
+  no arguments needs no parentheses: `Spinner` and `Spinner()` are the same
+  call, and this book writes the shorter one.
 - **The block**, `{ … }`, holds its contents in a fixed order: `style { }`,
   then `transition { }`, then `on … { }` handlers, then slot fills, then
   children.
@@ -2973,13 +2982,16 @@ page Article(path: "/", title: "Article", description: "Every kind of text.") {
     Paragraph("Prose, as a <p>.")
     Code("let x = 1").block
     Blockquote("A quotation.")
-    Markdown("**Bold** and a [link](/docs)")   // see Content
+    Markdown("**Bold** and a [link](/docs)")   // Markdown, rendered as HTML
 }
 ```
 
 The compiler checks the outline the headings form: a page needs an `h1`
 (`A12`), and a heading level may not be skipped, such as `h2` straight to
 `h4` (`A11`).
+
+[Render Markdown](/recipes/render-markdown) shows what `Markdown`
+draws, and how to show text somebody else wrote.
 
 ## Layout elements
 
@@ -3735,7 +3747,7 @@ app {
             Menu.Item(shortcut: c.keys) { Text(c.title) }
         }
     }
-    Text("Commands: {keyLabel(\"mod+shift+p\")}")
+    Text("Commands: {keyLabel("mod+shift+p")}")
     Router
 }
 ```
@@ -4155,7 +4167,13 @@ The rules:
 - `if let x { }`, with no `=`, does the same for a name already in scope.
 - The narrowing holds inside the branch only. `if x != null { }` and
   `if x && … { }` narrow `x` inside their branch the same way; the right-hand
-  side of the `&&` is not narrowed.
+  side of the `&&` is not narrowed:
+
+  ```text
+  if user != null && user.name == "x" { … }     // T04: `user` may be null
+  if user != null && user?.name == "x" { … }    // reads through the null
+  if let u = user { if u.name == "x" { … } }    // or bind it, then test it
+  ```
 - The binding follows the value. When `user` becomes another user, the branch
   shows the new one in place. It is drawn again only when the value goes to
   `null` and back.
@@ -4506,7 +4524,8 @@ component UserCard(_ name: String, role: String, active: Bool = true, avatar: St
     }
 }
 
-page Team(path: "/") {
+page Team(path: "/", title: "Team", description: "Three people, three cards.") {
+    Heading("Team").h1
     UserCard("Monzer", role: "Developer")
     UserCard("Sam", role: "Designer", active: false, avatar: "/sam.png")
     UserCard("Ann", role: "PM").active
@@ -4552,12 +4571,13 @@ case with a flag or by name:
 enum Tone { calm, loud }
 
 component Note(_ text: String, tone: Tone = .calm) {
-    Text(text) {
+    Text(text, class: "note") {
         style { padding: $sm; border-radius: $radius-sm }
     }
 }
 
-page Notes(path: "/") {
+page Notes(path: "/", title: "Notes", description: "One note in each tone.") {
+    Heading("Notes").h1
     Note("Quiet")
     Note("Loud!", tone: .loud)
     Note("Loud too").loud
@@ -4591,11 +4611,12 @@ component TodoRow(_ todo: Todo) {
     }
 }
 
-page Todos(path: "/") {
+page Todos(path: "/", title: "Todos", description: "Rows that report back.") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk"), Todo(id: "2", title: "Eggs")]
     action toggle(id: String) {
         todos = todos.map(todo => if todo.id == id { Todo(id: todo.id, title: todo.title, done: !todo.done) } else { todo })
     }
+    Heading("Todos").h1
     for todo in todos by todo.id {
         TodoRow(todo) {
             on toggle(id) { toggle(id) }
@@ -4635,8 +4656,9 @@ component Entry(_ key: String) {
     }
 }
 
-page Files(path: "/") {
+page Files(path: "/", title: "Files", description: "A menu that knows where it opened.") {
     state at = "nothing yet"
+    Heading("Files").h1
     Entry("notes.wf") { on menu(key, x, y) { at = "{key} at {x}, {y}" } }
     Text("Menu for {at}")
 }
@@ -4658,14 +4680,15 @@ component Panel(_ title: String) {
     slot trailing
     Card {
         Row(justify: .between, align: .center) {
-            Heading(title).h3
+            Heading(title).h2
             trailing
         }
         children
     }
 }
 
-page Keys(path: "/") {
+page Keys(path: "/", title: "Keys", description: "A panel with a slot.") {
+    Heading("Keys").h1
     Panel("API keys") {
         trailing { Badge("Beta").info }
         Text("Rotate every 90 days.")
@@ -4708,8 +4731,9 @@ component TodoList(items: [Todo]) {
     }
 }
 
-page Use(path: "/") {
+page Use(path: "/", title: "Todos", description: "A list that hands each row to its caller.") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk")]
+    Heading("Todos").h1
     TodoList(items: todos) {
         row(todo, i) { Text("{i + 1}. {todo.title}") }
         empty { Text("Nothing to do.").muted }
@@ -4728,13 +4752,14 @@ the way `Card.Header` is a part of `Card`:
 
 ```wf
 component Panel(_ title: String) {
-    part Header(_ text: String) { Heading(text).h3 }
+    part Header(_ text: String) { Heading(text).h2 }
     part Footer { Divider  Text("End").muted.sm }
     Card { Text(title)  children }
     slot
 }
 
-page Parts(path: "/") {
+page Parts(path: "/", title: "Parts", description: "A panel with parts of its own.") {
+    Heading("Parts").h1
     Panel("Keys") {
         Panel.Header("Rotate")
         Text("Body")
@@ -4797,8 +4822,9 @@ component AddToCart(_ name: String) {
     Button("Add {name}").primary { on click { Cart.add(name) } }
 }
 
-page Shop(path: "/") {
+page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.") {
     use Cart
+    Heading("Shop").h1
     AddToCart("Pen")
     Text("{Cart.items.length} in cart")
 }
@@ -4960,7 +4986,7 @@ A page declares `state count = 3` and places `Panel("Totals") { Text("{count}") 
 
 ```quiz
 `component Note(_ text: String)` is called as `Note("Saved", tone: "success")`. What happens?
-- It builds, and `tone="success"` lands on the root element -- Only `class:`, `aria-*`, `data-*`, `id`, `role`, `title` and `hidden` go to the root without a prop.
+- It builds, and `tone="success"` lands on the root element -- Only what *What a call puts on the root element* lists goes to the root without a prop, and `tone` is not on that list.
 - It builds, and `tone` is ignored -- Nothing is ignored in silence: the compiler checks a call to your component as it checks a built-in's.
 + The build stops with `C02`: `Note` declares no prop `tone` -- Declare the prop, or correct its spelling.
 ```
@@ -5084,12 +5110,14 @@ store Cart {
 
 page Shop(path: "/", title: "Shop", description: "Things to buy.") {
     use Cart
+    Heading("Shop").h1
     Button("Add a pen").primary { on click { Cart.add(Item(id: "pen", name: "Pen", price: 2.5)) } }
-    Text("{Cart.count} items, {format(Cart.total, .currency)}")
+    Text("Cart: {Cart.count}, {format(Cart.total, .currency)}")
 }
 
 page CartPage(path: "/cart", title: "Cart", description: "What you are buying.") {
     use Cart
+    Heading("Cart").h1
     for item in Cart.items by item.id {
         Row(justify: .between) {
             Text("{item.name} × {item.qty}")
@@ -5100,7 +5128,7 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
 }
 ```
 
-Clicking **Add a pen** changes **0 items, $0.00** to **1 items, $2.50**,
+Clicking **Add a pen** changes **Cart: 0, $0.00** to **Cart: 1, $2.50**,
 and the `/cart` page lists the pen.
 
 - `store Cart { … }` declares the store and its members.
@@ -5169,7 +5197,8 @@ You may declare a store in any `.wf` file the build reads. By convention it
 goes in `src/stores/`, and `wf generate store Cart` writes it there. A page
 reaches a store by name from anywhere. `use` says which stores a page
 reads, for the person reading the code and for the editor; it does not
-limit what the page can reach.
+limit what the page can reach, and a page that reads `Cart.count` without
+it reads the same store.
 
 ## Store scope
 
@@ -5228,6 +5257,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     use Session
     state email = ""
     state password = ""
+    Heading("Sign in").h1
     Form {
         on submit { Session.login(email, password) }
         Input(bind: email, label: "Email").email.required
@@ -5459,7 +5489,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
     Heading("Deploys").h1
     Text("{Deploys.failing} failing")
     match Deploys.rows {
-        loading { Spinner() }
+        loading { Spinner }
         error(e) { Text(e.message) }
         ready(rows) {
             for d in rows by d.id { Text("{d.id}: {d.status}") }
@@ -5531,13 +5561,13 @@ store Cart {
     derived count = items.map(i => i.qty).sum()
 }
 
-component CartSummary() {
+component CartSummary {
     use Cart
     Text("{Cart.count} items")
 }
 
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
-    CartSummary()
+    CartSummary
     expect "2 items"
 }
 ```
@@ -5725,7 +5755,7 @@ You write a type after a colon on a `state`, a prop, an action parameter, a
 several:
 
 ```wf
-page Typed(path: "/") {
+page Typed(path: "/", title: "Typed", description: "State with declared types.") {
     state name: String = ""
     state count: Number = 0
     state tags: [String] = []
@@ -5733,6 +5763,7 @@ page Typed(path: "/") {
     state profile: Map = {}
     action greet(who: String, times: Number) { log("hi {who} × {times}") }
     derived pick = picked ?? "none"
+    Heading("Typed").h1
     Text("{name} {count} {tags.length} {pick}")
     Button("Go") { on click { greet(name, count) } }
 }
@@ -5783,11 +5814,10 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
     state total: Money = €249.00
 
     derived checkout = from.plus(days: nights)
-    derived weekday = checkout.weekday()
     derived late = now.date().isAfter(checkout)
 
     Heading("Your stay").h1
-    Text("Out on {checkout}, a weekday of {weekday}")
+    Text("Out on {checkout:.date(long)}")
     Text("Due {format(total)}")
     if late { Alert("Checkout has passed").warning }
 }
@@ -5795,7 +5825,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
 
 Everything the language **computes** is a call; everything the carrier
 **already has** is a field. So `total.amount` and `total.currency` are
-fields, and `from.year()` and `checkout.weekday()` are calls.
+fields, and `from.plus(days: nights)` and `now.date()` are calls.
 
 | Type | Methods |
 |---|---|
@@ -5836,6 +5866,7 @@ default, or as often as a page asks with `now(every: …)`:
 page Feed(path: "/", title: "Feed", description: "What happened lately.") {
     state posted: DateTime = @2026-03-14T09:30:00Z
     derived age = posted.until(now)
+    Heading("Feed").h1
     Text("{ago(posted)} — {age.minutes()} minutes")
     Text("ticking: {now(every: 1.seconds)}")
 }
@@ -5912,12 +5943,13 @@ type Todo {
 
 type Admin = Todo { owner: String }
 
-page Records(path: "/") {
+page Records(path: "/", title: "Records", description: "A list of records.") {
     state todos: [Todo] = [
         Todo(id: "1", title: "Write the docs"),
         Todo(id: "2", title: "Ship", done: true, tone: .info, note: "Friday"),
     ]
     state special: Admin = Admin(id: "3", title: "Review", owner: "sam")
+    Heading("Records").h1
     for todo in todos by todo.id {
         Row(gap: .sm) {
             Text(todo.title)
@@ -5952,9 +5984,10 @@ An *enum* is a type with a fixed set of *cases*. A case may carry a
 enum Size { sm, md, lg }
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
 
-page Enums(path: "/") {
+page Enums(path: "/", title: "Enums", description: "Enums with and without payloads.") {
     state size: Size = .md
     state s: Status = .idle
+    Heading("Enums").h1
     Button("Bigger") { on click { size = .lg } }
     Button("Start") { on click { s = .running("build-42") } }
     Text(match size { .sm { "small" } .md { "medium" } else { "large" } })
@@ -5994,8 +6027,9 @@ same fields, and any shape it agrees with. An empty `{}` and a literal with
 a spread say nothing about their keys, so they are plain `Map`s.
 
 ```wf
-page Shapes(path: "/") {
+page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape.") {
     state form = { name: "", age: 0, tags: ["new"] }
+    Heading("Shapes").h1
     Input(bind: form.name, label: "Name")
     Text("{form.name} is {form.age} with {form.tags.length} tags")
 }
@@ -6041,6 +6075,9 @@ Any other method is `Any`. The full lists are in
 Browser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are
 `Any`.
 
+A name keeps the type it was declared or inferred with: `state x = 1` stays
+a `Number`, and assigning a string to it later is `T01`.
+
 ## Bidirectional inference
 
 The checker works in both directions. When the context wants a type, it
@@ -6051,7 +6088,7 @@ be:
 ```wf
 type Row { id: Number, label: String, score: Number? }
 
-page Infer(path: "/") {
+page Infer(path: "/", title: "Infer", description: "Types the checker works out.") {
     state rows: [Row] = [Row(id: 1, label: "a"), Row(id: 2, label: "b", score: 9)]
     derived labels = rows.map(r => r.label)                 // [String]
     derived best = rows.find(r => r.score != null)          // Row?
@@ -6059,6 +6096,7 @@ page Infer(path: "/") {
     derived kind = if total > 5 { "high" } else { "low" }   // String
     derived firstScore = best?.score ?? 0                   // Number
     derived joined = labels.join(", ")                      // String
+    Heading("Infer").h1
     Text("{joined} {kind} {firstScore}")
 }
 ```
@@ -6084,9 +6122,10 @@ narrowing is `T04`. Each of these forms narrows a name within its branch:
 ```wf
 type Todo { id: String, title: String, note: String? }
 
-page Narrow(path: "/") {
+page Narrow(path: "/", title: "Narrow", description: "Values that may be null, narrowed.") {
     state sel: Todo? = null
     state todo: Todo = Todo(id: "1", title: "x")
+    Heading("Narrow").h1
     if let n = todo.note { Text("{n.length} chars") }
     if sel != null { Text(sel.title) }
     if sel { Text(sel.title) }
@@ -6127,8 +6166,9 @@ return. Annotate the resource or the local variable to type its value:
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
 
-page Deploys(path: "/") {
+page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
     resource deploys: [Deploy] = fetch("/api/deploys")
+    Heading("Deploys").h1
     match deploys {
         loading { Spinner }
         error(e) { Alert("Failed: {e.message}").danger }
@@ -6187,8 +6227,6 @@ the narrowing forms above. `wf explain T05` prints a code's full entry, and
 ## What the checker does not check
 
 - It does not check a lambda's body against a return type.
-- It does not change a name's type across assignments: `state x = 1` stays
-  a `Number`, and assigning a string to it is `T01`.
 - It does not know what a plain `fetch` returns. Annotate it, or describe
   the service with an `api`.
 
@@ -6690,7 +6728,9 @@ So choose the tool by how far the change reaches:
 To style each variant of your own component from a stylesheet, use its enum
 props. A component writes each enum prop to its root element as a
 `data-<prop>` attribute, such as `data-tone="loud"`, so one rule styles one
-variant ([Components](/learn/10-components#enum-props)):
+variant. The `Note` component of
+[Components](/learn/10-components#enum-props) gives its root `class: "note"`,
+so this rule styles its loud notes and nothing else:
 
 ```css
 .note[data-tone="loud"] { font-weight: 700; color: var(--color-danger) }
@@ -7406,7 +7446,7 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 > [!IMPORTANT]
 > `accept:` and any size limit you show are for the reader's convenience,
 > not checks. The server decides what it accepts
-> ([Security](/about/security#check-uploads-on-the-server)).
+> ([Security](/about/security#uploads-are-checked-on-the-server)).
 
 ## Send a form to a server
 
@@ -8587,11 +8627,12 @@ store Cart {
 }
 
 component CartSummary {
+    use Cart
     Text("{Cart.count} items")
 }
 
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
-    CartSummary()
+    CartSummary
     expect "2 items"
 }
 ```
@@ -9142,7 +9183,7 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
                 Text("The March pricing test.")
             }
         }
-        ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
+        ImageSlide(src: "/chart.png", caption: "Monthly recurring revenue")
         Slide {
             style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #fff }
             Heading("Thank you").h1
@@ -9151,7 +9192,9 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 }
 ```
 
-The result is a six-page PDF, one slide per page.
+The `ImageSlide` reads `public/chart.png`: put a picture of your own there
+first. The build warns (`D01`) when the file is missing. The result is a
+six-page PDF, one slide per page.
 
 ### Write the slides
 
@@ -9306,6 +9349,7 @@ Lists, dialogs, filters, the address bar and the keyboard: what a page does when
 - [Pass a store's value to a component](/recipes/store-value-as-a-prop)
 - [Reorder a list by dragging](/recipes/reorder-by-dragging)
 - [Add keyboard shortcuts and a command palette](/recipes/keyboard-shortcuts)
+- [Make a page work with a keyboard and a screen reader](/recipes/keyboard-and-screen-reader)
 
 ## Forms and data
 
@@ -9331,12 +9375,14 @@ Sockets, streams, other tabs, other readers and workers.
 
 ## Content
 
-Markdown, pages written as Markdown, code on the page, a page for unknown addresses, a PDF, and what search engines and link previews read.
+Markdown, pages written as Markdown, HTML from elsewhere, code on the page, a page per item, a page for unknown addresses, a PDF, and what search engines and link previews read.
 
 - [Write a page as a Markdown file](/recipes/markdown-pages)
 - [Render Markdown](/recipes/render-markdown)
+- [Show HTML from outside the project](/recipes/show-html-from-outside)
 - [Show code on a page](/recipes/show-code)
 - [Describe pages to search engines and link previews](/recipes/search-and-link-previews)
+- [Pre-render a page for each item](/recipes/pre-render-each-item)
 - [Show your own page for an unknown address](/recipes/not-found-page)
 - [Make a PDF report](/recipes/pdf-report)
 
@@ -9400,6 +9446,8 @@ Putting a site on a host, in the order you need them: install `wf` where the sit
 - [Serve a site with Caddy](/recipes/serve-with-caddy)
 - [Serve an API on the same origin](/recipes/api-on-the-same-origin)
 - [Set cache and security headers](/recipes/cache-and-security-headers)
+- [Allow other origins in the security policy](/recipes/allow-other-origins)
+- [Review a site's security before you deploy](/recipes/review-security)
 - [Check a deploy](/recipes/check-a-deploy)
 
 ## Desktop and phone apps
@@ -9422,7 +9470,7 @@ Your own JavaScript, libraries, and custom elements, both ways.
 - [Draw a chart from a library](/recipes/chart-from-a-library)
 - [Place a custom element from a library](/recipes/place-a-custom-element)
 - [Publish components as custom elements](/recipes/publish-custom-elements)
-- [Migrate from external](/recipes/migrate-from-external)
+- [Upgrade a WebFluent 4 project that uses external](/recipes/migrate-from-external)
 
 ## Server rendering
 
@@ -9645,6 +9693,96 @@ uses.
 
 ---
 
+# Allow other origins in the security policy
+
+https://webfluent.monzeromer.dev/recipes/allow-other-origins
+
+With `"build": { "csp": true }` (on for a project `wf init` creates), every
+page carries a Content-Security-Policy that is `'self'` throughout. A page
+that talks to an API on another domain, loads images from a CDN or embeds
+a video names those origins in `webfluent.app.json`, and the build widens
+the policy by exactly them. This config loads Google's tag manager after the
+page and allows what it sends and draws:
+
+```json
+{
+  "meta": {
+    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "load": "after" }],
+    "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",
+                "https://www.googletagmanager.com"],
+    "img": ["https://*.google-analytics.com", "https://www.googletagmanager.com"]
+  }
+}
+```
+
+## How it works
+
+- **Requests.** A page may send requests only to its own origin. Each
+  entry of `meta.connect` — an origin such as `https://api.example.com`, or
+  `https://*.example.com` for its subdomains — joins `connect-src`.
+- **Images.** A page may load images from its own origin and `data:`,
+  unless `meta.img` names others, which join `img-src`. Name a CDN there,
+  or the pixels a tag requests (`https://www.googletagmanager.com/a`,
+  `/td`), which a tag assistant otherwise reports as blocked.
+- **Frames.** `meta.frame` names the origins a page may embed — a video
+  player (`https://www.youtube-nocookie.com`), a map — and they join
+  `frame-src`.
+- **Fonts, stylesheets and scripts** need nothing here: the origins
+  `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare are added to
+  the policy already, and your own scripts under `src/` are same-origin.
+- An entry with a path, or a keyword such as `'self'`, is `E111`.
+
+A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
+call a vendor gives you as an inline `<script>` — goes in a plain script
+under `src/`, which the policy already allows: the build refuses an inline
+script ([Call your own JavaScript](/recipes/call-your-own-script)).
+
+## Variations
+
+- **An app's own scheme.** An app that serves its pages itself — a desktop
+  shell — has schemes of its own. `meta.connect` and `meta.frame` take one
+  as a scheme alone: `"ipc:"` for the channel a shell's pages call it on,
+  `"wfpreview:"` for a frame the app fills from its own protocol. A scheme
+  named in `meta.frame` is also one a frame's `src` may use: the address is
+  kept, where any other unknown scheme is emptied. The web's schemes are
+  refused: `https:` alone would allow every origin, and `data:`, `blob:`
+  and `javascript:` run whatever a page writes
+  ([Make a desktop or phone app with Tauri](/recipes/tauri-app)).
+- **WebAssembly.** A page that compiles WebAssembly — a parser, an image
+  codec — sets `meta.wasm: true`, and `script-src` gains
+  `'wasm-unsafe-eval'`. WebAssembly compiles; `eval` is still refused.
+- **Style elements.** A page whose scripts write `<style>` elements — an
+  editor such as CodeMirror, a chart library — sets
+  `meta.style_elements: true`, and `style-src` gains `'unsafe-inline'`, for
+  styles only.
+- **Pin another origin's files.** A stylesheet or a font from another
+  origin is code that origin can change after you read it. Declare its hash
+  in `meta.integrity`, keyed by its URL:
+
+  ```json
+  {
+    "meta": {
+      "stylesheets": ["https://cdn.example.com/brand.css"],
+      "integrity": { "https://cdn.example.com/brand.css": "sha384-…" }
+    }
+  }
+  ```
+
+  The build emits `integrity` and `crossorigin="anonymous"` on the tag, and
+  warns (`D05`) about a declared external asset that has no hash. It never
+  fetches the file to work the hash out, so a build does not depend on the
+  network. A Google Fonts stylesheet is exempt: Google writes it per
+  browser, so its bytes differ between readers and no hash can match. A
+  library is pinned the same way
+  ([Load a library from a CDN](/recipes/library-from-a-cdn)).
+
+[Security](/about/security#the-content-security-policy) explains the
+policy itself, and how the build holds every page to it.
+
+
+
+---
+
 # Animate a list
 
 https://webfluent.monzeromer.dev/recipes/animate-a-list
@@ -9849,8 +9987,9 @@ page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
   ([Carry an element across a route change](/recipes/shared-element)).
 - **Nothing animates at all.** Your system, or the page's root
   (`data-wf-motion="reduce"`), asks for reduced motion.
-- **Your own keyframes are an error as a flag.** Write
-  `animate: .Name`; only the built-in animations are flags
+- **`` E103: Badge has no flag or enum case `Drop` ``, or `` `Card.Drop` is
+  not a part of `Card` `` with a `C03`.** Your own keyframes were written
+  as a flag. Write `animate: .Drop`; only the built-in animations are flags
   ([Declare your own keyframes](/recipes/keyframes)).
 
 
@@ -9877,6 +10016,10 @@ page Landing(path: "/", title: "Welcome", description: "A page that introduces i
     }
 }
 ```
+
+The heading fades in as the page opens, the line beneath it slides up a
+moment later, and the button slides up last, so the page arrives in order
+rather than all at once.
 
 ## How it works
 
@@ -10967,7 +11110,7 @@ With `build.csp` on, this is the `build/_headers` file a build writes:
 1. `/*` applies the headers under it to every path of the site.
 2. `Content-Security-Policy` is the same policy every page already carries
    as a `<meta>` tag, plus `frame-ancestors`, which a browser ignores in a
-   `<meta>` tag ([Security](/about/security#ship-a-content-security-policy)).
+   `<meta>` tag ([Security](/about/security#the-content-security-policy)).
 3. `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` only
    work as real HTTP headers, so they are in this file and nowhere else.
 
@@ -10981,7 +11124,7 @@ To let browsers keep files without serving a stale site, set
 
 | Files | Cache-Control | Why |
 |---|---|---|
-| HTML, `app.js`, `pages/*`, `styles.css` | `no-cache` (revalidate every time) | their names do not change between builds |
+| HTML, `app.js`, `pages/*`, `styles.css`, `theme.js`, `js/*` (your own scripts), `elements.js` | `no-cache` (revalidate every time) | their names do not change between builds |
 | `sw.js` | `no-cache` | a stale worker holds a stale site ([Make a site work offline](/recipes/work-offline)) |
 | resized images (`hero.<hash>.960.webp`) | `public, max-age=31536000, immutable` | the name changes when the file does |
 | `public/` files | your choice | they keep the names you gave them |
@@ -10997,7 +11140,7 @@ host, set the same headers in its configuration, as the hosting recipes
 show: [nginx](/recipes/serve-with-nginx), [Apache](/recipes/serve-with-apache),
 [Caddy](/recipes/serve-with-caddy) and [Vercel](/recipes/deploy-to-vercel). Serve the site over HTTPS, and turn
 on HSTS once you are sure HTTPS works everywhere.
-[Security](/about/security#before-you-deploy) has the full checklist.
+[Review a site's security before you deploy](/recipes/review-security) has the full checklist.
 
 After the deploy, [check the headers it sends](/recipes/check-a-deploy).
 
@@ -11063,7 +11206,7 @@ async function shareLink() {
 
 A script from another origin must be listed in `meta.scripts`, which widens
 the policy for it. The build's CSP check refuses an inline `<script>`
-([Security](/about/security#ship-a-content-security-policy)).
+([Security](/about/security#the-content-security-policy)).
 
 ## Troubleshooting
 
@@ -11376,6 +11519,28 @@ You need the deployed site's address.
 - Check the response headers in the browser's network panel.
 - Run a link-preview debugger on a page, and submit `sitemap.xml` to the
   search engines' consoles.
+
+The same checks from a terminal, with your site's address in `SITE` and a
+page other than the home page in place of `/docs`:
+
+```bash
+SITE=https://example.com
+curl -sI "$SITE/docs" | head -1                     # HTTP/2 200, not 404
+curl -s "$SITE/docs" | grep -o '<h1[^>]*>[^<]*'     # a static build: the heading is in the HTML
+curl -sI "$SITE/" | grep -iE 'content-security-policy|x-frame-options|cache-control'
+curl -s "$SITE/sitemap.xml" | head                  # absolute addresses under meta.site_url
+```
+
+Each line prints something when the deploy is right: a `200` status, the
+page's `<h1>` and its text, the three headers, and the first entries of the
+sitemap. An empty line is the check that failed.
+
+For the link preview, paste a page's address into the
+[Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/)
+or [LinkedIn's Post Inspector](https://www.linkedin.com/post-inspector/);
+for the sitemap, submit `$SITE/sitemap.xml` in
+[Google Search Console](https://search.google.com/search-console) and
+[Bing Webmaster Tools](https://www.bing.com/webmasters).
 
 ## How it works
 
@@ -11750,10 +11915,12 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
     resource hits = fetch("/api/search?q={q}")
     Heading("Search").h1
     Input(bind: typed, placeholder: "Search", aria-label: "Search")
-    match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text("{list.length} results for {q}") }
+    if q != "" {
+        match hits {
+            loading { Spinner.sm }
+            error(e) { Text(e.message).danger }
+            ready(list) { Text("{list.length} results for {q}") }
+        }
     }
 }
 ```
@@ -11770,7 +11937,10 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
   and does nothing, so only the last pause gets through.
 - The [resource](/learn/15-data#show-a-request-with-resource) splices
   `q` into its address, so it asks again each time `q` changes — once per
-  pause, not once per key.
+  pause, not once per key. It also asks once as the page opens, for
+  `/api/search?q=`, before anything is typed; the `if q != ""` shows
+  nothing of that answer, so the server only has to answer it quickly
+  (an empty list will do).
 
 The timer is the browser's `setTimeout`, because
 [`after(ms)`](/learn/07-state-and-reactivity#timers) is a declaration
@@ -11893,7 +12063,9 @@ Finally, in the repository's **Settings → Pages**, set the source to
 
 1. `build.base_path` prefixes every link, every asset and the router's
    paths with `/<repo>`, and `meta.site_url` is the address the canonical
-   links and the sitemap name.
+   links and the sitemap name. Write paths from the site's root as if
+   there were no prefix: `Link("About", to: "/about")` links to
+   `/<repo>/about`.
 2. GitHub Pages answers `/contact` with a `301` redirect to `/contact/`.
    `"clean_urls": "file"` (or `"directory"`) makes the canonical address of
    every page one it serves without a redirect
@@ -12340,7 +12512,7 @@ function onEvent(name, handler) {
 ### Prepare the build for a desktop
 
 The same project builds for the web and for a desktop. Two keys in
-`webfluent.app.json` leave out what only a website needs:
+`webfluent.app.json`, and one to leave out, drop what only a website needs:
 
 - **`build.compress: false`** — the shell packs the folder into the app, so
   a `.gz` file beside every file would ship every file twice.
@@ -12558,7 +12730,7 @@ bundle: the build writes only public values into it.
 > Adding a name to `public_env` publishes its value to every reader of the
 > site, and every build says so with a warning naming it. A secret that a
 > third party needs belongs in a request your server makes, not in a page
-> ([Security](/about/security#keep-secrets-out-of-the-bundle)).
+> ([Security](/about/security#secrets-stay-out-of-the-bundle)).
 
 ## Name your own values something other than `env`
 
@@ -12589,8 +12761,8 @@ In CI, set the variables on the job's build step:
     PUBLIC_ANALYTICS_ID: ${{ vars.ANALYTICS_ID }}
 ```
 
-Each build writes its own `build/` folder. Deploy each one to its own host
-([Ship](/recipes#ship)).
+Each build overwrites `build/`, so deploy what one build wrote before
+running the next, each to its own host ([Ship](/recipes#ship)).
 
 ## Change other settings per deploy
 
@@ -12619,7 +12791,7 @@ wf audit
 ```
 
 It prints each name, where it is read, and whether it is public, beside
-everything else the site trusts ([Security](/about/security#audit-the-project)).
+everything else the site trusts ([Review a site's security before you deploy](/recipes/review-security)).
 Run it before a release, and when you review a change that adds a name.
 
 
@@ -12674,16 +12846,33 @@ reader shares. To make it survive a reload, a shared link and the back
 button, read it from `query` instead:
 
 ```wf
+const PRODUCTS = [
+    { name: "Kettle", price: 39 },
+    { name: "Apron", price: 18 },
+    { name: "Mug", price: 9 },
+]
+
 page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived sort = query.sort ?? "name"
+    derived shown = if sort == "price" {
+        PRODUCTS.sortBy(p => p.price)
+    } else {
+        PRODUCTS.sortBy(p => p.name)
+    }
     Heading("Products").h1
     Row(gap: .sm) {
         Link("By name", to: "/products?sort=name")
         Link("By price", to: "/products?sort=price")
     }
-    Text("Sorted by {sort}")
+    for p in shown by p.name {
+        Text("{p.name}: ${p.price}")
+    }
 }
 ```
+
+Choose **By price** and the list reorders to Mug, Apron, Kettle, and the
+address becomes `/products?sort=price`. Reload the page or share the link,
+and it opens sorted by price.
 
 ## How it works
 
@@ -12691,7 +12880,8 @@ page Products(path: "/products", title: "Products", description: "Everything we 
   is the address's query string as a map: `query.sort` is `"price"` for
   `?sort=price`, and null when the address has no `sort`.
 - `sort` is a [`derived`](/learn/07-state-and-reactivity#derived)
-  value, so `??` gives it a default and it follows the address.
+  value, so `??` gives it a default and it follows the address. `shown`
+  is derived from `sort`, so the list reorders whenever the address does.
 - Each choice is a `Link` to the same page with another query. A query
   string is not part of the route, so `/products?sort=price` is still the
   `Products` page; only `sort` changes.
@@ -12949,6 +13139,94 @@ To forget every kept write — when the reader logs out, for example — call
 
 ---
 
+# Make a page work with a keyboard and a screen reader
+
+https://webfluent.monzeromer.dev/recipes/keyboard-and-screen-reader
+
+The built-ins already render the markup assistive technology expects, and
+the compiler reports what it can see in that markup
+([Accessibility](/about/accessibility)). What is left is yours: a name
+for every control that matches what a sighted reader sees, and a keyboard
+path through any element you turned into a control. This page has a
+labelled search field, an icon-only button, and a card that acts as a
+button:
+
+```wf
+page Plans(path: "/plans", title: "Plans", description: "Choose a plan.") {
+    state q = ""
+    state chosen = ""
+    Heading("Plans").h1
+    Input(bind: q, label: "Search the plans", hint: "Try “team” or “solo”").search
+    IconButton(icon: "close", label: "Clear the search") { on click { q = "" } }
+    Button("Search", aria-label: "Search the plans") { on click { log(q) } }
+    Card(role: "button", tabindex: "0") {
+        on click { chosen = "Team" }
+        on key("Enter") { chosen = "Team" }
+        on key("space") { chosen = "Team" }
+        Text("Team plan")
+    }
+    Text("Chosen: {chosen}")
+}
+```
+
+## How it works
+
+- **A visible `label:`, not a placeholder.** `label:` is a real
+  `<label for>`, and `hint:` is tied to the control with
+  `aria-describedby`. A placeholder disappears as soon as the reader types,
+  so prefer a label; `A03` warns of an `Input` with neither.
+- **An icon-only control has a name.** `label:` on an `IconButton`, or
+  `aria-label:` on anything else, is read aloud and never shown (`A02`).
+- **An `aria-label` begins with the visible words.** Someone who says
+  "click Search" to voice control then reaches the right button. One that
+  does not contain them is an `A15`: a `Button("Save", aria-label: "Submit
+  the form")` should say `aria-label: "Save the note"`.
+- **A custom control needs a role, a place in the tab order, and keys.**
+  Use `Button` whenever you can. When an element must act as one, as the
+  `Card` here does, give it `role: "button"`, `tabindex: "0"` and handlers
+  for the keys a button answers to, Enter and Space. Without `tabindex`,
+  the card cannot be reached with Tab; without the key handlers, reaching
+  it does nothing.
+
+## Check it with assistive technology
+
+The compiler's checks are a floor. Before you ship a page, use it the way
+its readers do:
+
+1. **Use only the keyboard.** Put the mouse away. Tab through the page,
+   open and close every menu and dialog, and submit every form. Focus is
+   always visible and never lost.
+2. **Use a screen reader.** VoiceOver (macOS: ⌘F5), NVDA (Windows, free) or
+   TalkBack (Android). Listen to the page's list of headings and landmarks,
+   and to what a form says when it fails.
+3. **Zoom to 200%**, and narrow the window. Nothing needs horizontal
+   scrolling.
+4. **Turn on reduced motion** in your system settings, and reload. Nothing
+   moves.
+
+Part of this can be automated. `wf test`'s `click "Save"` and
+`type "…" into "Email"` find controls by the name a reader sees, the way
+assistive technology does, so a test that passes is a page someone can
+operate ([Test a page](/recipes/test-a-page)).
+
+## A checklist
+
+- `wf check` reports no `A` warnings.
+- Every picture's alt text says what it shows, and decorative ones have
+  `alt: ""`.
+- Every link and button says what it does without the text around it.
+- Every control has a visible label, and every `aria-label` contains the
+  visible words.
+- Colour is never the only way something is said.
+- Every custom control is reachable with Tab and works with Enter and
+  Space.
+- The page works with only a keyboard, with a screen reader, at 200% zoom,
+  and with reduced motion.
+
+
+
+---
+
 # Add keyboard shortcuts and a command palette
 
 https://webfluent.monzeromer.dev/recipes/keyboard-shortcuts
@@ -13099,8 +13377,10 @@ page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
 - The declaration is written once to the shared stylesheet as
   `@keyframes Name`.
 - Your own animation is always written `animate: .Name` (or `exit:
-  .Name`). The flags belong to the built-in animations, so `Card.Drop` is
-  an error.
+  .Name`). The flags belong to the built-in animations, so a flag of your
+  own is an error: `Badge("New").Drop` is `` E103: Badge has no flag or
+  enum case `Drop` ``, and `Card.Drop { … }` reads as a part, `` E103:
+  `Card.Drop` is not a part of `Card` `` with a `C03` beside it.
 - It plays wherever a built-in one would — on an element that stands still,
   from the stylesheet, before any script has loaded — and, like a built-in
   one, not at all for a reader who asked for reduced motion.
@@ -13143,47 +13423,41 @@ https://webfluent.monzeromer.dev/recipes/library-from-a-cdn
 
 To use a library from another origin, list its URL in `meta.scripts`. The
 compiler never fetches anything, so it cannot read a file on another
-origin; a script of your own calls the library instead. This page draws a
-Chart.js chart that way, and destroys it when the page leaves:
+origin; a script of your own calls the library instead. This page throws
+confetti with the `canvas-confetti` library when the reader presses a
+button:
 
-**Needs:** the script `src/charts.js` and the `meta.scripts` setting, both
-shown below.
+**Needs:** the script `src/celebrate.js` and the `meta.scripts` setting,
+both shown below.
 
 ```wf
-page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
-    state values: [Number] = [12, 19, 7, 15]
-
-    Heading("Sales").h1
-    Host(tag: "canvas", role: "img", aria-label: "Sales by quarter",
-         mount: (c) => drawSales(c, values),
-         cleanup: (chart) => chart.destroy())
+page Launch(path: "/launch", title: "Launch", description: "A button that celebrates.") {
+    Heading("We shipped").h1
+    Button("Celebrate").primary { on click { celebrate() } }
 }
 ```
 
-This script draws the chart with the library:
+This script calls the library:
 
 ```js
-// src/charts.js
-/**
- * A bar chart of `values`, one bar a quarter.
- * @param {HTMLCanvasElement} canvas
- * @param {number[]} values
- */
-function drawSales(canvas, values) {
-  return new Chart(canvas, {
-    type: "bar",
-    data: { labels: ["Q1", "Q2", "Q3", "Q4"], datasets: [{ label: "Sales", data: values }] },
-  });
+// src/celebrate.js
+/** Throw confetti up from the bottom of the window. */
+function celebrate() {
+  if (typeof confetti === "undefined") return; // not arrived yet
+  const fire = confetti.create(null, { resize: true });
+  fire({ particleCount: 120, spread: 70, origin: { y: 0.9 } });
 }
 ```
 
-This config, in `webfluent.app.json`, loads Chart.js:
+This config, in `webfluent.app.json`, loads the library:
 
 ```json
 { "meta": {
-    "scripts": ["https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"]
+    "scripts": ["https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"]
 } }
 ```
+
+Press **Celebrate** and confetti bursts up from the bottom of the window.
 
 ## How it works
 
@@ -13191,17 +13465,15 @@ An entry in `meta.scripts` loads this way:
 
 - **In order.** The build links each entry with `<script defer>` in the
   order listed, before your own scripts and the compiled code. A library is
-  there when the code that uses it runs, so `drawSales` finds `Chart`.
+  there when the code that uses it runs, so `celebrate` finds `confetti`.
 - **Allowed by the policy.** The build widens the Content-Security-Policy
   by exactly the origins listed, so the policy that ships beside a declared
   library never blocks it.
-- **Called from your script.** `src/charts.js` is a plain script whose
+- **Called from your script.** `src/celebrate.js` is a plain script whose
   names are in scope, typed by its JSDoc
-  ([Call your own JavaScript](/recipes/call-your-own-script)). `Host` hands it a
-  canvas, and `cleanup:` destroys the chart with the page
-  ([Hand an element to a script](/recipes/hand-an-element-to-a-script)). A chart
-  that follows changing data is in
-  [Draw a chart from a library](/recipes/chart-from-a-library).
+  ([Call your own JavaScript](/recipes/call-your-own-script)). A library that
+  draws into an element of the page, such as a chart, is handed one by
+  `Host`: see [Draw a chart from a library](/recipes/chart-from-a-library).
 - **Pinned.** `meta.integrity` pins a file to a hash, keyed by the same
   URL, and the build writes it on the tag with `crossorigin="anonymous"`.
   A library from another origin without a hash draws a `D05` warning. The
@@ -13212,7 +13484,7 @@ This command prints the hash of a downloaded copy, to add as
 `"sha384-<hash>"` under the URL in `meta.integrity`:
 
 ```bash
-openssl dgst -sha384 -binary chart.umd.min.js | openssl base64 -A
+openssl dgst -sha384 -binary confetti.browser.min.js | openssl base64 -A
 ```
 
 ## Variations
@@ -13234,11 +13506,13 @@ An entry may be an object instead of a URL, to say how it loads.
   Largest Contentful Paint more than a second, even with `async`. The
   script's origin still joins the policy. A reader who leaves within the
   first second is not counted. The same limits as `async` apply (`E111`).
+  The confetti above could load this way too, since nothing calls it until
+  a press, and `celebrate` does nothing if pressed before it arrives.
 - **As a module.** `{ "src": "https://…/confetti.mjs", "module": true,
   "as": "Confetti" }` imports an ES module and puts its exports on
   `window.Confetti`. Most CDNs also serve a plain build, which needs
   neither key.
-- **Called from `.wf` directly.** `{ "src": "…", "globals": ["Chart"] }`
+- **Called from `.wf` directly.** `{ "src": "…", "globals": ["confetti"] }`
   puts the names a library defines in scope, each typed `Any`, because the
   compiler cannot see their shape. A class among them is constructed when
   called.
@@ -13347,6 +13621,10 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     }
 }
 ```
+
+The page shows the first page of items and a **Load more** button.
+Each press adds the next page beneath what is there, without losing the
+reader's place, and the button goes away once there is nothing more.
 
 ## How it works
 
@@ -13476,7 +13754,7 @@ use — [CLI](/reference/cli#wf-docs).)
 
 ---
 
-# Migrate from external
+# Upgrade a WebFluent 4 project that uses external
 
 https://webfluent.monzeromer.dev/recipes/migrate-from-external
 
@@ -13900,7 +14178,7 @@ Every connection is a *handle*: a value whose members follow the
 connection. A `match` reads its state, and text, an `if` or an `effect`
 reads what arrived:
 
-| | `socket` | `stream` | `channel` | `peer` |
+| Member | `socket` | `stream` | `channel` | `peer` |
 |---|---|---|---|---|
 | `.state` | `connecting`, `open`, `closed`, `error` — the arms of a `match` | the same | `open` or `closed` | the same as a socket |
 | `.messages` | the messages, in order: the last 500, or `keep:` | the same | — | the same |
@@ -14048,6 +14326,10 @@ page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.")
     }
 }
 ```
+
+The page shows the first twenty rows with **Previous** greyed out and
+"Page 1 of …" between the buttons. **Next** swaps in the next twenty and
+counts up; on the last page **Next** is greyed out instead.
 
 ## How it works
 
@@ -14418,6 +14700,63 @@ for row, i in Completions.rows by i {
 | A click inside the block does not reach a handler around the portal | Events bubble from the node the block is drawn in: put the handler on the portal, or inside its block |
 | The block stays on screen inside a `show` that is off | Use `if`, or `into: null`; `show` does not hide a portal |
 | The pre-rendered page lacks the block | Expected: the block is drawn once the page's script runs |
+
+
+
+---
+
+# Pre-render a page for each item
+
+https://webfluent.monzeromer.dev/recipes/pre-render-each-item
+
+A page on a `:param` route, such as `/posts/:slug`, has no single file a
+static build can write. List the values in `paths:`, and the build writes
+one HTML file for each. This blog writes one file per post in `posts.json`:
+
+**Needs:** `"build": { "ssg": true }` in `webfluent.app.json`, and
+`src/posts.json`, a list of posts with a `slug`, a `title`, a `date` and a
+`body`.
+
+```wf
+type Post { slug: String, title: String, date: String, body: String }
+
+data posts: [Post] = "posts.json"
+
+page PostPage(path: "/posts/:slug", slug: String, title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog", description: "A post.", paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    head { meta(property: "og:title", content: post?.title ?? "Post") }
+    if let p = post {
+        Heading(p.title).h1
+        Markdown(p.body)
+    } else {
+        Alert("No such post").warning
+    }
+}
+```
+
+For a post whose slug is `hello`, the build writes
+`posts/hello/index.html`, with that post painted and listed in the sitemap.
+
+## How it works
+
+- `paths:` must be known at build time: a `data` file, a `const` or a
+  literal list.
+- Each value is seeded as the parameter (and as `params.slug`), painted,
+  and listed in the sitemap.
+- For a route with several parameters, each value is a map that names
+  them: `paths: pairs.map(x => { year: x.y, slug: x.s })`.
+- `title:` and `description:` may name the page's parameters —
+  `title: "{slug} — Blog"` — and each file gets its own. A title may also
+  look the entry up, as this one does. Tags beyond the title and
+  description go in `head { }`
+  ([Add tags for one page](/recipes/search-and-link-previews#add-tags-for-one-page)).
+- A value that is not in `paths:` has no file, so a static host answers
+  with `404.html` ([Show your own page for an unknown address](/recipes/not-found-page)).
+- A single-page build does not need `paths:` at all: the router draws the
+  page for any value in the browser.
+
+[Static or single-page](/about/static-or-single-page#what-the-static-paint-knows)
+says what else the build can paint into each file.
 
 
 
@@ -14988,12 +15327,14 @@ same at build time and in the browser, so a hydrated page repaints exactly
 what was painted. This page shows release notes held in a state, and one
 line of inline Markdown:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** a picture `img.png` in `public/`, which the last line shows. It
+claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
-    state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    state body = "## Version 3.3\n\nThis release adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    Heading("Release notes").h1
     Markdown(body)
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }
@@ -15001,9 +15342,14 @@ page Notes(path: "/", title: "Release notes", description: "What changed in this
 
 ## How it works
 
-The page shows a "Release notes" heading, a paragraph with **3.3** in bold,
-a two-item list and a quote, then a line with emphasis, a link and a
-picture.
+The page shows a "Release notes" heading, then the body: a "Version 3.3"
+heading, a paragraph, a two-item list and a quote, then a line with
+emphasis, a link and a picture.
+
+The page's `h1` is a `Heading` of its own. A `#` heading inside `Markdown`
+is drawn as an `h1` too, but the build cannot see into text that may
+change, so a page whose only `h1` comes from Markdown draws an `A12`
+warning.
 
 What `Markdown` supports:
 
@@ -15263,13 +15609,13 @@ A row of links fits a laptop but not a phone. To show the links on a wide
 screen and a menu button that opens them on a narrow one, branch on
 `viewport`:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides this code. It is a whole project's `app` and
+pages: paste it into a new project, replacing `src/App.wf` and the
+starter's pages.
 
 ```wf
-page Nav(path: "/", title: "Home", description: "Navigation that fits the screen.") {
+app {
     state open = false
-    Heading("Home").h1
     if viewport.md {
         Row(gap: .md) {
             Link("Home", to: "/")
@@ -15282,17 +15628,24 @@ page Nav(path: "/", title: "Home", description: "Navigation that fits the screen
         }
         show open {
             Stack(gap: .sm, animate: .slideDown, id: "nav-menu") {
+                on click { open = false }
                 Link("Home", to: "/")
                 Link("Docs", to: "/docs")
                 Link("Pricing", to: "/pricing")
             }
         }
     }
+    Router
 }
 
+page Home(path: "/", title: "Home", description: "Navigation that fits the screen.") { Heading("Home").h1 }
 page Docs(path: "/docs", title: "Docs", description: "How it works.") { Heading("Docs").h1 }
 page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") { Heading("Pricing").h1 }
 ```
+
+On a wide window the three links sit in a row above every page. Narrow the
+window and they give way to a menu button; press it and the links slide
+down beneath it.
 
 ## How it works
 
@@ -15305,7 +15658,10 @@ page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") 
   `aria-expanded: open` tells a screen reader whether the menu it controls
   (`aria-controls`, the `Stack`'s `id`) is open.
 - `show open` keeps the links in the page and hides them while `open` is
-  false. `animate: .slideDown` plays as they appear.
+  false. `animate: .slideDown` plays as they appear, and a click on a link
+  closes the menu again.
+- The navigation is in `app`, around the `Router`, so every page shows it
+  and `open` lives on from page to page.
 
 The pre-rendered page does not know the window's width, so what depends on
 `viewport` is drawn once the page is live. For layout alone — a row that
@@ -15313,9 +15669,60 @@ becomes a column — prefer
 [responsive values](/learn/13-styling#responsive-values), which are
 right in the first paint.
 
-`Docs` and `Pricing` are there so every link lands on a page; in a site of
-your own the links name the pages you have, and the navigation usually
-lives in `app`, around the `Router`, so every page shows it.
+The three pages are there so every link lands on one; in a site of your
+own the links name the pages you have.
+
+
+
+---
+
+# Review a site's security before you deploy
+
+https://webfluent.monzeromer.dev/recipes/review-security
+
+The compiler refuses most of what would make a page unsafe on every build
+([Security](/about/security)). What it cannot see — what the project
+chose to trust, the host's headers, the server's checks — is a review, and
+`wf audit` prints what that review asks for:
+
+```bash
+wf audit
+```
+
+## How it works
+
+`wf audit` lists:
+
+- every `Unsafe.*`, and whether it is sanitised;
+- the project's own scripts, and the names each declares;
+- every origin the pages load from;
+- everything written to the reader's machine, and where;
+- every `env` name, and whether it is public;
+- the policy this build ships;
+- what the compiler itself depends on.
+
+Add `--json` to get the same report for a tool. `wf audit` only reports; it
+never fails a build.
+
+## Before you deploy
+
+- Run `wf audit`, and read all of it.
+- Set `"csp": true`, and make sure the build passes its own check.
+- Check that `_headers` reaches your host, or set the same headers
+  another way ([Set cache and security headers](/recipes/cache-and-security-headers)).
+- Serve over HTTPS, with HSTS.
+- Keep the session in an httpOnly, Secure, SameSite cookie — not in
+  `persist` ([Sign in with a session cookie](/recipes/sign-in-with-a-session-cookie)).
+- Read no non-public `env` name in a page (the build refuses one).
+- Make sure every `Unsafe.Html` is sanitised, or provably your own
+  markup ([Show HTML from outside the project](/recipes/show-html-from-outside)).
+- Check authorisation on the server for every request, not with
+  `guard:`.
+- Have the server check uploads: the type from the file's bytes, not its
+  name; a size limit it enforces itself; a stored name it generates, never
+  the one it was given; and storage nothing is served from.
+
+After the deploy, [check the headers it sends](/recipes/check-a-deploy).
 
 
 
@@ -16425,6 +16832,66 @@ page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
 
 ---
 
+# Show HTML from outside the project
+
+https://webfluent.monzeromer.dev/recipes/show-html-from-outside
+
+Every string an element shows goes in as text, so `"<p>"` in your data is
+shown as `<p>`. Sometimes the content really is HTML: a CMS body, the
+output of a Markdown renderer of your own, an email. This page fetches a
+post and shows its HTML body as markup:
+
+```wf
+type Post { title: String, body: String }
+
+api Backend(base: "/api") {
+    get post(slug: String) at "posts/:slug" -> Post
+}
+
+page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
+    resource post = Backend.post(slug: slug)
+    match post {
+        ready(p) {
+            Heading(p.title).h1
+            Unsafe.Html(sanitize(p.body))
+        }
+        else { Skeleton }
+    }
+}
+```
+
+## How it works
+
+- `sanitize(html)` keeps only what an allow-list names: a fixed set of
+  elements and, for each, a fixed set of attributes. It keeps no
+  `<script>`, `<style>`, `<iframe>` or `<form>`, and no `on*` attribute,
+  and every `href` and `src` goes through the same scheme check as every
+  other URL. A dropped element keeps its text.
+- `Unsafe.Html(markup)` puts the result in as markup. The build prints a
+  `V03` at each one, saying whether its markup went through `sanitize`,
+  and `wf audit` lists them all.
+- `sanitize` runs at build time as well as in the browser, from the same
+  allow-list, so a pre-rendered page shows the sanitised body at once.
+
+> [!CAUTION]
+> Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project
+> produced**. Anything that arrived from outside goes through `sanitize`.
+
+[Security](/about/security#one-door-for-markup) says why markup has
+one door, and what the allow-list keeps out.
+
+## Variations
+
+- **Markup a project script inserts**: a script under `src/` that sets
+  `innerHTML` with markup from outside the project passes it through
+  `WF.sanitize(…)` first ([Call WF from a script](/recipes/call-wf-from-a-script)).
+- **Markdown instead of HTML**: `Markdown(text)` escapes any HTML in the
+  text and needs no `Unsafe` ([Render Markdown](/recipes/render-markdown)).
+
+
+
+---
+
 # Show what the network is doing
 
 https://webfluent.monzeromer.dev/recipes/show-the-network
@@ -16500,6 +16967,7 @@ store Session {
     action signOut() {
         await Auth.signOut()
         user = null
+        Auth.me.invalidate()
         navigate("/")
     }
 }
@@ -16559,6 +17027,15 @@ app {
   user, or `null`, and `signedIn` is derived from it. `load` asks the
   server who is signed in, `signIn` and `signOut` call the service and
   move the reader on with `navigate`.
+- The server sets the cookie when a sign-in succeeds, with a header such as
+  `Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600`.
+  `HttpOnly` keeps it from every script, `SameSite=Lax`
+  from another site's form, and `Secure` off plaintext connections.
+- `Auth.me.invalidate()` on sign-out drops what the endpoint cached, so
+  the next reader of the tab is not shown the last one's. Do the same for
+  every endpoint whose answer is one reader's: an answer cached under one
+  `Authorization` header is never served for another, but a cookie cannot
+  be read, so the cache cannot tell one cookie's reader from the next.
 - The `SignIn` page validates its two fields and calls `Session.signIn`
   in a `try`, so a wrong password shows an `Alert` instead of throwing.
   `send.pending` disables the button while the request runs, and
@@ -16575,7 +17052,7 @@ app {
 The session is an httpOnly cookie the server sets, so the page never holds
 a token. `guard:` hides the page from a reader who is signed out, and the
 server still checks every request
-([Security](/about/security#keep-the-session-in-a-cookie)).
+([Security](/about/security#where-a-session-belongs)).
 
 
 
@@ -16666,9 +17143,15 @@ component CartBadge(count: Number) {
 page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
     use Cart
     Heading("Shop").h1
-    CartBadge(count: Cart.count)
+    Row(gap: .sm, align: .center) {
+        Button("Add to cart") { on click { Cart.count = Cart.count + 1 } }
+        CartBadge(count: Cart.count)
+    }
 }
 ```
+
+No badge shows while the cart is empty. Press **Add to cart** and a badge
+reading 1 appears beside the button, and counts up with every press.
 
 ## How it works
 
@@ -16677,7 +17160,8 @@ page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
 - The page reads the [store](/learn/11-stores#a-first-store) after
   `use Cart` and passes `Cart.count` down.
 - A prop that reads state stays live inside the component, so the badge
-  repaints when `Cart.count` changes.
+  repaints when `Cart.count` changes. The button changes it here; in a shop
+  of your own, an action of the store would.
 
 
 
@@ -16747,7 +17231,7 @@ JavaScript on Node.js instead, see
 
 You need a WebFluent project that builds with `wf build`, Rust, and the
 system libraries listed in Tauri's
-[prerequisites](https://v2.tauri.app/start/prerequisites/).
+[prerequisites](https://tauri.app/start/prerequisites/).
 
 These are the settings a Tauri app needs. In `webfluent.app.json`:
 
@@ -16786,7 +17270,7 @@ a Rust command, an event, a plugin.
 ### Prepare the build for a desktop
 
 The same project builds for the web and for a desktop. Two keys in
-`webfluent.app.json` leave out what only a website needs:
+`webfluent.app.json`, and one to leave out, drop what only a website needs:
 
 - **`build.compress: false`** — the shell packs the folder into the app, so
   a `.gz` file beside every file would ship every file twice.
@@ -17268,7 +17752,7 @@ starter does: paste it into a new project, replacing `src/App.wf` and
 type User { name: String }
 
 app {
-    state chosen = "en"
+    state chosen = locale
     Navbar {
         Navbar.Brand { Link("i18n", to: "/") }
         Navbar.Links {
@@ -17355,9 +17839,24 @@ uses:
 }
 ```
 
+And `src/translations/es.json`, whose words have the two forms English has:
+
+```json
+{
+  "nav.home": "Inicio",
+  "nav.about": "Acerca de",
+  "nav.language": "Idioma",
+  "welcome": "¡Bienvenido, {name}!",
+  "items.one": "{count} elemento",
+  "items.other": "{count} elementos",
+  "actions.save": "Guardar"
+}
+```
+
 A locale with no file, and a key one locale has and another lacks, are
-build warnings (`I03`). At run time a key missing from the reader's locale
-falls back to the default locale's message, then to the key itself.
+build warnings (`I03`). The warning for a missing file says every message
+shows its key; in fact, at run time a key missing from the reader's locale
+falls back to the default locale's message, and only then to the key itself.
 
 ### Translate text with `t()`
 
@@ -17401,6 +17900,8 @@ locale and direction.
 
 `locale` is the current locale's code, and `dir` is `"ltr"` or `"rtl"`.
 An `app` block may declare `state` as a page does, as `chosen` is above.
+It starts as `locale`, so a reader who chose Arabic on an earlier visit
+finds العربية already selected.
 
 On a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is
 right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto,
@@ -17632,6 +18133,15 @@ How the text becomes a key:
 The default locale's messages are the words themselves, so its file may be
 empty. `wf translations` counts each string as a key in use, and lists what
 another locale has not translated as missing.
+
+With an empty `en.json`, `wf check` still warns `` I03: `en.json` has no
+`{files} files.other` ``. The warning is wrong: an English reader sees
+`11 files`. To silence it, and to get "1 file" right as well, give
+`en.json` its two forms:
+
+```json
+{ "{files} files.one": "{files} file", "{files} files.other": "{files} files" }
+```
 
 ### Count by the number in the text
 
@@ -18487,7 +18997,6 @@ Essays on why WebFluent works as it does.
 - [How reactivity works](/about/how-reactivity-works)
 - [Security](/about/security)
 - [Static or single-page](/about/static-or-single-page)
-- [Upgrading](/about/upgrading)
 - [What a build ships](/about/what-a-build-ships)
 - [Why WebFluent](/about/why)
 
@@ -18515,16 +19024,16 @@ forms manage focus, and the compiler reports what it can see as a finding
 with a code, on every build. That leaves the work no tool can do (meaning,
 wording, order) and frees your attention for it.
 
-## Know what the built-ins do for you
+## What the built-ins do
 
 You get these behaviours without asking, as long as you use the built-in
 elements rather than rebuilding them:
 
 - **Semantic elements.** A `Button` is a `<button>`, a `Link` an `<a>`,
-  `Heading(…).h2` an `<h2>`. `Header`, `Section` and `Footer` are
-  landmarks. A `Table` is a `<table>` whose head cells are
-  `<th scope="col">`, a `List` is a `<ul>` or `<ol>`, and the page's content
-  is a `<main>`.
+  `Heading(…).h2` an `<h2>`. `Header` and `Footer` are landmarks,
+  and so is a `Section` given an `aria-label`. A `Table` is a `<table>`
+  whose head cells are `<th scope="col">`, a `List` is a `<ul>` or `<ol>`,
+  and the page's content is a `<main>`.
 - **A skip link.** It is first in the tab order, visible when focused, and
   jumps past the navigation to the content.
 - **Route changes that behave like page loads.** Focus moves to the new
@@ -18559,7 +19068,7 @@ elements rather than rebuilding them:
 - **Visible focus.** Every interactive built-in shows a focus ring for the
   keyboard (`:focus-visible`), but not on every click.
 
-## Fix what the compiler reports
+## What the compiler checks
 
 The compiler checks every page for the mistakes it can see in the markup,
 and reports each as a warning on every build and in the editor. Each code
@@ -18570,7 +19079,7 @@ and `wf explain CODE` prints it in your terminal.
 |---|---|
 | `A01` | Every `Image` has `alt:` (an empty one for a decorative picture) |
 | `A02` | Every `IconButton` has a `label:` |
-| `A03`, `A04` | Every `Input`, `Checkbox`, `Radio`, `Switch`, `Slider` and `Textarea` has a label |
+| `A03`, `A04` | Every `Input` has a label or at least a placeholder (prefer a label); every `Checkbox`, `Radio`, `Switch`, `Slider` and `Textarea` has a label |
 | `A05`, `A06`, `A07` | Buttons, links and headings have text |
 | `A08` | Every `Modal` and `Dialog` has a `title:` |
 | `A09` | A video has captions and controls; audio has a transcript |
@@ -18595,7 +19104,7 @@ page Editor(path: "/", title: "Editor", description: "Write a note.") {
 The fix is to start the `aria-label` with the visible words:
 `aria-label: "Save the note"`.
 
-## Do what the compiler cannot check
+## What the compiler cannot check
 
 The compiler can see markup; it cannot see meaning. These are still yours:
 
@@ -18610,89 +19119,21 @@ The compiler can see markup; it cannot see meaning. These are still yours:
 - **The contrast of your own styles.** `A13` checks the theme's tokens, not
   a colour written directly in a `style { }` block.
 - **Custom controls.** A `Card` made clickable with `on click` is not a
-  button to a keyboard ([Make a custom control work from the keyboard](#make-a-custom-control-work-from-the-keyboard)).
+  button to a keyboard until it has a role, a place in the tab order and
+  key handlers.
 - **Time limits.** A `Toast` disappears. Anything the reader must act on
   belongs in an `Alert` that stays.
 
-### Make a custom control work from the keyboard
-
-Use `Button` whenever you can. When an element must act as a button, give
-it the role, a place in the tab order, and handlers for the keys a button
-answers to:
-
-```wf
-page Plans(path: "/plans", title: "Plans", description: "Choose a plan.") {
-    state chosen = ""
-    Heading("Plans").h1
-    Card(role: "button", tabindex: "0") {
-        on click { chosen = "Team" }
-        on key("Enter") { chosen = "Team" }
-        on key("space") { chosen = "Team" }
-        Text("Team plan")
-    }
-    Text("Chosen: {chosen}")
-}
-```
-
-Without `tabindex`, the card cannot be reached with Tab; without the key
-handlers, reaching it does nothing.
-
-## Label controls well
-
-Every control needs a name that assistive technology can read, and that
-matches what a sighted reader sees:
-
-```wf
-page Search(path: "/", title: "Search", description: "Find a page.") {
-    state q = ""
-    Heading("Search").h1
-    Input(bind: q, label: "Search the docs", hint: "Try “routing” or “forms”").search
-    IconButton(icon: "close", label: "Clear the search") { on click { q = "" } }
-    Button("Search", aria-label: "Search the docs") { on click { log(q) } }
-}
-```
-
-- **Prefer a visible `label:` to a placeholder.** A placeholder disappears
-  as soon as the reader types.
-- **Name an icon-only control.** Use `label:` on an `IconButton`, or
-  `aria-label:` on anything else. The name is read aloud, never shown.
-- **Begin an `aria-label` with the visible words.** Someone who says "click
-  Search" then reaches the right button (`A15`).
-
-## Test with assistive technology
-
-The compiler's checks are a floor. Before you ship a page, use it the way
-its readers do:
-
-1. **Use only the keyboard.** Put the mouse away. Tab through the page,
-   open and close every menu and dialog, and submit every form. Focus is
-   always visible and never lost.
-2. **Use a screen reader.** VoiceOver (macOS: ⌘F5), NVDA (Windows, free) or
-   TalkBack (Android). Listen to the page's list of headings and landmarks,
-   and to what a form says when it fails.
-3. **Zoom to 200%**, and narrow the window. Nothing needs horizontal
-   scrolling.
-4. **Turn on reduced motion** in your system settings, and reload. Nothing
-   moves.
-
-You can also automate part of this. `wf test`'s `click "Save"` and
-`type "…" into "Email"` find controls by the name a reader sees, the way
-assistive technology does, so a test that passes is a page someone can
-operate ([Testing](/learn/16-testing)).
-
-## Checklist
-
-- `wf check` reports no `A` warnings.
-- Every picture's alt text says what it shows, and decorative ones have
-  `alt: ""`.
-- Every link and button says what it does without the text around it.
-- Every control has a visible label, and every `aria-label` contains the
-  visible words.
-- Colour is never the only way something is said.
-- Every custom control is reachable with Tab and works with Enter and
-  Space.
-- The page works with only a keyboard, with a screen reader, at 200% zoom,
-  and with reduced motion.
+Each of these is a judgement about what a page means to the person using
+it, which is why no build can make it. What a tool can do is make the
+judgement cheaper:
+[Make a page work with a keyboard and a screen reader](/recipes/keyboard-and-screen-reader)
+names every control so it matches what a sighted reader sees, turns a card
+into a control a keyboard can reach, and then checks the page the way its
+readers use it — with only a keyboard, a screen reader, 200% zoom and
+reduced motion — ending with a checklist. Because `wf test` finds a
+control by the name a reader sees, as assistive technology does, a test
+that clicks through a page is also a test that someone can operate it.
 
 ## Next
 
@@ -18882,7 +19323,7 @@ The test suite holds the guide to the compiler:
 
 - every `wf` code block parses, type-checks and compiles without a
   warning;
-- every `wf expect=CODE` block draws exactly that code;
+- every `wf expect=CODE` block draws that code;
 - every link between chapters, and every anchor, resolves;
 - every declaration, keyword, built-in, browser value, built-in function,
   config key, command and diagnostic code appears in it;
@@ -19154,7 +19595,7 @@ to win once.
 So WebFluent does not advise. It makes the safe spelling the only one the
 compiler accepts, and names the one door that is not safe so a review can
 find it. What follows is the list of those guarantees, the places they
-stop, and what to do on the other side of each.
+stop, and what lies on the other side of each.
 
 ## What the compiler guarantees
 
@@ -19163,7 +19604,7 @@ them on.
 
 - **Text is text.** Every string an element shows goes in as a text node.
   `"<script>"` in your data can never become a script. The one exception
-  has `Unsafe` in its name ([Show markup you did not write](#show-markup-you-did-not-write)).
+  has `Unsafe` in its name ([One door for markup](#one-door-for-markup)).
   An `html:` argument on an element is an attribute called `html`, as any
   argument an element does not declare is (`C04`), and never markup.
 - **No inline handlers.** Events are bound with `addEventListener`.
@@ -19219,7 +19660,7 @@ them on.
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string,
   logged or persisted. Each is a `T12`, reported at the line that does it.
 - **A non-public `env` name cannot be read from a page.** See
-  [Keep secrets out of the bundle](#keep-secrets-out-of-the-bundle).
+  [Secrets stay out of the bundle](#secrets-stay-out-of-the-bundle).
 - **A build stays in its project.** `data`, `image`, `api … from` and
   `i18n.dir` name paths inside the project; an absolute path or a `..` is
   an error. A link that points out of the project, at nothing, or back on
@@ -19243,34 +19684,11 @@ Some decisions are outside the compiler's reach:
 - **Your hosting.** HTTPS, HSTS, cookie flags and rate limits are the
   host's job.
 
-## Show markup you did not write
+## One door for markup
 
 Sometimes the content really is HTML: a CMS body, the output of a Markdown
-renderer of your own, an email. To show it, pass it through `sanitize` and
-into `Unsafe.Html`, the one door for markup.
-
-This page fetches a post and shows its HTML body:
-
-```wf
-type Post { title: String, body: String }
-
-api Backend(base: "/api") {
-    get post(slug: String) at "posts/:slug" -> Post
-}
-
-page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
-    resource post = Backend.post(slug: slug)
-    match post {
-        ready(p) {
-            Heading(p.title).h1
-            Unsafe.Html(sanitize(p.body))
-        }
-        else { Skeleton }
-    }
-}
-```
-
-The two calls do different jobs:
+renderer of your own, an email. There is one way to show it, and it takes
+two calls, `Unsafe.Html(sanitize(body))`, because they do different jobs:
 
 - `Unsafe.Html(markup)` puts markup in as markup. Its name lets a review
   find every one with a search for `Unsafe`, and the build prints a `V03`
@@ -19286,11 +19704,12 @@ The two calls do different jobs:
 allow-list. A pre-rendered page therefore shows the sanitised body at once,
 not an empty box that fills in when the script loads.
 
-> [!CAUTION]
-> Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project
-> produced**. Anything that arrived from outside goes through `sanitize`.
+`Unsafe.Html` without `sanitize` is for markup the project itself produced;
+anything that arrived from outside goes through `sanitize`.
+[Show HTML from outside the project](/recipes/show-html-from-outside)
+is a page that does it.
 
-## Keep the session in a cookie
+## Where a session belongs
 
 `persist` writes to `localStorage` or `sessionStorage`. **Neither is a
 place for a session token.** Any script that reaches your page can read
@@ -19298,43 +19717,17 @@ both, and that is the whole payload of a cross-site scripting bug: without
 a readable token the bug is a defacement; with one it is an account
 takeover.
 
-To keep a session safe, have the server set it as an **httpOnly cookie**:
-
-```text
-Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600
-```
-
-Each flag closes one door:
+A session belongs in an **httpOnly cookie** the server sets, and each of
+its flags closes one door:
 
 - `HttpOnly` puts the cookie out of reach of every script, including yours.
 - `SameSite=Lax` stops another site's form from riding on it.
 - `Secure` keeps it off plaintext connections.
 
 The browser sends the cookie with each request, so the page needs no token
-at all. An `api` with `credentials: .sameOrigin` sends it with every call:
-
-```wf
-type User { id: String, name: String }
-
-api Backend(base: "/api/v1") {
-    credentials: .sameOrigin
-    get me() -> User
-    post signIn(body: Map) -> User
-    post signOut()
-}
-
-store Session {
-    state user: User? = null
-    action load() { user = await Backend.me() }
-    action out() { await Backend.signOut()  user = null  Backend.me.invalidate()  navigate("/") }
-}
-```
-
-`Backend.me.invalidate()` on sign-out drops what the endpoint cached, so
-the next reader of the tab is not shown the last one's; do the same for
-every endpoint whose answer is one reader's. An answer cached
-under one `Authorization` header is never served for another, but a cookie
-cannot be read, so the cache cannot tell one cookie's reader from the next.
+at all: an `api` with `credentials: .sameOrigin` sends it with every call.
+[Sign in with a session cookie](/recipes/sign-in-with-a-session-cookie)
+builds the whole flow, including what to forget when the reader signs out.
 
 A page *may* keep what a page may show: a display name, a theme, a
 preference. If a value would matter to someone who stole it, it belongs
@@ -19350,66 +19743,54 @@ page Account(path: "/", title: "Account", description: "Your account.") {
 }
 ```
 
-## Keep secrets out of the bundle
+## Secrets stay out of the bundle
 
 `env.NAME` is replaced by its value **at build time**, and the value lands
 in the JavaScript the browser downloads. That is right for an API's base
-address and wrong for an API key. So a page may read only a name that is
-public: one that begins `PUBLIC_`, or one that `public_env` in the config
-lists.
-
-```json
-{
-  "env": { "PUBLIC_API": "/api/v1", "ANALYTICS_ID": "UA-1", "STRIPE_SECRET": "sk_…" },
-  "public_env": ["ANALYTICS_ID"]
-}
-```
-
-With this config:
-
-- a page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`;
-- `env.STRIPE_SECRET`, read from a page, a component, a store or an `api`
-  block, is an `E108` compile error naming the file and the line;
-- every build warns that `env.ANALYTICS_ID` goes into the bundle, since its
-  name does not say so.
+address and wrong for an API key. So a page, a component, a store or an
+`api` block may read only a name that is public: one that begins `PUBLIC_`,
+or one that `public_env` in the config lists. Any other name is an `E108`
+compile error naming the file and the line, and every build warns of each
+`public_env` name it bundles, since its name does not say so.
 
 `public_env` comes with the project, so it cannot reach into the shell of
 whoever builds it: a name it lists without the `PUBLIC_` prefix takes its
 value from the config or `.env`, and from the shell only when
-`WF_ALLOW_SHELL_ENV` names it ([Environments and secrets](/recipes/environments-and-secrets)).
+`WF_ALLOW_SHELL_ENV` names it.
 
-The value of `STRIPE_SECRET` is still there for `wf render`, which runs on
-a server where a secret stays secret
-([Render a template](/recipes/render-a-template)). A secret that has to reach a
-third party belongs in a request your server makes, not in a page.
-[Environments and secrets](/recipes/environments-and-secrets) covers where `env` values come from.
+A private value is still there for `wf render`, which runs on a server
+where a secret stays secret
+([Render a template](/recipes/render-a-template)). A secret that has to
+reach a third party belongs in a request your server makes, not in a page.
+[Use environment values, and keep secrets out](/recipes/environments-and-secrets)
+sets values, lists public ones, and builds once per environment.
 
-## Check uploads on the server
+## Uploads are checked on the server
 
 A `File` from `FileUpload` is a handle on a file on the reader's machine.
 `accept:` and `.size` help the reader pick the right file. They are **not**
 checks: both live in the page, and a page is the attacker's to rewrite.
 
-The server decides what it accepts. Have it:
+The server decides what it accepts. It reads the type from the file's
+bytes, not its name; enforces a size limit itself; generates the stored
+file's name, never using the one it was given; and stores uploads
+somewhere nothing is served from.
 
-- read the type from the file's bytes, not its name;
-- enforce a size limit itself;
-- generate the stored file's name, never use the one it was given;
-- store uploads somewhere nothing is served from.
-
-## Ship a Content-Security-Policy
+## The Content-Security-Policy
 
 A Content-Security-Policy (CSP) tells the browser which scripts, styles,
-images and connections a page may use. To ship one, set `"build": { "csp":
-true }`. A project `wf init` creates has it on. The build then writes:
+images and connections a page may use. `"build": { "csp": true }` ships
+one, and a project `wf init` creates has it on. The build then writes:
 
 - a `<meta http-equiv="Content-Security-Policy">` in every page, right
   after `<meta charset>`: a meta policy governs only what the browser
   parses after it, so it stands before the title, the sharing tags and a
   page's own `head { }` tags, which a page's data reaches;
 - a `_headers` file for hosts that read one (Netlify, Cloudflare Pages;
-  other hosts ignore it — on Vercel copy the headers into `vercel.json`,
-  see [Deploy to Vercel](/recipes/deploy-to-vercel)).
+  other hosts ignore it — on Vercel the headers go in `vercel.json`, see
+  [Deploy to Vercel](/recipes/deploy-to-vercel), and
+  [Set cache and security headers](/recipes/cache-and-security-headers)
+  covers the rest).
 
 `frame-ancestors` is only in `_headers`, because a browser ignores it in a
 meta tag. A policy that carried it there would say one thing and do
@@ -19422,7 +19803,7 @@ origins that `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare,
 so the policy never blocks a font or library you declared. Your own scripts
 under `src/` are served from the site itself and need nothing added.
 
-### Keep other sites from framing your pages
+### Who may frame a page
 
 By default no other site may frame your pages. `_headers` says
 `frame-ancestors 'none'` and `X-Frame-Options: DENY`, and `wf serve` sends
@@ -19435,62 +19816,17 @@ relaxed to its own origin and no further: `frame-ancestors 'self'` and
 `X-Frame-Options: SAMEORIGIN`. A `Frame` of another origin's page changes
 nothing here; that is `meta.frame`'s `frame-src`, below.
 
-### Allow requests, images and frames from other origins
+### What else a page may reach
 
-A page may send requests only to its own origin. To allow another — an API
-on another domain, an analytics endpoint — name it in `meta.connect`. Each
-entry is an origin, such as `https://api.example.com`, or
-`https://*.example.com` for its subdomains, and it joins `connect-src`.
-An entry with a path, or a keyword such as `'self'`, is `E111`.
+Anything beyond that is named, origin by origin: `meta.connect` for the
+origins a page sends requests to, `meta.img` for images, `meta.frame` for
+frames, each joining its directive of the policy, plus an app's own
+schemes, `meta.wasm` for WebAssembly and `meta.style_elements` for scripts
+that write `<style>`. Each widens the policy by exactly what it names, and
+no more. [Allow other origins in the security policy](/recipes/allow-other-origins)
+sets each one.
 
-Images follow the same rule: a page may load them from its own origin and
-`data:`, unless `meta.img` names others, which join `img-src`. Name a CDN
-there, or the pixels a tag requests (`https://www.googletagmanager.com/a`,
-`/td`), which a tag assistant otherwise reports as blocked.
-
-Frames are the same again: `meta.frame` names the origins a page may
-embed — a video player (`https://www.youtube-nocookie.com`), a map — and
-they join `frame-src`.
-
-This config loads Google's tag manager after the page and allows what it
-sends and draws:
-
-```json
-{
-  "meta": {
-    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "load": "after" }],
-    "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",
-                "https://www.googletagmanager.com"],
-    "img": ["https://*.google-analytics.com", "https://www.googletagmanager.com"]
-  }
-}
-```
-
-A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
-call a vendor gives you as an inline `<script>` — goes in a plain script
-under `src/`, which the policy already allows.
-
-### Allow an app's own schemes, WebAssembly and style elements
-
-Three settings widen the policy for pages that need more:
-
-- **An app's own scheme.** An app that serves its pages itself — a desktop
-  shell — has schemes of its own. `meta.connect` and `meta.frame` take one
-  as a scheme alone: `"ipc:"` for the channel a shell's pages call it on,
-  `"wfpreview:"` for a frame the app fills from its own protocol. A scheme
-  named in `meta.frame` is also one a frame's `src` may use: the address is
-  kept, where any other unknown scheme is emptied. The web's schemes are
-  refused: `https:` alone would allow every origin, and `data:`, `blob:`
-  and `javascript:` run whatever a page writes.
-- **WebAssembly.** A page that compiles WebAssembly — a parser, an image
-  codec — sets `meta.wasm: true`, and `script-src` gains
-  `'wasm-unsafe-eval'`. WebAssembly compiles; `eval` is still refused.
-- **Style elements.** A page whose scripts write `<style>` elements — an
-  editor such as CodeMirror, a chart library — sets
-  `meta.style_elements: true`, and `style-src` gains `'unsafe-inline'`, for
-  styles only.
-
-### Let the build check its own output
+### The build checks its own output
 
 **The build holds every page to the policy it ships.** It reads each HTML
 file back and stops on anything the policy would block: an inline
@@ -19515,27 +19851,7 @@ a build emits one, `style-src` gains `'unsafe-inline'` and the build names
 the pages that caused it, so the stricter policy is one edit away. A
 literal in a `style { }` block is already a shared class and costs nothing.
 
-## Pin another origin's files
-
-A stylesheet or a font from another origin is code that origin can change
-after you read it. To pin it, declare its hash in `meta.integrity`:
-
-```json
-{
-  "meta": {
-    "stylesheets": ["https://cdn.example.com/brand.css"],
-    "integrity": { "https://cdn.example.com/brand.css": "sha384-…" }
-  }
-}
-```
-
-The build emits `integrity` and `crossorigin="anonymous"` on the tag, and
-warns (`D05`) about a declared external asset that has no hash. It never
-fetches the file to work the hash out, because that would make a build
-depend on the network. A Google Fonts stylesheet is exempt: Google writes
-it per browser, so its bytes differ between readers and no hash can match.
-
-## Sanitize what your own scripts insert
+## Code you choose to trust
 
 A `.js` file under `src/` runs on every page exactly as written. The
 compiler reads its names; it does not rewrite or sandbox it. It is code you
@@ -19543,47 +19859,23 @@ trust, like the rest of `src/`. What it puts in the page with `innerHTML`
 is markup, so markup from outside the project goes through
 `WF.sanitize(…)` there too.
 
-A library from another origin belongs in `meta.scripts`, with an integrity
-hash, so a change at that origin cannot reach your readers
-([A library from a CDN](/recipes/library-from-a-cdn)).
+A file from another origin — a library, a stylesheet, a font — is code
+that origin can change after you read it. It belongs in `meta.scripts`,
+`meta.stylesheets` or `meta.fonts` with an integrity hash in
+`meta.integrity`, so a change at that origin cannot reach your readers; the
+build warns (`D05`) about one without
+([Allow other origins in the security policy](/recipes/allow-other-origins#variations),
+[Load a library from a CDN](/recipes/library-from-a-cdn)).
 
-## Audit the project
+## What a review reads
 
-To answer the questions a security review asks, run:
-
-```bash
-wf audit
-```
-
-It lists:
-
-- every `Unsafe.*`, and whether it is sanitised;
-- the project's own scripts, and the names each declares;
-- every origin the pages load from;
-- everything written to the reader's machine, and where;
-- every `env` name, and whether it is public;
-- the policy this build ships;
-- what the compiler itself depends on.
-
-Add `--json` to get the same report for a tool. `wf audit` only reports; it
-never fails a build.
-
-## Before you deploy
-
-- Run `wf audit`, and read all of it.
-- Set `"csp": true`, and make sure the build passes its own check.
-- Check that `_headers` reaches your host, or set the same headers
-  another way.
-- Serve over HTTPS, with HSTS.
-- Keep the session in an httpOnly, Secure, SameSite cookie — not in
-  `persist`.
-- Read no non-public `env` name in a page (the build refuses one).
-- Make sure every `Unsafe.Html` is sanitised, or provably your own
-  markup.
-- Check authorisation on the server for every request, not with
-  `guard:`.
-- Have the server check uploads: type from the bytes, a size limit, a
-  generated filename, storage nothing serves from.
+Everything the compiler cannot refuse is something the project chose to
+trust, so a review starts from a list of those choices. `wf audit` prints
+it — every `Unsafe.*`, every script, origin and stored value, every `env`
+name, the policy — and never fails a build.
+[Review a site's security before you deploy](/recipes/review-security)
+reads it, and goes through the checklist for the build, the host and the
+server.
 
 ## Next
 
@@ -19617,7 +19909,7 @@ asks of a host.
 
 `build.ssg` decides what `wf build` writes:
 
-| | Static (`"ssg": true`) | Single-page (`"ssg": false`) |
+| What differs | Static (`"ssg": true`) | Single-page (`"ssg": false`) |
 |---|---|---|
 | What is written | One HTML file per route — `index.html`, `about/index.html`, `posts/hello/index.html` — each the page's first paint | One `index.html` shell; the router draws every page in the browser |
 | First paint | Immediate: the text is in the HTML | After the script loads and runs |
@@ -19627,6 +19919,10 @@ asks of a host.
 | Interactive | Yes, once the script *hydrates* the page in place | Yes |
 
 The source is the same either way. Only the output changes.
+`"output_type": "static"` means the same as `"ssg": true`, and a build with
+`ssg` set to `false`, or left out, is single-page. `wf init -t static`
+starts a project with `ssg` on and `wf init -t spa` one with it off; either
+can change its mind at any time without the source changing.
 
 ## When to choose each
 
@@ -19686,144 +19982,43 @@ For the first paint to be right, prefer what the build can see:
 - **[Responsive values](/learn/13-styling#responsive-values) over `viewport`**
   for layout.
 
-## Switch between static and single-page
+## Routes with no single file
 
-To build a static site, set `ssg` in the config:
+A page on a `:param` route, such as `/posts/:slug`, is one page in the
+source and any number of addresses on the site, so a static build has no
+single file to write for it. It can only pre-render the values it is told
+about, at build time: `paths:` on the page lists them — from a `data` file,
+a `const` or a literal list — and the build writes one painted file per
+value, each with its own title, and lists them in the sitemap
+([Pre-render a page for each item](/recipes/pre-render-each-item)). A
+value nobody listed has no file, so the host answers it with the site's
+404 page. A single-page build has none of this to decide: its router draws
+any value in the browser.
 
-```json
-{ "build": { "ssg": true } }
-```
+The same reasoning gives the 404 page its file. A page on the `*` route is
+drawn by the router for any address no page claims, and a static build
+also writes it as `404.html`, which most static hosts serve for a path they
+have no file for
+([Show your own page for an unknown address](/recipes/not-found-page)).
 
-`"output_type": "static"` means the same as `"ssg": true`. Set `ssg` to
-`false`, or leave it out, for a single-page build.
+## What each shape asks of a host
 
-`wf init -t static` starts a project with `ssg` on; `wf init -t spa` starts
-one with it off. You can change your mind at any time — the source does not
-change.
-
-## Pre-render a dynamic route with `paths:`
-
-A page on a `:param` route, such as `/posts/:slug`, has no single file to
-write. To pre-render it, list the values in `paths:`, and the build writes
-one HTML file for each.
-
-This blog writes one file per post in `posts.json`:
-
-```wf
-type Post { slug: String, title: String, date: String, body: String }
-
-data posts: [Post] = "posts.json"
-
-page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post.", paths: posts.map(p => p.slug)) {
-    derived post = posts.find(p => p.slug == slug)
-    head { meta(property: "og:title", content: post?.title ?? "Post") }
-    if let p = post {
-        Heading(p.title).h1
-        Markdown(p.body)
-    } else {
-        Alert("No such post").warning
-    }
-}
-```
-
-For a post whose slug is `hello`, the build writes
-`posts/hello/index.html`, with that post painted and listed in the sitemap.
-
-The rules for `paths:`:
-
-- It must be known at build time: a `data` file, a `const` or a literal
-  list.
-- For a route with several parameters, each value is a map that names
-  them: `paths: pairs.map(x => { year: x.y, slug: x.s })`.
-- Each value is seeded as the parameter (and as `params.slug`), painted,
-  and listed in the sitemap.
-- A value that is not in `paths:` has no file, so a static host answers
-  with `404.html`.
-- A single-page build does not need `paths:` at all.
-
-### Give each file its own title
-
-`title:` and `description:` may name the page's parameters —
-`title: "{slug} — Blog"` — and each file gets its own. A title may also
-look the entry up:
-`title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`. Tags
-beyond the title and description go in `head { }`
-([Content](/recipes/search-and-link-previews#add-tags-for-one-page)).
-
-## Add a 404 page
-
-To show a page for a route no other page claims, declare a page on the
-`*` route:
-
-```wf
-page NotFound(path: "*", title: "Not found", description: "There is no page at this address.") {
-    Heading("Page not found").h1
-    Link("Go to the home page", to: "/")
-}
-```
-
-The router shows it for any address no page claims. In a static build it is
-also written as `404.html`, which GitHub Pages, Netlify, Cloudflare Pages
-and most static hosts serve for a path they have no file for.
-
-## Serve a single-page build
-
+A static build asks almost nothing: any host that serves files serves it.
 A single-page build has one file, `index.html`, so every path a reader
-might open — `/users/42` — has to reach it. Most hosts need one line for
-this; [Deploying](/recipes) has each in full:
+might open — `/users/42` — has to reach it, and the host needs a rule that
+answers every path with `index.html`. Without it the home page works, but
+a reload on any other address is a 404. Each host's rule is one line, and
+each deploy and server recipe in the [Ship recipes](/recipes#ship)
+has it.
 
-```text
-Netlify / Cloudflare Pages   public/_redirects:  /*  /index.html  200
-nginx                        try_files $uri $uri/ /index.html;
-Vercel                       "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-```
-
-> [!WARNING]
-> Without this rule, the home page works, but a reload on any other address
-> is a 404.
-
-## Serve the site under a sub-path
-
-To serve the site under a path such as `/my-site` — a GitHub Pages project
-site — set `build.base_path`:
-
-```json
-{ "build": { "ssg": true, "base_path": "/my-site" } }
-```
-
-The build prefixes every link, every asset and the router's paths with it.
-Write your paths from the site's root as if there were no prefix:
-`Link("About", to: "/about")` links to `/my-site/about`.
-
-## Keep addresses a host serves directly
-
-A static build writes `/contact` as `contact/index.html`, and a host such
-as GitHub Pages answers `/contact` with a `301` redirect to `/contact/`.
-`build.clean_urls` makes the canonical address one the host serves without
-the redirect:
-
-```json
-{ "build": { "ssg": true, "clean_urls": "file" } }
-```
-
-- `"file"` also writes `contact.html`, and addresses the page's assets
-  from the root, under `base_path`.
-- `"directory"` names every route with a trailing slash, `/contact/`: the
-  canonical link, `og:url`, the sitemap, the breadcrumbs, and every
-  `Link(to:)` and `navigate()` to one of the pages.
-
-## Quick reference
-
-| Goal | Setting or syntax |
-|---|---|
-| Pre-render every route | `"build": { "ssg": true }` or `"output_type": "static"` |
-| One app shell | `"build": { "ssg": false }` (the default) |
-| Pre-render a `:param` route | `paths:` on the page, known at build time |
-| A title per pre-rendered file | `title: "{slug} — Blog"` |
-| A 404 page | `page NotFound(path: "*", …)`, written as `404.html` when static |
-| A single-page build on a host | Answer every path with `index.html` |
-| A site under a sub-path | `"build": { "base_path": "/my-site" }` |
-| No redirect to a trailing slash | `"build": { "clean_urls": "file" }` or `"directory"` |
+Two settings adapt a build to where it is served, whichever its shape.
+`build.base_path` serves the site under a sub-path, such as a GitHub Pages
+project site, and prefixes every link, asset and route with it, so the
+source still writes paths from the site's root
+([Deploy to GitHub Pages](/recipes/deploy-to-github-pages)).
+`build.clean_urls` keeps every canonical address one the host serves
+without redirecting `/contact` to `/contact/`
+([Keep addresses from redirecting](/recipes/search-and-link-previews#keep-addresses-from-redirecting)).
 
 ## Next
 
@@ -19831,649 +20026,6 @@ the redirect:
   [search and link previews](/recipes/search-and-link-previews): what
   the build writes for search engines.
 - [Deploy to GitHub Pages](/recipes/deploy-to-github-pages), or any host in the [recipes](/recipes): put either shape on a host.
-
-
-
----
-
-# Upgrading
-
-https://webfluent.monzeromer.dev/about/upgrading
-
-This page says what each release asks of your project when you upgrade,
-newest first, from 6.0 back to WebFluent 2.
-
-The policy behind it: a release should ask nothing of a project that
-works. When one does ask, it is because the old behaviour shipped a broken
-page, and the compiler then names every place that needs a change, with a
-code, instead of leaving you to find them in the browser. Most rows of the
-table below say "Nothing"; the others say which findings to look for.
-
-The full notes for every release are in
-[`RELEASE_NOTES.md`](https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASE_NOTES.md). This page keeps only what an
-upgrade asks of you:
-
-- [Install a newer version](#install-a-newer-version)
-- [Upgrade a project](#upgrade-a-project)
-- The notes for each release, from [6.1](#6-1) back to
-  [WebFluent 2](#from-webfluent-2)
-
-## At a glance
-
-| Release | What to do |
-|---|---|
-| [6.1](#6-1) | Run `wf check` (`T10`, `E111`, `R05`); a stylesheet that selects `main#wf-main` should select `#wf-main` |
-| [6.0](#6-0) | Run `wf check`; check `build.output`, `public_env` names taken from the shell, and `wf serve --host` if you test on a phone. To have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
-| [5.14, 5.13](#5-14-and-5-13) | Nothing |
-| [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
-| [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |
-| [5.10](#5-10) | Run `wf check` and `wf test --update`; check `Column` spans, `Menu` labels and bound checkboxes with their own `on change` |
-| [5.9](#5-9) | Separate style declarations with a newline or `;`, never `,` |
-| [5.8](#5-8-5-7-and-5-6-x) | Nothing; a `state` that reads a live value may now warn `X06` |
-| [5.7, 5.6.2, 5.6.1](#5-8-5-7-and-5-6-x) | Nothing |
-| [5.6](#5-6) | Rename any declaration that takes a name the language has (`E118`) |
-| [5.5](#5-5) | Handle `null` where an OpenAPI value may be null (`T04`) |
-| [5.0](#5-0) | Run `wf check` and fix, or lower, the new errors |
-| [4.2](#4-2) | Run `wf migrate` to replace `external`; check which `.js` files under `src/` now ship |
-| [4.1](#4-1) | Nothing; rotate any secret a 4.0 build put in `env` |
-| [4.0](#4-0) | Run `wf migrate`, and read the list of names it makes public |
-| [3.x](#3-x) | The current grammar; nothing beyond 4.0 |
-| [WebFluent 2](#from-webfluent-2) | Run `wf migrate` |
-
-## Install a newer version
-
-To upgrade the compiler, run the installer again — it replaces the binary
-in place — or, if you installed with Rust:
-
-```bash
-cargo install webfluent --force
-```
-
-`wf --version` says which version you have. Update `wf-lsp` and the editor
-extension at the same time: the language server is built from the same
-compiler, and an older one reports what the new `wf` does not
-([Troubleshooting](/errors/troubleshooting#the-editor-reports-what-wf-build-does-not)).
-
-## Upgrade a project
-
-After installing, bring each project forward:
-
-1. Read this page's notes for every release between the version the
-   project last built with and the new one.
-2. Run `wf check`. It writes nothing, and every finding names its code, its
-   place and what to do.
-3. Run `wf test`. If snapshots changed, look at each difference, then run
-   `wf test --update`.
-4. Build, and load the result with `wf verify`.
-
-## 6.1
-
-6.1 sends much less: the runtime ships only what a program reaches, and
-the styles only what it draws on. Your project may notice these:
-
-- **`T10`** on an `api` endpoint called with positional arguments. It
-  built, and sent the first value as the call's map; write the call by
-  name (`Backend.signUp(body: { … })`).
-- **`E111` in `wf check`** for a theme `webfluent.app.json` names and no
-  file declares, which only `wf build` reported before.
-- **`R05`** when a page and its translation are both in the site's
-  language: a page with no `lang:` is in `meta.lang`. Set `meta.lang` to
-  the language those pages are written in, or give the page `lang:`.
-- **The router's box is a `div`** when the program draws its own `main`
-  (`role: "main"`); its id is still `wf-main`.
-- **A script that calls the runtime by a name built at run time** (a
-  `WF[name]` call) may find the function left out: set
-  `"build": { "runtime": "full" }`.
-
-## 6.0
-
-6.0 lets a page be in a language of its own (`lang:`) and name the page
-it translates (`translates:`). Your project may notice these:
-
-- **No more `?lang=` alternates.** A project with several `i18n.locales`
-  listed a `?lang=<code>` address per locale as an `hreflang` alternate.
-  Each served the default locale's HTML with the bare address as its
-  canonical, so search engines filed them as duplicates and ignored the
-  set. They are gone; a `?lang=` link still opens the page in that locale.
-  To have each language indexed, write its pages with `lang:` and
-  `translates:` ([A page in its own language](/recipes/site-in-two-languages)).
-- **Every page's JSON-LD names its language**, `inLanguage`.
-- **`wf render` and `Template` use the page's `lang:`** when `--lang` or
-  `with_lang` is not given; a page without one is still `en`.
-- **A word `lang` or `translates` in a page header** is the new option
-  when it takes a string or a page name. A route parameter of that name is
-  still one: `lang: String`.
-- **A build stays in its project.** A `build.output` outside the project
-  is refused unless `wf build` or `wf check` is given
-  `--allow-output-outside`.
-- **A `public_env` name without the `PUBLIC_` prefix** takes its value
-  from the config or `.env`, and from the shell only when
-  `WF_ALLOW_SHELL_ENV` names it.
-- **`wf serve` listens on this machine only.** To reach it from a phone,
-  run `wf serve --host 0.0.0.0`.
-- **`navigate()` stays on the site.** An address on another origin is
-  refused; leave the site with a `Link`.
-- **What used to be clamped is refused**: a status code past 599 or a
-  fractional one, a negative `Carousel(interval:)` (`T01`), and nesting
-  past 100 levels (`E120`).
-
-Run `wf check`.
-
-A program that uses the `webfluent` crate is what 6.0 breaks:
-
-- the compiler's internal modules need `features = ["internals"]`;
-- a path moved to its layer (`webfluent::fmt` is `webfluent::syntax::fmt`);
-- a `match` on a public enum needs a `_` arm;
-- an error is built with `WebFluentError::io(…)` and the like.
-
-The release notes list them all.
-
-## 5.14 and 5.13
-
-Nothing to change. 5.14 builds a project to the same bytes as 5.13 did;
-5.13 corrected the reference that `wf init` writes into a new project as
-`AGENTS.md`, so copy it again into a project made before it, or run
-`wf init` in a scratch folder and take its copy.
-
-## 5.12
-
-5.12 adds names in any script and translation by a project's own words,
-and makes every name a program binds its own. Your project may notice
-these:
-
-- **A store member may not be named like what every object has.**
-  `valueOf`, `toString`, `constructor` and the other names every
-  JavaScript object has are `E118` as a store's member, because the page
-  threw as soon as it drew one. Rename the member. The same names now work
-  as a component's props; `__proto__` as a prop is `E118`.
-- **A test file may not declare a name the project declares.** The two
-  were one name on the test's page, and every browser test failed with a
-  SyntaxError. It is now `E102` at the test's declaration. Rename the
-  test's own.
-- **`T06` is reported at the member's name.** "`Store` has no member
-  `x`" underlines `x`, not `Store`. A tool that reads the line and column
-  sees the new place.
-- **`output_type: "static"` pre-renders every page**, as `ssg: true`
-  does. It used to build a single-page app. A project that set it and
-  relied on that sets `"spa"` instead.
-- **WebP is lossy at `build.media.quality`**, and a file no smaller than
-  its original is not written. Pictures are smaller; a width that saved
-  nothing is served from the original.
-- **A name that clashed now works.** A program's own name that was one of
-  the generated code's, or a browser global's, used to read the wrong
-  value; it reads its own now. A page that leaned on the wrong value
-  changes.
-
-Run `wf check`, then `wf test`.
-
-## 5.11
-
-5.11 adds to the language and fixes what an editor built on it found. Your
-project may notice these:
-
-- **A gesture on a component needs one element to land on.** `drag:`,
-  `dropValue:`, `on receive(d)`, `on longpress` and the rest, written on a
-  component's call, used to throw at run time. They now land on the
-  component's root element. A component whose body is an `if`, a `for`, a
-  `match` or several elements has no root, and the call is the new error
-  `C07`. To fix it, wrap the body in one `Stack` or `Row`.
-- **A handler names at most what its event sends.** `on menu(key, x, y)`
-  now reads each value that a component's `event menu(…)` sends. A name
-  past the last one is `T22`. A DOM event sends only the event, so
-  `on click(e, x)` is `T22` too.
-- **A test file's declarations are its own.** A `const`, a component or a
-  type written beside the tests in one file under `tests/` is no longer
-  seen by another file's tests. Two files may now declare the same name. A
-  file that used another file's `const` declares it itself, or moves it
-  under `src/`.
-- **A test names a control as a reader hears it.** What is `aria-hidden`
-  (a menu item's shortcut, a glyph) is not part of the name, and a
-  submenu's entry is its label without its items. `click "Paste Ctrl+V"`
-  is now `click "Paste"`, and `click "File"` opens a `Menu.Sub(label:
-  "File")`. `A15` no longer counts an `aria-hidden` glyph as part of a
-  control's visible label either.
-- **A block handed to a component reads the names where it was written**
-  in `wf test` and the template engine, as the live page and the
-  pre-rendered page already did. A snapshot that showed the inner
-  component's value of a shared name changes.
-- **A `Menu.Item`'s `class:` is added beside the menu's own**, where it
-  used to replace it, so the item keeps its padding and its shortcut
-  column. A style that made up for the lost class can go.
-- **A method of a receiver's own wins over a helper of the same name.**
-  `x.last(k)` on a value with a `last` method of its own calls that method
-  with every argument, where it used to call the list helper. A store's
-  action named like a helper (`preview`, `first`, `take` …), called from
-  another store, runs that action.
-
-Run `wf check`, then `wf test --update` once you have read what the new
-snapshots show.
-
-## 5.10
-
-5.10 makes pages, pre-rendered pages and tests do what this guide says.
-Your project may notice the changes below. Run `wf check` after upgrading.
-
-### Layout and look
-
-- **Column spans leave room for the gap.** A `Column` in a `Row` with a
-  gap is narrower by its share of the gap, and spans that add up to 12 sit
-  on one line instead of wrapping the last. A layout that made up for the
-  old behaviour, such as `span: 8` beside `span: 3`, now leaves a space;
-  give it back its `4`. The spans read the gap from `--wf-gap`, which
-  `gap:` sets, so a gap your own CSS gives a `Row` (`style { gap: 4px }`)
-  needs `--wf-gap: 4px` beside it. A PDF now lays a `Column` out at its
-  `span:`, and reads a `calc()` of a percentage and points against the box
-  it lands in, as a browser does.
-- **The `Navbar` takes the theme's surface and text colours**, so a dark
-  or custom theme no longer gets a white bar.
-- **A keyed list slides only the items whose index changes.** An item that
-  keeps its index while its place on screen moves now jumps there.
-- **A `Splitter`'s `reset:` is written as given**, not clamped to `min:`
-  and `max:`, and the first drag or key press moves from the edge as
-  drawn.
-
-### Controls and forms
-
-- **A `Menu`'s `label:` names its list, not its button.** The button says
-  what `trigger:` says. `Menu(label: "File")` with neither `trigger:` nor
-  `visible:` now draws a button that says *Menu*; write `trigger: "File"`.
-  A menu that `visible:` opens no longer draws a button. A `Dropdown`'s
-  `label:` is still its button.
-- **A `Form` without `bind:` asks the `validate` rules** of its page or
-  component before `on submit`, and shows their messages instead of
-  submitting while one fails. Each copy of a component with
-  `Form(bind: …)` has its own form, where all its copies shared one.
-- **A bound `Checkbox` or `Radio` with its own `on change` writes its
-  state first.** The binding's write used to be lost, so a handler that
-  wrote the state itself now writes it a second time, and one that toggles
-  it (`agreed = !agreed`) undoes the click: take that write out. A
-  `Switch`'s `on change`, which never ran, now runs.
-- **Text that reads state follows it.** Control labels, a `Table`'s
-  `caption:`, tab titles, tooltip text, a modal's `title:`, a menu's
-  trigger, an `Avatar`, a `Skeleton`'s sizes and an `Icon`'s positional
-  name kept the value they were drawn with; they now change with it. A
-  `Checkbox(label: t("…"))` changes language with `setLocale`.
-- **An `Avatar` whose `src:` is a run-time `data:` or `blob:` address**
-  gets an empty `src`, as any other `src:` does.
-- **Built-ins write what they are given.** `role:`, `tabindex:`, `title:`,
-  `hidden:`, `aria-*`, `data-*` and `on` handlers on a `VirtualList`,
-  `Splitter`, `Tabs`, `Sidebar`, `Breadcrumb`, `Slider`, `DatePicker`,
-  `FileUpload`, the layers and the rest now reach their element, where some
-  were dropped. `label:` on a `VirtualList`, `Splitter` or `Carousel` is
-  written as its `aria-label`, not as text in it. `disabled: true` on a
-  `Slider`, `DatePicker` or `FileUpload` disables it. A `Sidebar`'s `id:`
-  is its id. Pre-rendered HTML and `wf test` snapshots carry these too:
-  look at the difference and run `wf test --update`.
-
-### Layers and keys
-
-- **The Escape that closes an open `Modal` or `Dialog` stays there**: a
-  page's `on key("Escape")` no longer runs for it.
-- **An anchored layer hides with its anchor** when the anchor scrolls out
-  of view, and stays open. Style it through `[data-anchor-hidden]` if you
-  need to.
-- **A modal's Escape and title.** Over an open popover, the first Escape
-  closes the modal and the next closes the popover. A press inside the
-  modal no longer closes the popover beneath it. In the pre-rendered page,
-  a modal's title is its heading. A tooltip under the pointer lets Escape
-  go on to the page.
-
-### Language, state and stores
-
-- **`setLocale` is remembered.** The choice is kept in the reader's
-  `localStorage` under `wf:locale`, and the next page opens in it; a
-  `?lang=` address still wins. A `persist` store kept for the same purpose
-  still works beside it.
-- **Stores**: a store's derived values keep following their state after
-  the first page that read the store has gone, and one that reads a
-  `derived` written below it follows it. The built script declares a store
-  after the stores it `use`s.
-- **A local of a member's name is the action's own.** A store action that
-  wrote a member through a `let` of the same name now writes the local.
-- **`data-x: true` passed through a component is `"true"`**, where it was
-  `""`, so a selector on `[data-x=""]` stops matching.
-- **`Portal` is a built-in's name**: a project's own component or store
-  called `Portal` is reported.
-- **Markdown reads backslash escapes.** A text with `\*`, `\_`, `\#`, `\[`
-  and the like now shows the character alone, and the character takes no
-  part in emphasis or a link; `\\` is one backslash. A backslash at the end
-  of a paragraph's last line is shown, where it was dropped. A link or
-  picture whose address has a scheme a page refuses (`javascript:`,
-  `data:`) is drawn as its words.
-- **Fewer warnings and errors**: an `Icon` naming one of the 23 new icons
-  draws it instead of warning `V08`; `on auxclick`, `on focusin` and
-  `on focusout` no longer warn `V09`; `on blur` and `on focus` outside an
-  element compile, where they were an error; and `() => value` fits a
-  function of no arguments, where it was `T01`.
-
-### Security headers
-
-- **A site that frames its own page**, with a `Frame` whose `src:` is a
-  site-relative string (`"/preview/"`, `"/embed/{id}"`), is served
-  `X-Frame-Options: SAMEORIGIN` and `frame-ancestors 'self'`. One whose
-  same-site address comes from a variable is still served `DENY`, so the
-  browser still refuses it. Write the address as a string, such as
-  `"/embed/{id}"`.
-
-### Pre-rendered pages and tests
-
-- **Pre-rendered HTML matches the live page.** A `Menu` or `Dropdown` is
-  its button and a hidden list, so its entries no longer show before the
-  script runs, and a menu that state opens is its list alone. A
-  `Checkbox`, `Radio` or `Switch` has its `<input>`, with the control's
-  `id:` on it. A part written with flags carries their classes. A `Column`
-  with a literal `span:` carries `wf-col--N`. `disabled`, `required` and
-  `controls` are left off when false, or when the build cannot know them.
-- **`wf test` snapshots change** where they hold a `Menu`, a `Dropdown`, a
-  `Column` with a `span:`, a `keyLabel`, a count in a locale with more
-  plural forms than English, or a `disabled:`, `required:` or `controls:`
-  that is false: look at the difference and run `wf test --update`. An
-  `expect` for a `Menu`'s `label:` text no longer finds it (it is an
-  `aria-label`), and one for its `trigger:` does. `expect` reads `&#x27;`
-  as an apostrophe, and in a test that acts compares with white space
-  collapsed. A `click` may now find a tab, a menu item or a radio button
-  it used to miss.
-- **Tests read as a reader does.** An `expect` that counted on a space
-  between two elements that touch ("live : …") now reads them touching. A
-  test run in a browser has the project's own CSS, so CSS that hides or
-  changes text changes what the test sees, and a stylesheet naming a file
-  not in `public/` fails it. Snapshots lose `data-*` attributes that were
-  `false`, and gain a call's `data-*`, `aria-*`, `id` and `class:` on a
-  component's root. Run `wf test --update` after looking at the
-  difference.
-
-### Windows and tools built on the compiler
-
-- **On Windows, type `webfluent`** (or `wf.exe`) wherever this guide says
-  `wf`. Each earlier `.msi` had an `UpgradeCode` of its own, so the new
-  one cannot replace it: uninstall the old one from *Apps*, or both stay
-  installed and on `PATH`.
-- **A tool built on the compiler** adds the new fields where it writes a
-  struct literal: `doc` on `StateDecl`, `DerivedDecl` and `ActionDecl`,
-  `frames_itself` on `BuildConfig`, `only_route` on `BuildOptions` and
-  `pages_deferred` on `BuildReport`. It adds a `Length::Mix(..)` arm where
-  it matches `paged::style::Length`, and passes a locale to
-  `testing::render_test` as its fourth argument. `print::statement` text
-  for a documented member starts at its `///`, so replace from
-  `print::written_start`. `check_project_via` starts threads, and calls a
-  `Project`'s `file_of` and `source_of` up front.
-
-## 5.9
-
-5.9 holds a few things to what this guide already said. Your project may
-notice them:
-
-- **A comma between two style declarations is an error** (`E002`).
-  `style { width: {w}px, flex: none }` compiled to one declaration whose
-  value was the rest of the line, so the browser dropped both. Write each
-  declaration on its own line, or separate them with `;`. A comma inside a
-  value (`font-family: a, b`) is untouched.
-- **A store's `persist … key:` is kept.** It was dropped, so the value was
-  kept under no key; now it follows the key, as a page's does. What is
-  already stored is found under the same names.
-- **A refined type's bounds are checked as the reader types** where a
-  `validate` block guards the state: `Number(0..10)` no longer takes 10,
-  and `Date(after: …)` and `before:` are held. A field that accepted its
-  open end now says *Too large*.
-- **`Card(animate: .Drop)` plays a project's own animation** on an element
-  that stands still. It did nothing before, so a page may now move where
-  it did not.
-- **A count of exactly 0 shows `key.zero`** wherever the translation file
-  has one, in any language, and the pre-rendered page picks each count's
-  form by the default locale's rules rather than English's. A `zero`
-  message that never showed now does.
-- **A site whose default locale is right to left** is written `<html
-  lang="ar" dir="rtl">` from the first paint. `meta.lang` names a region of
-  the default locale's language, and is otherwise the default locale.
-- **New warnings:** `A17` (a `Frame` with no title) and `V12` (a long list
-  that is not windowed). `wf check` names each with its fix.
-
-## 5.8, 5.7 and 5.6.x
-
-Nothing to change.
-
-- **5.8**: a build may now warn `X06` on a `state` whose first value reads
-  a live one, such as `now`. Making it `derived` is the fix. A function
-  written only to get a script's value onto a page can go back to being the
-  value.
-- **5.7**: what a page did to live through a refresh can go — a sheet or a
-  form kept outside the `match` with a snapshot of the data, or a `derived`
-  copy held so the arm would not draw again. A page that wants a spinner on
-  every refresh shows one for `name.refreshing`. A hand-written `WF.match`
-  arm is handed its value as before, and an accessor of it as a second
-  argument; `WF.each` keeps a keyed item's nodes under a new value with
-  `live: true`, which is what a compiled `for … by` asks for.
-- **5.6.2**: a wrapper written only to keep a nested branch apart — a
-  `Stack` styled `display: contents` around a tab's `match`, or a branch
-  flattened into one `if let` over a `derived` value — can go.
-- **5.6.1**: a `derived` value written only to make a resource's label
-  live can go back into the label.
-
-## 5.6
-
-5.6 refuses a name the language already has as a program's own
-([`E118`](/errors/E118)): a
-`state env`, a loop's `t`, a `persist theme`, an action named `update`.
-Each compiled before, and read the language's value where the program
-meant its own — a page's `state env` showed `[object Object]`.
-
-Run `wf check`. The message names the declaration and suggests a name of
-your own; renaming it and its reads is the whole change. The usual
-renames:
-
-| Was | Rename to |
-|---|---|
-| a loop's or a lambda's `t` (`for t in todos`, `items.filter(t => …)`) | `todo`, `item` |
-| `state query` | `search` |
-| `persist theme` | `scheme` |
-| a route parameter or `state env` | `target`, `stage` |
-| an action named `update` | `edit` |
-
-## 5.5
-
-A value an OpenAPI specification marks as nullable is now `T?`, so a read
-that ignored `null` — `Text(e.reason.toUpperCase())` — is `T04` where it
-compiled before. Use `?.`, `??` or `if let` to say what to do when it is
-`null`. A response field with a `format` is now a `DateTime`, a `Url` and
-so on, and a `String` assigned to one is `T01`.
-
-## 5.0
-
-5.0 makes the compiler refuse much more of what used to compile and then
-fail in the browser. A project that built under 4.x may stop on errors it
-always had. Start with a check, which writes nothing:
-
-```bash
-wf check
-```
-
-Every finding names its code, its place and what to do. `wf explain CODE`
-prints the code's entry in [Diagnostics](/errors). Where the fix
-is known, your editor offers it as a quick fix, and `wf check --format
-json` lists it as edits.
-
-**New errors.** Each is a program that cannot work as written:
-
-- **Types** (`T`): a field, member or method that does not exist; a value
-  of the wrong type; a value that may be `null` read as if it were not; a
-  `match` that misses a case; arithmetic on what is not a number; a
-  comparison that is always the same; an `await` where it cannot run; a
-  name nothing declares.
-- **Writing what cannot change** (`X01`): a `const`, a `derived` value, a
-  prop, a route parameter, a loop variable.
-- **Components** (`C`): a required prop left out, a prop the component
-  does not declare (`C02`), a part outside its owner.
-- **Routes** (`R`): a link to a path no page matches (`R01`), a `:param`
-  with no page parameter, an `app` with no `Router` or with two; two pages
-  on one path (`S04`).
-- **Forms** (`F`): `bind:` to something that cannot be written, or to a
-  state the control cannot hold; a `validate` no control can satisfy.
-- **Reactivity** (`X`): an effect that writes what it reads every run, a
-  `derived` value that calls an action, `use` of a store nothing declares.
-- **Data and translations** (`D`, `I`): a persisted value storage cannot
-  keep; a `t("key")` no translation has, a placeholder the call does not
-  pass, a locale the project does not list.
-- **Literals and styles**: a date that does not exist, money with too many
-  decimals, a key combination no keyboard sends, a `$token` the theme does
-  not declare.
-- **The security policy**: a page's `head { script(src: …) }` from an
-  origin the config does not declare (`E902`).
-
-**Lower what you cannot fix today.** `"lints": { "R01": "warn" }` in the
-config lowers a code or a family. An error may be lowered only when it
-ships no broken page: `R01`, `C02`, `S04`, `I01`, `I02`, `I04`. To accept
-one finding on one line, write `// wf-allow(CODE)`
-([Diagnostics](/errors/U07)).
-
-**What the compiler now writes for you** instead of reporting:
-
-- A change inside a state's value — `form.name = v`, `items[i].done = v`,
-  `items.sort()` — compiles to the state given an updated copy, so what
-  reads it repaints and `persist` keeps it.
-- A value spliced into an address — `to:`, `navigate()`, `fetch()` — is
-  encoded where it stands for a value.
-- A `match` expression that covers every case of an enum needs no `else`.
-
-**Behaviour that changed:**
-
-- **`wf serve` answers a missing fetch with a 404.** A request that is not
-  a page navigation, for a file the build did not write, used to get the
-  single-page shell — a page of HTML handed to `JSON.parse`. It is a `404`
-  now, under `wf verify` and `wf test` too, and `wf serve` prints a line
-  for each. Point the page at a server that has the API, or put a file in
-  `public/`.
-- **An empty path parameter is not sent.** `Backend.user(id: "")` with
-  `at "users/:id"` used to request `users/`, the whole collection. It now
-  ends as `.aborted`, and a resource over it stays `loading`.
-- **One list item that throws no longer blanks the list**: the rest draws,
-  and under `wf serve` the item says what it threw.
-- **An effect that never settles is stopped** after 100 runs, instead of
-  overflowing the stack.
-- **Each build keeps what its persisted values start as** in `.wf-cache/`,
-  so the next build can warn about a shape that changed (`D04`), and
-  `wf verify --returning-visitor` can load your pages as a returning
-  reader. Keep `.wf-cache/` between CI runs if you can.
-
-**New in 5.0:** `wf check`, `wf explain`, `--format json|sarif|github` and
-`--deny-warnings` on `wf build` and `wf check`, quick fixes in the editor,
-`persist … { key: id }` for one stored value per instance, and `wf verify`
-visiting `:param` routes. [Command line](/reference/cli) describes each.
-
-## 4.2
-
-**`external` is gone.** Run `wf migrate`. It turns a remote module into a
-`meta.scripts` entry, a local module into a plain script under `src/` with
-its signatures as JSDoc, and an `external element` call into
-`Element("tag", …)`. A call into a remote module that `external` typed is
-`Any` afterwards.
-
-**Every `.js` file under `src/` now ships**, linked on every page before
-the compiled code. `wf migrate` lists the ones it finds; move any that are
-not meant for the browser out of `src/`.
-
-New in 4.2:
-
-- **Your own JavaScript**: a plain `.js` file under `src/`, its top-level
-  functions in scope by name, typed by its JSDoc
-  ([JavaScript interop](/recipes)).
-- **`meta.scripts`** loads a library from a CDN, imports a module with
-  `as:`, and names its `globals`.
-- **`mount:`, `update:`, `cleanup:` on any element**, and a `wf:render`
-  event for a script that finds elements itself.
-- **`Element("tag-name", …)`** places any custom element.
-- **`class:` takes a map and a list**: `{ "is-done": done }`,
-  `["card", tone, if open { "is-open" }]`. An `if` with no `else` is `null`
-  when its condition fails ([Styling](/learn/13-styling#classes-and-your-own-stylesheet)).
-- **`V04`** warns about a `class:` that borrows one of the built-ins'
-  `wf-` classes.
-
-Fixed in 4.2: what an `if` branch, a `match` arm, a list item or a slot
-fill made — a timer, an effect, a `Host`'s cleanup — now goes when its
-page does. A route change used to leave it running.
-
-## 4.1
-
-Nothing to change in your code. New in 4.1:
-
-- **Offline**: name `offline` in the config for a service worker, writes
-  kept for later, and an update flow ([Offline](/recipes)).
-- **Peers**: `peer link = rtc(signal: …)`, a WebRTC data channel to another
-  page ([Realtime](/recipes/connect-two-readers)).
-- **`env` from a `.env` file and the shell**, on top of the config
-  ([Environments](/recipes)).
-- **Unknown config keys are reported**, with the key they probably meant.
-- **Pagination**: `paginate: .page`, `.items`, `.loadMore()`, `.hasMore`.
-- **`?lang=` opens a page in that locale**, as the `hreflang` alternates
-  promise.
-- **`class`-exported libraries work through `external`**: a class is
-  constructed when called.
-- **Every standard DOM event** is accepted in `on …`.
-
-Fixed in 4.1, and worth knowing because they could have affected you:
-
-> [!CAUTION]
-> A private `env` value no longer reaches the bundle. 4.0 refused a page
-> that *read* a private name, but still wrote the whole `env` map into
-> `app.js`. If you deployed 4.0 or 4.0.1 with a secret in `env`, rotate it.
-
-- An action's parameters are its own: `action move(by: Number)` read `by`
-  as a signal and threw.
-- `head { }` tags may read a page's `derived` values.
-- A resource's `state`, `data` and `error`, and a socket's `messages`,
-  show their values in text.
-- `navigator` and `location` compile as the browser's.
-- Two declarations on one line —
-  `theme T { color-primary: #0F766E  radius-md: 14px }` — are two, not
-  one.
-- `S04` reports two pages on one route; `A12` counts an `h1` in each
-  branch of an `if` as one.
-
-## 4.0
-
-4.0 changed what the compiler allows. `wf migrate` handles the mechanical
-part and names every place that needs a decision. Preview what it would
-change, then apply it:
-
-```bash
-wf migrate --check
-wf migrate
-```
-
-- **`env` is public or private.** A page may only read a name beginning
-  `PUBLIC_` or listed in `public_env`. The migration adds every name your
-  pages already read to `public_env` and prints the list. Read the list:
-  public means anyone who opens the site can read the value.
-- **An `on*` attribute is an error** (`onclick: "…"`); write
-  `on click { }`.
-- **A URL a browser would run is refused** — `javascript:`, `data:`,
-  `vbscript:`, `blob:`, `file:` in `href:`, `src:`, `to:`, `poster:` or
-  `navigate()`.
-- **Stores are built on first read**, not at boot. A store whose set-up
-  must run anyway takes `eager: true`.
-- **A `persist` value follows other tabs.** `sync: false` opts out.
-- **`WF.store` and `WF.host` were renamed** in the runtime's functions.
-- **Layouts stay as written**: a `Row` no longer turns into a column on a
-  narrow screen by itself. The migration adds `.stacks` to keep the old
-  behaviour.
-
-## 3.x
-
-WebFluent 3 introduced the grammar this guide describes: lowercase
-declarations, one positional argument, flags after a dot, `on click { }`
-handlers, and `style { }` blocks of CSS. A 3.x project moves forward with
-the 4.0 notes above.
-
-## From WebFluent 2
-
-`wf build` refuses a WebFluent 2 file (`Page Home (path: "/") { … }`) and
-points you to the migration. `wf migrate` rewrites every `.wf` under
-`src/` into the current grammar. It is a change of spelling only: the
-migrated project builds to what it built before. `wf migrate --wfx` writes
-the result in the indented layout.
-
-## Next
-
-[Contributing](/about/contributing): how the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide.
 
 
 
@@ -20508,13 +20060,14 @@ You get these without setting anything:
   compiled pages call. It is a set of modules, and a build keeps only the
   ones its code reaches, and of those only the functions its calls reach.
   A single-page build of one page of static text is an `app.js` of
-  4.9 kB, 1.8 kB gzipped.
+  about 5 kB, 1.9 kB gzipped.
 - **Short names.** A minified build shortens the runtime's own names, its
   top-level ones and each function's locals. What your pages call keeps
   its name.
 - **A chunk per page.** `build.split` (on by default) writes each page's
   code and styles as their own files, loaded the first time its route is
-  shown. A site of one page is one file.
+  shown. A site of one page is not split: its code is all in
+  `app.js`.
 - **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at
   build time, so the first paint needs no script.
 - **One pruned stylesheet.** It holds the rules of only the built-ins you
@@ -20537,22 +20090,23 @@ To see the size of everything a build writes, run the build with
 wf build --stats
 ```
 
-This is the output for the project `wf init -t spa` makes, trimmed:
+This is the output for the project `wf init -t spa` makes, trimmed (the
+exact numbers move a little from release to release):
 
 ```text
   What it weighs
-    app.js                               49.5 kB  (16.7 kB gzipped)
+    app.js                               49.4 kB  (16.7 kB gzipped)
     styles.css                           26.5 kB  (5.0 kB gzipped)
     pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
-    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Profile.js                      5.6 kB  (1.5 kB gzipped)
     pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
     pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
     total                                99.7 kB
 
-  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+  Runtime: 19 of 44 modules, 123.5 kB of 406.7 kB kept, 110.7 kB with its names shortened (before minifying)
     core          26.3 kB  always
-    router        13.5 kB  WF.router
+    router        13.9 kB  WF.router
     form          12.7 kB  WF.form
     motion        12.6 kB  enter:
     each          10.6 kB  WF.each
@@ -20807,7 +20361,7 @@ mistakes the compiler finds before your readers do.
 - Coming from a framework, read
   [Coming from React](/coming-from/react) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](/reference).
-- This guide describes WebFluent 6. [Upgrading](/about/upgrading) lists what
+- This guide describes WebFluent 6. [Upgrading](/errors/upgrading) lists what
   each release changed.
 
 
@@ -20880,6 +20434,7 @@ page Literals(path: "/literals", title: "Literals", description: "One value of e
     state accent = $primary                       // a design token
     Heading("Literals").h1
     Text("{label} {count} {ratio} {open} {sizes.length} {owner.name}")
+    Text("{note ?? \"none\"} {slug.test(label)} {accent}")
 }
 ```
 
@@ -21293,7 +20848,7 @@ has an entry for each.
 | `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](/recipes/drive-an-animation)) |
 | `optimistic(holder, change)` | Shows a change before the server agrees ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)) |
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](/recipes/send-on-unload)) |
-| `sanitize(html)` | Passes markup through an allow-list ([Security](/about/security#show-markup-you-did-not-write)) |
+| `sanitize(html)` | Passes markup through an allow-list ([Security](/about/security#one-door-for-markup)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it)) |
 | `fetch(url, options)` | Sends a request, through the same engine as `api` ([Fetching data](/learn/15-data#fetch-on-demand-with-await-fetch)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](/recipes/open-a-socket)) |
@@ -21608,8 +21163,9 @@ A `.wf` file writes blocks in braces. A `.wfx` file writes them by
 indentation: a line indented deeper than the one before opens a block, and
 a dedent closes it. Braces written by hand still work inside a line
 ([Language basics](/learn/04-language-basics#two-layouts-wf-and-wfx)).
-Statements need no separator; two on one line are separated by a `;` or
-two spaces.
+Statements need no separator, on one line either: the parser finds where
+one ends. Two on one line read best apart by a `;` or two spaces
+(`count = 0; log(count)`).
 
 ## Next
 
@@ -21843,29 +21399,29 @@ The functions, in alphabetical order:
 
 | Function | Does |
 |---|---|
-| `after(interval) { }` | Runs a block once, after a delay |
-| `ago(date)` | The distance from now, in words |
-| `animate(element, name, duration)` | Plays an animation on an element handle |
-| `beacon(url, data)` | Sends a small post that survives the page unloading |
-| `broadcast(name)` | Opens a channel the site's other tabs hear |
-| `every(interval) { }` | Runs a block repeatedly |
-| `fetch(url, options)` | Sends a request through the same engine as `api` |
-| `format(value, .style, option)` | A number, date or money as text, in the locale |
-| `keyIs(event, combination)` | Whether a key event is a shortcut |
-| `keyLabel(combination)` | A shortcut as this system writes it |
-| `log(x)` | Prints a value to the console |
-| `navigate(path)` | Moves to a route |
-| `optimistic(holder, change)` | Shows a change now, and takes it back if the action throws |
-| `replayAnimation(element, name)` | Plays an element's animation again |
-| `rtc(signal: …)` | Opens a data channel to another reader's page |
-| `sanitize(html)` | Markup through an allow-list |
-| `setLocale(locale)` | Switches the locale, and the direction with it |
-| `setTheme(choice)` | Switches between light, dark and the system's choice |
-| `spawn(path)` | Starts a script of `public/` in a worker |
-| `sse(url)` | Opens a stream of server-sent events |
-| `t("key", values)` | A translation |
-| `uuid()` | A fresh `Uuid` |
-| `ws(url)` | Opens a WebSocket |
+| [`after(interval) { }`](#after) | Runs a block once, after a delay |
+| [`ago(date)`](#ago) | The distance from now, in words |
+| [`animate(element, name, duration)`](#animate) | Plays an animation on an element handle |
+| [`beacon(url, data)`](#beacon) | Sends a small post that survives the page unloading |
+| [`broadcast(name)`](#broadcast) | Opens a channel the site's other tabs hear |
+| [`every(interval) { }`](#every) | Runs a block repeatedly |
+| [`fetch(url, options)`](#fetch) | Sends a request through the same engine as `api` |
+| [`format(value, .style, option)`](#format) | A number, date or money as text, in the locale |
+| [`keyIs(event, combination)`](#keyis) | Whether a key event is a shortcut |
+| [`keyLabel(combination)`](#keylabel) | A shortcut as this system writes it |
+| [`log(x)`](#log) | Prints a value to the console |
+| [`navigate(path)`](#navigate) | Moves to a route |
+| [`optimistic(holder, change)`](#optimistic) | Shows a change now, and takes it back if the action throws |
+| [`replayAnimation(element, name)`](#replayanimation) | Plays an element's animation again |
+| [`rtc(signal: …)`](#rtc) | Opens a data channel to another reader's page |
+| [`sanitize(html)`](#sanitize) | Markup through an allow-list |
+| [`setLocale(locale)`](#setlocale) | Switches the locale, and the direction with it |
+| [`setTheme(choice)`](#settheme) | Switches between light, dark and the system's choice |
+| [`spawn(path)`](#spawn) | Starts a script of `public/` in a worker |
+| [`sse(url)`](#sse) | Opens a stream of server-sent events |
+| [`t("key", values)`](#t) | A translation |
+| [`uuid()`](#uuid) | A fresh `Uuid` |
+| [`ws(url)`](#ws) | Opens a WebSocket |
 
 Every name in this list but `spawn` belongs to the language: a `state`,
 prop, parameter, loop item or `const` with one of these names is an
@@ -22177,7 +21733,7 @@ Signature: `sanitize(html)` → `String`
 Returns the markup without scripts, styles, frames, forms, `on*`
 attributes, or an `href` or `src` a browser would run. It runs at build
 time and in the browser from the same list. Where: anywhere. See
-[Show markup you did not write](/about/security#show-markup-you-did-not-write).
+[Show markup you did not write](/about/security#one-door-for-markup).
 
 ```wf
 Unsafe.Html(sanitize(post.body))
@@ -22323,15 +21879,15 @@ prop or parameter with one of these names is an `E118`.
 
 | Value | Holds |
 |---|---|
-| `viewport` | The window's size and breakpoints |
-| `query` | The address's query string |
-| `hash` | The address's fragment |
-| `theme` | The reader's light or dark choice |
-| `now` | The current moment |
-| `network` | The connection's state |
-| `update` | A new version of an offline site |
-| `locale`, `dir` | The reader's language and its direction |
-| `params` | The route's parameters |
+| [`viewport`](#viewport) | The window's size and breakpoints |
+| [`query`](#query) | The address's query string |
+| [`hash`](#hash) | The address's fragment |
+| [`theme`](#theme) | The reader's light or dark choice |
+| [`now`](#now) | The current moment |
+| [`network`](#network) | The connection's state |
+| [`update`](#update) | A new version of an offline site |
+| [`locale`, `dir`](#locale-and-dir) | The reader's language and its direction |
+| [`params`](#params) | The route's parameters |
 
 ### `viewport`
 
@@ -22861,7 +22417,7 @@ editor. Look up a command here when you need its exact flags, defaults and
 behaviour.
 
 `wf --help` lists the commands, `wf <command> --help` lists one command's
-flags, and `wf --version` prints the version (`wf 5.11.0`).
+flags, and `wf --version` prints the version (`wf X.Y.Z`).
 
 ```bash
 wf init my-site -t static
@@ -22880,7 +22436,7 @@ wf serve
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]` | Reports every finding a build would report, and writes nothing |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Applies every finding's fix, or the fixes for one code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
-| `wf explain [CODE]` | Prints what a diagnostic code means, a program that draws it, and the fix |
+| `wf explain [CODE] [--json]` | Prints what a diagnostic code means, a program that draws it, and the fix |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
 | `wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]` | Loads every built page in headless Chrome |
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
@@ -23359,7 +22915,7 @@ The report lists:
 - the policy the build ships;
 - what the compiler depends on.
 
-See also: [Security](/about/security#audit-the-project).
+See also: [Review a site's security](/recipes/review-security) and [Security](/about/security).
 
 ## Formatting
 
@@ -23474,7 +23030,7 @@ wf migrate --wfx
    a store is built on first read rather than at boot, a `persist` value
    follows the site's other tabs, and `WF.store`/`WF.host` were renamed.
 
-See also: [Upgrading](/about/upgrading).
+See also: [Upgrading](/errors/upgrading).
 
 ## Describing the project
 
@@ -23870,10 +23426,12 @@ the parameters and return type its JSDoc gives it.
 | Variable | Read by | What it does |
 |---|---|---|
 | `WF_INSTALL_DIR` | `install.sh`, `install.ps1` | Where the binary is installed (default `~/.webfluent/bin`). |
-| `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `v5.11.0`, instead of the latest. |
+| `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `vX.Y.Z`, instead of the latest. |
 | `WF_CHROME` | `wf test`, `wf verify` | The Chrome or Chromium to drive, when it is not found on its own. |
+| `WF_CHROME_NO_SANDBOX` | `wf test`, `wf verify` | `1` starts Chrome without its sandbox from the outset, instead of trying with one first (a container that gives it none). |
 | `WF_BIN` | the Node binding | The `wf` binary to call. |
 | any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments and secrets](/recipes/environments-and-secrets)). |
+| `WF_ALLOW_SHELL_ENV` | `wf build`, `wf serve` | Names, comma-separated, that `public_env` lists without the `PUBLIC_` prefix and whose value the shell may supply (`WF_ALLOW_SHELL_ENV=API_URL`). Without it such a name takes its value from the config or `.env` only, so a cloned project cannot bundle a shell secret. |
 
 ## Editors
 
@@ -23890,23 +23448,28 @@ Each one reads the project through a `webfluent::vfs::Vfs`: `FsVfs` reads
 the disk, and `OverlayVfs::over_disk()` lays the editor's unsaved buffers
 over it, so a tool reports the project as it is being edited.
 
-| Function | What it is |
-|---|---|
-| `build::{build, check}` with `BuildOptions` | `wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio` |
-| `diagnostics::fixes::fix_all` | `wf fix`'s fix-all, for one family in one file |
-| `print`, `reprint`, `edit::{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program}` | An element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was; refused when it would not read back the same |
-| `codegen::node_id::{build_node_map_with, layers}` | Every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree |
-| `registry::schema::of_project_via` | `wf components` |
-| `style_value` | Each style property's shape, a value read into parts (`read_box`), and the narrowest declaration written back (`edit_box`) |
-| `themes::view::{view_via, set_token, reset_token}` | `wf theme`, and one token written in its place |
-| `motion::catalogue` | `wf motion` |
-| `validation::{must_be_via, set_rule, remove_rule, move_rule}` | `wf rules`, and a state's `validate` block written back one rule at a time |
-| `scope::paths::at_via` | `wf scope` |
-| `i18n::{plurals, table}` | `wf translations`: CLDR's plural rules, the table, and `set_message` |
-| `assets`, `media::plan` | `wf assets` |
-| `config::{schema, json_edit}` | `wf config`, and a setting written keeping the file's shape |
-| `commands` | `wf commands` |
-| `agent::{changeset, context, diff, edit}` | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits |
+Most of these are the compiler's own parts: they are reached with the
+crate's `internals` feature (`webfluent = { version = "6", features =
+["internals"] }`), are not documented, and a release may change them
+without a major version. The ones marked "no" are the documented API.
+
+| Function | Needs `internals` | What it is |
+|---|---|---|
+| `webfluent::build::{build, check}` with `BuildOptions` | no | `wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio` |
+| `webfluent::diagnostics::fixes::fix_all` | no | `wf fix`'s fix-all, for one family in one file |
+| `webfluent::syntax::{print, reprint}`, `webfluent::edit::{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program}` | yes | An element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was; refused when it would not read back the same |
+| `webfluent::syntax::node_id::{build_node_map_with, layers}` | no | Every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree |
+| `webfluent::registry::schema::of_project_via` | yes | `wf components` |
+| `webfluent::paged::style_value` | yes | Each style property's shape, a value read into parts (`read_box`), and the narrowest declaration written back (`edit_box`) |
+| `webfluent::themes::view::{view_via, set_token, reset_token}` | yes | `wf theme`, and one token written in its place |
+| `webfluent::motion::catalogue` | yes | `wf motion` |
+| `webfluent::validation::{must_be_via, set_rule, remove_rule, move_rule}` | yes | `wf rules`, and a state's `validate` block written back one rule at a time |
+| `webfluent::scope::paths::at_via` | yes | `wf scope` |
+| `webfluent::i18n::{plurals, table}` | yes | `wf translations`: CLDR's plural rules, the table, and `set_message` |
+| `webfluent::build::assets::{list, plan}`, `webfluent::media::plan` | yes | `wf assets` |
+| `webfluent::config::{schema, json_edit}` | yes | `wf config`, and a setting written keeping the file's shape |
+| `webfluent::commands` | yes | `wf commands` |
+| `webfluent::agent::{changeset, context, diff, edit}` | yes | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits |
 
 ## Next
 
@@ -24085,7 +23648,7 @@ How the project is compiled, and what the build writes.
 | `sourcemap` | boolean | `false` | Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged. |
 | `compress` | boolean | `true` | Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one. |
 | `runtime` | `auto`, `full` | `"auto"` | `auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([Call WF from a script](/recipes/call-wf-from-a-script)). |
-| `csp` | boolean | `false` (`true` in a project `wf init` makes) | Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/about/security#ship-a-content-security-policy)). |
+| `csp` | boolean | `false` (`true` in a project `wf init` makes) | Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/about/security#the-content-security-policy)). |
 | `budget` | map of file to size | `{}` | A gzipped size each named output should stay under: `{ "app.js": "40 kB" }`. A build over it warns and goes on. |
 | `elements` | list of component names | `[]` | With `output_type: "elements"`, the components to publish as custom elements. |
 | `media` | object | below | The image pipeline. |
@@ -24109,7 +23672,7 @@ The page and type of a PDF build ([PDF and slides](/learn/17-pdf-and-slides)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `page_size` | string | `"A4"` | `A4`, `A3`, `A5`, `A6`, `Letter`, `Legal`, `Tabloid`, `Executive`, or two lengths (`"210mm 297mm"`). A `Document(size:)` overrides it. |
+| `page_size` | string | `"A4"` | `A3`, `A4`, `A5`, `A6`, `B5`, `Letter`, `Legal`, `Tabloid` (or `Ledger`), `Executive`, or two lengths (`"210mm 297mm"`, `"800x600"`). A `Document(size:)` overrides it. |
 | `margins` | object of numbers | `72` each | `top`, `bottom`, `left`, `right`, in points (72 to the inch). The header and footer are drawn in them. |
 | `default_font` | string | `"Helvetica"` | The document's family when its stylesheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`. |
 | `default_font_size` | number | `12` | In points; `rem` in a style is this size. |
@@ -24187,7 +23750,7 @@ and the other origins the content security policy allows.
 | `style_elements` | boolean | `false` | A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only. |
 
 An entry of `connect`, `img` or `frame` that has a path, or that is a
-keyword, is `E111`. [Security](/about/security#allow-requests-images-and-frames-from-other-origins)
+keyword, is `E111`. [Allow other origins](/recipes/allow-other-origins)
 covers these settings and `wasm` and `style_elements`.
 
 An entry of `meta.scripts` takes one of these forms:
@@ -24272,7 +23835,7 @@ You can turn a warning off or make it an error. You can lower an error only
 when it cannot ship a broken page:
 
 - `R01` — a link to a route that is missing;
-- `C02` — a prop nothing reads;
+- `C02` — a prop the component does not declare;
 - `S04` — two pages on one route;
 - `I01`, `I02`, `I04` — a message that shows its key or a placeholder.
 
@@ -24562,7 +24125,7 @@ From the top, a finding shows:
    matchers read;
 3. the line of source, with the part that is wrong underlined;
 4. `help:` — what to do about it, when the compiler can say;
-5. `docs:` — a link to the code's entry in this chapter.
+5. `docs:` — a link to the code's page.
 
 Colour is used only on a terminal, and never when `NO_COLOR` is set.
 
@@ -24687,15 +24250,15 @@ A code's letter is its family:
 | `E` | syntax and structure: what cannot be read, or refers to nothing |
 | `T` | types |
 | `C` | components and their props |
-| `R` | routes and navigation |
+| `R` | routes |
 | `X` | state and reactivity |
 | `I` | translations |
 | `F` | forms and bindings |
-| `D` | data, assets and what is kept in the browser |
+| `D` | data and assets |
 | `A` | accessibility |
 | `S` | search and sharing |
-| `P` | persisted values |
-| `U` | declared and never used |
+| `P` | what is kept in the browser |
+| `U` | declared and never read |
 | `V` | vocabulary |
 
 Each code's page has the code and its title as the heading, what it means

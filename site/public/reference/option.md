@@ -10,6 +10,8 @@ One choice in a Select (the original spelling of Select.Option).
 Option(_ label: String, value: Any)
 ```
 
+Use [`Select.Option`](https://webfluent.monzeromer.dev/reference/select-option.md) in new code: it is the current spelling, and its page has the example.
+
 ## Props
 
 | Prop | Type | Meaning |

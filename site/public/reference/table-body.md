@@ -1,10 +1,10 @@
 # Table.Body
 
-> Body section.
+> The body of a table: its rows of data.
 
 The page: https://webfluent.monzeromer.dev/reference/table-body
 
-Body section.
+The body of a table: its rows of data.
 
 ```wf
 Table.Body { … }

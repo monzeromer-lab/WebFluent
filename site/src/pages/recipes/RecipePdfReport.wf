@@ -1,7 +1,51 @@
 // A recipe, written from md-docs/recipes/pdf-report.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipePdfReport(path: "/recipes/pdf-report", title: "Make a PDF report — Recipes", description: "Build a project into a PDF report: a page wrapped in Document, with a running footer, a chart drawn from data and a table that breaks across pages.") {
-    RecipeShell("Make a PDF report", summary: "A project can build to a PDF instead of a site: the same pages, laid out on paper by the compiler, with no browser involved. This report shows a quarter's sales as a chart, a table and a total, with a page number in every footer:", outputs: ["pdf"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code")], source: "md-docs/recipes/pdf-report.md", how: true, hasVariations: true) {
+    RecipeShell("Make a PDF report", summary: "A project can build to a PDF instead of a site: the same pages, laid out on paper by the compiler, with no browser involved. This report shows a quarter's sales as a chart, a table and a total, with a page number in every footer:", outputs: ["pdf"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template"), RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown")], source: "md-docs/recipes/pdf-report.md", how: true, hasVariations: true, project: { "src/pages/PdfReport.wf": #"const MONTHS = [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+    { month: "Mar", web: 55, store: 24 },
+]
+
+page Report(path: "/", title: "Q1 report", description: "Sales for the first quarter.") {
+    Document(size: "A4", title: "Q1 report", author: "Acme Inc.") {
+        Header(on: .rest) { Text("Acme Inc. · Q1 report").muted.sm.right }
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+
+        Heading("Q1 report").h1
+        Text("Web sales grew every month; the shop held steady.")
+
+        Heading("Sales by month").h2
+        Chart(kind: .bar, data: MONTHS, x: "month", y: ["web", "store"], unit: "k", legend: true)
+
+        Table(caption: "Sales by month, in thousands") {
+            Table.Head {
+                Table.Row { Table.Cell("Month")  Table.Cell("Web")  Table.Cell("Shop") }
+            }
+            Table.Body {
+                for m in MONTHS {
+                    Table.Row { Table.Cell(m.month)  Table.Cell("{m.web}k")  Table.Cell("{m.store}k") }
+                }
+            }
+        }
+
+        Card {
+            style { break-inside: avoid }
+            Text("Total: {MONTHS.map(m => m.web + m.store).sum()}k").bold
+        }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "Q1 report",
+  "build": {
+    "output_type": "pdf",
+    "pdf": {
+      "page_size": "A4",
+      "output_filename": "q1-report.pdf"
+    }
+  }
+}
+"# }) {
         code {
             Markdown("**Needs:** `\"output_type\": \"pdf\"` in `webfluent.app.json`, as below. `wf init q1 -t pdf` makes a project with it; replace its `src/pages/Report.wf` with the page.")
             CodeBlock(#"{

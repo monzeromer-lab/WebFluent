@@ -1,10 +1,10 @@
 # Table.Row
 
-> A row.
+> A row of cells.
 
 The page: https://webfluent.monzeromer.dev/reference/table-row
 
-A row.
+A row of cells.
 
 ```wf
 Table.Row { … }

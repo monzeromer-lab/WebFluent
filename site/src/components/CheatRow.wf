@@ -1,10 +1,19 @@
 /// One line of a Coming-from cheat sheet: the concept, the reader's idiom,
-/// and ours. On a phone the two stack, theirs first.
+/// and ours. On a phone the two stack, theirs first, each under a label of
+/// its own, since the columns' heads are not shown there.
 component CheatRow(_ concept: String, theirs: String = "", ours: String = "", language: String = "") {
     Grid(columns: { base: 1, md: 3 }, gap: .sm, role: "row") {
         style { gap: 8px 16px; padding: 14px 0; border-bottom: 1px solid $line; align-items: start; @md { grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr) } }
         Text(concept, role: "rowheader") { style { margin: 0; font-size: 14px; font-weight: 600 } }
-        Code(theirs, language: language, role: "cell", class: "bp-console__code bp-console bp-ltr", dir: "ltr").block { style { padding: 10px 12px; font-size: 12.5px } }
-        Code(ours, language: "wf", role: "cell", class: "bp-console__code bp-console bp-ltr", dir: "ltr").block { style { padding: 10px 12px; font-size: 12.5px } }
+        Stack(role: "cell") {
+            style { gap: 4px; min-width: 0 }
+            Text(t("coming.theirs"), class: "bp-section-label bp-only-sm") { style { margin: 0 } }
+            Code(theirs, language: language, class: "bp-console__code bp-console bp-ltr", dir: "ltr", tabindex: "0").block { style { padding: 10px 12px; font-size: 12.5px } }
+        }
+        Stack(role: "cell") {
+            style { gap: 4px; min-width: 0 }
+            Text(t("coming.ours"), class: "bp-section-label bp-only-sm") { style { margin: 0 } }
+            Code(ours, language: "wf", class: "bp-console__code bp-console bp-ltr", dir: "ltr", tabindex: "0").block { style { padding: 10px 12px; font-size: 12.5px } }
+        }
     }
 }

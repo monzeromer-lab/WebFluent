@@ -55,6 +55,6 @@ page AboutWhy(path: "/about/why", title: "Why WebFluent", description: "Why WebF
 
         Heading("Where to go from here", id: "where-to-go-from-here").h2
 
-        Markdown("- To learn the language, start with [Your first page](/learn/01-getting-started).\n- Coming from a framework, read [Coming from React](/coming-from/react) (or Vue, or Svelte) first.\n- To look a fact up, use the [reference](/reference).\n- This guide describes WebFluent 6. [Upgrading](/about/upgrading) lists what each release changed.")
+        Markdown("- To learn the language, start with [Your first page](/learn/01-getting-started).\n- Coming from a framework, read [Coming from React](/coming-from/react) (or Vue, or Svelte) first.\n- To look a fact up, use the [reference](/reference).\n- This guide describes WebFluent 6. [Upgrading](/errors/upgrading) lists what each release changed.")
     }
 }

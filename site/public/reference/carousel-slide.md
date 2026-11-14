@@ -1,10 +1,10 @@
 # Carousel.Slide
 
-> One slide.
+> One slide of a carousel.
 
 The page: https://webfluent.monzeromer.dev/reference/carousel-slide
 
-One slide.
+One slide of a carousel.
 
 ```wf
 Carousel.Slide { … }

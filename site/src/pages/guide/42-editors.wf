@@ -7,7 +7,7 @@ page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Ed
         Table(caption: "Editors") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
+                    Table.Cell("Editor").header
                     Table.Cell("Repository").header
                     Table.Cell("Highlighting").header
                     Table.Cell("Language server").header

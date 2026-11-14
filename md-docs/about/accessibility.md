@@ -4,8 +4,8 @@ kind: "about"
 route: "/about/accessibility"
 from: ["/docs/guide/accessibility"]
 group: "about"
-blurb: "Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do."
-description: "What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it."
+blurb: "Pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what no tool can check for you."
+description: "What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, and the part of accessibility that stays a person's judgement."
 ---
 # Accessibility
 
@@ -25,16 +25,16 @@ forms manage focus, and the compiler reports what it can see as a finding
 with a code, on every build. That leaves the work no tool can do (meaning,
 wording, order) and frees your attention for it.
 
-## Know what the built-ins do for you
+## What the built-ins do
 
 You get these behaviours without asking, as long as you use the built-in
 elements rather than rebuilding them:
 
 - **Semantic elements.** A `Button` is a `<button>`, a `Link` an `<a>`,
-  `Heading(…).h2` an `<h2>`. `Header`, `Section` and `Footer` are
-  landmarks. A `Table` is a `<table>` whose head cells are
-  `<th scope="col">`, a `List` is a `<ul>` or `<ol>`, and the page's content
-  is a `<main>`.
+  `Heading(…).h2` an `<h2>`. `Header` and `Footer` are landmarks,
+  and so is a `Section` given an `aria-label`. A `Table` is a `<table>`
+  whose head cells are `<th scope="col">`, a `List` is a `<ul>` or `<ol>`,
+  and the page's content is a `<main>`.
 - **A skip link.** It is first in the tab order, visible when focused, and
   jumps past the navigation to the content.
 - **Route changes that behave like page loads.** Focus moves to the new
@@ -69,7 +69,7 @@ elements rather than rebuilding them:
 - **Visible focus.** Every interactive built-in shows a focus ring for the
   keyboard (`:focus-visible`), but not on every click.
 
-## Fix what the compiler reports
+## What the compiler checks
 
 The compiler checks every page for the mistakes it can see in the markup,
 and reports each as a warning on every build and in the editor. Each code
@@ -80,7 +80,7 @@ and `wf explain CODE` prints it in your terminal.
 |---|---|
 | `A01` | Every `Image` has `alt:` (an empty one for a decorative picture) |
 | `A02` | Every `IconButton` has a `label:` |
-| `A03`, `A04` | Every `Input`, `Checkbox`, `Radio`, `Switch`, `Slider` and `Textarea` has a label |
+| `A03`, `A04` | Every `Input` has a label or at least a placeholder (prefer a label); every `Checkbox`, `Radio`, `Switch`, `Slider` and `Textarea` has a label |
 | `A05`, `A06`, `A07` | Buttons, links and headings have text |
 | `A08` | Every `Modal` and `Dialog` has a `title:` |
 | `A09` | A video has captions and controls; audio has a transcript |
@@ -105,7 +105,7 @@ page Editor(path: "/", title: "Editor", description: "Write a note.") {
 The fix is to start the `aria-label` with the visible words:
 `aria-label: "Save the note"`.
 
-## Do what the compiler cannot check
+## What the compiler cannot check
 
 The compiler can see markup; it cannot see meaning. These are still yours:
 
@@ -120,89 +120,21 @@ The compiler can see markup; it cannot see meaning. These are still yours:
 - **The contrast of your own styles.** `A13` checks the theme's tokens, not
   a colour written directly in a `style { }` block.
 - **Custom controls.** A `Card` made clickable with `on click` is not a
-  button to a keyboard ([Make a custom control work from the keyboard](#make-a-custom-control-work-from-the-keyboard)).
+  button to a keyboard until it has a role, a place in the tab order and
+  key handlers.
 - **Time limits.** A `Toast` disappears. Anything the reader must act on
   belongs in an `Alert` that stays.
 
-### Make a custom control work from the keyboard
-
-Use `Button` whenever you can. When an element must act as a button, give
-it the role, a place in the tab order, and handlers for the keys a button
-answers to:
-
-```wf
-page Plans(path: "/plans", title: "Plans", description: "Choose a plan.") {
-    state chosen = ""
-    Heading("Plans").h1
-    Card(role: "button", tabindex: "0") {
-        on click { chosen = "Team" }
-        on key("Enter") { chosen = "Team" }
-        on key("space") { chosen = "Team" }
-        Text("Team plan")
-    }
-    Text("Chosen: {chosen}")
-}
-```
-
-Without `tabindex`, the card cannot be reached with Tab; without the key
-handlers, reaching it does nothing.
-
-## Label controls well
-
-Every control needs a name that assistive technology can read, and that
-matches what a sighted reader sees:
-
-```wf
-page Search(path: "/", title: "Search", description: "Find a page.") {
-    state q = ""
-    Heading("Search").h1
-    Input(bind: q, label: "Search the docs", hint: "Try “routing” or “forms”").search
-    IconButton(icon: "close", label: "Clear the search") { on click { q = "" } }
-    Button("Search", aria-label: "Search the docs") { on click { log(q) } }
-}
-```
-
-- **Prefer a visible `label:` to a placeholder.** A placeholder disappears
-  as soon as the reader types.
-- **Name an icon-only control.** Use `label:` on an `IconButton`, or
-  `aria-label:` on anything else. The name is read aloud, never shown.
-- **Begin an `aria-label` with the visible words.** Someone who says "click
-  Search" then reaches the right button (`A15`).
-
-## Test with assistive technology
-
-The compiler's checks are a floor. Before you ship a page, use it the way
-its readers do:
-
-1. **Use only the keyboard.** Put the mouse away. Tab through the page,
-   open and close every menu and dialog, and submit every form. Focus is
-   always visible and never lost.
-2. **Use a screen reader.** VoiceOver (macOS: ⌘F5), NVDA (Windows, free) or
-   TalkBack (Android). Listen to the page's list of headings and landmarks,
-   and to what a form says when it fails.
-3. **Zoom to 200%**, and narrow the window. Nothing needs horizontal
-   scrolling.
-4. **Turn on reduced motion** in your system settings, and reload. Nothing
-   moves.
-
-You can also automate part of this. `wf test`'s `click "Save"` and
-`type "…" into "Email"` find controls by the name a reader sees, the way
-assistive technology does, so a test that passes is a page someone can
-operate ([Testing](../learn/16-testing.md)).
-
-## Checklist
-
-- `wf check` reports no `A` warnings.
-- Every picture's alt text says what it shows, and decorative ones have
-  `alt: ""`.
-- Every link and button says what it does without the text around it.
-- Every control has a visible label, and every `aria-label` contains the
-  visible words.
-- Colour is never the only way something is said.
-- Every custom control is reachable with Tab and works with Enter and
-  Space.
-- The page works with only a keyboard, with a screen reader, at 200% zoom,
-  and with reduced motion.
+Each of these is a judgement about what a page means to the person using
+it, which is why no build can make it. What a tool can do is make the
+judgement cheaper:
+[Make a page work with a keyboard and a screen reader](../recipes/keyboard-and-screen-reader.md)
+names every control so it matches what a sighted reader sees, turns a card
+into a control a keyboard can reach, and then checks the page the way its
+readers use it — with only a keyboard, a screen reader, 200% zoom and
+reduced motion — ending with a checklist. Because `wf test` finds a
+control by the name a reader sees, as assistive technology does, a test
+that clicks through a page is also a test that someone can operate it.
 
 ## Next
 

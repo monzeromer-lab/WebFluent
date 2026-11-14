@@ -45,8 +45,10 @@ page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
 - The declaration is written once to the shared stylesheet as
   `@keyframes Name`.
 - Your own animation is always written `animate: .Name` (or `exit:
-  .Name`). The flags belong to the built-in animations, so `Card.Drop` is
-  an error.
+  .Name`). The flags belong to the built-in animations, so a flag of your
+  own is an error: `Badge("New").Drop` is `` E103: Badge has no flag or
+  enum case `Drop` ``, and `Card.Drop { … }` reads as a part, `` E103:
+  `Card.Drop` is not a part of `Card` `` with a `C03` beside it.
 - It plays wherever a built-in one would — on an element that stands still,
   from the stylesheet, before any script has loaded — and, like a built-in
   one, not at all for a reader who asked for reduced motion.

@@ -1,6 +1,6 @@
 # Static or single-page
 
-> Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.
+> Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, dynamic routes, and what each shape asks of a host.
 
 The page: https://webfluent.monzeromer.dev/about/static-or-single-page
 
@@ -24,7 +24,7 @@ asks of a host.
 
 `build.ssg` decides what `wf build` writes:
 
-| | Static (`"ssg": true`) | Single-page (`"ssg": false`) |
+| What differs | Static (`"ssg": true`) | Single-page (`"ssg": false`) |
 |---|---|---|
 | What is written | One HTML file per route — `index.html`, `about/index.html`, `posts/hello/index.html` — each the page's first paint | One `index.html` shell; the router draws every page in the browser |
 | First paint | Immediate: the text is in the HTML | After the script loads and runs |
@@ -34,6 +34,10 @@ asks of a host.
 | Interactive | Yes, once the script *hydrates* the page in place | Yes |
 
 The source is the same either way. Only the output changes.
+`"output_type": "static"` means the same as `"ssg": true`, and a build with
+`ssg` set to `false`, or left out, is single-page. `wf init -t static`
+starts a project with `ssg` on and `wf init -t spa` one with it off; either
+can change its mind at any time without the source changing.
 
 ## When to choose each
 
@@ -93,144 +97,43 @@ For the first paint to be right, prefer what the build can see:
 - **[Responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values) over `viewport`**
   for layout.
 
-## Switch between static and single-page
+## Routes with no single file
 
-To build a static site, set `ssg` in the config:
+A page on a `:param` route, such as `/posts/:slug`, is one page in the
+source and any number of addresses on the site, so a static build has no
+single file to write for it. It can only pre-render the values it is told
+about, at build time: `paths:` on the page lists them — from a `data` file,
+a `const` or a literal list — and the build writes one painted file per
+value, each with its own title, and lists them in the sitemap
+([Pre-render a page for each item](https://webfluent.monzeromer.dev/recipes/pre-render-each-item.md)). A
+value nobody listed has no file, so the host answers it with the site's
+404 page. A single-page build has none of this to decide: its router draws
+any value in the browser.
 
-```json
-{ "build": { "ssg": true } }
-```
+The same reasoning gives the 404 page its file. A page on the `*` route is
+drawn by the router for any address no page claims, and a static build
+also writes it as `404.html`, which most static hosts serve for a path they
+have no file for
+([Show your own page for an unknown address](https://webfluent.monzeromer.dev/recipes/not-found-page.md)).
 
-`"output_type": "static"` means the same as `"ssg": true`. Set `ssg` to
-`false`, or leave it out, for a single-page build.
+## What each shape asks of a host
 
-`wf init -t static` starts a project with `ssg` on; `wf init -t spa` starts
-one with it off. You can change your mind at any time — the source does not
-change.
-
-## Pre-render a dynamic route with `paths:`
-
-A page on a `:param` route, such as `/posts/:slug`, has no single file to
-write. To pre-render it, list the values in `paths:`, and the build writes
-one HTML file for each.
-
-This blog writes one file per post in `posts.json`:
-
-```wf
-type Post { slug: String, title: String, date: String, body: String }
-
-data posts: [Post] = "posts.json"
-
-page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post.", paths: posts.map(p => p.slug)) {
-    derived post = posts.find(p => p.slug == slug)
-    head { meta(property: "og:title", content: post?.title ?? "Post") }
-    if let p = post {
-        Heading(p.title).h1
-        Markdown(p.body)
-    } else {
-        Alert("No such post").warning
-    }
-}
-```
-
-For a post whose slug is `hello`, the build writes
-`posts/hello/index.html`, with that post painted and listed in the sitemap.
-
-The rules for `paths:`:
-
-- It must be known at build time: a `data` file, a `const` or a literal
-  list.
-- For a route with several parameters, each value is a map that names
-  them: `paths: pairs.map(x => { year: x.y, slug: x.s })`.
-- Each value is seeded as the parameter (and as `params.slug`), painted,
-  and listed in the sitemap.
-- A value that is not in `paths:` has no file, so a static host answers
-  with `404.html`.
-- A single-page build does not need `paths:` at all.
-
-### Give each file its own title
-
-`title:` and `description:` may name the page's parameters —
-`title: "{slug} — Blog"` — and each file gets its own. A title may also
-look the entry up:
-`title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`. Tags
-beyond the title and description go in `head { }`
-([Content](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md#add-tags-for-one-page)).
-
-## Add a 404 page
-
-To show a page for a route no other page claims, declare a page on the
-`*` route:
-
-```wf
-page NotFound(path: "*", title: "Not found", description: "There is no page at this address.") {
-    Heading("Page not found").h1
-    Link("Go to the home page", to: "/")
-}
-```
-
-The router shows it for any address no page claims. In a static build it is
-also written as `404.html`, which GitHub Pages, Netlify, Cloudflare Pages
-and most static hosts serve for a path they have no file for.
-
-## Serve a single-page build
-
+A static build asks almost nothing: any host that serves files serves it.
 A single-page build has one file, `index.html`, so every path a reader
-might open — `/users/42` — has to reach it. Most hosts need one line for
-this; [Deploying](https://webfluent.monzeromer.dev/recipes.md) has each in full:
+might open — `/users/42` — has to reach it, and the host needs a rule that
+answers every path with `index.html`. Without it the home page works, but
+a reload on any other address is a 404. Each host's rule is one line, and
+each deploy and server recipe in the [Ship recipes](https://webfluent.monzeromer.dev/recipes.md#ship)
+has it.
 
-```text
-Netlify / Cloudflare Pages   public/_redirects:  /*  /index.html  200
-nginx                        try_files $uri $uri/ /index.html;
-Vercel                       "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
-```
-
-> [!WARNING]
-> Without this rule, the home page works, but a reload on any other address
-> is a 404.
-
-## Serve the site under a sub-path
-
-To serve the site under a path such as `/my-site` — a GitHub Pages project
-site — set `build.base_path`:
-
-```json
-{ "build": { "ssg": true, "base_path": "/my-site" } }
-```
-
-The build prefixes every link, every asset and the router's paths with it.
-Write your paths from the site's root as if there were no prefix:
-`Link("About", to: "/about")` links to `/my-site/about`.
-
-## Keep addresses a host serves directly
-
-A static build writes `/contact` as `contact/index.html`, and a host such
-as GitHub Pages answers `/contact` with a `301` redirect to `/contact/`.
-`build.clean_urls` makes the canonical address one the host serves without
-the redirect:
-
-```json
-{ "build": { "ssg": true, "clean_urls": "file" } }
-```
-
-- `"file"` also writes `contact.html`, and addresses the page's assets
-  from the root, under `base_path`.
-- `"directory"` names every route with a trailing slash, `/contact/`: the
-  canonical link, `og:url`, the sitemap, the breadcrumbs, and every
-  `Link(to:)` and `navigate()` to one of the pages.
-
-## Quick reference
-
-| Goal | Setting or syntax |
-|---|---|
-| Pre-render every route | `"build": { "ssg": true }` or `"output_type": "static"` |
-| One app shell | `"build": { "ssg": false }` (the default) |
-| Pre-render a `:param` route | `paths:` on the page, known at build time |
-| A title per pre-rendered file | `title: "{slug} — Blog"` |
-| A 404 page | `page NotFound(path: "*", …)`, written as `404.html` when static |
-| A single-page build on a host | Answer every path with `index.html` |
-| A site under a sub-path | `"build": { "base_path": "/my-site" }` |
-| No redirect to a trailing slash | `"build": { "clean_urls": "file" }` or `"directory"` |
+Two settings adapt a build to where it is served, whichever its shape.
+`build.base_path` serves the site under a sub-path, such as a GitHub Pages
+project site, and prefixes every link, asset and route with it, so the
+source still writes paths from the site's root
+([Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)).
+`build.clean_urls` keeps every canonical address one the host serves
+without redirecting `/contact` to `/contact/`
+([Keep addresses from redirecting](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md#keep-addresses-from-redirecting)).
 
 ## Next
 

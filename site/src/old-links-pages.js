@@ -2,6 +2,7 @@
 // by scripts/docsite/guide.py, read by old-links.js, which keeps the
 // `#section` of an old link.
 const OLD_PAGES = {
+ "/about/upgrading": "/errors/upgrading",
  "/docs/guide/accessibility": "/about/accessibility",
  "/docs/guide/components": "/learn/10-components",
  "/docs/guide/contributing": "/about/contributing",
@@ -25,6 +26,6 @@ const OLD_PAGES = {
  "/docs/guide/troubleshooting": "/errors/troubleshooting",
  "/docs/guide/tutorial": "/learn/02-tutorial-shelf",
  "/docs/guide/types": "/learn/12-types",
- "/docs/guide/upgrading": "/about/upgrading",
+ "/docs/guide/upgrading": "/errors/upgrading",
  "/docs/tutorials/todos": "/learn/03-tutorial-todos"
 };

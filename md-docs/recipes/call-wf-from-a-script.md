@@ -62,7 +62,7 @@ async function shareLink() {
 
 A script from another origin must be listed in `meta.scripts`, which widens
 the policy for it. The build's CSP check refuses an inline `<script>`
-([Security](../about/security.md#ship-a-content-security-policy)).
+([Security](../about/security.md#the-content-security-policy)).
 
 ## Troubleshooting
 

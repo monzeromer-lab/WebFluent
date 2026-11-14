@@ -1,7 +1,27 @@
 // A recipe, written from md-docs/recipes/call-wf-from-a-script.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeCallWfFromAScript(path: "/recipes/call-wf-from-a-script", title: "Call WF from a script — Recipes", description: "Call the WebFluent runtime, window.WF, from a script of your own: show a toast, navigate, or read a store, and keep the call in the build.") {
-    RecipeShell("Call WF from a script", summary: "The runtime is `window.WF`. A script under `src/`, the console, or a library's callback can call it. This page has a button that copies the page's address, and the script it calls says so with the runtime's toast:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script"), RelatedLink(kind: "Recipe", title: "Run a script after each page draws", to: "/recipes/listen-for-wf-render")], source: "md-docs/recipes/call-wf-from-a-script.md", how: true, hasVariations: false) {
+    RecipeShell("Call WF from a script", summary: "The runtime is `window.WF`. A script under `src/`, the console, or a library's callback can call it. This page has a button that copies the page's address, and the script it calls says so with the runtime's toast:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Run a script after each page draws", to: "/recipes/listen-for-wf-render")], source: "md-docs/recipes/call-wf-from-a-script.md", how: true, hasVariations: false, project: { "src/share.js": #"// src/share.js
+/**
+ * Copy this page's address, and say so in a toast.
+ */
+async function shareLink() {
+  try {
+    await navigator.clipboard.writeText(location.href);
+    WF.toast("Link copied", "success");
+  } catch (e) {
+    WF.toast("Could not copy the link", "danger");
+  }
+}
+"#, "src/pages/CallWfFromAScript.wf": #"page Article(path: "/article", title: "Slow roasting", description: "Why we take eleven minutes over it.") {
+    Heading("Slow roasting").h1
+    Text("Eleven minutes, and why it matters.")
+    Button("Copy the link") { on click { shareLink() } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "call-wf-from-a-script"
+}
+"# }) {
         code {
             Markdown("**Needs:** the script `src/share.js`, shown below.")
             CodeBlock(#"page Article(path: "/article", title: "Slow roasting", description: "Why we take eleven minutes over it.") {
@@ -27,7 +47,7 @@ async function shareLink() {
 
         Callout("A call the build cannot read is not counted: a script in `public/` or from another origin, a `WF[name]` built at run time, or the console. If it reaches a module nothing else uses, set `\"build\": \{ \"runtime\": \"full\" \}`, or the call fails in the browser.", kind: .warning)
 
-        Markdown("A script from another origin must be listed in `meta.scripts`, which widens the policy for it. The build's CSP check refuses an inline `<script>` ([Security](/about/security#ship-a-content-security-policy)).")
+        Markdown("A script from another origin must be listed in `meta.scripts`, which widens the policy for it. The build's CSP check refuses an inline `<script>` ([Security](/about/security#the-content-security-policy)).")
 
         Heading("Troubleshooting", id: "troubleshooting").h2
 

@@ -1,7 +1,32 @@
 // A recipe, written from md-docs/recipes/optimistic-updates.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeOptimisticUpdates(path: "/recipes/optimistic-updates", title: "Update at once, and roll back on failure — Recipes", description: "Show a change before the server agrees: update the state at once, send the request, and put the old value back if it fails.") {
-    RecipeShell("Update at once, and roll back on failure", summary: "A like that waits for the server feels slow. To show the change at once, update the state before the request, keep the old value, and put it back if the request fails:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results")], source: "md-docs/recipes/optimistic-updates.md", how: true, hasVariations: true) {
+    RecipeShell("Update at once, and roll back on failure", summary: "A like that waits for the server feels slow. To show the change at once, update the state before the request, keep the old value, and put it back if the request fails:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Show what the network is doing", to: "/recipes/show-the-network"), RelatedLink(kind: "Recipe", title: "Send a message as the page unloads", to: "/recipes/send-on-unload"), RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages")], source: "md-docs/recipes/optimistic-updates.md", how: true, hasVariations: true, project: { "src/pages/OptimisticUpdates.wf": #"type Item { id: String, liked: Bool }
+
+page Likes(path: "/", title: "Likes", description: "A like that shows at once.") {
+    state items: [Item] = [Item(id: "a", liked: false)]
+    state error = ""
+    action like(id: String) {
+        error = ""
+        let before = items
+        items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
+        try {
+            await fetch("/api/like/{id}", { method: "POST" })
+        } catch e {
+            items = before
+            error = "Could not save. Try again."
+        }
+    }
+    Heading("Likes").h1
+    for i in items by i.id {
+        Button(if i.liked { "♥" } else { "♡" }, aria-label: "Like").sm { on click { like(i.id) } }
+    }
+    if error != "" { Toast(error).danger }
+}
+"#, "webfluent.app.json": #"{
+  "name": "optimistic-updates"
+}
+"# }) {
         code {
             Markdown("**Needs:** a server that answers `POST /api/like/<id>`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"type Item { id: String, liked: Bool }

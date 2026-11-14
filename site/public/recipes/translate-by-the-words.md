@@ -71,6 +71,15 @@ The default locale's messages are the words themselves, so its file may be
 empty. `wf translations` counts each string as a key in use, and lists what
 another locale has not translated as missing.
 
+With an empty `en.json`, `wf check` still warns `` I03: `en.json` has no
+`{files} files.other` ``. The warning is wrong: an English reader sees
+`11 files`. To silence it, and to get "1 file" right as well, give
+`en.json` its two forms:
+
+```json
+{ "{files} files.one": "{files} file", "{files} files.other": "{files} files" }
+```
+
 ### Count by the number in the text
 
 A literal with one number spliced into it picks its plural form by that

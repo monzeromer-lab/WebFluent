@@ -66,6 +66,7 @@ page Literals(path: "/literals", title: "Literals", description: "One value of e
     state accent = $primary                       // a design token
     Heading("Literals").h1
     Text("{label} {count} {ratio} {open} {sizes.length} {owner.name}")
+    Text("{note ?? \"none\"} {slug.test(label)} {accent}")
 }
 ```
 
@@ -479,7 +480,7 @@ has an entry for each.
 | `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](https://webfluent.monzeromer.dev/recipes/drive-an-animation.md)) |
 | `optimistic(holder, change)` | Shows a change before the server agrees ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-change-before-the-server-agrees)) |
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](https://webfluent.monzeromer.dev/recipes/send-on-unload.md)) |
-| `sanitize(html)` | Passes markup through an allow-list ([Security](https://webfluent.monzeromer.dev/about/security.md#show-markup-you-did-not-write)) |
+| `sanitize(html)` | Passes markup through an allow-list ([Security](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it)) |
 | `fetch(url, options)` | Sends a request, through the same engine as `api` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#fetch-on-demand-with-await-fetch)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) |

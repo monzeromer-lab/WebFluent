@@ -1,7 +1,64 @@
 // A recipe, written from md-docs/recipes/keyboard-shortcuts.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeKeyboardShortcuts(path: "/recipes/keyboard-shortcuts", title: "Add keyboard shortcuts and a command palette — Recipes", description: "Answer a keyboard shortcut with on key, and open a command palette on Ctrl+K (⌘K on a Mac) that finds and runs a command.") {
-    RecipeShell("Add keyboard shortcuts and a command palette", summary: "An app a reader uses every day earns shortcuts: a key to save, and one key that opens a list of every command, which they filter by typing and run with Enter. This page answers Ctrl+S (⌘S on a Mac) and opens its palette on Ctrl+K (⌘K):", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address"), RelatedLink(kind: "Recipe", title: "Keep filters in the address", to: "/recipes/filters-in-the-address"), RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog")], source: "md-docs/recipes/keyboard-shortcuts.md", how: true, hasVariations: true) {
+    RecipeShell("Add keyboard shortcuts and a command palette", summary: "An app a reader uses every day earns shortcuts: a key to save, and one key that opens a list of every command, which they filter by typing and run with Enter. This page answers Ctrl+S (⌘S on a Mac) and opens its palette on Ctrl+K (⌘K):", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Make a page work with a keyboard and a screen reader", to: "/recipes/keyboard-and-screen-reader"), RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address")], source: "md-docs/recipes/keyboard-shortcuts.md", how: true, hasVariations: true, project: { "src/pages/KeyboardShortcuts.wf": #"type Command { id: String, label: String, keys: String }
+
+const COMMANDS: [Command] = [
+    Command(id: "new", label: "New note", keys: "mod+n"),
+    Command(id: "save", label: "Save", keys: "mod+s"),
+    Command(id: "dark", label: "Switch to dark", keys: ""),
+    Command(id: "light", label: "Switch to light", keys: ""),
+]
+
+page Notes(path: "/notes", title: "Notes", description: "Notes, with a command palette on Ctrl+K.") {
+    state open = false
+    state search = ""
+    state said = "Press Ctrl+K (⌘K on a Mac) for commands."
+    derived shown = COMMANDS.filter(c => c.label.toLowerCase().includes(search.toLowerCase()))
+
+    action run(id: String) {
+        open = false
+        search = ""
+        if id == "dark" { setTheme("dark") }
+        if id == "light" { setTheme("light") }
+        said = "Ran “{COMMANDS.find(c => c.id == id)?.label ?? id}”."
+    }
+
+    on key("mod+k", e) {
+        e.preventDefault()
+        open = true
+    }
+    on key("mod+s", e) {
+        e.preventDefault()
+        run("save")
+    }
+
+    Heading("Notes").h1
+    Text(said)
+    Button("Commands") { on click { open = true } }
+
+    Modal(visible: open, title: "Commands") {
+        on close { open = false }
+        Input(bind: search, label: "Find a command", autofocus: true).search {
+            on keydown(e) {
+                if e.key == "Enter" && shown.length > 0 { run(shown[0].id) }
+            }
+        }
+        Stack(gap: .xs) {
+            for c in shown by c.id {
+                Button(c.label).full {
+                    on click { run(c.id) }
+                    if c.keys != "" { Text(keyLabel(c.keys)).muted.sm }
+                }
+            }
+            if shown.length == 0 { Text("No command matches.").muted }
+        }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "keyboard-shortcuts"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. Paste it into a file under `src/pages/` and open `/notes`.")
             CodeBlock(#"type Command { id: String, label: String, keys: String }

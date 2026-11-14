@@ -173,7 +173,7 @@ How the project is compiled, and what the build writes.
 | `sourcemap` | boolean | `false` | Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged. |
 | `compress` | boolean | `true` | Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one. |
 | `runtime` | `auto`, `full` | `"auto"` | `auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([Call WF from a script](../recipes/call-wf-from-a-script.md)). |
-| `csp` | boolean | `false` (`true` in a project `wf init` makes) | Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](../about/security.md#ship-a-content-security-policy)). |
+| `csp` | boolean | `false` (`true` in a project `wf init` makes) | Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](../about/security.md#the-content-security-policy)). |
 | `budget` | map of file to size | `{}` | A gzipped size each named output should stay under: `{ "app.js": "40 kB" }`. A build over it warns and goes on. |
 | `elements` | list of component names | `[]` | With `output_type: "elements"`, the components to publish as custom elements. |
 | `media` | object | below | The image pipeline. |
@@ -197,7 +197,7 @@ The page and type of a PDF build ([PDF and slides](../learn/17-pdf-and-slides.md
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `page_size` | string | `"A4"` | `A4`, `A3`, `A5`, `A6`, `Letter`, `Legal`, `Tabloid`, `Executive`, or two lengths (`"210mm 297mm"`). A `Document(size:)` overrides it. |
+| `page_size` | string | `"A4"` | `A3`, `A4`, `A5`, `A6`, `B5`, `Letter`, `Legal`, `Tabloid` (or `Ledger`), `Executive`, or two lengths (`"210mm 297mm"`, `"800x600"`). A `Document(size:)` overrides it. |
 | `margins` | object of numbers | `72` each | `top`, `bottom`, `left`, `right`, in points (72 to the inch). The header and footer are drawn in them. |
 | `default_font` | string | `"Helvetica"` | The document's family when its stylesheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`. |
 | `default_font_size` | number | `12` | In points; `rem` in a style is this size. |
@@ -275,7 +275,7 @@ and the other origins the content security policy allows.
 | `style_elements` | boolean | `false` | A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only. |
 
 An entry of `connect`, `img` or `frame` that has a path, or that is a
-keyword, is `E111`. [Security](../about/security.md#allow-requests-images-and-frames-from-other-origins)
+keyword, is `E111`. [Allow other origins](../recipes/allow-other-origins.md)
 covers these settings and `wasm` and `style_elements`.
 
 An entry of `meta.scripts` takes one of these forms:
@@ -360,7 +360,7 @@ You can turn a warning off or make it an error. You can lower an error only
 when it cannot ship a broken page:
 
 - `R01` — a link to a route that is missing;
-- `C02` — a prop nothing reads;
+- `C02` — a prop the component does not declare;
 - `S04` — two pages on one route;
 - `I01`, `I02`, `I04` — a message that shows its key or a placeholder.
 

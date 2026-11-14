@@ -180,7 +180,7 @@ app {
             Menu.Item(shortcut: c.keys) { Text(c.title) }
         }
     }
-    Text("Commands: {keyLabel(\"mod+shift+p\")}")
+    Text("Commands: {keyLabel("mod+shift+p")}")
     Router
 }
 ```

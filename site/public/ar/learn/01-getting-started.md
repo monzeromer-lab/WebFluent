@@ -9,6 +9,10 @@ The page: https://webfluent.monzeromer.dev/ar/learn/01-getting-started
 إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما
 يكتبه البناء.
 
+> [!NOTE]
+> لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته
+> الإنجليزية.
+
 ## قبل أن تبدأ
 
 تحتاج إلى:
@@ -97,6 +101,11 @@ cd hello
 ```text
 Created new WebFluent project: hello (template: spa)
   AGENTS.md is the language reference, for you and your coding agent
+  .agents/skills/ and .claude/skills/ teach your coding agent to write it well
+
+  cd hello
+  wf build
+  wf serve
 ```
 
 يكتب `wf init` تطبيقًا صغيرًا لتجد شيئًا حقيقيًا تقرؤه: أربع صفحات (لوحة
@@ -135,7 +144,7 @@ Starting dev server at http://localhost:3000/
 3. احفظ الملف.
 
 **ترى** المتصفح يعيد التحميل من تلقاء نفسه، ولوحة المعلومات تعرض الآن
-**Welcome back.** تحت عنوانها.
+`Welcome back.` تحت عنوانها.
 
 لترى كيف يبدو الخطأ، غيّر `.muted` إلى `.mutd` واحفظ. تعرض الصفحة الخطأ
 `E103` فوقها، مع الملف والسطر والتلميح
@@ -234,7 +243,7 @@ cd WebFluent && cargo install --path .
 `src/translations/`، ملف لكل لغة، واللغة الأولى هي الافتراضية
 ([الترجمة](https://webfluent.monzeromer.dev/recipes/translate-a-site.md#start-a-project-translated)).
 
-إن لم تكن متأكدًا بين `spa` و`static`، فابدأ بـ`static`. كل صفحة HTML حقيقية
+يبدأ هذا الفصل بمشروع `spa` لأن مشروعه الأولي تطبيق صغير فيه حالة ومخازن واختبارات تقرؤها. أما لموقعك أنت، فإن لم تكن متأكدًا بين `spa` و`static`، فابدأ بـ`static`. كل صفحة HTML حقيقية
 قبل أن يعمل أي سكربت، وهذا أفضل للبحث وللرسم الأول، والصفحة تبقى تفاعلية
 بالكامل بعد تحميل السكربت. يشرح [ثابت أم صفحة واحدة](https://webfluent.monzeromer.dev/about/static-or-single-page.md)
 الفرق.

@@ -35,7 +35,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
     ReferenceItemShell(t("cli.title"), summary: t("cli.lede", { count: 26 }), signature: "wf <command> [options]", group: t("cli.title"), entries: REFERENCE_PAGES.concat(CLI_INDEX), sections: [Anchor(id: "commands", label: t("cli.commands")), Anchor(id: "command-summary", label: "Command summary"), Anchor(id: "conventions", label: "Conventions"), Anchor(id: "scaffolding-and-building", label: "Scaffolding and building"), Anchor(id: "checking-and-testing", label: "Checking and testing"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing-the-project", label: "Describing the project"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors"), Anchor(id: "building-a-tool-on-the-compiler", label: "Building a tool on the compiler")], source: "md-docs/reference/cli.md") {
         notes {
             Stack(gap: .lg) {
-                Markdown("This chapter is the reference for `wf`, the one binary that creates, builds, serves, checks, formats, tests, renders and describes a WebFluent project, and for `wf-lsp`, the language server that brings the same checks into your editor. Look up a command here when you need its exact flags, defaults and behaviour.\n\n`wf --help` lists the commands, `wf <command> --help` lists one command's flags, and `wf --version` prints the version (`wf 5.11.0`).")
+                Markdown("This chapter is the reference for `wf`, the one binary that creates, builds, serves, checks, formats, tests, renders and describes a WebFluent project, and for `wf-lsp`, the language server that brings the same checks into your editor. Look up a command here when you need its exact flags, defaults and behaviour.\n\n`wf --help` lists the commands, `wf <command> --help` lists one command's flags, and `wf --version` prints the version (`wf X.Y.Z`).")
 
                 Terminal(lines: [
                 Line(command: "wf init my-site -t static"),
@@ -82,7 +82,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell { Markdown("Lists every setting, and edits `webfluent.app.json` without changing its shape") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`wf explain [CODE]`") }
+                            Table.Cell { Markdown("`wf explain [CODE] [--json]`") }
                             Table.Cell("Prints what a diagnostic code means, a program that draws it, and the fix")
                         }
                         Table.Row {
@@ -707,7 +707,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                 Line(command: "wf audit --json")
             ])
 
-                Markdown("The report lists:\n\n- every `Unsafe.*` and whether its input is sanitised;\n- the project's own scripts and what each declares;\n- every other origin the pages load from;\n- everything kept on the reader's machine;\n- every `env` name and whether it is public;\n- the policy the build ships;\n- what the compiler depends on.\n\nSee also: [Security](/about/security#audit-the-project).")
+                Markdown("The report lists:\n\n- every `Unsafe.*` and whether its input is sanitised;\n- the project's own scripts and what each declares;\n- every other origin the pages load from;\n- everything kept on the reader's machine;\n- every `env` name and whether it is public;\n- the policy the build ships;\n- what the compiler depends on.\n\nSee also: [Review a site's security](/recipes/review-security) and [Security](/about/security).")
 
                 Heading("Formatting", id: "formatting").h2
 
@@ -885,7 +885,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                 Line(command: "wf migrate --wfx")
             ])
 
-                Markdown("`wf migrate` makes three passes, in this order:\n\n1. **4.1 → 4.2**, first, because 4.2 refuses `external`. A remote module becomes a `meta.scripts` entry. A local one becomes a plain script under `src/`, with its signatures as JSDoc, and `X.f(…)` becomes `f(…)`. An `external element` call becomes `Element(\"tag\", …)`. The pass lists every `.js` already under `src/`, since each now ships on every page.\n2. **2 → 3** rewrites every `.wf` under `src/` in place, with a note for anything that needed a decision. It changes spelling only: the migrated project builds to what it built before.\n3. **3 → 4** changes what the compiler allows, so it runs over the project rather than the files. It adds every `env` name your pages already read to `public_env`, which preserves what the project did, and prints the list, because *public* means anyone who opens the site may read the value. It then names, with file and line, everything 4 refuses that 3 allowed: an `on*` attribute, a `javascript:` or `data:` URL. Those have no automatic rewrite, because the old value was a string of JavaScript or a link that ran one. Finally it lists the changes that need no edit: a store is built on first read rather than at boot, a `persist` value follows the site's other tabs, and `WF.store`/`WF.host` were renamed.\n\nSee also: [Upgrading](/about/upgrading).")
+                Markdown("`wf migrate` makes three passes, in this order:\n\n1. **4.1 → 4.2**, first, because 4.2 refuses `external`. A remote module becomes a `meta.scripts` entry. A local one becomes a plain script under `src/`, with its signatures as JSDoc, and `X.f(…)` becomes `f(…)`. An `external element` call becomes `Element(\"tag\", …)`. The pass lists every `.js` already under `src/`, since each now ships on every page.\n2. **2 → 3** rewrites every `.wf` under `src/` in place, with a note for anything that needed a decision. It changes spelling only: the migrated project builds to what it built before.\n3. **3 → 4** changes what the compiler allows, so it runs over the project rather than the files. It adds every `env` name your pages already read to `public_env`, which preserves what the project did, and prints the list, because *public* means anyone who opens the site may read the value. It then names, with file and line, everything 4 refuses that 3 allowed: an `on*` attribute, a `javascript:` or `data:` URL. Those have no automatic rewrite, because the old value was a string of JavaScript or a link that ran one. Finally it lists the changes that need no edit: a store is built on first read rather than at boot, a `persist` value follows the site's other tabs, and `WF.store`/`WF.host` were renamed.\n\nSee also: [Upgrading](/errors/upgrading).")
 
                 Heading("Describing the project", id: "describing-the-project").h2
 
@@ -1390,12 +1390,17 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                         Table.Row {
                             Table.Cell { Markdown("`WF_VERSION`") }
                             Table.Cell { Markdown("`install.sh`, `install.ps1`") }
-                            Table.Cell { Markdown("The release to install, such as `v5.11.0`, instead of the latest.") }
+                            Table.Cell { Markdown("The release to install, such as `vX.Y.Z`, instead of the latest.") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`WF_CHROME`") }
                             Table.Cell { Markdown("`wf test`, `wf verify`") }
                             Table.Cell("The Chrome or Chromium to drive, when it is not found on its own.")
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`WF_CHROME_NO_SANDBOX`") }
+                            Table.Cell { Markdown("`wf test`, `wf verify`") }
+                            Table.Cell { Markdown("`1` starts Chrome without its sandbox from the outset, instead of trying with one first (a container that gives it none).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`WF_BIN`") }
@@ -1407,6 +1412,11 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell { Markdown("`wf build`") }
                             Table.Cell { Markdown("A value for `env.NAME` ([Environments and secrets](/recipes/environments-and-secrets)).") }
                         }
+                        Table.Row {
+                            Table.Cell { Markdown("`WF_ALLOW_SHELL_ENV`") }
+                            Table.Cell { Markdown("`wf build`, `wf serve`") }
+                            Table.Cell { Markdown("Names, comma-separated, that `public_env` lists without the `PUBLIC_` prefix and whose value the shell may supply (`WF_ALLOW_SHELL_ENV=API_URL`). Without it such a name takes its value from the config or `.env` only, so a cloned project cannot bundle a shell secret.") }
+                        }
                     }
                 }
 
@@ -1416,74 +1426,90 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
 
                 Heading("Building a tool on the compiler", id: "building-a-tool-on-the-compiler").h2
 
-                Markdown("Every command above is a function in the `webfluent` crate, so an editor, a site builder or an agent can call it in process instead of running `wf`. Each one reads the project through a `webfluent::vfs::Vfs`: `FsVfs` reads the disk, and `OverlayVfs::over_disk()` lays the editor's unsaved buffers over it, so a tool reports the project as it is being edited.")
+                Markdown("Every command above is a function in the `webfluent` crate, so an editor, a site builder or an agent can call it in process instead of running `wf`. Each one reads the project through a `webfluent::vfs::Vfs`: `FsVfs` reads the disk, and `OverlayVfs::over_disk()` lays the editor's unsaved buffers over it, so a tool reports the project as it is being edited.\n\nMost of these are the compiler's own parts: they are reached with the crate's `internals` feature (`webfluent = \{ version = \"6\", features = [\"internals\"] \}`), are not documented, and a release may change them without a major version. The ones marked \"no\" are the documented API.")
 
                 Table(caption: "Building a tool on the compiler") {
                     Table.Head {
                         Table.Row {
                             Table.Cell("Function").header
+                            Table.Cell.header { Markdown("Needs `internals`") }
                             Table.Cell("What it is").header
                         }
                     }
                     Table.Body {
                         Table.Row {
-                            Table.Cell { Markdown("`build::\{build, check\}` with `BuildOptions`") }
+                            Table.Cell { Markdown("`webfluent::build::\{build, check\}` with `BuildOptions`") }
+                            Table.Cell("no")
                             Table.Cell { Markdown("`wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`diagnostics::fixes::fix_all`") }
+                            Table.Cell { Markdown("`webfluent::diagnostics::fixes::fix_all`") }
+                            Table.Cell("no")
                             Table.Cell { Markdown("`wf fix`'s fix-all, for one family in one file") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`print`, `reprint`, `edit::\{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program\}`") }
+                            Table.Cell { Markdown("`webfluent::syntax::\{print, reprint\}`, `webfluent::edit::\{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program\}`") }
+                            Table.Cell("yes")
                             Table.Cell("An element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was; refused when it would not read back the same")
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`codegen::node_id::\{build_node_map_with, layers\}`") }
+                            Table.Cell { Markdown("`webfluent::syntax::node_id::\{build_node_map_with, layers\}`") }
+                            Table.Cell("no")
                             Table.Cell("Every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree")
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`registry::schema::of_project_via`") }
+                            Table.Cell { Markdown("`webfluent::registry::schema::of_project_via`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf components`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`style_value`") }
+                            Table.Cell { Markdown("`webfluent::paged::style_value`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("Each style property's shape, a value read into parts (`read_box`), and the narrowest declaration written back (`edit_box`)") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`themes::view::\{view_via, set_token, reset_token\}`") }
+                            Table.Cell { Markdown("`webfluent::themes::view::\{view_via, set_token, reset_token\}`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf theme`, and one token written in its place") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`motion::catalogue`") }
+                            Table.Cell { Markdown("`webfluent::motion::catalogue`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf motion`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`validation::\{must_be_via, set_rule, remove_rule, move_rule\}`") }
+                            Table.Cell { Markdown("`webfluent::validation::\{must_be_via, set_rule, remove_rule, move_rule\}`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf rules`, and a state's `validate` block written back one rule at a time") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`scope::paths::at_via`") }
+                            Table.Cell { Markdown("`webfluent::scope::paths::at_via`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf scope`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`i18n::\{plurals, table\}`") }
+                            Table.Cell { Markdown("`webfluent::i18n::\{plurals, table\}`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf translations`: CLDR's plural rules, the table, and `set_message`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`assets`, `media::plan`") }
+                            Table.Cell { Markdown("`webfluent::build::assets::\{list, plan\}`, `webfluent::media::plan`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf assets`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`config::\{schema, json_edit\}`") }
+                            Table.Cell { Markdown("`webfluent::config::\{schema, json_edit\}`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf config`, and a setting written keeping the file's shape") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`commands`") }
+                            Table.Cell { Markdown("`webfluent::commands`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf commands`") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`agent::\{changeset, context, diff, edit\}`") }
+                            Table.Cell { Markdown("`webfluent::agent::\{changeset, context, diff, edit\}`") }
+                            Table.Cell("yes")
                             Table.Cell { Markdown("`wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits") }
                         }
                     }

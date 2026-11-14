@@ -90,7 +90,13 @@ The rules:
 - `if let x { }`, with no `=`, does the same for a name already in scope.
 - The narrowing holds inside the branch only. `if x != null { }` and
   `if x && … { }` narrow `x` inside their branch the same way; the right-hand
-  side of the `&&` is not narrowed.
+  side of the `&&` is not narrowed:
+
+  ```text
+  if user != null && user.name == "x" { … }     // T04: `user` may be null
+  if user != null && user?.name == "x" { … }    // reads through the null
+  if let u = user { if u.name == "x" { … } }    // or bind it, then test it
+  ```
 - The binding follows the value. When `user` becomes another user, the branch
   shows the new one in place. It is drawn again only when the value goes to
   `null` and back.

@@ -140,7 +140,7 @@ page ErrorE001(path: "/errors/E001", title: "E001 — Text the compiler cannot r
   |
 2 |     Heading("Hello).h1
   |             ^
-  = docs: https://webfluent.monzeromer.dev/errors/E001"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E001.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E001"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E001.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Hello).h1
 }"#, title: "wf") }
@@ -160,7 +160,7 @@ page ErrorE002(path: "/errors/E002", title: "E002 — A syntax error", descripti
   |
 3 |     Text("a" Text("b")
   |              ^^^^
-  = docs: https://webfluent.monzeromer.dev/errors/E002"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E002.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E002"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E002.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Hello").h1
     Text("a" Text("b")
@@ -177,13 +177,27 @@ page ErrorE002(path: "/errors/E002", title: "E002 — A syntax error", descripti
 }
 
 page ErrorE003(path: "/errors/E003", title: "E003 — Indentation that lines up with no block", description: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…") {
-    ErrorShell("E003", title: "Indentation that lines up with no block", severity: "error", family: "Syntax and structure", summary: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an indentation no enclosing block has is ambiguous.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E003.md") {
-        fixed {
-            Stack(gap: .sm) {
-                Markdown("Line the line up with the block it belongs to.")
-            }
+    ErrorShell("E003", title: "Indentation that lines up with no block", severity: "error", family: "Syntax and structure", summary: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an indentation no enclosing block has is ambiguous.", printed: #"error[E003]: This line's indentation matches no block around it
+ --> src/App.wfx:4:7
+  |
+4 |       Text("b")
+  |       ^^^^
+  = help: Indent it to the block it belongs to, with the same spaces or tabs as the lines around it
+  = docs: https://webfluent.monzeromer.dev/errors/E003"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E003.md") {
+        broken { CodeBlock(#"page Home(path: "/")
+    Row
+        Text("a")
+      Text("b")"#, title: "wfx") }
+        fixed { CodeBlock(#"page Home(path: "/", title: "Home", description: "Two words in a row.")
+    Heading("Home").h1
+    Row
+        Text("a")
+        Text("b")"#, title: "wfx") }
+        note {
+            Markdown("Line the line up with the block it belongs to.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
-        Markdown("In a `.wfx` file, a line that comes back out to an indentation no enclosing\nblock has. Saved as `src/App.wfx`, this draws `E003` (the example is not\ncompiled here, where every example is read as a `.wf` file):\n\n```wfx no-check\npage Home(path: \"/\")\n    Row\n        Text(\"a\")\n      Text(\"b\")\n```")
+        Markdown("In a `.wfx` file, a line that comes back out to an indentation no enclosing\nblock has. Saved as `src/App.wfx`, this draws `E003`:")
     }
 }
 
@@ -194,7 +208,7 @@ page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 
 1 | Page Home (path: "/") {
   | ^^^^
   = help: Run `wf migrate` to convert the project to the current grammar
-  = docs: https://webfluent.monzeromer.dev/errors/E004"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E004.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E004"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E004.md") {
         broken { CodeBlock(#"Page Home (path: "/") {
     Text("Hi")
 }"#, title: "wf") }
@@ -209,7 +223,7 @@ page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 
 }
 
 page ErrorE005(path: "/errors/E005", title: "E005 — A file the formatter will not change", description: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.") {
-    ErrorShell("E005", title: "A file the formatter will not change", severity: "error", family: "Syntax and structure", summary: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E005.md") {
+    ErrorShell("E005", title: "A file the formatter will not change", severity: "error", family: "Syntax and structure", summary: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E005.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("format the lines it\nnames by hand; please report the file, since it is a bug in `wf fmt`.")
@@ -226,7 +240,7 @@ page ErrorE101(path: "/errors/E101", title: "E101 — A component nothing declar
 3 |     Buton("Save")
   |     ^^^^^
   = help: did you mean `Button`? Or declare `component Buton { … }`
-  = docs: https://webfluent.monzeromer.dev/errors/E101"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E101.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E101"#, quickfix: "Change to `Button`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E101.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Buton("Save")
@@ -250,7 +264,7 @@ page ErrorE102(path: "/errors/E102", title: "E102 — A name declared twice", de
   |     ^^^^^^^
   = help: A name means one thing — rename one of the two `count`s
   = note: `count` is first declared here at src/App.wf:2:5
-  = docs: https://webfluent.monzeromer.dev/errors/E102"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E102.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E102"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E102.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
     derived count = 1
@@ -275,7 +289,7 @@ page ErrorE103(path: "/errors/E103", title: "E103 — A flag, case, part, event 
 3 |     Button("Save").huge
   |                   ^^^^^
   = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .dropInside, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
-  = docs: https://webfluent.monzeromer.dev/errors/E103"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E103.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E103"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E103.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save").huge
@@ -298,7 +312,7 @@ page ErrorE104(path: "/errors/E104", title: "E104 — A layout with nowhere to p
 2 | page P(path: "/", title: "T", description: "D", layout: Shell) {
   |                                                         ^^^^^
   = help: Add `slot` to the component and place `children` where the page belongs
-  = docs: https://webfluent.monzeromer.dev/errors/E104"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E104.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E104"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E104.md") {
         broken { CodeBlock(#"component Shell { Text("frame") }
 page P(path: "/", title: "T", description: "D", layout: Shell) {
     Heading("Home").h1
@@ -325,7 +339,7 @@ page ErrorE105(path: "/errors/E105", title: "E105 — A statement a render block
 4 |     n = n + 1
   |     ^
   = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised
-  = docs: https://webfluent.monzeromer.dev/errors/E105"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E105.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E105"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E105.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 0
     Heading("Count").h1
@@ -350,7 +364,7 @@ page ErrorE106(path: "/errors/E106", title: "E106 — Script or a whole style in
 3 |     Button("Save", onclick: "save()")
   |                    ^^^^^^^
   = help: Write the handler instead: `Button(…) { on click { … } }`
-  = docs: https://webfluent.monzeromer.dev/errors/E106"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E106.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E106"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E106.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", onclick: "save()")
@@ -375,7 +389,7 @@ page ErrorE107(path: "/errors/E107", title: "E107 — A URL a browser would run"
 3 |     Link("Go", to: "javascript:alert(1)")
   |                ^^
   = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp
-  = docs: https://webfluent.monzeromer.dev/errors/E107"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E107.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E107"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E107.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Go").h1
     Link("Go", to: "javascript:alert(1)")
@@ -392,7 +406,7 @@ page ErrorE107(path: "/errors/E107", title: "E107 — A URL a browser would run"
 }
 
 page ErrorE108(path: "/errors/E108", title: "E108 — An env name that is not public", description: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.") {
-    ErrorShell("E108", title: "An env name that is not public", severity: "error", family: "Syntax and structure", summary: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E108.md") {
+    ErrorShell("E108", title: "An env name that is not public", severity: "error", family: "Syntax and structure", summary: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E108.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("rename it `PUBLIC_…` (`env.PUBLIC_APP_NAME`) or list it in\n`public_env` — only if anyone may read it. A value the page must not read\nbelongs behind a request ([Environments and\nsecrets](/recipes/environments-and-secrets)).")
@@ -403,7 +417,7 @@ page ErrorE108(path: "/errors/E108", title: "E108 — An env name that is not pu
 }
 
 page ErrorE109(path: "/errors/E109", title: "E109 — An element this output cannot draw", description: "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.") {
-    ErrorShell("E109", title: "An element this output cannot draw", severity: "error", family: "Syntax and structure", summary: "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E109.md") {
+    ErrorShell("E109", title: "An element this output cannot draw", severity: "error", family: "Syntax and structure", summary: "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E109.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("draw it as text, or build the\npage as a site.")
@@ -414,7 +428,7 @@ page ErrorE109(path: "/errors/E109", title: "E109 — An element this output can
 }
 
 page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cannot be a plain script", description: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose…") {
-    ErrorShell("E110", title: "A project script that cannot be a plain script", severity: "error", family: "Syntax and structure", summary: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose names clash with the program's, cannot be.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E110.md") {
+    ErrorShell("E110", title: "A project script that cannot be a plain script", severity: "error", family: "Syntax and structure", summary: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose names clash with the program's, cannot be.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E110.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("take off the\n`import`/`export` (a top-level `function` is global as it is), keep one of\nthe two files, or rename the clashing name.")
@@ -425,7 +439,7 @@ page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cann
 }
 
 page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work", description: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.") {
-    ErrorShell("E111", title: "A setting that cannot work", severity: "error", family: "Syntax and structure", summary: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E111.md") {
+    ErrorShell("E111", title: "A setting that cannot work", severity: "error", family: "Syntax and structure", summary: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E111.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("what the message says; it names the setting.")
@@ -436,7 +450,7 @@ page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work
 }
 
 page ErrorE112(path: "/errors/E112", title: "E112 — A setting nothing reads", description: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.") {
-    ErrorShell("E112", title: "A setting nothing reads", severity: "warning", family: "Syntax and structure", summary: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E112.md") {
+    ErrorShell("E112", title: "A setting nothing reads", severity: "warning", family: "Syntax and structure", summary: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E112.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("correct the key.")
@@ -453,7 +467,7 @@ page ErrorE113(path: "/errors/E113", title: "E113 — An argument that cannot be
 4 |     Card("Laptop", 999)
   |                    ^^^
   = help: Name the others: `Button("Save", tone: .primary)`
-  = docs: https://webfluent.monzeromer.dev/errors/E113"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E113.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E113"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E113.md") {
         broken { CodeBlock(#"component Card(_ name: String, price: Number = 0) { Text(name) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Shop").h1
@@ -477,7 +491,7 @@ page ErrorE114(path: "/errors/E114", title: "E114 — emit outside a component",
   |
 3 |     Button("Save") { on click { emit saved() } }
   |                                 ^^^^
-  = docs: https://webfluent.monzeromer.dev/errors/E114"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E114.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E114"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E114.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save") { on click { emit saved() } }
@@ -496,7 +510,7 @@ page ErrorE114(path: "/errors/E114", title: "E114 — emit outside a component",
 }
 
 page ErrorE115(path: "/errors/E115", title: "E115 — A project script the compiler could not read", description: "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.") {
-    ErrorShell("E115", title: "A project script the compiler could not read", severity: "warning", family: "Syntax and structure", summary: "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E115.md") {
+    ErrorShell("E115", title: "A project script the compiler could not read", severity: "warning", family: "Syntax and structure", summary: "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E115.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("what the message says, at the\nline it names.")
@@ -513,7 +527,7 @@ page ErrorE116(path: "/errors/E116", title: "E116 — A tag that cannot be a cus
 3 |     Element("pricingtable")
   |     ^^^^^^^
   = help: A custom element's tag is lower case with a hyphen: `Element("stripe-pricing-table", …)`
-  = docs: https://webfluent.monzeromer.dev/errors/E116"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E116.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E116"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E116.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Pricing").h1
     Element("pricingtable")
@@ -536,7 +550,7 @@ page ErrorE117(path: "/errors/E117", title: "E117 — A key combination no keybo
 2 |     on key("ctrl+shfit+k") { log("search") }
   |            ^
   = help: Modifiers `mod` (⌘ on a Mac, Ctrl elsewhere), `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`; a chord is its steps with a space between, `mod+k mod+s`
-  = docs: https://webfluent.monzeromer.dev/errors/E117"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E117.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E117"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E117.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     on key("ctrl+shfit+k") { log("search") }
     Heading("Search").h1
@@ -559,7 +573,7 @@ page ErrorE118(path: "/errors/E118", title: "E118 — A name the language alread
 2 |     state env = "staging"
   |     ^^^^^^^^^^^^^^^^^^^^^
   = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name
-  = docs: https://webfluent.monzeromer.dev/errors/E118"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E118.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E118"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E118.md") {
         broken { CodeBlock(#"page Deploy(path: "/", title: "Deploy", description: "Pick a target.") {
     state env = "staging"
     Heading("Deploy to {env}").h1
@@ -577,7 +591,7 @@ page ErrorE118(path: "/errors/E118", title: "E118 — A name the language alread
 }
 
 page ErrorE901(path: "/errors/E901", title: "E901 — The compiler wrote JavaScript a browser would refuse", description: "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the…") {
-    ErrorShell("E901", title: "The compiler wrote JavaScript a browser would refuse", severity: "error", family: "Syntax and structure", summary: "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the source that produced it.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E901.md") {
+    ErrorShell("E901", title: "The compiler wrote JavaScript a browser would refuse", severity: "error", family: "Syntax and structure", summary: "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the source that produced it.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E901.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("please report it, with\nthe source that produced it.")
@@ -588,7 +602,7 @@ page ErrorE901(path: "/errors/E901", title: "E901 — The compiler wrote JavaScr
 }
 
 page ErrorE902(path: "/errors/E902", title: "E902 — Output its own security policy refuses", description: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add…") {
-    ErrorShell("E902", title: "Output its own security policy refuses", severity: "error", family: "Syntax and structure", summary: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add to it; something there would be blocked.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E902.md") {
+    ErrorShell("E902", title: "Output its own security policy refuses", severity: "error", family: "Syntax and structure", summary: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add to it; something there would be blocked.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E902.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("what the\nmessage says; a library's origin goes in `meta.scripts`, a stylesheet's in\n`meta.stylesheets`.")
@@ -599,7 +613,7 @@ page ErrorE902(path: "/errors/E902", title: "E902 — Output its own security po
 }
 
 page ErrorE119(path: "/errors/E119", title: "E119 — A hidden direction control in the source", description: "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not…") {
-    ErrorShell("E119", title: "A hidden direction control in the source", severity: "warning", family: "Syntax and structure", summary: "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not the code that runs (Trojan Source).", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E119.md") {
+    ErrorShell("E119", title: "A hidden direction control in the source", severity: "warning", family: "Syntax and structure", summary: "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not the code that runs (Trojan Source).", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E119.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("remove it. Arabic beside Latin needs no control: each run\ntakes the direction of its own letters.\n\nNames may be written in Arabic, or any script: a name starts with a letter\nand goes on with letters, digits, `_` and the marks of its letters, as\nUAX #31 says (`state عددٌ = 3`), and is one name however its letters were\ntyped — أ precomposed or ا with a combining hamza (NFC).")
@@ -610,7 +624,7 @@ page ErrorE119(path: "/errors/E119", title: "E119 — A hidden direction control
 }
 
 page ErrorE120(path: "/errors/E120", title: "E120 — Something nests too deeply", description: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of…") {
-    ErrorShell("E120", title: "Something nests too deeply", severity: "error", family: "Syntax and structure", summary: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E120.md") {
+    ErrorShell("E120", title: "Something nests too deeply", severity: "error", family: "Syntax and structure", summary: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E120.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("name a part of it — a `let` in an action, a `derived` value, a\ncomponent — and use the name. A component that places itself stops when\nits data does; one whose data does not end is this error too.")
@@ -621,7 +635,7 @@ page ErrorE120(path: "/errors/E120", title: "E120 — Something nests too deeply
 }
 
 page ErrorE121(path: "/errors/E121", title: "E121 — A render that would do too much", description: "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges…") {
-    ErrorShell("E121", title: "A render that would do too much", severity: "error", family: "Syntax and structure", summary: "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges or data, or an expression that makes more than one evaluation may.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E121.md") {
+    ErrorShell("E121", title: "A render that would do too much", severity: "error", family: "Syntax and structure", summary: "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges or data, or an expression that makes more than one evaluation may.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E121.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("draw less — page the data before it reaches the\ntemplate, or work the value out on the server and hand it over.")
@@ -638,7 +652,7 @@ page ErrorT01(path: "/errors/T01", title: "T01 — A value of the wrong type", d
 4 |     Button("Reset") { on click { count = "zero" } }
   |                                  ^^^^^^^^^^^^^^
   = help: Convert it: `Number(value)`
-  = docs: https://webfluent.monzeromer.dev/errors/T01"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T01"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T01.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count: Number = 0
     Heading("Counter").h1
@@ -663,7 +677,7 @@ page ErrorT02(path: "/errors/T02", title: "T02 — A case the enum does not have
 3 |     state tone: Tone = .quiet
   |                 ^^^^
   = help: `Tone` takes .calm, .loud
-  = docs: https://webfluent.monzeromer.dev/errors/T02"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T02"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T02.md") {
         broken { CodeBlock(#"enum Tone { calm, loud }
 page P(path: "/", title: "T", description: "D") {
     state tone: Tone = .quiet
@@ -682,27 +696,27 @@ page P(path: "/", title: "T", description: "D") {
 }
 
 page ErrorT04(path: "/errors/T04", title: "T04 — A value that may be null, read as if it were not", description: "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.") {
-    ErrorShell("T04", title: "A value that may be null, read as if it were not", severity: "error", family: "Types", summary: "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.", printed: #"error[T04]: `user.email` may be null, so `.toUpperCase()` may fail
- --> src/App.wf:5:10
+    ErrorShell("T04", title: "A value that may be null, read as if it were not", severity: "error", family: "Types", summary: "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.", printed: #"error[T04]: `user.email` may be null, so `.length` may fail
+ --> src/App.wf:5:12
   |
-5 |     Text(user.email.toUpperCase())
-  |          ^^^^^^^^^^
-  = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
-  = docs: https://webfluent.monzeromer.dev/errors/T04"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T04.md") {
+5 |     Text("{user.email.length} characters")
+  |            ^^^^^^^^^^
+  = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.field`, or a check for `!= null`
+  = docs: https://webfluent.monzeromer.dev/errors/T04"#, quickfix: "Read it through null: `?.length`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T04.md") {
         broken { CodeBlock(#"type Member { name: String, email: String? }
 page P(path: "/", title: "T", description: "D") {
     state user = Member(name: "Ada", email: null)
     Heading("Profile").h1
-    Text(user.email.toUpperCase())
+    Text("{user.email.length} characters")
 }"#, title: "wf") }
         fixed { CodeBlock(#"type Member { name: String, email: String? }
 page P(path: "/", title: "T", description: "D") {
     state user = Member(name: "Ada", email: null)
     Heading("Profile").h1
-    Text(user.email?.toUpperCase() ?? "")
+    Text("{user.email?.length ?? 0} characters")
 }"#, title: "wf") }
         note {
-            Markdown("Unwrap it: `if let e = user.email \{ e.toUpperCase() \}`, `user.email?.toUpperCase()`, or `(user.email ?? \"\").toUpperCase()`.")
+            Markdown("Unwrap it: `if let e = user.email \{ e.length \}`, `user.email?.length ?? 0`, or `(user.email ?? \"\").length`. Your editor's quick fix, and `wf fix --code T04`, write the `?.` for you.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -715,7 +729,7 @@ page ErrorT05(path: "/errors/T05", title: "T05 — A field or method that does n
 4 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Did you mean `name`? Its fields are `name`
-  = docs: https://webfluent.monzeromer.dev/errors/T05"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T05"#, quickfix: "Change to `name`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T05.md") {
         broken { CodeBlock(#"type User { name: String }
 page P(path: "/", title: "T", description: "D") {
     state user = User(name: "Ada")
@@ -740,7 +754,7 @@ page ErrorT06(path: "/errors/T06", title: "T06 — A member a store or service d
 4 |     Heading("{Cart.count} items").h1
   |                    ^^^^^
   = help: Its members are `items`
-  = docs: https://webfluent.monzeromer.dev/errors/T06"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T06"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T06.md") {
         broken { CodeBlock(#"store Cart { state items = [] }
 page P(path: "/", title: "T", description: "D") {
     use Cart
@@ -768,7 +782,7 @@ page ErrorT07(path: "/errors/T07", title: "T07 — A condition that is always tr
 4 |     if items { Text("There are items") }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Ask about its length: `items.length > 0`
-  = docs: https://webfluent.monzeromer.dev/errors/T07"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T07"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T07.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state items = ["a"]
     Heading("List").h1
@@ -793,7 +807,7 @@ page ErrorT08(path: "/errors/T08", title: "T08 — A loop over something that is
 4 |     for n in total { Text("{n}") }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Give it a list, or `.split(…)` a string first
-  = docs: https://webfluent.monzeromer.dev/errors/T08"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T08.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T08"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T08.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state total = 3
     Heading("Loop").h1
@@ -818,7 +832,7 @@ page ErrorT09(path: "/errors/T09", title: "T09 — An emit that does not match i
 3 |     Button("+") { on click { emit change(1, 2) } }
   |                              ^^^^^^^^^^^^^^^^^
   = help: `event change(value: Number)`
-  = docs: https://webfluent.monzeromer.dev/errors/T09"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T09.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T09"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T09.md") {
         broken { CodeBlock(#"component Stepper(_ start: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(1, 2) } }
@@ -845,7 +859,7 @@ page ErrorT10(path: "/errors/T10", title: "T10 — A call with the wrong argumen
   |
 5 |     Button("+") { on click { add(1, 2) } }
   |                              ^^^
-  = docs: https://webfluent.monzeromer.dev/errors/T10"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T10.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T10"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T10.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
     action add(step: Number) { count = count + step }
@@ -872,7 +886,7 @@ page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that can
 4 |     match n {
   |     ^^^^^^^^^
   = help: Use `if` for a condition; `match` chooses among a resource's states or an enum's cases
-  = docs: https://webfluent.monzeromer.dev/errors/T11"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T11.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T11"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T11.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 1
     Heading("Match").h1
@@ -900,7 +914,7 @@ page ErrorT12(path: "/errors/T12", title: "T12 — A secret where it would escap
 4 |     Text(token)
   |          ^^^^^
   = help: A secret must not reach the page; send it as a value, or show one field of what it unlocks
-  = docs: https://webfluent.monzeromer.dev/errors/T12"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T12.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T12"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T12.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state token: Secret = ""
     Heading("Token").h1
@@ -925,7 +939,7 @@ page ErrorT13(path: "/errors/T13", title: "T13 — A name nothing declares", des
 4 |     Button("+") { on click { cuont = count + 1 } }
   |                              ^^^^^
   = help: Did you mean `count`? Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
-  = docs: https://webfluent.monzeromer.dev/errors/T13"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T13.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T13"#, quickfix: "Change to `count`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T13.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
     Heading("Counter").h1
@@ -950,7 +964,7 @@ page ErrorT16(path: "/errors/T16", title: "T16 — A method a number, a string o
 4 |     Text(names.joined(", "))
   |                ^^^^^^
   = help: Did you mean `join`?
-  = docs: https://webfluent.monzeromer.dev/errors/T16"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T16.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T16"#, quickfix: "Change to `join`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T16.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state names = ["Ada", "Grace"]
     Heading("People").h1
@@ -975,7 +989,7 @@ page ErrorT14(path: "/errors/T14", title: "T14 — A comparison that is always t
 4 |     if count == "0" { Text("Nothing yet") }
   |        ^^^^^
   = help: Convert one side: `Number(text) == n`, or `"{n}" == text`
-  = docs: https://webfluent.monzeromer.dev/errors/T14"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T14.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T14"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T14.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
     Heading("Count").h1
@@ -1000,7 +1014,7 @@ page ErrorT17(path: "/errors/T17", title: "T17 — An async result used before i
 5 |     Button("Save", disabled: save.pending) { on click { save() } }
   |                              ^^^^
   = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints
-  = docs: https://webfluent.monzeromer.dev/errors/T17"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T17.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T17"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T17.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state saved = false
     action save() { saved = true }
@@ -1027,7 +1041,7 @@ page ErrorT19(path: "/errors/T19", title: "T19 — A value that may be null, sho
 5 |     Text("Also known as {user.nickname}")
   |                          ^^^^^^^^^^^^^
   = help: Say what to show instead: `{user.nickname ?? ""}`
-  = docs: https://webfluent.monzeromer.dev/errors/T19"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T19.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T19"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T19.md") {
         broken { CodeBlock(#"type Member { name: String, nickname: String? }
 page P(path: "/", title: "T", description: "D") {
     state user = Member(name: "Ada", nickname: null)
@@ -1055,7 +1069,7 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
 4 |     Text("Tagged {tags}")
   |                   ^^^^
   = help: Show a field of it, or `.join(", ")` a list of text
-  = docs: https://webfluent.monzeromer.dev/errors/T20"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T20.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T20"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T20.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state tags = ["a", "b"]
     Heading("Tags").h1
@@ -1081,7 +1095,7 @@ page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that 
 3 |     Heading("Total {price * 2}").h1
   |                           ^
   = help: Convert it: `Number(value)`; `+` joins text when one side is a string
-  = docs: https://webfluent.monzeromer.dev/errors/T18"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T18.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T18"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T18.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state price = "12"
     Heading("Total {price * 2}").h1
@@ -1104,7 +1118,7 @@ page ErrorT15(path: "/errors/T15", title: "T15 — A match that misses a case, o
 5 |     match status {
   |     ^^^^^
   = help: Add an arm for each, or `else { … }` for the rest
-  = docs: https://webfluent.monzeromer.dev/errors/T15"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T15.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T15"#, quickfix: "Add an arm for `.review`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T15.md") {
         broken { CodeBlock(#"enum Status { draft, review, live }
 page P(path: "/", title: "T", description: "D") {
     state status: Status = .draft
@@ -1138,7 +1152,7 @@ page ErrorT22(path: "/errors/T22", title: "T22 — A handler that names more val
 9 |     Entry("notes.wf") { on menu(key, x, y, z) { at = "{key} at {x}, {y}" } }
   |                                            ^
   = help: Name at most 3, in order: `on menu(key, x, y)`
-  = docs: https://webfluent.monzeromer.dev/errors/T22"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T22.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T22"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T22.md") {
         broken { CodeBlock(#"component Entry(_ key: String) {
     event menu(key: String, x: Number, y: Number)
     Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
@@ -1176,7 +1190,7 @@ page ErrorT21(path: "/errors/T21", title: "T21 — A resource match with no erro
 4 |     match users {
   |     ^^^^^
   = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
-  = docs: https://webfluent.monzeromer.dev/errors/T21"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T21.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T21"#, quickfix: "Add an `error` arm", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T21.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     resource users = fetch("/api/users")
     Heading("Users").h1
@@ -1209,7 +1223,7 @@ page ErrorC01(path: "/errors/C01", title: "C01 — A required prop or field left
 3 |     state todo = Todo(title: "Write the docs")
   |                  ^^^^
   = help: Give it, or declare a default in the type: `field: Type = value`
-  = docs: https://webfluent.monzeromer.dev/errors/C01"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C01"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C01.md") {
         broken { CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 page P(path: "/", title: "T", description: "D") {
     state todo = Todo(title: "Write the docs")
@@ -1234,7 +1248,7 @@ page ErrorC02(path: "/errors/C02", title: "C02 — A prop the component does not
 4 |     Badge2("New", colour: "red")
   |                   ^^^^^^
   = help: It is passed anyway, but nothing in the component reads it
-  = docs: https://webfluent.monzeromer.dev/errors/C02"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C02"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C02.md") {
         broken { CodeBlock(#"component Badge2(_ label: String) { Text(label) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Badges").h1
@@ -1259,7 +1273,7 @@ page ErrorC03(path: "/errors/C03", title: "C03 — A part outside the component 
 3 |     Select.Option("Pro", value: "pro")
   |     ^^^^^^^^^^^^^
   = help: Place it in a `Select { … }`
-  = docs: https://webfluent.monzeromer.dev/errors/C03"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C03"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C03.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Plans").h1
     Select.Option("Pro", value: "pro")
@@ -1283,7 +1297,7 @@ page ErrorC04(path: "/errors/C04", title: "C04 — An attribute a built-in does 
 3 |     Button("Save", colour: "red")
   |                    ^^^^^^
   = help: A typo here does nothing on screen; check the component's props
-  = docs: https://webfluent.monzeromer.dev/errors/C04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C04"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", colour: "red")
@@ -1307,7 +1321,7 @@ page ErrorC05(path: "/errors/C05", title: "C05 — A positional argument a built
 3 |     Divider("thin")
   |             ^
   = help: Name it: the registry lists the props it takes
-  = docs: https://webfluent.monzeromer.dev/errors/C05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C05"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Rule").h1
     Divider("thin")
@@ -1331,7 +1345,7 @@ page ErrorC06(path: "/errors/C06", title: "C06 — A positional argument bound b
 4 |     Tag2("new")
   |          ^
   = help: Mark the prop: `component Tag2(_ label: …)`
-  = docs: https://webfluent.monzeromer.dev/errors/C06"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C06"#, quickfix: "Mark `label` positional in `Tag2`", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C06.md") {
         broken { CodeBlock(#"component Tag2(label: String) { Text(label) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Tags").h1
@@ -1357,7 +1371,7 @@ page ErrorC07(path: "/errors/C07", title: "C07 — A drag or a gesture on a comp
 6 |     Rows2("a", drag: "a")
   |                ^^^^
   = help: Wrap what `Rows2` draws in one element (a `Stack`, a `Row`), or write `drag:` inside it
-  = docs: https://webfluent.monzeromer.dev/errors/C07"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C07"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C07.md") {
         broken { CodeBlock(#"component Rows2(_ name: String) {
     for x in [1, 2] { Text(name) }
 }
@@ -1387,7 +1401,7 @@ page ErrorR01(path: "/errors/R01", title: "R01 — A route to nothing", descript
 3 |     Link("About us", to: "/abuot")
   |     ^^^^
   = help: The nearest is `/about`
-  = docs: https://webfluent.monzeromer.dev/errors/R01"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R01"#, quickfix: "Change to `/about`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R01.md") {
         broken { CodeBlock(#"page Home(path: "/", title: "T", description: "D") {
     Heading("Home").h1
     Link("About us", to: "/abuot")
@@ -1416,7 +1430,7 @@ page ErrorR02(path: "/errors/R02", title: "R02 — A route parameter and a page 
 1 | page Profile(path: "/u/:id", title: "T", description: "D") {
   | ^^^^
   = help: Declare it: `page Profile(path: "/u/:id", id: String)`, then read `id`
-  = docs: https://webfluent.monzeromer.dev/errors/R02"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R02"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R02.md") {
         broken { CodeBlock(#"page Profile(path: "/u/:id", title: "T", description: "D") {
     Heading("Profile").h1
 }"#, title: "wf") }
@@ -1437,7 +1451,7 @@ page ErrorR03(path: "/errors/R03", title: "R03 — An app with no Router, or wit
 2 |     Navbar { Navbar.Brand { Text("Ledger") } }
   |     ^^^^^^
   = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`
-  = docs: https://webfluent.monzeromer.dev/errors/R03"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R03"#, quickfix: "Add `Router`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R03.md") {
         broken { CodeBlock(#"app {
     Navbar { Navbar.Brand { Text("Ledger") } }
 }
@@ -1465,7 +1479,7 @@ page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested ro
 3 |     Image(src: "images/cover.png", alt: "")
   |     ^^^^^
   = help: Write it from the site's root: `"/images/cover.png"`
-  = docs: https://webfluent.monzeromer.dev/errors/R04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R04"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R04.md") {
         broken { CodeBlock(#"page Post(path: "/blog/first", title: "T", description: "D") {
     Heading("First post").h1
     Image(src: "images/cover.png", alt: "")
@@ -1489,7 +1503,7 @@ page ErrorR05(path: "/errors/R05", title: "R05 — A translation of no page, or 
 5 | page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Hom) {
   | ^^^^
   = help: Did you mean `Home`?
-  = docs: https://webfluent.monzeromer.dev/errors/R05"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R05"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R05.md") {
         broken { CodeBlock(#"page Home(path: "/", title: "Home", description: "D") {
     Heading("Home").h1
 }
@@ -1519,7 +1533,7 @@ page ErrorX01(path: "/errors/X01", title: "X01 — An assignment to something th
 4 |     Button("More") { on click { LIMIT = 4 } }
   |                                 ^^^^^
   = help: Declare it `state` if it changes; a constant is the same on every page
-  = docs: https://webfluent.monzeromer.dev/errors/X01"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/X01"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X01.md") {
         broken { CodeBlock(#"const LIMIT = 3
 page P(path: "/", title: "T", description: "D") {
     Heading("Limit {LIMIT}").h1
@@ -1544,7 +1558,7 @@ page ErrorX02(path: "/errors/X02", title: "X02 — An effect that feeds itself",
 3 |     effect { visits = visits + 1 }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Work the value out with `derived` instead, or write it from the action that changes what it reads
-  = docs: https://webfluent.monzeromer.dev/errors/X02"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/X02"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X02.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state visits = 0
     effect { visits = visits + 1 }
@@ -1569,7 +1583,7 @@ page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes 
 7 |     derived ticket = next()
   |     ^^^^^^^^^^^^^^^^^^^^^^^
   = help: A derived value only reads; call the action from a handler, and derive from what it sets
-  = docs: https://webfluent.monzeromer.dev/errors/X04"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/X04"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
     action next() {
@@ -1603,7 +1617,7 @@ page ErrorX05(path: "/errors/X05", title: "X05 — use of a store nothing declar
 3 |     use Carts
   |     ^^^
   = help: The stores are `Cart`
-  = docs: https://webfluent.monzeromer.dev/errors/X05"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/X05"#, quickfix: "Change to `Cart`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X05.md") {
         broken { CodeBlock(#"store Cart { state items = [] }
 page P(path: "/", title: "T", description: "D") {
     use Carts
@@ -1628,7 +1642,7 @@ page ErrorX06(path: "/errors/X06", title: "X06 — A state that copies a live va
 3 |     state clock = now(every: 1.seconds)
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Nothing assigns `clock`: declare it `derived`, which is worked out again whenever `now` changes
-  = docs: https://webfluent.monzeromer.dev/errors/X06"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/X06"#, quickfix: "Change to `derived clock`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X06.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state posted = @2026-03-14T09:30:00Z
     state clock = now(every: 1.seconds)
@@ -1655,7 +1669,7 @@ page ErrorF01(path: "/errors/F01", title: "F01 — A bind: to something that can
 5 |     Input(bind: name, label: "Name")
   |           ^^^^^^^^^^
   = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`
-  = docs: https://webfluent.monzeromer.dev/errors/F01"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F01"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F01.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state first = "Ada"
     derived name = first.toUpperCase()
@@ -1682,7 +1696,7 @@ page ErrorF02(path: "/errors/F02", title: "F02 — A bind: to a state the contro
 4 |     Input(bind: qty, label: "Quantity")
   |           ^^^^^^^^^
   = help: A number field is `Input(…).number`, which holds a number
-  = docs: https://webfluent.monzeromer.dev/errors/F02"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F02"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F02.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state qty = 1
     Heading("Order").h1
@@ -1707,7 +1721,7 @@ page ErrorF03(path: "/errors/F03", title: "F03 — A validate block no control c
 3 |     validate email { required  email }
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Bind it to the control the reader fills in: `Input(bind: email, …)`
-  = docs: https://webfluent.monzeromer.dev/errors/F03"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F03"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F03.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state email = ""
     validate email { required  email }
@@ -1737,7 +1751,7 @@ page ErrorF04(path: "/errors/F04", title: "F04 — A checkbox that shows a state
 4 |     Checkbox(checked: agree, label: "I agree")
   |     ^^^^^^^^
   = help: Write `bind:` to keep the box and the state together, or handle `on change`
-  = docs: https://webfluent.monzeromer.dev/errors/F04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/F04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F04"#, quickfix: "Change to `bind:`", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/F04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state agree = false
     Heading("Terms").h1
@@ -1763,7 +1777,7 @@ page ErrorF05(path: "/errors/F05", title: "F05 — A select whose value is none 
 4 |     Select(bind: plan, label: "Plan") {
   |     ^^^^^^
   = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
-  = docs: https://webfluent.monzeromer.dev/errors/F05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/F05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F05"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/F05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state plan = "basic"
     Heading("Plan").h1
@@ -1789,7 +1803,7 @@ page ErrorF05(path: "/errors/F05", title: "F05 — A select whose value is none 
 }
 
 page ErrorD01(path: "/errors/D01", title: "D01 — A file the project does not have", description: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.") {
-    ErrorShell("D01", title: "A file the project does not have", severity: "warning", family: "Data and assets", summary: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D01.md") {
+    ErrorShell("D01", title: "A file the project does not have", severity: "warning", family: "Data and assets", summary: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D01.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("put the file in `public/`, or correct\nthe path.")
@@ -1806,7 +1820,7 @@ page ErrorD02(path: "/errors/D02", title: "D02 — A persisted value storage can
 2 |     persist pick = (x) => x + 1
   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
   = help: Keep what it is made from — a name, an id, the data — and build it again when it is read
-  = docs: https://webfluent.monzeromer.dev/errors/D02"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/D02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/D02"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/D02.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     persist pick = (x) => x + 1
     Heading("Pick").h1
@@ -1829,7 +1843,7 @@ page ErrorD03(path: "/errors/D03", title: "D03 — A persisted value every insta
 2 |     persist open = false
   |     ^^^^^^^
   = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart
-  = docs: https://webfluent.monzeromer.dev/errors/D03"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/D03"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D03.md") {
         broken { CodeBlock(#"component Panel(_ title: String) {
     persist open = false
     Card { Text(title) }
@@ -1857,7 +1871,7 @@ page P(path: "/", title: "T", description: "D") {
 }
 
 page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed with no new version", description: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.") {
-    ErrorShell("D04", title: "A persisted shape changed with no new version", severity: "warning", family: "Data and assets", summary: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D04.md") {
+    ErrorShell("D04", title: "A persisted shape changed with no new version", severity: "warning", family: "Data and assets", summary: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D04.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("raise `version:` and add `migrate 1 -> 2 \{ … \}` to bring the\nold value forward.")
@@ -1868,7 +1882,7 @@ page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed wit
 }
 
 page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin with no integrity hash", description: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser…") {
-    ErrorShell("D05", title: "An asset from another origin with no integrity hash", severity: "warning", family: "Data and assets", summary: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D05.md") {
+    ErrorShell("D05", title: "An asset from another origin with no integrity hash", severity: "warning", family: "Data and assets", summary: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D05.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("add its `sha384-…` hash to `meta.integrity` (the CDN usually\npublishes it). Google Fonts is exempt: its stylesheet differs per browser.")
@@ -1879,7 +1893,7 @@ page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin 
 }
 
 page ErrorI01(path: "/errors/I01", title: "I01 — A message no translation has", description: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.") {
-    ErrorShell("I01", title: "A message no translation has", severity: "error", family: "Translations", summary: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I01.md") {
+    ErrorShell("I01", title: "A message no translation has", severity: "error", family: "Translations", summary: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I01.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("the key the message suggests, or add it to the files.")
@@ -1890,7 +1904,7 @@ page ErrorI01(path: "/errors/I01", title: "I01 — A message no translation has"
 }
 
 page ErrorI02(path: "/errors/I02", title: "I02 — A message and its call that disagree", description: "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.") {
-    ErrorShell("I02", title: "A message and its call that disagree", severity: "error", family: "Translations", summary: "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I02.md") {
+    ErrorShell("I02", title: "A message and its call that disagree", severity: "error", family: "Translations", summary: "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I02.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("pass what the\nmessage shows, by the name it shows it.")
@@ -1901,7 +1915,7 @@ page ErrorI02(path: "/errors/I02", title: "I02 — A message and its call that d
 }
 
 page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and another does not", description: "A reader in the locale that lacks it sees the key instead of the words.") {
-    ErrorShell("I03", title: "A message one locale has and another does not", severity: "warning", family: "Translations", summary: "A reader in the locale that lacks it sees the key instead of the words.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I03.md") {
+    ErrorShell("I03", title: "A message one locale has and another does not", severity: "warning", family: "Translations", summary: "A reader in the locale that lacks it sees the key instead of the words.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I03.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("translate it, or remove it from the others.")
@@ -1912,7 +1926,7 @@ page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and 
 }
 
 page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not have", description: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.") {
-    ErrorShell("I04", title: "A locale the project does not have", severity: "error", family: "Translations", summary: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I04.md") {
+    ErrorShell("I04", title: "A locale the project does not have", severity: "error", family: "Translations", summary: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I04.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("add the\nlocale and its file, or name one that exists.")
@@ -1923,7 +1937,7 @@ page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not
 }
 
 page ErrorI05(path: "/errors/I05", title: "I05 — Words a reader sees that are not translated", description: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…") {
-    ErrorShell("I05", title: "Words a reader sees that are not translated", severity: "warning", family: "Translations", summary: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader sees it as written.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I05.md") {
+    ErrorShell("I05", title: "Words a reader sees that are not translated", severity: "warning", family: "Translations", summary: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader sees it as written.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I05.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("splice names, `derived filesText = \"\{n\} files\"`\nthen `Text(\"\{filesText\} found\")`, and name what is words as words.")
@@ -1940,7 +1954,7 @@ page ErrorA01(path: "/errors/A01", title: "A01 — An image with no alt text", d
 3 |     Image(src: "/team.jpg")
   |     ^^^^^
   = help: Add alt text: Image(src: "...", alt: "Description of image")
-  = docs: https://webfluent.monzeromer.dev/errors/A01"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A01"#, quickfix: "Add `alt: \"\"` — then describe the image, or leave it empty if it is decorative", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A01.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Photo").h1
     Image(src: "/team.jpg")
@@ -1963,7 +1977,7 @@ page ErrorA02(path: "/errors/A02", title: "A02 — An icon button with no name",
 3 |     IconButton(icon: "close")
   |     ^^^^^^^^^^
   = help: Add a label: IconButton(icon: "close", label: "Close dialog")
-  = docs: https://webfluent.monzeromer.dev/errors/A02"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A02"#, quickfix: "Add `label: \"Close\"`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A02.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Close").h1
     IconButton(icon: "close")
@@ -1986,7 +2000,7 @@ page ErrorA03(path: "/errors/A03", title: "A03 — An input with no label", desc
 4 |     Input(bind: name).text
   |     ^^^^^
   = help: Add a label: Input(label: "Username").text
-  = docs: https://webfluent.monzeromer.dev/errors/A03"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A03"#, quickfix: "Add `label: \"Name\"`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A03.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state name = ""
     Heading("Name").h1
@@ -2011,7 +2025,7 @@ page ErrorA04(path: "/errors/A04", title: "A04 — A control with no label", des
 4 |     Checkbox(bind: agree)
   |     ^^^^^^^^
   = help: Add a label: Checkbox(bind: value, label: "Description")
-  = docs: https://webfluent.monzeromer.dev/errors/A04"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A04"#, quickfix: "Add `label: \"Agree\"`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state agree = false
     Heading("Terms").h1
@@ -2036,7 +2050,7 @@ page ErrorA05(path: "/errors/A05", title: "A05 — A button with no text", descr
 3 |     Button { Icon("check") }
   |     ^^^^^^
   = help: Add text: Button("Save").primary
-  = docs: https://webfluent.monzeromer.dev/errors/A05"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A05"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Actions").h1
     Button { Icon("check") }
@@ -2059,7 +2073,7 @@ page ErrorA06(path: "/errors/A06", title: "A06 — A link with no text", descrip
 3 |     Link(to: "/about")
   |     ^^^^
   = help: Add text: Link("About", to: "/about")
-  = docs: https://webfluent.monzeromer.dev/errors/A06"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A06"#, quickfix: "Add `aria-label: \"About\"`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A06.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Links").h1
     Link(to: "/about")
@@ -2085,7 +2099,7 @@ page ErrorA07(path: "/errors/A07", title: "A07 — An empty heading", descriptio
 3 |     Heading("").h2
   |     ^^^^^^^
   = help: Headings should have meaningful text
-  = docs: https://webfluent.monzeromer.dev/errors/A07"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A07"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A07.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Title").h1
     Heading("").h2
@@ -2108,7 +2122,7 @@ page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", desc
 4 |     Modal(visible: open) { Text("Hello") }
   |     ^^^^^
   = help: Add a title: Modal(visible: state, title: "Dialog Title")
-  = docs: https://webfluent.monzeromer.dev/errors/A08"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A08.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A08"#, quickfix: "Add `title: \"Open\"`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A08.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state open = false
     Heading("Modal").h1
@@ -2133,7 +2147,7 @@ page ErrorA09(path: "/errors/A09", title: "A09 — Media nobody can follow witho
 3 |     Video(src: "/demo.mp4").controls
   |     ^^^^^
   = help: Add captions: Video(src: "...", captions: "/captions.en.vtt")
-  = docs: https://webfluent.monzeromer.dev/errors/A09"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A09.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A09"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A09.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Demo").h1
     Video(src: "/demo.mp4").controls
@@ -2156,7 +2170,7 @@ page ErrorA10(path: "/errors/A10", title: "A10 — A table with no header row", 
 3 |     Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
   |     ^^^^^
   = help: Add one: `Table { Table.Head { Table.Row { Table.Cell("Name") } } … }`
-  = docs: https://webfluent.monzeromer.dev/errors/A10"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A10.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A10"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A10.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Table").h1
     Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
@@ -2182,7 +2196,7 @@ page ErrorA11(path: "/errors/A11", title: "A11 — A skipped heading level", des
 3 |     Heading("Deep").h4
   |     ^^^^^^^
   = help: Use h2 instead, or add the missing intermediate headings
-  = docs: https://webfluent.monzeromer.dev/errors/A11"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A11.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A11"#, quickfix: "Change to `.h2`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A11.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Title").h1
     Heading("Deep").h4
@@ -2205,7 +2219,7 @@ page ErrorA12(path: "/errors/A12", title: "A12 — A page without exactly one h1
 1 | page P(path: "/", title: "T", description: "D") {
   | ^^^^
   = help: Add a main heading: Heading("Page Title").h1
-  = docs: https://webfluent.monzeromer.dev/errors/A12"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A12.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A12"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A12.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Section").h2
 }"#, title: "wf") }
@@ -2226,7 +2240,7 @@ page ErrorA13(path: "/errors/A13", title: "A13 — Colours without enough contra
 2 |     color-text: #BBBBBB
   | ^
   = help: Darken --color-text or lighten --color-surface until they clear 4.5:1
-  = docs: https://webfluent.monzeromer.dev/errors/A13"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A13.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A13"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A13.md") {
         broken { CodeBlock(#"theme Faint {
     color-text: #BBBBBB
     color-background: #FFFFFF
@@ -2256,7 +2270,7 @@ page ErrorA14(path: "/errors/A14", title: "A14 — A role whose children are the
 3 |     Row(role: "tablist") {
   |     ^^^
   = help: Give each child role: "tab", or use the built-in that owns this structure
-  = docs: https://webfluent.monzeromer.dev/errors/A14"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A14.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A14"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A14.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Tabs").h1
     Row(role: "tablist") {
@@ -2285,7 +2299,7 @@ page ErrorA15(path: "/errors/A15", title: "A15 — An aria-label that does not c
 3 |     Button("Save", aria-label: "Submit the form")
   |     ^^^^^^
   = help: Start the aria-label with the visible text, so what a user says matches what they see
-  = docs: https://webfluent.monzeromer.dev/errors/A15"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A15.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A15"#, quickfix: "Start it with \"Save\"", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A15.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", aria-label: "Submit the form")
@@ -2308,7 +2322,7 @@ page ErrorA16(path: "/errors/A16", title: "A16 — One id on several elements", 
 4 |     for r in rows by r { Text(r, id: "row") }
   |                          ^^^^
   = help: Make it unique — `id: "row-{item.id}"` — or drop it; a label's `for` and `aria-*` find one element by id
-  = docs: https://webfluent.monzeromer.dev/errors/A16"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A16.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A16"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A16.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = ["a", "b"]
     Heading("Rows").h1
@@ -2334,7 +2348,7 @@ page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", descr
 3 |     Frame(src: "https://example.com/")
   |     ^^^^^
   = help: Say what it shows: Frame(src: "/preview/", title: "Preview")
-  = docs: https://webfluent.monzeromer.dev/errors/A17"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A17.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A17"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A17.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Preview").h1
     Frame(src: "https://example.com/")
@@ -2358,7 +2372,7 @@ page ErrorS01(path: "/errors/S01", title: "S01 — A page with no title", descri
 1 | page P(path: "/", description: "D") {
   | ^^^^
   = help: Add one: page Name(path: "/", title: "What this page is")
-  = docs: https://webfluent.monzeromer.dev/errors/S01"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/S01"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S01.md") {
         broken { CodeBlock(#"page P(path: "/", description: "D") {
     Heading("No title").h1
 }"#, title: "wf") }
@@ -2379,7 +2393,7 @@ page ErrorS02(path: "/errors/S02", title: "S02 — A page with no description", 
 1 | page P(path: "/", title: "T") {
   | ^^^^
   = help: Add one: page Name(path: "/", title: "…", description: "A sentence a search result can show")
-  = docs: https://webfluent.monzeromer.dev/errors/S02"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/S02"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S02.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T") {
     Heading("No description").h1
 }"#, title: "wf") }
@@ -2400,7 +2414,7 @@ page ErrorS03(path: "/errors/S03", title: "S03 — A description too long for a 
 1 | page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
   | ^^^^
   = help: Shorten it, or accept that it will be cut mid-sentence
-  = docs: https://webfluent.monzeromer.dev/errors/S03"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/S03"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S03.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
     Heading("Long").h1
 }"#, title: "wf") }
@@ -2421,7 +2435,7 @@ page ErrorS04(path: "/errors/S04", title: "S04 — Two pages on one route", desc
 2 | page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }
   | ^^^^
   = help: Give each page its own path
-  = docs: https://webfluent.monzeromer.dev/errors/S04"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/S04"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/S04.md") {
         broken { CodeBlock(#"page A(path: "/about", title: "A", description: "D") { Heading("A").h1 }
 page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }"#, title: "wf") }
         fixed { CodeBlock(#"page A(path: "/about", title: "A", description: "D") { Heading("A").h1 }
@@ -2440,7 +2454,7 @@ page ErrorP01(path: "/errors/P01", title: "P01 — A persisted value with no way
 2 |     persist items: [String] = [] {
   |     ^^^^^^^
   = help: A reader who last visited then loses what they had. Add `migrate 1 -> 2`
-  = docs: https://webfluent.monzeromer.dev/errors/P01"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/P01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/P01"#, quickfix: "Add `migrate 1 -> 2`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/P01.md") {
         broken { CodeBlock(#"store Cart {
     persist items: [String] = [] {
         version: 2
@@ -2470,7 +2484,7 @@ page ErrorP02(path: "/errors/P02", title: "P02 — A migration that never runs",
 2 |     persist items: [String] = [] {
   |     ^^^^^^^
   = help: A step above `version:` never runs; raise the version or drop the step
-  = docs: https://webfluent.monzeromer.dev/errors/P02"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/P02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/P02"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/P02.md") {
         broken { CodeBlock(#"store Cart {
     persist items: [String] = [] {
         version: 1
@@ -2501,7 +2515,7 @@ page ErrorP03(path: "/errors/P03", title: "P03 — A persisted value in a route-
 2 |     persist search = ""
   |     ^^^^^^^
   = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it
-  = docs: https://webfluent.monzeromer.dev/errors/P03"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/P03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/P03"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/P03.md") {
         broken { CodeBlock(#"store Filters(scope: .route) {
     persist search = ""
 }"#, title: "wf") }
@@ -2527,7 +2541,7 @@ page ErrorU01(path: "/errors/U01", title: "U01 — A state nothing reads", descr
 2 |     state unused = 0
   |     ^^^^^
   = help: Nothing reads the state; remove it, or name it `_unused` to keep it
-  = docs: https://webfluent.monzeromer.dev/errors/U01"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U01"#, quickfix: "Remove `unused`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U01.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state unused = 0
     Heading("Unused").h1
@@ -2549,7 +2563,7 @@ page ErrorU02(path: "/errors/U02", title: "U02 — A derived value nothing reads
 3 |     derived doubled = n * 2
   |     ^^^^^^^
   = help: Nothing reads the derived value; remove it, or name it `_doubled` to keep it
-  = docs: https://webfluent.monzeromer.dev/errors/U02"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U02.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U02"#, quickfix: "Remove `doubled`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U02.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 1
     derived doubled = n * 2
@@ -2574,7 +2588,7 @@ page ErrorU03(path: "/errors/U03", title: "U03 — A component nothing places", 
 1 | component Orphan { Text("Nobody places me") }
   | ^^^^^^^^^
   = help: Place it in a page, name it as a layout, or remove it
-  = docs: https://webfluent.monzeromer.dev/errors/U03"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U03"#, quickfix: "Remove `Orphan`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U03.md") {
         broken { CodeBlock(#"component Orphan { Text("Nobody places me") }
 page P(path: "/", title: "T", description: "D") {
     Heading("Home").h1
@@ -2598,7 +2612,7 @@ page ErrorU04(path: "/errors/U04", title: "U04 — A store member nothing reads"
 3 |     state coupon = ""
   |     ^^^^^
   = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
-  = docs: https://webfluent.monzeromer.dev/errors/U04"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U04"#, quickfix: "Remove `Cart.coupon`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U04.md") {
         broken { CodeBlock(#"store Cart {
     state items = []
     state coupon = ""
@@ -2628,7 +2642,7 @@ page ErrorU05(path: "/errors/U05", title: "U05 — An action nothing calls", des
 3 |     action reset() { n = 0 }
   |     ^^^^^^
   = help: Nothing reads the action; remove it, or name it `_reset` to keep it
-  = docs: https://webfluent.monzeromer.dev/errors/U05"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U05"#, quickfix: "Remove `reset`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 0
     action reset() { n = 0 }
@@ -2654,7 +2668,7 @@ page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", descripti
 6 |         log("reset")
   |         ^^^^^^^^^^^^
   = help: Remove it, or move it above the `return`
-  = docs: https://webfluent.monzeromer.dev/errors/U06"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U06"#, quickfix: "Remove what never runs", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U06.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 0
     action reset() {
@@ -2689,7 +2703,7 @@ page ErrorU07(path: "/errors/U07", title: "U07 — An allow that allows nothing"
 2 |     // wf-allow(U01)
   |     ^^^^^^^^^^^^^^^^
   = help: Remove it — what it was written for is gone
-  = docs: https://webfluent.monzeromer.dev/errors/U07"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "U01", title: "A state nothing reads", to: "/errors/U01")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/U07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U07"#, quickfix: "Remove the allow", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "U01", title: "A state nothing reads", to: "/errors/U01")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/U07.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     // wf-allow(U01)
     state shown = 0
@@ -2714,7 +2728,7 @@ page ErrorU08(path: "/errors/U08", title: "U08 — A condition that is always th
 3 |     if false { Text("Coming soon") }
   |        ^^^^^
   = help: Use the value that decides, or remove the branch that cannot run
-  = docs: https://webfluent.monzeromer.dev/errors/U08"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U08.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U08"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U08.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Beta").h1
     if false { Text("Coming soon") }
@@ -2738,7 +2752,7 @@ page ErrorU09(path: "/errors/U09", title: "U09 — An unkeyed loop whose items h
 4 |     for r in rows { Input(bind: r.name, label: "Name") }
   |     ^^^
   = help: Key it: `for r in … by r.id`
-  = docs: https://webfluent.monzeromer.dev/errors/U09"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/U09.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U09"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/U09.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = [{ id: 1, name: "a" }]
     Heading("Rows").h1
@@ -2764,7 +2778,7 @@ page ErrorU10(path: "/errors/U10", title: "U10 — An else no value reaches", de
 5 |     match tone {
   |     ^^^^^
   = help: Remove the `else`
-  = docs: https://webfluent.monzeromer.dev/errors/U10"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U10.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U10"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U10.md") {
         broken { CodeBlock(#"enum Tone { calm, loud }
 page P(path: "/", title: "T", description: "D") {
     state tone: Tone = .calm
@@ -2798,7 +2812,7 @@ page ErrorV01(path: "/errors/V01", title: "V01 — A bare word that means nothin
 3 |     Button(primary)
   |            ^^^^^^^
   = help: did you mean `.primary`?
-  = docs: https://webfluent.monzeromer.dev/errors/V01"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T13", title: "A name nothing declares", to: "/errors/T13")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V01.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V01"#, quickfix: "Write it as the flag `.primary`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T13", title: "A name nothing declares", to: "/errors/T13")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V01.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button(primary)
@@ -2815,7 +2829,7 @@ page ErrorV01(path: "/errors/V01", title: "V01 — A bare word that means nothin
 }
 
 page ErrorV02(path: "/errors/V02", title: "V02 — A flag no stylesheet styles", description: "A flag whose class no stylesheet — the engine's or one of the project's — defines.") {
-    ErrorShell("V02", title: "A flag no stylesheet styles", severity: "warning", family: "Vocabulary", summary: "A flag whose class no stylesheet — the engine's or one of the project's — defines.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V02.md") {
+    ErrorShell("V02", title: "A flag no stylesheet styles", severity: "warning", family: "Vocabulary", summary: "A flag whose class no stylesheet — the engine's or one of the project's — defines.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V02.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("define the class in a `.css`\nfile under `src/`, or drop the flag.")
@@ -2832,7 +2846,7 @@ page ErrorV03(path: "/errors/V03", title: "V03 — Markup put in as markup", des
 4 |     Unsafe.Html(body)
   |     ^^^^^^^^^^^
   = help: Anything the project did not write itself belongs in `sanitize(…)` first
-  = docs: https://webfluent.monzeromer.dev/errors/V03"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V03"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V03.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state body = "<b>Hi</b>"
     Heading("Markup").h1
@@ -2857,7 +2871,7 @@ page ErrorV04(path: "/errors/V04", title: "V04 — A class that is the engine's"
 3 |     Card(class: "wf-btn") { Text("x") }
   |     ^^^^
   = help: `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look
-  = docs: https://webfluent.monzeromer.dev/errors/V04"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V04"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Classes").h1
     Card(class: "wf-btn") { Text("x") }
@@ -2880,7 +2894,7 @@ page ErrorV05(path: "/errors/V05", title: "V05 — A CSS property no browser kno
 3 |         style { colr: red }
   |                 ^^^^
   = help: Did you mean `color`?
-  = docs: https://webfluent.monzeromer.dev/errors/V05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V05"#, quickfix: "Change to `color`", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Hello") {
         style { colr: red }
@@ -2906,7 +2920,7 @@ page ErrorV06(path: "/errors/V06", title: "V06 — A design token the theme does
 3 |         style { color: $brnad }
   |                 ^^^^^
   = help: Declare it in your `theme { … }`, or use one the theme has
-  = docs: https://webfluent.monzeromer.dev/errors/V06"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V06"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V06.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Hello") {
         style { color: $brnad }
@@ -2931,7 +2945,7 @@ page ErrorV07(path: "/errors/V07", title: "V07 — A number where CSS wants a le
 4 |     Card { style { width: {pct} } }
   |                    ^^^^^^^^^^^^
   = help: Give it one: `width: {pct}px` (or `%`, `rem`)
-  = docs: https://webfluent.monzeromer.dev/errors/V07"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V07"#, quickfix: "Add `px`", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V07.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state pct = 40
     Heading("Progress").h1
@@ -2957,7 +2971,7 @@ page ErrorV08(path: "/errors/V08", title: "V08 — An icon the runtime does not 
 3 |     Icon("rocket")
   |          ^
   = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon, folder, folder-plus, folder-off, file, file-plus, refresh, alert-circle, clock, dot, diff, book, git-pull-request, pin, git-branch, more-horizontal, window-minimize, window-maximize, outline, help-circle, collapse-all, locate, chevron-up, globe, external-link, panel-down, panel-up, code, monitor, git-commit, play, layers, insert, grid, list, square, pill, image, sparkle, lock, type, pointer, reach, frame, line, pipette, comment, hand, zoom, ruler, eye-off, unlock
-  = docs: https://webfluent.monzeromer.dev/errors/V08"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V08.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V08"#, quickfix: "Change to `lock`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V08.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Launch").h1
     Icon("rocket")
@@ -2980,7 +2994,7 @@ page ErrorV09(path: "/errors/V09", title: "V09 — An event the element does not
 3 |     Button("Save") { on clik { log("saved") } }
   |                      ^^
   = help: A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares
-  = docs: https://webfluent.monzeromer.dev/errors/V09"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V09.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V09"#, quickfix: "Change to `click`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V09.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save") { on clik { log("saved") } }
@@ -3003,7 +3017,7 @@ page ErrorV12(path: "/errors/V12", title: "V12 — A long list that is not windo
 4 |     VirtualList(rowHeight: 32) {
   |     ^^^^^^^^^^^
   = help: Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`
-  = docs: https://webfluent.monzeromer.dev/errors/V12"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V12.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V12"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V12.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = ["a", "b"]
     Heading("Files").h1
@@ -3033,7 +3047,7 @@ page ErrorV10(path: "/errors/V10", title: "V10 — A Host tag it does not make",
 3 |     Host(tag: "video", mount: (n) => n)
   |          ^^^
   = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`
-  = docs: https://webfluent.monzeromer.dev/errors/V10"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V10.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V10"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V10.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Chart").h1
     Host(tag: "video", mount: (n) => n)
@@ -3057,7 +3071,7 @@ page ErrorV11(path: "/errors/V11", title: "V11 — A component named like a buil
 1 | component Chart(_ title: String) {
   | ^^^^^^^^^
   = help: Rename it — `MyChart`, `ReportChart` — and its call sites
-  = docs: https://webfluent.monzeromer.dev/errors/V11"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V11.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V11"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V11.md") {
         broken { CodeBlock(#"component Chart(_ title: String) {
     Text(title)
 }

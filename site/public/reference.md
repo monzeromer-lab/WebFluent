@@ -320,7 +320,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Element
 
-A custom element a script defines, placed by its tag: `Element("stripe-pricing-table", publishable-key: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.
+A custom element a script defines, placed by its tag: `Element("stripe-pricing-table", publishableKey: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.
 
 ```
 Element(tag) { … }
@@ -595,8 +595,8 @@ Renders with the class `wf-table`.
 **Parts:**
 
 - `Table.Head { … }` — Header section; its cells become `<th scope="col">`.
-- `Table.Body { … }` — Body section.
-- `Table.Row { … }` — A row.
+- `Table.Body { … }` — The body of a table: its rows of data.
+- `Table.Row { … }` — A row of cells.
 - `Table.Cell(content, header: …) { … }` — A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.
   - `content:` `Any` — The cell's content
   - `header:` `Bool` — Render as a `<th>`
@@ -983,7 +983,7 @@ Attribute families: `global`, `aria`, `data`, `input`.
 
 ### DatePicker
 
-Date input.
+A date field: the reader picks a day, and the bound state holds a `Date`.
 
 ```
 DatePicker(bind: …, label: …, min: …)
@@ -1334,7 +1334,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Button
 
-Button. Its block holds what it shows; `on click` what it does.
+A button: its label or block is what it shows, `on click` what it does.
 
 ```
 Button(label, tone: …, size: …, shape: …) { … }
@@ -1357,7 +1357,7 @@ Renders with the class `wf-btn`.
 | `width:` | `.full` | Width |
 | `outlined:` | `Bool` | A border and no fill |
 | `type:` | `.button` `.submit` `.reset` | Its role inside a form |
-| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `to:` | `Path` | The route to go to when it is pressed |
 | `disabled:` | `Bool` | Whether the control is inert |
 
 **Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled`
@@ -1627,7 +1627,7 @@ Renders with the class `wf-carousel`.
 
 **Parts:**
 
-- `Carousel.Slide { … }` — One slide.
+- `Carousel.Slide { … }` — One slide of a carousel.
 
 Takes a block of children.
 

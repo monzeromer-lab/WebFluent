@@ -43,12 +43,14 @@ store Cart {
 
 page Shop(path: "/", title: "Shop", description: "Things to buy.") {
     use Cart
+    Heading("Shop").h1
     Button("Add a pen").primary { on click { Cart.add(Item(id: "pen", name: "Pen", price: 2.5)) } }
-    Text("{Cart.count} items, {format(Cart.total, .currency)}")
+    Text("Cart: {Cart.count}, {format(Cart.total, .currency)}")
 }
 
 page CartPage(path: "/cart", title: "Cart", description: "What you are buying.") {
     use Cart
+    Heading("Cart").h1
     for item in Cart.items by item.id {
         Row(justify: .between) {
             Text("{item.name} × {item.qty}")
@@ -59,7 +61,7 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
 }
 ```
 
-Clicking **Add a pen** changes **0 items, $0.00** to **1 items, $2.50**,
+Clicking **Add a pen** changes **Cart: 0, $0.00** to **Cart: 1, $2.50**,
 and the `/cart` page lists the pen.
 
 - `store Cart { … }` declares the store and its members.
@@ -128,7 +130,8 @@ You may declare a store in any `.wf` file the build reads. By convention it
 goes in `src/stores/`, and `wf generate store Cart` writes it there. A page
 reaches a store by name from anywhere. `use` says which stores a page
 reads, for the person reading the code and for the editor; it does not
-limit what the page can reach.
+limit what the page can reach, and a page that reads `Cart.count` without
+it reads the same store.
 
 ## Store scope
 
@@ -187,6 +190,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     use Session
     state email = ""
     state password = ""
+    Heading("Sign in").h1
     Form {
         on submit { Session.login(email, password) }
         Input(bind: email, label: "Email").email.required
@@ -418,7 +422,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
     Heading("Deploys").h1
     Text("{Deploys.failing} failing")
     match Deploys.rows {
-        loading { Spinner() }
+        loading { Spinner }
         error(e) { Text(e.message) }
         ready(rows) {
             for d in rows by d.id { Text("{d.id}: {d.status}") }
@@ -490,13 +494,13 @@ store Cart {
     derived count = items.map(i => i.qty).sum()
 }
 
-component CartSummary() {
+component CartSummary {
     use Cart
     Text("{Cart.count} items")
 }
 
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
-    CartSummary()
+    CartSummary
     expect "2 items"
 }
 ```

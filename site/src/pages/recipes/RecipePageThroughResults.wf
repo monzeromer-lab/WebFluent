@@ -1,7 +1,28 @@
 // A recipe, written from md-docs/recipes/page-through-results.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipePageThroughResults(path: "/recipes/page-through-results", title: "Page through results — Recipes", description: "Show a long list one page at a time: keep the page number in state, splice it into the request's address, and step it with buttons.") {
-    RecipeShell("Page through results", summary: "A list of thousands of rows is too long to ask for at once. To show it a page at a time with **Previous** and **Next** buttons, keep the page number in state and splice it into the address:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more")], source: "md-docs/recipes/page-through-results.md", how: true, hasVariations: false) {
+    RecipeShell("Page through results", summary: "A list of thousands of rows is too long to ask for at once. To show it a page at a time with **Previous** and **Next** buttons, keep the page number in state and splice it into the address:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates"), RelatedLink(kind: "Recipe", title: "Show what the network is doing", to: "/recipes/show-the-network")], source: "md-docs/recipes/page-through-results.md", how: true, hasVariations: false, project: { "src/pages/PageThroughResults.wf": #"page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
+    state page = 1
+    state perPage = 20
+    resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    Heading("Rows").h1
+    match rows {
+        loading { Spinner }
+        error(e) { Text(e.message).danger }
+        ready(r) {
+            for row in r.items by row.id { Text(row.name) }
+            Row(gap: .sm, align: .center) {
+                Button("Previous", disabled: page == 1) { on click { page = page - 1 } }
+                Text("Page {page} of {r.pages}")
+                Button("Next", disabled: page >= r.pages) { on click { page = page + 1 } }
+            }
+        }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "page-through-results"
+}
+"# }) {
         code {
             Markdown("**Needs:** a server that answers `/api/rows?page=…&per=…` with a list of rows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
@@ -23,7 +44,7 @@ page RecipePageThroughResults(path: "/recipes/page-through-results", title: "Pag
     }
 }"#, title: "wf")
         }
-        Markdown("- `page` and `perPage` are states, and the [resource](/learn/15-data#show-a-request-with-resource) splices both into its address.\n- The server answers with the page's `items` and the number of `pages`. The `ready` arm lists the items and draws the buttons.\n- **Previous** and **Next** change `page`. A change of `page` changes the address, so the resource asks again ([Fetch again when state changes](/learn/15-data#fetch-again-when-state-changes)).\n- Each button is disabled at its end of the list, so `page` stays between 1 and `r.pages`.\n\nTo add each page below the ones already shown instead of replacing them, see [Load more as the reader asks](/recipes/load-more).")
+        Markdown("The page shows the first twenty rows with **Previous** greyed out and \"Page 1 of …\" between the buttons. **Next** swaps in the next twenty and counts up; on the last page **Next** is greyed out instead.\n\n- `page` and `perPage` are states, and the [resource](/learn/15-data#show-a-request-with-resource) splices both into its address.\n- The server answers with the page's `items` and the number of `pages`. The `ready` arm lists the items and draws the buttons.\n- **Previous** and **Next** change `page`. A change of `page` changes the address, so the resource asks again ([Fetch again when state changes](/learn/15-data#fetch-again-when-state-changes)).\n- Each button is disabled at its end of the list, so `page` stays between 1 and `r.pages`.\n\nTo add each page below the ones already shown instead of replacing them, see [Load more as the reader asks](/recipes/load-more).")
 
     }
 }

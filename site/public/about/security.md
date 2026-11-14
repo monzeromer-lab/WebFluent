@@ -1,6 +1,6 @@
 # Security
 
-> What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist.
+> What WebFluent enforces and why, and where its guarantees stop: outside markup, sessions, env secrets, uploads, the CSP and code you choose to trust.
 
 The page: https://webfluent.monzeromer.dev/about/security
 
@@ -19,7 +19,7 @@ to win once.
 So WebFluent does not advise. It makes the safe spelling the only one the
 compiler accepts, and names the one door that is not safe so a review can
 find it. What follows is the list of those guarantees, the places they
-stop, and what to do on the other side of each.
+stop, and what lies on the other side of each.
 
 ## What the compiler guarantees
 
@@ -28,7 +28,7 @@ them on.
 
 - **Text is text.** Every string an element shows goes in as a text node.
   `"<script>"` in your data can never become a script. The one exception
-  has `Unsafe` in its name ([Show markup you did not write](#show-markup-you-did-not-write)).
+  has `Unsafe` in its name ([One door for markup](#one-door-for-markup)).
   An `html:` argument on an element is an attribute called `html`, as any
   argument an element does not declare is (`C04`), and never markup.
 - **No inline handlers.** Events are bound with `addEventListener`.
@@ -84,7 +84,7 @@ them on.
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string,
   logged or persisted. Each is a `T12`, reported at the line that does it.
 - **A non-public `env` name cannot be read from a page.** See
-  [Keep secrets out of the bundle](#keep-secrets-out-of-the-bundle).
+  [Secrets stay out of the bundle](#secrets-stay-out-of-the-bundle).
 - **A build stays in its project.** `data`, `image`, `api … from` and
   `i18n.dir` name paths inside the project; an absolute path or a `..` is
   an error. A link that points out of the project, at nothing, or back on
@@ -108,34 +108,11 @@ Some decisions are outside the compiler's reach:
 - **Your hosting.** HTTPS, HSTS, cookie flags and rate limits are the
   host's job.
 
-## Show markup you did not write
+## One door for markup
 
 Sometimes the content really is HTML: a CMS body, the output of a Markdown
-renderer of your own, an email. To show it, pass it through `sanitize` and
-into `Unsafe.Html`, the one door for markup.
-
-This page fetches a post and shows its HTML body:
-
-```wf
-type Post { title: String, body: String }
-
-api Backend(base: "/api") {
-    get post(slug: String) at "posts/:slug" -> Post
-}
-
-page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
-    resource post = Backend.post(slug: slug)
-    match post {
-        ready(p) {
-            Heading(p.title).h1
-            Unsafe.Html(sanitize(p.body))
-        }
-        else { Skeleton }
-    }
-}
-```
-
-The two calls do different jobs:
+renderer of your own, an email. There is one way to show it, and it takes
+two calls, `Unsafe.Html(sanitize(body))`, because they do different jobs:
 
 - `Unsafe.Html(markup)` puts markup in as markup. Its name lets a review
   find every one with a search for `Unsafe`, and the build prints a `V03`
@@ -151,11 +128,12 @@ The two calls do different jobs:
 allow-list. A pre-rendered page therefore shows the sanitised body at once,
 not an empty box that fills in when the script loads.
 
-> [!CAUTION]
-> Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project
-> produced**. Anything that arrived from outside goes through `sanitize`.
+`Unsafe.Html` without `sanitize` is for markup the project itself produced;
+anything that arrived from outside goes through `sanitize`.
+[Show HTML from outside the project](https://webfluent.monzeromer.dev/recipes/show-html-from-outside.md)
+is a page that does it.
 
-## Keep the session in a cookie
+## Where a session belongs
 
 `persist` writes to `localStorage` or `sessionStorage`. **Neither is a
 place for a session token.** Any script that reaches your page can read
@@ -163,43 +141,17 @@ both, and that is the whole payload of a cross-site scripting bug: without
 a readable token the bug is a defacement; with one it is an account
 takeover.
 
-To keep a session safe, have the server set it as an **httpOnly cookie**:
-
-```text
-Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600
-```
-
-Each flag closes one door:
+A session belongs in an **httpOnly cookie** the server sets, and each of
+its flags closes one door:
 
 - `HttpOnly` puts the cookie out of reach of every script, including yours.
 - `SameSite=Lax` stops another site's form from riding on it.
 - `Secure` keeps it off plaintext connections.
 
 The browser sends the cookie with each request, so the page needs no token
-at all. An `api` with `credentials: .sameOrigin` sends it with every call:
-
-```wf
-type User { id: String, name: String }
-
-api Backend(base: "/api/v1") {
-    credentials: .sameOrigin
-    get me() -> User
-    post signIn(body: Map) -> User
-    post signOut()
-}
-
-store Session {
-    state user: User? = null
-    action load() { user = await Backend.me() }
-    action out() { await Backend.signOut()  user = null  Backend.me.invalidate()  navigate("/") }
-}
-```
-
-`Backend.me.invalidate()` on sign-out drops what the endpoint cached, so
-the next reader of the tab is not shown the last one's; do the same for
-every endpoint whose answer is one reader's. An answer cached
-under one `Authorization` header is never served for another, but a cookie
-cannot be read, so the cache cannot tell one cookie's reader from the next.
+at all: an `api` with `credentials: .sameOrigin` sends it with every call.
+[Sign in with a session cookie](https://webfluent.monzeromer.dev/recipes/sign-in-with-a-session-cookie.md)
+builds the whole flow, including what to forget when the reader signs out.
 
 A page *may* keep what a page may show: a display name, a theme, a
 preference. If a value would matter to someone who stole it, it belongs
@@ -215,66 +167,54 @@ page Account(path: "/", title: "Account", description: "Your account.") {
 }
 ```
 
-## Keep secrets out of the bundle
+## Secrets stay out of the bundle
 
 `env.NAME` is replaced by its value **at build time**, and the value lands
 in the JavaScript the browser downloads. That is right for an API's base
-address and wrong for an API key. So a page may read only a name that is
-public: one that begins `PUBLIC_`, or one that `public_env` in the config
-lists.
-
-```json
-{
-  "env": { "PUBLIC_API": "/api/v1", "ANALYTICS_ID": "UA-1", "STRIPE_SECRET": "sk_…" },
-  "public_env": ["ANALYTICS_ID"]
-}
-```
-
-With this config:
-
-- a page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`;
-- `env.STRIPE_SECRET`, read from a page, a component, a store or an `api`
-  block, is an `E108` compile error naming the file and the line;
-- every build warns that `env.ANALYTICS_ID` goes into the bundle, since its
-  name does not say so.
+address and wrong for an API key. So a page, a component, a store or an
+`api` block may read only a name that is public: one that begins `PUBLIC_`,
+or one that `public_env` in the config lists. Any other name is an `E108`
+compile error naming the file and the line, and every build warns of each
+`public_env` name it bundles, since its name does not say so.
 
 `public_env` comes with the project, so it cannot reach into the shell of
 whoever builds it: a name it lists without the `PUBLIC_` prefix takes its
 value from the config or `.env`, and from the shell only when
-`WF_ALLOW_SHELL_ENV` names it ([Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md)).
+`WF_ALLOW_SHELL_ENV` names it.
 
-The value of `STRIPE_SECRET` is still there for `wf render`, which runs on
-a server where a secret stays secret
-([Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md)). A secret that has to reach a
-third party belongs in a request your server makes, not in a page.
-[Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md) covers where `env` values come from.
+A private value is still there for `wf render`, which runs on a server
+where a secret stays secret
+([Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md)). A secret that has to
+reach a third party belongs in a request your server makes, not in a page.
+[Use environment values, and keep secrets out](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md)
+sets values, lists public ones, and builds once per environment.
 
-## Check uploads on the server
+## Uploads are checked on the server
 
 A `File` from `FileUpload` is a handle on a file on the reader's machine.
 `accept:` and `.size` help the reader pick the right file. They are **not**
 checks: both live in the page, and a page is the attacker's to rewrite.
 
-The server decides what it accepts. Have it:
+The server decides what it accepts. It reads the type from the file's
+bytes, not its name; enforces a size limit itself; generates the stored
+file's name, never using the one it was given; and stores uploads
+somewhere nothing is served from.
 
-- read the type from the file's bytes, not its name;
-- enforce a size limit itself;
-- generate the stored file's name, never use the one it was given;
-- store uploads somewhere nothing is served from.
-
-## Ship a Content-Security-Policy
+## The Content-Security-Policy
 
 A Content-Security-Policy (CSP) tells the browser which scripts, styles,
-images and connections a page may use. To ship one, set `"build": { "csp":
-true }`. A project `wf init` creates has it on. The build then writes:
+images and connections a page may use. `"build": { "csp": true }` ships
+one, and a project `wf init` creates has it on. The build then writes:
 
 - a `<meta http-equiv="Content-Security-Policy">` in every page, right
   after `<meta charset>`: a meta policy governs only what the browser
   parses after it, so it stands before the title, the sharing tags and a
   page's own `head { }` tags, which a page's data reaches;
 - a `_headers` file for hosts that read one (Netlify, Cloudflare Pages;
-  other hosts ignore it — on Vercel copy the headers into `vercel.json`,
-  see [Deploy to Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md)).
+  other hosts ignore it — on Vercel the headers go in `vercel.json`, see
+  [Deploy to Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md), and
+  [Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md)
+  covers the rest).
 
 `frame-ancestors` is only in `_headers`, because a browser ignores it in a
 meta tag. A policy that carried it there would say one thing and do
@@ -287,7 +227,7 @@ origins that `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare,
 so the policy never blocks a font or library you declared. Your own scripts
 under `src/` are served from the site itself and need nothing added.
 
-### Keep other sites from framing your pages
+### Who may frame a page
 
 By default no other site may frame your pages. `_headers` says
 `frame-ancestors 'none'` and `X-Frame-Options: DENY`, and `wf serve` sends
@@ -300,62 +240,17 @@ relaxed to its own origin and no further: `frame-ancestors 'self'` and
 `X-Frame-Options: SAMEORIGIN`. A `Frame` of another origin's page changes
 nothing here; that is `meta.frame`'s `frame-src`, below.
 
-### Allow requests, images and frames from other origins
+### What else a page may reach
 
-A page may send requests only to its own origin. To allow another — an API
-on another domain, an analytics endpoint — name it in `meta.connect`. Each
-entry is an origin, such as `https://api.example.com`, or
-`https://*.example.com` for its subdomains, and it joins `connect-src`.
-An entry with a path, or a keyword such as `'self'`, is `E111`.
+Anything beyond that is named, origin by origin: `meta.connect` for the
+origins a page sends requests to, `meta.img` for images, `meta.frame` for
+frames, each joining its directive of the policy, plus an app's own
+schemes, `meta.wasm` for WebAssembly and `meta.style_elements` for scripts
+that write `<style>`. Each widens the policy by exactly what it names, and
+no more. [Allow other origins in the security policy](https://webfluent.monzeromer.dev/recipes/allow-other-origins.md)
+sets each one.
 
-Images follow the same rule: a page may load them from its own origin and
-`data:`, unless `meta.img` names others, which join `img-src`. Name a CDN
-there, or the pixels a tag requests (`https://www.googletagmanager.com/a`,
-`/td`), which a tag assistant otherwise reports as blocked.
-
-Frames are the same again: `meta.frame` names the origins a page may
-embed — a video player (`https://www.youtube-nocookie.com`), a map — and
-they join `frame-src`.
-
-This config loads Google's tag manager after the page and allows what it
-sends and draws:
-
-```json
-{
-  "meta": {
-    "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "load": "after" }],
-    "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",
-                "https://www.googletagmanager.com"],
-    "img": ["https://*.google-analytics.com", "https://www.googletagmanager.com"]
-  }
-}
-```
-
-A tag manager's own set-up — the `dataLayer` and the `gtag('config', …)`
-call a vendor gives you as an inline `<script>` — goes in a plain script
-under `src/`, which the policy already allows.
-
-### Allow an app's own schemes, WebAssembly and style elements
-
-Three settings widen the policy for pages that need more:
-
-- **An app's own scheme.** An app that serves its pages itself — a desktop
-  shell — has schemes of its own. `meta.connect` and `meta.frame` take one
-  as a scheme alone: `"ipc:"` for the channel a shell's pages call it on,
-  `"wfpreview:"` for a frame the app fills from its own protocol. A scheme
-  named in `meta.frame` is also one a frame's `src` may use: the address is
-  kept, where any other unknown scheme is emptied. The web's schemes are
-  refused: `https:` alone would allow every origin, and `data:`, `blob:`
-  and `javascript:` run whatever a page writes.
-- **WebAssembly.** A page that compiles WebAssembly — a parser, an image
-  codec — sets `meta.wasm: true`, and `script-src` gains
-  `'wasm-unsafe-eval'`. WebAssembly compiles; `eval` is still refused.
-- **Style elements.** A page whose scripts write `<style>` elements — an
-  editor such as CodeMirror, a chart library — sets
-  `meta.style_elements: true`, and `style-src` gains `'unsafe-inline'`, for
-  styles only.
-
-### Let the build check its own output
+### The build checks its own output
 
 **The build holds every page to the policy it ships.** It reads each HTML
 file back and stops on anything the policy would block: an inline
@@ -380,27 +275,7 @@ a build emits one, `style-src` gains `'unsafe-inline'` and the build names
 the pages that caused it, so the stricter policy is one edit away. A
 literal in a `style { }` block is already a shared class and costs nothing.
 
-## Pin another origin's files
-
-A stylesheet or a font from another origin is code that origin can change
-after you read it. To pin it, declare its hash in `meta.integrity`:
-
-```json
-{
-  "meta": {
-    "stylesheets": ["https://cdn.example.com/brand.css"],
-    "integrity": { "https://cdn.example.com/brand.css": "sha384-…" }
-  }
-}
-```
-
-The build emits `integrity` and `crossorigin="anonymous"` on the tag, and
-warns (`D05`) about a declared external asset that has no hash. It never
-fetches the file to work the hash out, because that would make a build
-depend on the network. A Google Fonts stylesheet is exempt: Google writes
-it per browser, so its bytes differ between readers and no hash can match.
-
-## Sanitize what your own scripts insert
+## Code you choose to trust
 
 A `.js` file under `src/` runs on every page exactly as written. The
 compiler reads its names; it does not rewrite or sandbox it. It is code you
@@ -408,47 +283,23 @@ trust, like the rest of `src/`. What it puts in the page with `innerHTML`
 is markup, so markup from outside the project goes through
 `WF.sanitize(…)` there too.
 
-A library from another origin belongs in `meta.scripts`, with an integrity
-hash, so a change at that origin cannot reach your readers
-([A library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md)).
+A file from another origin — a library, a stylesheet, a font — is code
+that origin can change after you read it. It belongs in `meta.scripts`,
+`meta.stylesheets` or `meta.fonts` with an integrity hash in
+`meta.integrity`, so a change at that origin cannot reach your readers; the
+build warns (`D05`) about one without
+([Allow other origins in the security policy](https://webfluent.monzeromer.dev/recipes/allow-other-origins.md#variations),
+[Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md)).
 
-## Audit the project
+## What a review reads
 
-To answer the questions a security review asks, run:
-
-```bash
-wf audit
-```
-
-It lists:
-
-- every `Unsafe.*`, and whether it is sanitised;
-- the project's own scripts, and the names each declares;
-- every origin the pages load from;
-- everything written to the reader's machine, and where;
-- every `env` name, and whether it is public;
-- the policy this build ships;
-- what the compiler itself depends on.
-
-Add `--json` to get the same report for a tool. `wf audit` only reports; it
-never fails a build.
-
-## Before you deploy
-
-- Run `wf audit`, and read all of it.
-- Set `"csp": true`, and make sure the build passes its own check.
-- Check that `_headers` reaches your host, or set the same headers
-  another way.
-- Serve over HTTPS, with HSTS.
-- Keep the session in an httpOnly, Secure, SameSite cookie — not in
-  `persist`.
-- Read no non-public `env` name in a page (the build refuses one).
-- Make sure every `Unsafe.Html` is sanitised, or provably your own
-  markup.
-- Check authorisation on the server for every request, not with
-  `guard:`.
-- Have the server check uploads: type from the bytes, a size limit, a
-  generated filename, storage nothing serves from.
+Everything the compiler cannot refuse is something the project chose to
+trust, so a review starts from a list of those choices. `wf audit` prints
+it — every `Unsafe.*`, every script, origin and stored value, every `env`
+name, the policy — and never fails a build.
+[Review a site's security before you deploy](https://webfluent.monzeromer.dev/recipes/review-security.md)
+reads it, and goes through the checklist for the build, the host and the
+server.
 
 ## Next
 

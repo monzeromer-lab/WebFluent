@@ -43,7 +43,9 @@ Name(positional, prop: value, prop: value).flag.flag { block }
   expression.
 - **Flags**, `.name`, are written tight against the closing parenthesis, or
   against the name when there are no parentheses: `Button("Save").primary.lg`,
-  `Spacer.sm`, `Card.elevated { … }`.
+  `Spacer.sm`, `Card.elevated { … }`. An element or a component called with
+  no arguments needs no parentheses: `Spinner` and `Spinner()` are the same
+  call, and this book writes the shorter one.
 - **The block**, `{ … }`, holds its contents in a fixed order: `style { }`,
   then `transition { }`, then `on … { }` handlers, then slot fills, then
   children.
@@ -251,13 +253,16 @@ page Article(path: "/", title: "Article", description: "Every kind of text.") {
     Paragraph("Prose, as a <p>.")
     Code("let x = 1").block
     Blockquote("A quotation.")
-    Markdown("**Bold** and a [link](/docs)")   // see Content
+    Markdown("**Bold** and a [link](/docs)")   // Markdown, rendered as HTML
 }
 ```
 
 The compiler checks the outline the headings form: a page needs an `h1`
 (`A12`), and a heading level may not be skipped, such as `h2` straight to
 `h4` (`A11`).
+
+[Render Markdown](../recipes/render-markdown.md) shows what `Markdown`
+draws, and how to show text somebody else wrote.
 
 ## Layout elements
 

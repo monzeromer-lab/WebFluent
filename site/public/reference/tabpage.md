@@ -10,6 +10,8 @@ One tab inside Tabs (the original spelling of Tabs.Page).
 TabPage(_ label: String) { … }
 ```
 
+Use [`Tabs.Page`](https://webfluent.monzeromer.dev/reference/tabs-page.md) in new code: it is the current spelling, and its page has the example.
+
 ## Props
 
 | Prop | Type | Meaning |

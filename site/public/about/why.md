@@ -170,5 +170,5 @@ mistakes the compiler finds before your readers do.
 - Coming from a framework, read
   [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](https://webfluent.monzeromer.dev/reference.md).
-- This guide describes WebFluent 6. [Upgrading](https://webfluent.monzeromer.dev/about/upgrading.md) lists what
+- This guide describes WebFluent 6. [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md) lists what
   each release changed.

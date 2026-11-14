@@ -1,7 +1,22 @@
 // A recipe, written from md-docs/recipes/send-on-unload.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeSendOnUnload(path: "/recipes/send-on-unload", title: "Send a message as the page unloads — Recipes", description: "Record that something happened even as the reader leaves — an analytics event, a \"reader left\" signal — with `beacon(url, data)`.") {
-    RecipeShell("Send a message as the page unloads", summary: "`beacon(url, data)` records that something happened even when the reader is leaving — an analytics event, a \"reader left\" signal. A `fetch` started as the page unloads is cancelled; a beacon is delivered. This checkout page sends one when the reader leaves it, whether they close the tab, go to another site or switch away:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results")], source: "md-docs/recipes/send-on-unload.md", how: true, hasVariations: false) {
+    RecipeShell("Send a message as the page unloads", summary: "`beacon(url, data)` records that something happened even when the reader is leaving — an analytics event, a \"reader left\" signal. A `fetch` started as the page unloads is cancelled; a beacon is delivered. This checkout page sends one when the reader leaves it, whether they close the tab, go to another site or switch away:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results")], source: "md-docs/recipes/send-on-unload.md", how: true, hasVariations: false, project: { "src/pages/SendOnUnload.wf": #"page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
+    state paid = false
+
+    on visibilitychange {
+        if document.visibilityState == "hidden" {
+            beacon("/analytics", { event: "left-checkout", paid: paid })
+        }
+    }
+
+    Heading("Checkout").h1
+    Button("Pay").primary { on click { paid = true } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "send-on-unload"
+}
+"# }) {
         code {
             CodeBlock(#"page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
     state paid = false

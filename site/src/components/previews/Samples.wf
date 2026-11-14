@@ -6,7 +6,7 @@
 const SAMPLE_CODE = #"page Home(path: "/", title: "Hello") {
     state count = 0
     Heading("Hello, WebFluent").h1
-    Text("Clicked {count} times")
+    Text(if count == 1 { "Clicked once" } else { "Clicked {count} times" })
     Button("+1").primary {
         on click { count = count + 1 }
     }
@@ -34,26 +34,26 @@ WF.page("Home", (root) => {
 /// The book as the rewrite draws it: eleven chapters, the first three the tour.
 const SAMPLE_BOOK: [Chapter] = [
     Chapter(n: 1, title: "Getting started", to: "/learn/01-getting-started", part: "book.part.tour", tour: true),
-    Chapter(n: 2, title: "A first page", to: "/learn/02-a-first-page", part: "book.part.tour", tour: true),
-    Chapter(n: 3, title: "Elements and flags", to: "/learn/03-elements-and-flags", part: "book.part.tour", tour: true),
+    Chapter(n: 2, title: "A first page", to: "/learn/01-getting-started", part: "book.part.tour", tour: true),
+    Chapter(n: 3, title: "Elements and flags", to: "/learn/06-elements", part: "book.part.tour", tour: true),
     Chapter(n: 4, title: "State and reactivity", to: "/blueprint/chapter", part: "book.part.book"),
-    Chapter(n: 5, title: "Components", to: "/learn/05-components", part: "book.part.book"),
-    Chapter(n: 6, title: "Stores", to: "/learn/06-stores", part: "book.part.book"),
-    Chapter(n: 7, title: "Data and resources", to: "/learn/07-data", part: "book.part.book"),
-    Chapter(n: 8, title: "Styling and themes", to: "/learn/08-styling", part: "book.part.book"),
-    Chapter(n: 9, title: "Forms", to: "/learn/09-forms", part: "book.part.book"),
-    Chapter(n: 10, title: "PDF and slides", to: "/learn/10-pdf-and-slides", part: "book.part.book"),
-    Chapter(n: 11, title: "Shipping", to: "/learn/11-shipping", part: "book.part.book")
+    Chapter(n: 5, title: "Components", to: "/learn/10-components", part: "book.part.book"),
+    Chapter(n: 6, title: "Stores", to: "/learn/11-stores", part: "book.part.book"),
+    Chapter(n: 7, title: "Data and resources", to: "/learn/15-data", part: "book.part.book"),
+    Chapter(n: 8, title: "Styling and themes", to: "/learn/13-styling", part: "book.part.book"),
+    Chapter(n: 9, title: "Forms", to: "/learn/14-forms", part: "book.part.book"),
+    Chapter(n: 10, title: "PDF and slides", to: "/learn/17-pdf-and-slides", part: "book.part.book"),
+    Chapter(n: 11, title: "Shipping", to: "/recipes/deploy-to-github-pages", part: "book.part.book")
 ]
 
 const SAMPLE_RECIPES: [IndexEntry] = [
     IndexEntry(label: "Fetch and show a list", to: "/blueprint/recipe"),
-    IndexEntry(label: "Refresh on a timer", to: "/recipes/refresh-on-a-timer"),
-    IndexEntry(label: "Validate a sign-up form", to: "/recipes/validate-a-form"),
-    IndexEntry(label: "Add dark mode", to: "/recipes/dark-mode"),
-    IndexEntry(label: "Ship a PDF invoice", to: "/recipes/pdf-invoice"),
-    IndexEntry(label: "Translate to Arabic", to: "/recipes/translate"),
-    IndexEntry(label: "Test a click-through", to: "/recipes/test-a-click")
+    IndexEntry(label: "Refresh on a timer", to: "/learn/15-data#show-a-request-with-resource"),
+    IndexEntry(label: "Validate a sign-up form", to: "/recipes/validation-messages"),
+    IndexEntry(label: "Add dark mode", to: "/recipes/dark-mode-switch"),
+    IndexEntry(label: "Ship a PDF invoice", to: "/recipes/pdf-report"),
+    IndexEntry(label: "Translate to Arabic", to: "/recipes/translate-a-site"),
+    IndexEntry(label: "Test a click-through", to: "/recipes/test-a-page")
 ]
 
 const SAMPLE_COMPONENTS: [IndexEntry] = [
@@ -107,7 +107,7 @@ page BlueprintSample(path: "/blueprint/sample", title: "Sample", description: "T
     Stack(gap: .sm) {
         style { padding: 24px; gap: 12px; align-items: flex-start }
         Heading("Hello, WebFluent").h1 { style { margin: 0; font-size: 28px } }
-        Text("Clicked {count} times")
+        Text(if count == 1 { "Clicked once" } else { "Clicked {count} times" })
         Button("+1").primary { on click { count = count + 1 } }
     }
 }

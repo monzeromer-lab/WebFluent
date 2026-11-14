@@ -1,7 +1,55 @@
 // A recipe, written from md-docs/recipes/test-a-page.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeTestAPage(path: "/recipes/test-a-page", title: "Test a page — Recipes", description: "Write tests under tests/ that render a component or a page, type and click through it like a reader, and check what it shows; run them with wf test.") {
-    RecipeShell("Test a page", summary: "A test renders a component or a whole page, acts on it the way a reader does — typing, clicking, pressing keys — and checks the text the page shows. This shopping list has a component that counts, a page that adds items, and three tests:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [], source: "md-docs/recipes/test-a-page.md", how: true, hasVariations: true) {
+    RecipeShell("Test a page", summary: "A test renders a component or a whole page, acts on it the way a reader does — typing, clicking, pressing keys — and checks the text the page shows. This shopping list has a component that counts, a page that adds items, and three tests:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Install wf on a build machine", to: "/recipes/install-wf-in-ci")], source: "md-docs/recipes/test-a-page.md", how: true, hasVariations: true, project: { "src/components/Count.wf": #"// src/components/Count.wf
+component Count(_ n: Number) {
+    Text(if n == 1 { "1 thing to buy" } else { "{n} things to buy" })
+}
+
+// src/pages/Shopping.wf
+page Shopping(path: "/shopping", title: "Shopping", description: "What to buy.") {
+    state items: [String] = ["Milk"]
+    state draft = ""
+
+    Heading("Shopping").h1
+    Count(items.length)
+    Form {
+        on submit(e) {
+            e.preventDefault()
+            if draft != "" { items = items.concat([draft]) }
+            draft = ""
+        }
+        Input(bind: draft, label: "Item")
+        Button("Add", type: .submit).primary
+    }
+    for item in items by item { Text(item) }
+}
+
+// tests/shopping.wf
+test "one thing reads in the singular" {
+    Count(1)
+    expect "1 thing to buy"
+    expect not "things"
+}
+
+test "adding an item lists it and counts it" {
+    Shopping
+    expect "1 thing to buy"
+    type "Bread" into "Item"
+    click "Add"
+    expect "Bread"
+    expect "2 things to buy"
+}
+
+test "an empty item is not added" {
+    Shopping
+    click "Add"
+    expect "1 thing to buy"
+}
+"#, "webfluent.app.json": #"{
+  "name": "test-a-page"
+}
+"# }) {
         code {
             Markdown("**Needs:** a `tests/` folder beside `src/`, and a Chrome or Chromium on the machine for the tests that click (or `WF_CHROME` naming one). The block holds three files; the comment above each says where it goes.")
             CodeBlock(#"// src/components/Count.wf

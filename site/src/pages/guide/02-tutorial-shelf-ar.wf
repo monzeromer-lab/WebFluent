@@ -1,8 +1,10 @@
 /// Tutorial: Shelf, in ar: written from md-docs/ar/learn/02-tutorial-shelf.md by
 /// scripts/docsite/guide.py; edit the translation, not this file.
-page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس: Shelf", description: "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.", lang: "ar", translates: Learn02TutorialShelf, layout: DocsShell("درس: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ موقعًا صغيرًا كاملًا — بيانات ومكوّنات ومخزن ونموذج وسمة واختبار — وانشره على الويب.", source: "md-docs/ar/learn/02-tutorial-shelf.md", sections: [Anchor(id: "ما-ستبنيه", label: "ما ستبنيه"), Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-صف-الكتب", label: "الخطوة 2: صِف الكتب"), Anchor(id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن", label: "الخطوة 3: احفظ رفّ القارئ في مخزن"), Anchor(id: "الخطوة-4-اعرض-كتابا-بمكون", label: "الخطوة 4: اعرض كتابًا بمكوّن"), Anchor(id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب", label: "الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب"), Anchor(id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع", label: "الخطوة 6: أضف صفحة الرفّ وإطار الموقع"), Anchor(id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب", label: "الخطوة 7: أضف نموذجًا لاقتراح كتاب"), Anchor(id: "الخطوة-8-امنح-الموقع-سمة", label: "الخطوة 8: امنح الموقع سمة"), Anchor(id: "الخطوة-9-اختبر-بطاقة-الكتاب", label: "الخطوة 9: اختبر بطاقة الكتاب"), Anchor(id: "الخطوة-10-ابن-الموقع-وتحقق-منه", label: "الخطوة 10: ابنِ الموقع وتحقّق منه"), Anchor(id: "الخطوة-11-انشر-على-github-pages", label: "الخطوة 11: انشر على GitHub Pages"), Anchor(id: "البرنامج-كاملا", label: "البرنامج كاملًا"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["اقرأ ملف JSON وقت البناء بيانات ذات أنواع، بـ`type` و`data`", "احفظ ما يختاره القارئ عبر الزيارات في `store` مع `persist`", "اكتب مكوّنًا وضعه داخل `for … by` ذي مفاتيح", "اعرض صفحة لكل عنصر بمسار `:slug` و`paths:`", "تحقّق من نموذج، وأضف سمة، واختبر بالنقرات، وانشر الموقع"], book: GUIDE_AR, other: "/learn/02-tutorial-shelf", lang: "ar", prevTo: "/ar/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/ar/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
+page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس: Shelf", description: "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.", lang: "ar", translates: Learn02TutorialShelf, layout: DocsShell("درس: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ موقعًا صغيرًا كاملًا — بيانات ومكوّنات ومخزن ونموذج وسمة واختبار — وانشره على الويب.", source: "md-docs/ar/learn/02-tutorial-shelf.md", sections: [Anchor(id: "ما-ستبنيه", label: "ما ستبنيه"), Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-صف-الكتب", label: "الخطوة 2: صِف الكتب"), Anchor(id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن", label: "الخطوة 3: احفظ رفّ القارئ في مخزن"), Anchor(id: "الخطوة-4-اعرض-كتابا-بمكون", label: "الخطوة 4: اعرض كتابًا بمكوّن"), Anchor(id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب", label: "الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب"), Anchor(id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع", label: "الخطوة 6: أضف صفحة الرفّ وإطار الموقع"), Anchor(id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب", label: "الخطوة 7: أضف نموذجًا لاقتراح كتاب"), Anchor(id: "الخطوة-8-امنح-الموقع-سمة", label: "الخطوة 8: امنح الموقع سمة"), Anchor(id: "الخطوة-9-اختبر-بطاقة-الكتاب", label: "الخطوة 9: اختبر بطاقة الكتاب"), Anchor(id: "الخطوة-10-ابن-الموقع-وتحقق-منه", label: "الخطوة 10: ابنِ الموقع وتحقّق منه"), Anchor(id: "الخطوة-11-انشر-على-github-pages", label: "الخطوة 11: انشر على GitHub Pages"), Anchor(id: "البرنامج-كاملا", label: "البرنامج كاملًا"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["اقرأ ملف JSON وقت البناء بوصفه بيانات ذات أنواع، بـ`type` و`data`", "احفظ ما يختاره القارئ عبر الزيارات في `store` مع `persist`", "اكتب مكوّنًا وضعه داخل `for … by` ذي مفاتيح", "اعرض صفحة لكل عنصر بمسار `:slug` و`paths:`", "تحقّق من نموذج، وأضف سمة، واختبر بالنقرات، وانشر الموقع"], book: GUIDE_AR, other: "/learn/02-tutorial-shelf", lang: "ar", prevTo: "/ar/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/ar/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
     Stack(gap: .lg) {
         Markdown("يبني هذا الدرس **Shelf**، موقعًا صغيرًا يسرد كتبًا تستحق القراءة، ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة، وتنتهي بما يجب أن تراه.")
+
+        Callout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
 
         Heading("ما ستبنيه", id: "ما-ستبنيه").h2
 
@@ -207,7 +209,7 @@ app {
     Footer { Text("Built with WebFluent").muted.sm }
 }"#, title: "wf")
 
-        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن شريط تنقّل. ضع كتابين على رفّك: يصير الرابط **Your shelf (2)**. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives here**.")
+        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن شريط تنقّل. ضع كتابين على رفّك: يصير الرابط `Your shelf (2)`. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives here**.")
 
         Heading("الخطوة 7: أضف نموذجًا لاقتراح كتاب", id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب").h2
 
@@ -257,7 +259,7 @@ app {
     Footer { Text("Built with WebFluent").muted.sm }
 }"#, title: "wf")
 
-        Markdown("**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.\n\nالموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،")
+        Markdown("**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى `Thank you — we will take a look.`، ويصير النموذج فارغًا.\n\nالموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،")
 
         CodeBlock(#"// … in src/api.wf, beside the pages
 api Suggestions(base: env.PUBLIC_API ?? "/api") {
@@ -273,7 +275,7 @@ on submit {
     form.reset()
 }"#, title: "wf")
 
-        Markdown("([البيانات وواجهات API](/learn/15-data)، [البيئات](/recipes).)")
+        Markdown("([البيانات وواجهات API](/learn/15-data)، [البيئات](/recipes/environments-and-secrets).)")
 
         Heading("الخطوة 8: امنح الموقع سمة", id: "الخطوة-8-امنح-الموقع-سمة").h2
 
@@ -624,7 +626,7 @@ test "a card shows who wrote the book, and when" {
             }
         }
 
-        Markdown("لتذهب أبعد:\n\n- اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](/learn/04-language-basics).\n- تحدّث مع خادم حقيقي: [البيانات وواجهات API](/learn/15-data).\n- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](/recipes).\n- ترجمه: [الترجمة](/recipes).\n- ابنِ مشروعًا أكبر: [الدروس](/ar/learn/03-tutorial-todos).")
+        Markdown("لتذهب أبعد:\n\n- اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](/learn/04-language-basics).\n- تحدّث مع خادم حقيقي: [البيانات وواجهات API](/learn/15-data).\n- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](/recipes/work-offline).\n- ترجمه: [الترجمة](/recipes/translate-a-site).\n- ابنِ مشروعًا أكبر: [Pocket](/recipes/build-a-budget-app)، متتبّع ميزانية.")
 
         Heading("أخطاء شائعة", id: "أخطاء-شائعة").h2
 

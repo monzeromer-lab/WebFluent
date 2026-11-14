@@ -30,7 +30,9 @@ type Chapter {
 type IndexEntry {
     label: String,
     to: String,
-    group: String = ""
+    group: String = "",
+    /// The outputs a recipe works in, for its badges and the index's filter.
+    outputs: [String] = []
 }
 
 /// One file of an example: its name, its text, and the language the

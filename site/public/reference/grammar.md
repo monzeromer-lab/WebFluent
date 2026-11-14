@@ -271,8 +271,9 @@ A `.wf` file writes blocks in braces. A `.wfx` file writes them by
 indentation: a line indented deeper than the one before opens a block, and
 a dedent closes it. Braces written by hand still work inside a line
 ([Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#two-layouts-wf-and-wfx)).
-Statements need no separator; two on one line are separated by a `;` or
-two spaces.
+Statements need no separator, on one line either: the parser finds where
+one ends. Two on one line read best apart by a `;` or two spaces
+(`count = 0; log(count)`).
 
 ## Next
 

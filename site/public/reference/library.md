@@ -9,7 +9,7 @@ This page is the reference for the compiler used as a library: the
 `wf.js` in a browser. Each one compiles the same language as `wf`, with the
 same findings.
 
-| | What it is | Use it to |
+| Library | What it is | Use it to |
 |---|---|---|
 | [Rust](#rust-the-webfluent-crate) | the compiler itself, `webfluent` on crates.io | render templates in a server, build a site from a program, write an editor or a tool |
 | [Node](#node-the-webfluent-package) | a wrapper that runs `wf render` | render templates from a Node server |

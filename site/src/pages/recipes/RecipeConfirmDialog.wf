@@ -1,7 +1,35 @@
 // A recipe, written from md-docs/recipes/confirm-dialog.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeConfirmDialog(path: "/recipes/confirm-dialog", title: "Build a confirm dialog — Recipes", description: "Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller.") {
-    RecipeShell("Build a confirm dialog", summary: "Before a reader deletes something, ask them. This component wraps a `Dialog` with **Cancel** and **Confirm** buttons and tells the page which one was pressed, so every destructive action on the site asks the same way:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address"), RelatedLink(kind: "Recipe", title: "Keep filters in the address", to: "/recipes/filters-in-the-address"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard")], source: "md-docs/recipes/confirm-dialog.md", how: true, hasVariations: false) {
+    RecipeShell("Build a confirm dialog", summary: "Before a reader deletes something, ask them. This component wraps a `Dialog` with **Cancel** and **Confirm** buttons and tells the page which one was pressed, so every destructive action on the site asks the same way:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/confirm-dialog.md", how: true, hasVariations: false, project: { "src/pages/ConfirmDialog.wf": #"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
+    event confirm()
+    event cancel()
+    slot
+    Dialog(visible: visible, title: title) {
+        children
+        Row(gap: .sm, justify: .end) {
+            Button("Cancel") { on click { emit cancel() } }
+            Button("Confirm", tone: if danger { .danger } else { .primary }) { on click { emit confirm() } }
+        }
+    }
+}
+
+page Account(path: "/", title: "Account", description: "Close your account.") {
+    state asking = false
+    state gone = false
+    Heading("Account").h1
+    Button("Delete account").danger { on click { asking = true } }
+    Confirm("Delete your account?", visible: asking, danger: true) {
+        on confirm { gone = true  asking = false }
+        on cancel { asking = false }
+        Text("Everything goes. This cannot be undone.")
+    }
+    if gone { Alert("Account deleted.").info }
+}
+"#, "webfluent.app.json": #"{
+  "name": "confirm-dialog"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {

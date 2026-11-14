@@ -200,11 +200,12 @@ store Cart {
 }
 
 component CartSummary {
+    use Cart
     Text("{Cart.count} items")
 }
 
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
-    CartSummary()
+    CartSummary
     expect "2 items"
 }
 ```

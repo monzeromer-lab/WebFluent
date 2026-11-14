@@ -1,7 +1,40 @@
 // A recipe, written from md-docs/recipes/call-your-own-script.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeCallYourOwnScript(path: "/recipes/call-your-own-script", title: "Call your own JavaScript — Recipes", description: "Call a function of your own JavaScript from a WebFluent page: a plain script under src/, typed with JSDoc, linked on every page, its names in scope.") {
-    RecipeShell("Call your own JavaScript", summary: "Some things are easier to write in JavaScript: a pointer effect, a measurement, glue around a library. Put the function in a `.js` file under `src/`, and your pages call it by name. You need a WebFluent project ([Getting started](/learn/01-getting-started)); the script is a plain browser script, with no `import`, no `export` and no build step.", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "type-a-script-with-jsdoc", label: "Type a script with JSDoc"), Anchor(id: "let-a-script-report-and-keep-the-class-in-webfluent", label: "Let a script report, and keep the class in WebFluent"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script"), RelatedLink(kind: "Recipe", title: "Run a script after each page draws", to: "/recipes/listen-for-wf-render")], source: "md-docs/recipes/call-your-own-script.md", how: true, hasVariations: false) {
+    RecipeShell("Call your own JavaScript", summary: "Some things are easier to write in JavaScript: a pointer effect, a measurement, glue around a library. Put the function in a `.js` file under `src/`, and your pages call it by name. You need a WebFluent project ([Getting started](/learn/01-getting-started)); the script is a plain browser script, with no `import`, no `export` and no build step.", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "type-a-script-with-jsdoc", label: "Type a script with JSDoc"), Anchor(id: "let-a-script-report-and-keep-the-class-in-webfluent", label: "Let a script report, and keep the class in WebFluent"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script"), RelatedLink(kind: "Recipe", title: "Load a library from a CDN", to: "/recipes/library-from-a-cdn")], source: "md-docs/recipes/call-your-own-script.md", how: true, hasVariations: false, project: { "src/tilt.js": #"// src/tilt.js
+/**
+ * Tilt an element toward the pointer.
+ * @param {HTMLElement} node
+ * @param {number} [max] how far, in degrees
+ */
+function initTilt(node, max = 15) {
+  const move = (e) => {
+    const r = node.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    node.style.transform = `rotateY(${x * max}deg)`;
+  };
+  node.addEventListener("pointermove", move);
+  return {
+    setMax(m) { max = m; },
+    destroy() { node.removeEventListener("pointermove", move); },
+  };
+}
+"#, "src/pages/CallYourOwnScript.wf": #"page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
+    state max = 15
+
+    Heading("Gallery").h1
+    Card(class: "tilt",
+         mount: (n) => initTilt(n, max),
+         update: (tilt) => tilt.setMax(max),
+         cleanup: (tilt) => tilt.destroy()) {
+        Text("Move the pointer over me.")
+    }
+    Slider(bind: max, min: 0, max: 45, label: "How far")
+}
+"#, "webfluent.app.json": #"{
+  "name": "call-your-own-script"
+}
+"# }) {
         code {
             Markdown("**Needs:** the script `src/tilt.js`, shown below.")
             CodeBlock(#"page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {

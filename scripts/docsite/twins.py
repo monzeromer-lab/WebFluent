@@ -96,6 +96,9 @@ def source(path: Path):
 
 def component(c) -> str:
     out = [c["plain"], "", "```wf", c["signature"], "```", ""]
+    if c.get("modern", ("", ""))[0]:
+        modern, to = c["modern"]
+        out += [f"Use [`{modern}`]({to}) in new code: it is the current spelling, and its page has the example.", ""]
     if c["props"]:
         out += ["## Props", "", "| Prop | Type | Meaning |", "|---|---|---|"]
         out += [f"| `{p['name']}` | `{p['type']}` | {p['meaning']} |" for p in c["props"]]

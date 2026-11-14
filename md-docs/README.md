@@ -50,11 +50,10 @@ suite, so what you read is what the compiler accepts.
 | | **About** | |
 | 18 | [Why WebFluent](about/introduction.md) | Why the language exists, and the choices it makes: one meaning per word, a compiler that refuses what would break in the browser, and one source for the web and for paper. |
 | 19 | [How reactivity works](about/how-reactivity-works.md) | What happens between a click and the one text node it changes: signals, derived values, effects, branches and keyed lists, with no virtual DOM in between. |
-| 20 | [Accessibility](about/accessibility.md) | Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do. |
-| 21 | [Security](about/security.md) | What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist. |
+| 20 | [Accessibility](about/accessibility.md) | Pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what no tool can check for you. |
+| 21 | [Security](about/security.md) | What the compiler guarantees, what it cannot, and why: markup, secrets, sessions, uploads, the content security policy and what a project trusts. |
 | 22 | [What a build ships](about/performance.md) | Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow. |
-| 23 | [Static or single-page](about/static-and-spa.md) | The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered. |
-| 24 | [Upgrading](about/upgrading.md) | What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward. |
+| 23 | [Static or single-page](about/static-and-spa.md) | The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and what each asks of a host. |
 | 25 | [Contributing](about/contributing.md) | How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide. |
 | | **Reference** | |
 | 30 | [Expressions](reference/expressions.md) | The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await. |
@@ -73,4 +72,5 @@ suite, so what you read is what the compiler accepts.
 | | **Help** | |
 | 43 | [Diagnostics](errors/diagnostics.md) | Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix. |
 | 44 | [Troubleshooting](errors/troubleshooting.md) | The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most. |
+| 45 | [Upgrading](errors/upgrading.md) | What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward. |
 <!-- /contents -->

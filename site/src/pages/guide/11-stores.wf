@@ -20,12 +20,14 @@ store Cart {
 
 page Shop(path: "/", title: "Shop", description: "Things to buy.") {
     use Cart
+    Heading("Shop").h1
     Button("Add a pen").primary { on click { Cart.add(Item(id: "pen", name: "Pen", price: 2.5)) } }
-    Text("{Cart.count} items, {format(Cart.total, .currency)}")
+    Text("Cart: {Cart.count}, {format(Cart.total, .currency)}")
 }
 
 page CartPage(path: "/cart", title: "Cart", description: "What you are buying.") {
     use Cart
+    Heading("Cart").h1
     for item in Cart.items by item.id {
         Row(justify: .between) {
             Text("{item.name} × {item.qty}")
@@ -35,7 +37,7 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
     if Cart.count == 0 { Text("Your cart is empty.").muted }
 }"#, title: "wf")
 
-        Markdown("Clicking **Add a pen** changes **0 items, $0.00** to **1 items, $2.50**, and the `/cart` page lists the pen.\n\n- `store Cart \{ … \}` declares the store and its members.\n- `use Cart` in a page says the page reads the store. The page then reads members as `Cart.items` and `Cart.count`, and calls actions as `Cart.add(…)`.\n- Everything that reads `Cart.count`, on any page, updates when it changes.\n\nThe checker knows every member and its type. `Cart.cont` is an error (`T06`, with the nearest member it does have), and `Cart.add(\"pen\")` is an error because `add` takes an `Item` (`T01`).")
+        Markdown("Clicking **Add a pen** changes **Cart: 0, $0.00** to **Cart: 1, $2.50**, and the `/cart` page lists the pen.\n\n- `store Cart \{ … \}` declares the store and its members.\n- `use Cart` in a page says the page reads the store. The page then reads members as `Cart.items` and `Cart.count`, and calls actions as `Cart.add(…)`.\n- Everything that reads `Cart.count`, on any page, updates when it changes.\n\nThe checker knows every member and its type. `Cart.cont` is an error (`T06`, with the nearest member it does have), and `Cart.add(\"pen\")` is an error because `add` takes an `Item` (`T01`).")
 
         Callout("**Coming from React?** There is no context provider to wrap the tree in, and no selector to write. Declare the store once and read `Cart.count` anywhere; only what reads `count` updates when it changes. See [Coming from React](/coming-from/react).", kind: .note)
 
@@ -69,7 +71,7 @@ store Cart {
 
         Callout("**Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()` and makes no copy; there is no `$cart` prefix either. Every reader gets the one instance, by the store's name. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
 
-        Markdown("You may declare a store in any `.wf` file the build reads. By convention it goes in `src/stores/`, and `wf generate store Cart` writes it there. A page reaches a store by name from anywhere. `use` says which stores a page reads, for the person reading the code and for the editor; it does not limit what the page can reach.")
+        Markdown("You may declare a store in any `.wf` file the build reads. By convention it goes in `src/stores/`, and `wf generate store Cart` writes it there. A page reaches a store by name from anywhere. `use` says which stores a page reads, for the person reading the code and for the editor; it does not limit what the page can reach, and a page that reads `Cart.count` without it reads the same store.")
 
         Heading("Store scope", id: "store-scope").h2
 
@@ -137,6 +139,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
     use Session
     state email = ""
     state password = ""
+    Heading("Sign in").h1
     Form {
         on submit { Session.login(email, password) }
         Input(bind: email, label: "Email").email.required
@@ -297,7 +300,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
     Heading("Deploys").h1
     Text("{Deploys.failing} failing")
     match Deploys.rows {
-        loading { Spinner() }
+        loading { Spinner }
         error(e) { Text(e.message) }
         ready(rows) {
             for d in rows by d.id { Text("{d.id}: {d.status}") }
@@ -365,13 +368,13 @@ store Cart {
     derived count = items.map(i => i.qty).sum()
 }
 
-component CartSummary() {
+component CartSummary {
     use Cart
     Text("{Cart.count} items")
 }
 
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
-    CartSummary()
+    CartSummary
     expect "2 items"
 }"#, title: "wf")
 

@@ -65,7 +65,8 @@ component UserCard(_ name: String, role: String, active: Bool = true, avatar: St
     }
 }
 
-page Team(path: "/") {
+page Team(path: "/", title: "Team", description: "Three people, three cards.") {
+    Heading("Team").h1
     UserCard("Monzer", role: "Developer")
     UserCard("Sam", role: "Designer", active: false, avatar: "/sam.png")
     UserCard("Ann", role: "PM").active
@@ -111,12 +112,13 @@ case with a flag or by name:
 enum Tone { calm, loud }
 
 component Note(_ text: String, tone: Tone = .calm) {
-    Text(text) {
+    Text(text, class: "note") {
         style { padding: $sm; border-radius: $radius-sm }
     }
 }
 
-page Notes(path: "/") {
+page Notes(path: "/", title: "Notes", description: "One note in each tone.") {
+    Heading("Notes").h1
     Note("Quiet")
     Note("Loud!", tone: .loud)
     Note("Loud too").loud
@@ -150,11 +152,12 @@ component TodoRow(_ todo: Todo) {
     }
 }
 
-page Todos(path: "/") {
+page Todos(path: "/", title: "Todos", description: "Rows that report back.") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk"), Todo(id: "2", title: "Eggs")]
     action toggle(id: String) {
         todos = todos.map(todo => if todo.id == id { Todo(id: todo.id, title: todo.title, done: !todo.done) } else { todo })
     }
+    Heading("Todos").h1
     for todo in todos by todo.id {
         TodoRow(todo) {
             on toggle(id) { toggle(id) }
@@ -194,8 +197,9 @@ component Entry(_ key: String) {
     }
 }
 
-page Files(path: "/") {
+page Files(path: "/", title: "Files", description: "A menu that knows where it opened.") {
     state at = "nothing yet"
+    Heading("Files").h1
     Entry("notes.wf") { on menu(key, x, y) { at = "{key} at {x}, {y}" } }
     Text("Menu for {at}")
 }
@@ -217,14 +221,15 @@ component Panel(_ title: String) {
     slot trailing
     Card {
         Row(justify: .between, align: .center) {
-            Heading(title).h3
+            Heading(title).h2
             trailing
         }
         children
     }
 }
 
-page Keys(path: "/") {
+page Keys(path: "/", title: "Keys", description: "A panel with a slot.") {
+    Heading("Keys").h1
     Panel("API keys") {
         trailing { Badge("Beta").info }
         Text("Rotate every 90 days.")
@@ -267,8 +272,9 @@ component TodoList(items: [Todo]) {
     }
 }
 
-page Use(path: "/") {
+page Use(path: "/", title: "Todos", description: "A list that hands each row to its caller.") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk")]
+    Heading("Todos").h1
     TodoList(items: todos) {
         row(todo, i) { Text("{i + 1}. {todo.title}") }
         empty { Text("Nothing to do.").muted }
@@ -287,13 +293,14 @@ the way `Card.Header` is a part of `Card`:
 
 ```wf
 component Panel(_ title: String) {
-    part Header(_ text: String) { Heading(text).h3 }
+    part Header(_ text: String) { Heading(text).h2 }
     part Footer { Divider  Text("End").muted.sm }
     Card { Text(title)  children }
     slot
 }
 
-page Parts(path: "/") {
+page Parts(path: "/", title: "Parts", description: "A panel with parts of its own.") {
+    Heading("Parts").h1
     Panel("Keys") {
         Panel.Header("Rotate")
         Text("Body")
@@ -356,8 +363,9 @@ component AddToCart(_ name: String) {
     Button("Add {name}").primary { on click { Cart.add(name) } }
 }
 
-page Shop(path: "/") {
+page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.") {
     use Cart
+    Heading("Shop").h1
     AddToCart("Pen")
     Text("{Cart.items.length} in cart")
 }
@@ -519,7 +527,7 @@ A page declares `state count = 3` and places `Panel("Totals") { Text("{count}") 
 
 ```quiz
 `component Note(_ text: String)` is called as `Note("Saved", tone: "success")`. What happens?
-- It builds, and `tone="success"` lands on the root element -- Only `class:`, `aria-*`, `data-*`, `id`, `role`, `title` and `hidden` go to the root without a prop.
+- It builds, and `tone="success"` lands on the root element -- Only what *What a call puts on the root element* lists goes to the root without a prop, and `tone` is not on that list.
 - It builds, and `tone` is ignored -- Nothing is ignored in silence: the compiler checks a call to your component as it checks a built-in's.
 + The build stops with `C02`: `Note` declares no prop `tone` -- Declare the prop, or correct its spelling.
 ```

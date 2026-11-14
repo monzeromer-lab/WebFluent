@@ -1,7 +1,42 @@
 // A recipe, written from md-docs/recipes/publish-custom-elements.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipePublishCustomElements(path: "/recipes/publish-custom-elements", title: "Publish components as custom elements — Recipes", description: "Build WebFluent components as standard custom elements that React, Vue, Svelte, WordPress or a plain HTML page can place by their tag.") {
-    RecipeShell("Publish components as custom elements", summary: "To use your components from another framework or a plain page, build them as custom elements. These two components, a price tag and a star rating, are what this project publishes; the page places them so you can see them in the project itself:", outputs: ["elements"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script")], source: "md-docs/recipes/publish-custom-elements.md", how: true, hasVariations: false) {
+    RecipeShell("Publish components as custom elements", summary: "To use your components from another framework or a plain page, build them as custom elements. These two components, a price tag and a star rating, are what this project publishes; the page places them so you can see them in the project itself:", outputs: ["elements"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Upgrade a WebFluent 4 project that uses external", to: "/recipes/migrate-from-external"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script")], source: "md-docs/recipes/publish-custom-elements.md", how: true, hasVariations: false, project: { "src/pages/PublishCustomElements.wf": #"component PriceTag(label: String, amount: Number, sale: Bool = false) {
+    Row(gap: .sm, align: .center) {
+        Text(label).bold
+        Text("${amount}")
+        if sale { Badge("Sale").success }
+    }
+}
+
+component Rating(value: Number = 0) {
+    event rate(stars: Number)
+    Row(gap: .xs) {
+        for n in 1..=5 by n {
+            Button("{n}", outlined: n > value) {
+                on click { emit rate(n) }
+            }
+        }
+    }
+}
+
+page Preview(path: "/", title: "Preview", description: "The components this project publishes.") {
+    state stars = 3
+    Heading("Preview").h1
+    PriceTag(label: "Pro", amount: 29).sale
+    Rating(value: stars) { on rate(n) { stars = n } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "publish-custom-elements",
+  "build": {
+    "output_type": "elements",
+    "elements": [
+      "PriceTag",
+      "Rating"
+    ]
+  }
+}
+"# }) {
         code {
             Markdown("**Needs:** `build.elements` in `webfluent.app.json`, shown below. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"component PriceTag(label: String, amount: Number, sale: Bool = false) {

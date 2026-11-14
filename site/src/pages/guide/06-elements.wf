@@ -10,7 +10,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         CodeBlock(#"Name(positional, prop: value, prop: value).flag.flag { block }"#, title: "text")
 
-        Markdown("- **`Name`** is PascalCase: a built-in (`Card`), a part of one (`Card.Header`), or a component of the project (`UserCard`, `Panel.Footer`).\n- **One positional argument** comes first, unnamed. It is the element's main value: a button's label, a heading's text, an icon's name. You pass every other value by name.\n- **Named props**, `name: value`, come in any order, and the value may be any expression.\n- **Flags**, `.name`, are written tight against the closing parenthesis, or against the name when there are no parentheses: `Button(\"Save\").primary.lg`, `Spacer.sm`, `Card.elevated \{ … \}`.\n- **The block**, `\{ … \}`, holds its contents in a fixed order: `style \{ \}`, then `transition \{ \}`, then `on … \{ \}` handlers, then slot fills, then children.\n\nThis button uses all five pieces, with its block in that order:")
+        Markdown("- **`Name`** is PascalCase: a built-in (`Card`), a part of one (`Card.Header`), or a component of the project (`UserCard`, `Panel.Footer`).\n- **One positional argument** comes first, unnamed. It is the element's main value: a button's label, a heading's text, an icon's name. You pass every other value by name.\n- **Named props**, `name: value`, come in any order, and the value may be any expression.\n- **Flags**, `.name`, are written tight against the closing parenthesis, or against the name when there are no parentheses: `Button(\"Save\").primary.lg`, `Spacer.sm`, `Card.elevated \{ … \}`. An element or a component called with no arguments needs no parentheses: `Spinner` and `Spinner()` are the same call, and this book writes the shorter one.\n- **The block**, `\{ … \}`, holds its contents in a fixed order: `style \{ \}`, then `transition \{ \}`, then `on … \{ \}` handlers, then slot fills, then children.\n\nThis button uses all five pieces, with its block in that order:")
 
         CodeBlock(#"page Editor(path: "/", title: "Editor", description: "A save button, fully dressed.") {
     Heading("Editor").h1
@@ -187,10 +187,10 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
     Paragraph("Prose, as a <p>.")
     Code("let x = 1").block
     Blockquote("A quotation.")
-    Markdown("**Bold** and a [link](/docs)")   // see Content
+    Markdown("**Bold** and a [link](/docs)")   // Markdown, rendered as HTML
 }"#, title: "wf")
 
-        Markdown("The compiler checks the outline the headings form: a page needs an `h1` (`A12`), and a heading level may not be skipped, such as `h2` straight to `h4` (`A11`).")
+        Markdown("The compiler checks the outline the headings form: a page needs an `h1` (`A12`), and a heading level may not be skipped, such as `h2` straight to `h4` (`A11`).\n\n[Render Markdown](/recipes/render-markdown) shows what `Markdown` draws, and how to show text somebody else wrote.")
 
         Heading("Layout elements", id: "layout-elements").h2
 

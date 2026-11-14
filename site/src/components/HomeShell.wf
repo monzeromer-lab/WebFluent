@@ -96,7 +96,7 @@ component HomeShell(other: String = "", lang: String = "en") {
                     } else {
                         Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {
                             Heading("Hello, WebFluent").h2
-                            Text("Clicked {count} times")
+                            Text(if count == 1 { "Clicked once" } else { "Clicked {count} times" })
                             Row(gap: .sm) {
                                 style { gap: 8px }
                                 Button("+1", class: "bp-button", data-tone: "action") { on click { count = count + 1 } }
@@ -216,7 +216,7 @@ const HOME_EXAMPLE = #"page Home(path: "/", title: "Hello") {
     state count = 0
 
     Heading("Hello, WebFluent").h1
-    Text("Clicked {count} times")
+    Text(if count == 1 { "Clicked once" } else { "Clicked {count} times" })
     Button("+1").primary {
         on click { count = count + 1 }
     }

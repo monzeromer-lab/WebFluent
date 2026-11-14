@@ -1,7 +1,30 @@
 // A recipe, written from md-docs/recipes/migrate-from-external.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeMigrateFromExternal(path: "/recipes/migrate-from-external", title: "Migrate from external — Recipes", description: "Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.") {
-    RecipeShell("Migrate from external", summary: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them, and the parser now refuses one. `wf migrate` rewrites a project. This is a page after the migration: it calls a function of a plain script, and places a custom element by its tag:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script")], source: "md-docs/recipes/migrate-from-external.md", how: true, hasVariations: false) {
+page RecipeMigrateFromExternal(path: "/recipes/migrate-from-external", title: "Upgrade a WebFluent 4 project that uses external — Recipes", description: "Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.") {
+    RecipeShell("Upgrade a WebFluent 4 project that uses external", summary: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them, and the parser now refuses one. `wf migrate` rewrites a project. This is a page after the migration: it calls a function of a plain script, and places a custom element by its tag:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Load a library from a CDN", to: "/recipes/library-from-a-cdn"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Place a custom element from a library", to: "/recipes/place-a-custom-element")], source: "md-docs/recipes/migrate-from-external.md", how: true, hasVariations: false, project: { "src/vendor/tilt.js": #"// src/vendor/tilt.js
+/**
+ * @param {*} node
+ * @param {number} max
+ */
+function initTilt(node, max) {
+  node.addEventListener("pointermove", (e) => {
+    const r = node.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    node.style.transform = `rotateY(${x * max}deg)`;
+  });
+}
+"#, "src/pages/MigrateFromExternal.wf": #"// Your publishable key, from the Stripe dashboard.
+const STRIPE_KEY = "pk_test_123"
+
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card that leans.") {
+    Heading("Pricing").h1
+    Card(mount: (n) => initTilt(n, 10)) { Text("Pro") }
+    Element("stripe-pricing-table", publishableKey: STRIPE_KEY)
+}
+"#, "webfluent.app.json": #"{
+  "name": "migrate-from-external"
+}
+"# }) {
         code {
             CodeBlock(#"// Your publishable key, from the Stripe dashboard.
 const STRIPE_KEY = "pk_test_123"

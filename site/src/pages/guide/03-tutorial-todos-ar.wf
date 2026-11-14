@@ -2,7 +2,11 @@
 /// scripts/docsite/guide.py; edit the translation, not this file.
 page Learn03TutorialTodosAr(path: "/ar/learn/03-tutorial-todos", title: "درس: قائمة المهام", description: "درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.", lang: "ar", translates: Learn03TutorialTodos, layout: DocsShell("درس: قائمة المهام", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ قائمة مهام تبقى في متصفح القارئ: أنواع، ومخزن يتذكّر، ومكوّن، ومرشّح في العنوان، واختبارات تنقر.", source: "md-docs/ar/learn/03-tutorial-todos.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-أعطه-مظهرا-خاصا-به", label: "الخطوة 2: أعطه مظهرًا خاصًا به"), Anchor(id: "الخطوة-3-صف-المهمة", label: "الخطوة 3: صِف المهمة"), Anchor(id: "الخطوة-4-اكتب-مخزنا-يتذكر", label: "الخطوة 4: اكتب مخزنًا يتذكّر"), Anchor(id: "الخطوة-5-ابن-صفا-واحدا", label: "الخطوة 5: ابنِ صفًا واحدًا"), Anchor(id: "الخطوة-6-اكتب-الصفحة", label: "الخطوة 6: اكتب الصفحة"), Anchor(id: "الخطوة-7-اكتب-الاختبارات", label: "الخطوة 7: اكتب الاختبارات"), Anchor(id: "الخطوة-8-ابنه", label: "الخطوة 8: ابنِه"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["صِف البيانات بـ`type` و`enum`", "احفظ قائمة عبر إعادة التحميل في مخزن بـ`persist`، لا تغيّرها إلا إجراءاته", "أعطِ كل صف من القائمة `state` خاصة به في مكوّن", "اربط القائمة بمفتاح بـ`for … by`، واحفظ المرشّح في العنوان بـ`query`", "اختبر صفحة بالكتابة والنقر، بـ`wf test`"], book: GUIDE_AR, other: "/learn/03-tutorial-todos", lang: "ar", prevTo: "/ar/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
     Stack(gap: .lg) {
-        Markdown("يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store) ومكوّن ومرشّح في العنوان واختبارات تنقر.\n\nهو أول ثلاثة دروس يبني كل منها مشروعًا كاملًا، خطوة بخطوة. كل مشروع موجود كاملًا في المستودع تحت `examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه في متصفح القارئ.")
+        Markdown("يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store) ومكوّن ومرشّح في العنوان واختبارات تنقر.")
+
+        Callout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
+
+        Markdown("هو أول ثلاثة دروس مشاريع بعد درس Shelf، يبني كل منها مشروعًا كاملًا، خطوة بخطوة. كل مشروع موجود كاملًا في المستودع تحت `examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه في متصفح القارئ.")
 
         Table(caption: "درس: قائمة المهام") {
             Table.Head {
@@ -298,7 +302,7 @@ app {
                 Line(command: "wf serve")
             ])
 
-        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض <http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left` و*Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر، ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر **Open**، فيصبح العنوان `/?show=open`.\n\nإن طبع الخادم `No theme Paper is declared in this project`، فالأرجح أنك تخطّيت `src/theme.wf` في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير `U04` هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.")
+        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض <http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left` و`Nothing yet — add your first todo above.` اكتب مهمة واضغط Enter: تظهر، ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر **Open**، فيصبح العنوان `/?show=open`.\n\nإن طبع الخادم `No theme Paper is declared in this project`، فالأرجح أنك تخطّيت `src/theme.wf` في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير `U04` هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.")
 
         Heading("الخطوة 7: اكتب الاختبارات", id: "الخطوة-7-اكتب-الاختبارات").h2
 

@@ -17,95 +17,95 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`after(interval) \{ \}`") }
+                    Table.Cell { Markdown("[`after(interval) \{ \}`](#after)") }
                     Table.Cell("Runs a block once, after a delay")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`ago(date)`") }
+                    Table.Cell { Markdown("[`ago(date)`](#ago)") }
                     Table.Cell("The distance from now, in words")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`animate(element, name, duration)`") }
+                    Table.Cell { Markdown("[`animate(element, name, duration)`](#animate)") }
                     Table.Cell("Plays an animation on an element handle")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`beacon(url, data)`") }
+                    Table.Cell { Markdown("[`beacon(url, data)`](#beacon)") }
                     Table.Cell("Sends a small post that survives the page unloading")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`broadcast(name)`") }
+                    Table.Cell { Markdown("[`broadcast(name)`](#broadcast)") }
                     Table.Cell("Opens a channel the site's other tabs hear")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`every(interval) \{ \}`") }
+                    Table.Cell { Markdown("[`every(interval) \{ \}`](#every)") }
                     Table.Cell("Runs a block repeatedly")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`fetch(url, options)`") }
+                    Table.Cell { Markdown("[`fetch(url, options)`](#fetch)") }
                     Table.Cell { Markdown("Sends a request through the same engine as `api`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`format(value, .style, option)`") }
+                    Table.Cell { Markdown("[`format(value, .style, option)`](#format)") }
                     Table.Cell("A number, date or money as text, in the locale")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`keyIs(event, combination)`") }
+                    Table.Cell { Markdown("[`keyIs(event, combination)`](#keyis)") }
                     Table.Cell("Whether a key event is a shortcut")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`keyLabel(combination)`") }
+                    Table.Cell { Markdown("[`keyLabel(combination)`](#keylabel)") }
                     Table.Cell("A shortcut as this system writes it")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`log(x)`") }
+                    Table.Cell { Markdown("[`log(x)`](#log)") }
                     Table.Cell("Prints a value to the console")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`navigate(path)`") }
+                    Table.Cell { Markdown("[`navigate(path)`](#navigate)") }
                     Table.Cell("Moves to a route")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`optimistic(holder, change)`") }
+                    Table.Cell { Markdown("[`optimistic(holder, change)`](#optimistic)") }
                     Table.Cell("Shows a change now, and takes it back if the action throws")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`replayAnimation(element, name)`") }
+                    Table.Cell { Markdown("[`replayAnimation(element, name)`](#replayanimation)") }
                     Table.Cell("Plays an element's animation again")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`rtc(signal: …)`") }
+                    Table.Cell { Markdown("[`rtc(signal: …)`](#rtc)") }
                     Table.Cell("Opens a data channel to another reader's page")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`sanitize(html)`") }
+                    Table.Cell { Markdown("[`sanitize(html)`](#sanitize)") }
                     Table.Cell("Markup through an allow-list")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`setLocale(locale)`") }
+                    Table.Cell { Markdown("[`setLocale(locale)`](#setlocale)") }
                     Table.Cell("Switches the locale, and the direction with it")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`setTheme(choice)`") }
+                    Table.Cell { Markdown("[`setTheme(choice)`](#settheme)") }
                     Table.Cell("Switches between light, dark and the system's choice")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`spawn(path)`") }
+                    Table.Cell { Markdown("[`spawn(path)`](#spawn)") }
                     Table.Cell { Markdown("Starts a script of `public/` in a worker") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`sse(url)`") }
+                    Table.Cell { Markdown("[`sse(url)`](#sse)") }
                     Table.Cell("Opens a stream of server-sent events")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`t(\"key\", values)`") }
+                    Table.Cell { Markdown("[`t(\"key\", values)`](#t)") }
                     Table.Cell("A translation")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`uuid()`") }
+                    Table.Cell { Markdown("[`uuid()`](#uuid)") }
                     Table.Cell { Markdown("A fresh `Uuid`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`ws(url)`") }
+                    Table.Cell { Markdown("[`ws(url)`](#ws)") }
                     Table.Cell("Opens a WebSocket")
                 }
             }
@@ -574,7 +574,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#show-markup-you-did-not-write).")
+        Markdown("Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#one-door-for-markup).")
 
         CodeBlock(#"Unsafe.Html(sanitize(post.body))"#, title: "wf")
 
@@ -782,39 +782,39 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`viewport`") }
+                    Table.Cell { Markdown("[`viewport`](#viewport)") }
                     Table.Cell("The window's size and breakpoints")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`query`") }
+                    Table.Cell { Markdown("[`query`](#query)") }
                     Table.Cell("The address's query string")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`hash`") }
+                    Table.Cell { Markdown("[`hash`](#hash)") }
                     Table.Cell("The address's fragment")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`theme`") }
+                    Table.Cell { Markdown("[`theme`](#theme)") }
                     Table.Cell("The reader's light or dark choice")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`now`") }
+                    Table.Cell { Markdown("[`now`](#now)") }
                     Table.Cell("The current moment")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`network`") }
+                    Table.Cell { Markdown("[`network`](#network)") }
                     Table.Cell("The connection's state")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`update`") }
+                    Table.Cell { Markdown("[`update`](#update)") }
                     Table.Cell("A new version of an offline site")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`locale`, `dir`") }
+                    Table.Cell { Markdown("[`locale`, `dir`](#locale-and-dir)") }
                     Table.Cell("The reader's language and its direction")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`params`") }
+                    Table.Cell { Markdown("[`params`](#params)") }
                     Table.Cell("The route's parameters")
                 }
             }

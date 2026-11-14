@@ -12,6 +12,8 @@
   "printed": "error[E001]: Unterminated string literal\n --> src/App.wf:2:13\n  |\n2 |     Heading(\"Hello).h1\n  |             ^\n  = docs: https://webfluent.monzeromer.dev/errors/E001",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello).h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Close the string, comment or splice the message names. A\ncharacter that begins nothing (`|` alone, a stray `@`) is usually a typo\nfor the one beside it on the keyboard.",
   "related": []
@@ -29,6 +31,8 @@
   "printed": "error[E002]: Expected `,` between arguments, got `Text`\n --> src/App.wf:3:14\n  |\n3 |     Text(\"a\" Text(\"b\")\n  |              ^^^^\n  = docs: https://webfluent.monzeromer.dev/errors/E002",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\").h1\n    Text(\"a\" Text(\"b\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\").h1\n    Text(\"a\") Text(\"b\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "The message names what was expected and what was found, at the\nplace the parser stopped. One file can report several: after an error the\nparser picks up again at the next declaration.",
   "related": []
@@ -43,10 +47,12 @@
   "summary": "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an indentation no enclosing block has is ambiguous.",
   "lowerable": false,
   "description": "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…",
-  "printed": "",
-  "broken": "",
-  "fixed": "",
-  "why": "In a `.wfx` file, a line that comes back out to an indentation no enclosing\nblock has. Saved as `src/App.wfx`, this draws `E003` (the example is not\ncompiled here, where every example is read as a `.wf` file):\n\n```wfx no-check\npage Home(path: \"/\")\n    Row\n        Text(\"a\")\n      Text(\"b\")\n```",
+  "printed": "error[E003]: This line's indentation matches no block around it\n --> src/App.wfx:4:7\n  |\n4 |       Text(\"b\")\n  |       ^^^^\n  = help: Indent it to the block it belongs to, with the same spaces or tabs as the lines around it\n  = docs: https://webfluent.monzeromer.dev/errors/E003",
+  "broken": "page Home(path: \"/\")\n    Row\n        Text(\"a\")\n      Text(\"b\")",
+  "fixed": "page Home(path: \"/\", title: \"Home\", description: \"Two words in a row.\")\n    Heading(\"Home\").h1\n    Row\n        Text(\"a\")\n        Text(\"b\")",
+  "lang": "wfx",
+  "quickfix": "",
+  "why": "In a `.wfx` file, a line that comes back out to an indentation no enclosing\nblock has. Saved as `src/App.wfx`, this draws `E003`:",
   "fix": "Line the line up with the block it belongs to.",
   "related": []
  },
@@ -63,6 +69,8 @@
   "printed": "error[E004]: `Page` is a WebFluent 2 declaration; this is WebFluent 3\n --> src/App.wf:1:1\n  |\n1 | Page Home (path: \"/\") {\n  | ^^^^\n  = help: Run `wf migrate` to convert the project to the current grammar\n  = docs: https://webfluent.monzeromer.dev/errors/E004",
   "broken": "Page Home (path: \"/\") {\n    Text(\"Hi\")\n}",
   "fixed": "page Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hi\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Run `wf migrate` once; it rewrites the project in place.",
   "related": []
@@ -80,6 +88,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "`wf fmt` checks that its result has the same tokens as the file. When it\nwould not — something only the formatter's reading of the file would\nchange — the file is left as it is and named.",
   "fix": "format the lines it\nnames by hand; please report the file, since it is a bug in `wf fmt`.",
   "related": []
@@ -97,6 +107,8 @@
   "printed": "error[E101]: unknown component `Buton`: no `component Buton` is declared\n --> src/App.wf:3:5\n  |\n3 |     Buton(\"Save\")\n  |     ^^^^^\n  = help: did you mean `Button`? Or declare `component Buton { … }`\n  = docs: https://webfluent.monzeromer.dev/errors/E101",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Buton(\"Save\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\")\n}",
+  "lang": "wf",
+  "quickfix": "Change to `Button`",
   "why": "",
   "fix": "Check the spelling, or declare it with `component Buton { … }`.",
   "related": []
@@ -114,6 +126,8 @@
   "printed": "error[E102]: `count` is declared twice: as a state at line 2, and as a `derived` here\n --> src/App.wf:3:5\n  |\n3 |     derived count = 1\n  |     ^^^^^^^\n  = help: A name means one thing — rename one of the two `count`s\n  = note: `count` is first declared here at src/App.wf:2:5\n  = docs: https://webfluent.monzeromer.dev/errors/E102",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    derived count = 1\n    Heading(\"Count {count}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    derived doubled = count * 2\n    Heading(\"Count {count}, doubled {doubled}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Rename one of the two. The finding points at the second and names\nwhere the first is.",
   "related": []
@@ -131,6 +145,8 @@
   "printed": "error[E103]: Button has no flag or enum case `huge`\n --> src/App.wf:3:19\n  |\n3 |     Button(\"Save\").huge\n  |                   ^^^^^\n  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .dropInside, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning\n  = docs: https://webfluent.monzeromer.dev/errors/E103",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\").huge\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\").lg\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Use one the message lists — it names every flag, case, event or\nslot the component takes.",
   "related": []
@@ -148,6 +164,8 @@
   "printed": "error[E104]: `Shell` declares no default slot, so the page has nowhere to go\n --> src/App.wf:2:57\n  |\n2 | page P(path: \"/\", title: \"T\", description: \"D\", layout: Shell) {\n  |                                                         ^^^^^\n  = help: Add `slot` to the component and place `children` where the page belongs\n  = docs: https://webfluent.monzeromer.dev/errors/E104",
   "broken": "component Shell { Text(\"frame\") }\npage P(path: \"/\", title: \"T\", description: \"D\", layout: Shell) {\n    Heading(\"Home\").h1\n}",
   "fixed": "component Shell {\n    slot\n    Text(\"frame\")\n    children\n}\npage P(path: \"/\", title: \"T\", description: \"D\", layout: Shell) {\n    Heading(\"Home\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Add `slot` to the component and place `children` where the page\nbelongs.",
   "related": []
@@ -165,6 +183,8 @@
   "printed": "error[E105]: `n` is not an element or a statement a render block can hold\n --> src/App.wf:4:5\n  |\n4 |     n = n + 1\n  |     ^\n  = help: Code that does something goes in `on click { … }`, an `action` or an `effect`; an element's name is capitalised\n  = docs: https://webfluent.monzeromer.dev/errors/E105",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    Heading(\"Count\").h1\n    n = n + 1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    Heading(\"Count {n}\").h1\n    Button(\"+1\") { on click { n = n + 1 } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Put it in `on click { }`, an `action` or an `effect`.",
   "related": []
@@ -182,6 +202,8 @@
   "printed": "error[E106]: `onclick` on Button would put script in an attribute\n --> src/App.wf:3:20\n  |\n3 |     Button(\"Save\", onclick: \"save()\")\n  |                    ^^^^^^^\n  = help: Write the handler instead: `Button(…) { on click { … } }`\n  = docs: https://webfluent.monzeromer.dev/errors/E106",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\", onclick: \"save()\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state saves = 0\n    action save() { saves = saves + 1 }\n    Heading(\"Saved {saves} times\").h1\n    Button(\"Save\") { on click { save() } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "`Button(\"Save\") { on click { save() } }`.\n\n`style:` is refused the same way: it would write a value as the\nelement's whole `style=` attribute, which a value from data can turn\ninto a box over the whole page or a request to anywhere. A style is a\n`style { }` block, one property at a time, where a value that reads\nstate sets that one property and nothing else.\n\n```wf expect=E106\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state look = \"color: red\"\n    Heading(\"Note\").h1\n    Text(\"Hi\", style: look)\n}\n```\n\n```text\nerror[E106]: `style:` on Text would write a value as the element's whole inline style\n --> src/App.wf:4:16\n  |\n4 |     Text(\"Hi\", style: look)\n  |                ^^^^^\n  = help: Write a style block instead: `Text(…) { style { color: {tone} } }`, one property at a time\n  = docs: https://webfluent.monzeromer.dev/errors/E106\n```\n\n**Fix:** `Text(\"Hi\") { style { color: {tone} } }`.",
   "related": []
@@ -199,6 +221,8 @@
   "printed": "error[E107]: `to` on Link names the `javascript` scheme, which a browser runs\n --> src/App.wf:3:16\n  |\n3 |     Link(\"Go\", to: \"javascript:alert(1)\")\n  |                ^^\n  = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp\n  = docs: https://webfluent.monzeromer.dev/errors/E107",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Go\").h1\n    Link(\"Go\", to: \"javascript:alert(1)\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Go\").h1\n    Link(\"Go\", to: \"https://example.com/\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`,\n`ftp`.\n\nA page's `head { }` is held to the same rule, and more: a\n`script(src:)` must be written out, since whoever controls a value it\nreads would choose the script the page runs; a `meta(http-equiv:\n\"refresh\")` whose address comes from a value is an open redirect, and\nan `http-equiv` a value chooses could become one.\n\n```wf expect=E107\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    head { script(src: query.lib) }\n    Heading(\"Home\").h1\n}\n```\n\n```text\nerror[E107]: `head { script(src: …) }` loads a script a value chooses: whoever controls the value runs code as this site\n --> src/App.wf:2:12\n  |\n2 |     head { script(src: query.lib) }\n  |            ^^^^^^\n  = help: Write the address out — `script(src: \"/analytics.js\")` — and keep what varies in the script's own data\n  = docs: https://webfluent.monzeromer.dev/errors/E107\n```\n\n**Fix:** `head { script(src: \"/analytics.js\") }`; send a reader on with\n`navigate(…)`, which keeps to the site's routes.",
   "related": []
@@ -216,6 +240,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A page that reads `env.STRIPE_SECRET` draws ``env.STRIPE_SECRET is not\npublic, and a page reads what is in the bundle`` (the example is not\ncompiled here: what it draws depends on the config's `public_env`):\n\n```wf no-check\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(env.STRIPE_SECRET).h1\n}\n```",
   "fix": "rename it `PUBLIC_…` (`env.PUBLIC_APP_NAME`) or list it in\n`public_env` — only if anyone may read it. A value the page must not read\nbelongs behind a request ([Environments and\nsecrets](/recipes/environments-and-secrets)).",
   "related": []
@@ -233,6 +259,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A `Button`, an `Input`, a handler or a `Router` in a project whose\n`output_type` is `pdf` or `slides`. With `\"build\": { \"output_type\": \"pdf\" }`\nin `webfluent.app.json` (the example is not compiled here: what it draws\ndepends on the config):\n\n```wf no-check\npage Report(path: \"/\", title: \"Report\", description: \"The quarter.\") {\n    Document(title: \"Q1 report\") {\n        Heading(\"Q1 report\").h1\n        Button(\"Print\")\n    }\n}\n```\n\nPaper has no controls (`Button`,\n`Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`,\n`FileUpload`, `Textarea`, `Form`, `IconButton`, `ButtonGroup`, `Dropdown`), no navigation\n(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), no overlays (`Modal`,\n`Dialog`, `Popover`, `Toast`, `Tooltip`), no media that plays (`Video`,\n`Audio`, `Carousel`), no other page inside it (`Frame`) and nothing a\nscript draws (`Host`, `Element`, `Portal`).",
   "fix": "draw it as text, or build the\npage as a site.",
   "related": []
@@ -250,6 +278,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A `.js` file under `src/` with an `import` or `export`, one a file in\n`public/` at the same address would replace, or one declaring a name the\nprogram, the language or the browser already has.",
   "fix": "take off the\n`import`/`export` (a top-level `function` is global as it is), keep one of\nthe two files, or rename the clashing name.",
   "related": []
@@ -267,6 +297,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A `meta.scripts` module with no `as`, a `build.elements` naming a component\nthat does not exist, an `offline.fallback` no page has, an `openapi.json`\nthat is not there.",
   "fix": "what the message says; it names the setting.",
   "related": []
@@ -284,6 +316,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. A key in `webfluent.app.json` that is not a setting, with the\nnearest one that is: `` `build.minfy` is not a setting, and nothing reads it\n— did you mean `minify`? ``",
   "fix": "correct the key.",
   "related": []
@@ -301,6 +335,8 @@
   "printed": "error[E113]: Only the first argument may be positional\n --> src/App.wf:4:20\n  |\n4 |     Card(\"Laptop\", 999)\n  |                    ^^^\n  = help: Name the others: `Button(\"Save\", tone: .primary)`\n  = docs: https://webfluent.monzeromer.dev/errors/E113",
   "broken": "component Card(_ name: String, price: Number = 0) { Text(name) }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Shop\").h1\n    Card(\"Laptop\", 999)\n}",
   "fixed": "component Product(_ name: String, price: Number = 0) { Text(\"{name}: {price}\") }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Shop\").h1\n    Product(\"Laptop\", price: 999)\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Name the others: `Card(\"Laptop\", price: 999)`.",
   "related": []
@@ -318,6 +354,8 @@
   "printed": "error[E114]: `emit` fires a component's event; a page has none\n --> src/App.wf:3:33\n  |\n3 |     Button(\"Save\") { on click { emit saved() } }\n  |                                 ^^^^\n  = docs: https://webfluent.monzeromer.dev/errors/E114",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\") { on click { emit saved() } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state saves = 0\n    action save() { saves = saves + 1 }\n    Heading(\"Saved {saves} times\").h1\n    Button(\"Save\") { on click { save() } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Fire the event from the component that declares it; a page calls\nan action instead.",
   "related": []
@@ -335,6 +373,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. A `.js` file under `src/` the compiler's scanner could not read —\na string that never closes, say. The file is still linked, but its names\nare not in scope for the program.",
   "fix": "what the message says, at the\nline it names.",
   "related": []
@@ -352,6 +392,8 @@
   "printed": "error[E116]: `pricingtable` is not a custom element's tag\n --> src/App.wf:3:5\n  |\n3 |     Element(\"pricingtable\")\n  |     ^^^^^^^\n  = help: A custom element's tag is lower case with a hyphen: `Element(\"stripe-pricing-table\", …)`\n  = docs: https://webfluent.monzeromer.dev/errors/E116",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Pricing\").h1\n    Element(\"pricingtable\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Pricing\").h1\n    Element(\"pricing-table\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "A custom element's tag is lower case with a hyphen:\n`Element(\"pricing-table\")`.",
   "related": []
@@ -369,6 +411,8 @@
   "printed": "error[E117]: `on key(\"ctrl+shfit+k\")` names `shfit`, which is not a modifier\n --> src/App.wf:2:12\n  |\n2 |     on key(\"ctrl+shfit+k\") { log(\"search\") }\n  |            ^\n  = help: Modifiers `mod` (⌘ on a Mac, Ctrl elsewhere), `ctrl`, `shift`, `alt`, `meta` (`cmd`), then one key: a letter, a digit, or a name like `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`; a chord is its steps with a space between, `mod+k mod+s`\n  = docs: https://webfluent.monzeromer.dev/errors/E117",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    on key(\"ctrl+shfit+k\") { log(\"search\") }\n    Heading(\"Search\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    on key(\"ctrl+shift+k\") { log(\"search\") }\n    Heading(\"Search\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:\na letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.",
   "related": []
@@ -386,6 +430,8 @@
   "printed": "error[E118]: `env` is a name the language already has: the build's settings, read as `env.PUBLIC_API`\n --> src/App.wf:2:5\n  |\n2 |     state env = \"staging\"\n  |     ^^^^^^^^^^^^^^^^^^^^^\n  = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name\n  = docs: https://webfluent.monzeromer.dev/errors/E118",
   "broken": "page Deploy(path: \"/\", title: \"Deploy\", description: \"Pick a target.\") {\n    state env = \"staging\"\n    Heading(\"Deploy to {env}\").h1\n}",
   "fixed": "page Deploy(path: \"/\", title: \"Deploy\", description: \"Pick a target.\") {\n    state target = \"staging\"\n    Heading(\"Deploy to {target}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A name the language gives a meaning is not a program's to declare — not as\na `state`, `derived`, `persist` or `let`, a prop, a route or action\nparameter, a loop item, a lambda's parameter, a binding of `if let`, `match`\nor a slot, nor a top-level `const`, `data`, `image`, store or `api`.\nDeclared, it would hide what the language means by it for as far as its\nscope reaches: a `state env` hid the build's settings in its page, and a\nloop's `t` hid the translation function inside the loop. The names are:\n\n- `env`, the build's settings; `params`, the route's; `locale` and `dir`,\n  the reader's language;\n- the values the browser keeps current: `now`, `viewport`, `query`, `hash`,\n  `theme`, `network`, `update`;\n- the language's functions: `t`, `format`, `ago`, `log`, `navigate`,\n  `fetch`, `uuid`, `sanitize`, `setLocale`, `setTheme`, `optimistic`,\n  `beacon`, `animate`, `replayAnimation`, `every`, `after`, `ws`, `sse`,\n  `broadcast`, `rtc`;\n- the words a statement is written with: `state`, `persist`, `derived`,\n  `effect`, `action`, `use`, `resource`, `validate`, `socket`, `stream`,\n  `channel`, `peer`, `head`, `slot`, `part`, `if`, `else`, `for`, `in`, `by`,\n  `show`, `match`, `children`, `emit`, `sequence`, `on`, `style`,\n  `transition`, `let`, `return`, `await`, `try`, `catch`;\n- at the top level, `WF`, the runtime the compiled pages call;\n- in a store, the names every JavaScript object has — `valueOf`,\n  `toString`, `constructor`, `hasOwnProperty`, `isPrototypeOf`,\n  `propertyIsEnumerable`, `toLocaleString`, `__proto__` and its\n  `__define…`/`__lookup…` kin: a store is an object whose members are its\n  own, and a `valueOf` member replaced the one JavaScript calls itself, so\n  the page threw as soon as it was drawn;\n- and, as a prop, `__proto__`, which in the object a call passes sets its\n  prototype instead (a prop named `toString` or `valueOf` is fine).\n\nThe names a handler brings with it — `event`, `e`, `value`, `key` — and the\nbrowser's globals (`window`, `history`, …) are a program's to use, and so is\nany name as a field, a map key or an enum case: `type Box { env: String }`\nand `.env` are fine.",
   "fix": "Name it something of your own — `state target = \"staging\"` — and\nits reads with it. The message suggests one where there is a usual choice:\n`target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`,\n`item` or a word for what it holds for `t`.",
   "related": []
@@ -403,6 +449,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "The build reads back every script it writes; this one would not run. It is\na bug in WebFluent, not in your program.",
   "fix": "please report it, with\nthe source that produced it.",
   "related": []
@@ -420,6 +468,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "The build holds every page it writes to the content security policy it\nships beside it; something on this page — an inline script, a `style=`, a\nscript from an origin the policy never named — would be blocked. A page's\nown `head { script(src: …) }` or `head { link(rel: \"stylesheet\", href: …) }`\nis held to it too, where it is written: the tag is added on the live page,\nand the browser would refuse it there without a word.",
   "fix": "what the\nmessage says; a library's origin goes in `meta.scripts`, a stylesheet's in\n`meta.stylesheets`.",
   "related": []
@@ -437,6 +487,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. An embedding, override or isolate control — U+202A to U+202E,\nU+2066 to U+2069 — is invisible, and it reorders what follows it: a\ncomment that seems to close, or a string that seems to hold one word, can\nhide code that runs (Trojan Source, CVE-2021-42574). The editor draws each\nas a mark; the check names each by its line, its column and its Unicode\nname.",
   "fix": "remove it. Arabic beside Latin needs no control: each run\ntakes the direction of its own letters.\n\nNames may be written in Arabic, or any script: a name starts with a letter\nand goes on with letters, digits, `_` and the marks of its letters, as\nUAX #31 says (`state عددٌ = 3`), and is one name however its letters were\ntyped — أ precomposed or ا with a combining hamza (NFC).",
   "related": []
@@ -454,6 +506,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Error. Brackets inside brackets, blocks inside blocks, a splice inside a\nstring inside a splice, the links of one chain (`a.b.c`, `1 + 2 + 3`,\neach link nesting the value one level deeper) and, in a template,\ncomponents that place one another — counted together, more than 100\nlevels deep. The parser, the checker and the template engine each stop\nthere and say so, where each would otherwise run out of stack. The\ndeepest program of this guide, the examples and the site nests 15 levels.",
   "fix": "name a part of it — a `let` in an action, a `derived` value, a\ncomponent — and use the name. A component that places itself stops when\nits data does; one whose data does not end is this error too.",
   "related": []
@@ -471,6 +525,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Error, from the template engine (`wf render`, `Template::render_*`). One\nrender may take ten million steps — an element drawn, a loop item, a unit\nof working a value out — and write 256 MB of markup, and one expression\nmay make about half a million list items or 32 MB of text. A render past\nany of them stops and says where, instead of growing until the server\nruns out of memory: two nested `for` loops over ranges of a billion, a\nloop over the data inside a loop over the data that is too large, or\n`(1..=1000000).map(i => 1..=1000000)`. A build that meets such an\nexpression at build time leaves it to the page, as it does any value it\ncannot work out.",
   "fix": "draw less — page the data before it reaches the\ntemplate, or work the value out on the server and hand it over.",
   "related": []
@@ -488,6 +544,8 @@
   "printed": "error[T01]: `count` is `String`, but `Number` is wanted\n --> src/App.wf:4:34\n  |\n4 |     Button(\"Reset\") { on click { count = \"zero\" } }\n  |                                  ^^^^^^^^^^^^^^\n  = help: Convert it: `Number(value)`\n  = docs: https://webfluent.monzeromer.dev/errors/T01",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count: Number = 0\n    Heading(\"Counter\").h1\n    Button(\"Reset\") { on click { count = \"zero\" } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count: Number = 0\n    Heading(\"Count {count}\").h1\n    Button(\"Reset\") { on click { count = 0 } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Give the state a value of its type, or convert: `Number(text)`, `\"{n}\"`. If the state really holds either, declare it `Any`.\n\nA number a built-in cannot be given is one too: a `Carousel(interval:)`\noutside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms\nautoplay), a `Column(span:)` that is not a whole number from 1 to 12.\n\n```wf expect=T01\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Grid\").h1\n    Row { Column(span: 13) { Text(\"Wide\") } }\n}\n```\n\n```text\nerror[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted\n --> src/App.wf:3:11\n  |\n3 |     Row { Column(span: 13) { Text(\"Wide\") } }\n  |           ^^^^^^\n  = help: `span: 6` is half the row\n  = docs: https://webfluent.monzeromer.dev/errors/T01\n```",
   "related": []
@@ -505,6 +563,8 @@
   "printed": "error[T02]: `Tone` has no case `.quiet`\n --> src/App.wf:3:17\n  |\n3 |     state tone: Tone = .quiet\n  |                 ^^^^\n  = help: `Tone` takes .calm, .loud\n  = docs: https://webfluent.monzeromer.dev/errors/T02",
   "broken": "enum Tone { calm, loud }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state tone: Tone = .quiet\n    Heading(\"Tone\").h1\n}",
   "fixed": "enum Tone { calm, loud }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state tone: Tone = .calm\n    Heading(\"Tone: {tone}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Use one of the cases the message lists, or add the case to the `enum`.",
   "related": []
@@ -519,11 +579,13 @@
   "summary": "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.",
   "lowerable": false,
   "description": "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.",
-  "printed": "error[T04]: `user.email` may be null, so `.toUpperCase()` may fail\n --> src/App.wf:5:10\n  |\n5 |     Text(user.email.toUpperCase())\n  |          ^^^^^^^^^^\n  = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`\n  = docs: https://webfluent.monzeromer.dev/errors/T04",
-  "broken": "type Member { name: String, email: String? }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = Member(name: \"Ada\", email: null)\n    Heading(\"Profile\").h1\n    Text(user.email.toUpperCase())\n}",
-  "fixed": "type Member { name: String, email: String? }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = Member(name: \"Ada\", email: null)\n    Heading(\"Profile\").h1\n    Text(user.email?.toUpperCase() ?? \"\")\n}",
+  "printed": "error[T04]: `user.email` may be null, so `.length` may fail\n --> src/App.wf:5:12\n  |\n5 |     Text(\"{user.email.length} characters\")\n  |            ^^^^^^^^^^\n  = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.field`, or a check for `!= null`\n  = docs: https://webfluent.monzeromer.dev/errors/T04",
+  "broken": "type Member { name: String, email: String? }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = Member(name: \"Ada\", email: null)\n    Heading(\"Profile\").h1\n    Text(\"{user.email.length} characters\")\n}",
+  "fixed": "type Member { name: String, email: String? }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = Member(name: \"Ada\", email: null)\n    Heading(\"Profile\").h1\n    Text(\"{user.email?.length ?? 0} characters\")\n}",
+  "lang": "wf",
+  "quickfix": "Read it through null: `?.length`",
   "why": "",
-  "fix": "Unwrap it: `if let e = user.email { e.toUpperCase() }`, `user.email?.toUpperCase()`, or `(user.email ?? \"\").toUpperCase()`.",
+  "fix": "Unwrap it: `if let e = user.email { e.length }`, `user.email?.length ?? 0`, or `(user.email ?? \"\").length`. Your editor's quick fix, and `wf fix --code T04`, write the `?.` for you.",
   "related": []
  },
  {
@@ -539,6 +601,8 @@
   "printed": "error[T05]: `User` has no field `nmae`\n --> src/App.wf:4:18\n  |\n4 |     Heading(user.nmae).h1\n  |                  ^^^^\n  = help: Did you mean `name`? Its fields are `name`\n  = docs: https://webfluent.monzeromer.dev/errors/T05",
   "broken": "type User { name: String }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = User(name: \"Ada\")\n    Heading(user.nmae).h1\n}",
   "fixed": "type User { name: String }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = User(name: \"Ada\")\n    Heading(user.name).h1\n}",
+  "lang": "wf",
+  "quickfix": "Change to `name`",
   "why": "",
   "fix": "Correct the spelling to one of the fields listed, or add the field to the `type`.",
   "related": []
@@ -556,6 +620,8 @@
   "printed": "error[T06]: `Cart` has no member `count`\n --> src/App.wf:4:20\n  |\n4 |     Heading(\"{Cart.count} items\").h1\n  |                    ^^^^^\n  = help: Its members are `items`\n  = docs: https://webfluent.monzeromer.dev/errors/T06",
   "broken": "store Cart { state items = [] }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"{Cart.count} items\").h1\n}",
   "fixed": "store Cart {\n    state items = []\n    derived count = items.length\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"{Cart.count} items\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.",
   "related": []
@@ -573,6 +639,8 @@
   "printed": "error[T07]: `if` reads `items` as a condition, but a list is always true\n --> src/App.wf:4:5\n  |\n4 |     if items { Text(\"There are items\") }\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Ask about its length: `items.length > 0`\n  = docs: https://webfluent.monzeromer.dev/errors/T07",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state items = [\"a\"]\n    Heading(\"List\").h1\n    if items { Text(\"There are items\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state items = [\"a\"]\n    Heading(\"List\").h1\n    if items.length > 0 { Text(\"There are items\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Ask the question you mean: `items.length > 0`, `user != null`.",
   "related": []
@@ -590,6 +658,8 @@
   "printed": "error[T08]: `for` loops over a list, but `total` is `Number`\n --> src/App.wf:4:5\n  |\n4 |     for n in total { Text(\"{n}\") }\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Give it a list, or `.split(…)` a string first\n  = docs: https://webfluent.monzeromer.dev/errors/T08",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state total = 3\n    Heading(\"Loop\").h1\n    for n in total { Text(\"{n}\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state total = 3\n    Heading(\"Loop\").h1\n    for n in 1..=total { Text(\"{n}\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Loop over a list — `for n in 1..=total` for a range of numbers.",
   "related": []
@@ -607,6 +677,8 @@
   "printed": "error[T09]: `emit change` passes 2 arguments, but the event takes 1\n --> src/App.wf:3:30\n  |\n3 |     Button(\"+\") { on click { emit change(1, 2) } }\n  |                              ^^^^^^^^^^^^^^^^^\n  = help: `event change(value: Number)`\n  = docs: https://webfluent.monzeromer.dev/errors/T09",
   "broken": "component Stepper(_ start: Number) {\n    event change(value: Number)\n    Button(\"+\") { on click { emit change(1, 2) } }\n}",
   "fixed": "component Stepper(_ start: Number) {\n    event change(value: Number)\n    Button(\"+\") { on click { emit change(start + 1) } }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    Heading(\"Count {n}\").h1\n    Stepper(n) { on change(v) { n = v } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Pass what the `event` declares, in order, or change the declaration.",
   "related": []
@@ -624,6 +696,8 @@
   "printed": "error[T10]: `add` takes 1 argument, but 2 are given\n --> src/App.wf:5:30\n  |\n5 |     Button(\"+\") { on click { add(1, 2) } }\n  |                              ^^^\n  = docs: https://webfluent.monzeromer.dev/errors/T10",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    action add(step: Number) { count = count + step }\n    Heading(\"Count\").h1\n    Button(\"+\") { on click { add(1, 2) } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    action add(step: Number) { count = count + step }\n    Heading(\"Count\").h1\n    Button(\"+\") { on click { add(1) } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Pass the arguments the action, endpoint or function takes.",
   "related": []
@@ -641,6 +715,8 @@
   "printed": "error[T11]: `match` needs a resource or an enum, but `n` is `Number`\n --> src/App.wf:4:5\n  |\n4 |     match n {\n  |     ^^^^^^^^^\n  = help: Use `if` for a condition; `match` chooses among a resource's states or an enum's cases\n  = docs: https://webfluent.monzeromer.dev/errors/T11",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 1\n    Heading(\"Match\").h1\n    match n {\n        loading { Spinner }\n        else { Text(\"?\") }\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 1\n    Heading(\"Match\").h1\n    if n == 1 { Text(\"One\") } else { Text(\"?\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Use `if` for a condition; `match` takes a resource, a connection or an enum.",
   "related": []
@@ -658,6 +734,8 @@
   "printed": "error[T12]: `token` is a `Secret`, and `Text` would show it\n --> src/App.wf:4:10\n  |\n4 |     Text(token)\n  |          ^^^^^\n  = help: A secret must not reach the page; send it as a value, or show one field of what it unlocks\n  = docs: https://webfluent.monzeromer.dev/errors/T12",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state token: Secret = \"\"\n    Heading(\"Token\").h1\n    Text(token)\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state token: Secret = \"\"\n    Heading(\"Token\").h1\n    Button(\"Sign in\") { on click { fetch(\"/api/session\", method: \"POST\", body: { token: token }) } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.",
   "related": []
@@ -675,6 +753,8 @@
   "printed": "error[T13]: nothing declares `cuont`\n --> src/App.wf:4:30\n  |\n4 |     Button(\"+\") { on click { cuont = count + 1 } }\n  |                              ^^^^^\n  = help: Did you mean `count`? Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError\n  = docs: https://webfluent.monzeromer.dev/errors/T13",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    Heading(\"Counter\").h1\n    Button(\"+\") { on click { cuont = count + 1 } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    Heading(\"Counter\").h1\n    Button(\"+\") { on click { count = count + 1 } }\n}",
+  "lang": "wf",
+  "quickfix": "Change to `count`",
   "why": "",
   "fix": "Correct the spelling, or declare the name. The browser's own\nglobals (`window`, `navigator`, `Math` …) and the language's values\n(`viewport`, `query`, `now` …) need no declaration; a call to a function\nnothing declares — `uid()` for `uuid()` — is reported the same way. A\ntemplate rendered with data (`wf render`) reads its data's keys by name, so\nit is not held to this.",
   "related": []
@@ -692,6 +772,8 @@
   "printed": "error[T16]: a `[String]` has no method `joined`\n --> src/App.wf:4:16\n  |\n4 |     Text(names.joined(\", \"))\n  |                ^^^^^^\n  = help: Did you mean `join`?\n  = docs: https://webfluent.monzeromer.dev/errors/T16",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state names = [\"Ada\", \"Grace\"]\n    Heading(\"People\").h1\n    Text(names.joined(\", \"))\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state names = [\"Ada\", \"Grace\"]\n    Heading(\"People\").h1\n    Text(names.join(\", \"))\n}",
+  "lang": "wf",
+  "quickfix": "Change to `join`",
   "why": "",
   "fix": "The method the message suggests — here `join`.",
   "related": []
@@ -709,6 +791,8 @@
   "printed": "error[T14]: `count` is `Number` and `\"0\"` is `String`, which are never equal, so this is always false\n --> src/App.wf:4:8\n  |\n4 |     if count == \"0\" { Text(\"Nothing yet\") }\n  |        ^^^^^\n  = help: Convert one side: `Number(text) == n`, or `\"{n}\" == text`\n  = docs: https://webfluent.monzeromer.dev/errors/T14",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    Heading(\"Count\").h1\n    if count == \"0\" { Text(\"Nothing yet\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    Heading(\"Count\").h1\n    if count == 0 { Text(\"Nothing yet\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Compare values of one type: `count == 0`, or convert one side\n(`Number(text) == n`). Against an enum, use a case it has.",
   "related": []
@@ -726,6 +810,8 @@
   "printed": "error[T17]: `save` awaits nothing, so `.pending` is always false\n --> src/App.wf:5:30\n  |\n5 |     Button(\"Save\", disabled: save.pending) { on click { save() } }\n  |                              ^^^^\n  = help: `.pending` is true while a call of an async action runs; an action that awaits nothing finishes before the page repaints\n  = docs: https://webfluent.monzeromer.dev/errors/T17",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state saved = false\n    action save() { saved = true }\n    Heading(\"Save\").h1\n    Button(\"Save\", disabled: save.pending) { on click { save() } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state saved = false\n    action save() { saved = true }\n    Heading(\"Save\").h1\n    Button(\"Save\", disabled: saved) { on click { save() } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "`.pending` is for an action that awaits — drop it here. An async\naction's result is read with `await` inside an action or a handler; a value\nthat arrives over the network is a `resource`, which `derived` values and\nelements can read.",
   "related": []
@@ -743,6 +829,8 @@
   "printed": "warning[T19]: `user.nickname` may be null, and in text it would show as `null`\n --> src/App.wf:5:26\n  |\n5 |     Text(\"Also known as {user.nickname}\")\n  |                          ^^^^^^^^^^^^^\n  = help: Say what to show instead: `{user.nickname ?? \"\"}`\n  = docs: https://webfluent.monzeromer.dev/errors/T19",
   "broken": "type Member { name: String, nickname: String? }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = Member(name: \"Ada\", nickname: null)\n    Heading(\"Hello\").h1\n    Text(\"Also known as {user.nickname}\")\n}",
   "fixed": "type Member { name: String, nickname: String? }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state user = Member(name: \"Ada\", nickname: null)\n    Heading(\"Hello\").h1\n    Text(\"Also known as {user.nickname ?? \"nothing yet\"}\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Say what to show instead: `{user.nickname ?? \"nothing yet\"}`, or\nshow the line only when there is one: `if let n = user.nickname { … }`.",
   "related": []
@@ -760,6 +848,8 @@
   "printed": "warning[T20]: `tags` is `[String]`, and in text it shows as its items run together with commas\n --> src/App.wf:4:19\n  |\n4 |     Text(\"Tagged {tags}\")\n  |                   ^^^^\n  = help: Show a field of it, or `.join(\", \")` a list of text\n  = docs: https://webfluent.monzeromer.dev/errors/T20",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state tags = [\"a\", \"b\"]\n    Heading(\"Tags\").h1\n    Text(\"Tagged {tags}\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state tags = [\"a\", \"b\"]\n    Heading(\"Tags\").h1\n    Text(\"Tagged {tags.join(\", \")}\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "`{tags.join(\", \")}` for a list of text; a field of a record.",
   "related": []
@@ -777,6 +867,8 @@
   "printed": "error[T18]: `*` takes numbers, but `price` is `String`\n --> src/App.wf:3:27\n  |\n3 |     Heading(\"Total {price * 2}\").h1\n  |                           ^\n  = help: Convert it: `Number(value)`; `+` joins text when one side is a string\n  = docs: https://webfluent.monzeromer.dev/errors/T18",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state price = \"12\"\n    Heading(\"Total {price * 2}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state price = 12\n    Heading(\"Total {price * 2}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Hold numbers as numbers (`state price = 12`), or convert:\n`Number(price) * 2`.",
   "related": []
@@ -794,6 +886,8 @@
   "printed": "error[T15]: this `match` on `status` has no arm for `.review`, and no `else`\n --> src/App.wf:5:5\n  |\n5 |     match status {\n  |     ^^^^^\n  = help: Add an arm for each, or `else { … }` for the rest\n  = docs: https://webfluent.monzeromer.dev/errors/T15",
   "broken": "enum Status { draft, review, live }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state status: Status = .draft\n    Heading(\"Status\").h1\n    match status {\n        .draft { Text(\"Draft\") }\n        .live { Text(\"Live\") }\n    }\n}",
   "fixed": "enum Status { draft, review, live }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state status: Status = .draft\n    Heading(\"Status\").h1\n    match status {\n        .draft { Text(\"Draft\") }\n        .review { Text(\"In review\") }\n        .live { Text(\"Live\") }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "Add an arm for `.review`",
   "why": "",
   "fix": "Give every case its arm, or add `else { … }` for the rest. A\n`match` expression that covers every case needs no `else`:\n`derived label = match status { .draft { \"Draft\" } .review { \"In review\" } .live { \"Live\" } }`.",
   "related": []
@@ -811,6 +905,8 @@
   "printed": "error[T22]: `on menu` names 4 values, but `event menu(key: String, x: Number, y: Number)` sends 3 values\n --> src/App.wf:9:44\n  |\n9 |     Entry(\"notes.wf\") { on menu(key, x, y, z) { at = \"{key} at {x}, {y}\" } }\n  |                                            ^\n  = help: Name at most 3, in order: `on menu(key, x, y)`\n  = docs: https://webfluent.monzeromer.dev/errors/T22",
   "broken": "component Entry(_ key: String) {\n    event menu(key: String, x: Number, y: Number)\n    Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }\n}\n\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state at = \"\"\n    Heading(\"Files\").h1\n    Entry(\"notes.wf\") { on menu(key, x, y, z) { at = \"{key} at {x}, {y}\" } }\n    Text(at)\n}",
   "fixed": "component Entry(_ key: String) {\n    event menu(key: String, x: Number, y: Number)\n    Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }\n}\n\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state at = \"\"\n    Heading(\"Files\").h1\n    Entry(\"notes.wf\") { on menu(key, x, y) { at = \"{key} at {x}, {y}\" } }\n    Text(at)\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Error.\n\nA handler names the values its event sends, in the order the event\ndeclares them; it may name fewer, never more. A DOM event — `click`,\n`input`, `keydown` — sends one value, the event itself, so `on click(e, x)`\nis this error too.",
   "fix": "Drop the extra names. For a DOM event, name the event alone and\nread what it carries from it: `on click(e) { … e.clientX … }`.",
   "related": []
@@ -828,6 +924,8 @@
   "printed": "warning[T21]: this `match` on `users` has no `error` arm, so a failed request shows nothing\n --> src/App.wf:4:5\n  |\n4 |     match users {\n  |     ^^^^^\n  = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`\n  = docs: https://webfluent.monzeromer.dev/errors/T21",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    resource users = fetch(\"/api/users\")\n    Heading(\"Users\").h1\n    match users {\n        loading { Spinner }\n        ready(list) { Text(\"{list.length} users\") }\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    resource users = fetch(\"/api/users\")\n    Heading(\"Users\").h1\n    match users {\n        loading { Spinner }\n        error(e) { Alert(e.message).danger }\n        ready(list) { Text(\"{list.length} users\") }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "Add an `error` arm",
   "why": "Warning.",
   "fix": "`error(e) { Alert(e.message).danger }`, or an `else`.",
   "related": []
@@ -845,6 +943,8 @@
   "printed": "error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default\n --> src/App.wf:3:18\n  |\n3 |     state todo = Todo(title: \"Write the docs\")\n  |                  ^^^^\n  = help: Give it, or declare a default in the type: `field: Type = value`\n  = docs: https://webfluent.monzeromer.dev/errors/C01",
   "broken": "type Todo { id: String, title: String, done: Bool = false }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state todo = Todo(title: \"Write the docs\")\n    Heading(todo.title).h1\n}",
   "fixed": "type Todo { id: String, title: String, done: Bool = false }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state todo = Todo(id: \"1\", title: \"Write the docs\")\n    Heading(todo.title).h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Give it, or declare a default in the type (`id: String = \"\"`) or\non the prop.\n\nA built-in that cannot be placed without a prop is held to it the same way:\na `Portal` with no `into:` would draw nowhere, and the fix passes\n`into: null` for you to name the node.",
   "related": []
@@ -862,6 +962,8 @@
   "printed": "error[C02]: `Badge2` declares no prop `colour`\n --> src/App.wf:4:19\n  |\n4 |     Badge2(\"New\", colour: \"red\")\n  |                   ^^^^^^\n  = help: It is passed anyway, but nothing in the component reads it\n  = docs: https://webfluent.monzeromer.dev/errors/C02",
   "broken": "component Badge2(_ label: String) { Text(label) }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Badges\").h1\n    Badge2(\"New\", colour: \"red\")\n}",
   "fixed": "component Badge2(_ label: String, colour: String = \"\") { Text(label) }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Badges\").h1\n    Badge2(\"New\", colour: \"red\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Correct the spelling, or declare the prop on the component.",
   "related": []
@@ -879,6 +981,8 @@
   "printed": "error[C03]: `Select.Option` is a part of `Select`, and it is not inside one\n --> src/App.wf:3:5\n  |\n3 |     Select.Option(\"Pro\", value: \"pro\")\n  |     ^^^^^^^^^^^^^\n  = help: Place it in a `Select { … }`\n  = docs: https://webfluent.monzeromer.dev/errors/C03",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Plans\").h1\n    Select.Option(\"Pro\", value: \"pro\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state plan = \"pro\"\n    Heading(\"Plans\").h1\n    Select(bind: plan, label: \"Plan\") { Select.Option(\"Pro\", value: \"pro\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Place the part inside its owner: `Select(bind: plan) {\nSelect.Option(…) }`.",
   "related": []
@@ -896,6 +1000,8 @@
   "printed": "warning[C04]: Button has no prop `colour`; it is written to the element as an attribute\n --> src/App.wf:3:20\n  |\n3 |     Button(\"Save\", colour: \"red\")\n  |                    ^^^^^^\n  = help: A typo here does nothing on screen; check the component's props\n  = docs: https://webfluent.monzeromer.dev/errors/C04",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\", colour: \"red\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\").danger\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Check the prop's spelling — `wf registry` lists what the built-in\ntakes. `aria-*`, `data-*` and the global attributes (`id`, `role`,\n`title`, …) are expected and draw nothing.",
   "related": []
@@ -913,6 +1019,8 @@
   "printed": "warning[C05]: Divider takes no positional argument\n --> src/App.wf:3:13\n  |\n3 |     Divider(\"thin\")\n  |             ^\n  = help: Name it: the registry lists the props it takes\n  = docs: https://webfluent.monzeromer.dev/errors/C05",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Rule\").h1\n    Divider(\"thin\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Rule\").h1\n    Divider()\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Name it, with one of the props the built-in takes.",
   "related": []
@@ -930,6 +1038,8 @@
   "printed": "warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`\n --> src/App.wf:4:10\n  |\n4 |     Tag2(\"new\")\n  |          ^\n  = help: Mark the prop: `component Tag2(_ label: …)`\n  = docs: https://webfluent.monzeromer.dev/errors/C06",
   "broken": "component Tag2(label: String) { Text(label) }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Tags\").h1\n    Tag2(\"new\")\n}",
   "fixed": "component Tag2(_ label: String) { Text(label) }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Tags\").h1\n    Tag2(\"new\")\n}",
+  "lang": "wf",
+  "quickfix": "Mark `label` positional in `Tag2`",
   "why": "Warning.",
   "fix": "Mark the prop the call means: `component Tag2(_ label: String)`.",
   "related": []
@@ -947,6 +1057,8 @@
   "printed": "error[C07]: `drag:` on `Rows2` has no element to land on: its body is a `for`\n --> src/App.wf:6:16\n  |\n6 |     Rows2(\"a\", drag: \"a\")\n  |                ^^^^\n  = help: Wrap what `Rows2` draws in one element (a `Stack`, a `Row`), or write `drag:` inside it\n  = docs: https://webfluent.monzeromer.dev/errors/C07",
   "broken": "component Rows2(_ name: String) {\n    for x in [1, 2] { Text(name) }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Files\").h1\n    Rows2(\"a\", drag: \"a\")\n}",
   "fixed": "component Rows2(_ name: String) {\n    Stack { for x in [1, 2] { Text(name) } }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Files\").h1\n    Rows2(\"a\", drag: \"a\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:` and the\nhandlers of the gestures — `on receive(d)`, `on dragmove(d)`, `on\nlongpress`, `on swipe` — written on your component's call belong to the one\nelement it draws. A body that is an `if`, a `for`, a `show`, a `match` or\nseveral elements has no one element to give them.",
   "fix": "Wrap what the component draws in one element — a `Stack`, a `Row`\n— or write the drag inside it, on the element it is for.",
   "related": []
@@ -964,6 +1076,8 @@
   "printed": "error[R01]: `/abuot` is not a route: no page's `path` matches it\n --> src/App.wf:3:5\n  |\n3 |     Link(\"About us\", to: \"/abuot\")\n  |     ^^^^\n  = help: The nearest is `/about`\n  = docs: https://webfluent.monzeromer.dev/errors/R01",
   "broken": "page Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Home\").h1\n    Link(\"About us\", to: \"/abuot\")\n}\npage About(path: \"/about\", title: \"About\", description: \"D\") {\n    Heading(\"About\").h1\n}",
   "fixed": "page Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Home\").h1\n    Link(\"About us\", to: \"/about\")\n}\npage About(path: \"/about\", title: \"About\", description: \"D\") {\n    Heading(\"About\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Change to `/about`",
   "why": "",
   "fix": "Link to a route a page has; the message names the nearest. A\nspliced link is checked by its shape — `\"/team/{t.slug}\"` must match a route\nlike `/team/:slug` — a link with no leading `/` is refused (where it leads\nwould depend on the page it is on), and a link to a file (`/report.pdf`) or\nanother site is left alone.",
   "related": []
@@ -981,6 +1095,8 @@
   "printed": "error[R02]: the route `/u/:id` names `:id`, and the page declares no parameter `id`\n --> src/App.wf:1:1\n  |\n1 | page Profile(path: \"/u/:id\", title: \"T\", description: \"D\") {\n  | ^^^^\n  = help: Declare it: `page Profile(path: \"/u/:id\", id: String)`, then read `id`\n  = docs: https://webfluent.monzeromer.dev/errors/R02",
   "broken": "page Profile(path: \"/u/:id\", title: \"T\", description: \"D\") {\n    Heading(\"Profile\").h1\n}",
   "fixed": "page Profile(path: \"/u/:id\", title: \"T\", description: \"D\", id: String) {\n    Heading(\"Profile {id}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Declare the parameter the route names — `page Profile(path:\n\"/u/:id\", id: String)` — and read it by name; a declared parameter the route\nhas no `:name` for is never filled.",
   "related": []
@@ -998,6 +1114,8 @@
   "printed": "error[R03]: `app` places no `Router`, so no page is ever drawn\n --> src/App.wf:2:5\n  |\n2 |     Navbar { Navbar.Brand { Text(\"Ledger\") } }\n  |     ^^^^^^\n  = help: Put `Router` where the current page belongs: `app { Navbar { … } Router }`\n  = docs: https://webfluent.monzeromer.dev/errors/R03",
   "broken": "app {\n    Navbar { Navbar.Brand { Text(\"Ledger\") } }\n}\npage Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Home\").h1\n}",
   "fixed": "app {\n    Navbar { Navbar.Brand { Text(\"Ledger\") } }\n    Router\n}\npage Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Home\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Add `Router`",
   "why": "",
   "fix": "Place `Router` where the page belongs: `app { Navbar { … }\nRouter }`. (A program with no `app` at all routes its pages by itself.)",
   "related": []
@@ -1015,6 +1133,8 @@
   "printed": "warning[R04]: `src: \"images/cover.png\"` is relative, so on `/blog/first` it is fetched from `/blog/images/cover.png`\n --> src/App.wf:3:5\n  |\n3 |     Image(src: \"images/cover.png\", alt: \"\")\n  |     ^^^^^\n  = help: Write it from the site's root: `\"/images/cover.png\"`\n  = docs: https://webfluent.monzeromer.dev/errors/R04",
   "broken": "page Post(path: \"/blog/first\", title: \"T\", description: \"D\") {\n    Heading(\"First post\").h1\n    Image(src: \"images/cover.png\", alt: \"\")\n}",
   "fixed": "page Post(path: \"/blog/first\", title: \"T\", description: \"D\") {\n    Heading(\"First post\").h1\n    Image(src: \"/images/cover.png\", alt: \"\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Write it from the site's root: `\"/images/cover.png\"`.",
   "related": []
@@ -1032,6 +1152,8 @@
   "printed": "error[R05]: `HomeEn` translates `Hom`, and no page is named `Hom`\n --> src/App.wf:5:1\n  |\n5 | page HomeEn(path: \"/en\", title: \"Home\", description: \"D\", lang: \"en\", translates: Hom) {\n  | ^^^^\n  = help: Did you mean `Home`?\n  = docs: https://webfluent.monzeromer.dev/errors/R05",
   "broken": "page Home(path: \"/\", title: \"Home\", description: \"D\") {\n    Heading(\"Home\").h1\n}\n\npage HomeEn(path: \"/en\", title: \"Home\", description: \"D\", lang: \"en\", translates: Hom) {\n    Heading(\"Home\").h1\n}",
   "fixed": "page Home(path: \"/\", title: \"Home\", description: \"D\") {\n    Heading(\"Home\").h1\n}\n\npage HomeEn(path: \"/en\", title: \"Home\", description: \"D\", lang: \"en\", translates: Home) {\n    Heading(\"Home\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Error.\n\n`translates:` names the page this one is a translation of, and the pages\nit joins list each other as `hreflang` alternates, each in its own `lang:`.\nTwo pages of one group in the same language — or both with no `lang:`, so\nboth in the site's — would be two alternates for one language.",
   "fix": "name a page the program declares, and give each translation the `lang:` it\nis written in.",
   "related": []
@@ -1049,6 +1171,8 @@
   "printed": "error[X01]: `LIMIT` is a `const`, and nothing may assign to it\n --> src/App.wf:4:33\n  |\n4 |     Button(\"More\") { on click { LIMIT = 4 } }\n  |                                 ^^^^^\n  = help: Declare it `state` if it changes; a constant is the same on every page\n  = docs: https://webfluent.monzeromer.dev/errors/X01",
   "broken": "const LIMIT = 3\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Limit {LIMIT}\").h1\n    Button(\"More\") { on click { LIMIT = 4 } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state limit = 3\n    Heading(\"Limit {limit}\").h1\n    Button(\"More\") { on click { limit = 4 } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Hold what changes in a `state`. A `derived` value changes when\nwhat it reads does; a prop is its caller's (`emit` an event so the caller\nchanges it); a route parameter is the address's (`navigate`); a loop\nvariable is one pass's copy (change the item through its list).",
   "related": []
@@ -1066,6 +1190,8 @@
   "printed": "error[X02]: this effect writes `visits`, which it also reads, so each run starts the next and the page never settles\n --> src/App.wf:3:5\n  |\n3 |     effect { visits = visits + 1 }\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Work the value out with `derived` instead, or write it from the action that changes what it reads\n  = docs: https://webfluent.monzeromer.dev/errors/X02",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state visits = 0\n    effect { visits = visits + 1 }\n    Heading(\"Visits {visits}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state visits = 0\n    Heading(\"Visits {visits}\").h1\n    Button(\"Visit\") { on click { visits = visits + 1 } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Work a value out with `derived`; change state from the action or\nhandler that changes what it depends on.",
   "related": []
@@ -1083,6 +1209,8 @@
   "printed": "error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`\n --> src/App.wf:7:5\n  |\n7 |     derived ticket = next()\n  |     ^^^^^^^^^^^^^^^^^^^^^^^\n  = help: A derived value only reads; call the action from a handler, and derive from what it sets\n  = docs: https://webfluent.monzeromer.dev/errors/X04",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    action next() {\n        count = count + 1\n        return count\n    }\n    derived ticket = next()\n    Heading(\"Ticket {ticket}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state count = 0\n    action next() {\n        count = count + 1\n        return count\n    }\n    derived ticket = count\n    Heading(\"Ticket {ticket}\").h1\n    Button(\"Next\") { on click { next() } }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Call the action from a handler; derive from the state it sets.",
   "related": []
@@ -1100,6 +1228,8 @@
   "printed": "error[X05]: `use Carts` names a store nothing declares\n --> src/App.wf:3:5\n  |\n3 |     use Carts\n  |     ^^^\n  = help: The stores are `Cart`\n  = docs: https://webfluent.monzeromer.dev/errors/X05",
   "broken": "store Cart { state items = [] }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Carts\n    Heading(\"Cart\").h1\n}",
   "fixed": "store Cart { state items = [] }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"Cart: {Cart.items.length}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Change to `Cart`",
   "why": "",
   "fix": "Name a store that exists — here `Cart`.",
   "related": []
@@ -1117,6 +1247,8 @@
   "printed": "warning[X06]: `clock` copies `now` once, when the page opens, and never follows it\n --> src/App.wf:3:5\n  |\n3 |     state clock = now(every: 1.seconds)\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Nothing assigns `clock`: declare it `derived`, which is worked out again whenever `now` changes\n  = docs: https://webfluent.monzeromer.dev/errors/X06",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state posted = @2026-03-14T09:30:00Z\n    state clock = now(every: 1.seconds)\n    derived age = posted.until(clock)\n    Heading(\"Posted {age.minutes()} minutes ago\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state posted = @2026-03-14T09:30:00Z\n    derived clock = now(every: 1.seconds)\n    derived age = posted.until(clock)\n    Heading(\"Posted {age.minutes()} minutes ago\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Change to `derived clock`",
   "why": "",
   "fix": "Declare it `derived` — the quick fix does. `derived clock =\nnow(every: 1.seconds)` is worked out again on every tick, and so is\neverything that reads it. `now`, `viewport`, `query`, `hash`, `theme`,\n`network` and `update` all keep themselves current; a `state` only takes\nthe value it starts with. A state the program assigns, binds or\nchanges in place is a starting value on purpose — `state tab = query.tab\n?? \"all\"` that a click then changes — and draws nothing. Neither does a\nlive value read inside a lambda, which reads it each time it is called.",
   "related": []
@@ -1134,6 +1266,8 @@
   "printed": "error[F01]: `bind:` on `Input` writes back to what it names, and `name` is a `derived` value\n --> src/App.wf:5:11\n  |\n5 |     Input(bind: name, label: \"Name\")\n  |           ^^^^^^^^^^\n  = help: Bind a `state` (or a store's state, or a field of a loop's item); show a value with `value:`\n  = docs: https://webfluent.monzeromer.dev/errors/F01",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state first = \"Ada\"\n    derived name = first.toUpperCase()\n    Heading(\"Name\").h1\n    Input(bind: name, label: \"Name\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state first = \"Ada\"\n    derived name = first.toUpperCase()\n    Heading(name).h1\n    Input(bind: first, label: \"Name\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Bind the state the reader edits (`bind: first`); show a value\nthat is worked out with `value:`.",
   "related": []
@@ -1151,6 +1285,8 @@
   "printed": "error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`\n --> src/App.wf:4:11\n  |\n4 |     Input(bind: qty, label: \"Quantity\")\n  |           ^^^^^^^^^\n  = help: A number field is `Input(…).number`, which holds a number\n  = docs: https://webfluent.monzeromer.dev/errors/F02",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state qty = 1\n    Heading(\"Order\").h1\n    Input(bind: qty, label: \"Quantity\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state qty = 1\n    Heading(\"Order\").h1\n    Input(bind: qty, label: \"Quantity\").number\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "A number field is `Input(…).number`; a text field holds a\n`String`.",
   "related": []
@@ -1168,6 +1304,8 @@
   "printed": "error[F03]: `validate email` guards a state no control binds, so its rules can never be met\n --> src/App.wf:3:5\n  |\n3 |     validate email { required  email }\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Bind it to the control the reader fills in: `Input(bind: email, …)`\n  = docs: https://webfluent.monzeromer.dev/errors/F03",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state email = \"\"\n    validate email { required  email }\n    Heading(\"Join\").h1\n    Form { Button(\"Join\", type: .submit) }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state email = \"\"\n    validate email { required  email }\n    Heading(\"Join\").h1\n    Form {\n        Input(bind: email, label: \"Email\").email\n        Button(\"Join\", type: .submit)\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Bind the state to the control the reader fills in:\n`Input(bind: email, label: \"Email\").email`.",
   "related": []
@@ -1185,6 +1323,8 @@
   "printed": "warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a click toggles the box and not the state\n --> src/App.wf:4:5\n  |\n4 |     Checkbox(checked: agree, label: \"I agree\")\n  |     ^^^^^^^^\n  = help: Write `bind:` to keep the box and the state together, or handle `on change`\n  = docs: https://webfluent.monzeromer.dev/errors/F04",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state agree = false\n    Heading(\"Terms\").h1\n    Checkbox(checked: agree, label: \"I agree\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state agree = false\n    Heading(\"Terms\").h1\n    Checkbox(bind: agree, label: \"I agree\")\n}",
+  "lang": "wf",
+  "quickfix": "Change to `bind:`",
   "why": "Warning.",
   "fix": "`Checkbox(bind: agree, label: \"I agree\")`.",
   "related": []
@@ -1202,6 +1342,8 @@
   "printed": "warning[F05]: `plan` starts as `basic`, which is none of this select's options\n --> src/App.wf:4:5\n  |\n4 |     Select(bind: plan, label: \"Plan\") {\n  |     ^^^^^^\n  = help: Start it as one of them (`free`, `pro`), so what is shown is what is held\n  = docs: https://webfluent.monzeromer.dev/errors/F05",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state plan = \"basic\"\n    Heading(\"Plan\").h1\n    Select(bind: plan, label: \"Plan\") {\n        Select.Option(\"Free\", value: \"free\")\n        Select.Option(\"Pro\", value: \"pro\")\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state plan = \"free\"\n    Heading(\"Plan\").h1\n    Select(bind: plan, label: \"Plan\") {\n        Select.Option(\"Free\", value: \"free\")\n        Select.Option(\"Pro\", value: \"pro\")\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Start the state as one of the options' values.",
   "related": []
@@ -1219,6 +1361,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. In a project whose `public/` has no `img/hero.png` (the example\nis not compiled here: what it draws depends on the project's files):\n\n```wf no-check\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Team\").h1\n    Image(src: \"/img/hero.png\", alt: \"The team at the launch\")\n}\n```\n\nThe same goes for a `Video`'s `poster:` and `captions:`, an `Audio`'s\n`transcript:`, and a worker's `spawn(\"/workers/css.js\")`: the page asks\nfor the file and gets a 404.",
   "fix": "put the file in `public/`, or correct\nthe path.",
   "related": []
@@ -1236,6 +1380,8 @@
   "printed": "error[D02]: `persist pick` keeps a function, which cannot be written to the browser's storage\n --> src/App.wf:2:5\n  |\n2 |     persist pick = (x) => x + 1\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Keep what it is made from — a name, an id, the data — and build it again when it is read\n  = docs: https://webfluent.monzeromer.dev/errors/D02",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    persist pick = (x) => x + 1\n    Heading(\"Pick\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    persist step = 1\n    Heading(\"Pick {step}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Keep what it is made from — a name, an id, the data — and build\nthe rest when it is read.",
   "related": []
@@ -1253,6 +1399,8 @@
   "printed": "warning[D03]: `persist open` is in `Panel`, which is placed more than once, so every one of them reads and writes one stored value\n --> src/App.wf:2:5\n  |\n2 |     persist open = false\n  |     ^^^^^^^\n  = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart\n  = docs: https://webfluent.monzeromer.dev/errors/D03",
   "broken": "component Panel(_ title: String) {\n    persist open = false\n    Card { Text(title) }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Panels\").h1\n    Panel(\"One\")\n    Panel(\"Two\")\n}",
   "fixed": "component Panel(_ title: String) {\n    persist open = false { key: title }\n    Card { Text(title)  if open { Text(\"Open\") } }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Panels\").h1\n    Panel(\"One\")\n    Panel(\"Two\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Give each instance its own key: `persist open = false { key: title\n}`, with a prop that tells them apart.",
   "related": []
@@ -1270,6 +1418,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. The build remembers what each `persist` held (in\n`.wf-cache/persist.json`); when that changes — `persist items = []` becomes\n`persist items = { open: [], done: [] }` — and `version:` does not, a\nreturning reader's browser hands the old shape to code written for the new\none.",
   "fix": "raise `version:` and add `migrate 1 -> 2 { … }` to bring the\nold value forward.",
   "related": []
@@ -1287,6 +1437,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. A font, stylesheet or script in `meta.fonts`, `meta.stylesheets`\nor `meta.scripts` from another origin, with no hash in `meta.integrity`.",
   "fix": "add its `sha384-…` hash to `meta.integrity` (the CDN usually\npublishes it). Google Fonts is exempt: its stylesheet differs per browser.",
   "related": []
@@ -1304,6 +1456,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "`t(\"nav.blgo\")` when no locale's file holds `nav.blgo`: the page shows\n`nav.blgo`.",
   "fix": "the key the message suggests, or add it to the files.",
   "related": []
@@ -1321,6 +1475,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "`t(\"greeting\", { nme: user.name })` against `\"greeting\": \"Hello, {name}!\"`:\n`nme` is not used, and `{name}` shows as written.",
   "fix": "pass what the\nmessage shows, by the name it shows it.",
   "related": []
@@ -1338,6 +1494,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning. `nav.blog` in `en.json` and not in `ar.json`: a reader in Arabic\nsees `nav.blog`.",
   "fix": "translate it, or remove it from the others.",
   "related": []
@@ -1355,6 +1513,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "`setLocale(\"fr\")` when `i18n.locales` is `[\"en\", \"ar\"]`.",
   "fix": "add the\nlocale and its file, or name one that exists.",
   "related": []
@@ -1372,6 +1532,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning, under `\"literals\": true`. `Text(\"{plural(n, \"file\")} found\")`\nsplices a call, so no table can key it; `derived said = \"{n} errors\"`\nshown as `Text(said)` is not looked up, because only a value whose name\nsays it is words (`saidText`, `errorsLabel`) is. A reader in Arabic sees\nboth in English.",
   "fix": "splice names, `derived filesText = \"{n} files\"`\nthen `Text(\"{filesText} found\")`, and name what is words as words.",
   "related": []
@@ -1389,6 +1551,8 @@
   "printed": "warning[A01]: Image missing \"alt\" attribute\n --> src/App.wf:3:5\n  |\n3 |     Image(src: \"/team.jpg\")\n  |     ^^^^^\n  = help: Add alt text: Image(src: \"...\", alt: \"Description of image\")\n  = docs: https://webfluent.monzeromer.dev/errors/A01",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Photo\").h1\n    Image(src: \"/team.jpg\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Photo\").h1\n    Image(src: \"/team.jpg\", alt: \"The team at the launch\")\n}",
+  "lang": "wf",
+  "quickfix": "Add `alt: \"\"` — then describe the image, or leave it empty if it is decorative",
   "why": "",
   "fix": "`Image(src: \"/team.jpg\", alt: \"The team at the launch\")`. A purely decorative image takes `alt: \"\"`.",
   "related": []
@@ -1406,6 +1570,8 @@
   "printed": "warning[A02]: IconButton missing accessible label\n --> src/App.wf:3:5\n  |\n3 |     IconButton(icon: \"close\")\n  |     ^^^^^^^^^^\n  = help: Add a label: IconButton(icon: \"close\", label: \"Close dialog\")\n  = docs: https://webfluent.monzeromer.dev/errors/A02",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Close\").h1\n    IconButton(icon: \"close\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Close\").h1\n    IconButton(icon: \"close\", label: \"Close\")\n}",
+  "lang": "wf",
+  "quickfix": "Add `label: \"Close\"`",
   "why": "",
   "fix": "`IconButton(icon: \"close\", label: \"Close\")` — the label is read aloud, never shown.",
   "related": []
@@ -1423,6 +1589,8 @@
   "printed": "warning[A03]: Input missing \"label\" or \"placeholder\" attribute\n --> src/App.wf:4:5\n  |\n4 |     Input(bind: name).text\n  |     ^^^^^\n  = help: Add a label: Input(label: \"Username\").text\n  = docs: https://webfluent.monzeromer.dev/errors/A03",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state name = \"\"\n    Heading(\"Name\").h1\n    Input(bind: name).text\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state name = \"\"\n    Heading(\"Name\").h1\n    Input(bind: name, label: \"Name\").text\n}",
+  "lang": "wf",
+  "quickfix": "Add `label: \"Name\"`",
   "why": "",
   "fix": "`Input(bind: name, label: \"Name\")`. A placeholder alone disappears as the reader types.",
   "related": []
@@ -1440,6 +1608,8 @@
   "printed": "warning[A04]: Checkbox missing \"label\" attribute\n --> src/App.wf:4:5\n  |\n4 |     Checkbox(bind: agree)\n  |     ^^^^^^^^\n  = help: Add a label: Checkbox(bind: value, label: \"Description\")\n  = docs: https://webfluent.monzeromer.dev/errors/A04",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state agree = false\n    Heading(\"Terms\").h1\n    Checkbox(bind: agree)\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state agree = false\n    Heading(\"Terms\").h1\n    Checkbox(bind: agree, label: \"I agree to the terms\")\n}",
+  "lang": "wf",
+  "quickfix": "Add `label: \"Agree\"`",
   "why": "",
   "fix": "`Checkbox(bind: agree, label: \"I agree to the terms\")`.",
   "related": []
@@ -1457,6 +1627,8 @@
   "printed": "warning[A05]: Button has no text content\n --> src/App.wf:3:5\n  |\n3 |     Button { Icon(\"check\") }\n  |     ^^^^^^\n  = help: Add text: Button(\"Save\").primary\n  = docs: https://webfluent.monzeromer.dev/errors/A05",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Actions\").h1\n    Button { Icon(\"check\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Actions\").h1\n    Button { Icon(\"check\")  Text(\"Save\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Give it text — `Button(\"Save\")`, or a `Text` in its block beside\nthe icon, `Button { Icon(\"check\")  Text(\"Save\") }` — or an `aria-label:`\nwhen it shows only an icon. A `Text` anywhere in the block names it — in a\nbranch, in a component the block places, or reading state; a `Tooltip`'s\nwords, which show only on hover, do not.",
   "related": []
@@ -1474,6 +1646,8 @@
   "printed": "warning[A06]: Link has no text content\n --> src/App.wf:3:5\n  |\n3 |     Link(to: \"/about\")\n  |     ^^^^\n  = help: Add text: Link(\"About\", to: \"/about\")\n  = docs: https://webfluent.monzeromer.dev/errors/A06",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Links\").h1\n    Link(to: \"/about\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Links\").h1\n    Link(\"About us\", to: \"/about\")\n}\npage About(path: \"/about\", title: \"About\", description: \"D\") {\n    Heading(\"About\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Add `aria-label: \"About\"`",
   "why": "",
   "fix": "Give it text that names where it goes — not \"click here\".",
   "related": []
@@ -1491,6 +1665,8 @@
   "printed": "warning[A07]: Heading has empty text content\n --> src/App.wf:3:5\n  |\n3 |     Heading(\"\").h2\n  |     ^^^^^^^\n  = help: Headings should have meaningful text\n  = docs: https://webfluent.monzeromer.dev/errors/A07",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Title\").h1\n    Heading(\"\").h2\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Title\").h1\n    Heading(\"Details\").h2\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Give the heading text, or remove it; style text with `style { }` rather than an empty heading.",
   "related": []
@@ -1508,6 +1684,8 @@
   "printed": "warning[A08]: Modal missing \"title\" attribute\n --> src/App.wf:4:5\n  |\n4 |     Modal(visible: open) { Text(\"Hello\") }\n  |     ^^^^^\n  = help: Add a title: Modal(visible: state, title: \"Dialog Title\")\n  = docs: https://webfluent.monzeromer.dev/errors/A08",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state open = false\n    Heading(\"Modal\").h1\n    Modal(visible: open) { Text(\"Hello\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state open = false\n    Heading(\"Modal\").h1\n    Modal(visible: open, title: \"Hello\") { Text(\"Hello\") }\n}",
+  "lang": "wf",
+  "quickfix": "Add `title: \"Open\"`",
   "why": "",
   "fix": "`Modal(visible: open, title: \"Delete this?\")` — the title is its accessible name.",
   "related": []
@@ -1525,6 +1703,8 @@
   "printed": "warning[A09]: Video missing \"captions\"\n --> src/App.wf:3:5\n  |\n3 |     Video(src: \"/demo.mp4\").controls\n  |     ^^^^^\n  = help: Add captions: Video(src: \"...\", captions: \"/captions.en.vtt\")\n  = docs: https://webfluent.monzeromer.dev/errors/A09",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Demo\").h1\n    Video(src: \"/demo.mp4\").controls\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Demo\").h1\n    Video(src: \"/demo.mp4\", captions: \"/demo.en.vtt\").controls\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "`Video(src: …, captions: \"/demo.en.vtt\").controls`; an `Audio` takes `transcript:`.",
   "related": []
@@ -1542,6 +1722,8 @@
   "printed": "warning[A10]: Table has no header row (`Table.Head`)\n --> src/App.wf:3:5\n  |\n3 |     Table(caption: \"Prices\") { Table.Body { Table.Row { Table.Cell(\"Pen\")  Table.Cell(\"2\") } } }\n  |     ^^^^^\n  = help: Add one: `Table { Table.Head { Table.Row { Table.Cell(\"Name\") } } … }`\n  = docs: https://webfluent.monzeromer.dev/errors/A10",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Table\").h1\n    Table(caption: \"Prices\") { Table.Body { Table.Row { Table.Cell(\"Pen\")  Table.Cell(\"2\") } } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Table\").h1\n    Table(caption: \"Prices\") {\n        Table.Head { Table.Row { Table.Cell(\"Item\")  Table.Cell(\"Price\") } }\n        Table.Body { Table.Row { Table.Cell(\"Pen\")  Table.Cell(\"2\") } }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Put the first row in `Table.Head`, so its cells are `<th scope=\"col\">`.",
   "related": []
@@ -1559,6 +1741,8 @@
   "printed": "warning[A11]: Heading level skips from h1 to h4\n --> src/App.wf:3:5\n  |\n3 |     Heading(\"Deep\").h4\n  |     ^^^^^^^\n  = help: Use h2 instead, or add the missing intermediate headings\n  = docs: https://webfluent.monzeromer.dev/errors/A11",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Title\").h1\n    Heading(\"Deep\").h4\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Title\").h1\n    Heading(\"Deep\").h2\n}",
+  "lang": "wf",
+  "quickfix": "Change to `.h2`",
   "why": "",
   "fix": "Use the next level down (`h2` after `h1`). Size text with `style { font-size }`, not with the heading level.",
   "related": []
@@ -1576,6 +1760,8 @@
   "printed": "warning[A12]: Page has no h1 heading\n --> src/App.wf:1:1\n  |\n1 | page P(path: \"/\", title: \"T\", description: \"D\") {\n  | ^^^^\n  = help: Add a main heading: Heading(\"Page Title\").h1\n  = docs: https://webfluent.monzeromer.dev/errors/A12",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Section\").h2\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Section\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.",
   "related": []
@@ -1593,6 +1779,8 @@
   "printed": "warning[A13]: text on a card or surface has a contrast ratio of 1.83:1, below the 4.5:1 WCAG AA minimum\n --> src/App.wf:2:1\n  |\n2 |     color-text: #BBBBBB\n  | ^\n  = help: Darken --color-text or lighten --color-surface until they clear 4.5:1\n  = docs: https://webfluent.monzeromer.dev/errors/A13",
   "broken": "theme Faint {\n    color-text: #BBBBBB\n    color-background: #FFFFFF\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Contrast\").h1\n}",
   "fixed": "theme Faint {\n    color-text: #333333\n    color-background: #FFFFFF\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Contrast\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "The theme must be the one the build uses: the only one declared, or the\none `theme.name` names in the config. A project `wf init` made names\n`Day`, so to try this example remove `theme` from its config.",
   "fix": "Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).",
   "related": []
@@ -1610,6 +1798,8 @@
   "printed": "warning[A14]: role \"tablist\" requires children with role \"tab\", but holds a Button\n --> src/App.wf:3:5\n  |\n3 |     Row(role: \"tablist\") {\n  |     ^^^\n  = help: Give each child role: \"tab\", or use the built-in that owns this structure\n  = docs: https://webfluent.monzeromer.dev/errors/A14",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Tabs\").h1\n    Row(role: \"tablist\") {\n        Button(\"One\")\n        Button(\"Two\")\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Tabs\").h1\n    Row(role: \"tablist\") {\n        Button(\"One\", role: \"tab\")\n        Button(\"Two\", role: \"tab\")\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Give each child the role the parent requires (`role: \"tab\"`), or use the built-in that owns the structure — `Tabs`.",
   "related": []
@@ -1627,6 +1817,8 @@
   "printed": "warning[A15]: Button shows \"save\" but its aria-label says \"Submit the form\"\n --> src/App.wf:3:5\n  |\n3 |     Button(\"Save\", aria-label: \"Submit the form\")\n  |     ^^^^^^\n  = help: Start the aria-label with the visible text, so what a user says matches what they see\n  = docs: https://webfluent.monzeromer.dev/errors/A15",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\", aria-label: \"Submit the form\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\", aria-label: \"Save the form\")\n}",
+  "lang": "wf",
+  "quickfix": "Start it with \"Save\"",
   "why": "",
   "fix": "Start the `aria-label` with the visible words: `aria-label: \"Save the draft\"`.",
   "related": []
@@ -1644,6 +1836,8 @@
   "printed": "warning[A16]: `id: \"row\"` is inside a `for`, so the page has several elements with one id\n --> src/App.wf:4:26\n  |\n4 |     for r in rows by r { Text(r, id: \"row\") }\n  |                          ^^^^\n  = help: Make it unique — `id: \"row-{item.id}\"` — or drop it; a label's `for` and `aria-*` find one element by id\n  = docs: https://webfluent.monzeromer.dev/errors/A16",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state rows = [\"a\", \"b\"]\n    Heading(\"Rows\").h1\n    for r in rows by r { Text(r, id: \"row\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state rows = [\"a\", \"b\"]\n    Heading(\"Rows\").h1\n    for r in rows by r { Text(r, id: \"row-{r}\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Make it unique — `id: \"row-{r}\"` — or drop it.",
   "related": []
@@ -1661,6 +1855,8 @@
   "printed": "warning[A17]: Frame missing \"title\" attribute\n --> src/App.wf:3:5\n  |\n3 |     Frame(src: \"https://example.com/\")\n  |     ^^^^^\n  = help: Say what it shows: Frame(src: \"/preview/\", title: \"Preview\")\n  = docs: https://webfluent.monzeromer.dev/errors/A17",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Preview\").h1\n    Frame(src: \"https://example.com/\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Preview\").h1\n    Frame(src: \"https://example.com/\", title: \"Example\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "`Frame(src: \"https://example.com/\", title: \"Example\")` — the title is how a screen reader announces it.",
   "related": []
@@ -1678,6 +1874,8 @@
   "printed": "warning[S01]: Page P has no title\n --> src/App.wf:1:1\n  |\n1 | page P(path: \"/\", description: \"D\") {\n  | ^^^^\n  = help: Add one: page Name(path: \"/\", title: \"What this page is\")\n  = docs: https://webfluent.monzeromer.dev/errors/S01",
   "broken": "page P(path: \"/\", description: \"D\") {\n    Heading(\"No title\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"Home\", description: \"D\") {\n    Heading(\"No title\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "`page P(path: \"/\", title: \"What this page is\")`.",
   "related": []
@@ -1695,6 +1893,8 @@
   "printed": "warning[S02]: Page P has no description\n --> src/App.wf:1:1\n  |\n1 | page P(path: \"/\", title: \"T\") {\n  | ^^^^\n  = help: Add one: page Name(path: \"/\", title: \"…\", description: \"A sentence a search result can show\")\n  = docs: https://webfluent.monzeromer.dev/errors/S02",
   "broken": "page P(path: \"/\", title: \"T\") {\n    Heading(\"No description\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"What a reader gets from this page.\") {\n    Heading(\"No description\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Add a `description:` of about 150 characters: what a reader gets from the page.",
   "related": []
@@ -1712,6 +1912,8 @@
   "printed": "warning[S03]: Page P's description is 178 characters; a search result shows about 160\n --> src/App.wf:1:1\n  |\n1 | page P(path: \"/\", title: \"T\", description: \"A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.\") {\n  | ^^^^\n  = help: Shorten it, or accept that it will be cut mid-sentence\n  = docs: https://webfluent.monzeromer.dev/errors/S03",
   "broken": "page P(path: \"/\", title: \"T\", description: \"A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.\") {\n    Heading(\"Long\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"A description that says what the page holds, in a sentence a search result shows whole.\") {\n    Heading(\"Long\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Shorten it to about 160 characters.",
   "related": []
@@ -1729,6 +1931,8 @@
   "printed": "error[S04]: Pages A and B both claim the route /about\n --> src/App.wf:2:1\n  |\n2 | page B(path: \"/about\", title: \"B\", description: \"D\") { Heading(\"B\").h1 }\n  | ^^^^\n  = help: Give each page its own path\n  = docs: https://webfluent.monzeromer.dev/errors/S04",
   "broken": "page A(path: \"/about\", title: \"A\", description: \"D\") { Heading(\"A\").h1 }\npage B(path: \"/about\", title: \"B\", description: \"D\") { Heading(\"B\").h1 }",
   "fixed": "page A(path: \"/about\", title: \"A\", description: \"D\") { Heading(\"A\").h1 }\npage B(path: \"/team\", title: \"B\", description: \"D\") { Heading(\"B\").h1 }",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Give each page its own `path:`. Only one of them would ever render.",
   "related": []
@@ -1746,6 +1950,8 @@
   "printed": "warning[P01]: `items` is at version 2, and nothing brings version 1 forward\n --> src/App.wf:2:5\n  |\n2 |     persist items: [String] = [] {\n  |     ^^^^^^^\n  = help: A reader who last visited then loses what they had. Add `migrate 1 -> 2`\n  = docs: https://webfluent.monzeromer.dev/errors/P01",
   "broken": "store Cart {\n    persist items: [String] = [] {\n        version: 2\n    }\n}",
   "fixed": "store Cart {\n    persist items: [String] = [] {\n        version: 2\n        migrate 1 -> 2 { old }\n    }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"{Cart.items.length} items\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Add `migrate 1 -> 2`",
   "why": "",
   "fix": "Add a step for each older version: `migrate 1 -> 2 { old.map(…) }`.",
   "related": []
@@ -1763,6 +1969,8 @@
   "printed": "warning[P02]: `migrate 1 -> 2` on `items` is past the declared version\n --> src/App.wf:2:5\n  |\n2 |     persist items: [String] = [] {\n  |     ^^^^^^^\n  = help: A step above `version:` never runs; raise the version or drop the step\n  = docs: https://webfluent.monzeromer.dev/errors/P02",
   "broken": "store Cart {\n    persist items: [String] = [] {\n        version: 1\n        migrate 1 -> 2 { old }\n    }\n}",
   "fixed": "store Cart {\n    persist items: [String] = [] {\n        version: 2\n        migrate 1 -> 2 { old }\n    }\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"{Cart.items.length} items\").h1\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Raise `version:` to the step's target, or drop the step.",
   "related": []
@@ -1780,6 +1988,8 @@
   "printed": "warning[P03]: `search` is persisted in a store scoped to the route\n --> src/App.wf:2:5\n  |\n2 |     persist search = \"\"\n  |     ^^^^^^^\n  = help: The route change drops the store and the next read builds it again from storage, so the value comes straight back. Use `state` for what the route owns, or widen the scope for what outlives it\n  = docs: https://webfluent.monzeromer.dev/errors/P03",
   "broken": "store Filters(scope: .route) {\n    persist search = \"\"\n}",
   "fixed": "store Filters(scope: .route) {\n    state search = \"\"\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Filters\n    Heading(\"Search\").h1\n    Input(bind: Filters.search, label: \"Search\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Keep route-scoped data in `state`, or move the value to a store with a wider scope.",
   "related": []
@@ -1797,6 +2007,8 @@
   "printed": "warning[U01]: `unused` is declared but never read\n --> src/App.wf:2:5\n  |\n2 |     state unused = 0\n  |     ^^^^^\n  = help: Nothing reads the state; remove it, or name it `_unused` to keep it\n  = docs: https://webfluent.monzeromer.dev/errors/U01",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state unused = 0\n    Heading(\"Unused\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Unused\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Remove `unused`",
   "why": "",
   "fix": "Remove it, read it, or name it `_unused` to keep it on purpose.",
   "related": []
@@ -1814,6 +2026,8 @@
   "printed": "warning[U02]: `doubled` is declared but never read\n --> src/App.wf:3:5\n  |\n3 |     derived doubled = n * 2\n  |     ^^^^^^^\n  = help: Nothing reads the derived value; remove it, or name it `_doubled` to keep it\n  = docs: https://webfluent.monzeromer.dev/errors/U02",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 1\n    derived doubled = n * 2\n    Heading(\"{n}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 1\n    derived doubled = n * 2\n    Heading(\"{n} doubled is {doubled}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Remove `doubled`",
   "why": "",
   "fix": "Remove it or read it; a leading `_` keeps it.",
   "related": []
@@ -1831,6 +2045,8 @@
   "printed": "warning[U03]: `Orphan` is declared but never placed\n --> src/App.wf:1:1\n  |\n1 | component Orphan { Text(\"Nobody places me\") }\n  | ^^^^^^^^^\n  = help: Place it in a page, name it as a layout, or remove it\n  = docs: https://webfluent.monzeromer.dev/errors/U03",
   "broken": "component Orphan { Text(\"Nobody places me\") }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Home\").h1\n}",
   "fixed": "component Orphan { Text(\"Somebody places me\") }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Home\").h1\n    Orphan\n}",
+  "lang": "wf",
+  "quickfix": "Remove `Orphan`",
   "why": "",
   "fix": "Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.",
   "related": []
@@ -1848,6 +2064,8 @@
   "printed": "warning[U04]: `Cart.coupon` is declared but never read\n --> src/App.wf:3:5\n  |\n3 |     state coupon = \"\"\n  |     ^^^^^\n  = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it\n  = docs: https://webfluent.monzeromer.dev/errors/U04",
   "broken": "store Cart {\n    state items = []\n    state coupon = \"\"\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"{Cart.items.length}\").h1\n}",
   "fixed": "store Cart {\n    state items = []\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    use Cart\n    Heading(\"{Cart.items.length}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Remove `Cart.coupon`",
   "why": "",
   "fix": "Remove the member, or name it with a leading `_`.",
   "related": []
@@ -1865,6 +2083,8 @@
   "printed": "warning[U05]: `reset` is declared but never read\n --> src/App.wf:3:5\n  |\n3 |     action reset() { n = 0 }\n  |     ^^^^^^\n  = help: Nothing reads the action; remove it, or name it `_reset` to keep it\n  = docs: https://webfluent.monzeromer.dev/errors/U05",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    action reset() { n = 0 }\n    Heading(\"{n}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    action reset() { n = 0 }\n    Heading(\"{n}\").h1\n    Button(\"Reset\") { on click { reset() } }\n}",
+  "lang": "wf",
+  "quickfix": "Remove `reset`",
   "why": "",
   "fix": "Call it, remove it, or name it `_reset`.",
   "related": []
@@ -1882,6 +2102,8 @@
   "printed": "warning[U06]: this never runs: the `return` above leaves first\n --> src/App.wf:6:9\n  |\n6 |         log(\"reset\")\n  |         ^^^^^^^^^^^^\n  = help: Remove it, or move it above the `return`\n  = docs: https://webfluent.monzeromer.dev/errors/U06",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    action reset() {\n        n = 0\n        return n\n        log(\"reset\")\n    }\n    Heading(\"Count {n}\").h1\n    Button(\"Reset\") { on click { reset() } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state n = 0\n    action reset() {\n        n = 0\n        log(\"reset\")\n        return n\n    }\n    Heading(\"Count {n}\").h1\n    Button(\"Reset\") { on click { reset() } }\n}",
+  "lang": "wf",
+  "quickfix": "Remove what never runs",
   "why": "",
   "fix": "Remove it, or move it above the `return`.",
   "related": []
@@ -1899,6 +2121,8 @@
   "printed": "warning[U07]: `wf-allow(U01)` allows nothing: no `U01` is reported on the line it covers\n --> src/App.wf:2:5\n  |\n2 |     // wf-allow(U01)\n  |     ^^^^^^^^^^^^^^^^\n  = help: Remove it — what it was written for is gone\n  = docs: https://webfluent.monzeromer.dev/errors/U07",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    // wf-allow(U01)\n    state shown = 0\n    Heading(\"Count {shown}\").h1\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state shown = 0\n    Heading(\"Count {shown}\").h1\n}",
+  "lang": "wf",
+  "quickfix": "Remove the allow",
   "why": "A `// wf-allow(CODE)` comment accepts one finding on purpose: on a line of\nits own it covers the next line of code, and at the end of a line it covers\nthat line. It names codes (`U01`) or families (`U`), comma-separated, and\nonly what `lints` could lower — a warning, or an error that ships no broken\npage. An allow that covers nothing it names is reported, so allows cannot\noutlive what they were written for.",
   "fix": "Remove the allow — what it was written for is gone.",
   "related": [
@@ -1922,6 +2146,8 @@
   "printed": "warning[U08]: `false` is always false, so one branch never runs\n --> src/App.wf:3:8\n  |\n3 |     if false { Text(\"Coming soon\") }\n  |        ^^^^^\n  = help: Use the value that decides, or remove the branch that cannot run\n  = docs: https://webfluent.monzeromer.dev/errors/U08",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Beta\").h1\n    if false { Text(\"Coming soon\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state beta = false\n    Heading(\"Beta\").h1\n    if beta { Text(\"Coming soon\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Use the value that decides, or remove the branch that cannot run.",
   "related": []
@@ -1939,6 +2165,8 @@
   "printed": "warning[U09]: this `for` has no `by`, and each item holds a `Input`, which starts again whenever the list changes\n --> src/App.wf:4:5\n  |\n4 |     for r in rows { Input(bind: r.name, label: \"Name\") }\n  |     ^^^\n  = help: Key it: `for r in … by r.id`\n  = docs: https://webfluent.monzeromer.dev/errors/U09",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state rows = [{ id: 1, name: \"a\" }]\n    Heading(\"Rows\").h1\n    for r in rows { Input(bind: r.name, label: \"Name\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state rows = [{ id: 1, name: \"a\" }]\n    Heading(\"Rows\").h1\n    for r in rows by r.id { Input(bind: r.name, label: \"Name\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "Warning.",
   "fix": "Key it: `for r in rows by r.id`.",
   "related": []
@@ -1956,6 +2184,8 @@
   "printed": "warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is never reached\n --> src/App.wf:5:5\n  |\n5 |     match tone {\n  |     ^^^^^\n  = help: Remove the `else`\n  = docs: https://webfluent.monzeromer.dev/errors/U10",
   "broken": "enum Tone { calm, loud }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state tone: Tone = .calm\n    Heading(\"Tone\").h1\n    match tone {\n        .calm { Text(\"Calm\") }\n        .loud { Text(\"Loud\") }\n        else { Text(\"?\") }\n    }\n}",
   "fixed": "enum Tone { calm, loud }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state tone: Tone = .calm\n    Heading(\"Tone\").h1\n    match tone {\n        .calm { Text(\"Calm\") }\n        .loud { Text(\"Loud\") }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Remove the `else`.",
   "related": []
@@ -1973,6 +2203,8 @@
   "printed": "warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary`\n --> src/App.wf:3:12\n  |\n3 |     Button(primary)\n  |            ^^^^^^^\n  = help: did you mean `.primary`?\n  = docs: https://webfluent.monzeromer.dev/errors/V01",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(primary)\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\").primary\n}",
+  "lang": "wf",
+  "quickfix": "Write it as the flag `.primary`",
   "why": "",
   "fix": "Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however\ndeep the element that reads it: `if let why = e.reason { Row { Pill(why) } }`,\nand a case's payload, `.failed(why) { … }`, draw nothing.",
   "related": [
@@ -1996,6 +2228,8 @@
   "printed": "",
   "broken": "",
   "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A flag on one of your components whose class no stylesheet — the engine's\nor one of the project's `.css` files — defines, so it changes nothing on\nscreen. The built-ins cannot draw it: the registry and the engine's\nstylesheet are held to each other.",
   "fix": "define the class in a `.css`\nfile under `src/`, or drop the flag.",
   "related": []
@@ -2013,6 +2247,8 @@
   "printed": "warning[V03]: `Unsafe.Html` puts markup in as markup\n --> src/App.wf:4:5\n  |\n4 |     Unsafe.Html(body)\n  |     ^^^^^^^^^^^\n  = help: Anything the project did not write itself belongs in `sanitize(…)` first\n  = docs: https://webfluent.monzeromer.dev/errors/V03",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state body = \"<b>Hi</b>\"\n    Heading(\"Markup\").h1\n    Unsafe.Html(body)\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state body = \"**Hi**\"\n    Heading(\"Markup\").h1\n    Markdown(body)\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Most text wants no markup of its own: write it as Markdown,\nwhich `Markdown(body)` draws with any HTML in it shown as text. Markup that\nmust stay markup and comes from outside the project goes through\n`sanitize(…)` first — `Unsafe.Html(sanitize(body))` — which is the reviewed\ncase, and the warning still names it.\n\nA `Frame(srcdoc:)` drawing HTML from a value is named too: that HTML is\na document of its own, scripts and all. Unless the call says what the\nframe may do, it may do nothing — the build gives it `sandbox=\"\"` —\nand the warning says so. Writing `sandbox:` out is the reviewed case;\n`allow-scripts` with `allow-same-origin` undoes the sandbox, and is\nnamed again.\n\n```wf expect=V03\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    state html = \"<p>Hi</p>\"\n    Heading(\"Preview\").h1\n    Frame(srcdoc: html, title: \"Preview\")\n}\n```\n\n```text\nwarning[V03]: `Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=\"\"`), so nothing in it runs\n --> src/App.wf:4:5\n  |\n4 |     Frame(srcdoc: html, title: \"Preview\")\n  |     ^^^^^\n  = help: Say what it may do with `sandbox:` — `sandbox: \"\"` keeps it as it is now; `allow-scripts` and `allow-same-origin` together undo the sandbox\n  = docs: https://webfluent.monzeromer.dev/errors/V03\n```\n\n**Fix:** `Frame(srcdoc: html, title: \"Preview\", sandbox: \"\")`.",
   "related": []
@@ -2030,6 +2266,8 @@
   "printed": "warning[V04]: `class:` names `wf-btn`, one of the engine's own classes\n --> src/App.wf:3:5\n  |\n3 |     Card(class: \"wf-btn\") { Text(\"x\") }\n  |     ^^^^\n  = help: `wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look\n  = docs: https://webfluent.monzeromer.dev/errors/V04",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Classes\").h1\n    Card(class: \"wf-btn\") { Text(\"x\") }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Classes\").h1\n    Card(class: \"note\") { Text(\"x\") }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).",
   "related": []
@@ -2047,6 +2285,8 @@
   "printed": "warning[V05]: `colr` is not a CSS property, so the browser ignores it\n --> src/App.wf:3:17\n  |\n3 |         style { colr: red }\n  |                 ^^^^\n  = help: Did you mean `color`?\n  = docs: https://webfluent.monzeromer.dev/errors/V05",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\") {\n        style { colr: red }\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\").h1 {\n        style { color: red }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "Change to `color`",
   "why": "Warning.",
   "fix": "The property the message suggests — here `color`. A custom\nproperty is written `--name`.",
   "related": []
@@ -2064,6 +2304,8 @@
   "printed": "error[V06]: `$brnad` is no token the theme declares, so it is never set\n --> src/App.wf:3:17\n  |\n3 |         style { color: $brnad }\n  |                 ^^^^^\n  = help: Declare it in your `theme { … }`, or use one the theme has\n  = docs: https://webfluent.monzeromer.dev/errors/V06",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\") {\n        style { color: $brnad }\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Hello\").h1 {\n        style { color: $color-primary }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "",
   "fix": "A token the theme has — a short name resolves through the\nproperty (`padding: $lg`, `border: 1px solid $border`) — or declare it in\nyour `theme { … }`.",
   "related": []
@@ -2081,6 +2323,8 @@
   "printed": "warning[V07]: `width: {pct}` is a number with no unit, which the browser drops\n --> src/App.wf:4:20\n  |\n4 |     Card { style { width: {pct} } }\n  |                    ^^^^^^^^^^^^\n  = help: Give it one: `width: {pct}px` (or `%`, `rem`)\n  = docs: https://webfluent.monzeromer.dev/errors/V07",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state pct = 40\n    Heading(\"Progress\").h1\n    Card { style { width: {pct} } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state pct = 40\n    Heading(\"Progress\").h1\n    Card { style { width: {pct}% } }\n}",
+  "lang": "wf",
+  "quickfix": "Add `px`",
   "why": "Warning.",
   "fix": "Give it a unit: `width: {pct}%`.",
   "related": []
@@ -2098,6 +2342,8 @@
   "printed": "warning[V08]: `rocket` is not an icon the runtime draws; it will show as the word\n --> src/App.wf:3:10\n  |\n3 |     Icon(\"rocket\")\n  |          ^\n  = help: The icons: close, menu, search, home, user, settings, check, plus, minus, edit, trash, star, heart, mail, bell, download, upload, eye, link, calendar, filter, chevron-down, chevron-right, chevron-left, info, warning, arrow-left, arrow-right, logout, copy, sun, moon, folder, folder-plus, folder-off, file, file-plus, refresh, alert-circle, clock, dot, diff, book, git-pull-request, pin, git-branch, more-horizontal, window-minimize, window-maximize, outline, help-circle, collapse-all, locate, chevron-up, globe, external-link, panel-down, panel-up, code, monitor, git-commit, play, layers, insert, grid, list, square, pill, image, sparkle, lock, type, pointer, reach, frame, line, pipette, comment, hand, zoom, ruler, eye-off, unlock\n  = docs: https://webfluent.monzeromer.dev/errors/V08",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Launch\").h1\n    Icon(\"rocket\")\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Launch\").h1\n    Icon(\"upload\")\n}",
+  "lang": "wf",
+  "quickfix": "Change to `lock`",
   "why": "",
   "fix": "Use one of the built-in icons the message lists.",
   "related": []
@@ -2115,6 +2361,8 @@
   "printed": "warning[V09]: `clik` is not an event Button fires\n --> src/App.wf:3:22\n  |\n3 |     Button(\"Save\") { on clik { log(\"saved\") } }\n  |                      ^^\n  = help: A handler names a DOM event (`click`, `input`, `change`, `submit`, `keydown`, `pointerdown`, `scroll`, …) or an event the element declares\n  = docs: https://webfluent.monzeromer.dev/errors/V09",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\") { on clik { log(\"saved\") } }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Save\").h1\n    Button(\"Save\") { on click { log(\"saved\") } }\n}",
+  "lang": "wf",
+  "quickfix": "Change to `click`",
   "why": "",
   "fix": "Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`,\n…) or one the component declares.",
   "related": []
@@ -2132,6 +2380,8 @@
   "printed": "warning[V12]: This `VirtualList` draws every row: its body is not one keyed `for`\n --> src/App.wf:4:5\n  |\n4 |     VirtualList(rowHeight: 32) {\n  |     ^^^^^^^^^^^\n  = help: Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`\n  = docs: https://webfluent.monzeromer.dev/errors/V12",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state rows = [\"a\", \"b\"]\n    Heading(\"Files\").h1\n    VirtualList(rowHeight: 32) {\n        for r in rows { Text(r) }\n    }\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state rows = [\"a\", \"b\"]\n    Heading(\"Files\").h1\n    VirtualList(rowHeight: 32) {\n        for r in rows by r { Text(r) }\n    }\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A `VirtualList` draws only the rows in view of the one keyed `for` that is\nthe whole of its body. With anything else beside the `for`, or a `for` with\nno `by` — which has no way to keep a row's nodes as it scrolls — it draws\nevery row, as a plain scrolling box does, and the length of the list is\nwhat the page pays for.",
   "fix": "Give the `for` a `by`, and move anything else — a heading, a\ncount — outside the `VirtualList`.",
   "related": []
@@ -2149,6 +2399,8 @@
   "printed": "warning[V10]: `Host` makes no `video`, so it is a `div`\n --> src/App.wf:3:10\n  |\n3 |     Host(tag: \"video\", mount: (n) => n)\n  |          ^^^\n  = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`\n  = docs: https://webfluent.monzeromer.dev/errors/V10",
   "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Chart\").h1\n    Host(tag: \"video\", mount: (n) => n)\n}",
   "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Chart\").h1\n    Host(tag: \"canvas\", mount: (n) => n)\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A `Host` is made of one of a few elements: `div`, `span`, `canvas`, `svg`,\n`section`, `figure`, `pre`, `p`, `ul` or `table` — the tag is written into\nthe document, so it is an allow-list rather than whatever the string says.\nAny other tag is a `div`.",
   "fix": "Make it one of the tags `Host` makes, or use the element the\nbuilt-ins offer for it (`Video`, `Audio`, `Image`).",
   "related": []
@@ -2166,6 +2418,8 @@
   "printed": "warning[V11]: `Chart` is a built-in component, so a call of that name draws the built-in, never this one\n --> src/App.wf:1:1\n  |\n1 | component Chart(_ title: String) {\n  | ^^^^^^^^^\n  = help: Rename it — `MyChart`, `ReportChart` — and its call sites\n  = docs: https://webfluent.monzeromer.dev/errors/V11",
   "broken": "component Chart(_ title: String) {\n    Text(title)\n}\n\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Sales\").h1\n    Chart(kind: .bar, data: [3, 5, 2])\n}",
   "fixed": "component SalesChart(_ title: String) {\n    Text(title)\n}\n\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"Sales\").h1\n    SalesChart(\"Sales by month\")\n}",
+  "lang": "wf",
+  "quickfix": "",
   "why": "A call of a built-in's name draws the built-in, so a component declared\nwith that name is never drawn: its body, its props, its slots go unused, and\nwhat the page shows is the built-in instead. It happens to a component\nwritten before WebFluent gained an element of the same name — a `Footer`\nfrom WebFluent 2, a `Chart` from before 5.2.",
   "fix": "Rename the component and its call sites.",
   "related": []

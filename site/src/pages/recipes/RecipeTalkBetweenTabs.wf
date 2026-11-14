@@ -1,7 +1,24 @@
 // A recipe, written from md-docs/recipes/talk-between-tabs.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeTalkBetweenTabs(path: "/recipes/talk-between-tabs", title: "Talk to the site's other tabs — Recipes", description: "Keep a site's open tabs in step — a cart, a sign-in, a setting — with a `channel` opened by `broadcast(name)`, which every other tab hears.") {
-    RecipeShell("Talk to the site's other tabs", summary: "A `channel` keeps tabs of the same site in step — a cart, a sign-in, a setting. Every tab that opens a channel of the same name hears what the others post, with no server involved. This shop keeps its cart count the same in every tab:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers")], source: "md-docs/recipes/talk-between-tabs.md", how: true, hasVariations: false) {
+    RecipeShell("Talk to the site's other tabs", summary: "A `channel` keeps tabs of the same site in step — a cart, a sign-in, a setting. Every tab that opens a channel of the same name hears what the others post, with no server involved. This shop keeps its cart count the same in every tab:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers"), RelatedLink(kind: "Recipe", title: "Run a script in a worker", to: "/recipes/run-a-worker"), RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket")], source: "md-docs/recipes/talk-between-tabs.md", how: true, hasVariations: false, project: { "src/pages/TalkBetweenTabs.wf": #"store Cart {
+    state count = 0
+    action add() { count = count + 1 }
+    action merge(m: Map) { count = m.items }
+}
+
+page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") {
+    use Cart
+    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+
+    Heading("Shop").h1
+    Text("{Cart.count} in the cart")
+    Button("Add to cart") { on click { Cart.add()  cart.post({ items: Cart.count }) } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "talk-between-tabs"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page; open it in two tabs. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"store Cart {

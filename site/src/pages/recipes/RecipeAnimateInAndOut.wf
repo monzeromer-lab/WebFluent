@@ -1,7 +1,28 @@
 // A recipe, written from md-docs/recipes/animate-in-and-out.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeAnimateInAndOut(path: "/recipes/animate-in-and-out", title: "Animate an element in and out — Recipes", description: "Play an animation when an element appears or leaves: a flag or animate: on the way in, exit: on the way out, with speed, delay and easing.") {
-    RecipeShell("Animate an element in and out", summary: "Give an element an enter animation to play when it appears, and an `exit:` to play before it is removed. Motion attaches to the `if`, `for`, `show` and `match` that draw and remove elements, so read [Control flow](/learn/09-control-flow) first if those, or how a keyed `for … by` keeps an item's nodes, are new to you. This page opens four cards that each enter a different way, and an alert that fades out when you dismiss it:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Run a sequence of animations", to: "/recipes/animation-sequence"), RelatedLink(kind: "Recipe", title: "Animate route changes", to: "/recipes/route-transitions")], source: "md-docs/recipes/animate-in-and-out.md", how: true, hasVariations: true) {
+    RecipeShell("Animate an element in and out", summary: "Give an element an enter animation to play when it appears, and an `exit:` to play before it is removed. Motion attaches to the `if`, `for`, `show` and `match` that draw and remove elements, so read [Control flow](/learn/09-control-flow) first if those, or how a keyed `for … by` keeps an item's nodes, are new to you. This page opens four cards that each enter a different way, and an alert that fades out when you dismiss it:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Open a box to the height of its content", to: "/recipes/expand-to-content"), RelatedLink(kind: "Recipe", title: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults")], source: "md-docs/recipes/animate-in-and-out.md", how: true, hasVariations: true, project: { "src/pages/AnimateInAndOut.wf": #"page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
+    state open = false
+    state toast: String? = "Saved"
+    Heading("Notices").h1
+    Button("Toggle the cards") { on click { open = !open } }
+    if open {
+        Card.fadeIn { Text("Faded in") }
+        Card(animate: .slideUp, speed: .fast) { Text("Slid up, quickly") }
+        Card.scaleIn.slow { Text("Grew, slowly") }
+        Card(animate: .fadeIn, duration: "600ms", delay: "200ms", easing: "ease-out") { Text("Tuned") }
+    }
+    if let message = toast {
+        Alert(message, animate: .slideDown, exit: .fadeOut).success {
+            Button("Dismiss").sm { on click { toast = null } }
+        }
+    }
+    Button("Show the alert") { on click { toast = "Saved again" } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "animate-in-and-out"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
@@ -95,7 +116,7 @@ page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
 
         Heading("Troubleshooting", id: "troubleshooting").h2
 
-        Markdown("- **An enter animation does not play.** It plays only when the element appears. An element that is already on the page and changes does not re-enter: use `replayAnimation`, `animate(…)` ([Drive an animation yourself](/recipes/drive-an-animation)) or a `transition \{ \}` ([Tween a property when state changes](/recipes/tween-on-change)).\n- **A list item fades out and in again instead of moving.** The `for` has no `by`, or its key changes, so the runtime makes a new node. Key the list by what identifies the item ([Animate a list](/recipes/animate-a-list)).\n- **A leaving element disappears at once.** Give it `exit:`. Without one, nothing delays the removal.\n- **A `shared:` element crossfades instead of moving.** The two pages give it different names, or two elements on one page carry the same name ([Carry an element across a route change](/recipes/shared-element)).\n- **Nothing animates at all.** Your system, or the page's root (`data-wf-motion=\"reduce\"`), asks for reduced motion.\n- **Your own keyframes are an error as a flag.** Write `animate: .Name`; only the built-in animations are flags ([Declare your own keyframes](/recipes/keyframes)).")
+        Markdown("- **An enter animation does not play.** It plays only when the element appears. An element that is already on the page and changes does not re-enter: use `replayAnimation`, `animate(…)` ([Drive an animation yourself](/recipes/drive-an-animation)) or a `transition \{ \}` ([Tween a property when state changes](/recipes/tween-on-change)).\n- **A list item fades out and in again instead of moving.** The `for` has no `by`, or its key changes, so the runtime makes a new node. Key the list by what identifies the item ([Animate a list](/recipes/animate-a-list)).\n- **A leaving element disappears at once.** Give it `exit:`. Without one, nothing delays the removal.\n- **A `shared:` element crossfades instead of moving.** The two pages give it different names, or two elements on one page carry the same name ([Carry an element across a route change](/recipes/shared-element)).\n- **Nothing animates at all.** Your system, or the page's root (`data-wf-motion=\"reduce\"`), asks for reduced motion.\n- **`` E103: Badge has no flag or enum case `Drop` ``, or `` `Card.Drop` is not a part of `Card` `` with a `C03`.** Your own keyframes were written as a flag. Write `animate: .Drop`; only the built-in animations are flags ([Declare your own keyframes](/recipes/keyframes)).")
 
     }
 }

@@ -1,7 +1,35 @@
 // A recipe, written from md-docs/recipes/dark-mode-switch.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeDarkModeSwitch(path: "/recipes/dark-mode-switch", title: "Add a dark-mode switch — Recipes", description: "Let the reader pick light, dark or the system's choice with setTheme, and mark the current choice by reading theme.") {
-    RecipeShell("Add a dark-mode switch", summary: "Let the reader pick a light look, a dark one, or whatever their system prefers, and keep that choice across visits. The switch needs a dark theme named in `webfluent.app.json`:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio"), RelatedLink(kind: "Recipe", title: "Show an icon", to: "/recipes/show-an-icon")], source: "md-docs/recipes/dark-mode-switch.md", how: true, hasVariations: false) {
+    RecipeShell("Add a dark-mode switch", summary: "Let the reader pick a light look, a dark one, or whatever their system prefers, and keep that choice across visits. The switch needs a dark theme named in `webfluent.app.json`:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio"), RelatedLink(kind: "Recipe", title: "Show an icon", to: "/recipes/show-an-icon")], source: "md-docs/recipes/dark-mode-switch.md", how: true, hasVariations: false, project: { "src/pages/DarkModeSwitch.wf": #"theme Light {
+    color-background: #FFFFFF
+    color-text: #0F172A
+}
+
+theme Night {
+    color-background: #0B1220
+    color-surface: #111827
+    color-text: #E5E7EB
+    color-text-muted: #9CA3AF
+    color-border: #1F2937
+}
+
+page Settings(path: "/settings", title: "Settings", description: "How the site looks.") {
+    Heading("Settings").h1
+    Row(gap: .sm) {
+        Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
+        Button("Dark", outlined: theme != "dark") { on click { setTheme("dark") } }
+        Button("Match the system", outlined: theme != "system") { on click { setTheme("system") } }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "dark-mode-switch",
+  "theme": {
+    "name": "Light",
+    "dark": "Night"
+  }
+}
+"# }) {
         code {
             Markdown("**Needs:** the `theme` setting below in `webfluent.app.json`. The starter already declares `theme Night` in `src/theme.wf` and a `ThemeToggle` component that does this; replace `src/theme.wf` with this code's themes, and its `Settings` page replaces the starter's `src/pages/Settings.wf`.")
             CodeBlock(#"{ "theme": { "name": "Light", "dark": "Night" } }"#, title: "json")

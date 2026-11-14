@@ -1,7 +1,24 @@
 // A recipe, written from md-docs/recipes/show-a-page-in-a-frame.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Show another page in a frame — Recipes", description: "Show another page inside yours with Frame (a video player, a map, a preview), hear what it posts back, and draw HTML you give it, sandboxed.") {
-    RecipeShell("Show another page in a frame", summary: "Show another page inside yours (a video player, a map, a preview your app builds) with `Frame`, and hear what that page posts back.  This page embeds a video player and a preview of the site's own, and shows what the preview sends back. The player is on another origin, so the config names it in `meta.frame`; without it, the page's Content-Security-Policy blocks the frame and it stays blank:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio"), RelatedLink(kind: "Recipe", title: "Show an icon", to: "/recipes/show-an-icon")], source: "md-docs/recipes/show-a-page-in-a-frame.md", how: true, hasVariations: true) {
+    RecipeShell("Show another page in a frame", summary: "Show another page inside yours (a video player, a map, a preview your app builds) with `Frame`, and hear what that page posts back.  This page embeds a video player and a preview of the site's own, and shows what the preview sends back. The player is on another origin, so the config names it in `meta.frame`; without it, the page's Content-Security-Policy blocks the frame and it stays blank:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/show-a-page-in-a-frame.md", how: true, hasVariations: true, project: { "src/pages/ShowAPageInAFrame.wf": #"page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
+    state heard = ""
+    Heading("The talk").h1
+    Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+    Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+        on message(m) { heard = m.data }
+    }
+    Text(heard)
+}
+"#, "webfluent.app.json": #"{
+  "name": "show-a-page-in-a-frame",
+  "meta": {
+    "frame": [
+      "https://www.youtube-nocookie.com"
+    ]
+  }
+}
+"# }) {
         code {
             Markdown("**Needs:** the `meta.frame` setting below in `webfluent.app.json`, and a page at `/preview/` for the second frame to show.")
             CodeBlock(#"{ "meta": { "frame": ["https://www.youtube-nocookie.com"] } }"#, title: "json")

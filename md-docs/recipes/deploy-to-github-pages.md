@@ -71,7 +71,9 @@ Finally, in the repository's **Settings → Pages**, set the source to
 
 1. `build.base_path` prefixes every link, every asset and the router's
    paths with `/<repo>`, and `meta.site_url` is the address the canonical
-   links and the sitemap name.
+   links and the sitemap name. Write paths from the site's root as if
+   there were no prefix: `Link("About", to: "/about")` links to
+   `/<repo>/about`.
 2. GitHub Pages answers `/contact` with a `301` redirect to `/contact/`.
    `"clean_urls": "file"` (or `"directory"`) makes the canonical address of
    every page one it serves without a redirect

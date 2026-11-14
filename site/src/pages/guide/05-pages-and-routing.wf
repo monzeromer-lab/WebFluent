@@ -89,7 +89,7 @@ page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages a
                 Table.Row {
                     Table.Cell { Markdown("`paths:`") }
                     Table.Cell("")
-                    Table.Cell { Markdown("The values a static build renders a `:param` page for ([Static or single-page](/about/static-or-single-page#pre-render-a-dynamic-route-with-paths))") }
+                    Table.Cell { Markdown("The values a static build renders a `:param` page for ([Pre-render a page for each item](/recipes/pre-render-each-item))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`name: Type`") }
@@ -173,7 +173,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
     }
 }"#, title: "wf")
 
-        Markdown("A parameter is a `String` unless you declare another type, such as `id: Number`. A static build renders a `:param` page once for each value its `paths:` names ([Pre-render a dynamic route](/about/static-or-single-page#pre-render-a-dynamic-route-with-paths)).")
+        Markdown("A parameter is a `String` unless you declare another type, such as `id: Number`. A static build renders a `:param` page once for each value its `paths:` names ([Pre-render a page for each item](/recipes/pre-render-each-item)).")
 
         Heading("Query strings and fragments", id: "query-strings-and-fragments").h2
 

@@ -9,16 +9,33 @@ reader shares. To make it survive a reload, a shared link and the back
 button, read it from `query` instead:
 
 ```wf
+const PRODUCTS = [
+    { name: "Kettle", price: 39 },
+    { name: "Apron", price: 18 },
+    { name: "Mug", price: 9 },
+]
+
 page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived sort = query.sort ?? "name"
+    derived shown = if sort == "price" {
+        PRODUCTS.sortBy(p => p.price)
+    } else {
+        PRODUCTS.sortBy(p => p.name)
+    }
     Heading("Products").h1
     Row(gap: .sm) {
         Link("By name", to: "/products?sort=name")
         Link("By price", to: "/products?sort=price")
     }
-    Text("Sorted by {sort}")
+    for p in shown by p.name {
+        Text("{p.name}: ${p.price}")
+    }
 }
 ```
+
+Choose **By price** and the list reorders to Mug, Apron, Kettle, and the
+address becomes `/products?sort=price`. Reload the page or share the link,
+and it opens sorted by price.
 
 ## How it works
 
@@ -26,7 +43,8 @@ page Products(path: "/products", title: "Products", description: "Everything we 
   is the address's query string as a map: `query.sort` is `"price"` for
   `?sort=price`, and null when the address has no `sort`.
 - `sort` is a [`derived`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#derived)
-  value, so `??` gives it a default and it follows the address.
+  value, so `??` gives it a default and it follows the address. `shown`
+  is derived from `sort`, so the list reorders whenever the address does.
 - Each choice is a `Link` to the same page with another query. A query
   string is not part of the route, so `/products?sort=price` is still the
   `Products` page; only `sort` changes.

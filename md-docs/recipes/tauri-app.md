@@ -19,7 +19,7 @@ JavaScript on Node.js instead, see
 
 You need a WebFluent project that builds with `wf build`, Rust, and the
 system libraries listed in Tauri's
-[prerequisites](https://v2.tauri.app/start/prerequisites/).
+[prerequisites](https://tauri.app/start/prerequisites/).
 
 These are the settings a Tauri app needs. In `webfluent.app.json`:
 
@@ -58,7 +58,7 @@ a Rust command, an event, a plugin.
 ### Prepare the build for a desktop
 
 The same project builds for the web and for a desktop. Two keys in
-`webfluent.app.json` leave out what only a website needs:
+`webfluent.app.json`, and one to leave out, drop what only a website needs:
 
 - **`build.compress: false`** — the shell packs the folder into the app, so
   a `.gz` file beside every file would ship every file twice.

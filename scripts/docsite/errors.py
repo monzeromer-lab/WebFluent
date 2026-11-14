@@ -22,6 +22,7 @@ import json
 import os
 import re
 import subprocess
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -87,13 +88,15 @@ def blocks(body: str):
 def split(code: str, body: str) -> dict:
     """A page's body as the template's parts."""
     body = re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1)
-    broken, printed, fixed, rest = "", "", "", []
+    broken, printed, fixed, rest, lang = "", "", "", [], "wf"
     for info, text in blocks(body):
         fence = fences.parse(info) if info != "prose" else None
         if info == "prose":
             rest.append(text)
         elif fence.expect and not broken:
             broken = text
+            # An example in the indented layout is titled as one.
+            lang = info.split()[0]
         elif info == "text" and broken and not printed:
             printed = text
         elif fence.fixed and broken and not fixed:
@@ -105,7 +108,7 @@ def split(code: str, body: str) -> dict:
     m = re.search(r"\*\*Fix:\*\*\s*", prose)
     if m:
         why, fix = prose[: m.start()].strip(), prose[m.end():].strip()
-    return {"broken": broken, "printed": printed, "fixed": fixed, "why": why, "fix": fix}
+    return {"broken": broken, "printed": printed, "fixed": fixed, "why": why, "fix": fix, "lang": lang}
 
 
 def related(code: str, text: str, titles: dict) -> list:
@@ -126,6 +129,27 @@ def link_paths(markdown: str) -> str:
     # to a file the site does not have.
     markdown = re.sub(r"\]\(\.\./([\w-]+)/index\.md(#[^)]*)?\)", r"](/\1\2)", markdown)
     return re.sub(r"\]\(\.\./([\w-]+)/([\w-]+)\.md(#[^)]*)?\)", r"](/\1/\2\3)", markdown)
+
+
+def quick_fix(code: str, program: str, lang: str) -> str:
+    """The title of the fix the compiler offers for `code` on the page's own
+    broken program (what an editor's quick fix and `wf fix` apply), or ""
+    when it offers none."""
+    if not program:
+        return ""
+    with tempfile.TemporaryDirectory() as d:
+        (Path(d) / "src").mkdir()
+        (Path(d) / "src" / f"App.{lang}").write_text(program)
+        (Path(d) / "webfluent.app.json").write_text('{ "name": "example" }\n')
+        done = subprocess.run([str(wf), "check", "--format", "json", "-d", d], capture_output=True, text=True)
+    try:
+        found = json.loads(done.stdout)["diagnostics"]
+    except (ValueError, KeyError):
+        return ""
+    for f in found:
+        if f["code"] == code and f.get("fixes"):
+            return f["fixes"][0]["title"]
+    return ""
 
 
 def main():
@@ -154,6 +178,8 @@ def main():
             "printed": parts["printed"],
             "broken": parts["broken"],
             "fixed": parts["fixed"],
+            "lang": parts["lang"],
+            "quickfix": quick_fix(e["code"], parts["broken"], parts["lang"]),
             "why": link_paths(parts["why"]),
             "fix": link_paths(parts["fix"]),
             "related": related(e["code"], parts["why"] + " " + parts["fix"], titles),
@@ -235,14 +261,14 @@ def page_file(entries: list) -> str:
         out.append(
             f'    ErrorShell("{e["code"]}", title: {q(e["plain"])}, severity: "{e["severity"]}", '
             f'family: {q(e["group"])}, summary: {q(e["summary"])}, printed: {guide.wf_raw(e["printed"])}, '
-            f'lowerable: {"true" if e["lowerable"] else "false"}, why: {"true" if e["why"] else "false"}, '
+            f'quickfix: {q(e["quickfix"])}, lowerable: {"true" if e["lowerable"] else "false"}, why: {"true" if e["why"] else "false"}, '
             f'example: {"true" if example else "false"}, families: ERROR_INDEX, related: [{related}], sections: [{sections}], '
             f'source: "md-docs/errors/{e["code"]}.md") {{'
         )
         if example:
             # The broken program beside the fixed one, what the fix is under them.
-            out.append(f'        broken {{ CodeBlock({guide.wf_raw(e["broken"])}, title: "wf") }}')
-            out.append(f'        fixed {{ CodeBlock({guide.wf_raw(e["fixed"])}, title: "wf") }}')
+            out.append(f'        broken {{ CodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])}) }}')
+            out.append(f'        fixed {{ CodeBlock({guide.wf_raw(e["fixed"])}, title: {q(e["lang"])}) }}')
             out.append("        note {")
             out.append(f'            Markdown({q(e["fix"])})')
             out.append(f'            Markdown({q(TRY_IT)}) {{ style {{ font-size: 14px; color: $muted }} }}')
@@ -252,7 +278,7 @@ def page_file(entries: list) -> str:
             out.append("            Stack(gap: .sm) {")
             if e["broken"]:
                 out.append('                Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }')
-                out.append(f'                CodeBlock({guide.wf_raw(e["broken"])}, title: "wf")')
+                out.append(f'                CodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])})')
             out.append(f'                Markdown({q(e["fix"])})')
             out.append("            }")
             out.append("        }")

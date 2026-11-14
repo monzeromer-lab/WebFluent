@@ -10,6 +10,8 @@ Table row (the original spelling of Table.Row).
 Trow { … }
 ```
 
+Use [`Table.Row`](https://webfluent.monzeromer.dev/reference/table-row.md) in new code: it is the current spelling, and its page has the example.
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots

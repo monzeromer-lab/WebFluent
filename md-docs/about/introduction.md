@@ -175,5 +175,5 @@ mistakes the compiler finds before your readers do.
 - Coming from a framework, read
   [Coming from React](../coming-from/react.md) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](../reference/components.md).
-- This guide describes WebFluent 6. [Upgrading](upgrading.md) lists what
+- This guide describes WebFluent 6. [Upgrading](../errors/upgrading.md) lists what
   each release changed.

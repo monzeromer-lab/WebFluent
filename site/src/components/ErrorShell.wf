@@ -1,4 +1,5 @@
-/// T5, one diagnostic: the code, its title, its severity and family; what
+/// T5, one diagnostic: the code and its title (both in the heading, as a
+/// reader who searched for the code expects), its severity and family; what
 /// the compiler prints, as it prints it; the broken code and the fixed one,
 /// side by side, with what the fix is under them (`note`) — straight after
 /// the message, for a reader who came from a terminal's `docs:` link; why
@@ -7,7 +8,7 @@
 /// family is in the sidebar. A code with nothing more to say than its
 /// summary has no "Why" (`why: false`), and one no short program can draw
 /// shows only the fix (`broken: false`).
-component ErrorShell(_ code: String, title: String = "", severity: String = "error", family: String = "", summary: String = "", printed: String = "", lowerable: Bool = false, why: Bool = true, example: Bool = true, families: [IndexEntry] = [], related: [RelatedLink] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+component ErrorShell(_ code: String, title: String = "", severity: String = "error", family: String = "", summary: String = "", printed: String = "", quickfix: String = "", lowerable: Bool = false, why: Bool = true, example: Bool = true, families: [IndexEntry] = [], related: [RelatedLink] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
     slot broken
     slot fixed
     slot note
@@ -28,8 +29,10 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
 
             Breadcrumbs(trail: [Place(key: "nav.errors", to: "/errors")], current: family)
 
+            // The code, whether it stops the build, and its family. No kind
+            // label: it said "Error" on a warning's page too, beside the
+            // severity that says it again; the breadcrumb places the page.
             Row(class: "bp-labels") {
-                KindLabel(.error)
                 Text(code, class: "bp-label", data-tone: if severity == "error" { "error" } else { "construction" })
                 Text(if severity == "error" { t("error.severity.error") } else { t("error.severity.warning") }, class: "bp-label")
                 if family != "" {
@@ -39,7 +42,7 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
 
             Stack(gap: .sm) {
                 style { gap: 14px }
-                Heading(title).h1 { style { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; font-weight: 650; letter-spacing: -0.025em } }
+                Heading(if title == "" { code } else { "{code} — {title}" }).h1 { style { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; font-weight: 650; letter-spacing: -0.025em } }
                 if summary != "" {
                     Text(summary, class: "bp-lede")
                 }
@@ -51,6 +54,11 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
                     style { gap: 12px }
                     Heading(t("error.printed"), id: "printed").h2 { style { margin: 0; font-size: 19px; font-weight: 600 } } // wf-allow(A16): one shell per page
                     Diagnostic(printed)
+                    // The fix the compiler offers for this program: what an
+                    // editor's quick fix and `wf fix` apply.
+                    if quickfix != "" {
+                        Markdown(t("error.quickfix", { title: quickfix, code: code }), class: "bp-small")
+                    }
                 }
             }
 

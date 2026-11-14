@@ -1,13 +1,51 @@
 // A recipe, written from md-docs/recipes/translate-a-site.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeTranslateASite(path: "/recipes/translate-a-site", title: "Translate a site — Recipes", description: "Translate a site into several languages: one JSON file per locale, t(\"key\") wherever text goes, a language switch, plural forms and right to left.") {
-    RecipeShell("Translate a site", summary: "Show a site in the reader's language: one file of messages per locale, `t(\"key\")` wherever text goes, and a switch that changes the language on the spot, right to left included. To start a new project this way, see [Start a project translated](#start-a-project-translated).  This program has a language picker in its navigation bar and a home page whose heading, count and button are translated. It reads the translation files that [Set up the translation files](#set-up-the-translation-files) shows:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "start-a-project-translated", label: "Start a project translated"), Anchor(id: "check-what-each-locale-lacks", label: "Check what each locale lacks"), Anchor(id: "checklist", label: "Checklist")], related: [RelatedLink(kind: "Recipe", title: "Translate by the words as written", to: "/recipes/translate-by-the-words"), RelatedLink(kind: "Recipe", title: "Publish a page in each language", to: "/recipes/site-in-two-languages"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline")], source: "md-docs/recipes/translate-a-site.md", how: true, hasVariations: false) {
+    RecipeShell("Translate a site", summary: "Show a site in the reader's language: one file of messages per locale, `t(\"key\")` wherever text goes, and a switch that changes the language on the spot, right to left included. To start a new project this way, see [Start a project translated](#start-a-project-translated).  This program has a language picker in its navigation bar and a home page whose heading, count and button are translated. It reads the translation files that [Set up the translation files](#set-up-the-translation-files) shows:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "start-a-project-translated", label: "Start a project translated"), Anchor(id: "check-what-each-locale-lacks", label: "Check what each locale lacks"), Anchor(id: "checklist", label: "Checklist")], related: [RelatedLink(kind: "Recipe", title: "Translate by the words as written", to: "/recipes/translate-by-the-words"), RelatedLink(kind: "Recipe", title: "Publish a page in each language", to: "/recipes/site-in-two-languages"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline")], source: "md-docs/recipes/translate-a-site.md", how: true, hasVariations: false, project: { "src/App.wf": #"type User { name: String }
+
+app {
+    state chosen = locale
+    Navbar {
+        Navbar.Brand { Link("i18n", to: "/") }
+        Navbar.Links {
+            Link(t("nav.home"), to: "/")
+            Link(t("nav.about"), to: "/about")
+        }
+        Navbar.Actions {
+            Select(bind: chosen, label: t("nav.language")) {
+                on change { setLocale(chosen) }
+                Select.Option("English", value: "en")
+                Select.Option("العربية", value: "ar")
+                Select.Option("Español", value: "es")
+            }
+        }
+    }
+    Router
+}
+
+page Home(path: "/", title: "Home", description: "The home page.") {
+    state user = User(name: "Sam")
+    state items: [String] = ["a", "b", "c"]
+    Heading(t("welcome", { name: user.name })).h1
+    Text(t("items", { count: items.length }))
+    Button(t("actions.save")).primary
+    Text("Locale: {locale}, direction: {dir}")
+    if locale == "ar" { Text("النسخة العربية") }
+}
+
+page About(path: "/about", title: "About", description: "About the site.") {
+    Heading(t("nav.about")).h1
+}
+"#, "webfluent.app.json": #"{
+  "name": "translate-a-site"
+}
+"# }) {
         code {
             Markdown("**Needs:** the `i18n` setting and the translation files that [Set up the translation files](#set-up-the-translation-files) shows. The code is a whole project's `app` and home page, and declares `type User`, as the starter does: paste it into a new project, replacing `src/App.wf` and `src/pages/Home.wf`.")
             CodeBlock(#"type User { name: String }
 
 app {
-    state chosen = "en"
+    state chosen = locale
     Navbar {
         Navbar.Brand { Link("i18n", to: "/") }
         Navbar.Links {
@@ -80,7 +118,19 @@ page About(path: "/about", title: "About", description: "About the site.") {
   "actions.save": "حفظ"
 }"#, title: "json")
 
-        Markdown("A locale with no file, and a key one locale has and another lacks, are build warnings (`I03`). At run time a key missing from the reader's locale falls back to the default locale's message, then to the key itself.")
+        Markdown("And `src/translations/es.json`, whose words have the two forms English has:")
+
+        CodeBlock(#"{
+  "nav.home": "Inicio",
+  "nav.about": "Acerca de",
+  "nav.language": "Idioma",
+  "welcome": "¡Bienvenido, {name}!",
+  "items.one": "{count} elemento",
+  "items.other": "{count} elementos",
+  "actions.save": "Guardar"
+}"#, title: "json")
+
+        Markdown("A locale with no file, and a key one locale has and another lacks, are build warnings (`I03`). The warning for a missing file says every message shows its key; in fact, at run time a key missing from the reader's locale falls back to the default locale's message, and only then to the key itself.")
 
         Heading("Translate text with t()", id: "translate-text-with-t").h3
 
@@ -90,7 +140,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Heading("Switch the locale", id: "switch-the-locale").h3
 
-        Markdown("To let the reader change language, call `setLocale(code)`. The `app` above puts a language picker in the navigation bar, and `Home` shows the current locale and direction.\n\n`locale` is the current locale's code, and `dir` is `\"ltr\"` or `\"rtl\"`. An `app` block may declare `state` as a page does, as `chosen` is above.\n\nOn a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — with any region, so `ar-EG` is too. A site whose default locale is one of them is written `<html lang=\"ar\" dir=\"rtl\">` from the start, before any script runs.\n\n`meta.lang` may name a region of the default locale's language (`en-GB` for `en`); otherwise the default locale is the page's language.\n\nThe built-ins use logical CSS properties (`margin-inline-start`, not `margin-left`), so their layouts mirror with no work on your side. Use logical properties in your own `style \{ \}` blocks too.")
+        Markdown("To let the reader change language, call `setLocale(code)`. The `app` above puts a language picker in the navigation bar, and `Home` shows the current locale and direction.\n\n`locale` is the current locale's code, and `dir` is `\"ltr\"` or `\"rtl\"`. An `app` block may declare `state` as a page does, as `chosen` is above. It starts as `locale`, so a reader who chose Arabic on an earlier visit finds العربية already selected.\n\nOn a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — with any region, so `ar-EG` is too. A site whose default locale is one of them is written `<html lang=\"ar\" dir=\"rtl\">` from the start, before any script runs.\n\n`meta.lang` may name a region of the default locale's language (`en-GB` for `en`); otherwise the default locale is the page's language.\n\nThe built-ins use logical CSS properties (`margin-inline-start`, not `margin-left`), so their layouts mirror with no work on your side. Use logical properties in your own `style \{ \}` blocks too.")
 
         Heading("Choose the locale a page opens in", id: "choose-the-locale-a-page-opens-in").h3
 

@@ -16,6 +16,28 @@ You need the deployed site's address.
 - Run a link-preview debugger on a page, and submit `sitemap.xml` to the
   search engines' consoles.
 
+The same checks from a terminal, with your site's address in `SITE` and a
+page other than the home page in place of `/docs`:
+
+```bash
+SITE=https://example.com
+curl -sI "$SITE/docs" | head -1                     # HTTP/2 200, not 404
+curl -s "$SITE/docs" | grep -o '<h1[^>]*>[^<]*'     # a static build: the heading is in the HTML
+curl -sI "$SITE/" | grep -iE 'content-security-policy|x-frame-options|cache-control'
+curl -s "$SITE/sitemap.xml" | head                  # absolute addresses under meta.site_url
+```
+
+Each line prints something when the deploy is right: a `200` status, the
+page's `<h1>` and its text, the three headers, and the first entries of the
+sitemap. An empty line is the check that failed.
+
+For the link preview, paste a page's address into the
+[Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/)
+or [LinkedIn's Post Inspector](https://www.linkedin.com/post-inspector/);
+for the sitemap, submit `$SITE/sitemap.xml` in
+[Google Search Console](https://search.google.com/search-console) and
+[Bing Webmaster Tools](https://www.bing.com/webmasters).
+
 ## How it works
 
 - A deep link loaded directly is the one request the host answers without

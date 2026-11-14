@@ -627,7 +627,7 @@ questions in order, and its pages, sidebar and search come from the guide.
 
 ## Upgrading
 
-See [chapter 51](md-docs/about/upgrading.md#5-12): store members named like
+See [chapter 51](md-docs/errors/upgrading.md#5-12): store members named like
 an object's own (`E118`), a test declaration named like the project's
 (`E102`), where `T06` is reported, `output_type: "static"`, and smaller
 WebP. Run `wf check`.
@@ -732,7 +732,7 @@ are under `webfluent::`.
 
 ## Upgrading
 
-See [chapter 46](md-docs/about/upgrading.md#5-11): gestures on a component
+See [chapter 46](md-docs/errors/upgrading.md#5-11): gestures on a component
 that is not one element (C07), a handler's names (T22), a test file's own
 declarations, a control's name as a reader hears it, a block's names, a
 menu item's class, and a value's own method over a helper. Run `wf check`.
@@ -1051,7 +1051,7 @@ are under `webfluent::`.
   in a page or a component, one that shared a prop's name read the prop.
 ## Upgrading
 
-See [chapter 46](md-docs/about/upgrading.md#5-10): Markdown's backslash
+See [chapter 46](md-docs/errors/upgrading.md#5-10): Markdown's backslash
 escapes and checked links, attributes that built-ins now write, a modal's
 Escape and painted title, column spans that leave room for the gap, a `Menu`'s `label:` that no longer names its button, a
 form without `bind:` that asks its rules, a bound box whose `on change`
@@ -1160,7 +1160,7 @@ buffers count ([chapter 38](md-docs/reference/cli.md#building-a-tool-on-the-comp
 
 ## Upgrading
 
-See [chapter 46](md-docs/about/upgrading.md#5-9): a comma between style
+See [chapter 46](md-docs/errors/upgrading.md#5-9): a comma between style
 declarations, a field that accepted its range's open end, an animation
 that now plays, a `zero` message that now shows, and a right-to-left
 default locale are what a project may notice. Run `wf check`.
@@ -1876,7 +1876,7 @@ browser, says so with one kind of finding everywhere — the build, `wf
 check`, the editor, a CI annotation — and offers the fix where it knows
 it. This is a major release because a project that built under 4.x may
 stop on errors it always had: start with `wf check`, and read
-[Upgrading](md-docs/about/upgrading.md#5-0).
+[Upgrading](md-docs/errors/upgrading.md#5-0).
 
 ## One finding, everywhere
 

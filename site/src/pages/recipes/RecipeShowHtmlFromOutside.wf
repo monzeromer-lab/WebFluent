@@ -1,0 +1,53 @@
+// A recipe, written from md-docs/recipes/show-html-from-outside.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeShowHtmlFromOutside(path: "/recipes/show-html-from-outside", title: "Show HTML from outside the project — Recipes", description: "Show HTML that arrived from outside the project, such as a CMS body, through sanitize and Unsafe.Html, the one door for markup.") {
+    RecipeShell("Show HTML from outside the project", summary: "Every string an element shows goes in as text, so `\"<p>\"` in your data is shown as `<p>`. Sometimes the content really is HTML: a CMS body, the output of a Markdown renderer of your own, an email. This page fetches a post and shows its HTML body as markup:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown")], source: "md-docs/recipes/show-html-from-outside.md", how: true, hasVariations: true, project: { "src/pages/ShowHtmlFromOutside.wf": #"type Post { title: String, body: String }
+
+api Backend(base: "/api") {
+    get post(slug: String) at "posts/:slug" -> Post
+}
+
+page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
+    resource post = Backend.post(slug: slug)
+    match post {
+        ready(p) {
+            Heading(p.title).h1
+            Unsafe.Html(sanitize(p.body))
+        }
+        else { Skeleton }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "show-html-from-outside"
+}
+"# }) {
+        code {
+            CodeBlock(#"type Post { title: String, body: String }
+
+api Backend(base: "/api") {
+    get post(slug: String) at "posts/:slug" -> Post
+}
+
+page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
+    resource post = Backend.post(slug: slug)
+    match post {
+        ready(p) {
+            Heading(p.title).h1
+            Unsafe.Html(sanitize(p.body))
+        }
+        else { Skeleton }
+    }
+}"#, title: "wf")
+        }
+        variations {
+            Markdown("- **Markup a project script inserts**: a script under `src/` that sets `innerHTML` with markup from outside the project passes it through `WF.sanitize(…)` first ([Call WF from a script](/recipes/call-wf-from-a-script)).\n- **Markdown instead of HTML**: `Markdown(text)` escapes any HTML in the text and needs no `Unsafe` ([Render Markdown](/recipes/render-markdown)).")
+
+        }
+        Markdown("- `sanitize(html)` keeps only what an allow-list names: a fixed set of elements and, for each, a fixed set of attributes. It keeps no `<script>`, `<style>`, `<iframe>` or `<form>`, and no `on*` attribute, and every `href` and `src` goes through the same scheme check as every other URL. A dropped element keeps its text.\n- `Unsafe.Html(markup)` puts the result in as markup. The build prints a `V03` at each one, saying whether its markup went through `sanitize`, and `wf audit` lists them all.\n- `sanitize` runs at build time as well as in the browser, from the same allow-list, so a pre-rendered page shows the sanitised body at once.")
+
+        Callout("Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project produced**. Anything that arrived from outside goes through `sanitize`.", kind: .caution)
+
+        Markdown("[Security](/about/security#one-door-for-markup) says why markup has one door, and what the allow-list keeps out.")
+
+    }
+}

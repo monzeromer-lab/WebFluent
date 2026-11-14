@@ -1,4 +1,4 @@
-# Migrate from external
+# Upgrade a WebFluent 4 project that uses external
 
 > Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.
 

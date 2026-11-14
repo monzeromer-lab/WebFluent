@@ -1,7 +1,16 @@
 // A recipe, written from md-docs/recipes/show-code.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — Recipes", description: "Show code on a page with `Code`: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.") {
-    RecipeShell("Show code on a page", summary: "`Code` shows code: inline inside a sentence, or as a block, coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews")], source: "md-docs/recipes/show-code.md", how: true, hasVariations: false) {
+    RecipeShell("Show code on a page", summary: "`Code` shows code: inline inside a sentence, or as a block, coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Pre-render a page for each item", to: "/recipes/pre-render-each-item"), RelatedLink(kind: "Recipe", title: "Show your own page for an unknown address", to: "/recipes/not-found-page")], source: "md-docs/recipes/show-code.md", how: true, hasVariations: false, project: { "src/pages/ShowCode.wf": #"page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
+    Heading("Snippets").h1
+    Text("Run ")  Code("wf serve")  Text(" to start.")
+    Code("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf").block
+    Code("$ wf build", language: "bash").block
+}
+"#, "webfluent.app.json": #"{
+  "name": "show-code"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {

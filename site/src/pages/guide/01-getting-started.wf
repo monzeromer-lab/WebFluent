@@ -66,7 +66,12 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
         Markdown("**You see:**")
 
         CodeBlock(#"Created new WebFluent project: hello (template: spa)
-  AGENTS.md is the language reference, for you and your coding agent"#, title: "text")
+  AGENTS.md is the language reference, for you and your coding agent
+  .agents/skills/ and .claude/skills/ teach your coding agent to write it well
+
+  cd hello
+  wf build
+  wf serve"#, title: "text")
 
         Markdown("`wf init` writes a small application so you have something real to read: four pages (a dashboard, a task list, a profile and settings), three components and two stores, with tests under `tests/`.")
 
@@ -170,7 +175,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
             }
         }
 
-        Markdown("`--locales en,ar` starts an `spa` or `static` project translated: its text is in `src/translations/`, one file per language, and the first locale is the default ([Internationalisation](/recipes/translate-a-site#start-a-project-translated)).\n\nIf you are unsure between `spa` and `static`, start with `static`. Every page is real HTML before any script runs, which is better for search and for the first paint, and the page is still fully interactive once the script loads. [Static or single-page](/about/static-or-single-page) explains the difference.")
+        Markdown("`--locales en,ar` starts an `spa` or `static` project translated: its text is in `src/translations/`, one file per language, and the first locale is the default ([Internationalisation](/recipes/translate-a-site#start-a-project-translated)).\n\nThis chapter starts with an `spa` because its starter is a small application, with state, stores and tests to read. For a site of your own, if you are unsure between `spa` and `static`, start with `static`. Every page is real HTML before any script runs, which is better for search and for the first paint, and the page is still fully interactive once the script loads. [Static or single-page](/about/static-or-single-page) explains the difference.")
 
         Heading("Write a site from scratch", id: "write-a-site-from-scratch").h2
 

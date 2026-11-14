@@ -10,6 +10,8 @@ Maps a path to a page (the original grammar; pages now declare their paths).
 Route(path: Path, page: Declaration)
 ```
 
+Use [`page`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md) in new code: it is the current spelling, and its page has the example.
+
 ## Props
 
 | Prop | Type | Meaning |

@@ -230,7 +230,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`csp`") }
                             Table.Cell("boolean")
                             Table.Cell { Markdown("`false` (`true` in a project `wf init` makes)") }
-                            Table.Cell { Markdown("Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/about/security#ship-a-content-security-policy)).") }
+                            Table.Cell { Markdown("Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/about/security#the-content-security-policy)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`budget`") }
@@ -318,7 +318,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`page_size`") }
                             Table.Cell("string")
                             Table.Cell { Markdown("`\"A4\"`") }
-                            Table.Cell { Markdown("`A4`, `A3`, `A5`, `A6`, `Letter`, `Legal`, `Tabloid`, `Executive`, or two lengths (`\"210mm 297mm\"`). A `Document(size:)` overrides it.") }
+                            Table.Cell { Markdown("`A3`, `A4`, `A5`, `A6`, `B5`, `Letter`, `Legal`, `Tabloid` (or `Ledger`), `Executive`, or two lengths (`\"210mm 297mm\"`, `\"800x600\"`). A `Document(size:)` overrides it.") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`margins`") }
@@ -661,7 +661,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     }
                 }
 
-                Markdown("An entry of `connect`, `img` or `frame` that has a path, or that is a keyword, is `E111`. [Security](/about/security#allow-requests-images-and-frames-from-other-origins) covers these settings and `wasm` and `style_elements`.\n\nAn entry of `meta.scripts` takes one of these forms:")
+                Markdown("An entry of `connect`, `img` or `frame` that has a path, or that is a keyword, is `E111`. [Allow other origins](/recipes/allow-other-origins) covers these settings and `wasm` and `style_elements`.\n\nAn entry of `meta.scripts` takes one of these forms:")
 
                 Table(caption: "meta") {
                     Table.Head {
@@ -862,7 +862,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 CodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
 
-                Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop nothing reads;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused, and so is a key that is not a code or a family. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/errors).")
+                Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop the component does not declare;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused, and so is a key that is not a code or a family. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/errors).")
 
             }
         }

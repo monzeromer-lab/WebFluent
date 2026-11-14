@@ -409,7 +409,7 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 
         Markdown("- An endpoint with a `File` parameter sends a multipart form.\n- `Backend.avatar.progress` follows the upload from 0 to 1.\n- `FileUpload(…).multiple` lets the reader pick several files.")
 
-        Callout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#check-uploads-on-the-server)).", kind: .important)
+        Callout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads-are-checked-on-the-server)).", kind: .important)
 
         Heading("Send a form to a server", id: "send-a-form-to-a-server").h2
 

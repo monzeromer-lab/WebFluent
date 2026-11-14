@@ -1,7 +1,74 @@
 // A recipe, written from md-docs/recipes/portal.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipePortal(path: "/recipes/portal", title: "Draw into a node a script made — Recipes", description: "Fill a node a library made, such as an editor's tooltip or a map's popup, with WebFluent elements, using Portal(into:).") {
-    RecipeShell("Draw into a node a script made", summary: "Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. To fill it, use `Portal(into: node) \{ … \}`. The library keeps the node's place, its keys and its focus; the page draws what is in it. This page starts a CodeMirror editor whose hover tooltip shows the line under the pointer, drawn by the page:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script")], source: "md-docs/recipes/portal.md", how: true, hasVariations: true) {
+    RecipeShell("Draw into a node a script made", summary: "Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. To fill it, use `Portal(into: node) \{ … \}`. The library keeps the node's place, its keys and its focus; the page draws what is in it. This page starts a CodeMirror editor whose hover tooltip shows the line under the pointer, drawn by the page:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Load a library from a CDN", to: "/recipes/library-from-a-cdn"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library"), RelatedLink(kind: "Recipe", title: "Place a custom element from a library", to: "/recipes/place-a-custom-element")], source: "md-docs/recipes/portal.md", how: true, hasVariations: true, project: { "src/editor.js": #"// src/editor.js
+// CodeMirror places each tooltip and keeps its keys; the node it makes is
+// left empty, and the page draws what is in it.
+const tooltips = new Map();
+let made = 0;
+
+/**
+ * The node CodeMirror made for a tooltip, or null once it has gone.
+ * @param {string} id
+ * @returns {HTMLElement|null}
+ */
+function editorHost(id) {
+  return tooltips.get(id) ?? null;
+}
+
+/**
+ * An editor in `node`. `opened(id, text)` hears a tooltip open, with the
+ * words under the pointer; `closed(id)` hears it close.
+ * @param {HTMLElement} node
+ * @param {(id: string, text: string) => void} opened
+ * @param {(id: string) => void} closed
+ */
+function startEditor(node, opened, closed) {
+  const hover = CM.hoverTooltip((view, pos) => ({
+    pos,
+    create() {
+      const id = `hover-${++made}`;
+      const dom = document.createElement("div");
+      tooltips.set(id, dom);
+      opened(id, view.state.doc.lineAt(pos).text);
+      return { dom, destroy() { tooltips.delete(id); closed(id); } };
+    },
+  }));
+  return new CM.EditorView({ parent: node, extensions: [CM.basicSetup, hover] });
+}
+"#, "src/pages/Portal.wf": #"page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
+    state tip: String? = null
+    state words = ""
+    action opened(id: String, text: String) {
+        tip = id
+        words = text
+    }
+    action closed(id: String) {
+        if tip == id { tip = null }
+    }
+
+    Heading("Edit").h1
+    Host(mount: (n) => startEditor(n, opened, closed), cleanup: (view) => view.destroy())
+    if let id = tip {
+        Portal(into: editorHost(id), data-popup: "hover") {
+            Text(words)
+        }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "portal",
+  "meta": {
+    "scripts": [
+      {
+        "src": "/vendor/codemirror.js",
+        "module": true,
+        "as": "CM"
+      }
+    ],
+    "style_elements": true
+  }
+}
+"# }) {
         code {
             Markdown("**Needs:** `src/editor.js`, a CodeMirror bundle in `public/vendor/`, and two settings in `webfluent.app.json`, each shown below.")
             CodeBlock(#"page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {

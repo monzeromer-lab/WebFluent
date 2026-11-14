@@ -16,7 +16,7 @@ const PLAYGROUND_EXAMPLES: [Project] = [
     state count = 0
 
     Heading("Hello, WebFluent").h1
-    Text("Clicked {count} times")
+    Text(if count == 1 { "Clicked once" } else { "Clicked {count} times" })
     Row(gap: .sm) {
         Button("+1").primary {
             on click { count = count + 1 }

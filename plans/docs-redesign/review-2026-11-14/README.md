@@ -111,6 +111,36 @@ Still open from these: publishing `bindings/node` to npm, which is yours to do.
   - a page's `image:` does not splice;
   - the router overrides an explicit `aria-current`.
 
+### Low items fixed (2026-11-14)
+
+All the low items are fixed, and so is the UX idea in errors 33:
+
+- **Recipes 36:** a recipe whose code makes a project offers "Download the project" (a zip) and "Open in the Playground". Its blocks become the files they introduce; the generator offers this only for a project that checks clean, which is 64 of 87.
+- **Recipes 37:** every card shows its outputs, and the index filters by output as well as by words.
+- **Errors 22:** `wf explain` labels the broken program, what the compiler prints, and the fixed one.
+- **Errors 23:** E003's example is a checked `.wfx` program with a fixed one; the tests read an indented example as `.wfx`.
+- **Errors 32:**
+  - The accessibility, security and static-or-single-page essays keep their arguments, and their how-to sections are recipes now.
+  - Five recipes are new: keyboard and screen reader, showing HTML from outside, pre-rendering each item, allowing other origins, and reviewing security.
+  - Upgrading moved to the help group at `/errors/upgrading`, with its old addresses forwarded.
+- **Errors 33:** 34 error pages show the quick fix the compiler offers for their program, and the `wf fix --code` command that applies it.
+
+The site's own items (15–25) are all fixed:
+
+- the cheat sheets label each block on a phone;
+- the "Works in" row is a group;
+- the logo and search button are named with what they show;
+- every comparison table names its first column;
+- Slider, DatePicker and FileUpload name their inputs;
+- inline code is at least 12.5px;
+- the phone menu closes when the window widens;
+- the mock-ups' dead links point at today's pages;
+- recipe cards are a tight list on a phone;
+- an error page shows "Error" once;
+- the counter says "Clicked once".
+
+The compiler also got the registry's summaries, Button's own `to:` text, and the `T04` hint naming its method.
+
 ## Then: site-wide fixes, each done once
 
 - **Icons in the pre-rendered HTML.** The header's icon buttons are empty until the script runs. This is a compiler change. [site 4]

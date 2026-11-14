@@ -1,8 +1,10 @@
 /// Getting started, in ar: written from md-docs/ar/learn/01-getting-started.md by
 /// scripts/docsite/guide.py; edit the translation, not this file.
-page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "البدء", description: "ثبّت wf وتحقّق من التثبيت، وأنشئ أول مشروع، وشغّل خادم التطوير وأجرِ تغييرًا. ثم جهّز خادم اللغة واقرأ ناتج البناء.", lang: "ar", translates: Learn01GettingStarted, layout: DocsShell("البدء", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ثبّت المُصرِّف، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.", source: "md-docs/ar/learn/01-getting-started.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "التثبيت", label: "التثبيت"), Anchor(id: "التحقق-من-التثبيت", label: "التحقق من التثبيت"), Anchor(id: "إنشاء-مشروع", label: "إنشاء مشروع"), Anchor(id: "تشغيل-خادم-التطوير", label: "تشغيل خادم التطوير"), Anchor(id: "إجراء-تغيير", label: "إجراء تغيير"), Anchor(id: "إعداد-المحرر", label: "إعداد المحرر"), Anchor(id: "تغيير-طريقة-تثبيت-wf", label: "تغيير طريقة تثبيت wf"), Anchor(id: "اختيار-قالب", label: "اختيار قالب"), Anchor(id: "كتابة-موقع-من-الصفر", label: "كتابة موقع من الصفر"), Anchor(id: "ما-ينتجه-البناء", label: "ما ينتجه البناء"), Anchor(id: "المشروع-باختصار", label: "المشروع باختصار"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["تثبيت `wf` والتحقق منه بالأمر `wf --version`", "إنشاء مشروع بالأمر `wf init` وتشغيله بالأمر `wf serve`", "تغيير صفحة وقراءة الخطأ الذي يرسمه خادم التطوير فوقها", "كتابة موقع من صفحتين: `app` فيه `Router`، وصفحات تسمّي كلٌّ منها `path:` الخاص بها", "معرفة ما يكتبه `wf build` في `build/`"], book: GUIDE_AR, other: "/learn/01-getting-started", lang: "ar", nextTo: "/ar/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
+page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "البدء", description: "ثبّت wf وتحقّق من التثبيت، وأنشئ أول مشروع، وشغّل خادم التطوير وأجرِ تغييرًا. ثم جهّز خادم اللغة واقرأ ناتج البناء.", lang: "ar", translates: Learn01GettingStarted, layout: DocsShell("البدء", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ثبّت المُصرِّف، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.", source: "md-docs/ar/learn/01-getting-started.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "التثبيت", label: "التثبيت"), Anchor(id: "التحقق-من-التثبيت", label: "التحقق من التثبيت"), Anchor(id: "إنشاء-مشروع", label: "إنشاء مشروع"), Anchor(id: "تشغيل-خادم-التطوير", label: "تشغيل خادم التطوير"), Anchor(id: "إجراء-تغيير", label: "إجراء تغيير"), Anchor(id: "إعداد-المحرر", label: "إعداد المحرر"), Anchor(id: "تغيير-طريقة-تثبيت-wf", label: "تغيير طريقة تثبيت wf"), Anchor(id: "اختيار-قالب", label: "اختيار قالب"), Anchor(id: "كتابة-موقع-من-الصفر", label: "كتابة موقع من الصفر"), Anchor(id: "ما-ينتجه-البناء", label: "ما ينتجه البناء"), Anchor(id: "المشروع-باختصار", label: "المشروع باختصار"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["ثبّت `wf` وتحقّق منه بالأمر `wf --version`", "أنشئ مشروعًا بالأمر `wf init` وشغّله بالأمر `wf serve`", "غيّر صفحة واقرأ الخطأ الذي يرسمه خادم التطوير فوقها", "اكتب موقعًا من صفحتين: `app` فيه `Router`، وصفحات تسمّي كلٌّ منها `path:` الخاص بها", "اعرف ما يكتبه `wf build` في `build/`"], book: GUIDE_AR, other: "/learn/01-getting-started", lang: "ar", nextTo: "/ar/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
     Stack(gap: .lg) {
         Markdown("يثبّت هذا الفصل `wf`، مُصرِّف WebFluent، ويشغّل أول مشروع في متصفحك. في نحو عشر دقائق تنشئ المشروع، وتغيّر سطرًا واحدًا، وترى الصفحة تتبعه. بقية الفصل إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما يكتبه البناء.")
+
+        Callout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
 
         Heading("قبل أن تبدأ", id: "قبل-أن-تبدأ").h2
 
@@ -66,7 +68,12 @@ page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "ال�
         Markdown("**ترى:**")
 
         CodeBlock(#"Created new WebFluent project: hello (template: spa)
-  AGENTS.md is the language reference, for you and your coding agent"#, title: "text")
+  AGENTS.md is the language reference, for you and your coding agent
+  .agents/skills/ and .claude/skills/ teach your coding agent to write it well
+
+  cd hello
+  wf build
+  wf serve"#, title: "text")
 
         Markdown("يكتب `wf init` تطبيقًا صغيرًا لتجد شيئًا حقيقيًا تقرؤه: أربع صفحات (لوحة معلومات، وقائمة مهام، وملف شخصي، وإعدادات)، وثلاثة مكوّنات، ومخزنين، مع اختبارات تحت `tests/`.")
 
@@ -90,7 +97,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
 
         Heading("إجراء تغيير", id: "إجراء-تغيير").h2
 
-        Markdown("1. افتح `src/pages/Home.wf` في محررك.\n2. جد السطر `Text(\"Welcome to your dashboard.\").muted` وغيّر النص إلى `Text(\"Welcome back.\").muted`.\n3. احفظ الملف.\n\n**ترى** المتصفح يعيد التحميل من تلقاء نفسه، ولوحة المعلومات تعرض الآن **Welcome back.** تحت عنوانها.\n\nلترى كيف يبدو الخطأ، غيّر `.muted` إلى `.mutd` واحفظ. تعرض الصفحة الخطأ `E103` فوقها، مع الملف والسطر والتلميح “Did you mean `.muted`?”. أعده كما كان واحفظ، فتعود الصفحة.\n\nلديك الآن مشروع يعمل. أوقف الخادم بـCtrl+C حين تنتهي. شغّل `wf build` لتكتب الموقع النهائي في `build/`، جاهزًا لأي استضافة ثابتة ([النشر](/recipes)).\n\nبقية هذا الفصل إعداد اختياري. لتواصل التعلّم، انتقل إلى [الدرس التطبيقي](/ar/learn/02-tutorial-shelf).")
+        Markdown("1. افتح `src/pages/Home.wf` في محررك.\n2. جد السطر `Text(\"Welcome to your dashboard.\").muted` وغيّر النص إلى `Text(\"Welcome back.\").muted`.\n3. احفظ الملف.\n\n**ترى** المتصفح يعيد التحميل من تلقاء نفسه، ولوحة المعلومات تعرض الآن `Welcome back.` تحت عنوانها.\n\nلترى كيف يبدو الخطأ، غيّر `.muted` إلى `.mutd` واحفظ. تعرض الصفحة الخطأ `E103` فوقها، مع الملف والسطر والتلميح “Did you mean `.muted`?”. أعده كما كان واحفظ، فتعود الصفحة.\n\nلديك الآن مشروع يعمل. أوقف الخادم بـCtrl+C حين تنتهي. شغّل `wf build` لتكتب الموقع النهائي في `build/`، جاهزًا لأي استضافة ثابتة ([النشر](/recipes)).\n\nبقية هذا الفصل إعداد اختياري. لتواصل التعلّم، انتقل إلى [الدرس التطبيقي](/ar/learn/02-tutorial-shelf).")
 
         Heading("إعداد المحرر", id: "إعداد-المحرر").h2
 
@@ -170,7 +177,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
             }
         }
 
-        Markdown("يبدأ `--locales en,ar` مشروع `spa` أو `static` مترجَمًا إلى أكثر من لغة: نصه في `src/translations/`، ملف لكل لغة، واللغة الأولى هي الافتراضية ([الترجمة](/recipes/translate-a-site#start-a-project-translated)).\n\nإن لم تكن متأكدًا بين `spa` و`static`، فابدأ بـ`static`. كل صفحة HTML حقيقية قبل أن يعمل أي سكربت، وهذا أفضل للبحث وللرسم الأول، والصفحة تبقى تفاعلية بالكامل بعد تحميل السكربت. يشرح [ثابت أم صفحة واحدة](/about/static-or-single-page) الفرق.")
+        Markdown("يبدأ `--locales en,ar` مشروع `spa` أو `static` مترجَمًا إلى أكثر من لغة: نصه في `src/translations/`، ملف لكل لغة، واللغة الأولى هي الافتراضية ([الترجمة](/recipes/translate-a-site#start-a-project-translated)).\n\nيبدأ هذا الفصل بمشروع `spa` لأن مشروعه الأولي تطبيق صغير فيه حالة ومخازن واختبارات تقرؤها. أما لموقعك أنت، فإن لم تكن متأكدًا بين `spa` و`static`، فابدأ بـ`static`. كل صفحة HTML حقيقية قبل أن يعمل أي سكربت، وهذا أفضل للبحث وللرسم الأول، والصفحة تبقى تفاعلية بالكامل بعد تحميل السكربت. يشرح [ثابت أم صفحة واحدة](/about/static-or-single-page) الفرق.")
 
         Heading("كتابة موقع من الصفر", id: "كتابة-موقع-من-الصفر").h2
 

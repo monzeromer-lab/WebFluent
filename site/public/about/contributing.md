@@ -180,7 +180,7 @@ The test suite holds the guide to the compiler:
 
 - every `wf` code block parses, type-checks and compiles without a
   warning;
-- every `wf expect=CODE` block draws exactly that code;
+- every `wf expect=CODE` block draws that code;
 - every link between chapters, and every anchor, resolves;
 - every declaration, keyword, built-in, browser value, built-in function,
   config key, command and diagnostic code appears in it;

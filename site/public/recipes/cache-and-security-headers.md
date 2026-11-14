@@ -28,7 +28,7 @@ With `build.csp` on, this is the `build/_headers` file a build writes:
 1. `/*` applies the headers under it to every path of the site.
 2. `Content-Security-Policy` is the same policy every page already carries
    as a `<meta>` tag, plus `frame-ancestors`, which a browser ignores in a
-   `<meta>` tag ([Security](https://webfluent.monzeromer.dev/about/security.md#ship-a-content-security-policy)).
+   `<meta>` tag ([Security](https://webfluent.monzeromer.dev/about/security.md#the-content-security-policy)).
 3. `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` only
    work as real HTTP headers, so they are in this file and nowhere else.
 
@@ -42,7 +42,7 @@ To let browsers keep files without serving a stale site, set
 
 | Files | Cache-Control | Why |
 |---|---|---|
-| HTML, `app.js`, `pages/*`, `styles.css` | `no-cache` (revalidate every time) | their names do not change between builds |
+| HTML, `app.js`, `pages/*`, `styles.css`, `theme.js`, `js/*` (your own scripts), `elements.js` | `no-cache` (revalidate every time) | their names do not change between builds |
 | `sw.js` | `no-cache` | a stale worker holds a stale site ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)) |
 | resized images (`hero.<hash>.960.webp`) | `public, max-age=31536000, immutable` | the name changes when the file does |
 | `public/` files | your choice | they keep the names you gave them |
@@ -58,6 +58,6 @@ host, set the same headers in its configuration, as the hosting recipes
 show: [nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md), [Apache](https://webfluent.monzeromer.dev/recipes/serve-with-apache.md),
 [Caddy](https://webfluent.monzeromer.dev/recipes/serve-with-caddy.md) and [Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md). Serve the site over HTTPS, and turn
 on HSTS once you are sure HTTPS works everywhere.
-[Security](https://webfluent.monzeromer.dev/about/security.md#before-you-deploy) has the full checklist.
+[Review a site's security before you deploy](https://webfluent.monzeromer.dev/recipes/review-security.md) has the full checklist.
 
 After the deploy, [check the headers it sends](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).

@@ -293,7 +293,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
                 Text("The March pricing test.")
             }
         }
-        ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
+        ImageSlide(src: "/chart.png", caption: "Monthly recurring revenue")
         Slide {
             style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #fff }
             Heading("Thank you").h1
@@ -301,7 +301,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
     }
 }"#, title: "wf")
 
-        Markdown("The result is a six-page PDF, one slide per page.")
+        Markdown("The `ImageSlide` reads `public/chart.png`: put a picture of your own there first. The build warns (`D01`) when the file is missing. The result is a six-page PDF, one slide per page.")
 
         Heading("Write the slides", id: "write-the-slides").h3
 

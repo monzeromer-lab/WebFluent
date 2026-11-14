@@ -7,7 +7,7 @@ page LibraryGuide(path: "/reference/library", title: "Library", description: "Th
         Table(caption: "Library") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
+                    Table.Cell("Library").header
                     Table.Cell("What it is").header
                     Table.Cell("Use it to").header
                 }

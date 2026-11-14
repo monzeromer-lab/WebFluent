@@ -12,7 +12,7 @@ This page is the reference for WebFluent's editor support: the language
 server, `wf-lsp`, and the three repositories built around it. It lists
 what each one supports and how to install it.
 
-| | Repository | Highlighting | Language server | Snippets |
+| Editor | Repository | Highlighting | Language server | Snippets |
 |---|---|---|---|---|
 | VS Code | [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode) | TextMate grammar, `.wf` and `.wfx` | runs `wf-lsp`, downloaded and checked if it is not installed | no |
 | Zed | [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed) | Tree-sitter, `.wf` and `.wfx` | runs `wf-lsp`, downloaded and checked if it is not installed | yes |

@@ -1,7 +1,28 @@
 // A recipe, written from md-docs/recipes/validation-messages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeValidationMessages(path: "/recipes/validation-messages", title: "Show validation messages on a form — Recipes", description: "Check a form as the reader fills it in: a validate block beside each state, and each control shows its own message.") {
-    RecipeShell("Show validation messages on a form", summary: "A form should say what is wrong beside the field that is wrong, before the reader submits it. To check a form as the reader fills it in, put a `validate` block beside each state:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more")], source: "md-docs/recipes/validation-messages.md", how: true, hasVariations: false) {
+    RecipeShell("Show validation messages on a form", summary: "A form should say what is wrong beside the field that is wrong, before the reader submits it. To check a form as the reader fills it in, put a `validate` block beside each state:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more")], source: "md-docs/recipes/validation-messages.md", how: true, hasVariations: false, project: { "src/pages/ValidationMessages.wf": #"page Signup(path: "/", title: "Sign up", description: "Make an account.") {
+    state email = ""
+    state password = ""
+    state confirm = ""
+    state sent = false
+    validate email { required  email "Enter a valid email" }
+    validate password { required  minLength(8) "At least 8 characters" }
+    validate confirm { matches(password) "The passwords differ" }
+    Heading("Sign up").h1
+    Form(bind: form) {
+        on submit { sent = true  form.reset() }
+        Input(bind: email, name: "email", label: "Email").email
+        Input(bind: password, name: "password", label: "Password").password
+        Input(bind: confirm, name: "confirm", label: "Confirm password").password
+        Button("Create account", type: .submit, disabled: !form.valid).primary
+    }
+    if sent { Alert("Welcome aboard.").success }
+}
+"#, "webfluent.app.json": #"{
+  "name": "validation-messages"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Signup(path: "/", title: "Sign up", description: "Make an account.") {

@@ -1,7 +1,17 @@
 // A recipe, written from md-docs/recipes/count-down.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeCountDown(path: "/recipes/count-down", title: "Count down — Recipes", description: "Count down once a second with an every timer that changes a state, and show the time left as a progress bar and text.") {
-    RecipeShell("Count down", summary: "A countdown is a number that drops once a second until it reaches zero. To build one, change a state in an `every` timer:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address"), RelatedLink(kind: "Recipe", title: "Keep filters in the address", to: "/recipes/filters-in-the-address"), RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog")], source: "md-docs/recipes/count-down.md", how: true, hasVariations: false) {
+    RecipeShell("Count down", summary: "A countdown is a number that drops once a second until it reaches zero. To build one, change a state in an `every` timer:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Make navigation responsive", to: "/recipes/responsive-navigation"), RelatedLink(kind: "Recipe", title: "Pass a store's value to a component", to: "/recipes/store-value-as-a-prop"), RelatedLink(kind: "Recipe", title: "Reorder a list by dragging", to: "/recipes/reorder-by-dragging")], source: "md-docs/recipes/count-down.md", how: true, hasVariations: false, project: { "src/pages/CountDown.wf": #"page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
+    state left = 10
+    every(1000) { if left > 0 { left = left - 1 } }
+    Heading("Countdown").h1
+    Progress(value: 10 - left, max: 10)
+    Text(if left == 0 { "Done" } else { "{left}s" })
+}
+"#, "webfluent.app.json": #"{
+  "name": "count-down"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {

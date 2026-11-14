@@ -133,6 +133,99 @@ def recipes():
     return out
 
 
+def related_recipes(route, group, body, index_entries, count=3):
+    """The recipes a page's "Related" row names: the next one in its group,
+    so a group reads as a path (in/out, then a list, then a sequence…), then
+    the recipes its text links to, then the rest of its group."""
+    by_route = {e[1]: e for e in index_entries}
+    same = [e for e in index_entries if e[2] == group]
+    at = next((i for i, e in enumerate(same) if e[1] == route), len(same))
+    linked = [by_route[r] for r in
+              (f"/recipes/{stem}" for stem in re.findall(r"\]\(([\w-]+)\.md", body))
+              if r in by_route]
+    out = []
+    for e in same[at + 1:at + 2] + linked + same[at + 1:] + same[:at]:
+        if e[1] != route and e not in out:
+            out.append(e)
+    return out[:count]
+
+
+CONFIG_KEYS = {"name", "version", "build", "meta", "theme", "i18n", "offline", "env", "public_env", "lints", "dev", "motion"}
+
+
+def project_files(code_md: str, stem: str) -> dict:
+    """A recipe's code as a project to download or open: each fenced block
+    becomes a file. A block takes the path the line above it names
+    (`` `src/celebrate.js`: ``) or its own first-line comment
+    (`// src/stores/cart.wf`); otherwise the one with `app { … }` is
+    `src/App.wf`, other WebFluent is the recipe's page, and a JSON object of
+    settings joins `webfluent.app.json`. What is neither a file nor a setting
+    (a shell command, a server's config) stays on the page."""
+    files, config, pages = {}, {"name": stem}, []
+    blocks = re.findall(r"(?:^|\n)([^\n]*)\n*```([^\n]*)\n(.*?)\n```", code_md, flags=re.S)
+    for before, info, text in blocks:
+        lang = (info.split() or [""])[0]
+        # A fragment the tests do not compile is not a file of the project.
+        if "no-check" in info.split():
+            continue
+        # A line that introduces the block names its file: it ends in a colon
+        # ("…in `src/App.wf`:"). A path mentioned in passing is not one.
+        named = [] if not before.rstrip().endswith(":") else re.findall(r"`((?:src|public|tests|\.github)/[\w./-]+|webfluent\.app\.json|[\w-]+\.(?:js|mjs|css|json|wf|wfx))`", before)
+        first = re.match(r"\s*(?://|#)\s*((?:src|public|tests)/[\w./-]+)\s*$", text.split("\n", 1)[0])
+        path = first.group(1) if first else (named[-1] if named else "")
+        if lang == "json":
+            try:
+                value = json.loads(text)
+            except ValueError:
+                continue
+            if path and path != "webfluent.app.json":
+                files[path] = text.rstrip() + "\n"
+            elif isinstance(value, dict) and set(value) & CONFIG_KEYS:
+                for k, v in value.items():
+                    config[k] = {**config[k], **v} if isinstance(v, dict) and isinstance(config.get(k), dict) else v
+            continue
+        if lang in ("wf", "wfx"):
+            if path.endswith((".wf", ".wfx")):
+                files[path] = text.rstrip() + "\n"
+            elif re.search(r"^app\s*\{", text, flags=re.M) and "src/App.wf" not in files:
+                files["src/App.wf"] = text.rstrip() + "\n"
+            else:
+                pages.append(text.rstrip())
+            continue
+        if lang in ("js", "javascript", "css") and path:
+            files[path] = text.rstrip() + "\n"
+    if pages:
+        files[f"src/pages/{pascal(stem)}.wf"] = "\n\n".join(pages) + "\n"
+    if not any(p.endswith((".wf", ".wfx")) for p in files):
+        return {}
+    files["webfluent.app.json"] = json.dumps(config, indent=2) + "\n"
+    return files
+
+def checks_clean(files: dict) -> bool:
+    """Whether `files`, as a project, draws no error in `wf check`: a
+    download is offered only of a project that works as it lands."""
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        for path, text in files.items():
+            (Path(d) / path).parent.mkdir(parents=True, exist_ok=True)
+            (Path(d) / path).write_text(text)
+        done = subprocess.run([str(wf), "check", "-d", d, "--format", "json"], capture_output=True, text=True)
+    try:
+        return not any(f["severity"] == "error" for f in json.loads(done.stdout)["diagnostics"])
+    except (ValueError, KeyError):
+        return False
+
+
+def project_map(code_md: str, stem: str) -> str:
+    """[`project_files`] as a WebFluent map literal: `{}` for none, or for a
+    project that would not check clean (a template rendered with data, a
+    page that links to one it does not show)."""
+    files = project_files(code_md or "", stem)
+    if not files or not checks_clean(files):
+        return "{}"
+    return "{ " + ", ".join(f"{q(path)}: {guide.wf_raw(text)}" for path, text in files.items()) + " }"
+
+
 def render(path, meta, title, body, index_entries):
     guide.CURRENT["dir"] = path.parent
     intro, code, how, variations, others, has_how = split(body)
@@ -152,7 +245,7 @@ def render(path, meta, title, body, index_entries):
     if variations:
         sections.append(("variations", "Variations"))
     group = meta.get("group", "")
-    related = [e for e in index_entries if e[2] == NAMES.get(group) and e[1] != meta["route"]][:3]
+    related = related_recipes(meta["route"], NAMES.get(group), body, index_entries)
     rel = ", ".join(f'RelatedLink(kind: "Recipe", title: {q(t)}, to: {q(r)})' for t, r, _ in related)
     anchors = ", ".join(f'Anchor(id: "{a}", label: {q(l)})' for a, l in sections)
     summary = guide.rewrite_links(" ".join(guide.reflow(intro.split("\n")))) if intro else meta.get("description", "")
@@ -164,7 +257,7 @@ def render(path, meta, title, body, index_entries):
         f"    RecipeShell({q(title)}, summary: {q(summary)}, outputs: {json.dumps(meta.get('outputs', []))}, "
         f"since: {q(meta.get('since', ''))}, recipes: RECIPE_INDEX, sections: [{anchors}], related: [{rel}], "
         f"source: \"md-docs/recipes/{path.name}\", how: {'true' if how_heading else 'false'}, "
-        f"hasVariations: {'true' if variations else 'false'}) {{",
+        f"hasVariations: {'true' if variations else 'false'}, project: {project_map(code, path.stem)}) {{",
     ]
     if code_lines:
         out.append("        code {")
@@ -180,7 +273,9 @@ def render(path, meta, title, body, index_entries):
     return name, "\n".join(out).rstrip() + "\n"
 
 
-def index_page(entries):
+def index_page(entries, outputs):
+    """The index: every recipe under its group, each card with the outputs it
+    works in, and a filter by task and by output."""
     meta, lead, groups = index_sections()
     guide.CURRENT["dir"] = RECIPES
     out = [
@@ -189,12 +284,15 @@ def index_page(entries):
         "",
         "/// Every recipe, by group: the sidebar of each recipe's page.",
         "const RECIPE_INDEX: [IndexEntry] = [",
-        ",\n".join(f"    IndexEntry(label: {q(t)}, to: {q(r)}, group: {q(g)})" for t, r, g in entries),
+        ",\n".join(f"    IndexEntry(label: {q(t)}, to: {q(r)}, group: {q(g)}, outputs: [{', '.join(q(o) for o in outputs.get(r, []))}])"
+                  for t, r, g in entries),
         "]",
         "",
         f"page Recipes(path: \"/recipes\", title: \"Recipes — WebFluent\", description: {q(meta['description'])}) {{",
         "    state text = \"\"",
-        "    derived shown = RECIPE_INDEX.filter(e => text == \"\" || e.label.toLowerCase().includes(text.toLowerCase()))",
+        "    state output = \"\"",
+        "    // A recipe that names no outputs works in all of them.",
+        "    derived shown = RECIPE_INDEX.filter(e => (text == \"\" || e.label.toLowerCase().includes(text.toLowerCase())) && (output == \"\" || e.outputs.length == 0 || e.outputs.includes(output)))",
         "    SiteHeader(section: \"/recipes\")",
         "    Stack(gap: .lg, role: \"main\", id: \"bp-main\", tabindex: \"-1\", class: \"bp-main bp-wrap\") {",
         "        style { gap: 28px; padding-top: 40px; padding-bottom: 72px; @md { padding-top: 56px } }",
@@ -204,7 +302,10 @@ def index_page(entries):
         "            Heading(t(\"nav.recipes\")).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }",
         f"            Markdown({q(' '.join(lead.split()))}, class: \"bp-lede\")",
         "        }",
-        "        Input(bind: text, placeholder: t(\"recipes.filter\"), aria-label: t(\"recipes.filter\")).search { style { max-width: 420px } }",
+        "        RecipeFilter { on change(words, picked) { text = words  output = picked } }",
+        "        if shown.length == 0 {",
+        "            Text(t(\"recipes.none\"), class: \"bp-small\")",
+        "        }",
     ]
     for heading, text, _ in groups:
         key = GROUPS[heading]
@@ -216,7 +317,7 @@ def index_page(entries):
             f"                Text({q(' '.join(text.split()))}, class: \"bp-small\")",
             "                Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {",
             f"                    for e in shown.filter(e => e.group == {q(heading)}) by e.to {{",
-            "                        RecipeCard(e.label, to: e.to)",
+            "                        RecipeCard(e.label, to: e.to, outputs: e.outputs)",
             "                    }",
             "                }",
             "            }",
@@ -295,7 +396,7 @@ def main():
     for path, meta, title, body in all_recipes:
         name, text = render(path, meta, title, body, entries)
         files[f"{name}.wf"] = text
-    files["Index.wf"] = index_page(entries)
+    files["Index.wf"] = index_page(entries, {meta["route"]: meta.get("outputs", []) for _, meta, _, _ in all_recipes})
     moved, js = moved_pages(all_recipes)
     files["Moved.wf"] = moved
 

@@ -1,7 +1,24 @@
 // A recipe, written from md-docs/recipes/markdown-pages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeMarkdownPages(path: "/recipes/markdown-pages", title: "Write a page as a Markdown file — Recipes", description: "Write a page as a Markdown file under `src/`: front matter names its route, title and layout, and the rest is the body, framed by a component.") {
-    RecipeShell("Write a page as a Markdown file", summary: "A `.md` file under `src/` is a page: the lines between the two `---` at its top — its *front matter* — name the page's route, title and layout, and the rest is its body. It suits docs, notes and articles, where most of the page is prose. A docs site is a folder of `.md` files, one layout component, and an `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews")], source: "md-docs/recipes/markdown-pages.md", how: true, hasVariations: false) {
+    RecipeShell("Write a page as a Markdown file", summary: "A `.md` file under `src/` is a page: the lines between the two `---` at its top — its *front matter* — name the page's route, title and layout, and the rest is its body. It suits docs, notes and articles, where most of the page is prose. A docs site is a folder of `.md` files, one layout component, and an `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show HTML from outside the project", to: "/recipes/show-html-from-outside"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code")], source: "md-docs/recipes/markdown-pages.md", how: true, hasVariations: false, project: { "src/App.wf": #"component DocsShell {
+    slot
+    Row(gap: .lg) {
+        Sidebar {
+            Sidebar.Item(to: "/guide/install") { Text("Installing") }
+            Sidebar.Item(to: "/guide/pages") { Text("Pages") }
+        }
+        Container { children }
+    }
+}
+
+app {
+    Router
+}
+"#, "webfluent.app.json": #"{
+  "name": "markdown-pages"
+}
+"# }) {
         code {
             Markdown("**Needs:** the two `.md` pages shown under [How it works](#how-it-works), in `src/guide/`.")
             CodeBlock(#"component DocsShell {

@@ -3,8 +3,10 @@
 /// step; variations; then related recipes and reference. The other recipes
 /// are in the sidebar. `summary` is Markdown; `how` draws the "How it
 /// works" heading over the body (off when the body brings its own
-/// headings); `hasVariations` draws the variations.
-component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", how: Bool = true, hasVariations: Bool = true, other: String = "", lang: String = "en") {
+/// headings); `hasVariations` draws the variations. `project` is the
+/// recipe's code as files (path → text), given when they make a project that
+/// checks clean: it is offered as a download and in the Playground.
+component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", how: Bool = true, hasVariations: Bool = true, project: Map = {}, other: String = "", lang: String = "en") {
     slot code
     slot variations
     slot
@@ -42,6 +44,18 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
             Stack(gap: .sm) {
                 style { gap: 12px; min-width: 0 }
                 code
+                if Object.keys(project).length > 0 {
+                    Row(align: .center, gap: .sm) {
+                        style { flex-wrap: wrap; gap: 8px }
+                        Button(t("recipe.download"), class: "bp-button", data-track: "download_recipe", data-track-item-id: title) {
+                            on click { wfDownload(location.pathname.split("/").pop(), project) }
+                        }
+                        Button(t("code.play"), class: "bp-button", data-track: "open_playground", data-track-item-id: title) {
+                            on click { wfOpenInPlayground(project) }
+                        }
+                        Text(t("recipe.files", { files: Object.keys(project).join(", ") }), class: "bp-small") { style { margin: 0 } }
+                    }
+                }
             }
 
             Stack(gap: .lg, dir: if lang == "ar" { "rtl" } else { "ltr" }, class: "bp-prose") {

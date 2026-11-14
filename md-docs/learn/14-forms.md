@@ -476,7 +476,7 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 > [!IMPORTANT]
 > `accept:` and any size limit you show are for the reader's convenience,
 > not checks. The server decides what it accepts
-> ([Security](../about/security.md#check-uploads-on-the-server)).
+> ([Security](../about/security.md#uploads-are-checked-on-the-server)).
 
 ## Send a form to a server
 

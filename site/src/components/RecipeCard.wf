@@ -1,16 +1,32 @@
-/// A recipe in the finder: the task as its title, one line on what it does,
-/// and the outputs it works in.
+/// A recipe, as the index lists it: its title (the task), what it is about
+/// when the index says, and the outputs it works in. On a phone a card is
+/// one tight row, so the eighty recipes are a list to scan, not a wall.
 component RecipeCard(_ title: String, summary: String = "", to: String = "", outputs: [String] = []) {
     Link(to: to, class: "bp-card") {
-        style { height: 100%; box-sizing: border-box }
-        Text(title) { style { font-size: 16px; font-weight: 600; line-height: 1.35 } }
+        style {
+            height: 100%
+            box-sizing: border-box
+            @media (max-width: 639.98px) { padding: 10px 14px; min-height: 0 }
+        }
+        Text(title) {
+            style {
+                font-size: 16px
+                font-weight: 600
+                line-height: 1.35
+                @media (max-width: 639.98px) { font-size: 15px }
+            }
+        }
         if summary != "" {
             Text(summary, class: "bp-small")
         }
-        Row(gap: .xs, class: "bp-labels") {
-            style { margin-top: auto; padding-top: 6px }
-            for o in outputs by o {
-                Text(t("building.{o}"), class: "bp-label")
+        if outputs.length > 0 {
+            Row(gap: .xs, class: "bp-labels") {
+                // Off on a phone, where the card is one line; the index's
+                // filter still sorts by output there.
+                style { margin-top: auto; padding-top: 6px; @media (max-width: 639.98px) { display: none } }
+                for o in outputs by o {
+                    Text(t("building.{o}"), class: "bp-label")
+                }
             }
         }
     }

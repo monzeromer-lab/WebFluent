@@ -1,7 +1,25 @@
 // A recipe, written from md-docs/recipes/site-in-two-languages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeSiteInTwoLanguages(path: "/recipes/site-in-two-languages", title: "Publish a page in each language — Recipes", description: "Have search engines find each language: write each page once per language at its own address, with lang: and translates: joining them.") {
-    RecipeShell("Publish a page in each language", summary: "Have a search engine find your site in each of its languages. `t()` and `setLocale` translate a page in the browser, at one address, and a search engine indexes what that address's HTML says, which is the default locale. A site that wants each language found writes each page once per language, at an address of its own, and says how the pages are joined.  This site is written in Arabic, with its home page in English at `/en`. The site's language, its address and a static build go in `webfluent.app.json`. Without `meta.lang` the site's pages are taken to be in English, and without `meta.site_url` there is no absolute address for the alternates:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Translate a site", to: "/recipes/translate-a-site"), RelatedLink(kind: "Recipe", title: "Translate by the words as written", to: "/recipes/translate-by-the-words"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline")], source: "md-docs/recipes/site-in-two-languages.md", how: true, hasVariations: false) {
+    RecipeShell("Publish a page in each language", summary: "Have a search engine find your site in each of its languages. `t()` and `setLocale` translate a page in the browser, at one address, and a search engine indexes what that address's HTML says, which is the default locale. A site that wants each language found writes each page once per language, at an address of its own, and says how the pages are joined.  This site is written in Arabic, with its home page in English at `/en`. The site's language, its address and a static build go in `webfluent.app.json`. Without `meta.lang` the site's pages are taken to be in English, and without `meta.site_url` there is no absolute address for the alternates:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline"), RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version")], source: "md-docs/recipes/site-in-two-languages.md", how: true, hasVariations: false, project: { "src/pages/SiteInTwoLanguages.wf": #"page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {
+    Heading("مرحباً").h1
+}
+
+page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
+            lang: "en", translates: Home) {
+    Heading("Hello").h1
+}
+"#, "webfluent.app.json": #"{
+  "name": "site-in-two-languages",
+  "build": {
+    "ssg": true
+  },
+  "meta": {
+    "lang": "ar",
+    "site_url": "https://example.com"
+  }
+}
+"# }) {
         code {
             Markdown("**Needs:** the settings below in `webfluent.app.json`. It claims `/` and the name `Home`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"{

@@ -1,7 +1,40 @@
 // A recipe, written from md-docs/recipes/hand-an-element-to-a-script.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeHandAnElementToAScript(path: "/recipes/hand-an-element-to-a-script", title: "Hand an element to a script — Recipes", description: "Give an element to a script or a library and take it back when the element goes, with the mount:, update: and cleanup: props, or a bare node from Host.") {
-    RecipeShell("Hand an element to a script", summary: "A library that draws into an element (a chart, a map, an editor, an effect) needs the element when it is made, new values while it lives, and a chance to stop when it goes. The three lifetime props give it each, on any element or component call. This page hands a paragraph to a script that types a greeting into it, retypes it when the name changes, and stops its timer when the paragraph leaves:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Run a script after each page draws", to: "/recipes/listen-for-wf-render")], source: "md-docs/recipes/hand-an-element-to-a-script.md", how: true, hasVariations: true) {
+    RecipeShell("Hand an element to a script", summary: "A library that draws into an element (a chart, a map, an editor, an effect) needs the element when it is made, new values while it lives, and a chance to stop when it goes. The three lifetime props give it each, on any element or component call. This page hands a paragraph to a script that types a greeting into it, retypes it when the name changes, and stops its timer when the paragraph leaves:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Run a script after each page draws", to: "/recipes/listen-for-wf-render"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw into a node a script made", to: "/recipes/portal")], source: "md-docs/recipes/hand-an-element-to-a-script.md", how: true, hasVariations: true, project: { "src/typewriter.js": #"// src/typewriter.js
+/**
+ * Type `text` into `node`, one letter every 60 ms.
+ * @param {HTMLElement} node
+ * @param {string} text
+ */
+function startTypewriter(node, text) {
+  let shown = 0;
+  const timer = setInterval(() => {
+    if (shown < text.length) node.textContent = text.slice(0, ++shown);
+  }, 60);
+  return {
+    retype(next) { text = next; shown = 0; node.textContent = ""; },
+    stop() { clearInterval(timer); },
+  };
+}
+"#, "src/pages/HandAnElementToAScript.wf": #"page Welcome(path: "/welcome", title: "Welcome", description: "A greeting a script types out, letter by letter.") {
+    state name = "reader"
+    state typing = true
+
+    Heading("Welcome").h1
+    Input(bind: name, label: "Your name")
+    Switch(bind: typing, label: "Type the greeting")
+    if typing {
+        Host(tag: "p",
+             mount: (node) => startTypewriter(node, "Hello, {name}."),
+             update: (writer) => writer.retype("Hello, {name}."),
+             cleanup: (writer) => writer.stop())
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "hand-an-element-to-a-script"
+}
+"# }) {
         code {
             Markdown("**Needs:** the script `src/typewriter.js`, shown below.")
             CodeBlock(#"page Welcome(path: "/welcome", title: "Welcome", description: "A greeting a script types out, letter by letter.") {

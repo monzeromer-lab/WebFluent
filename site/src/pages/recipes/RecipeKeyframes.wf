@@ -1,7 +1,29 @@
 // A recipe, written from md-docs/recipes/keyframes.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeKeyframes(path: "/recipes/keyframes", title: "Declare your own keyframes — Recipes", description: "Declare keyframes of your own with animation Name \{ \} and play them with animate: .Name or exit: .Name, wherever a built-in animation goes.") {
-    RecipeShell("Declare your own keyframes", summary: "When none of the built-in animations moves the way you want, declare keyframes with `animation Name \{ \}` and use the name where a built-in animation goes. Here the card drops into place and the badge pulses while it is shown:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Animate an element in and out", to: "/recipes/animate-in-and-out"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Run a sequence of animations", to: "/recipes/animation-sequence")], source: "md-docs/recipes/keyframes.md", how: true, hasVariations: true) {
+    RecipeShell("Declare your own keyframes", summary: "When none of the built-in animations moves the way you want, declare keyframes with `animation Name \{ \}` and use the name where a built-in animation goes. Here the card drops into place and the badge pulses while it is shown:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Drive an animation yourself", to: "/recipes/drive-an-animation"), RelatedLink(kind: "Recipe", title: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults"), RelatedLink(kind: "Recipe", title: "Animate an element in and out", to: "/recipes/animate-in-and-out")], source: "md-docs/recipes/keyframes.md", how: true, hasVariations: true, project: { "src/pages/Keyframes.wf": #"animation Pulse {
+    from { opacity: 1 }
+    50% { opacity: 0.4; transform: scale(0.98) }
+    to { opacity: 1 }
+}
+
+animation Drop {
+    from { transform: translateY(-12px); opacity: 0 }
+    to { transform: none; opacity: 1 }
+}
+
+page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
+    state saving = false
+    Heading("Custom").h1
+    Card(animate: .Drop) {
+        Button("Save") { on click { saving = !saving } }
+        if saving { Badge("Saving", animate: .Pulse).info }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "keyframes"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"animation Pulse {
@@ -47,7 +69,7 @@ page Live(path: "/", title: "Live", description: "A badge that pulses for as lon
 }"#, title: "wf")
 
         }
-        Markdown("- Each step of an `animation` is `from`, `to` or a percentage, and holds raw CSS.\n- The declaration is written once to the shared stylesheet as `@keyframes Name`.\n- Your own animation is always written `animate: .Name` (or `exit: .Name`). The flags belong to the built-in animations, so `Card.Drop` is an error.\n- It plays wherever a built-in one would — on an element that stands still, from the stylesheet, before any script has loaded — and, like a built-in one, not at all for a reader who asked for reduced motion.")
+        Markdown("- Each step of an `animation` is `from`, `to` or a percentage, and holds raw CSS.\n- The declaration is written once to the shared stylesheet as `@keyframes Name`.\n- Your own animation is always written `animate: .Name` (or `exit: .Name`). The flags belong to the built-in animations, so a flag of your own is an error: `Badge(\"New\").Drop` is `` E103: Badge has no flag or enum case `Drop` ``, and `Card.Drop \{ … \}` reads as a part, `` E103: `Card.Drop` is not a part of `Card` `` with a `C03` beside it.\n- It plays wherever a built-in one would — on an element that stands still, from the stylesheet, before any script has loaded — and, like a built-in one, not at all for a reader who asked for reduced motion.")
 
     }
 }

@@ -1,6 +1,6 @@
 /// Chapter 23 of the guide, written from md-docs/about/static-and-spa.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered.", source: "md-docs/about/static-and-spa.md", sections: [Anchor(id: "two-shapes-of-build", label: "Two shapes of build"), Anchor(id: "when-to-choose-each", label: "When to choose each"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "what-the-static-paint-knows", label: "What the static paint knows"), Anchor(id: "switch-between-static-and-single-page", label: "Switch between static and single-page"), Anchor(id: "pre-render-a-dynamic-route-with-paths", label: "Pre-render a dynamic route with paths:"), Anchor(id: "add-a-404-page", label: "Add a 404 page"), Anchor(id: "serve-a-single-page-build", label: "Serve a single-page build"), Anchor(id: "serve-the-site-under-a-sub-path", label: "Serve the site under a sub-path"), Anchor(id: "keep-addresses-a-host-serves-directly", label: "Keep addresses a host serves directly"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/upgrading", nextLabel: t("ch.24"))) {
+page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, dynamic routes, and what each shape asks of a host.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and what each asks of a host.", source: "md-docs/about/static-and-spa.md", sections: [Anchor(id: "two-shapes-of-build", label: "Two shapes of build"), Anchor(id: "when-to-choose-each", label: "When to choose each"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "what-the-static-paint-knows", label: "What the static paint knows"), Anchor(id: "routes-with-no-single-file", label: "Routes with no single file"), Anchor(id: "what-each-shape-asks-of-a-host", label: "What each shape asks of a host")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/contributing", nextLabel: t("ch.25"))) {
     Stack(gap: .lg) {
         Markdown("This essay compares the two shapes a WebFluent build takes: a static site, with a pre-rendered HTML file for every route, and a single-page app, with one shell that draws every page in the browser.\n\nThe usual framing makes this a choice of framework: one for content sites, another for apps, and a migration when a site turns out to be both. WebFluent treats it as a setting. The same source builds either shape, one key in the config, `build.ssg`, picks it, and you can change your mind on any day without touching a page. What is worth deciding is not which tool to use but what the reader should get first: the text, or the app.\n\nThe sections below say what each shape writes, how a static page comes to life, what the build can know when it pre-renders, and what each shape asks of a host.")
 
@@ -11,7 +11,7 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
         Table(caption: "Two shapes of build") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
+                    Table.Cell("What differs").header
                     Table.Cell.header { Markdown("Static (`\"ssg\": true`)") }
                     Table.Cell.header { Markdown("Single-page (`\"ssg\": false`)") }
                 }
@@ -50,7 +50,7 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
             }
         }
 
-        Markdown("The source is the same either way. Only the output changes.")
+        Markdown("The source is the same either way. Only the output changes. `\"output_type\": \"static\"` means the same as `\"ssg\": true`, and a build with `ssg` set to `false`, or left out, is single-page. `wf init -t static` starts a project with `ssg` on and `wf init -t spa` one with it off; either can change its mind at any time without the source changing.")
 
         Heading("When to choose each", id: "when-to-choose-each").h2
 
@@ -117,119 +117,12 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
 
         Markdown("For the first paint to be right, prefer what the build can see:\n\n- **Data files over fetches** for content that changes only when you deploy ([Fetching data](/learn/15-data)).\n- **[Responsive values](/learn/13-styling#responsive-values) over `viewport`** for layout.")
 
-        Heading("Switch between static and single-page", id: "switch-between-static-and-single-page").h2
+        Heading("Routes with no single file", id: "routes-with-no-single-file").h2
 
-        Markdown("To build a static site, set `ssg` in the config:")
+        Markdown("A page on a `:param` route, such as `/posts/:slug`, is one page in the source and any number of addresses on the site, so a static build has no single file to write for it. It can only pre-render the values it is told about, at build time: `paths:` on the page lists them — from a `data` file, a `const` or a literal list — and the build writes one painted file per value, each with its own title, and lists them in the sitemap ([Pre-render a page for each item](/recipes/pre-render-each-item)). A value nobody listed has no file, so the host answers it with the site's 404 page. A single-page build has none of this to decide: its router draws any value in the browser.\n\nThe same reasoning gives the 404 page its file. A page on the `*` route is drawn by the router for any address no page claims, and a static build also writes it as `404.html`, which most static hosts serve for a path they have no file for ([Show your own page for an unknown address](/recipes/not-found-page)).")
 
-        CodeBlock(#"{ "build": { "ssg": true } }"#, title: "json")
+        Heading("What each shape asks of a host", id: "what-each-shape-asks-of-a-host").h2
 
-        Markdown("`\"output_type\": \"static\"` means the same as `\"ssg\": true`. Set `ssg` to `false`, or leave it out, for a single-page build.\n\n`wf init -t static` starts a project with `ssg` on; `wf init -t spa` starts one with it off. You can change your mind at any time — the source does not change.")
-
-        Heading("Pre-render a dynamic route with paths:", id: "pre-render-a-dynamic-route-with-paths").h2
-
-        Markdown("A page on a `:param` route, such as `/posts/:slug`, has no single file to write. To pre-render it, list the values in `paths:`, and the build writes one HTML file for each.\n\nThis blog writes one file per post in `posts.json`:")
-
-        CodeBlock(#"type Post { slug: String, title: String, date: String, body: String }
-
-data posts: [Post] = "posts.json"
-
-page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post.", paths: posts.map(p => p.slug)) {
-    derived post = posts.find(p => p.slug == slug)
-    head { meta(property: "og:title", content: post?.title ?? "Post") }
-    if let p = post {
-        Heading(p.title).h1
-        Markdown(p.body)
-    } else {
-        Alert("No such post").warning
-    }
-}"#, title: "wf")
-
-        Markdown("For a post whose slug is `hello`, the build writes `posts/hello/index.html`, with that post painted and listed in the sitemap.\n\nThe rules for `paths:`:\n\n- It must be known at build time: a `data` file, a `const` or a literal list.\n- For a route with several parameters, each value is a map that names them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- Each value is seeded as the parameter (and as `params.slug`), painted, and listed in the sitemap.\n- A value that is not in `paths:` has no file, so a static host answers with `404.html`.\n- A single-page build does not need `paths:` at all.")
-
-        Heading("Give each file its own title", id: "give-each-file-its-own-title").h3
-
-        Markdown("`title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. A title may also look the entry up: `title: \"\{posts.find(p => p.slug == slug)?.title ?? slug\} — Blog\"`. Tags beyond the title and description go in `head \{ \}` ([Content](/recipes/search-and-link-previews#add-tags-for-one-page)).")
-
-        Heading("Add a 404 page", id: "add-a-404-page").h2
-
-        Markdown("To show a page for a route no other page claims, declare a page on the `*` route:")
-
-        CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "There is no page at this address.") {
-    Heading("Page not found").h1
-    Link("Go to the home page", to: "/")
-}"#, title: "wf")
-
-        Markdown("The router shows it for any address no page claims. In a static build it is also written as `404.html`, which GitHub Pages, Netlify, Cloudflare Pages and most static hosts serve for a path they have no file for.")
-
-        Heading("Serve a single-page build", id: "serve-a-single-page-build").h2
-
-        Markdown("A single-page build has one file, `index.html`, so every path a reader might open — `/users/42` — has to reach it. Most hosts need one line for this; [Deploying](/recipes) has each in full:")
-
-        CodeBlock(#"Netlify / Cloudflare Pages   public/_redirects:  /*  /index.html  200
-nginx                        try_files $uri $uri/ /index.html;
-Vercel                       "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]"#, title: "text")
-
-        Callout("Without this rule, the home page works, but a reload on any other address is a 404.", kind: .warning)
-
-        Heading("Serve the site under a sub-path", id: "serve-the-site-under-a-sub-path").h2
-
-        Markdown("To serve the site under a path such as `/my-site` — a GitHub Pages project site — set `build.base_path`:")
-
-        CodeBlock(#"{ "build": { "ssg": true, "base_path": "/my-site" } }"#, title: "json")
-
-        Markdown("The build prefixes every link, every asset and the router's paths with it. Write your paths from the site's root as if there were no prefix: `Link(\"About\", to: \"/about\")` links to `/my-site/about`.")
-
-        Heading("Keep addresses a host serves directly", id: "keep-addresses-a-host-serves-directly").h2
-
-        Markdown("A static build writes `/contact` as `contact/index.html`, and a host such as GitHub Pages answers `/contact` with a `301` redirect to `/contact/`. `build.clean_urls` makes the canonical address one the host serves without the redirect:")
-
-        CodeBlock(#"{ "build": { "ssg": true, "clean_urls": "file" } }"#, title: "json")
-
-        Markdown("- `\"file\"` also writes `contact.html`, and addresses the page's assets from the root, under `base_path`.\n- `\"directory\"` names every route with a trailing slash, `/contact/`: the canonical link, `og:url`, the sitemap, the breadcrumbs, and every `Link(to:)` and `navigate()` to one of the pages.")
-
-        Heading("Quick reference", id: "quick-reference").h2
-
-        Table(caption: "Quick reference") {
-            Table.Head {
-                Table.Row {
-                    Table.Cell("Goal").header
-                    Table.Cell("Setting or syntax").header
-                }
-            }
-            Table.Body {
-                Table.Row {
-                    Table.Cell("Pre-render every route")
-                    Table.Cell { Markdown("`\"build\": \{ \"ssg\": true \}` or `\"output_type\": \"static\"`") }
-                }
-                Table.Row {
-                    Table.Cell("One app shell")
-                    Table.Cell { Markdown("`\"build\": \{ \"ssg\": false \}` (the default)") }
-                }
-                Table.Row {
-                    Table.Cell { Markdown("Pre-render a `:param` route") }
-                    Table.Cell { Markdown("`paths:` on the page, known at build time") }
-                }
-                Table.Row {
-                    Table.Cell("A title per pre-rendered file")
-                    Table.Cell { Markdown("`title: \"\{slug\} — Blog\"`") }
-                }
-                Table.Row {
-                    Table.Cell("A 404 page")
-                    Table.Cell { Markdown("`page NotFound(path: \"*\", …)`, written as `404.html` when static") }
-                }
-                Table.Row {
-                    Table.Cell("A single-page build on a host")
-                    Table.Cell { Markdown("Answer every path with `index.html`") }
-                }
-                Table.Row {
-                    Table.Cell("A site under a sub-path")
-                    Table.Cell { Markdown("`\"build\": \{ \"base_path\": \"/my-site\" \}`") }
-                }
-                Table.Row {
-                    Table.Cell("No redirect to a trailing slash")
-                    Table.Cell { Markdown("`\"build\": \{ \"clean_urls\": \"file\" \}` or `\"directory\"`") }
-                }
-            }
-        }
+        Markdown("A static build asks almost nothing: any host that serves files serves it. A single-page build has one file, `index.html`, so every path a reader might open — `/users/42` — has to reach it, and the host needs a rule that answers every path with `index.html`. Without it the home page works, but a reload on any other address is a 404. Each host's rule is one line, and each deploy and server recipe in the [Ship recipes](/recipes#ship) has it.\n\nTwo settings adapt a build to where it is served, whichever its shape. `build.base_path` serves the site under a sub-path, such as a GitHub Pages project site, and prefixes every link, asset and route with it, so the source still writes paths from the site's root ([Deploy to GitHub Pages](/recipes/deploy-to-github-pages)). `build.clean_urls` keeps every canonical address one the host serves without redirecting `/contact` to `/contact/` ([Keep addresses from redirecting](/recipes/search-and-link-previews#keep-addresses-from-redirecting)).")
     }
 }

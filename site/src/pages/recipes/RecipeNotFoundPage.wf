@@ -1,7 +1,20 @@
 // A recipe, written from md-docs/recipes/not-found-page.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeNotFoundPage(path: "/recipes/not-found-page", title: "Show your own page for an unknown address — Recipes", description: "Show your own page for an address no page answers: a page whose path is *, kept out of search, and written to 404.html by a static build.") {
-    RecipeShell("Show your own page for an unknown address", summary: "A mistyped link or a page that moved should land on a page that says so and offers a way on, not on a blank screen or the host's own error. A page whose `path` is `*` answers every address no other page does:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code")], source: "md-docs/recipes/not-found-page.md", how: true, hasVariations: true) {
+    RecipeShell("Show your own page for an unknown address", summary: "A mistyped link or a page that moved should land on a page that says so and offers a way on, not on a blank screen or the host's own error. A page whose `path` is `*` answers every address no other page does:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Make a PDF report", to: "/recipes/pdf-report"), RelatedLink(kind: "Recipe", title: "Serve a site with nginx", to: "/recipes/serve-with-nginx"), RelatedLink(kind: "Recipe", title: "Serve a site with Apache", to: "/recipes/serve-with-apache")], source: "md-docs/recipes/not-found-page.md", how: true, hasVariations: true, project: { "src/pages/NotFoundPage.wf": #"page NotFound(path: "*", title: "Page not found", description: "There is no page at this address.", noindex: true) {
+    Heading("We couldn't find that page").h1
+    Text("The address may be mistyped, or the page may have moved.")
+    Link("Go to the front page", to: "/")
+}
+
+page Front(path: "/", title: "Front", description: "The front page.") {
+    Heading("Front").h1
+    Link("A link to nowhere", to: "/no-such-page")
+}
+"#, "webfluent.app.json": #"{
+  "name": "not-found-page"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. A static build (`\"ssg\": true`) also writes it to `build/404.html`, which the host must serve for an unknown path: the host recipes below show how.")
             CodeBlock(#"page NotFound(path: "*", title: "Page not found", description: "There is no page at this address.", noindex: true) {

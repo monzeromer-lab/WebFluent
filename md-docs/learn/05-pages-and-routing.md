@@ -55,7 +55,7 @@ The page's header takes these attributes:
 | `layout:` | | The component that frames the page ([Layouts](#layouts)) |
 | `guard:` | | An expression that must hold for the route to render ([Guards](#guards)) |
 | `redirect:` | | Where the reader goes when the guard fails. The default is `/` |
-| `paths:` | | The values a static build renders a `:param` page for ([Static or single-page](../about/static-and-spa.md#pre-render-a-dynamic-route-with-paths)) |
+| `paths:` | | The values a static build renders a `:param` page for ([Pre-render a page for each item](../recipes/pre-render-each-item.md)) |
 | `name: Type` | | A route parameter, typed ([Route parameters](#route-parameters)) |
 
 A page without a `title:` builds with warning `S01`, and one without a
@@ -173,7 +173,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
 A parameter is a `String` unless you declare another type, such as
 `id: Number`. A static build renders a `:param` page once for each value its
-`paths:` names ([Pre-render a dynamic route](../about/static-and-spa.md#pre-render-a-dynamic-route-with-paths)).
+`paths:` names ([Pre-render a page for each item](../recipes/pre-render-each-item.md)).
 
 ## Query strings and fragments
 

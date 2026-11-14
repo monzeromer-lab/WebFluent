@@ -6,47 +6,41 @@ The page: https://webfluent.monzeromer.dev/recipes/library-from-a-cdn
 
 To use a library from another origin, list its URL in `meta.scripts`. The
 compiler never fetches anything, so it cannot read a file on another
-origin; a script of your own calls the library instead. This page draws a
-Chart.js chart that way, and destroys it when the page leaves:
+origin; a script of your own calls the library instead. This page throws
+confetti with the `canvas-confetti` library when the reader presses a
+button:
 
-**Needs:** the script `src/charts.js` and the `meta.scripts` setting, both
-shown below.
+**Needs:** the script `src/celebrate.js` and the `meta.scripts` setting,
+both shown below.
 
 ```wf
-page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
-    state values: [Number] = [12, 19, 7, 15]
-
-    Heading("Sales").h1
-    Host(tag: "canvas", role: "img", aria-label: "Sales by quarter",
-         mount: (c) => drawSales(c, values),
-         cleanup: (chart) => chart.destroy())
+page Launch(path: "/launch", title: "Launch", description: "A button that celebrates.") {
+    Heading("We shipped").h1
+    Button("Celebrate").primary { on click { celebrate() } }
 }
 ```
 
-This script draws the chart with the library:
+This script calls the library:
 
 ```js
-// src/charts.js
-/**
- * A bar chart of `values`, one bar a quarter.
- * @param {HTMLCanvasElement} canvas
- * @param {number[]} values
- */
-function drawSales(canvas, values) {
-  return new Chart(canvas, {
-    type: "bar",
-    data: { labels: ["Q1", "Q2", "Q3", "Q4"], datasets: [{ label: "Sales", data: values }] },
-  });
+// src/celebrate.js
+/** Throw confetti up from the bottom of the window. */
+function celebrate() {
+  if (typeof confetti === "undefined") return; // not arrived yet
+  const fire = confetti.create(null, { resize: true });
+  fire({ particleCount: 120, spread: 70, origin: { y: 0.9 } });
 }
 ```
 
-This config, in `webfluent.app.json`, loads Chart.js:
+This config, in `webfluent.app.json`, loads the library:
 
 ```json
 { "meta": {
-    "scripts": ["https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"]
+    "scripts": ["https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"]
 } }
 ```
+
+Press **Celebrate** and confetti bursts up from the bottom of the window.
 
 ## How it works
 
@@ -54,17 +48,15 @@ An entry in `meta.scripts` loads this way:
 
 - **In order.** The build links each entry with `<script defer>` in the
   order listed, before your own scripts and the compiled code. A library is
-  there when the code that uses it runs, so `drawSales` finds `Chart`.
+  there when the code that uses it runs, so `celebrate` finds `confetti`.
 - **Allowed by the policy.** The build widens the Content-Security-Policy
   by exactly the origins listed, so the policy that ships beside a declared
   library never blocks it.
-- **Called from your script.** `src/charts.js` is a plain script whose
+- **Called from your script.** `src/celebrate.js` is a plain script whose
   names are in scope, typed by its JSDoc
-  ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). `Host` hands it a
-  canvas, and `cleanup:` destroys the chart with the page
-  ([Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)). A chart
-  that follows changing data is in
-  [Draw a chart from a library](https://webfluent.monzeromer.dev/recipes/chart-from-a-library.md).
+  ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). A library that
+  draws into an element of the page, such as a chart, is handed one by
+  `Host`: see [Draw a chart from a library](https://webfluent.monzeromer.dev/recipes/chart-from-a-library.md).
 - **Pinned.** `meta.integrity` pins a file to a hash, keyed by the same
   URL, and the build writes it on the tag with `crossorigin="anonymous"`.
   A library from another origin without a hash draws a `D05` warning. The
@@ -75,7 +67,7 @@ This command prints the hash of a downloaded copy, to add as
 `"sha384-<hash>"` under the URL in `meta.integrity`:
 
 ```bash
-openssl dgst -sha384 -binary chart.umd.min.js | openssl base64 -A
+openssl dgst -sha384 -binary confetti.browser.min.js | openssl base64 -A
 ```
 
 ## Variations
@@ -97,11 +89,13 @@ An entry may be an object instead of a URL, to say how it loads.
   Largest Contentful Paint more than a second, even with `async`. The
   script's origin still joins the policy. A reader who leaves within the
   first second is not counted. The same limits as `async` apply (`E111`).
+  The confetti above could load this way too, since nothing calls it until
+  a press, and `celebrate` does nothing if pressed before it arrives.
 - **As a module.** `{ "src": "https://…/confetti.mjs", "module": true,
   "as": "Confetti" }` imports an ES module and puts its exports on
   `window.Confetti`. Most CDNs also serve a plain build, which needs
   neither key.
-- **Called from `.wf` directly.** `{ "src": "…", "globals": ["Chart"] }`
+- **Called from `.wf` directly.** `{ "src": "…", "globals": ["confetti"] }`
   puts the names a library defines in scope, each typed `Any`, because the
   compiler cannot see their shape. A class among them is constructed when
   called.

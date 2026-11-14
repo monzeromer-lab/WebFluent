@@ -14,12 +14,14 @@ same at build time and in the browser, so a hydrated page repaints exactly
 what was painted. This page shows release notes held in a state, and one
 line of inline Markdown:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** a picture `img.png` in `public/`, which the last line shows. It
+claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
-    state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    state body = "## Version 3.3\n\nThis release adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    Heading("Release notes").h1
     Markdown(body)
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }
@@ -27,9 +29,14 @@ page Notes(path: "/", title: "Release notes", description: "What changed in this
 
 ## How it works
 
-The page shows a "Release notes" heading, a paragraph with **3.3** in bold,
-a two-item list and a quote, then a line with emphasis, a link and a
-picture.
+The page shows a "Release notes" heading, then the body: a "Version 3.3"
+heading, a paragraph, a two-item list and a quote, then a line with
+emphasis, a link and a picture.
+
+The page's `h1` is a `Heading` of its own. A `#` heading inside `Markdown`
+is drawn as an `h1` too, but the build cannot see into text that may
+change, so a page whose only `h1` comes from Markdown draws an `A12`
+warning.
 
 What `Markdown` supports:
 

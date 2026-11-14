@@ -28,7 +28,7 @@ starter does: paste it into a new project, replacing `src/App.wf` and
 type User { name: String }
 
 app {
-    state chosen = "en"
+    state chosen = locale
     Navbar {
         Navbar.Brand { Link("i18n", to: "/") }
         Navbar.Links {
@@ -115,9 +115,24 @@ uses:
 }
 ```
 
+And `src/translations/es.json`, whose words have the two forms English has:
+
+```json
+{
+  "nav.home": "Inicio",
+  "nav.about": "Acerca de",
+  "nav.language": "Idioma",
+  "welcome": "¡Bienvenido, {name}!",
+  "items.one": "{count} elemento",
+  "items.other": "{count} elementos",
+  "actions.save": "Guardar"
+}
+```
+
 A locale with no file, and a key one locale has and another lacks, are
-build warnings (`I03`). At run time a key missing from the reader's locale
-falls back to the default locale's message, then to the key itself.
+build warnings (`I03`). The warning for a missing file says every message
+shows its key; in fact, at run time a key missing from the reader's locale
+falls back to the default locale's message, and only then to the key itself.
 
 ### Translate text with `t()`
 
@@ -161,6 +176,8 @@ locale and direction.
 
 `locale` is the current locale's code, and `dir` is `"ltr"` or `"rtl"`.
 An `app` block may declare `state` as a page does, as `chosen` is above.
+It starts as `locale`, so a reader who chose Arabic on an earlier visit
+finds العربية already selected.
 
 On a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is
 right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto,

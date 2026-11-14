@@ -1,0 +1,42 @@
+// A recipe, written from md-docs/recipes/pre-render-each-item.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipePreRenderEachItem(path: "/recipes/pre-render-each-item", title: "Pre-render a page for each item — Recipes", description: "Pre-render a page on a :param route once per item with paths:, each file with its own title, painted and listed in the sitemap.") {
+    RecipeShell("Pre-render a page for each item", summary: "A page on a `:param` route, such as `/posts/:slug`, has no single file a static build can write. List the values in `paths:`, and the build writes one HTML file for each. This blog writes one file per post in `posts.json`:", outputs: ["website"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Show your own page for an unknown address", to: "/recipes/not-found-page"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Make a PDF report", to: "/recipes/pdf-report")], source: "md-docs/recipes/pre-render-each-item.md", how: true, hasVariations: false, project: { "src/pages/PreRenderEachItem.wf": #"type Post { slug: String, title: String, date: String, body: String }
+
+data posts: [Post] = "posts.json"
+
+page PostPage(path: "/posts/:slug", slug: String, title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog", description: "A post.", paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    head { meta(property: "og:title", content: post?.title ?? "Post") }
+    if let p = post {
+        Heading(p.title).h1
+        Markdown(p.body)
+    } else {
+        Alert("No such post").warning
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "pre-render-each-item"
+}
+"# }) {
+        code {
+            Markdown("**Needs:** `\"build\": \{ \"ssg\": true \}` in `webfluent.app.json`, and `src/posts.json`, a list of posts with a `slug`, a `title`, a `date` and a `body`.")
+            CodeBlock(#"type Post { slug: String, title: String, date: String, body: String }
+
+data posts: [Post] = "posts.json"
+
+page PostPage(path: "/posts/:slug", slug: String, title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog", description: "A post.", paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    head { meta(property: "og:title", content: post?.title ?? "Post") }
+    if let p = post {
+        Heading(p.title).h1
+        Markdown(p.body)
+    } else {
+        Alert("No such post").warning
+    }
+}"#, title: "wf")
+        }
+        Markdown("For a post whose slug is `hello`, the build writes `posts/hello/index.html`, with that post painted and listed in the sitemap.\n\n- `paths:` must be known at build time: a `data` file, a `const` or a literal list.\n- Each value is seeded as the parameter (and as `params.slug`), painted, and listed in the sitemap.\n- For a route with several parameters, each value is a map that names them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- `title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. A title may also look the entry up, as this one does. Tags beyond the title and description go in `head \{ \}` ([Add tags for one page](/recipes/search-and-link-previews#add-tags-for-one-page)).\n- A value that is not in `paths:` has no file, so a static host answers with `404.html` ([Show your own page for an unknown address](/recipes/not-found-page)).\n- A single-page build does not need `paths:` at all: the router draws the page for any value in the browser.\n\n[Static or single-page](/about/static-or-single-page#what-the-static-paint-knows) says what else the build can paint into each file.")
+
+    }
+}

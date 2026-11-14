@@ -6,7 +6,7 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
 
         Heading("What the build already does", id: "what-the-build-already-does").h2
 
-        Markdown("You get these without setting anything:\n\n- **Only the runtime you use.** The *runtime* is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches, and of those only the functions its calls reach. A single-page build of one page of static text is an `app.js` of 4.9 kB, 1.8 kB gzipped.\n- **Short names.** A minified build shortens the runtime's own names, its top-level ones and each function's locals. What your pages call keeps its name.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown. A site of one page is one file.\n- **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at build time, so the first paint needs no script.\n- **One pruned stylesheet.** It holds the rules of only the built-ins you use, and only the design tokens something names.\n- **Precompressed files.** A `.gz` file sits beside every text file, for a host that serves it. `wf serve` sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.\n- **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Add a picture](/recipes/add-a-picture)).\n- **Minified output.** `build.minify` (on by default) strips comments and white space.")
+        Markdown("You get these without setting anything:\n\n- **Only the runtime you use.** The *runtime* is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches, and of those only the functions its calls reach. A single-page build of one page of static text is an `app.js` of about 5 kB, 1.9 kB gzipped.\n- **Short names.** A minified build shortens the runtime's own names, its top-level ones and each function's locals. What your pages call keeps its name.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown. A site of one page is not split: its code is all in `app.js`.\n- **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at build time, so the first paint needs no script.\n- **One pruned stylesheet.** It holds the rules of only the built-ins you use, and only the design tokens something names.\n- **Precompressed files.** A `.gz` file sits beside every text file, for a host that serves it. `wf serve` sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.\n- **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Add a picture](/recipes/add-a-picture)).\n- **Minified output.** `build.minify` (on by default) strips comments and white space.")
 
         Heading("See what a build weighs", id: "see-what-a-build-weighs").h2
 
@@ -16,21 +16,21 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
                 Line(command: "wf build --stats")
             ])
 
-        Markdown("This is the output for the project `wf init -t spa` makes, trimmed:")
+        Markdown("This is the output for the project `wf init -t spa` makes, trimmed (the exact numbers move a little from release to release):")
 
         CodeBlock(#"  What it weighs
-    app.js                               49.5 kB  (16.7 kB gzipped)
+    app.js                               49.4 kB  (16.7 kB gzipped)
     styles.css                           26.5 kB  (5.0 kB gzipped)
     pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
-    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Profile.js                      5.6 kB  (1.5 kB gzipped)
     pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
     pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
     total                                99.7 kB
 
-  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+  Runtime: 19 of 44 modules, 123.5 kB of 406.7 kB kept, 110.7 kB with its names shortened (before minifying)
     core          26.3 kB  always
-    router        13.5 kB  WF.router
+    router        13.9 kB  WF.router
     form          12.7 kB  WF.form
     motion        12.6 kB  enter:
     each          10.6 kB  WF.each

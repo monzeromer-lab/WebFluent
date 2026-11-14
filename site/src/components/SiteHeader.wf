@@ -1,8 +1,7 @@
 /// The site's top bar, in Blueprint: the mark and the release, the six
 /// places as tabs (the current one a sheet pulled forward, ruled in cyan),
-/// then search, the Building switch, Night/Day, the language and GitHub.
-/// On a phone the places, and the Building switch, fold behind a menu
-/// button; from `lg` up everything sits in the bar.
+/// then search, Night/Day, the language and GitHub. On a phone the places
+/// fold behind a menu button; from `lg` up everything sits in the bar.
 ///
 /// `other` is the address of this page in the other language, when it has
 /// one; `lang` is the language the page is written in; `section` is the
@@ -10,13 +9,15 @@
 /// chapters live under `/docs/`, but belong to Learn, Recipes or Reference).
 ///
 /// On a phone the bar holds the mark, search, Night/Day and the menu, each
-/// a 40px square; the places, the Building switch and the language are in
-/// the menu.
+/// a 40px square; the places and the language are in the menu.
 component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en", section: String = "") {
     use Search
     state menu = false
 
     on key("Escape") { menu = false }
+    // Widened past the point where the places sit in the bar, the menu has
+    // nothing to show: it closes rather than cover the page.
+    effect { if viewport.lg { menu = false } }
 
     SkipLink
 
@@ -34,7 +35,7 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
         Row(align: .center, gap: .md, class: "bp-wrap") {
             style { flex-wrap: nowrap; height: 100%; gap: 12px; @lg { gap: 20px } }
 
-            Link(to: "/", aria-label: t("header.home")) {
+            Link(to: "/", aria-label: t("header.home", { version: VERSION })) {
                 style { display: flex; flex-shrink: 0; align-items: center; gap: 10px; min-height: 40px; color: $ink; text-decoration: none; &:hover { text-decoration: none } & p { margin: 0 } }
                 Image(src: "/favicon.svg", alt: "") { style { width: 28px; height: 28px; display: block } }
                 Text("WebFluent") { style { font-size: 16px; font-weight: 650; letter-spacing: -0.01em } }
@@ -51,7 +52,7 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
             Row(align: .center, gap: .sm) {
                 style { flex: 1 1 auto; justify-content: flex-end; flex-wrap: nowrap; gap: 8px; min-width: 0 }
 
-                Button(aria-label: t("search.open"), aria-keyshortcuts: "Meta+K Control+K", aria-haspopup: "dialog", class: "bp-field bp-search") {
+                Button(aria-label: "{t("search.trigger")} {keyLabel("mod+k")}", aria-keyshortcuts: "Meta+K Control+K", aria-haspopup: "dialog", class: "bp-field bp-search") {
                     style { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; @md { flex: 0 1 260px; width: auto; padding: 0 12px; justify-content: flex-start } }
                     on click { Search.reveal() }
                     Icon("search")

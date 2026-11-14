@@ -6,7 +6,7 @@ description: "Move a WebFluent 4 project off external declarations: wf migrate t
 outputs: ["website", "app"]
 from: ["/docs/guide/interop#migrate-from-external"]
 ---
-# Migrate from external
+# Upgrade a WebFluent 4 project that uses external
 
 Before 4.2, you described JavaScript with `external` declarations; 4.2
 removed them, and the parser now refuses one. `wf migrate` rewrites a

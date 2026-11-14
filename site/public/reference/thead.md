@@ -10,6 +10,8 @@ Table header section (the original spelling of Table.Head).
 Thead { … }
 ```
 
+Use [`Table.Head`](https://webfluent.monzeromer.dev/reference/table-head.md) in new code: it is the current spelling, and its page has the example.
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots

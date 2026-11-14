@@ -10,6 +10,8 @@ Table cell (the original spelling of Table.Cell).
 Tcell(_ content: Any, header: Bool) { … }
 ```
 
+Use [`Table.Cell`](https://webfluent.monzeromer.dev/reference/table-cell.md) in new code: it is the current spelling, and its page has the example.
+
 ## Props
 
 | Prop | Type | Meaning |

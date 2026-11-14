@@ -109,7 +109,7 @@ Name the rest: `Card("Laptop", price: 999)`.
 The file uses the old grammar, with capitalised declarations such as
 `Page` and `Component`.
 
-Run `wf migrate` to rewrite it ([Upgrading](https://webfluent.monzeromer.dev/about/upgrading.md#from-webfluent-2)).
+Run `wf migrate` to rewrite it ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#from-webfluent-2)).
 
 ### A warning you do not understand
 
@@ -129,7 +129,7 @@ project may stop on errors it always had.
 2. Apply the fixes your editor offers as quick fixes, where the fix is
    known.
 3. While you catch up, lower in `lints` the codes that cannot ship a
-   broken page ([Upgrading](https://webfluent.monzeromer.dev/about/upgrading.md#5-0)).
+   broken page ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#5-0)).
 
 ### A finding you mean to keep
 
@@ -168,7 +168,7 @@ and the build does not know it, so the page asks for its files at the
 wrong address.
 
 Set `build.base_path` to the sub-path (`"/my-repo"`) and rebuild
-([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#serve-the-site-under-a-sub-path)).
+([Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)).
 
 ### Reloading any page but the home page is a 404
 
@@ -259,7 +259,7 @@ No page's `path` matches the address, and no `*` page catches what nothing
 else does. A deployed page shows nothing there.
 
 Declare a catch-all page, `page NotFound(path: "*", …)`
-([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#add-a-404-page)).
+([Show your own page for an unknown address](https://webfluent.monzeromer.dev/recipes/not-found-page.md)).
 
 ### "an effect changes something it reads, every time it runs"
 
@@ -394,4 +394,4 @@ Include the smallest `.wf` file that shows the bug, and the output of
 
 ## Next
 
-[Upgrading](https://webfluent.monzeromer.dev/about/upgrading.md).
+[Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md).

@@ -37,6 +37,10 @@ page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.")
 }
 ```
 
+The page shows the first twenty rows with **Previous** greyed out and
+"Page 1 of …" between the buttons. **Next** swaps in the next twenty and
+counts up; on the last page **Next** is greyed out instead.
+
 ## How it works
 
 - `page` and `perPage` are states, and the

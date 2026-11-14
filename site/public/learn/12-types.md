@@ -67,7 +67,7 @@ You write a type after a colon on a `state`, a prop, an action parameter, a
 several:
 
 ```wf
-page Typed(path: "/") {
+page Typed(path: "/", title: "Typed", description: "State with declared types.") {
     state name: String = ""
     state count: Number = 0
     state tags: [String] = []
@@ -75,6 +75,7 @@ page Typed(path: "/") {
     state profile: Map = {}
     action greet(who: String, times: Number) { log("hi {who} × {times}") }
     derived pick = picked ?? "none"
+    Heading("Typed").h1
     Text("{name} {count} {tags.length} {pick}")
     Button("Go") { on click { greet(name, count) } }
 }
@@ -125,11 +126,10 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
     state total: Money = €249.00
 
     derived checkout = from.plus(days: nights)
-    derived weekday = checkout.weekday()
     derived late = now.date().isAfter(checkout)
 
     Heading("Your stay").h1
-    Text("Out on {checkout}, a weekday of {weekday}")
+    Text("Out on {checkout:.date(long)}")
     Text("Due {format(total)}")
     if late { Alert("Checkout has passed").warning }
 }
@@ -137,7 +137,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
 
 Everything the language **computes** is a call; everything the carrier
 **already has** is a field. So `total.amount` and `total.currency` are
-fields, and `from.year()` and `checkout.weekday()` are calls.
+fields, and `from.plus(days: nights)` and `now.date()` are calls.
 
 | Type | Methods |
 |---|---|
@@ -178,6 +178,7 @@ default, or as often as a page asks with `now(every: …)`:
 page Feed(path: "/", title: "Feed", description: "What happened lately.") {
     state posted: DateTime = @2026-03-14T09:30:00Z
     derived age = posted.until(now)
+    Heading("Feed").h1
     Text("{ago(posted)} — {age.minutes()} minutes")
     Text("ticking: {now(every: 1.seconds)}")
 }
@@ -254,12 +255,13 @@ type Todo {
 
 type Admin = Todo { owner: String }
 
-page Records(path: "/") {
+page Records(path: "/", title: "Records", description: "A list of records.") {
     state todos: [Todo] = [
         Todo(id: "1", title: "Write the docs"),
         Todo(id: "2", title: "Ship", done: true, tone: .info, note: "Friday"),
     ]
     state special: Admin = Admin(id: "3", title: "Review", owner: "sam")
+    Heading("Records").h1
     for todo in todos by todo.id {
         Row(gap: .sm) {
             Text(todo.title)
@@ -294,9 +296,10 @@ An *enum* is a type with a fixed set of *cases*. A case may carry a
 enum Size { sm, md, lg }
 enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
 
-page Enums(path: "/") {
+page Enums(path: "/", title: "Enums", description: "Enums with and without payloads.") {
     state size: Size = .md
     state s: Status = .idle
+    Heading("Enums").h1
     Button("Bigger") { on click { size = .lg } }
     Button("Start") { on click { s = .running("build-42") } }
     Text(match size { .sm { "small" } .md { "medium" } else { "large" } })
@@ -336,8 +339,9 @@ same fields, and any shape it agrees with. An empty `{}` and a literal with
 a spread say nothing about their keys, so they are plain `Map`s.
 
 ```wf
-page Shapes(path: "/") {
+page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape.") {
     state form = { name: "", age: 0, tags: ["new"] }
+    Heading("Shapes").h1
     Input(bind: form.name, label: "Name")
     Text("{form.name} is {form.age} with {form.tags.length} tags")
 }
@@ -383,6 +387,9 @@ Any other method is `Any`. The full lists are in
 Browser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are
 `Any`.
 
+A name keeps the type it was declared or inferred with: `state x = 1` stays
+a `Number`, and assigning a string to it later is `T01`.
+
 ## Bidirectional inference
 
 The checker works in both directions. When the context wants a type, it
@@ -393,7 +400,7 @@ be:
 ```wf
 type Row { id: Number, label: String, score: Number? }
 
-page Infer(path: "/") {
+page Infer(path: "/", title: "Infer", description: "Types the checker works out.") {
     state rows: [Row] = [Row(id: 1, label: "a"), Row(id: 2, label: "b", score: 9)]
     derived labels = rows.map(r => r.label)                 // [String]
     derived best = rows.find(r => r.score != null)          // Row?
@@ -401,6 +408,7 @@ page Infer(path: "/") {
     derived kind = if total > 5 { "high" } else { "low" }   // String
     derived firstScore = best?.score ?? 0                   // Number
     derived joined = labels.join(", ")                      // String
+    Heading("Infer").h1
     Text("{joined} {kind} {firstScore}")
 }
 ```
@@ -426,9 +434,10 @@ narrowing is `T04`. Each of these forms narrows a name within its branch:
 ```wf
 type Todo { id: String, title: String, note: String? }
 
-page Narrow(path: "/") {
+page Narrow(path: "/", title: "Narrow", description: "Values that may be null, narrowed.") {
     state sel: Todo? = null
     state todo: Todo = Todo(id: "1", title: "x")
+    Heading("Narrow").h1
     if let n = todo.note { Text("{n.length} chars") }
     if sel != null { Text(sel.title) }
     if sel { Text(sel.title) }
@@ -469,8 +478,9 @@ return. Annotate the resource or the local variable to type its value:
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
 
-page Deploys(path: "/") {
+page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
     resource deploys: [Deploy] = fetch("/api/deploys")
+    Heading("Deploys").h1
     match deploys {
         loading { Spinner }
         error(e) { Alert("Failed: {e.message}").danger }
@@ -529,8 +539,6 @@ the narrowing forms above. `wf explain T05` prints a code's full entry, and
 ## What the checker does not check
 
 - It does not check a lambda's body against a return type.
-- It does not change a name's type across assignments: `state x = 1` stays
-  a `Number`, and assigning a string to it is `T01`.
 - It does not know what a plain `fetch` returns. Annotate it, or describe
   the service with an `api`.
 

@@ -23,11 +23,11 @@ page AboutIndex(path: "/about", title: "About WebFluent", description: "Why WebF
                 }
                 Link(to: "/about/accessibility", class: "bp-card") {
                     Text("Accessibility") { style { font-weight: 650 } }
-                    Text("Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do.", class: "bp-small")
+                    Text("Pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what no tool can check for you.", class: "bp-small")
                 }
                 Link(to: "/about/security", class: "bp-card") {
                     Text("Security") { style { font-weight: 650 } }
-                    Text("What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.", class: "bp-small")
+                    Text("What the compiler guarantees, what it cannot, and why: markup, secrets, sessions, uploads, the content security policy and what a project trusts.", class: "bp-small")
                 }
                 Link(to: "/about/what-a-build-ships", class: "bp-card") {
                     Text("What a build ships") { style { font-weight: 650 } }
@@ -35,11 +35,7 @@ page AboutIndex(path: "/about", title: "About WebFluent", description: "Why WebF
                 }
                 Link(to: "/about/static-or-single-page", class: "bp-card") {
                     Text("Static or single-page") { style { font-weight: 650 } }
-                    Text("The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered.", class: "bp-small")
-                }
-                Link(to: "/about/upgrading", class: "bp-card") {
-                    Text("Upgrading") { style { font-weight: 650 } }
-                    Text("What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.", class: "bp-small")
+                    Text("The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and what each asks of a host.", class: "bp-small")
                 }
                 Link(to: "/about/contributing", class: "bp-card") {
                     Text("Contributing") { style { font-weight: 650 } }

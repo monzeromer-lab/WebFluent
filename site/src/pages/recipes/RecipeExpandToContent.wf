@@ -1,7 +1,18 @@
 // A recipe, written from md-docs/recipes/expand-to-content.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeExpandToContent(path: "/recipes/expand-to-content", title: "Open a box to the height of its content — Recipes", description: "Open a box to the height of its content, which CSS cannot animate to: .expand measures height: auto, animates to it, then lets the box grow.") {
-    RecipeShell("Open a box to the height of its content", summary: "CSS cannot animate to `height: auto`, so a box of details that should slide open to whatever height its text needs takes `.expand`. Press **Details** and the box opens; press it again and it closes:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Animate an element in and out", to: "/recipes/animate-in-and-out"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Run a sequence of animations", to: "/recipes/animation-sequence")], source: "md-docs/recipes/expand-to-content.md", how: true, hasVariations: false) {
+    RecipeShell("Open a box to the height of its content", summary: "CSS cannot animate to `height: auto`, so a box of details that should slide open to whatever height its text needs takes `.expand`. Press **Details** and the box opens; press it again and it closes:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Count a number to its new value", to: "/recipes/count-a-number"), RelatedLink(kind: "Recipe", title: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults"), RelatedLink(kind: "Recipe", title: "Tween a property when state changes", to: "/recipes/tween-on-change")], source: "md-docs/recipes/expand-to-content.md", how: true, hasVariations: false, project: { "src/pages/ExpandToContent.wf": #"page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
+    state open = false
+    Heading("Details").h1
+    Button("Details") { on click { open = !open } }
+    show open {
+        Stack(animate: .expand) { Text("As much text as there is.") }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "expand-to-content"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {

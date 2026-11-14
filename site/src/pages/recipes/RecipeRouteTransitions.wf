@@ -1,7 +1,20 @@
 // A recipe, written from md-docs/recipes/route-transitions.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeRouteTransitions(path: "/recipes/route-transitions", title: "Animate route changes — Recipes", description: "Animate every change of page: give the Router a transition: of .fade or .slide and a duration:, played through the View Transitions API.") {
-    RecipeShell("Animate route changes", summary: "Fade or slide from one page to the next, on every route change, by giving the `Router` a `transition:` and a `duration:` in `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Animate an element in and out", to: "/recipes/animate-in-and-out"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Run a sequence of animations", to: "/recipes/animation-sequence")], source: "md-docs/recipes/route-transitions.md", how: true, hasVariations: true) {
+    RecipeShell("Animate route changes", summary: "Fade or slide from one page to the next, on every route change, by giving the `Router` a `transition:` and a `duration:` in `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Carry an element across a route change", to: "/recipes/shared-element"), RelatedLink(kind: "Recipe", title: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults"), RelatedLink(kind: "Recipe", title: "Open a box to the height of its content", to: "/recipes/expand-to-content")], source: "md-docs/recipes/route-transitions.md", how: true, hasVariations: true, project: { "src/App.wf": #"app {
+    Navbar {
+        Navbar.Brand { Link("Motion", to: "/") }
+        Navbar.Links { Link("Home", to: "/")  Link("About", to: "/about") }
+    }
+    Router(transition: .fade, duration: "200ms")
+}
+
+page Home(path: "/", title: "Home", description: "The front page.") { Heading("Home").h1 }
+page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }
+"#, "webfluent.app.json": #"{
+  "name": "route-transitions"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the code, which is a whole project's `app` and pages: paste it into a new project, replacing `src/App.wf` and `src/pages/Home.wf`.")
             CodeBlock(#"app {

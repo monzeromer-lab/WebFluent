@@ -1,10 +1,10 @@
 # DatePicker
 
-> Date input.
+> A date field: the reader picks a day, and the bound state holds a Date.
 
 The page: https://webfluent.monzeromer.dev/reference/datepicker
 
-Date input.
+A date field: the reader picks a day, and the bound state holds a Date.
 
 ```wf
 DatePicker(bind: State, label: String, min: String, …)

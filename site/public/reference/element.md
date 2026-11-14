@@ -1,10 +1,10 @@
 # Element
 
-> A custom element a script defines, placed by its tag: Element("stripe-pricing-table", publishable-key: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.
+> A custom element a script defines, placed by its tag: Element("stripe-pricing-table", publishableKey: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.
 
 The page: https://webfluent.monzeromer.dev/reference/element
 
-A custom element a script defines, placed by its tag: Element("stripe-pricing-table", publishable-key: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.
+A custom element a script defines, placed by its tag: Element("stripe-pricing-table", publishableKey: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.
 
 ```wf
 Element(_ tag: String) { … }

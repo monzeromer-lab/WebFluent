@@ -100,6 +100,11 @@ cd hello
 ```text
 Created new WebFluent project: hello (template: spa)
   AGENTS.md is the language reference, for you and your coding agent
+  .agents/skills/ and .claude/skills/ teach your coding agent to write it well
+
+  cd hello
+  wf build
+  wf serve
 ```
 
 `wf init` writes a small application so you have something real to read:
@@ -242,7 +247,9 @@ cd WebFluent && cargo install --path .
 is in `src/translations/`, one file per language, and the first locale is
 the default ([Internationalisation](https://webfluent.monzeromer.dev/recipes/translate-a-site.md#start-a-project-translated)).
 
-If you are unsure between `spa` and `static`, start with `static`. Every
+This chapter starts with an `spa` because its starter is a small
+application, with state, stores and tests to read. For a site of your own,
+if you are unsure between `spa` and `static`, start with `static`. Every
 page is real HTML before any script runs, which is better for search and for
 the first paint, and the page is still fully interactive once the script
 loads. [Static or single-page](https://webfluent.monzeromer.dev/about/static-or-single-page.md) explains the

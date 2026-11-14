@@ -1,7 +1,55 @@
 // A recipe, written from md-docs/recipes/reorder-by-dragging.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeReorderByDragging(path: "/recipes/reorder-by-dragging", title: "Reorder a list by dragging — Recipes", description: "Let the reader put a list in order by dragging its rows, with buttons that do the same from the keyboard.") {
-    RecipeShell("Reorder a list by dragging", summary: "To let the reader put a list in their own order, make each row something they can pick up with `drag:`, and something another row can be dropped on with `on receive`. This page lists today's jobs; drag a row above or below another to move it, or use its arrow buttons:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address"), RelatedLink(kind: "Recipe", title: "Keep filters in the address", to: "/recipes/filters-in-the-address"), RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog")], source: "md-docs/recipes/reorder-by-dragging.md", how: true, hasVariations: true) {
+    RecipeShell("Reorder a list by dragging", summary: "To let the reader put a list in their own order, make each row something they can pick up with `drag:`, and something another row can be dropped on with `on receive`. This page lists today's jobs; drag a row above or below another to move it, or use its arrow buttons:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add keyboard shortcuts and a command palette", to: "/recipes/keyboard-shortcuts"), RelatedLink(kind: "Recipe", title: "Test a page", to: "/recipes/test-a-page"), RelatedLink(kind: "Recipe", title: "Make a page work with a keyboard and a screen reader", to: "/recipes/keyboard-and-screen-reader")], source: "md-docs/recipes/reorder-by-dragging.md", how: true, hasVariations: true, project: { "src/pages/ReorderByDragging.wf": #"type Job { id: String, title: String }
+
+page Order(path: "/order", title: "Today's order", description: "Drag the jobs into the order you will do them.") {
+    state jobs: [Job] = [
+        Job(id: "brief", title: "Write the brief"),
+        Job(id: "call", title: "Call the printer"),
+        Job(id: "proofs", title: "Check the proofs"),
+    ]
+
+    action move(id: String, target: String, position: String) {
+        let moving = jobs.find(j => j.id == id)
+        if moving == null { return }
+        let rest = jobs.filter(j => j.id != id)
+        let at = rest.findIndex(j => j.id == target)
+        let index = if position == "after" { at + 1 } else { at }
+        jobs = [...rest.slice(0, index), moving, ...rest.slice(index)]
+    }
+
+    action step(id: String, offset: Number) {
+        let from = jobs.findIndex(j => j.id == id)
+        let to = from + offset
+        if to < 0 || to >= jobs.length { return }
+        move(id, jobs[to].id, if offset > 0 { "after" } else { "before" })
+    }
+
+    Heading("Today's order").h1
+    Stack(gap: .sm, role: "list") {
+        for job, i in jobs by job.id {
+            Card(drag: job.id, dropValue: job.id, role: "listitem") {
+                on receive(d) { move(d.value, job.id, d.position) }
+                Row(gap: .sm, align: .center) {
+                    Icon("grid")
+                    Text("{i + 1}. {job.title}")
+                    Spacer
+                    IconButton(icon: "chevron-up", label: "Move {job.title} up", disabled: i == 0).sm {
+                        on click { step(job.id, -1) }
+                    }
+                    IconButton(icon: "chevron-down", label: "Move {job.title} down", disabled: i == jobs.length - 1).sm {
+                        on click { step(job.id, 1) }
+                    }
+                }
+            }
+        }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "reorder-by-dragging"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. Paste it into a file under `src/pages/` and open `/order`.")
             CodeBlock(#"type Job { id: String, title: String }

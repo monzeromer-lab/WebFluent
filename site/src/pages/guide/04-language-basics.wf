@@ -137,7 +137,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Heading("Separating statements", id: "separating-statements").h3
 
-        Markdown("Statements need no separator. You usually put one per line. To put two on one line, separate them with `;` or with nothing at all; the house style is two spaces, because it reads well:")
+        Markdown("Statements need no separator. You usually put one per line. To put two on one line, separate them with `;` or with whitespace. Two spaces is the house style, because it reads well:")
 
         CodeBlock(#"page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
     state home = 1  state away = 2

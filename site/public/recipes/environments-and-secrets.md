@@ -121,7 +121,7 @@ bundle: the build writes only public values into it.
 > Adding a name to `public_env` publishes its value to every reader of the
 > site, and every build says so with a warning naming it. A secret that a
 > third party needs belongs in a request your server makes, not in a page
-> ([Security](https://webfluent.monzeromer.dev/about/security.md#keep-secrets-out-of-the-bundle)).
+> ([Security](https://webfluent.monzeromer.dev/about/security.md#secrets-stay-out-of-the-bundle)).
 
 ## Name your own values something other than `env`
 
@@ -152,8 +152,8 @@ In CI, set the variables on the job's build step:
     PUBLIC_ANALYTICS_ID: ${{ vars.ANALYTICS_ID }}
 ```
 
-Each build writes its own `build/` folder. Deploy each one to its own host
-([Ship](https://webfluent.monzeromer.dev/recipes.md#ship)).
+Each build overwrites `build/`, so deploy what one build wrote before
+running the next, each to its own host ([Ship](https://webfluent.monzeromer.dev/recipes.md#ship)).
 
 ## Change other settings per deploy
 
@@ -182,5 +182,5 @@ wf audit
 ```
 
 It prints each name, where it is read, and whether it is public, beside
-everything else the site trusts ([Security](https://webfluent.monzeromer.dev/about/security.md#audit-the-project)).
+everything else the site trusts ([Review a site's security before you deploy](https://webfluent.monzeromer.dev/recipes/review-security.md)).
 Run it before a release, and when you review a change that adds a name.

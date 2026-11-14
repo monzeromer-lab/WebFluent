@@ -8,6 +8,10 @@ The page: https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf
 ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة،
 وتنتهي بما يجب أن تراه.
 
+> [!NOTE]
+> لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته
+> الإنجليزية.
+
 ## ما ستبنيه
 
 في Shelf صفحة رئيسية تسرد الكتب مع مربع بحث، وصفحة لكل كتاب، وصفحة
@@ -332,7 +336,7 @@ app {
 
 **تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن
 شريط تنقّل. ضع كتابين على رفّك: يصير الرابط
-**Your shelf (2)**. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان
+`Your shelf (2)`. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان
 هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives
 here**.
 
@@ -396,7 +400,7 @@ app {
 **تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج
 فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت
 **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل
-مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.
+مرة أخرى. ترى `Thank you — we will take a look.`، ويصير النموذج فارغًا.
 
 الموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في
 هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في
@@ -420,7 +424,7 @@ on submit {
 }
 ```
 
-([البيانات وواجهات API](https://webfluent.monzeromer.dev/learn/15-data.md)، [البيئات](https://webfluent.monzeromer.dev/recipes.md).)
+([البيانات وواجهات API](https://webfluent.monzeromer.dev/learn/15-data.md)، [البيئات](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).)
 
 ## الخطوة 8: امنح الموقع سمة
 
@@ -783,9 +787,9 @@ Shelf موقع كامل، وكل جزء منه يستخدم فكرة واحدة 
 
 - اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](https://webfluent.monzeromer.dev/learn/04-language-basics.md).
 - تحدّث مع خادم حقيقي: [البيانات وواجهات API](https://webfluent.monzeromer.dev/learn/15-data.md).
-- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](https://webfluent.monzeromer.dev/recipes.md).
-- ترجمه: [الترجمة](https://webfluent.monzeromer.dev/recipes.md).
-- ابنِ مشروعًا أكبر: [الدروس](https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos.md).
+- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](https://webfluent.monzeromer.dev/recipes/work-offline.md).
+- ترجمه: [الترجمة](https://webfluent.monzeromer.dev/recipes/translate-a-site.md).
+- ابنِ مشروعًا أكبر: [Pocket](https://webfluent.monzeromer.dev/recipes/build-a-budget-app.md)، متتبّع ميزانية.
 
 ## أخطاء شائعة
 

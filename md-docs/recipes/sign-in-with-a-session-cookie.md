@@ -44,6 +44,7 @@ store Session {
     action signOut() {
         await Auth.signOut()
         user = null
+        Auth.me.invalidate()
         navigate("/")
     }
 }
@@ -103,6 +104,15 @@ app {
   user, or `null`, and `signedIn` is derived from it. `load` asks the
   server who is signed in, `signIn` and `signOut` call the service and
   move the reader on with `navigate`.
+- The server sets the cookie when a sign-in succeeds, with a header such as
+  `Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600`.
+  `HttpOnly` keeps it from every script, `SameSite=Lax`
+  from another site's form, and `Secure` off plaintext connections.
+- `Auth.me.invalidate()` on sign-out drops what the endpoint cached, so
+  the next reader of the tab is not shown the last one's. Do the same for
+  every endpoint whose answer is one reader's: an answer cached under one
+  `Authorization` header is never served for another, but a cookie cannot
+  be read, so the cache cannot tell one cookie's reader from the next.
 - The `SignIn` page validates its two fields and calls `Session.signIn`
   in a `try`, so a wrong password shows an `Alert` instead of throwing.
   `send.pending` disables the button while the request runs, and
@@ -119,4 +129,4 @@ app {
 The session is an httpOnly cookie the server sets, so the page never holds
 a token. `guard:` hides the page from a reader who is signed out, and the
 server still checks every request
-([Security](../about/security.md#keep-the-session-in-a-cookie)).
+([Security](../about/security.md#where-a-session-belongs)).

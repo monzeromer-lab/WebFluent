@@ -1,7 +1,26 @@
 // A recipe, written from md-docs/recipes/open-a-socket.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeOpenASocket(path: "/recipes/open-a-socket", title: "Open a socket — Recipes", description: "Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.") {
-    RecipeShell("Open a socket", summary: "A `socket` holds a two-way connection to a server: chat, live editing, notifications. You declare it with `ws(…)` and read it with `match`, the way you read a `resource`. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "choose-a-kind-of-connection", label: "Choose a kind of connection"), Anchor(id: "read-a-connection-s-state-and-messages", label: "Read a connection's state and messages"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Talk to the site's other tabs", to: "/recipes/talk-between-tabs"), RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers")], source: "md-docs/recipes/open-a-socket.md", how: true, hasVariations: true) {
+    RecipeShell("Open a socket", summary: "A `socket` holds a two-way connection to a server: chat, live editing, notifications. You declare it with `ws(…)` and read it with `match`, the way you read a `resource`. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "choose-a-kind-of-connection", label: "Choose a kind of connection"), Anchor(id: "read-a-connection-s-state-and-messages", label: "Read a connection's state and messages"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Talk to the site's other tabs", to: "/recipes/talk-between-tabs"), RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers")], source: "md-docs/recipes/open-a-socket.md", how: true, hasVariations: true, project: { "src/pages/OpenASocket.wf": #"page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        on message(m) { log(m) }
+    }
+
+    Heading("Chat").h1
+    match chat {
+        connecting { Spinner.sm }
+        open       { for m in chat.messages by m.id { Text(m.text) } }
+        closed(c)  { Alert("Disconnected ({c.code})").warning }
+        error(e)   { Alert(e.message).danger }
+    }
+    Input(bind: draft, label: "Message").text
+    Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "open-a-socket"
+}
+"# }) {
         code {
             Markdown("**Needs:** a WebSocket server; change `wss://example.com/chat` to yours.")
             CodeBlock(#"page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
@@ -150,7 +169,7 @@ page Room(path: "/room", title: "Room", description: "A typed conversation.") {
         Table(caption: "Read a connection's state and messages") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("").header
+                    Table.Cell("Member").header
                     Table.Cell.header { Markdown("`socket`") }
                     Table.Cell.header { Markdown("`stream`") }
                     Table.Cell.header { Markdown("`channel`") }

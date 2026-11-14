@@ -1,0 +1,17 @@
+// A recipe, written from md-docs/recipes/review-security.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeReviewSecurity(path: "/recipes/review-security", title: "Review a site's security before you deploy — Recipes", description: "Review what a WebFluent site trusts before a release: read wf audit, then go through the security checklist for the build, the host and the server.") {
+    RecipeShell("Review a site's security before you deploy", summary: "The compiler refuses most of what would make a page unsafe on every build ([Security](/about/security)). What it cannot see — what the project chose to trust, the host's headers, the server's checks — is a review, and `wf audit` prints what that review asks for:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "before-you-deploy", label: "Before you deploy")], related: [RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Set cache and security headers", to: "/recipes/cache-and-security-headers"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie")], source: "md-docs/recipes/review-security.md", how: true, hasVariations: false, project: {}) {
+        code {
+            Terminal(lines: [
+                        Line(command: "wf audit")
+                    ])
+        }
+        Markdown("`wf audit` lists:\n\n- every `Unsafe.*`, and whether it is sanitised;\n- the project's own scripts, and the names each declares;\n- every origin the pages load from;\n- everything written to the reader's machine, and where;\n- every `env` name, and whether it is public;\n- the policy this build ships;\n- what the compiler itself depends on.\n\nAdd `--json` to get the same report for a tool. `wf audit` only reports; it never fails a build.")
+
+        Heading("Before you deploy", id: "before-you-deploy").h2
+
+        Markdown("- Run `wf audit`, and read all of it.\n- Set `\"csp\": true`, and make sure the build passes its own check.\n- Check that `_headers` reaches your host, or set the same headers another way ([Set cache and security headers](/recipes/cache-and-security-headers)).\n- Serve over HTTPS, with HSTS.\n- Keep the session in an httpOnly, Secure, SameSite cookie — not in `persist` ([Sign in with a session cookie](/recipes/sign-in-with-a-session-cookie)).\n- Read no non-public `env` name in a page (the build refuses one).\n- Make sure every `Unsafe.Html` is sanitised, or provably your own markup ([Show HTML from outside the project](/recipes/show-html-from-outside)).\n- Check authorisation on the server for every request, not with `guard:`.\n- Have the server check uploads: the type from the file's bytes, not its name; a size limit it enforces itself; a stored name it generates, never the one it was given; and storage nothing is served from.\n\nAfter the deploy, [check the headers it sends](/recipes/check-a-deploy).")
+
+    }
+}

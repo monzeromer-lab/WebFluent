@@ -34,7 +34,7 @@ From the top, a finding shows:
    matchers read;
 3. the line of source, with the part that is wrong underlined;
 4. `help:` — what to do about it, when the compiler can say;
-5. `docs:` — a link to the code's entry in this chapter.
+5. `docs:` — a link to the code's page.
 
 Colour is used only on a terminal, and never when `NO_COLOR` is set.
 
@@ -159,15 +159,15 @@ A code's letter is its family:
 | `E` | syntax and structure: what cannot be read, or refers to nothing |
 | `T` | types |
 | `C` | components and their props |
-| `R` | routes and navigation |
+| `R` | routes |
 | `X` | state and reactivity |
 | `I` | translations |
 | `F` | forms and bindings |
-| `D` | data, assets and what is kept in the browser |
+| `D` | data and assets |
 | `A` | accessibility |
 | `S` | search and sharing |
-| `P` | persisted values |
-| `U` | declared and never used |
+| `P` | what is kept in the browser |
+| `U` | declared and never read |
 | `V` | vocabulary |
 
 Each code's page has the code and its title as the heading, what it means

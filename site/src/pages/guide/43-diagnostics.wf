@@ -16,7 +16,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
   = help: Its fields are `id`, `name`
   = docs: https://webfluent.monzeromer.dev/errors/T05"#, title: "text")
 
-        Markdown("From the top, a finding shows:\n\n1. its severity, its code and what is wrong;\n2. the place, in the `file:line:col` form that editors and CI problem matchers read;\n3. the line of source, with the part that is wrong underlined;\n4. `help:` — what to do about it, when the compiler can say;\n5. `docs:` — a link to the code's entry in this chapter.\n\nColour is used only on a terminal, and never when `NO_COLOR` is set.")
+        Markdown("From the top, a finding shows:\n\n1. its severity, its code and what is wrong;\n2. the place, in the `file:line:col` form that editors and CI problem matchers read;\n3. the line of source, with the part that is wrong underlined;\n4. `help:` — what to do about it, when the compiler can say;\n5. `docs:` — a link to the code's page.\n\nColour is used only on a terminal, and never when `NO_COLOR` is set.")
 
         Heading("Errors and warnings", id: "errors-and-warnings").h2
 
@@ -100,7 +100,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
                 }
                 Table.Row {
                     Table.Cell { Markdown("`R`") }
-                    Table.Cell("routes and navigation")
+                    Table.Cell("routes")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`X`") }
@@ -116,7 +116,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
                 }
                 Table.Row {
                     Table.Cell { Markdown("`D`") }
-                    Table.Cell("data, assets and what is kept in the browser")
+                    Table.Cell("data and assets")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`A`") }
@@ -128,11 +128,11 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
                 }
                 Table.Row {
                     Table.Cell { Markdown("`P`") }
-                    Table.Cell("persisted values")
+                    Table.Cell("what is kept in the browser")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`U`") }
-                    Table.Cell("declared and never used")
+                    Table.Cell("declared and never read")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`V`") }

@@ -11,7 +11,7 @@ editor. Look up a command here when you need its exact flags, defaults and
 behaviour.
 
 `wf --help` lists the commands, `wf <command> --help` lists one command's
-flags, and `wf --version` prints the version (`wf 5.11.0`).
+flags, and `wf --version` prints the version (`wf X.Y.Z`).
 
 ```bash
 wf init my-site -t static
@@ -30,7 +30,7 @@ wf serve
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]` | Reports every finding a build would report, and writes nothing |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Applies every finding's fix, or the fixes for one code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
-| `wf explain [CODE]` | Prints what a diagnostic code means, a program that draws it, and the fix |
+| `wf explain [CODE] [--json]` | Prints what a diagnostic code means, a program that draws it, and the fix |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
 | `wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]` | Loads every built page in headless Chrome |
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
@@ -509,7 +509,7 @@ The report lists:
 - the policy the build ships;
 - what the compiler depends on.
 
-See also: [Security](https://webfluent.monzeromer.dev/about/security.md#audit-the-project).
+See also: [Review a site's security](https://webfluent.monzeromer.dev/recipes/review-security.md) and [Security](https://webfluent.monzeromer.dev/about/security.md).
 
 ## Formatting
 
@@ -624,7 +624,7 @@ wf migrate --wfx
    a store is built on first read rather than at boot, a `persist` value
    follows the site's other tabs, and `WF.store`/`WF.host` were renamed.
 
-See also: [Upgrading](https://webfluent.monzeromer.dev/about/upgrading.md).
+See also: [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md).
 
 ## Describing the project
 
@@ -1020,10 +1020,12 @@ the parameters and return type its JSDoc gives it.
 | Variable | Read by | What it does |
 |---|---|---|
 | `WF_INSTALL_DIR` | `install.sh`, `install.ps1` | Where the binary is installed (default `~/.webfluent/bin`). |
-| `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `v5.11.0`, instead of the latest. |
+| `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `vX.Y.Z`, instead of the latest. |
 | `WF_CHROME` | `wf test`, `wf verify` | The Chrome or Chromium to drive, when it is not found on its own. |
+| `WF_CHROME_NO_SANDBOX` | `wf test`, `wf verify` | `1` starts Chrome without its sandbox from the outset, instead of trying with one first (a container that gives it none). |
 | `WF_BIN` | the Node binding | The `wf` binary to call. |
 | any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md)). |
+| `WF_ALLOW_SHELL_ENV` | `wf build`, `wf serve` | Names, comma-separated, that `public_env` lists without the `PUBLIC_` prefix and whose value the shell may supply (`WF_ALLOW_SHELL_ENV=API_URL`). Without it such a name takes its value from the config or `.env` only, so a cloned project cannot bundle a shell secret. |
 
 ## Editors
 
@@ -1040,23 +1042,28 @@ Each one reads the project through a `webfluent::vfs::Vfs`: `FsVfs` reads
 the disk, and `OverlayVfs::over_disk()` lays the editor's unsaved buffers
 over it, so a tool reports the project as it is being edited.
 
-| Function | What it is |
-|---|---|
-| `build::{build, check}` with `BuildOptions` | `wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio` |
-| `diagnostics::fixes::fix_all` | `wf fix`'s fix-all, for one family in one file |
-| `print`, `reprint`, `edit::{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program}` | An element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was; refused when it would not read back the same |
-| `codegen::node_id::{build_node_map_with, layers}` | Every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree |
-| `registry::schema::of_project_via` | `wf components` |
-| `style_value` | Each style property's shape, a value read into parts (`read_box`), and the narrowest declaration written back (`edit_box`) |
-| `themes::view::{view_via, set_token, reset_token}` | `wf theme`, and one token written in its place |
-| `motion::catalogue` | `wf motion` |
-| `validation::{must_be_via, set_rule, remove_rule, move_rule}` | `wf rules`, and a state's `validate` block written back one rule at a time |
-| `scope::paths::at_via` | `wf scope` |
-| `i18n::{plurals, table}` | `wf translations`: CLDR's plural rules, the table, and `set_message` |
-| `assets`, `media::plan` | `wf assets` |
-| `config::{schema, json_edit}` | `wf config`, and a setting written keeping the file's shape |
-| `commands` | `wf commands` |
-| `agent::{changeset, context, diff, edit}` | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits |
+Most of these are the compiler's own parts: they are reached with the
+crate's `internals` feature (`webfluent = { version = "6", features =
+["internals"] }`), are not documented, and a release may change them
+without a major version. The ones marked "no" are the documented API.
+
+| Function | Needs `internals` | What it is |
+|---|---|---|
+| `webfluent::build::{build, check}` with `BuildOptions` | no | `wf build` and `wf check`, returning every line and every finding as a `Diagnostic` with its fixes; `BuildOptions::studio` is `--studio` |
+| `webfluent::diagnostics::fixes::fix_all` | no | `wf fix`'s fix-all, for one family in one file |
+| `webfluent::syntax::{print, reprint}`, `webfluent::edit::{rewrite_element, rewrite_statement, rewrite_body, rewrite_declaration, rewrite_program}` | yes | An element, a statement or a declaration changed in the tree and written back as the smallest edit, every other byte as it was; refused when it would not read back the same |
+| `webfluent::syntax::node_id::{build_node_map_with, layers}` | no | Every element's id, file, place, parent and what it is inside; the node at a caret; the Layers tree |
+| `webfluent::registry::schema::of_project_via` | yes | `wf components` |
+| `webfluent::paged::style_value` | yes | Each style property's shape, a value read into parts (`read_box`), and the narrowest declaration written back (`edit_box`) |
+| `webfluent::themes::view::{view_via, set_token, reset_token}` | yes | `wf theme`, and one token written in its place |
+| `webfluent::motion::catalogue` | yes | `wf motion` |
+| `webfluent::validation::{must_be_via, set_rule, remove_rule, move_rule}` | yes | `wf rules`, and a state's `validate` block written back one rule at a time |
+| `webfluent::scope::paths::at_via` | yes | `wf scope` |
+| `webfluent::i18n::{plurals, table}` | yes | `wf translations`: CLDR's plural rules, the table, and `set_message` |
+| `webfluent::build::assets::{list, plan}`, `webfluent::media::plan` | yes | `wf assets` |
+| `webfluent::config::{schema, json_edit}` | yes | `wf config`, and a setting written keeping the file's shape |
+| `webfluent::commands` | yes | `wf commands` |
+| `webfluent::agent::{changeset, context, diff, edit}` | yes | `wf context`, and a change set an agent writes to instead of the working tree, built before anyone reads it, with anchored edits |
 
 ## Next
 

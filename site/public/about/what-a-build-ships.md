@@ -29,13 +29,14 @@ You get these without setting anything:
   compiled pages call. It is a set of modules, and a build keeps only the
   ones its code reaches, and of those only the functions its calls reach.
   A single-page build of one page of static text is an `app.js` of
-  4.9 kB, 1.8 kB gzipped.
+  about 5 kB, 1.9 kB gzipped.
 - **Short names.** A minified build shortens the runtime's own names, its
   top-level ones and each function's locals. What your pages call keeps
   its name.
 - **A chunk per page.** `build.split` (on by default) writes each page's
   code and styles as their own files, loaded the first time its route is
-  shown. A site of one page is one file.
+  shown. A site of one page is not split: its code is all in
+  `app.js`.
 - **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at
   build time, so the first paint needs no script.
 - **One pruned stylesheet.** It holds the rules of only the built-ins you
@@ -58,22 +59,23 @@ To see the size of everything a build writes, run the build with
 wf build --stats
 ```
 
-This is the output for the project `wf init -t spa` makes, trimmed:
+This is the output for the project `wf init -t spa` makes, trimmed (the
+exact numbers move a little from release to release):
 
 ```text
   What it weighs
-    app.js                               49.5 kB  (16.7 kB gzipped)
+    app.js                               49.4 kB  (16.7 kB gzipped)
     styles.css                           26.5 kB  (5.0 kB gzipped)
     pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
-    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Profile.js                      5.6 kB  (1.5 kB gzipped)
     pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
     pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
     total                                99.7 kB
 
-  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+  Runtime: 19 of 44 modules, 123.5 kB of 406.7 kB kept, 110.7 kB with its names shortened (before minifying)
     core          26.3 kB  always
-    router        13.5 kB  WF.router
+    router        13.9 kB  WF.router
     form          12.7 kB  WF.form
     motion        12.6 kB  enter:
     each          10.6 kB  WF.each

@@ -194,7 +194,7 @@ function onEvent(name, handler) {
 ### Prepare the build for a desktop
 
 The same project builds for the web and for a desktop. Two keys in
-`webfluent.app.json` leave out what only a website needs:
+`webfluent.app.json`, and one to leave out, drop what only a website needs:
 
 - **`build.compress: false`** — the shell packs the folder into the app, so
   a `.gz` file beside every file would ship every file twice.

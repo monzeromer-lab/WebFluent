@@ -1,7 +1,25 @@
 // A recipe, written from md-docs/recipes/load-more.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeLoadMore(path: "/recipes/load-more", title: "Load more as the reader asks — Recipes", description: "Add the next page of results below the ones shown when the reader asks: an api endpoint called with paginate: .page and a Load more button.") {
-    RecipeShell("Load more as the reader asks", summary: "A **Load more** button keeps what the reader has already seen and adds the next page below it. To build one, call an endpoint with `paginate: .page`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results")], source: "md-docs/recipes/load-more.md", how: true, hasVariations: false) {
+    RecipeShell("Load more as the reader asks", summary: "A **Load more** button keeps what the reader has already seen and adds the next page below it. To build one, call an endpoint with `paginate: .page`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates"), RelatedLink(kind: "Recipe", title: "Show what the network is doing", to: "/recipes/show-the-network"), RelatedLink(kind: "Recipe", title: "Send a message as the page unloads", to: "/recipes/send-on-unload")], source: "md-docs/recipes/load-more.md", how: true, hasVariations: false, project: { "src/pages/LoadMore.wf": #"type Item { id: String, name: String }
+
+api Catalog(base: "/api") {
+    get items(page: Number = 1) -> [Item]
+}
+
+page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
+    state page = 1
+    resource list = Catalog.items(page: page, paginate: .page)
+    Heading("Items").h1
+    for item in list.items by item.id { Text(item.name) }
+    if list.hasMore {
+        Button("Load more", disabled: list.pending) { on click { list.loadMore() } }
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "load-more"
+}
+"# }) {
         code {
             Markdown("**Needs:** a server that answers `/api/items?page=…` with a list of items.")
             CodeBlock(#"type Item { id: String, name: String }
@@ -20,7 +38,7 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     }
 }"#, title: "wf")
         }
-        Markdown("- `Catalog` [describes the service](/learn/15-data#describe-a-service-with-api): its `items` endpoint takes a `page` and returns a list of `Item`.\n- The resource calls it with `paginate: .page`, which gives it `.items`, `.loadMore()` and `.hasMore` ([Load results a page at a time](/learn/15-data#load-results-a-page-at-a-time)).\n- `list.items` is every item loaded so far, so the `for` lists them all and `item.name` is checked against `Item`.\n- `list.loadMore()` moves `page` on by one and asks for the next page, as a refresh: the items already shown stay while it runs.\n- `list.pending` is true while a request runs, so the button cannot ask twice. `list.hasMore` turns false when a page comes back empty, and the button goes.")
+        Markdown("The page shows the first page of items and a **Load more** button. Each press adds the next page beneath what is there, without losing the reader's place, and the button goes away once there is nothing more.\n\n- `Catalog` [describes the service](/learn/15-data#describe-a-service-with-api): its `items` endpoint takes a `page` and returns a list of `Item`.\n- The resource calls it with `paginate: .page`, which gives it `.items`, `.loadMore()` and `.hasMore` ([Load results a page at a time](/learn/15-data#load-results-a-page-at-a-time)).\n- `list.items` is every item loaded so far, so the `for` lists them all and `item.name` is checked against `Item`.\n- `list.loadMore()` moves `page` on by one and asks for the next page, as a refresh: the items already shown stay while it runs.\n- `list.pending` is true while a request runs, so the button cannot ask twice. `list.hasMore` turns false when a page comes back empty, and the button goes.")
 
     }
 }

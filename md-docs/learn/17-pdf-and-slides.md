@@ -365,7 +365,7 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
                 Text("The March pricing test.")
             }
         }
-        ImageSlide(src: "chart.png", caption: "Monthly recurring revenue")
+        ImageSlide(src: "/chart.png", caption: "Monthly recurring revenue")
         Slide {
             style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #fff }
             Heading("Thank you").h1
@@ -374,7 +374,9 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 }
 ```
 
-The result is a six-page PDF, one slide per page.
+The `ImageSlide` reads `public/chart.png`: put a picture of your own there
+first. The build warns (`D01`) when the file is missing. The result is a
+six-page PDF, one slide per page.
 
 ### Write the slides
 

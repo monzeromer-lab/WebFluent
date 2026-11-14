@@ -144,6 +144,7 @@ page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
   ([Carry an element across a route change](shared-element.md)).
 - **Nothing animates at all.** Your system, or the page's root
   (`data-wf-motion="reduce"`), asks for reduced motion.
-- **Your own keyframes are an error as a flag.** Write
-  `animate: .Name`; only the built-in animations are flags
+- **`` E103: Badge has no flag or enum case `Drop` ``, or `` `Card.Drop` is
+  not a part of `Card` `` with a `C03`.** Your own keyframes were written
+  as a flag. Write `animate: .Drop`; only the built-in animations are flags
   ([Declare your own keyframes](keyframes.md)).

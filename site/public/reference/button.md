@@ -1,10 +1,10 @@
 # Button
 
-> Button. Its block holds what it shows; on click what it does.
+> A button: its label or block is what it shows, on click what it does.
 
 The page: https://webfluent.monzeromer.dev/reference/button
 
-Button. Its block holds what it shows; on click what it does.
+A button: its label or block is what it shows, on click what it does.
 
 ```wf
 Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }
@@ -21,7 +21,7 @@ Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }
 | `width:` | `.full` | Width |
 | `outlined:` | `Bool` | A border and no fill |
 | `type:` | `.button .submit .reset` | Its role inside a form |
-| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `to:` | `Path` | The route to go to when it is pressed |
 | `disabled:` | `Bool` | Whether the control is inert |
 
 ## Flags

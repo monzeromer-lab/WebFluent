@@ -285,7 +285,7 @@ page Home(path: "/", title: "Home", description: "A themed page.") {
 
         Heading("Style a component's variants", id: "style-a-component-s-variants").h2
 
-        Markdown("To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a `data-<prop>` attribute, such as `data-tone=\"loud\"`, so one rule styles one variant ([Components](/learn/10-components#enum-props)):")
+        Markdown("To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a `data-<prop>` attribute, such as `data-tone=\"loud\"`, so one rule styles one variant. The `Note` component of [Components](/learn/10-components#enum-props) gives its root `class: \"note\"`, so this rule styles its loud notes and nothing else:")
 
         CodeBlock(#".note[data-tone="loud"] { font-weight: 700; color: var(--color-danger) }"#, title: "css")
 

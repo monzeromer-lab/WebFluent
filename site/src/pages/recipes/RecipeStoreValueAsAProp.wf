@@ -1,7 +1,24 @@
 // A recipe, written from md-docs/recipes/store-value-as-a-prop.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeStoreValueAsAProp(path: "/recipes/store-value-as-a-prop", title: "Pass a store's value to a component — Recipes", description: "Pass one value from a store to a component as a prop, so the component stays reusable outside that store.") {
-    RecipeShell("Pass a store's value to a component", summary: "A component that needs only one value from a store can take it as a prop instead of using the store. That keeps the component reusable outside that store: a test or another page can hand it any number:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address"), RelatedLink(kind: "Recipe", title: "Keep filters in the address", to: "/recipes/filters-in-the-address"), RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog")], source: "md-docs/recipes/store-value-as-a-prop.md", how: true, hasVariations: false) {
+    RecipeShell("Pass a store's value to a component", summary: "A component that needs only one value from a store can take it as a prop instead of using the store. That keeps the component reusable outside that store: a test or another page can hand it any number:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Reorder a list by dragging", to: "/recipes/reorder-by-dragging"), RelatedLink(kind: "Recipe", title: "Add keyboard shortcuts and a command palette", to: "/recipes/keyboard-shortcuts"), RelatedLink(kind: "Recipe", title: "Make a page work with a keyboard and a screen reader", to: "/recipes/keyboard-and-screen-reader")], source: "md-docs/recipes/store-value-as-a-prop.md", how: true, hasVariations: false, project: { "src/pages/StoreValueAsAProp.wf": #"store Cart { state count = 0 }
+
+component CartBadge(count: Number) {
+    if count > 0 { Badge("{count}").primary }
+}
+
+page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
+    use Cart
+    Heading("Shop").h1
+    Row(gap: .sm, align: .center) {
+        Button("Add to cart") { on click { Cart.count = Cart.count + 1 } }
+        CartBadge(count: Cart.count)
+    }
+}
+"#, "webfluent.app.json": #"{
+  "name": "store-value-as-a-prop"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the code. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"store Cart { state count = 0 }
@@ -13,10 +30,13 @@ component CartBadge(count: Number) {
 page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
     use Cart
     Heading("Shop").h1
-    CartBadge(count: Cart.count)
+    Row(gap: .sm, align: .center) {
+        Button("Add to cart") { on click { Cart.count = Cart.count + 1 } }
+        CartBadge(count: Cart.count)
+    }
 }"#, title: "wf")
         }
-        Markdown("- `CartBadge` declares a `count` [prop](/learn/10-components#props) and knows nothing about `Cart`.\n- The page reads the [store](/learn/11-stores#a-first-store) after `use Cart` and passes `Cart.count` down.\n- A prop that reads state stays live inside the component, so the badge repaints when `Cart.count` changes.")
+        Markdown("No badge shows while the cart is empty. Press **Add to cart** and a badge reading 1 appears beside the button, and counts up with every press.\n\n- `CartBadge` declares a `count` [prop](/learn/10-components#props) and knows nothing about `Cart`.\n- The page reads the [store](/learn/11-stores#a-first-store) after `use Cart` and passes `Cart.count` down.\n- A prop that reads state stays live inside the component, so the badge repaints when `Cart.count` changes. The button changes it here; in a shop of your own, an action of the store would.")
 
     }
 }

@@ -10,6 +10,8 @@ Table body section (the original spelling of Table.Body).
 Tbody { … }
 ```
 
+Use [`Table.Body`](https://webfluent.monzeromer.dev/reference/table-body.md) in new code: it is the current spelling, and its page has the example.
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots

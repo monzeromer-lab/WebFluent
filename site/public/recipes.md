@@ -28,6 +28,7 @@ Lists, dialogs, filters, the address bar and the keyboard: what a page does when
 - [Pass a store's value to a component](https://webfluent.monzeromer.dev/recipes/store-value-as-a-prop.md)
 - [Reorder a list by dragging](https://webfluent.monzeromer.dev/recipes/reorder-by-dragging.md)
 - [Add keyboard shortcuts and a command palette](https://webfluent.monzeromer.dev/recipes/keyboard-shortcuts.md)
+- [Make a page work with a keyboard and a screen reader](https://webfluent.monzeromer.dev/recipes/keyboard-and-screen-reader.md)
 
 ## Forms and data
 
@@ -53,12 +54,14 @@ Sockets, streams, other tabs, other readers and workers.
 
 ## Content
 
-Markdown, pages written as Markdown, code on the page, a page for unknown addresses, a PDF, and what search engines and link previews read.
+Markdown, pages written as Markdown, HTML from elsewhere, code on the page, a page per item, a page for unknown addresses, a PDF, and what search engines and link previews read.
 
 - [Write a page as a Markdown file](https://webfluent.monzeromer.dev/recipes/markdown-pages.md)
 - [Render Markdown](https://webfluent.monzeromer.dev/recipes/render-markdown.md)
+- [Show HTML from outside the project](https://webfluent.monzeromer.dev/recipes/show-html-from-outside.md)
 - [Show code on a page](https://webfluent.monzeromer.dev/recipes/show-code.md)
 - [Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)
+- [Pre-render a page for each item](https://webfluent.monzeromer.dev/recipes/pre-render-each-item.md)
 - [Show your own page for an unknown address](https://webfluent.monzeromer.dev/recipes/not-found-page.md)
 - [Make a PDF report](https://webfluent.monzeromer.dev/recipes/pdf-report.md)
 
@@ -122,6 +125,8 @@ Putting a site on a host, in the order you need them: install `wf` where the sit
 - [Serve a site with Caddy](https://webfluent.monzeromer.dev/recipes/serve-with-caddy.md)
 - [Serve an API on the same origin](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)
 - [Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md)
+- [Allow other origins in the security policy](https://webfluent.monzeromer.dev/recipes/allow-other-origins.md)
+- [Review a site's security before you deploy](https://webfluent.monzeromer.dev/recipes/review-security.md)
 - [Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md)
 
 ## Desktop and phone apps
@@ -144,7 +149,7 @@ Your own JavaScript, libraries, and custom elements, both ways.
 - [Draw a chart from a library](https://webfluent.monzeromer.dev/recipes/chart-from-a-library.md)
 - [Place a custom element from a library](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md)
 - [Publish components as custom elements](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md)
-- [Migrate from external](https://webfluent.monzeromer.dev/recipes/migrate-from-external.md)
+- [Upgrade a WebFluent 4 project that uses external](https://webfluent.monzeromer.dev/recipes/migrate-from-external.md)
 
 ## Server rendering
 

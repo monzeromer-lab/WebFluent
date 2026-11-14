@@ -29,6 +29,7 @@ Lists, dialogs, filters, the address bar and the keyboard: what a page does when
 - [Pass a store's value to a component](store-value-as-a-prop.md)
 - [Reorder a list by dragging](reorder-by-dragging.md)
 - [Add keyboard shortcuts and a command palette](keyboard-shortcuts.md)
+- [Make a page work with a keyboard and a screen reader](keyboard-and-screen-reader.md)
 
 ## Forms and data
 
@@ -54,12 +55,14 @@ Sockets, streams, other tabs, other readers and workers.
 
 ## Content
 
-Markdown, pages written as Markdown, code on the page, a page for unknown addresses, a PDF, and what search engines and link previews read.
+Markdown, pages written as Markdown, HTML from elsewhere, code on the page, a page per item, a page for unknown addresses, a PDF, and what search engines and link previews read.
 
 - [Write a page as a Markdown file](markdown-pages.md)
 - [Render Markdown](render-markdown.md)
+- [Show HTML from outside the project](show-html-from-outside.md)
 - [Show code on a page](show-code.md)
 - [Describe pages to search engines and link previews](search-and-link-previews.md)
+- [Pre-render a page for each item](pre-render-each-item.md)
 - [Show your own page for an unknown address](not-found-page.md)
 - [Make a PDF report](pdf-report.md)
 
@@ -123,6 +126,8 @@ Putting a site on a host, in the order you need them: install `wf` where the sit
 - [Serve a site with Caddy](serve-with-caddy.md)
 - [Serve an API on the same origin](api-on-the-same-origin.md)
 - [Set cache and security headers](cache-and-security-headers.md)
+- [Allow other origins in the security policy](allow-other-origins.md)
+- [Review a site's security before you deploy](review-security.md)
 - [Check a deploy](check-a-deploy.md)
 
 ## Desktop and phone apps
@@ -145,7 +150,7 @@ Your own JavaScript, libraries, and custom elements, both ways.
 - [Draw a chart from a library](chart-from-a-library.md)
 - [Place a custom element from a library](place-a-custom-element.md)
 - [Publish components as custom elements](publish-custom-elements.md)
-- [Migrate from external](migrate-from-external.md)
+- [Upgrade a WebFluent 4 project that uses external](migrate-from-external.md)
 
 ## Server rendering
 

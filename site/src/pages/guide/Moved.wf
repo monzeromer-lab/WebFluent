@@ -1,6 +1,11 @@
 /// The guide's old addresses: each sends the reader to the page that is
 /// there now. Written by scripts/docsite/guide.py from each page's `from:`.
 
+page WasAboutUpgrading(path: "/about/upgrading", title: "Moved", description: "This page moved.", guard: false, redirect: "/errors/upgrading", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/errors/upgrading")
+}
+
 page WasDocsGuideAccessibility(path: "/docs/guide/accessibility", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/accessibility", noindex: true) {
     Heading("Moved").h1
     Link("Go on", to: "/about/accessibility")
@@ -116,9 +121,9 @@ page WasDocsGuideTypes(path: "/docs/guide/types", title: "Moved", description: "
     Link("Go on", to: "/learn/12-types")
 }
 
-page WasDocsGuideUpgrading(path: "/docs/guide/upgrading", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/upgrading", noindex: true) {
+page WasDocsGuideUpgrading(path: "/docs/guide/upgrading", title: "Moved", description: "This page moved.", guard: false, redirect: "/errors/upgrading", noindex: true) {
     Heading("Moved").h1
-    Link("Go on", to: "/about/upgrading")
+    Link("Go on", to: "/errors/upgrading")
 }
 
 page WasDocsTutorialsTodos(path: "/docs/tutorials/todos", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/03-tutorial-todos", noindex: true) {

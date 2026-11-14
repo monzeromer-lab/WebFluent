@@ -27,6 +27,10 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 }
 ```
 
+The page shows the first page of items and a **Load more** button.
+Each press adds the next page beneath what is there, without losing the
+reader's place, and the button goes away once there is nothing more.
+
 ## How it works
 
 - `Catalog` [describes the service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api):

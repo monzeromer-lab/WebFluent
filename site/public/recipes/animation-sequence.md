@@ -21,6 +21,10 @@ page Landing(path: "/", title: "Welcome", description: "A page that introduces i
 }
 ```
 
+The heading fades in as the page opens, the line beneath it slides up a
+moment later, and the button slides up last, so the page arrives in order
+rather than all at once.
+
 ## How it works
 
 - `after:` is measured from the step before it, so the three start at 0ms,

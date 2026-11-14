@@ -8,7 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
-                ReleaseNotes(version: "6.1.0", id: "6.1.0"),
+                ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14"),
                 ReleaseNotes(version: "6.0.0", id: "6.0.0", date: "2026-11-13"),
                 ReleaseNotes(version: "5.14.0", id: "5.14.0", date: "2026-11-12"),
                 ReleaseNotes(version: "5.13.0", id: "5.13.0", date: "2026-11-11"),
@@ -73,7 +73,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                 }
             }
 
-            ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", summary: #"A site sends much less: the runtime ships only the functions a program
+            ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
 on. The compiler draws icons and the reader's theme before any script
 runs, and refuses a few more programs that built and then failed in the
@@ -651,7 +651,7 @@ developer documentation, and the chapters are ordered by what a reader is
 there to do: start, learn the language, build the parts of an app, ship,
 and look things up. The site has a front page that answers a visitor's
 questions in order, and its pages, sidebar and search come from the guide."#),
-                NotesSection(title: #"Upgrading"#, id: "5.12.0-upgrading", intro: #"See [chapter 51](/about/upgrading#5-12): store members named like
+                NotesSection(title: #"Upgrading"#, id: "5.12.0-upgrading", intro: #"See [chapter 51](/errors/upgrading#5-12): store members named like
 an object's own (`E118`), a test declaration named like the project's
 (`E102`), where `T06` is reported, `output_type: "static"`, and smaller
 WebP. Run `wf check`."#)
@@ -747,7 +747,7 @@ that the author marks `aria-hidden` (`Aa` beside "Match case")."#),
 `.closable` and `Dialog.Title`, so every part the registry lists has
 one a tool can show."#)
                 ]),
-                NotesSection(title: #"Upgrading"#, id: "5.11.0-upgrading", intro: #"See [chapter 46](/about/upgrading#5-11): gestures on a component
+                NotesSection(title: #"Upgrading"#, id: "5.11.0-upgrading", intro: #"See [chapter 46](/errors/upgrading#5-11): gestures on a component
 that is not one element (C07), a handler's names (T22), a test file's own
 declarations, a control's name as a reader hears it, a block's names, a
 menu item's class, and a value's own method over a helper. Run `wf check`."#)
@@ -969,7 +969,7 @@ surface, and its text the theme's text colour."#),
 across page loads, in `localStorage` under `wf:locale`, so a static site
 keeps the reader's language from page to page. A `?lang=` address still
 wins, without changing the saved choice."#),
-                    Change(text: #"**A site may frame its own pages** ([chapter 23](/about/security#ship-a-content-security-policy)).
+                    Change(text: #"**A site may frame its own pages** ([chapter 23](/about/security#the-content-security-policy)).
 A `Frame` whose `src:` is site-relative (`"/preview/"`, `"/embed/{id}"`)
 was refused by the site's own headers. A project that places one is
 served `X-Frame-Options: SAMEORIGIN` by `wf serve`, and its `_headers`
@@ -1057,7 +1057,7 @@ or passed through a component's call, and a call's `data-*`, `aria-*`,
 member's name was compiled to the member, so writing it wrote the store;
 in a page or a component, one that shared a prop's name read the prop."#)
                 ]),
-                NotesSection(title: #"Upgrading"#, id: "5.10.0-upgrading", intro: #"See [chapter 46](/about/upgrading#5-10): Markdown's backslash
+                NotesSection(title: #"Upgrading"#, id: "5.10.0-upgrading", intro: #"See [chapter 46](/errors/upgrading#5-10): Markdown's backslash
 escapes and checked links, attributes that built-ins now write, a modal's
 Escape and painted title, column spans that leave room for the gap, a `Menu`'s `label:` that no longer names its button, a
 form without `bind:` that asks its rules, a bound box whose `on change`
@@ -1157,7 +1157,7 @@ the project's `env`."#),
                     Change(text: #"A comma between two style declarations made the browser drop both; it is
 an error."#)
                 ]),
-                NotesSection(title: #"Upgrading"#, id: "5.9.0-upgrading", intro: #"See [chapter 46](/about/upgrading#5-9): a comma between style
+                NotesSection(title: #"Upgrading"#, id: "5.9.0-upgrading", intro: #"See [chapter 46](/errors/upgrading#5-9): a comma between style
 declarations, a field that accepted its range's open end, an animation
 that now plays, a `zero` message that now shows, and a right-to-left
 default locale are what a project may notice. Run `wf check`."#)
@@ -1786,7 +1786,7 @@ browser, says so with one kind of finding everywhere — the build, `wf
 check`, the editor, a CI annotation — and offers the fix where it knows
 it. This is a major release because a project that built under 4.x may
 stop on errors it always had: start with `wf check`, and read
-[Upgrading](/about/upgrading#5-0)."#, sections: [
+[Upgrading](/errors/upgrading#5-0)."#, sections: [
                 NotesSection(title: #"One finding, everywhere"#, id: "5.0.0-one-finding-everywhere", items: [
                     Change(text: #"**Every finding has a code, a place and a span**, a hint, the other places
 it concerns and, where the fix is known, the edits that make it. The

@@ -219,7 +219,7 @@ wf migrate [path] [--check] [--wfx]         Bring an older project up to date (W
 - **[The documentation](https://webfluent.monzeromer.dev)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
 - **[Reference](https://webfluent.monzeromer.dev/reference)** — every component, [CLI command](md-docs/reference/cli.md), [config key](md-docs/reference/configuration.md), [diagnostic](md-docs/errors/diagnostics.md) and [keyword](md-docs/reference/grammar.md)
 - **[PDF benchmark](bench/pdf/RESULTS.md)** — WebFluent against headless Chrome on the same invoice: method, machine and results, reproducible with `just bench-pdf`
-- **[Troubleshooting](md-docs/errors/troubleshooting.md)** and **[upgrading](md-docs/about/upgrading.md)**
+- **[Troubleshooting](md-docs/errors/troubleshooting.md)** and **[upgrading](md-docs/errors/upgrading.md)**
 - **[The guide's source](md-docs/)** — the same chapters as Markdown; every code block in them is compiled by the test suite
 
 ## How it works

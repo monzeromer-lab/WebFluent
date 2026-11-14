@@ -1,7 +1,16 @@
 // A recipe, written from md-docs/recipes/count-a-number.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeCountANumber(path: "/recipes/count-a-number", title: "Count a number to its new value — Recipes", description: "Make a number count to its new value instead of jumping: give its element count: with a length of time, and each step keeps its format.") {
-    RecipeShell("Count a number to its new value", summary: "Make a figure arrive rather than jump — a total, a score, a balance — by giving its element `count:` with a length of time. Press **Load** and the revenue counts from `$0.00` to `$1,200.00`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Animate an element in and out", to: "/recipes/animate-in-and-out"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Run a sequence of animations", to: "/recipes/animation-sequence")], source: "md-docs/recipes/count-a-number.md", how: true, hasVariations: false) {
+    RecipeShell("Count a number to its new value", summary: "Make a figure arrive rather than jump — a total, a score, a balance — by giving its element `count:` with a length of time. Press **Load** and the revenue counts from `$0.00` to `$1,200.00`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Tween a property when state changes", to: "/recipes/tween-on-change"), RelatedLink(kind: "Recipe", title: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults"), RelatedLink(kind: "Recipe", title: "Declare your own keyframes", to: "/recipes/keyframes")], source: "md-docs/recipes/count-a-number.md", how: true, hasVariations: false, project: { "src/pages/CountANumber.wf": #"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
+    state revenue = 0
+    Heading("Revenue").h1
+    Text(format(revenue, .currency), count: "600ms")
+    Button("Load") { on click { revenue = 1200 } }
+}
+"#, "webfluent.app.json": #"{
+  "name": "count-a-number"
+}
+"# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
             CodeBlock(#"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {

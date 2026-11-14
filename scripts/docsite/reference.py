@@ -92,6 +92,18 @@ def legacy(c: dict) -> bool:
     return "original spelling" in s or "original grammar" in s
 
 
+def modern_of(c: dict, by_name: dict) -> tuple:
+    """What a legacy name was replaced by, as (label, route): the built-in its
+    summary names (`the original spelling of `Table.Cell``), or the page
+    declaration for `Route`."""
+    m = re.search(r"original spelling of `([\w.]+)`", c["summary"])
+    if m and m.group(1) in by_name:
+        return m.group(1), "/reference/" + slug_of(by_name[m.group(1)])
+    if "original grammar" in c["summary"]:
+        return "page", "/learn/05-pages-and-routing"
+    return "", ""
+
+
 def universal_names(reg: dict) -> set:
     """The props every element takes: a flag of one (`.trapFocus`,
     `.fadeIn`) is listed once, on every element, not on each built-in."""
@@ -232,6 +244,7 @@ def components(reg: dict) -> dict:
             "signature": signature(c),
             "block": c["children"] == "elements",
             "legacy": legacy(c),
+            "modern": modern_of(c, by_name) if legacy(c) else ("", ""),
             "props": props,
             "controls": controls,
             "flags": [f".{f['name']}" for f in own_flags(c, universal)],
@@ -605,6 +618,8 @@ def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
         out.append('        notes { Text(t("stage.static"), class: "bp-small") }')
     if c["owner"]:
         out.append(f'        Markdown(t("ref.partof", {{ owner: {q(c["owner"])}, to: "/reference/{c["ownerSlug"]}" }}), class: "bp-prose")')
+    if c["modern"][0]:
+        out.append(f'        Markdown(t("ref.legacy", {{ modern: {q(c["modern"][0])}, to: {q(c["modern"][1])} }}), class: "bp-prose")')
     out.append('        Heading(t("ref.tab.props"), id: "props").h2')
     if c["props"]:
         out.append(f'        PropsTable(rows: {rows(c["props"])}, caption: {q("Props of " + c["name"])})')
@@ -640,6 +655,8 @@ def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
     out.append('        Heading(t("ref.example"), id: "example").h2')
     if c["example"]:
         out.append(f'        CodeBlock({guide.wf_raw(c["example"])}, title: "wf")')
+    elif c["modern"][0]:
+        out.append(f'        Markdown(t("ref.legacy.example", {{ modern: {q(c["modern"][0])}, to: {q(c["modern"][1])} }}), class: "bp-small")')
     else:
         out.append('        Text(t("ref.noexample"), class: "bp-small")')
     if c["cssClass"]:

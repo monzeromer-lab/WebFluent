@@ -25,9 +25,15 @@ component CartBadge(count: Number) {
 page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
     use Cart
     Heading("Shop").h1
-    CartBadge(count: Cart.count)
+    Row(gap: .sm, align: .center) {
+        Button("Add to cart") { on click { Cart.count = Cart.count + 1 } }
+        CartBadge(count: Cart.count)
+    }
 }
 ```
+
+No badge shows while the cart is empty. Press **Add to cart** and a badge
+reading 1 appears beside the button, and counts up with every press.
 
 ## How it works
 
@@ -36,4 +42,5 @@ page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
 - The page reads the [store](../learn/11-stores.md#a-first-store) after
   `use Cart` and passes `Cart.count` down.
 - A prop that reads state stays live inside the component, so the badge
-  repaints when `Cart.count` changes.
+  repaints when `Cart.count` changes. The button changes it here; in a shop
+  of your own, an action of the store would.
