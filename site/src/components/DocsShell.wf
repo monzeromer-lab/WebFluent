@@ -28,11 +28,7 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
     }
 
     // The book as the contents panel lists it on a phone.
-    derived bookEntries = if kind == .tutorial {
-        book.map(c => IndexEntry(label: "{c.n}. " + (if c.key != "" { t(c.key) } else { c.title }), to: c.to, group: if c.part != "" { t(c.part) } else { "" }))
-    } else {
-        []
-    }
+    derived bookEntries = book.filter(c => kind == .tutorial).map(c => IndexEntry(label: "{c.n}. " + (if c.key != "" { t(c.key) } else { c.title }), to: c.to, group: if c.part != "" { t(c.part) } else { "" }))
 
     SiteHeader(docs: true, other: other, lang: lang, section: section)
 

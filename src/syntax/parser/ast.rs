@@ -1685,7 +1685,7 @@ pub enum UnaryOp {
 /// `role: "main"` — so the box the router draws pages into is a plain
 /// `div`, not a second `main` around the program's own (and around the
 /// header a page draws, which is then no top-level banner).
-pub fn draws_its_own_main(program: &Program) -> bool {
+pub(crate) fn draws_its_own_main(program: &Program) -> bool {
     fn any(stmts: &[Statement]) -> bool {
         stmts.iter().any(|s| {
             if let StatementKind::UIElement(el) = &s.kind {
