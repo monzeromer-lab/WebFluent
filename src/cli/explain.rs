@@ -110,12 +110,29 @@ fn section(code: &str) -> Option<&'static str> {
 }
 
 /// Markdown made for a terminal: code blocks indented and unfenced, the
-/// emphasis marks off.
+/// emphasis marks off. A page's programs are labelled as the site labels
+/// them — the one that draws the code, what the compiler prints for it,
+/// and the one fixed — since unfenced they read as one block.
 fn terminal(markdown: &str) -> String {
     let mut out = String::new();
     let mut in_code = false;
     for line in markdown.lines() {
-        if line.trim_start().starts_with("```") {
+        if let Some(info) = line.trim_start().strip_prefix("```") {
+            if !in_code {
+                let label = if info.contains("expect=") {
+                    Some("Broken:")
+                } else if info.split_whitespace().any(|w| w == "fixed") {
+                    Some("Fixed:")
+                } else if info.trim() == "text" {
+                    Some("The compiler prints:")
+                } else {
+                    None
+                };
+                if let Some(label) = label {
+                    out.push_str(label);
+                    out.push_str("\n\n");
+                }
+            }
             in_code = !in_code;
             continue;
         }

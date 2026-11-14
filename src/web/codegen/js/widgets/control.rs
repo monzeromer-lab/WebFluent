@@ -513,6 +513,16 @@ impl JsCodegen {
         let input_var = self.fresh_var();
         let mut input_attrs =
             format!("type: \"range\", min: {min_val}, max: {max_val}, step: {step}");
+        // The label names the input: it is drawn beside it, not around it
+        // or tied to it by `for`, so without this the control had no name.
+        if let Some(l) = &label
+            && !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+        {
+            input_attrs.push_str(&format!(", \"aria-label\": {}", self.live(l)));
+        }
         if let Some(target) = &bind_var {
             // An author's own on:input runs after the binding has written the
             // state, in one handler: two "on:input" keys in one attribute
@@ -654,6 +664,16 @@ impl JsCodegen {
 
         let input_var = self.fresh_var();
         let mut input_attrs = "type: \"date\", className: \"wf-input\"".to_string();
+        // The label names the input: it is drawn beside it, not around it
+        // or tied to it by `for`, so without this the control had no name.
+        if let Some(l) = &label
+            && !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+        {
+            input_attrs.push_str(&format!(", \"aria-label\": {}", self.live(l)));
+        }
         if let Some(target) = &bind_var {
             input_attrs.push_str(&format!(
                 ", value: () => {} ?? \"\", \"on:change\": ($$e) => {{ {}; }}",
@@ -734,6 +754,16 @@ impl JsCodegen {
 
         let input_var = self.fresh_var();
         let mut input_attrs = "type: \"file\", className: \"wf-input\"".to_string();
+        // The label names the input: it is drawn beside it, not around it
+        // or tied to it by `for`, so without this the control had no name.
+        if let Some(l) = &label
+            && !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+        {
+            input_attrs.push_str(&format!(", \"aria-label\": {}", self.live(l)));
+        }
         if let Some(acc) = &accept {
             input_attrs.push_str(&format!(", accept: {acc}"));
         }

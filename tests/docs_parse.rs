@@ -1003,9 +1003,9 @@ fn chapter(stem: &str) -> String {
 }
 
 /// Every finding the build would report for `src`, through the build's own
-/// pipeline, as if it were `src/App.wf`.
-fn findings(src: &str) -> Vec<webfluent::diagnostics::Diagnostic> {
-    let file = "src/App.wf";
+/// pipeline, as if it were saved as `file`: `src/App.wfx` reads it in the
+/// indented layout.
+fn findings_in(src: &str, file: &str) -> Vec<webfluent::diagnostics::Diagnostic> {
     let (program, mut out) = webfluent::syntax::parse_source_recovering(src, file);
     let incomplete = !out.is_empty();
     let source = src.to_string();
@@ -1023,14 +1023,6 @@ fn findings(src: &str) -> Vec<webfluent::diagnostics::Diagnostic> {
         });
     out.extend(checked.diagnostics);
     out
-}
-
-/// [`findings`], as text.
-fn every_finding(src: &str) -> Vec<String> {
-    findings(src)
-        .iter()
-        .map(std::string::ToString::to_string)
-        .collect()
 }
 
 /// Each example's ```` ```text ```` block is what the compiler prints for
@@ -1067,9 +1059,9 @@ fn shows_what_the_build_prints(path: &Path, text: &str, write: bool) -> Vec<Stri
     let mut i = 0;
     while i < lines.len() {
         out.push(lines[i].to_string());
-        let Some(code) = crate::common::fence(lines[i])
+        let Some((code, file)) = crate::common::fence(lines[i])
             .and_then(Result::ok)
-            .and_then(|f| f.expect)
+            .and_then(|f| f.expect.map(|c| (c, example_file(&f.lang))))
         else {
             i += 1;
             continue;
@@ -1084,7 +1076,10 @@ fn shows_what_the_build_prints(path: &Path, text: &str, write: bool) -> Vec<Stri
         }
         out.push("```".to_string());
         i += 1;
-        let Some(finding) = findings(&body).into_iter().find(|d| d.code == code) else {
+        let Some(finding) = findings_in(&body, file)
+            .into_iter()
+            .find(|d| d.code == code)
+        else {
             continue;
         };
         let want = webfluent::diagnostics::render::diagnostic(&finding, Some(&body), false);
@@ -1146,9 +1141,9 @@ fn every_diagnostic_example_draws_its_code() {
     for (name, text) in crate::common::guide_pages() {
         let mut lines = text.lines().enumerate();
         while let Some((at, line)) = lines.next() {
-            let Some(code) = crate::common::fence(line)
+            let Some((code, file)) = crate::common::fence(line)
                 .and_then(Result::ok)
-                .and_then(|f| f.expect)
+                .and_then(|f| f.expect.map(|c| (c, example_file(&f.lang))))
             else {
                 continue;
             };
@@ -1160,7 +1155,10 @@ fn every_diagnostic_example_draws_its_code() {
                 body.push_str(l);
                 body.push('\n');
             }
-            let found = every_finding(&body);
+            let found: Vec<String> = findings_in(&body, file)
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect();
             if !found.iter().any(|f| f.contains(&format!("[{code}]"))) {
                 failures.push(format!(
                     "md-docs/{name}:{}: does not draw {code}; it draws {found:?}",
@@ -1220,8 +1218,8 @@ fn every_diagnostic_example_draws_its_code() {
 /// refuses, the compiler's own faults, and what only a project around the
 /// program — its config, its scripts, its output mode — can show.
 const EXAMPLE_EXEMPT: &[&str] = &[
-    "E003", "E005", "E108", "E109", "E110", "E111", "E112", "E115", "E119", "E901", "E902", "D05",
-    "D01", "D04", "I01", "I02", "I03", "I04", "I05", "A13", "V02",
+    "E005", "E108", "E109", "E110", "E111", "E112", "E115", "E119", "E901", "E902", "D05", "D01",
+    "D04", "I01", "I02", "I03", "I04", "I05", "A13", "V02",
     // E120 needs a hundred levels of nesting to show, and E121 is a
     // template render's, which no check draws.
     "E120", "E121",
@@ -1990,7 +1988,12 @@ fn every_fence_in_the_guide_says_what_a_fence_can() {
                             ix + 1
                         ));
                     }
-                    if (f.page || f.live || f.expect.is_some() || f.fixed) && f.lang != "wf" {
+                    // An example of a code may be in the indented layout
+                    // (E003 is one); a page or a live block is `.wf`.
+                    let example_lang = matches!(f.lang.as_str(), "wf" | "wfx");
+                    if ((f.page || f.live) && f.lang != "wf")
+                        || ((f.expect.is_some() || f.fixed) && !example_lang)
+                    {
                         failures.push(format!(
                             "md-docs/{name}:{}: only a `wf` block is a page, live or expected to fail",
                             ix + 1
@@ -2040,7 +2043,10 @@ fn every_fixed_example_draws_nothing() {
                 continue;
             };
             fixed_one = true;
-            let found = every_finding(&body);
+            let found: Vec<String> = findings_in(&body, example_file(&f.lang))
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect();
             if !found.is_empty() {
                 failures.push(format!(
                     "md-docs/{name}:{}: the fix for {code} still draws {found:?}",
@@ -2394,4 +2400,14 @@ fn built_sitemap() -> String {
             std::fs::read_to_string(out.join("sitemap.xml")).expect("the built sitemap")
         })
         .clone()
+}
+
+/// Where an example is saved to be checked: a ```` ```wfx ```` block is an
+/// indented-layout file.
+fn example_file(lang: &str) -> &'static str {
+    if lang == "wfx" {
+        "src/App.wfx"
+    } else {
+        "src/App.wf"
+    }
 }

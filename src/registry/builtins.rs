@@ -1149,7 +1149,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Table",
         "Body",
         Ir::BuiltIn("Tbody"),
-        "Body section.",
+        "The body of a table: its rows of data.",
         None,
         &[],
         G,
@@ -1159,7 +1159,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Table",
         "Row",
         Ir::BuiltIn("Trow"),
-        "A row.",
+        "A row of cells.",
         None,
         &[],
         G,
@@ -1461,7 +1461,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "DatePicker",
         "Form",
-        "Date input.",
+        "A date field: the reader picks a day, and the bound state holds a `Date`.",
         None,
         &[
             BIND,
@@ -1698,7 +1698,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Button",
         "Actions",
-        "Button. Its block holds what it shows; `on click` what it does.",
+        "A button: its label or block is what it shows, `on click` what it does.",
         Some(special("label", PropType::Str, "The label")),
         &[
             variant("tone", TONES, "Colour"),
@@ -1722,7 +1722,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 ]),
                 "Its role inside a form",
             ),
-            TO,
+            special("to", PropType::Path, "The route to go to when it is pressed"),
             DISABLED,
         ],
         &[],
@@ -1980,7 +1980,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Carousel",
         "Slide",
         Ir::Sub("Carousel", "Slide"),
-        "One slide.",
+        "One slide of a carousel.",
         None,
         &[],
         G,
@@ -2084,7 +2084,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Element",
         "Layout",
-        "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishable-key: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
+        "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishableKey: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
         Some(special(
             "tag",
             PropType::Str,

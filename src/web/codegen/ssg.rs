@@ -2636,6 +2636,16 @@ fn render_labelled_input<C: Paint>(
             "class=\"wf-input\"".to_string(),
         ],
     };
+    // The label names the input, as the live page writes it: it is drawn
+    // beside the input, not around it or tied to it by `for`.
+    if let Some(label) = named("label")
+        && !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
+    {
+        input_attrs.push(format!("aria-label=\"{}\"", html_escape(&label)));
+    }
     for key in ["min", "max", "accept", "value"] {
         if (name != "Slider" || !matches!(key, "min" | "max"))
             && let Some(v) = named(key)

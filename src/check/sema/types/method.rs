@@ -260,7 +260,9 @@ impl Checker<'_, '_> {
             self.error_at_current(
                 "T04",
                 format!("`{}` may be null, so `.{method}()` may fail", expr_text(obj)),
-                "Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`",
+                &format!(
+                    "Unwrap it first: `if let x = value {{ … }}`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`"
+                ),
             );
         }
         let obj_ty = obj_ty.unwrapped();
