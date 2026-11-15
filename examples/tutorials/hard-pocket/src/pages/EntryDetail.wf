@@ -42,7 +42,7 @@ page EntryDetail(path: "/entries/:id", id: String, paths: SAMPLE_ENTRIES.take(2)
     } else {
         PageHeader(t("entry.missing"))
         Card(class: "panel") {
-            EmptyState(t("entry.missingBody")) { Link(t("dash.all"), to: "/entries") }
+            EmptyState(icon: "search", title: t("entry.missingBody")) { Link(t("dash.all"), to: "/entries") }
         }
     }
 }

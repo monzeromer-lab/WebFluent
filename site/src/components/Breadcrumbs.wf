@@ -1,14 +1,13 @@
-/// Where a page sits: its section, then the group within it. The last
-/// crumb is the page's own place and is not a link.
+/// Where a page sits: its section, then the group within it — the built-in
+/// `Breadcrumb`. The last crumb is the page's own place and is not a link.
 component Breadcrumbs(trail: [Place] = [], current: String = "") {
-    Row(align: .center, gap: .xs, role: "navigation", aria-label: t("crumbs.label")) {
-        style { flex-wrap: wrap; gap: 6px; font-size: 13px; color: $muted; & p { margin: 0 } & a { color: $muted; text-decoration: none } & a:hover { color: $ink } }
+    Breadcrumb(aria-label: t("crumbs.label")) {
+        style { flex-wrap: wrap; gap: 6px; font-size: 13px; color: $muted; & p { margin: 0 } & a { display: inline-flex; align-items: center; min-height: 24px; color: $muted; text-decoration: none } & a:hover { color: $ink } & .wf-breadcrumb__item::before { color: $muted } }
         for crumb in trail by crumb.to {
-            Link(t(crumb.key), to: crumb.to)
-            Text("/", aria-hidden: "true")
+            Breadcrumb.Item(to: crumb.to) { Text(t(crumb.key)) }
         }
         if current != "" {
-            Text(current, aria-current: "page") { style { color: $ink } }
+            Breadcrumb.Item { Text(current) { style { color: $ink } } }
         }
     }
 }

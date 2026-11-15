@@ -303,6 +303,15 @@ template engine and, where it can be, in a PDF.
 
 ## Reached by every reader
 
+- Every control of the documentation site is at least 24×24 (WCAG
+  2.5.8): the footer, breadcrumb and card links, and "Cookie settings".
+  So is a `Slider`'s input.
+- A `Breadcrumb`'s last crumb says it is the page the reader is on
+  (`aria-current="page"`).
+- The site's props and events tables are `DataTable`s, its breadcrumbs a
+  `Breadcrumb`, and its search's kinds a `ToggleGroup`; the tutorials use
+  the built-in `ThemeToggle`, `EmptyState` and `Stat`.
+- The reference's list of DOM events named `focusin` and `focusout` twice.
 - **A `Switch` can be reached from the keyboard and is heard as a switch.**
   Its input was `display: none`, which took the very element that says
   "switch" and "on" out of the Tab order and the accessibility tree. It is

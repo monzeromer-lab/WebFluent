@@ -29,7 +29,7 @@ page Dashboard(path: "/", title: "Pocket", description: "Where your money went t
         Card(class: "panel") {
             Heading(t("dash.budgets")).h2
             if Ledger.budgets.length == 0 {
-                EmptyState(t("budget.none")) { Link(t("budget.set"), to: "/categories") }
+                EmptyState(icon: "search", title: t("budget.none")) { Link(t("budget.set"), to: "/categories") }
             } else {
                 Stack(gap: .md) {
                     for line in Ledger.budgets by line.category.id { BudgetBar(line) }
@@ -44,7 +44,7 @@ page Dashboard(path: "/", title: "Pocket", description: "Where your money went t
             Link(t("dash.all"), to: "/entries")
         }
         if Ledger.entries.length == 0 {
-            EmptyState(t("empty.ledger"), body: t("empty.ledgerBody")) {
+            EmptyState(icon: "search", title: t("empty.ledger"), text: t("empty.ledgerBody")) {
                 Button(t("action.new")).primary { on click { Ui.compose() } }
             }
         } else {

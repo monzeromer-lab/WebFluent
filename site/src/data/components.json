@@ -22482,18 +22482,6 @@
     "fallback": ""
    },
    {
-    "name": "focusin",
-    "kind": "",
-    "detail": "The element or something inside it received focus",
-    "fallback": ""
-   },
-   {
-    "name": "focusout",
-    "kind": "",
-    "detail": "The element or something inside it lost focus",
-    "fallback": ""
-   },
-   {
     "name": "reset",
     "kind": "",
     "detail": "The form was reset",

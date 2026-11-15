@@ -533,11 +533,11 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Slider ────────────────────────────────────────── */
 .wf-slider { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
 /*@full*/
-.wf-slider input[type="range"] { flex: 1; accent-color: var(--color-primary); min-width: 120px; }
+.wf-slider input[type="range"] { flex: 1; accent-color: var(--color-primary); min-width: 120px; min-block-size: var(--target-min); }
 .wf-slider__value { font-size: var(--font-size-sm); color: var(--color-text-muted); min-width: 2em; text-align: end; }
 .wf-form-label { font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); color: var(--color-text); margin-bottom: var(--spacing-xs); display: block; }
 /*@structural*/
-.wf-slider input[type="range"] { flex: 1; min-width: 120px; accent-color: var(--color-primary); }
+.wf-slider input[type="range"] { flex: 1; min-width: 120px; min-block-size: var(--target-min); accent-color: var(--color-primary); }
 .wf-slider__value { min-width: 2em; text-align: end; }
 .wf-form-label { display: block; margin-bottom: var(--spacing-xs); }
 /*@both*/

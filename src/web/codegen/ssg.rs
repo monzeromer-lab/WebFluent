@@ -1379,6 +1379,18 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
             // A `Breadcrumb.Item` without `to` is the current page, a
             // `<span>` inside the `<nav>` as the SPA draws it; a list's item
             // is an `<li>`.
+            // The crumb of the page the reader is on says so.
+            if parent == "Breadcrumb" && sub == "Item" {
+                let indent = ctx.indent_str();
+                let wf = ctx.wf_node_attr_inline(ui);
+                let mut out =
+                    format!("{indent}<span class=\"{class}\" aria-current=\"page\"{wf}>\n");
+                ctx.indent += 1;
+                out.push_str(&ctx.statements(&ui.children));
+                ctx.indent -= 1;
+                out.push_str(&format!("{indent}</span>\n"));
+                return out;
+            }
             let tag = match (parent.as_str(), sub.as_str()) {
                 ("Breadcrumb", "Item") => "span",
                 (_, "Item") => "li",

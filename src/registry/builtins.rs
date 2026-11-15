@@ -642,11 +642,6 @@ pub const UNIVERSAL_EVENTS: &[(&str, &str)] = &[
     ("touchmove", "A finger moved across the element"),
     ("wheel", "The wheel or trackpad scrolled over the element"),
     ("scroll", "The element's content scrolled"),
-    (
-        "focusin",
-        "The element or something inside it received focus",
-    ),
-    ("focusout", "The element or something inside it lost focus"),
     ("reset", "The form was reset"),
     ("invalid", "A control failed the browser's own validation"),
     ("select", "Text in a field was selected"),

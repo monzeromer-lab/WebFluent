@@ -4393,8 +4393,6 @@ Events every element accepts in an `on … { }` handler:
 - `on touchmove` — A finger moved across the element
 - `on wheel` — The wheel or trackpad scrolled over the element
 - `on scroll` — The element's content scrolled
-- `on focusin` — The element or something inside it received focus
-- `on focusout` — The element or something inside it lost focus
 - `on reset` — The form was reset
 - `on invalid` — A control failed the browser's own validation
 - `on select` — Text in a field was selected

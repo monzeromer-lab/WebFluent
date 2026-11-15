@@ -39,7 +39,7 @@ page Entries(path: "/entries", title: "Entries", description: "Every entry in th
 
     Card(class: "panel") {
         if shown.length == 0 {
-            EmptyState(t("empty.filtered"), body: t("empty.filteredBody")) {
+            EmptyState(icon: "search", title: t("empty.filtered"), text: t("empty.filteredBody")) {
                 Link(t("filter.clear"), to: "/entries")
             }
         } else {

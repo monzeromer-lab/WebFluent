@@ -24,7 +24,7 @@ component SiteFooter {
                 Text(t("footer.built", { version: VERSION }), class: "bp-small")
                 Row(align: .center, gap: .md) {
                     style { flex-wrap: wrap; gap: 8px 20px }
-                    Link(t("footer.source"), href: REPO) { style { color: $muted; font-size: 13px } }
+                    Link(t("footer.source"), href: REPO) { style { display: inline-flex; align-items: center; min-height: 24px; color: $muted; font-size: 13px } }
                     Button(t("consent.settings"), class: "link-button") { on click { Consent.reopen() } }
                     Text(t("footer.copyright"), class: "bp-small")
                 }

@@ -110,7 +110,8 @@ pre.wf-code, .wf-code--block { white-space: pre; }
   .landing-section .site-button { height: 42px; font-size: 14px; }
 }
 @media (min-width: 768px) {
-  .idea-card a, .footer-columns a, .crumbs a { min-height: 0; }
+  /* A line's height, never under the 24px a pointer needs (WCAG 2.5.8). */
+  .idea-card a, .footer-columns a, .crumbs a { min-height: 24px; }
   .wf-sidebar .wf-sidebar__item { min-height: 0; }
   .wf-sidebar .site-search { min-height: 0; }
   .wf-sidebar .site-search input { font-size: 13px !important; }
@@ -123,8 +124,8 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 /* A reference table's three shares, from a tablet up: the type has more
    room than on a phone, where the meaning needs it. */
 @media (min-width: 768px) {
-  .props-table.wf-table th:first-child { width: 28% !important; }
-  .props-table.wf-table th:nth-child(2) { width: 22% !important; }
+  .props-table th:first-child { width: 28% !important; }
+  .props-table th:nth-child(2) { width: 22% !important; }
 }
 
 /* The analytics question: a card at the foot of the screen. It floats, so
@@ -137,7 +138,7 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 @media (min-width: 640px) { .consent { inset-inline-start: auto; inset-inline-end: 24px; bottom: 24px; width: 400px; } }
 
 /* A button that reads as a footer link: "Cookie settings". */
-.link-button.wf-btn { all: unset; cursor: pointer; font-size: 12px; line-height: 18px; color: var(--ink-subtle); }
+.link-button.wf-btn { all: unset; display: inline-flex; align-items: center; min-height: 24px; cursor: pointer; font-size: 12px; line-height: 18px; color: var(--ink-subtle); }
 .link-button.wf-btn:hover { color: var(--color-text); }
 .link-button.wf-btn:focus-visible { outline: 2px solid var(--brand-ring); outline-offset: 2px; border-radius: 2px; }
 

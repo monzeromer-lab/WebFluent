@@ -724,11 +724,21 @@ Sorted 2026-11-15, after stage 9:
    to left. Moved to "as designed": `Accordion` on its stylesheet
    transition, `NumberInput` unformatted, `Popconfirm` on its first button,
    a `Stepper`'s steps as its own children.
-4. **The site and the examples on the built-ins.** Its hand-made
-   callouts, code tabs, search kinds, shells, search palette, file tree and
-   props tables; the examples' components named like a built-in; the
-   targets under 24×24.
-5. **As designed, kept as they are.** An `Accordion` opens on its
+4. **The site and the examples on the built-ins.** Done 2026-11-15, where
+   nothing is lost: the props and events tables are `DataTable`s, the
+   breadcrumbs `Breadcrumb`, the search's kinds a `ToggleGroup`, the budget
+   tutorial's `KpiCard` a `Stat`, the examples' `ThemeToggle` and
+   `EmptyState` the built-ins; the targets under 24×24 went from 2,131 to
+   32. The rest is the site's own design system, kept (below).
+5. **As designed, kept as they are.** The site's own design system
+   (Blueprint) keeps the components that carry more than a built-in does:
+   its `CodeBlock` (the Playground button, analytics, the console look),
+   `Callout` and `Aside` (Arabic labels, the dot and leader line),
+   `ThemeToggle` and `LangSwitch` (Arabic labels, a translated page's
+   link), `OnThisPage` (a rail with the page's codes, its Markdown and its
+   source), `SearchPalette` (its ranking and its fetched index), its shells,
+   its code and output tabs, and a Playground `FileTree` that is a flat list
+   with a remove button on each file, not a tree. An `Accordion` opens on its
    stylesheet's `::details-content` transition, which reduced motion turns
    off, rather than `.expand`; a `NumberInput` is the native number field,
    which cannot show a formatted value; a `Popconfirm` asks for the first
@@ -742,9 +752,9 @@ Sorted 2026-11-15, after stage 9:
 
 ### From stage 2
 
-- The site's hand-made tab strips (`CodeTabs`, `OutputTabs`, `Example`, the
-  search's kinds) keep their own markup with `roving: .x` rather than
-  built-in `Tabs`; the search's kinds want stage 6's `ToggleGroup`.
+- The site's hand-made tab strips (`CodeTabs`, `OutputTabs`, `Example`)
+  keep their own markup with `roving: .x` rather than built-in `Tabs`; the
+  search's kinds are a `ToggleGroup` now.
 
 ### From stage 3
 
@@ -757,19 +767,11 @@ Sorted 2026-11-15, after stage 9:
 
 - No `InView` component (`on visible` covers it).
 - `wf verify` warns of a target under 24×24 and never fails on one; the
-  site has 1,714 of them (the footer links at 21px, the cookie button at
-  18px).
+  site has 32 left (2,131 before: the footer, breadcrumb and card links,
+  the cookie button and the built-in `Slider`'s input are 24px now).
 
 ### From stage 5
 
-- `Accordion` opens with the stylesheet's `::details-content` transition,
-  not `.expand`.
-- The guide's example component `Chip` became `Pill`; two examples
-  (`medium-field-notes`'s `ThemeToggle`, `hard-pocket`'s `EmptyState`)
-  keep components named like a built-in, which draws a `V11` note.
-- The site keeps its own `Callout`, `Aside`, `CodeBlock`, `CodeTabs`,
-  `KpiCard`, `ThemeToggle`, `LangSwitch` and `OnThisPage` rather than the
-  built-ins, so stage 5's "done when" is not met.
 
 ### From stage 6
 
@@ -778,13 +780,9 @@ Sorted 2026-11-15, after stage 9:
   own over it.
 - `Calendar` is drawn once the page runs, not in the static paint, and
   has no month or year picker beyond the previous and next buttons.
-- The site's search kinds are still hand-made buttons, not `ToggleGroup`.
 
 ### From stage 7
 
-- The site and the examples keep their own shells, search palette, file
-  tree and props tables (`DocsShell`, `SearchPalette`, `FileTree`,
-  `PropsTable`, `EventsTable`): stage 7's "done when" is not met.
 - There is no shared `WF.selection`: `Listbox`, `Tree` and `DataTable` each
   choose in their own way (a listbox by its options' own presses).
 - `DataTable` has no resizable columns, and is not drawn by `VirtualList`

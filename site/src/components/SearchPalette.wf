@@ -72,13 +72,15 @@ component SearchPalette {
                 Text("esc", class: "bp-kbd")
             }
 
-            Row(role: "tablist", roving: .x, aria-label: t("search.kinds"), class: "bp-tabs") {
+            // The kinds narrow what is found: one chosen at a time, a toggle
+            // group (one Tab stop, the arrow keys inside it).
+            ToggleGroup(bind: kind, label: t("search.kinds"), class: "bp-tabs") {
                 style { padding: 0 12px; border-bottom: 1px solid $line }
-                Button(t("search.all"), role: "tab", aria-selected: kind == "all", class: "bp-tab") { on click { kind = "all" } }
-                Button(t("nav.learn"), role: "tab", aria-selected: kind == "learn", class: "bp-tab") { on click { kind = "learn" } }
-                Button(t("nav.recipes"), role: "tab", aria-selected: kind == "recipes", class: "bp-tab") { on click { kind = "recipes" } }
-                Button(t("nav.reference"), role: "tab", aria-selected: kind == "reference", class: "bp-tab") { on click { kind = "reference" } }
-                Button(t("nav.errors"), role: "tab", aria-selected: kind == "errors", class: "bp-tab") { on click { kind = "errors" } }
+                ToggleGroup.Item(t("search.all"), value: "all", class: "bp-tab")
+                ToggleGroup.Item(t("nav.learn"), value: "learn", class: "bp-tab")
+                ToggleGroup.Item(t("nav.recipes"), value: "recipes", class: "bp-tab")
+                ToggleGroup.Item(t("nav.reference"), value: "reference", class: "bp-tab")
+                ToggleGroup.Item(t("nav.errors"), value: "errors", class: "bp-tab")
             }
 
             Stack(role: "listbox", aria-label: t("search.results")) {

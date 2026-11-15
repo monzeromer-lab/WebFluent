@@ -154,8 +154,8 @@ h2.wf-heading { font-size: 1.05rem; font-weight: 650; margin: 0; }
 }
 .kpi[data-lean="good"]::before { background: var(--money-in); }
 .kpi[data-lean="bad"]::before { background: var(--money-out); }
-.kpi__label { color: var(--color-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
-.kpi__value { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.kpi .wf-stat__label { color: var(--color-text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; font-size: 0.72rem; }
+.kpi .wf-stat__value { font-size: 1.65rem; font-weight: 700; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 
 /* ── The chart ──────────────────────────────────────────────── */
 
@@ -234,8 +234,6 @@ h2.wf-heading { font-size: 1.05rem; font-weight: 650; margin: 0; }
 .totals { flex-wrap: wrap; }
 .totals .wf-text { margin: 0; font-weight: 600; }
 
-.empty { padding: 32px 16px; text-align: center; }
-.empty .wf-text { margin: 0; }
 
 /* ── Forms ──────────────────────────────────────────────────── */
 
@@ -268,7 +266,7 @@ input[type="color"].wf-input { height: 42px; padding: 4px 6px; cursor: pointer; 
 .wf-modal__header h3 { font-size: 1.1rem; }
 
 @media (max-width: 640px) {
-  .kpi__value { font-size: 1.35rem; }
+  .kpi .wf-stat__value { font-size: 1.35rem; }
   .chart { height: 180px; }
   .panel.wf-card { padding: 16px; }
 }

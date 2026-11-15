@@ -69,6 +69,12 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "NavigationMenu" => navigation_menu(el),
         "BottomNavigation" => bottom_navigation(el),
         "PrevNext" => prev_next(el),
+        // A crumb with nowhere to go is the page the reader is on.
+        "Breadcrumb" => each_part(&mut el.children, "Breadcrumb", &mut |name, part| {
+            if name == "Item" && !gives(part, "to") {
+                give(part, "aria-current", "\"page\"");
+            }
+        }),
         "HoverCard" => hover_card(el),
         "LoadingOverlay" => loading_overlay(el),
         "Lightbox" => lightbox(el),

@@ -493,36 +493,3 @@ body {
   }
 }
 
-/* --------------------------------------------------------- the theme toggle */
-
-/* Light on screen: offer dark. */
-.theme-toggle__light {
-  display: none;
-}
-
-/* Dark on screen — chosen, or the system's with no choice made: offer light. */
-:root[data-theme="dark"] .theme-toggle__dark {
-  display: none;
-}
-
-:root[data-theme="dark"] .theme-toggle__light {
-  display: inline-flex;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .theme-toggle__dark {
-    display: none;
-  }
-
-  :root:not([data-theme]) .theme-toggle__light {
-    display: inline-flex;
-  }
-}
-
-.theme-toggle .wf-icon-btn {
-  color: var(--color-text-muted);
-}
-
-.theme-toggle .wf-icon-btn:hover {
-  color: var(--color-text);
-}

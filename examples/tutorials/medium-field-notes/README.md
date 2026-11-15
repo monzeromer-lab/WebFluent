@@ -15,7 +15,7 @@ which builds it step by step.
 | Idea | Where |
 |---|---|
 | A static project: `ssg`, `csp`, `site_url` and the rest of `meta` | `webfluent.app.json` |
-| A theme, a dark theme, and a toggle built on `setTheme` | `src/theme.wf`, `src/components/ThemeToggle.wf` |
+| A theme, a dark theme, and the built-in `ThemeToggle` | `src/theme.wf`, `src/App.wf` |
 | A typed `data` file, with a `Date` field | `src/types.wf`, `src/notes.json` |
 | The app shell (`Navbar`, `Router`, `Footer`) and a `layout:` component | `src/App.wf`, `src/components/Sheet.wf` |
 | Reusable components, props with defaults, `///` docs | `src/components/NoteCard.wf`, `TagList.wf`, `SaveButton.wf` |
@@ -59,7 +59,7 @@ src/
 ├── notes.json            the notes themselves, each body in Markdown
 ├── about.md              the About page, written in Markdown
 ├── styles.css            the project's own stylesheet
-├── components/           Sheet (the layout), NoteFinder, NoteCard, TagList, SaveButton, ThemeToggle
+├── components/           Sheet (the layout), NoteFinder, NoteCard, TagList, SaveButton
 ├── pages/                Home, NotePage, Tags, SavedPage, NotFound
 └── stores/Saved.wf       the reader's saved notes, kept in their browser
 tests/                    NoteCard.wf, NoteFinder.wf (and their snapshots)

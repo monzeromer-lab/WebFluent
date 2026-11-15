@@ -386,7 +386,7 @@ impl JsCodegen {
                         ));
                     } else {
                         self.emit_line(&format!(
-                            "const {} = WF.el(\"span\", {{ className: \"wf-breadcrumb__item\"{} }});",
+                            "const {} = WF.el(\"span\", {{ className: \"wf-breadcrumb__item\", \"aria-current\": \"page\"{} }});",
                             item_var, self.wf_node_inline(ui_child)
                         ));
                     }
