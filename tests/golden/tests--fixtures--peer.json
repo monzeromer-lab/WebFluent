@@ -1,5 +1,7 @@
 {
-  "diagnostics": [],
+  "diagnostics": [
+    "{\"code\":\"T19\",\"severity\":\"warning\",\"message\":\"`query.role` may be null, and in text it would show as `null`\",\"file\":\"src/App.wf\",\"line\":27,\"column\":55,\"end_line\":27,\"end_column\":65,\"hint\":\"Say what to show instead: `{query.role ?? \\\"\\\"}`\",\"related\":[],\"fixes\":[],\"tags\":[]}"
+  ],
   "files": {
     "app.js": "a2a4edc3b9e0d6198c8505cca6ea2a46ac6a04ee4059d06c700d58d65b8dc2bc",
     "app.js.gz": "2e0b34f64445d1fd185d683cc41cd0f3c6dd4a5d3ce43b8bb92e19b60a3b55b9",

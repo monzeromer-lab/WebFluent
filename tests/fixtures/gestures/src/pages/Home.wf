@@ -56,7 +56,12 @@ page Home(path: "/", title: "Gestures", description: "Drag, long-press, swipe an
     Row(id: "tabs") {
         for tab in tabs {
             Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x, id: "tab-{tab}") {
-                on receive(d) { moveTab(d.value, tab, d.position) }
+                on receive(d) {
+                    match d.value {
+                        .string(what) { moveTab(what, tab, d.position) }
+                        else { }
+                    }
+                }
                 Text(tab)
             }
         }
@@ -66,7 +71,12 @@ page Home(path: "/", title: "Gestures", description: "Drag, long-press, swipe an
     Stack(id: "tree") {
         for r in rows {
             Card(drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src" || r == "public", id: "row-{r}") {
-                on receive(d) { moveRow(d.value, r, d.position) }
+                on receive(d) {
+                    match d.value {
+                        .string(what) { moveRow(what, r, d.position) }
+                        else { }
+                    }
+                }
                 on dragmove(d) { landing = if d.over == null { "" } else { "goes {d.position} {d.over}" } }
                 Text(r)
             }

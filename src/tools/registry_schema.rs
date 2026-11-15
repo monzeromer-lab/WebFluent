@@ -177,7 +177,9 @@ fn builtin_prop(p: &'static PropSig, sig: Option<&'static ComponentSig>, positio
         PropType::State => ("state", "State"),
         PropType::Path => ("path", "Path"),
         PropType::Decl => ("declaration", "Declaration"),
-        PropType::Any => ("any", "Any"),
+        PropType::Ty(t) => ("type", t),
+        PropType::Items => ("items", "[Item]"),
+        PropType::Mount => ("mount", "(Element) -> Handle"),
         PropType::Enum(_) => ("enum", "Enum"),
     };
     let cases = match p.ty {

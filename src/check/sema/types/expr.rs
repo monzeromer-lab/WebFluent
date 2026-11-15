@@ -317,11 +317,36 @@ impl Checker<'_, '_> {
                         self.unresolved(name, false);
                         return Type::Error;
                     }
+                    // The language's own values, beside the browser's.
+                    match name.as_str() {
+                        // A record of the names the build knows; without
+                        // the build's settings, any name, as text.
+                        "env" => {
+                            return match &self.world.env {
+                                Some(names) => Type::Shape(names.clone()),
+                                None => Type::Dict(Box::new(Type::String), Box::new(Type::String)),
+                            };
+                        }
+                        // The address's query, and the route's parameters
+                        // where no page says what they are.
+                        "query" | "params" => {
+                            return Type::Dict(Box::new(Type::String), Box::new(Type::String));
+                        }
+                        "locale" | "dir" => return Type::String,
+                        // A paged document's page number, and the count.
+                        "page" | "pages" if self.in_running > 0 => return Type::Number,
+                        _ => {}
+                    }
+                    if let Some(ty) = self.browser_global(name) {
+                        return ty;
+                    }
+                    if crate::registry::browser::BROWSER_GLOBALS.contains(&name.as_str())
+                        && !super::BUILT_IN_FUNCTIONS.contains(&name.as_str())
+                    {
+                        return self.untyped_browser(name, name, &[]);
+                    }
                     match global_type(name) {
                         Type::Map => self.hole(HoleKind::EnvQuery, name.clone()),
-                        Type::Any if matches!(name.as_str(), "event" | "e" | "value" | "key") => {
-                            self.hole(HoleKind::DomEvent, name.clone())
-                        }
                         Type::Any => self.hole(HoleKind::BrowserGlobal, name.clone()),
                         other => other,
                     }
@@ -731,6 +756,12 @@ impl Checker<'_, '_> {
             return Type::Error;
         }
         match base_ty {
+            // An object the browser hands over, by the browser table.
+            Type::Host(name) => self.host_field(name, base, field),
+            // A connection's handle, by what it declares.
+            Type::Connection(kind, send, receive) => {
+                self.connection_member(*kind, send, receive, base, field)
+            }
             // What a failed request says about itself.
             Type::NetError(failed) => match field {
                 "message" => Type::String,
@@ -830,10 +861,24 @@ impl Checker<'_, '_> {
                 } else {
                     let names: Vec<String> = fields.iter().map(|(n, _)| format!("`{n}`")).collect();
                     let known: Vec<&str> = fields.iter().map(|(n, _)| n.as_str()).collect();
+                    let hint = match base {
+                        Expr::Identifier(n) if n == "env" => format!(
+                            "The build knows {}; set `{field}` in webfluent.app.json's `env`, a `.env` file or the shell",
+                            if names.is_empty() {
+                                "no name".to_string()
+                            } else {
+                                names.join(", ")
+                            }
+                        ),
+                        Expr::Identifier(n) if n == "params" => {
+                            format!("The route's parameters are {}", names.join(", "))
+                        }
+                        _ => format!("It was written with {}", names.join(", ")),
+                    };
                     self.error_naming(
                         "T05",
                         format!("`{}` has no field `{field}`", expr_text(base)),
-                        &format!("It was written with {}", names.join(", ")),
+                        &hint,
                         field,
                         &known,
                         true,
@@ -913,6 +958,14 @@ impl Checker<'_, '_> {
             },
             // Every way a request goes wrong says so in words.
             Type::Enum(name) if name == super::ty::HTTP_ERROR && field == "message" => Type::String,
+            // `env` read without the build's settings: whatever name, as
+            // text — the build that knows them says which it has.
+            Type::Dict(_, value)
+                if matches!(base, Expr::Identifier(n) if n == "env")
+                    && self.world.env.is_none() =>
+            {
+                (**value).clone()
+            }
             // `scores.ada` is `scores["ada"]`: a key may be missing.
             Type::Dict(_, value) => Type::optional((**value).clone()),
             Type::Resource(inner, _) => match field {
@@ -1329,19 +1382,32 @@ impl Checker<'_, '_> {
     /// goes on to check properly, which used to report each finding in it
     /// once per probe.
     pub(super) fn infer_quiet(&mut self, e: &Expr) -> Type {
+        self.infer_quiet_as(e, None)
+    }
+
+    /// [`infer_quiet`](Self::infer_quiet), with what is wanted of it: a
+    /// lambda's parameters take their types from that.
+    pub(super) fn infer_quiet_as(&mut self, e: &Expr, expected: Option<&Type>) -> Type {
+        self.probe(e, expected).0
+    }
+
+    /// [`infer_quiet_as`](Self::infer_quiet_as), and whether checking it
+    /// against `expected` found no error.
+    pub(super) fn probe(&mut self, e: &Expr, expected: Option<&Type>) -> (Type, bool) {
         let errors = self.info.findings.errors.len();
         let warnings = self.info.findings.warnings.len();
         let unresolved = self.info.unresolved.len();
         let holes = self.info.holes.len();
         let too_deep = self.too_deep;
-        let ty = self.infer(e, None);
+        let ty = self.infer(e, expected);
+        let clean = self.info.findings.errors.len() == errors;
         // What was found here is dropped, so it may be found again.
         self.too_deep = too_deep;
         self.info.findings.errors.truncate(errors);
         self.info.findings.warnings.truncate(warnings);
         self.info.unresolved.truncate(unresolved);
         self.info.holes.truncate(holes);
-        ty
+        (ty, clean)
     }
 }
 

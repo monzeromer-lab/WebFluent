@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/timeline-item
 One event: its title, at: its time, and its block.
 
 ```wf
-Timeline.Item(_ title: String, at: Any) { … }
+Timeline.Item(_ title: String, at: Date or DateTime or String) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Timeline.Item(_ title: String, at: Any) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `title` | `String  (positional)` | What happened |
-| `at:` | `Any` | When: a `Date`, a `DateTime` or an ISO string, written as a date |
+| `at:` | `Date or DateTime or String` | When: a `Date`, a `DateTime` or an ISO string, written as a date |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

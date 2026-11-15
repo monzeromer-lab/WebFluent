@@ -21,9 +21,9 @@ Input(reveal: Bool, bind: State, label: String, …)
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
 | `type:` | `.text .email .password .number .search .tel .url .date .time .datetime .color` | What the field holds |
 | `placeholder:` | `String` | Hint shown while the field is empty |
-| `value:` | `Any` | The control's value, when its state is not bound |
-| `min:` | `Any` | Lowest value |
-| `max:` | `Any` | Highest value |
+| `value:` | `String or Number` | The control's value, when its state is not bound |
+| `min:` | `Number or String` | Lowest value |
+| `max:` | `Number or String` | Highest value |
 | `step:` | `Number` | Granularity |
 | `required:` | `Bool` | Whether the form refuses to submit without it |
 | `disabled:` | `Bool` | Whether the control is inert |

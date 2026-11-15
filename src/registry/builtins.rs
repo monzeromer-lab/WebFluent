@@ -333,7 +333,7 @@ const STACKS: PropSig = flag(
 );
 const VALUE: PropSig = attr(
     "value",
-    PropType::Any,
+    PropType::Ty("String or Number"),
     "The control's value, when its state is not bound",
 );
 const CHECKED: PropSig = attr(
@@ -392,13 +392,13 @@ const PLACEMENT: PropSig = special(
 /// What a layer is placed against.
 const ANCHOR: PropSig = special(
     "anchor",
-    PropType::Any,
+    PropType::Ty("Element or Point"),
     "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`",
 );
 /// A point to place a layer at, such as where a context menu was asked for.
 const AT: PropSig = special(
     "at",
-    PropType::Any,
+    PropType::Ty("Point"),
     "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu",
 );
 const OFFSET: PropSig = special("offset", PropType::Num, "How far from the anchor, in px");
@@ -419,7 +419,7 @@ const DISMISS: PropSig = special(
 /// What takes the focus when a layer opens.
 const INITIAL_FOCUS: PropSig = special(
     "initialFocus",
-    PropType::Any,
+    PropType::Ty("Element"),
     "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control",
 );
 const SIZE: PropSig = variant("size", SIZES, "Its size");
@@ -492,7 +492,7 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
     ),
     special(
         "drag",
-        PropType::Any,
+        PropType::Ty("Json"),
         "What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)`",
     ),
     special(
@@ -502,7 +502,7 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
     ),
     special(
         "dropValue",
-        PropType::Any,
+        PropType::Ty("Json"),
         "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`",
     ),
     PropSig {
@@ -554,17 +554,17 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
     ),
     special(
         "mount",
-        PropType::Any,
+        PropType::Mount,
         "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get",
     ),
     special(
         "update",
-        PropType::Any,
+        PropType::Ty("(Handle) -> ()"),
         "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`",
     ),
     special(
         "cleanup",
-        PropType::Any,
+        PropType::Ty("(Handle) -> ()"),
         "Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`",
     ),
 ];
@@ -856,7 +856,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             ),
             special(
                 "reveal",
-                PropType::Any,
+                PropType::Ty("String or Number"),
                 "A row's key: when it changes, that row is scrolled into view — the selection, the current match",
             ),
             special(
@@ -1041,7 +1041,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 ),
                 special(
                     "value",
-                    PropType::Any,
+                    PropType::Ty("String or Number"),
                     "The open tab, read only: `on change(v)` hears the one the reader picks",
                 ),
                 PropSig {
@@ -1087,7 +1087,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[
             special(
                 "value",
-                PropType::Any,
+                PropType::Ty("String or Number"),
                 "What the Tabs' `bind:` holds while this tab is open",
             ),
             special(
@@ -1453,7 +1453,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One step: what it points at, its title, and its block.",
         None,
         &[
-            required(special("target", PropType::Any, "The element it points at: a `ref:`")),
+            required(special("target", PropType::Ty("Element"), "The element it points at: a `ref:`")),
             special("title", PropType::Str, "Its heading"),
         ],
         G,
@@ -1510,7 +1510,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Ir::Sub("DescriptionList", "Item"),
         "One pair: its term, and `value:` or its block.",
         Some(required(special("term", PropType::Str, "What it is"))),
-        &[special("value", PropType::Any, "Its value, as text; unset, its block")],
+        &[special("value", PropType::Ty("String or Number or Bool"), "Its value, as text; unset, its block")],
         G,
         Children::Elements,
     )
@@ -1538,7 +1538,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Ir::Sub("Timeline", "Item"),
         "One event: its title, `at:` its time, and its block.",
         Some(required(special("title", PropType::Str, "What happened"))),
-        &[special("at", PropType::Any, "When: a `Date`, a `DateTime` or an ISO string, written as a date")],
+        &[special("at", PropType::Ty("Date or DateTime or String"), "When: a `Date`, a `DateTime` or an ISO string, written as a date")],
         G,
         Children::Elements,
     )
@@ -1598,8 +1598,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.",
         None,
         &[
-            special("columns", PropType::Any, "How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit"),
-            special("ratio", PropType::Any, "Each picture's shape, `4 / 3` (unset, `1`)"),
+            special("columns", PropType::Ty("Number"), "How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit"),
+            special("ratio", PropType::Ty("Number"), "Each picture's shape, `4 / 3` (unset, `1`)"),
         ],
         &[],
         G,
@@ -1613,7 +1613,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Layout",
         "Its children in `columns:` columns, each placed under the last in its column, keeping its own height.",
         None,
-        &[special("columns", PropType::Any, "How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }`")],
+        &[special("columns", PropType::Ty("Number"), "How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }`")],
         &[],
         G,
         Children::Elements,
@@ -1663,7 +1663,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Sparkline",
         "Data display",
         "A tiny chart in a line of text — a line, or `.bar` — of a list of numbers, drawn as an SVG when the page is built.",
-        Some(required(special("data", PropType::Any, "The numbers: a list"))),
+        Some(required(special("data", PropType::Ty("[Number]"), "The numbers: a list"))),
         &[
             flag("bar", "bar", "Bars rather than a line"),
             special("width", PropType::Num, "Its width in px (unset, 80)"),
@@ -1682,7 +1682,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "RelativeTime",
         "Data display",
         "A moment as `3 minutes ago`, kept current, with the exact time on hover (`<time>`).",
-        Some(required(special("when", PropType::Any, "The moment: a `Date`, a `DateTime` or an ISO string"))),
+        Some(required(special("when", PropType::Ty("Date or DateTime or String"), "The moment: a `Date`, a `DateTime` or an ISO string"))),
         &[attr("datetime", PropType::Str, "The moment, as a machine reads it. Written for it")],
         &[],
         G,
@@ -1696,7 +1696,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Layout",
         "A box that keeps its shape as its width changes — `ratio: 16 / 9` — its child filling it: a picture, a video, a frame.",
         None,
-        &[required(special("ratio", PropType::Any, "Its width over its height, `16 / 9`"))],
+        &[required(special("ratio", PropType::Ty("Number"), "Its width over its height, `16 / 9`"))],
         &[],
         G,
         Children::Elements,
@@ -1793,7 +1793,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[
             required(special("bind", PropType::State, "The colour, `#rrggbb`")),
             required(special("label", PropType::Str, "What the colour is for")),
-            special("swatches", PropType::Any, "The colours offered first: a list of `#rrggbb`"),
+            special("swatches", PropType::Ty("[String]"), "The colours offered first: a list of `#rrggbb`"),
         ],
         &[],
         G,
@@ -1809,9 +1809,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         None,
         &[
             required(special("bind", PropType::State, "The keys of what is chosen")),
-            required(special("options", PropType::Any, "Everything that can be chosen")),
-            special("text", PropType::Any, "What an option says: `o => o.name` (unset, the option)"),
-            special("key", PropType::Any, "What identifies an option: `o => o.id` (unset, the option)"),
+            required(special("options", PropType::Items, "Everything that can be chosen")),
+            special("text", PropType::Ty("(Item) -> String"), "What an option says: `o => o.name` (unset, the option)"),
+            special("key", PropType::Ty("(Item) -> String or (Item) -> Number"), "What identifies an option: `o => o.id` (unset, the option)"),
             required(special("label", PropType::Str, "What is being chosen")),
             special("from", PropType::Str, "The first list's heading (unset, `Available`)"),
             special("to", PropType::Str, "The second list's heading (unset, `Chosen`)"),
@@ -2046,7 +2046,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Cell",
         Ir::BuiltIn("Tcell"),
         "A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.",
-        Some(special("content", PropType::Any, "The cell's content")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The cell's content")),
         &[flag("header", "header", "Render as a `<th>`")],
         G_TABLE,
         Children::Elements,
@@ -2097,7 +2097,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Tcell",
         "Data display",
         "Table cell (the original spelling of `Table.Cell`).",
-        Some(special("content", PropType::Any, "The cell's content")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The cell's content")),
         &[flag("header", "header", "Render as a `<th>`")],
         &[],
         G_TABLE,
@@ -2241,8 +2241,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 "Hint shown while the field is empty",
             ),
             VALUE,
-            attr("min", PropType::Any, "Lowest value"),
-            attr("max", PropType::Any, "Highest value"),
+            attr("min", PropType::Ty("Number or String"), "Lowest value"),
+            attr("max", PropType::Ty("Number or String"), "Highest value"),
             attr("step", PropType::Num, "Granularity"),
             attr_flag("required", "Whether the form refuses to submit without it"),
             DISABLED,
@@ -2294,7 +2294,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Some(special("label", PropType::Str, "The visible label")),
         &[special(
             "value",
-            PropType::Any,
+            PropType::Ty("String or Number or Bool"),
             "The value `bind` takes when this one is chosen; the label when absent",
         )],
         G,
@@ -2309,7 +2309,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Some(special("label", PropType::Str, "The visible label")),
         &[special(
             "value",
-            PropType::Any,
+            PropType::Ty("String or Number or Bool"),
             "The value sent with the form",
         )],
         &[],
@@ -2340,7 +2340,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             BIND,
             special(
                 "value",
-                PropType::Any,
+                PropType::Ty("String or Number or Bool"),
                 "The value `bind` takes when this one is chosen",
             ),
             CHECKED,
@@ -2675,7 +2675,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 ),
                 special(
                     "snap",
-                    PropType::Any,
+                    PropType::Ty("[Number]"),
                     "A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first",
                 ),
                 special("label", PropType::Str, "Its accessible name, when it has no `title:`"),
@@ -2837,7 +2837,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "A figure with its label — revenue, sign-ups — and how it moved: `Stat(\"Revenue\", value: total, format: .currency, change: 0.124)`. `count:` counts to a new value.",
         Some(required(special("label", PropType::Str, "What the figure is"))),
         &[
-            required(special("value", PropType::Any, "The figure")),
+            required(special("value", PropType::Ty("Number or Money or String"), "The figure")),
             special(
                 "format",
                 PropType::Enum(&[
@@ -2850,7 +2850,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 "How the figure is written, as `format` writes it",
             ),
             special("change", PropType::Num, "How it moved, as a fraction: `0.124` is up 12.4%"),
-            special("trend", PropType::Any, "Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]`"),
+            special("trend", PropType::Ty("[Number]"), "Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]`"),
         ],
         &["Label", "Value", "Change"],
         G,
@@ -2861,7 +2861,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .on_paper(),
     part("Stat", "Label", Ir::Sub("Stat", "Label"), "Its label.", Some(special("text", PropType::Str, "The label")), &[], G, Children::None)
         .html("p", "wf-stat__label"),
-    part("Stat", "Value", Ir::Sub("Stat", "Value"), "Its figure.", Some(special("text", PropType::Any, "The figure")), &[], G, Children::None)
+    part("Stat", "Value", Ir::Sub("Stat", "Value"), "Its figure.", Some(special("text", PropType::Ty("String or Number"), "The figure")), &[], G, Children::None)
         .html("p", "wf-stat__value"),
     part("Stat", "Change", Ir::Sub("Stat", "Change"), "How it moved, with its direction.", Some(special("text", PropType::Str, "The change")), &[], G, Children::None)
         .html("p", "wf-stat__change"),
@@ -2871,8 +2871,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`; `highlight:` marks lines; `files:` makes it a tab for each file.",
         Some(special("code", PropType::Str, "The code")),
         &[
-            special("highlight", PropType::Any, "The lines to mark, counted from 1: `[3, 4]`"),
-            special("files", PropType::Any, "A tab for each file: `[{ name: \"App.wf\", code: app, language: \"wf\" }, …]`"),
+            special("highlight", PropType::Ty("[Number]"), "The lines to mark, counted from 1: `[3, 4]`"),
+            special("files", PropType::Ty("[CodeFile]"), "A tab for each file: `[{ name: \"App.wf\", code: app, language: \"wf\" }, …]`"),
             special("language", PropType::Str, "Colours the code as this language: `wf`, `json`, `bash` or `css`"),
             special("title", PropType::Str, "The file name or the language, in the bar"),
             special("copy", PropType::Bool, "A button in the bar that copies the code"),
@@ -2937,7 +2937,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "A button that copies `value:` to the clipboard, says `Copied` for a moment, and tells a screen reader so.",
         Some(special("label", PropType::Str, "Its words; unset, `Copy`")),
         &[
-            required(special("value", PropType::Any, "What it copies")),
+            required(special("value", PropType::Ty("String or Number"), "What it copies")),
             special("copied", PropType::Str, "What it says once it has copied; unset, `Copied`"),
         ],
         &[],
@@ -3114,7 +3114,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One choice: its words, and the value `bind:` holds when it is chosen.",
         Some(required(special("label", PropType::Str, "Its words"))),
         &[
-            required(special("value", PropType::Any, "What `bind:` holds when it is chosen")),
+            required(special("value", PropType::Ty("String or Number or Bool"), "What `bind:` holds when it is chosen")),
             special("icon", PropType::Str, "An icon before the words"),
             DISABLED,
         ],
@@ -3146,7 +3146,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One choice: its words, its value, and a hint said with it.",
         Some(required(special("label", PropType::Str, "Its words"))),
         &[
-            required(special("value", PropType::Any, "What `bind:` holds when it is chosen")),
+            required(special("value", PropType::Ty("String or Number or Bool"), "What `bind:` holds when it is chosen")),
             special("hint", PropType::Str, "A line beneath it, read with it"),
         ],
         G,
@@ -3257,9 +3257,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 ]),
                 "How many days it holds",
             ),
-            special("min", PropType::Any, "The first day that can be chosen"),
-            special("max", PropType::Any, "The last day that can be chosen"),
-            special("disabled", PropType::Any, "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`"),
+            special("min", PropType::Ty("Date"), "The first day that can be chosen"),
+            special("max", PropType::Ty("Date"), "The last day that can be chosen"),
+            special("disabled", PropType::Ty("[Date] or (Date) -> Bool"), "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`"),
             special("label", PropType::Str, "Its name for a screen reader; unset, `Calendar`"),
         ],
         &[],
@@ -3294,7 +3294,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One option: its words, and the value `bind:` holds when it is chosen.",
         Some(required(special("label", PropType::Str, "Its words"))),
         &[
-            required(special("value", PropType::Any, "What `bind:` holds when it is chosen")),
+            required(special("value", PropType::Ty("String or Number or Bool"), "What `bind:` holds when it is chosen")),
             special("icon", PropType::Str, "An icon before the words"),
             attr("aria-disabled", PropType::Str, "`\"true\"`: shown, passed over, never chosen"),
         ],
@@ -3308,12 +3308,12 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. `row(item) { … }` draws each; `bind:` holds the chosen item's key, or a list of keys with `.multiple`.",
         None,
         &[
-            required(special("items", PropType::Any, "The items at the top")),
-            required(special("children", PropType::Any, "An item's children: `f => f.children`; none, or an empty list, for a leaf")),
-            required(special("key", PropType::Any, "What tells two items apart: `f => f.path`")),
+            required(special("items", PropType::Items, "The items at the top")),
+            required(special("children", PropType::Ty("(Item) -> [Item]?"), "An item's children: `f => f.children`; none, or an empty list, for a leaf")),
+            required(special("key", PropType::Ty("(Item) -> String or (Item) -> Number"), "What tells two items apart: `f => f.path`")),
             special("bind", PropType::State, "The chosen key, or a list of them with `.multiple`"),
             special("multiple", PropType::Bool, "Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A"),
-            special("open", PropType::Any, "The keys open when it is drawn"),
+            special("open", PropType::Ty("[String] or [Number]"), "The keys open when it is drawn"),
             required(special("label", PropType::Str, "What the tree is, for a screen reader")),
         ],
         &[],
@@ -3330,8 +3330,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Rows of records with their columns declared once: a column sorts when it is `.sortable` (its header a button, `aria-sort` saying which way), `cell(r) { … }` draws a cell, `empty { … }` shows when there are no rows, and `bind:` chooses rows (a list with `.multiple`, a box for each and one for all).",
         None,
         &[
-            required(special("rows", PropType::Any, "The records")),
-            required(special("key", PropType::Any, "What tells two rows apart: `r => r.id`")),
+            required(special("rows", PropType::Items, "The records")),
+            required(special("key", PropType::Ty("(Item) -> String or (Item) -> Number"), "What tells two rows apart: `r => r.id`")),
             special("bind", PropType::State, "The chosen row's key, or a list of them with `.multiple`"),
             special("multiple", PropType::Bool, "Several rows at once"),
             required(special("label", PropType::Str, "What the table is: its caption, read by a screen reader")),
@@ -3353,7 +3353,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One column: its title, its `value:` (what it shows and sorts by), and a `cell(r) { … }` that draws it instead.",
         Some(required(special("title", PropType::Str, "Its header"))),
         &[
-            special("value", PropType::Any, "What the column holds for a row: `r => r.service`"),
+            special("value", PropType::Ty("(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money"), "What the column holds for a row: `r => r.service`"),
             special("sortable", PropType::Bool, "Its header sorts the rows by its `value:`"),
         ],
         G,
@@ -3367,11 +3367,11 @@ pub const COMPONENTS: &[ComponentSig] = &[
         None,
         &[
             required(special("bind", PropType::State, "The chosen option's key (or the option itself without `key:`), or a list with `.multiple`")),
-            special("options", PropType::Any, "Every option, filtered as the reader types"),
-            special("search", PropType::Any, "Options asked for as the reader types: `q => Geo.cities(q: q)`"),
-            required(special("text", PropType::Any, "An option's words: `p => p.name`")),
-            special("key", PropType::Any, "What tells two options apart: `p => p.id`"),
-            special("debounce", PropType::Any, "How long the typing rests before `search:` is asked (unset, 200ms)"),
+            special("options", PropType::Items, "Every option, filtered as the reader types"),
+            special("search", PropType::Ty("(String) -> [Item] or (String) -> [Item]!"), "Options asked for as the reader types: `q => Geo.cities(q: q)`"),
+            required(special("text", PropType::Ty("(Item) -> String"), "An option's words: `p => p.name`")),
+            special("key", PropType::Ty("(Item) -> String or (Item) -> Number"), "What tells two options apart: `p => p.id`"),
+            special("debounce", PropType::Ty("Number or Duration"), "How long the typing rests before `search:` is asked (unset, 200ms)"),
             special("multiple", PropType::Bool, "Several at once, each a chip"),
             required(special("label", PropType::Str, "Its name for a screen reader")),
             special("placeholder", PropType::Str, "Shown while it is empty"),
@@ -3463,7 +3463,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Ir::Sub("CheckboxGroup", "Option"),
         "One box: its words and its value.",
         Some(required(special("label", PropType::Str, "Its words"))),
-        &[special("value", PropType::Any, "What the list holds while it is ticked; unset, its words")],
+        &[special("value", PropType::Ty("String or Number or Bool"), "What the list holds while it is ticked; unset, its words")],
         G,
         Children::None,
     )
@@ -3531,9 +3531,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[
             required(special("bind", PropType::State, "The range: `{ start, end }`")),
             required(special("label", PropType::Str, "What the range is")),
-            special("min", PropType::Any, "The first day that can be chosen"),
-            special("max", PropType::Any, "The last day that can be chosen"),
-            special("presets", PropType::Any, "Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`"),
+            special("min", PropType::Ty("Date"), "The first day that can be chosen"),
+            special("max", PropType::Ty("Date"), "The last day that can be chosen"),
+            special("presets", PropType::Ty("[RangePreset]"), "Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`"),
         ],
         &[],
         G,
@@ -3674,7 +3674,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.",
         Some(special(
             "source",
-            PropType::Any,
+            PropType::Ty("Picture or String"),
             "An `image` the program declares, or a URL",
         )),
         &[
@@ -3872,7 +3872,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Text",
         "Typography",
         "A paragraph of text. `{…}` in the string reads state and stays live.",
-        Some(special("content", PropType::Any, "The text")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The text")),
         TEXT_PROPS,
         &[],
         G,
@@ -3884,7 +3884,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Heading",
         "Typography",
         "Heading; `level` picks the tag (`h2` when none is given).",
-        Some(special("content", PropType::Any, "The heading text")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The heading text")),
         &[
             special(
                 "level",
@@ -3911,7 +3911,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Code",
         "Typography",
         "Inline code, or a code block with `block`; `language:` colours it.",
-        Some(special("content", PropType::Any, "The code")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The code")),
         &[
             flag("block", "block", "A multi-line block"),
             special(
@@ -3967,7 +3967,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         None,
         &[required(special(
             "into",
-            PropType::Any,
+            PropType::Ty("Element?"),
             "Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes",
         ))],
         &[],
@@ -4020,7 +4020,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Blockquote",
         "Typography",
         "Quotation: the text, or its block as the quoted content.",
-        Some(special("content", PropType::Any, "The quoted text")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The quoted text")),
         &[],
         &[],
         G,
@@ -4053,16 +4053,16 @@ pub const COMPONENTS: &[ComponentSig] = &[
             ),
             special(
                 "data",
-                PropType::Any,
+                PropType::Ty("[Json]"),
                 "The rows: a list of records, or of numbers",
             ),
             special("x", PropType::Str, "The key of each row's label"),
             special(
                 "y",
-                PropType::Any,
+                PropType::Ty("String or [String]"),
                 "The key of each row's value, or a list of keys for several series",
             ),
-            special("colors", PropType::Any, "The series' colours, in order"),
+            special("colors", PropType::Ty("[String]"), "The series' colours, in order"),
             special(
                 "width",
                 PropType::Num,
@@ -4153,7 +4153,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special("landscape", PropType::Bool, "Turn the paper on its side"),
             special(
                 "margin",
-                PropType::Any,
+                PropType::Ty("Number or String"),
                 "The page margins: one length, or top right bottom left (`72`, `20mm 25mm`)",
             ),
             special(
@@ -4198,7 +4198,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Paragraph",
         "PDF",
         "Block of text with paragraph spacing.",
-        Some(special("content", PropType::Any, "The text")),
+        Some(special("content", PropType::Ty("String or Number or Bool"), "The text")),
         TEXT_PROPS,
         &[],
         G,

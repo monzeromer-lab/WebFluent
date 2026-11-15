@@ -890,7 +890,7 @@ file of its own,
 
 ```wf
 // … in src/api.wf, beside the pages
-api Suggestions(base: env.PUBLIC_API ?? "/api") {
+api Suggestions(base: "/api") {
     post suggest(body: Json) -> !
 }
 ```
@@ -3727,7 +3727,7 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
         on dragover(e) { e.preventDefault() }
         on drop(e) {
             e.preventDefault()
-            names = Array.from(e.dataTransfer.files).map(f => f.name)
+            names = (e.dataTransfer?.files ?? []).map(f => f.name)
         }
         Text(if names.length == 0 { "Nothing yet" } else { names.join(", ") })
     }
@@ -4184,7 +4184,9 @@ page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
     Row {
         for tab in tabs by tab {
             Card(drag: tab, dragGroup: "tabs", dropAxis: .x) {
-                on receive(d) { move(d.value, tab, d.position) }
+                on receive(d) {
+                    if let .string(what) = d.value { move(what, tab, d.position) }
+                }
                 Text(tab)
             }
         }
@@ -4195,7 +4197,9 @@ page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
 - **`drag: value`** picks an element up: a mouse moved a few pixels, or a
   finger held still. Escape puts it back, and the click a drag ends with is
   not a click.
-- **`on receive(d)`** takes a drop: `d.value` is what was dropped, and
+- **`on receive(d)`** takes a drop: `d.value` is what was dropped — as
+  `Json`, since any element may have carried it, so match it for the kind
+  you dragged (`if let .string(what) = d.value`) — and
   `d.position` is `"before"` or `"after"` along `dropAxis:` (`.y`, down the
   page, unless you say `.x`), or `"inside"` on a target with
   `dropInside: true`.
@@ -4247,7 +4251,7 @@ function itself, so you can hand it to the browser:
 ```wf
 page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
     state picked = ""
-    action track() { picked = document.getSelection().toString() }
+    action track() { picked = document.getSelection()?.toString() ?? "" }
     effect {
         document.addEventListener("selectionchange", track)
         cleanup { document.removeEventListener("selectionchange", track) }
@@ -6486,8 +6490,12 @@ The rules for operators and forms:
   type, `T?` when one arm is `null`, and `Any` otherwise.
 - `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
   side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
-- `await e` on a `fetch` is `Any` unless you annotate it:
+- `await http.get(…)` is what you annotate it as:
   `let r: [Row] = try await http.get(…)`.
+- A browser global is what the browser's table says: `JSON.parse(text)`
+  is `Json`, `localStorage.getItem(k)` is `String?`; a handler's event is
+  the browser's (`on keydown(e)` is a `KeyboardEvent`), a `ref:` an
+  `Element`, and `catch e` an `Error`.
 - `let { a, b } = m` and `let [x, y] = l` bind the fields and the items.
 
 ## Narrowing optionals
@@ -8418,7 +8426,7 @@ store Session {
     action refresh() -> ! { token = try await http.get("/api/token", as: .text) }
 }
 
-api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
     headers {
         Authorization: "Bearer {Session.token}"
         Accept-Language: Session.language
@@ -13276,8 +13284,8 @@ Read a setting that changes between environments (an API's address, a
 feature switch) with `env.NAME`, give it a value per environment, and keep
 a private value such as an API key out of what readers download.
 
-This page reads the API's address and a feature switch, and falls back to
-defaults when nothing sets them:
+This page reads the API's address and a feature switch, whose defaults the
+config gives and each environment may change:
 
 **Needs:** an API that answers `/api/rows`, and the values set as [Set a
 value](#set-a-value) shows. It claims `/`: paste it into a new project, or
@@ -13286,7 +13294,7 @@ replace the starter's `src/pages/Home.wf` with it.
 ```wf
 type Row { id: String }
 
-const API = env.PUBLIC_API ?? "/api"
+const API = env.PUBLIC_API
 const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
 
 page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
@@ -13308,9 +13316,12 @@ page Billing(path: "/billing", title: "Billing", description: "Plans and invoice
 ## How it works
 
 `env.PUBLIC_API` is the value of `PUBLIC_API`, fixed when the site is
-built. A name that nothing sets reads as nothing (`null`), so `??` supplies
-the default. Keep the values in `const`s at the top of the file, as above,
-so every page reads them from one place.
+built. `env` holds exactly the names the build knows, each a `String`, so a
+misspelt one — `env.PUBLIC_APII` — is a `T05` with the name meant, and a
+name nothing sets is one too: give every name its default in the config's
+`env` map ([Set a value](#set-a-value)), which a `.env` file or the shell
+then overrides per environment. Keep the values in `const`s at the top of
+the file, as above, so every page reads them from one place.
 
 The sections below set the values, keep the private ones out of the bundle,
 and build once per environment.
@@ -16195,7 +16206,9 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
     Stack(gap: .sm, role: "list") {
         for job, i in jobs by job.id {
             Card(drag: job.id, dropValue: job.id, role: "listitem") {
-                on receive(d) { move(d.value, job.id, d.position) }
+                on receive(d) {
+                    if let .string(id) = d.value { move(id, job.id, d.position) }
+                }
                 Row(gap: .sm, align: .center) {
                     Icon("grid")
                     Text("{i + 1}. {job.title}")
@@ -16220,7 +16233,9 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
   still for a moment. While it moves, the runtime draws a ghost of the row
   and a line where it would land, and Escape puts it back.
 - `on receive(d)` on the same `Card` makes every row a place to drop one.
-  `d.value` is the dropped row's `drag:` value (the job's `id`), and
+  `d.value` is the dropped row's `drag:` value (the job's `id`), as
+  `Json` — anything may be dragged — so `if let .string(id)` takes the
+  text out of it; and
   `d.position` is `"before"` or `"after"`: which half of this row the
   pointer was over.
 - `move` takes the job out of the list and puts it back next to the row it
@@ -17319,7 +17334,9 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
     Heading("The talk").h1
     Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
     Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-        on message(m) { heard = m.data }
+        on message(m) {
+            if let .string(said) = m.data { heard = said }
+        }
     }
     Text(heard)
 }
@@ -17331,7 +17348,8 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
   its title, and a frame without one draws an `A17` warning.
 - `on message(m)` hears what the framed page posts with
   `window.parent.postMessage(…)`, and nothing that any other page posts.
-  `m.data` is what it sent.
+  `m.data` is what it sent, as `Json`: `if let .string(said)` takes it
+  when it is text.
 - `sandbox:` limits what the framed page may do: `"allow-scripts
   allow-forms"` allows scripts and forms, and an empty string allows
   nothing.
@@ -21504,7 +21522,7 @@ store reads it by name, and the build inlines it into the bundle:
 ```wf
 const MAX_ROWS = 50
 const PAGE_SIZE: Number = 20
-const API = env.PUBLIC_API_URL ?? "/api"
+const API = env.PUBLIC_API_URL
 
 page Settings(path: "/settings", title: "Settings", description: "The limits this site runs with.") {
     Heading("Settings").h1
@@ -21514,7 +21532,13 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
 
 A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an
 `X01`. `env.NAME` reads a value fixed at build time — from the config's
-`env` map, a `.env` file or the shell. A page may read only a public name,
+`env` map, a `.env` file or the shell — and `env` holds exactly the names
+the build knows, so one nothing sets is a `T05`:
+
+```json
+{ "env": { "PUBLIC_API_URL": "/api" } }
+```
+ A page may read only a public name,
 one that begins `PUBLIC_` or that `public_env` lists;
 [Environments and secrets](/recipes/environments-and-secrets) has the rules.
 
@@ -22813,23 +22837,28 @@ derived checkout = arrival.plus(days: nights)
 
 ## Browser globals
 
-These names compile to themselves, with no prefix: `window`, `document`,
-`console`, `navigator`, `location`, `history`, `screen`, `performance`,
-`crypto`, `globalThis`, `localStorage`, `sessionStorage`, `JSON`, `Math`,
-`Date`, `Intl`, `Symbol`, `Reflect`, `setTimeout`, `setInterval`,
-`clearTimeout`, `clearInterval`, `requestAnimationFrame`,
-`cancelAnimationFrame`, `queueMicrotask`, `structuredClone`, `matchMedia`,
-`getComputedStyle`, `parseInt`, `parseFloat`, `Array`, `Object`, `String`,
-`Number`, `Boolean`, `Promise`, `Error`, `Map`, `Set`, `RegExp`,
-`Infinity`, `NaN`, `undefined`, `encodeURIComponent`,
+The browser's names compile to themselves, with no prefix, and a table of
+the browser's types says what each is: `window`, `document`, `console`,
+`localStorage`, `sessionStorage`, `JSON`, `Math`, `Date` (`Date.now()`),
+`Object` (`Object.keys`), `Array` (`Array.isArray`), `Number`
+(`Number.isInteger`, …), `navigator` and its `clipboard`, `location`,
+`history`, `performance`, `screen`, `Infinity`, `NaN`, `undefined`, and the
+functions `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`,
+`requestAnimationFrame`, `cancelAnimationFrame`, `queueMicrotask`,
+`structuredClone`, `matchMedia`, `getComputedStyle`, `parseInt`,
+`parseFloat`, `isNaN`, `isFinite`, `encodeURIComponent`,
 `decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `alert`,
-`confirm`, `prompt`, `URL`, `URLSearchParams`, `FormData`, `Blob`, `File`,
-`FileReader`, `Event`, `CustomEvent`, `AbortController`, `TextEncoder`,
-`TextDecoder`, `Notification`.
+`confirm` and `prompt`. `JSON.parse` hands back `Json`; `getItem` a
+`String?`; an element's `getBoundingClientRect()` a `Rect`.
 
-The checker types each of them as `Any`. A name the program declares
-itself wins over a global, and unlike the language's own names, a global
-may be the name of a state, a prop or a parameter.
+A handler's event, an element a `ref:` names and the value `catch` binds are
+typed by the same table: a `KeyboardEvent`, an `Element`, an `Error`. A
+global or a member it does not list — `crypto`, `navigator.bluetooth`,
+`e.kye` — is [`T30`](/errors/T30), with the nearest name; reach it from
+a [project script](/recipes/call-your-own-script) whose JSDoc says its
+types. A name the program declares itself wins over a global, and unlike
+the language's own names, a global may be the name of a state, a prop or a
+parameter.
 
 ```wf
 localStorage.setItem("last-seen", now.date())
@@ -25093,6 +25122,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T22](/errors/T22) — A handler that names more values than its event sends
 - [T21](/errors/T21) — A resource `match` with no `error` arm
 - [T26](/errors/T26) — An action that returns a value and does not say what
+- [T30](/errors/T30) — A part of the browser the language does not type
 
 ### Components
 

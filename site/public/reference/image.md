@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/image
 Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.
 
 ```wf
-Image(_ source: Any, src: String, sizes: String, placeholder: Enum, …)
+Image(_ source: Picture or String, src: String, sizes: String, placeholder: Enum, …)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `source` | `Any  (positional)` | An `image` the program declares, or a URL |
+| `source` | `Picture or String  (positional)` | An `image` the program declares, or a URL |
 | `src:` | `String` | Image URL |
 | `sizes:` | `String` | How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px` |
 | `placeholder:` | `.blur .color .none` | What fills the box while the image loads |

@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/blockquote
 Quotation: the text, or its block as the quoted content.
 
 ```wf
-Blockquote(_ content: Any) { … }
+Blockquote(_ content: String or Number or Bool) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `Any  (positional)` | The quoted text |
+| `content` | `String or Number or Bool  (positional)` | The quoted text |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

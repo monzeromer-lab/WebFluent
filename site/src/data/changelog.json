@@ -227,6 +227,44 @@
     "after": ""
    },
    {
+    "title": "The browser, events and the built-ins, typed",
+    "id": "7.0.0-the-browser-events-and-the-built-ins-typed",
+    "intro": "What a program reaches without declaring it now has a type the checker\nknows, so a slip is found where it is written rather than in a reader's\nbrowser.",
+    "items": [
+     {
+      "text": "**The browser.** `window`, `document`, `localStorage`, `JSON`, `Math`,\n`navigator`, `location`, the timers and the plain functions are typed by\na table the checker, the editor and `wf types` read: `JSON.parse` hands\nback `Json`, `localStorage.getItem` a `String?`, `setTimeout` takes a\nfunction and milliseconds. A global or a member the table does not list\nis `T30`, with the nearest name — `Math.florr` → `floor` — and anything\nit leaves out is reached from a project script whose JSDoc says its\ntypes.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Events.** `on keydown(e)` is a `KeyboardEvent`, `on click(e)` a\n`MouseEvent`, and so on through the DOM's events; `target` is an\n`Element`. The gestures hand over what they say (`on swipe(s)`'s\n`s.direction`), and a dragged value arrives as `Json`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Handles.** A `ref:` is an `Element` (`focus()`, `value`,\n`scrollIntoView()`, …). A connection is typed by its `send` and\n`receive`, `Json` where it names neither, so `chat.sned(m)` is found.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`catch e`** is an `Error` — `name`, `message`, `stack` — whatever was\nthrown: the runtime wraps a string, a number or a plain object a script\nthrows in one.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The language's own values.** `env` is a record of the names the build\nknows (`env.PUBLIC_APII` is `T05`), `query` is `[String: String]`, a\npage's `params` a record of its own route parameters, `locale` and `dir`\n`String`s, and a form's `errors` `[String: String]`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The built-ins' props.** The 72 that took anything now each say what\nthey take: `Portal(into: Element?)`, `AspectRatio(ratio: Number)`,\n`Text(String or Number or Bool)`, `Calendar(disabled: [Date] or (Date)\n-> Bool)`. A built-in that shows a list types its other props, its parts\nand its slots by one of its items: a `DataTable`'s `key: r => r.id`, a\ncolumn's `value: r => r.nmae` (`T05`), a `cell(r)`. `wf registry --json`\nand the docs show these types.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -247,7 +285,7 @@
     "after": ""
    }
   ],
-  "count": 34
+  "count": 40
  },
  {
   "version": "6.2.0",

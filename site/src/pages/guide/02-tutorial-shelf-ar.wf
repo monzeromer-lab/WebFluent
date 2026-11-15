@@ -262,7 +262,7 @@ app {
         Markdown("**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى `Thank you — we will take a look.`، ويصير النموذج فارغًا.\n\nالموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،")
 
         CodeBlock(#"// … in src/api.wf, beside the pages
-api Suggestions(base: env.PUBLIC_API ?? "/api") {
+api Suggestions(base: "/api") {
     post suggest(body: Map)
 }"#, title: "wf")
 

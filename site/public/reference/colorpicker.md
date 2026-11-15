@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/colorpicker
 A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as #rrggbb.
 
 ```wf
-ColorPicker(bind: State, label: String, swatches: Any)
+ColorPicker(bind: State, label: String, swatches: [String])
 ```
 
 ## Props
@@ -16,7 +16,7 @@ ColorPicker(bind: State, label: String, swatches: Any)
 |---|---|---|
 | `bind:` | `State  (required)` | The colour, `#rrggbb` |
 | `label:` | `String  (required)` | What the colour is for |
-| `swatches:` | `Any` | The colours offered first: a list of `#rrggbb` |
+| `swatches:` | `[String]` | The colours offered first: a list of `#rrggbb` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

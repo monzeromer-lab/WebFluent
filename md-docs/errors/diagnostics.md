@@ -259,6 +259,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T22](T22.md) — A handler that names more values than its event sends
 - [T21](T21.md) — A resource `match` with no `error` arm
 - [T26](T26.md) — An action that returns a value and does not say what
+- [T30](T30.md) — A part of the browser the language does not type
 
 ### Components
 

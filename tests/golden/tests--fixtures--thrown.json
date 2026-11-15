@@ -1,0 +1,12 @@
+{
+  "diagnostics": [],
+  "files": {
+    "app.js": "a0045850bb1b69798c0ffbab968baee24887184208157251c94612096e82a998",
+    "app.js.gz": "694a1f0265e28abd143416878bda191280ed4ab0d0b10cdc8ec9bc1c95085fb7",
+    "index.html": "9a86d1dd258a95ace5e7373daae55b12dc834431a4cd0c807754ec873e87927f",
+    "js/raise.js": "06a12908fc988d88074551257c0d16ae121469f0df42003ba9a7b5791cc91d47",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "6c7d08350821371cabe18880bccd1f8891a25c3cbd732bb99c60fe942670d34a",
+    "styles.css.gz": "fc5a2d99d76506372a4ab0d120189bf2475f2806623891ae787f1d759213719b"
+  }
+}

@@ -455,7 +455,7 @@ store reads it by name, and the build inlines it into the bundle:
 ```wf
 const MAX_ROWS = 50
 const PAGE_SIZE: Number = 20
-const API = env.PUBLIC_API_URL ?? "/api"
+const API = env.PUBLIC_API_URL
 
 page Settings(path: "/settings", title: "Settings", description: "The limits this site runs with.") {
     Heading("Settings").h1
@@ -465,7 +465,13 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
 
 A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an
 `X01`. `env.NAME` reads a value fixed at build time — from the config's
-`env` map, a `.env` file or the shell. A page may read only a public name,
+`env` map, a `.env` file or the shell — and `env` holds exactly the names
+the build knows, so one nothing sets is a `T05`:
+
+```json
+{ "env": { "PUBLIC_API_URL": "/api" } }
+```
+ A page may read only a public name,
 one that begins `PUBLIC_` or that `public_env` lists;
 [Environments and secrets](../recipes/environments-and-secrets.md) has the rules.
 

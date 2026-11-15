@@ -104,7 +104,7 @@ store Board {
         tasks = tasks.filter(task => task.id != id)
     }
 
-    action reorder(id: Uuid, near: Uuid, position: String) {
+    action reorder(id: String, near: String, position: String) {
         let moving = tasks.find(task => task.id == id)
         if moving == null { return }
         let rest = tasks.filter(task => task.id != id)
@@ -543,7 +543,9 @@ page Order(path: "/order", title: "Order", description: "Put the tasks in order.
     Stack(gap: .xs) {
         for task in Board.tasks by task.id {
             Card(drag: task.id, dragGroup: "tasks", dropValue: task.id) {
-                on receive(d) { Board.reorder(d.value, task.id, d.position) }
+                on receive(d) {
+                    if let .string(id) = d.value { Board.reorder(id, task.id, d.position) }
+                }
                 Text(task.title)
             }
         }

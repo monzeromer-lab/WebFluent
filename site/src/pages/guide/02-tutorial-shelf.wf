@@ -260,7 +260,7 @@ app {
         Markdown("**Check it:** click **Suggest a book**, then **Send the suggestion** with the form empty. The form does not send: **Which book?** appears under **Title**, and **Who wrote it?** under **Author**. Fill in both and send again. You see **Thank you — we will take a look.**, and the form is empty.\n\nA real site sends the suggestion somewhere. You do not need a backend for this tutorial, so this part is for later: describe the service once, in a file of its own,")
 
         CodeBlock(#"// … in src/api.wf, beside the pages
-api Suggestions(base: env.PUBLIC_API ?? "/api") {
+api Suggestions(base: "/api") {
     post suggest(body: Json) -> !
 }"#, title: "wf")
 

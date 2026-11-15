@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/transferlist
 Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the keys of the chosen.
 
 ```wf
-TransferList(bind: State, options: Any, text: Any, …)
+TransferList(bind: State, options: [Item], text: (Item) -> String, …)
 ```
 
 ## Props
@@ -15,9 +15,9 @@ TransferList(bind: State, options: Any, text: Any, …)
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State  (required)` | The keys of what is chosen |
-| `options:` | `Any  (required)` | Everything that can be chosen |
-| `text:` | `Any` | What an option says: `o => o.name` (unset, the option) |
-| `key:` | `Any` | What identifies an option: `o => o.id` (unset, the option) |
+| `options:` | `[Item]  (required)` | Everything that can be chosen |
+| `text:` | `(Item) -> String` | What an option says: `o => o.name` (unset, the option) |
+| `key:` | `(Item) -> String or (Item) -> Number` | What identifies an option: `o => o.id` (unset, the option) |
 | `label:` | `String  (required)` | What is being chosen |
 | `from:` | `String` | The first list's heading (unset, `Available`) |
 | `to:` | `String` | The second list's heading (unset, `Chosen`) |

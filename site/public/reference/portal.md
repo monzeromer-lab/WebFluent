@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/portal
 Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.
 
 ```wf
-Portal(into: Any) { … }
+Portal(into: Element?) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `into:` | `Any  (required)` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
+| `into:` | `Element?  (required)` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

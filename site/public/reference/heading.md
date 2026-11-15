@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/heading
 Heading; level picks the tag (h2 when none is given).
 
 ```wf
-Heading(_ content: Any, level: Enum, align: Enum, muted: Bool)
+Heading(_ content: String or Number or Bool, level: Enum, align: Enum, muted: Bool)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `Any  (positional)` | The heading text |
+| `content` | `String or Number or Bool  (positional)` | The heading text |
 | `level:` | `.h1 .h2 .h3 .h4 .h5 .h6` | Heading level: the tag, and its place in the outline |
 | `align:` | `.left .center .right` | Text alignment |
 | `muted:` | `Bool` | Dimmed, for secondary text |

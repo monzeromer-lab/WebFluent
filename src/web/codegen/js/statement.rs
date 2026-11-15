@@ -392,9 +392,18 @@ impl JsCodegen {
                 self.emit_line("try {");
                 self.emit_block_in(&t.body, cx);
                 self.scope_reset(cx, mark);
-                let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
-                self.emit_line(&format!("}} catch ({}) {{", bare(&param)));
-                self.bind(cx, param);
+                // What a `catch e` reads is always an `Error`: anything
+                // else a script throws is wrapped in one.
+                match t.param.clone() {
+                    Some(param) => {
+                        self.emit_line(&format!(
+                            "}} catch ($thrown) {{ const {} = WF.thrown($thrown);",
+                            bare(&param)
+                        ));
+                        self.bind(cx, param);
+                    }
+                    None => self.emit_line("} catch (_error) {"),
+                }
                 self.emit_block_in(&t.catch_body, cx);
                 self.scope_reset(cx, mark);
                 self.emit_line("}");

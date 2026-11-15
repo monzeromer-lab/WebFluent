@@ -45,12 +45,10 @@ impl Checker<'_, '_> {
 
     pub(super) fn function_call(&mut self, name: &str, args: &[Expr]) -> Type {
         if self.lookup(name).is_none() {
-            match name {
-                "alert" | "confirm" | "prompt" => self.secret_args(name, args),
-                // In a request's address it is in every log the request
-                // passes; as a header or body it is where it belongs.
-                "fetch" => self.secret_args("a fetch's address", &args[..args.len().min(1)]),
-                _ => {}
+            // In a request's address it is in every log the request
+            // passes; as a header or body it is where it belongs.
+            if name == "fetch" {
+                self.secret_args("a fetch's address", &args[..args.len().min(1)]);
             }
         }
         // `fetch(…)` was 6.x's request; 7.0's is the built-in `http`
@@ -80,6 +78,12 @@ impl Checker<'_, '_> {
             && let Some((file, script)) = self.world.scripts.get(name).copied()
         {
             return self.script_call(file, script, args);
+        }
+        // A function of the browser's, by the browser table.
+        if self.lookup(name).is_none()
+            && let Some(ty) = self.browser_function(name, args)
+        {
+            return ty;
         }
         match self.lookup(name) {
             Some(Type::Func(params, ret)) => {
@@ -129,6 +133,14 @@ impl Checker<'_, '_> {
                 }
                 Type::String
             }
+            None if crate::registry::browser::BROWSER_GLOBALS.contains(&name)
+                && !BUILT_IN_FUNCTIONS.contains(&name) =>
+            {
+                for a in args {
+                    self.infer(a, None);
+                }
+                self.untyped_browser(&format!("{name}(…)"), name, &[])
+            }
             None => {
                 for a in args {
                     self.infer(a, None);
@@ -150,6 +162,11 @@ impl Checker<'_, '_> {
                     "keyLabel" => Type::String,
                     // `await ask(…)`: the answer, yes or no.
                     "ask" => Type::Bool,
+                    // What returns nothing.
+                    "log" | "navigate" | "setLocale" | "beacon" | "replayAnimation"
+                    | "optimistic" | "announce" => Type::Null,
+                    // The allow-listed markup.
+                    "sanitize" => Type::String,
                     _ if unresolved => Type::Error,
                     _ if BUILT_IN_FUNCTIONS.contains(&name) => {
                         self.hole(HoleKind::BuiltinFunction, format!("{name}(…)"))
@@ -328,6 +345,21 @@ impl Checker<'_, '_> {
             self.infer(a, None);
         }
         Type::String
+    }
+
+    /// [`call_args`](Self::call_args), where a parameter that may be null
+    /// may also be left out at the end: `last()` and `last("price")`.
+    pub(super) fn call_args_optional(&mut self, params: &[Type], args: &[Expr], what: &str) {
+        let required = params
+            .iter()
+            .rposition(|p| !matches!(p, Type::Optional(_)))
+            .map_or(0, |i| i + 1);
+        if (required..=params.len()).contains(&args.len()) {
+            let params = &params[..args.len()];
+            self.call_args(params, args, what);
+        } else {
+            self.call_args(params, args, what);
+        }
     }
 
     pub(super) fn call_args(&mut self, params: &[Type], args: &[Expr], what: &str) {

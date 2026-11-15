@@ -30,10 +30,12 @@ use crate::syntax::parser::ast::{
 };
 
 mod call;
+mod connection;
 mod element;
 mod expr;
 mod handles;
 mod holes;
+mod host;
 mod jsdoc;
 mod members;
 mod method;
@@ -102,6 +104,10 @@ struct World<'p> {
     store_fixed: HashMap<&'p str, HashMap<String, &'static str>>,
     /// Each store's actions, by name, for what they write.
     store_actions: HashMap<&'p str, HashMap<String, &'p [Statement]>>,
+    /// What `env` is: each name the build knows and the type of its value,
+    /// when the checker is told the build's settings. Without them `env`
+    /// reads any name, as text.
+    env: Option<Vec<(String, Type)>>,
     /// Each store's state the program writes, from anywhere, as
     /// `Store.member`.
     store_written: HashSet<String>,
@@ -195,8 +201,9 @@ impl<'p> World<'p> {
 /// The types every program has without declaring them: `Json`, the open
 /// JSON a value is matched or decoded out of; `DecodeError`, what a value
 /// that does not fit its type is refused with; `HttpError`, what goes wrong
-/// between the page and the server; and `Problem`, a server's account of a
-/// failure. A program's own type of any of these names wins.
+/// between the page and the server; `Problem`, a server's account of a
+/// failure; and what the built-ins' props name — `Point`, `CodeFile`,
+/// `RangePreset`. A program's own type of any of these names wins.
 static BUILT_IN_TYPES: std::sync::LazyLock<Program> = std::sync::LazyLock::new(|| {
     crate::syntax::parse_source(
         "/// Open JSON: a value matched, or decoded into a declared type, before it is read.
@@ -229,6 +236,12 @@ type Problem {
     instance: Url? = null
     extensions: Json = Json.null
 }
+/// A place on the screen, in CSS pixels: where a layer opens.
+type Point { x: Number, y: Number }
+/// One file of a `CodeBlock`'s tabs.
+type CodeFile { name: String, code: String, language: String = \"wf\" }
+/// A range a `DateRangePicker` offers to take at a press.
+enum RangePreset { today, last7, last30, thisMonth, lastMonth }
 ",
         "<built-in>",
     )
@@ -316,7 +329,33 @@ pub fn check_sources<'s>(
     file_of: &dyn Fn(usize) -> String,
     source_of: &dyn Fn(usize) -> Option<&'s str>,
 ) -> TypeInfo {
+    check_sources_with(program, file_of, source_of, None)
+}
+
+/// [`check_sources`], with the build's `env` known: each name and its
+/// value. `env` is then a record of exactly those names, so one the build
+/// does not know is `T05`, with the nearest name.
+pub fn check_sources_with<'s>(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    source_of: &dyn Fn(usize) -> Option<&'s str>,
+    env: Option<&std::collections::BTreeMap<String, serde_json::Value>>,
+) -> TypeInfo {
+    let env = env.map(|env| {
+        env.iter()
+            .map(|(name, value)| {
+                let ty = match value {
+                    serde_json::Value::Number(_) => Type::Number,
+                    serde_json::Value::Bool(_) => Type::Bool,
+                    serde_json::Value::String(_) => Type::String,
+                    _ => Type::Enum(ty::JSON.to_string()),
+                };
+                (name.clone(), ty)
+            })
+            .collect()
+    });
     let mut world = World {
+        env,
         types: HashMap::new(),
         enums: HashMap::new(),
         components: HashMap::new(),
@@ -514,11 +553,17 @@ pub fn check_sources<'s>(
         match decl {
             Declaration::Page(p) => {
                 cx.push_scope();
+                let mut route = Vec::new();
                 for param in &p.params {
                     cx.current_span = param.span;
                     cx.written(&param.prop_type, &param.name);
                     let ty = cx.world.resolve(Type::from_ref(&param.prop_type));
+                    route.push((param.name.clone(), ty.clone()));
                     cx.bind_fixed(&param.name, ty, param.span, "a route parameter");
+                }
+                // `params` is a record of the page's own parameters.
+                if let Some(scope) = cx.scopes.last_mut() {
+                    scope.insert("params".to_string(), Type::Shape(route));
                 }
                 if let Some(layout) = &p.layout {
                     cx.current_span = layout.span;
@@ -772,6 +817,10 @@ struct Checker<'a, 'p> {
     in_handler: usize,
     /// Inside a `Header` or `Footer`: `page` and `pages` are names there.
     in_running: usize,
+    /// What one item of each enclosing built-in that shows a list is — a
+    /// `DataTable`'s row, a `Tree`'s item — innermost last: what its props,
+    /// its parts and its slots mean by `Item`.
+    items: Vec<Type>,
     /// The states whose declared type says what their values must be —
     /// `Number(1..=30)` — held to it at every assignment, not only the
     /// first.
@@ -826,6 +875,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             in_derived: false,
             in_handler: 0,
             in_running: 0,
+            items: Vec::new(),
             refined: HashMap::new(),
             non_empty: Vec::new(),
             in_chain: false,
@@ -1151,7 +1201,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 // bound before the body so a handler may name another
                 // connection declared after it.
                 StatementKind::Connection(c) => {
-                    let handle = self.hole(HoleKind::Connection, &c.name);
+                    let handle = self.connection_type(c);
                     self.bind_fixed(&c.name, handle, stmt.span, "a connection");
                 }
                 _ => {}
@@ -1159,7 +1209,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             // `ref: name` anywhere in the body declares `name`: a handle on
             // the element, read like the element itself.
             for name in ref_names(std::slice::from_ref(stmt)) {
-                let handle = self.hole(HoleKind::ElementHandle, &name);
+                let handle = Type::Host("Element".to_string());
                 self.bind_fixed(&name, handle, stmt.span, "an element's handle");
             }
             // `Form(bind: form)` declares `form`: its validity and values.

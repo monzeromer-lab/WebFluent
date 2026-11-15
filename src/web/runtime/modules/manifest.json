@@ -818,6 +818,10 @@
         [
           "tryOk",
           "tryOk"
+        ],
+        [
+          "thrown",
+          "thrown"
         ]
       ],
       "name": "result",

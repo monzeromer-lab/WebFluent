@@ -196,6 +196,8 @@ mod tools_api;
 mod translations;
 #[path = "tutorials.rs"]
 mod tutorials;
+#[path = "typed_surfaces.rs"]
+mod typed_surfaces;
 #[path = "v2_syntax.rs"]
 mod v2_syntax;
 #[path = "validation.rs"]

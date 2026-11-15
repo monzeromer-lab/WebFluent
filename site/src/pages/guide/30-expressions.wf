@@ -338,14 +338,18 @@ page Report(path: "/report", title: "Report", description: "Rows loaded on reque
 
         CodeBlock(#"const MAX_ROWS = 50
 const PAGE_SIZE: Number = 20
-const API = env.PUBLIC_API_URL ?? "/api"
+const API = env.PUBLIC_API_URL
 
 page Settings(path: "/settings", title: "Settings", description: "The limits this site runs with.") {
     Heading("Settings").h1
     Text("Up to {MAX_ROWS} rows, {PAGE_SIZE} a page, from {API}")
 }"#, title: "wf")
 
-        Markdown("A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an `X01`. `env.NAME` reads a value fixed at build time — from the config's `env` map, a `.env` file or the shell. A page may read only a public name, one that begins `PUBLIC_` or that `public_env` lists; [Environments and secrets](/recipes/environments-and-secrets) has the rules.")
+        Markdown("A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an `X01`. `env.NAME` reads a value fixed at build time — from the config's `env` map, a `.env` file or the shell — and `env` holds exactly the names the build knows, so one nothing sets is a `T05`:")
+
+        CodeBlock(#"{ "env": { "PUBLIC_API_URL": "/api" } }"#, title: "json")
+
+        Markdown(" A page may read only a public name, one that begins `PUBLIC_` or that `public_env` lists; [Environments and secrets](/recipes/environments-and-secrets) has the rules.")
 
         Heading("Built-in functions", id: "built-in-functions").h2
 

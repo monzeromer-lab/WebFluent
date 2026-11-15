@@ -109,7 +109,9 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
         PropType::State => ("State", None),
         PropType::Path => ("Path", None),
         PropType::Decl => ("Declaration", None),
-        PropType::Any => ("Any", None),
+        PropType::Ty(t) => (t, None),
+        PropType::Items => ("[Item]", None),
+        PropType::Mount => ("(Element) -> Handle", None),
         PropType::Enum(cases) => (
             "Enum",
             Some(

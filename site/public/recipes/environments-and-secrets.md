@@ -8,8 +8,8 @@ Read a setting that changes between environments (an API's address, a
 feature switch) with `env.NAME`, give it a value per environment, and keep
 a private value such as an API key out of what readers download.
 
-This page reads the API's address and a feature switch, and falls back to
-defaults when nothing sets them:
+This page reads the API's address and a feature switch, whose defaults the
+config gives and each environment may change:
 
 **Needs:** an API that answers `/api/rows`, and the values set as [Set a
 value](#set-a-value) shows. It claims `/`: paste it into a new project, or
@@ -18,7 +18,7 @@ replace the starter's `src/pages/Home.wf` with it.
 ```wf
 type Row { id: String }
 
-const API = env.PUBLIC_API ?? "/api"
+const API = env.PUBLIC_API
 const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
 
 page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
@@ -40,9 +40,12 @@ page Billing(path: "/billing", title: "Billing", description: "Plans and invoice
 ## How it works
 
 `env.PUBLIC_API` is the value of `PUBLIC_API`, fixed when the site is
-built. A name that nothing sets reads as nothing (`null`), so `??` supplies
-the default. Keep the values in `const`s at the top of the file, as above,
-so every page reads them from one place.
+built. `env` holds exactly the names the build knows, each a `String`, so a
+misspelt one — `env.PUBLIC_APII` — is a `T05` with the name meant, and a
+name nothing sets is one too: give every name its default in the config's
+`env` map ([Set a value](#set-a-value)), which a `.env` file or the shell
+then overrides per environment. Keep the values in `const`s at the top of
+the file, as above, so every page reads them from one place.
 
 The sections below set the values, keep the private ones out of the bundle,
 and build once per environment.

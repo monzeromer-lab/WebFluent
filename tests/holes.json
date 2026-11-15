@@ -1,112 +1,59 @@
 {
   "projects": {
-    "examples/decks/arabic-workshop": {
-      "builtin-prop": 44
-    },
+    "examples/decks/arabic-workshop": {},
     "examples/decks/halyard-review": {
       "any-accepted": 1,
-      "builtin-prop": 152,
       "map-field": 11,
       "written-map": 1
     },
-    "examples/decks/webfluent": {
-      "builtin-prop": 137
-    },
-    "examples/decks/webfluent-ar": {
-      "builtin-prop": 137
-    },
-    "examples/documents/halyard-report": {
-      "browser-global": 2,
-      "builtin-prop": 90
-    },
-    "examples/documents/invoice": {
-      "browser-global": 2,
-      "builtin-prop": 58
-    },
-    "examples/documents/resume": {
-      "builtin-prop": 46
-    },
+    "examples/decks/webfluent": {},
+    "examples/decks/webfluent-ar": {},
+    "examples/documents/halyard-report": {},
+    "examples/documents/invoice": {},
+    "examples/documents/resume": {},
     "examples/tutorials/easy-todos": {
       "any-accepted": 1,
-      "builtin-prop": 6,
-      "env-query": 1,
       "loose-join": 3,
-      "spread-map": 2,
-      "untyped-lambda": 1
+      "spread-map": 2
     },
     "examples/tutorials/hard-pocket": {
       "any-accepted": 1,
-      "browser-global": 4,
-      "builtin-function": 1,
-      "builtin-prop": 59,
-      "connection": 3,
-      "dom-event": 4,
-      "env-query": 2,
-      "loose-arithmetic": 1,
       "loose-join": 4,
+      "map-field": 1,
+      "native": 1,
       "script": 1
     },
     "examples/tutorials/medium-field-notes": {
-      "any-accepted": 1,
-      "builtin-prop": 31,
-      "env-query": 1,
       "list-method": 2
     },
-    "examples/videos/arabic-invoice": {
-      "builtin-prop": 48
-    },
-    "examples/videos/counter": {
-      "builtin-prop": 2
-    },
-    "examples/videos/invoice": {
-      "builtin-prop": 55
-    },
-    "examples/videos/one-file-three-outputs": {
-      "builtin-prop": 11
-    },
-    "examples/videos/report-contents": {
-      "browser-global": 2,
-      "builtin-prop": 90
-    },
-    "examples/videos/typo": {
-      "builtin-prop": 2
-    },
+    "examples/videos/arabic-invoice": {},
+    "examples/videos/counter": {},
+    "examples/videos/invoice": {},
+    "examples/videos/one-file-three-outputs": {},
+    "examples/videos/report-contents": {},
+    "examples/videos/typo": {},
     "site": {
-      "any-accepted": 40,
-      "browser-global": 23,
-      "builtin-function": 1,
-      "builtin-prop": 7043,
-      "caught-error": 5,
-      "dom-event": 1,
+      "any-accepted": 37,
       "empty-list": 330,
       "empty-map": 3,
-      "list-method": 1,
+      "list-method": 6,
       "loose-index": 7,
-      "map-field": 62,
+      "map-field": 66,
       "script": 24,
-      "untyped-lambda": 15,
       "written-map": 21
     }
   },
   "total": {
-    "any-accepted": 44,
-    "browser-global": 33,
-    "builtin-function": 2,
-    "builtin-prop": 8011,
-    "caught-error": 5,
-    "connection": 3,
-    "dom-event": 5,
+    "any-accepted": 40,
     "empty-list": 330,
     "empty-map": 3,
-    "env-query": 4,
-    "list-method": 3,
-    "loose-arithmetic": 1,
+    "list-method": 8,
     "loose-index": 7,
     "loose-join": 7,
-    "map-field": 73,
+    "map-field": 78,
+    "native": 1,
     "script": 25,
     "spread-map": 2,
-    "untyped-lambda": 16,
     "written-map": 22
   }
 }

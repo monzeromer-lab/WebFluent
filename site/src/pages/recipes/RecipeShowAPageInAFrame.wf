@@ -6,7 +6,9 @@ page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Sh
     Heading("The talk").h1
     Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
     Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-        on message(m) { heard = m.data }
+        on message(m) {
+            if let .string(said) = m.data { heard = said }
+        }
     }
     Text(heard)
 }
@@ -27,7 +29,9 @@ page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Sh
     Heading("The talk").h1
     Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
     Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-        on message(m) { heard = m.data }
+        on message(m) {
+            if let .string(said) = m.data { heard = said }
+        }
     }
     Text(heard)
 }"#, title: "wf")
@@ -47,7 +51,7 @@ page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Sh
             Markdown("The frame draws the HTML sandboxed as `sandbox:` says, so `sandbox: \"\"` draws it with no script and no reach into your page. HTML from a value with no `sandbox:` is given `sandbox=\"\"` — what a value holds is somebody else's document, scripts and all — and the build names it with a `V03`. A value that reads state draws the new HTML each time it changes, and the pre-rendered page has the HTML before any script runs.\n\nA frame's `on message` hears what its own document posts, from the origin that document has: its address's, or the opaque `\"null\"` of a sandbox without `allow-same-origin`. A page the frame was navigated to is no longer its own.")
 
         }
-        Markdown("- `title:` says what the frame shows. A screen reader announces a frame by its title, and a frame without one draws an `A17` warning.\n- `on message(m)` hears what the framed page posts with `window.parent.postMessage(…)`, and nothing that any other page posts. `m.data` is what it sent.\n- `sandbox:` limits what the framed page may do: `\"allow-scripts allow-forms\"` allows scripts and forms, and an empty string allows nothing.\n- `allow:` names the browser features the framed page may use.\n\nA frame from another origin must be named in `meta.frame`, or the page's Content-Security-Policy refuses it ([Security](/about/security)). The build and `wf check` do not warn about a missing one: the frame is simply blank in the browser. `meta.frame` takes origins only (`https://www.youtube-nocookie.com`), not paths.")
+        Markdown("- `title:` says what the frame shows. A screen reader announces a frame by its title, and a frame without one draws an `A17` warning.\n- `on message(m)` hears what the framed page posts with `window.parent.postMessage(…)`, and nothing that any other page posts. `m.data` is what it sent, as `Json`: `if let .string(said)` takes it when it is text.\n- `sandbox:` limits what the framed page may do: `\"allow-scripts allow-forms\"` allows scripts and forms, and an empty string allows nothing.\n- `allow:` names the browser features the framed page may use.\n\nA frame from another origin must be named in `meta.frame`, or the page's Content-Security-Policy refuses it ([Security](/about/security)). The build and `wf check` do not warn about a missing one: the frame is simply blank in the browser. `meta.frame` takes origins only (`https://www.youtube-nocookie.com`), not paths.")
 
         Heading("Frame your own pages", id: "frame-your-own-pages").h3
 

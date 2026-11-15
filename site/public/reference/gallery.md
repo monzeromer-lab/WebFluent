@@ -7,15 +7,15 @@ The page: https://webfluent.monzeromer.dev/reference/gallery
 Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.
 
 ```wf
-Gallery(columns: Any, ratio: Any) { … }
+Gallery(columns: Number, ratio: Number) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Any` | How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit |
-| `ratio:` | `Any` | Each picture's shape, `4 / 3` (unset, `1`) |
+| `columns:` | `Number` | How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit |
+| `ratio:` | `Number` | Each picture's shape, `4 / 3` (unset, `1`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

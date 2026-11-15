@@ -1,0 +1,14 @@
+// `catch e` binds an `Error` whatever a script throws: a string, a plain
+// object or a number arrives wrapped in one, its text the message; an
+// `Error` arrives as it is. `tests/browser/thrown.mjs` presses each.
+app { Router }
+
+page Home(path: "/", title: "Thrown", description: "What a catch binds.") {
+    state said = ""
+    Heading("Thrown").h1
+    Button("Text") { on click { try { throwText() } catch e { said = "{e.name}: {e.message}" } } }
+    Button("Object") { on click { try { throwObject() } catch e { said = "{e.name}: {e.message}" } } }
+    Button("Number") { on click { try { throwNumber() } catch e { said = "{e.name}: {e.message}" } } }
+    Button("Error") { on click { try { throwError() } catch e { said = "{e.name}: {e.message}" } } }
+    Text(said, id: "said")
+}

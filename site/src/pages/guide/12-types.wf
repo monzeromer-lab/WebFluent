@@ -479,7 +479,7 @@ page Infer(path: "/", title: "Infer", description: "Types the checker works out.
     Text("{joined} {kind} {firstScore}")
 }"#, title: "wf")
 
-        Markdown("The rules for operators and forms:\n\n- `a ?? b` is `a` without its `null`, joined with `b`.\n- `a?.b` is `b`'s type made optional, and the rest of the chain with it.\n- `if` and `match` used as values have the type both arms fit: the same type, `T?` when one arm is `null`, and `Any` otherwise.\n- `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either side is one; comparisons and `&&`, `||`, `!` give a `Bool`.\n- `await e` on a `fetch` is `Any` unless you annotate it: `let r: [Row] = try await http.get(…)`.\n- `let \{ a, b \} = m` and `let [x, y] = l` bind the fields and the items.")
+        Markdown("The rules for operators and forms:\n\n- `a ?? b` is `a` without its `null`, joined with `b`.\n- `a?.b` is `b`'s type made optional, and the rest of the chain with it.\n- `if` and `match` used as values have the type both arms fit: the same type, `T?` when one arm is `null`, and `Any` otherwise.\n- `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either side is one; comparisons and `&&`, `||`, `!` give a `Bool`.\n- `await http.get(…)` is what you annotate it as: `let r: [Row] = try await http.get(…)`.\n- A browser global is what the browser's table says: `JSON.parse(text)` is `Json`, `localStorage.getItem(k)` is `String?`; a handler's event is the browser's (`on keydown(e)` is a `KeyboardEvent`), a `ref:` an `Element`, and `catch e` an `Error`.\n- `let \{ a, b \} = m` and `let [x, y] = l` bind the fields and the items.")
 
         Heading("Narrowing optionals", id: "narrowing-optionals").h2
 

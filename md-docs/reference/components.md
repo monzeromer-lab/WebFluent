@@ -222,7 +222,7 @@ Renders with the class `wf-virtual-list`.
 |---|---|---|
 | `rowHeight:` | `Number` | Every row's height, in px: the fast path. Unset, each row is measured |
 | `estimate:` | `Number` | The height a row not yet drawn stands for, in px. Unset, 32 |
-| `reveal:` | `Any` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
+| `reveal:` | `String or Number` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
 | `label:` | `String` | What the list is, for a screen reader |
 
 Takes a block of children.
@@ -300,7 +300,7 @@ Renders with the class `wf-masonry`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Any` | How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }` |
+| `columns:` | `Number` | How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }` |
 
 Takes a block of children.
 
@@ -324,7 +324,7 @@ Renders with the class `wf-aspect-ratio`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `ratio:` (required) | `Any` | Its width over its height, `16 / 9` |
+| `ratio:` (required) | `Number` | Its width over its height, `16 / 9` |
 
 Takes a block of children.
 
@@ -526,7 +526,7 @@ Renders with the class `wf-portal`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `into:` (required) | `Any` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
+| `into:` (required) | `Element?` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
 
 Takes a block of children.
 
@@ -664,7 +664,7 @@ Renders with the class `wf-tabs`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none |
-| `value:` | `Any` | The open tab, read only: `on change(v)` hears the one the reader picks |
+| `value:` | `String or Number` | The open tab, read only: `on change(v)` hears the one the reader picks |
 | `orientation:` | `.horizontal` `.vertical` | Which way the tabs run |
 | `activation:` | `.automatic` `.manual` | Whether moving the focus opens a tab |
 | `label:` | `String` | The tab strip's accessible name |
@@ -677,7 +677,7 @@ Renders with the class `wf-tabs`.
 
 - `Tabs.Page(label, value: …, disabled: …) { … }` — One tab and its panel.
   - `label:` `String` — The tab's label
-  - `value:` `Any` — What the Tabs' `bind:` holds while this tab is open
+  - `value:` `String or Number` — What the Tabs' `bind:` holds while this tab is open
   - `disabled:` `Bool` — Shown, but not opened: the arrow keys pass over it
   - flags: `.disabled`
 
@@ -739,8 +739,8 @@ Renders with the class `wf-menu`.
 | `trigger:` | `String` | Label of the button that opens the menu |
 | `label:` | `String` | Same as `trigger` |
 | `visible:` | `State` | State flag that opens and closes it |
-| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
-| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
+| `anchor:` | `Element or Point` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
+| `at:` | `Point` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
 | `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
 | `offset:` | `Number` | How far from the anchor, in px |
 
@@ -1192,7 +1192,7 @@ Renders with the class `wf-tour`.
 **Parts:**
 
 - `Tour.Step(target: …, title: …) { … }` — One step: what it points at, its title, and its block.
-  - `target:` `Any` — The element it points at: a `ref:`
+  - `target:` `Element` — The element it points at: a `ref:`
   - `title:` `String` — Its heading
 
 Takes a block of children.
@@ -1409,7 +1409,7 @@ Renders with the class `wf-modal`.
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 | `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 **Flags:** `.closable` `.any` `.escape` `.none`
 
@@ -1446,14 +1446,14 @@ Renders with the class `wf-popover`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `visible:` | `State` | State flag that opens and closes it |
-| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
-| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
+| `anchor:` | `Element or Point` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
+| `at:` | `Point` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
 | `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
 | `offset:` | `Number` | How far from the anchor, in px |
 | `label:` | `String` | What it is, for a screen reader: its accessible name |
 | `arrow:` | `Bool` | A point toward the anchor |
 | `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 **Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow` `.any` `.escape` `.none`
 
@@ -1487,7 +1487,7 @@ Renders with the class `wf-dialog`.
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 | `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 **Flags:** `.closable` `.any` `.escape` `.none`
 
@@ -1528,7 +1528,7 @@ Renders with the class `wf-dialog wf-alert-dialog`.
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 | `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 **Flags:** `.any` `.escape` `.none`
 
@@ -1572,10 +1572,10 @@ Renders with the class `wf-sheet`.
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 | `side:` | `.bottom` `.start` `.end` | The edge it comes in from |
-| `snap:` | `Any` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
+| `snap:` | `[Number]` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
 | `label:` | `String` | Its accessible name, when it has no `title:` |
 | `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 **Flags:** `.closable` `.bottom` `.start` `.end` `.any` `.escape` `.none`
 
@@ -1710,8 +1710,8 @@ Renders with the class `wf-gallery`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Any` | How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit |
-| `ratio:` | `Any` | Each picture's shape, `4 / 3` (unset, `1`) |
+| `columns:` | `Number` | How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit |
+| `ratio:` | `Number` | Each picture's shape, `4 / 3` (unset, `1`) |
 
 Takes a block of children.
 
@@ -1734,7 +1734,7 @@ Renders with the class `wf-image`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `source` (positional) | `Any` | An `image` the program declares, or a URL |
+| `source` (positional) | `Picture or String` | An `image` the program declares, or a URL |
 | `src:` | `String` | Image URL |
 | `sizes:` | `String` | How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px` |
 | `placeholder:` | `.blur` `.color` `.none` | What fills the box while the image loads |
@@ -1928,7 +1928,7 @@ Renders with the class `wf-description-list`.
 
 - `DescriptionList.Item(term, value: …) { … }` — One pair: its term, and `value:` or its block.
   - `term:` `String` — What it is
-  - `value:` `Any` — Its value, as text; unset, its block
+  - `value:` `String or Number or Bool` — Its value, as text; unset, its block
 - `DescriptionList.Term(text) { … }` — A term. Drawn for it.
   - `text:` `String` — The term
 - `DescriptionList.Details(text) { … }` — A value. Drawn for it.
@@ -1959,7 +1959,7 @@ Renders with the class `wf-timeline`.
 
 - `Timeline.Item(title, at: …) { … }` — One event: its title, `at:` its time, and its block.
   - `title:` `String` — What happened
-  - `at:` `Any` — When: a `Date`, a `DateTime` or an ISO string, written as a date
+  - `at:` `Date or DateTime or String` — When: a `Date`, a `DateTime` or an ISO string, written as a date
 - `Timeline.Time(text, datetime: …) { … }` — An event's time (`<time>`). Drawn for it.
   - `text:` `String` — The time, as read
   - `datetime:` `String` — The time, as a machine reads it
@@ -2047,7 +2047,7 @@ Renders with the class `wf-sparkline`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `data` (positional) | `Any` | The numbers: a list |
+| `data` (positional) | `[Number]` | The numbers: a list |
 | `bar:` | `Bool` | Bars rather than a line |
 | `width:` | `Number` | Its width in px (unset, 80) |
 | `height:` | `Number` | Its height in px (unset, 20) |
@@ -2074,7 +2074,7 @@ Renders with the class `wf-relative-time`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `when` (positional) | `Any` | The moment: a `Date`, a `DateTime` or an ISO string |
+| `when` (positional) | `Date or DateTime or String` | The moment: a `Date`, a `DateTime` or an ISO string |
 | `datetime:` | `String` | The moment, as a machine reads it. Written for it |
 
 Attribute families: `global`, `aria`, `data`.
@@ -2140,7 +2140,7 @@ Renders with the class `wf-table`.
 - `Table.Body { … }` — The body of a table: its rows of data.
 - `Table.Row { … }` — A row of cells.
 - `Table.Cell(content, header: …) { … }` — A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.
-  - `content:` `Any` — The cell's content
+  - `content:` `String or Number or Bool` — The cell's content
   - `header:` `Bool` — Render as a `<th>`
   - flags: `.header`
 
@@ -2300,12 +2300,12 @@ Renders with the class `wf-tree`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `items:` (required) | `Any` | The items at the top |
-| `children:` (required) | `Any` | An item's children: `f => f.children`; none, or an empty list, for a leaf |
-| `key:` (required) | `Any` | What tells two items apart: `f => f.path` |
+| `items:` (required) | `[Item]` | The items at the top |
+| `children:` (required) | `(Item) -> [Item]?` | An item's children: `f => f.children`; none, or an empty list, for a leaf |
+| `key:` (required) | `(Item) -> String or (Item) -> Number` | What tells two items apart: `f => f.path` |
 | `bind:` | `State` | The chosen key, or a list of them with `.multiple` |
 | `multiple:` | `Bool` | Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A |
-| `open:` | `Any` | The keys open when it is drawn |
+| `open:` | `[String] or [Number]` | The keys open when it is drawn |
 | `label:` (required) | `String` | What the tree is, for a screen reader |
 
 **Flags:** `.multiple`
@@ -2334,8 +2334,8 @@ Renders with the class `wf-data-table`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `rows:` (required) | `Any` | The records |
-| `key:` (required) | `Any` | What tells two rows apart: `r => r.id` |
+| `rows:` (required) | `[Item]` | The records |
+| `key:` (required) | `(Item) -> String or (Item) -> Number` | What tells two rows apart: `r => r.id` |
 | `bind:` | `State` | The chosen row's key, or a list of them with `.multiple` |
 | `multiple:` | `Bool` | Several rows at once |
 | `label:` (required) | `String` | What the table is: its caption, read by a screen reader |
@@ -2348,7 +2348,7 @@ Renders with the class `wf-data-table`.
 
 - `DataTable.Column(title, value: …, sortable: …)` — One column: its title, its `value:` (what it shows and sorts by), and a `cell(r) { … }` that draws it instead.
   - `title:` `String` — Its header
-  - `value:` `Any` — What the column holds for a row: `r => r.service`
+  - `value:` `(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money` — What the column holds for a row: `r => r.service`
   - `sortable:` `Bool` — Its header sorts the rows by its `value:`
   - flags: `.sortable`
 
@@ -2373,10 +2373,10 @@ Renders with the class `wf-chart`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `kind:` | `.bar` `.line` `.area` `.pie` `.donut` | What it draws |
-| `data:` | `Any` | The rows: a list of records, or of numbers |
+| `data:` | `[Json]` | The rows: a list of records, or of numbers |
 | `x:` | `String` | The key of each row's label |
-| `y:` | `Any` | The key of each row's value, or a list of keys for several series |
-| `colors:` | `Any` | The series' colours, in order |
+| `y:` | `String or [String]` | The key of each row's value, or a list of keys for several series |
+| `colors:` | `[String]` | The series' colours, in order |
 | `width:` | `Number` | Its width in user units (it scales to its box) |
 | `height:` | `Number` | Its height in user units |
 | `ink:` | `String` | The colour of its labels |
@@ -2433,7 +2433,7 @@ Renders with the class `wf-color-picker`.
 |---|---|---|
 | `bind:` (required) | `State` | The colour, `#rrggbb` |
 | `label:` (required) | `String` | What the colour is for |
-| `swatches:` | `Any` | The colours offered first: a list of `#rrggbb` |
+| `swatches:` | `[String]` | The colours offered first: a list of `#rrggbb` |
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -2455,9 +2455,9 @@ Renders with the class `wf-transfer-list`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` (required) | `State` | The keys of what is chosen |
-| `options:` (required) | `Any` | Everything that can be chosen |
-| `text:` | `Any` | What an option says: `o => o.name` (unset, the option) |
-| `key:` | `Any` | What identifies an option: `o => o.id` (unset, the option) |
+| `options:` (required) | `[Item]` | Everything that can be chosen |
+| `text:` | `(Item) -> String` | What an option says: `o => o.name` (unset, the option) |
+| `key:` | `(Item) -> String or (Item) -> Number` | What identifies an option: `o => o.id` (unset, the option) |
 | `label:` (required) | `String` | What is being chosen |
 | `from:` | `String` | The first list's heading (unset, `Available`) |
 | `to:` | `String` | The second list's heading (unset, `Chosen`) |
@@ -2511,9 +2511,9 @@ Renders with the class `wf-input`.
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
 | `type:` | `.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` | What the field holds |
 | `placeholder:` | `String` | Hint shown while the field is empty |
-| `value:` | `Any` | The control's value, when its state is not bound |
-| `min:` | `Any` | Lowest value |
-| `max:` | `Any` | Highest value |
+| `value:` | `String or Number` | The control's value, when its state is not bound |
+| `min:` | `Number or String` | Lowest value |
+| `max:` | `Number or String` | Highest value |
 | `step:` | `Number` | Granularity |
 | `required:` | `Bool` | Whether the form refuses to submit without it |
 | `disabled:` | `Bool` | Whether the control is inert |
@@ -2546,7 +2546,7 @@ Renders with the class `wf-select`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `value:` | `Any` | The control's value, when its state is not bound |
+| `value:` | `String or Number` | The control's value, when its state is not bound |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
@@ -2559,7 +2559,7 @@ Renders with the class `wf-select`.
 
 - `Select.Option(label, value: …)` — One choice: the visible label, and the value sent with the form.
   - `label:` `String` — The visible label
-  - `value:` `Any` — The value `bind` takes when this one is chosen; the label when absent
+  - `value:` `String or Number or Bool` — The value `bind` takes when this one is chosen; the label when absent
 
 Takes a block of children.
 
@@ -2610,7 +2610,7 @@ Renders with the class `wf-radio`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `value:` | `Any` | The value `bind` takes when this one is chosen |
+| `value:` | `String or Number or Bool` | The value `bind` takes when this one is chosen |
 | `checked:` | `Bool` | Whether it is checked, when its state is not bound |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
@@ -2921,7 +2921,7 @@ Renders with the class `wf-radio-group`.
 
 - `RadioGroup.Option(label, value: …, hint: …) { … }` — One choice: its words, its value, and a hint said with it.
   - `label:` `String` — Its words
-  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `value:` `String or Number or Bool` — What `bind:` holds when it is chosen
   - `hint:` `String` — A line beneath it, read with it
 - `RadioGroup.Legend(text) { … }` — Its legend. Drawn for it.
   - `text:` `String` — The legend
@@ -2986,9 +2986,9 @@ Renders with the class `wf-calendar`.
 |---|---|---|
 | `bind:` (required) | `State` | The chosen day, range or days |
 | `mode:` | `.single` `.range` `.multiple` | How many days it holds |
-| `min:` | `Any` | The first day that can be chosen |
-| `max:` | `Any` | The last day that can be chosen |
-| `disabled:` | `Any` | Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6` |
+| `min:` | `Date` | The first day that can be chosen |
+| `max:` | `Date` | The last day that can be chosen |
+| `disabled:` | `[Date] or (Date) -> Bool` | Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6` |
 | `label:` | `String` | Its name for a screen reader; unset, `Calendar` |
 
 **Flags:** `.single` `.range` `.multiple`
@@ -3026,7 +3026,7 @@ Renders with the class `wf-listbox`.
 
 - `Listbox.Option(label, value: …, icon: …, aria-disabled: …) { … }` — One option: its words, and the value `bind:` holds when it is chosen.
   - `label:` `String` — Its words
-  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `value:` `String or Number or Bool` — What `bind:` holds when it is chosen
   - `icon:` `String` — An icon before the words
   - `aria-disabled:` `String` — `"true"`: shown, passed over, never chosen
 
@@ -3056,11 +3056,11 @@ Renders with the class `wf-combobox`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` (required) | `State` | The chosen option's key (or the option itself without `key:`), or a list with `.multiple` |
-| `options:` | `Any` | Every option, filtered as the reader types |
-| `search:` | `Any` | Options asked for as the reader types: `q => Geo.cities(q: q)` |
-| `text:` (required) | `Any` | An option's words: `p => p.name` |
-| `key:` | `Any` | What tells two options apart: `p => p.id` |
-| `debounce:` | `Any` | How long the typing rests before `search:` is asked (unset, 200ms) |
+| `options:` | `[Item]` | Every option, filtered as the reader types |
+| `search:` | `(String) -> [Item] or (String) -> [Item]!` | Options asked for as the reader types: `q => Geo.cities(q: q)` |
+| `text:` (required) | `(Item) -> String` | An option's words: `p => p.name` |
+| `key:` | `(Item) -> String or (Item) -> Number` | What tells two options apart: `p => p.id` |
+| `debounce:` | `Number or Duration` | How long the typing rests before `search:` is asked (unset, 200ms) |
 | `multiple:` | `Bool` | Several at once, each a chip |
 | `label:` (required) | `String` | Its name for a screen reader |
 | `placeholder:` | `String` | Shown while it is empty |
@@ -3097,7 +3097,7 @@ Renders with the class `wf-checkbox-group`.
 
 - `CheckboxGroup.Option(label, value: …)` — One box: its words and its value.
   - `label:` `String` — Its words
-  - `value:` `Any` — What the list holds while it is ticked; unset, its words
+  - `value:` `String or Number or Bool` — What the list holds while it is ticked; unset, its words
 - `CheckboxGroup.Legend(text) { … }` — Its legend. Drawn for it.
   - `text:` `String` — The legend
 
@@ -3198,9 +3198,9 @@ Renders with the class `wf-date-range`.
 |---|---|---|
 | `bind:` (required) | `State` | The range: `{ start, end }` |
 | `label:` (required) | `String` | What the range is |
-| `min:` | `Any` | The first day that can be chosen |
-| `max:` | `Any` | The last day that can be chosen |
-| `presets:` | `Any` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
+| `min:` | `Date` | The first day that can be chosen |
+| `max:` | `Date` | The last day that can be chosen |
+| `presets:` | `[RangePreset]` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -3280,7 +3280,7 @@ Renders with the class `wf-btn wf-copy-button`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` (positional) | `String` | Its words; unset, `Copy` |
-| `value:` (required) | `Any` | What it copies |
+| `value:` (required) | `String or Number` | What it copies |
 | `copied:` | `String` | What it says once it has copied; unset, `Copied` |
 
 Attribute families: `global`, `aria`, `data`.
@@ -3379,7 +3379,7 @@ Renders with the class `wf-toggle-group`.
 
 - `ToggleGroup.Item(label, value: …, icon: …, disabled: …)` — One choice: its words, and the value `bind:` holds when it is chosen.
   - `label:` `String` — Its words
-  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `value:` `String or Number or Bool` — What `bind:` holds when it is chosen
   - `icon:` `String` — An icon before the words
   - `disabled:` `Bool` — Whether the control is inert
   - flags: `.disabled`
@@ -3549,7 +3549,7 @@ Renders with the class `wf-text`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` (positional) | `Any` | The text |
+| `content` (positional) | `String or Number or Bool` | The text |
 | `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
 | `size:` | `.sm` `.md` `.lg` | Its size |
 | `align:` | `.left` `.center` `.right` | Text alignment |
@@ -3581,7 +3581,7 @@ Renders with the class `wf-heading`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` (positional) | `Any` | The heading text |
+| `content` (positional) | `String or Number or Bool` | The heading text |
 | `level:` | `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` | Heading level: the tag, and its place in the outline |
 | `align:` | `.left` `.center` `.right` | Text alignment |
 | `muted:` | `Bool` | Dimmed, for secondary text |
@@ -3608,7 +3608,7 @@ Renders with the class `wf-code`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` (positional) | `Any` | The code |
+| `content` (positional) | `String or Number or Bool` | The code |
 | `block:` | `Bool` | A multi-line block |
 | `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
 
@@ -3677,7 +3677,7 @@ Renders with the class `wf-blockquote`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` (positional) | `Any` | The quoted text |
+| `content` (positional) | `String or Number or Bool` | The quoted text |
 
 Takes a block of children.
 
@@ -3788,10 +3788,10 @@ Renders with the class `wf-stat`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` (positional) | `String` | What the figure is |
-| `value:` (required) | `Any` | The figure |
+| `value:` (required) | `Number or Money or String` | The figure |
 | `format:` | `.number` `.integer` `.currency` `.percent` `.compact` | How the figure is written, as `format` writes it |
 | `change:` | `Number` | How it moved, as a fraction: `0.124` is up 12.4% |
-| `trend:` | `Any` | Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]` |
+| `trend:` | `[Number]` | Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]` |
 
 **Flags:** `.number` `.integer` `.currency` `.percent` `.compact`
 
@@ -3800,7 +3800,7 @@ Renders with the class `wf-stat`.
 - `Stat.Label(text)` — Its label.
   - `text:` `String` — The label
 - `Stat.Value(text)` — Its figure.
-  - `text:` `Any` — The figure
+  - `text:` `String or Number` — The figure
 - `Stat.Change(text)` — How it moved, with its direction.
   - `text:` `String` — The change
 
@@ -3825,8 +3825,8 @@ Renders with the class `wf-code-block`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `code` (positional) | `String` | The code |
-| `highlight:` | `Any` | The lines to mark, counted from 1: `[3, 4]` |
-| `files:` | `Any` | A tab for each file: `[{ name: "App.wf", code: app, language: "wf" }, …]` |
+| `highlight:` | `[Number]` | The lines to mark, counted from 1: `[3, 4]` |
+| `files:` | `[CodeFile]` | A tab for each file: `[{ name: "App.wf", code: app, language: "wf" }, …]` |
 | `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
 | `title:` | `String` | The file name or the language, in the bar |
 | `copy:` | `Bool` | A button in the bar that copies the code |
@@ -3985,7 +3985,7 @@ Renders with the class `wf-document`.
 | `page_size:` | `.A4` `.A3` `.A5` `.Letter` `.Legal` | Paper size (also `size:`) |
 | `size:` | `String` | Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm` |
 | `landscape:` | `Bool` | Turn the paper on its side |
-| `margin:` | `Any` | The page margins: one length, or top right bottom left (`72`, `20mm 25mm`) |
+| `margin:` | `Number or String` | The page margins: one length, or top right bottom left (`72`, `20mm 25mm`) |
 | `title:` | `String` | The file's title, shown by a reader in place of its name |
 | `author:` | `String` | The file's author; several separated by commas |
 | `subject:` | `String` | What the document is about |
@@ -4035,7 +4035,7 @@ Renders with the class `wf-text`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` (positional) | `Any` | The text |
+| `content` (positional) | `String or Number or Bool` | The text |
 | `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
 | `size:` | `.sm` `.md` `.lg` | Its size |
 | `align:` | `.left` `.center` `.right` | Text alignment |
@@ -4343,16 +4343,16 @@ Attribute families: `global`, `aria`, `data`.
 | `shared:` | `String` | A name this element keeps across a route change, so the browser carries it from one page to the next |
 | `class:` | `String` | Classes added beside the engine's, from the project's own stylesheets |
 | `ref:` | `State` | A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()` |
-| `drag:` | `Any` | What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)` |
+| `drag:` | `Json` | What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)` |
 | `dragGroup:` | `String` | Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart |
-| `dropValue:` | `Any` | What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)` |
+| `dropValue:` | `Json` | What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)` |
 | `dropAxis:` | `.y` `.x` | Which way its list runs, for where a drop lands |
 | `dropInside:` | `Bool` | A drop on its middle lands inside it — a folder, a container — as well as before or after |
 | `roving:` | `.x` `.y` `.both` | One Tab stop for the group, and the arrow keys, Home, End and the first letters of a name to move inside it: a toolbar, a row of choices, a list |
 | `trapFocus:` | `Bool` | While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was |
-| `mount:` | `Any` | Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get |
-| `update:` | `Any` | Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)` |
-| `cleanup:` | `Any` | Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()` |
+| `mount:` | `(Element) -> Handle` | Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get |
+| `update:` | `(Handle) -> ()` | Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)` |
+| `cleanup:` | `(Handle) -> ()` | Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()` |
 
 The cases of `animate:` and `speed:` are also flags on every element: `.fadeIn` … `.spin`, `.fast` `.normal` `.slow`; so are the `Bool` props above, `.dropInside` and `.trapFocus`.
 

@@ -55,8 +55,18 @@ pub enum PropType {
     Path,
     /// A declared page or component, by name.
     Decl,
-    /// Anything: an expression the component forwards.
-    Any,
+    /// A type as a program writes it — `Element?`, `[Number]`, `(Item) ->
+    /// String` — or several it may be, joined by ` or `: `Number or
+    /// Money`. In a component that takes [`PropType::Items`], `Item` is one
+    /// of its items; `Handle` is what `mount:` hands back, and `Picture` an
+    /// `image` the program declares.
+    Ty(&'static str),
+    /// A list of whatever the component shows: its rows, options or items.
+    /// Its props and parts that say `Item` are about one of them.
+    Items,
+    /// `mount:` — run with the element, `(Element) -> Handle`: what it
+    /// hands back is what `update:` and `cleanup:` are given.
+    Mount,
     /// One of a fixed set of cases, written `.case`.
     Enum(&'static [CaseSig]),
 }
@@ -94,6 +104,21 @@ impl PropType {
     /// Whether the value is text: a string, or a file named by its path.
     pub fn is_text(self) -> bool {
         matches!(self, PropType::Str | PropType::File(_))
+    }
+
+    /// The type as the language writes it, for a tool to show.
+    pub fn spelling(self) -> &'static str {
+        match self {
+            PropType::Str | PropType::File(_) | PropType::Path => "String",
+            PropType::Num => "Number",
+            PropType::Bool => "Bool",
+            PropType::State => "State",
+            PropType::Decl => "Declaration",
+            PropType::Enum(_) => "Enum",
+            PropType::Ty(t) => t,
+            PropType::Items => "[Item]",
+            PropType::Mount => "(Element) -> Handle",
+        }
     }
 }
 
@@ -176,7 +201,16 @@ impl PropSig {
             PropType::Enum(cases) => cases
                 .first()
                 .map_or("null".to_string(), |c| format!(".{}", c.name)),
-            PropType::State | PropType::Decl | PropType::Any => "null".to_string(),
+            PropType::Items => "[]".to_string(),
+            // The empty value of the first type it may be.
+            PropType::Ty(t) => match t.split(" or ").next().unwrap_or(t) {
+                "String" => "\"\"".to_string(),
+                "Number" => "0".to_string(),
+                "Bool" => "false".to_string(),
+                first if first.starts_with('[') => "[]".to_string(),
+                _ => "null".to_string(),
+            },
+            PropType::State | PropType::Decl | PropType::Mount => "null".to_string(),
         }
     }
 }

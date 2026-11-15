@@ -347,7 +347,7 @@ store Session {
     action refresh() -> ! { token = try await http.get("/api/token", as: .text) }
 }
 
-api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
     headers {
         Authorization: "Bearer {Session.token}"
         Accept-Language: Session.language

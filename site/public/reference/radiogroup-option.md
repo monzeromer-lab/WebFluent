@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/radiogroup-option
 One choice: its words, its value, and a hint said with it.
 
 ```wf
-RadioGroup.Option(_ label: String, value: Any, hint: String) { … }
+RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ RadioGroup.Option(_ label: String, value: Any, hint: String) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | Its words |
-| `value:` | `Any  (required)` | What `bind:` holds when it is chosen |
+| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
 | `hint:` | `String` | A line beneath it, read with it |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).

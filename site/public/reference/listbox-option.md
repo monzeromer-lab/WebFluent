@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/listbox-option
 One option: its words, and the value bind: holds when it is chosen.
 
 ```wf
-Listbox.Option(_ label: String, value: Any, icon: String, aria-disabled: String) { … }
+Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, aria-disabled: String) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Listbox.Option(_ label: String, value: Any, icon: String, aria-disabled: String)
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | Its words |
-| `value:` | `Any  (required)` | What `bind:` holds when it is chosen |
+| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
 | `icon:` | `String` | An icon before the words |
 | `aria-disabled:` | `String` | `"true"`: shown, passed over, never chosen |
 

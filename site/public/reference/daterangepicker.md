@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/daterangepicker
 A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds { start, end }.
 
 ```wf
-DateRangePicker(bind: State, label: String, min: Any, …)
+DateRangePicker(bind: State, label: String, min: Date, …)
 ```
 
 ## Props
@@ -16,9 +16,9 @@ DateRangePicker(bind: State, label: String, min: Any, …)
 |---|---|---|
 | `bind:` | `State  (required)` | The range: `{ start, end }` |
 | `label:` | `String  (required)` | What the range is |
-| `min:` | `Any` | The first day that can be chosen |
-| `max:` | `Any` | The last day that can be chosen |
-| `presets:` | `Any` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
+| `min:` | `Date` | The first day that can be chosen |
+| `max:` | `Date` | The last day that can be chosen |
+| `presets:` | `[RangePreset]` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

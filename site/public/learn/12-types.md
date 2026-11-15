@@ -534,8 +534,12 @@ The rules for operators and forms:
   type, `T?` when one arm is `null`, and `Any` otherwise.
 - `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
   side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
-- `await e` on a `fetch` is `Any` unless you annotate it:
+- `await http.get(…)` is what you annotate it as:
   `let r: [Row] = try await http.get(…)`.
+- A browser global is what the browser's table says: `JSON.parse(text)`
+  is `Json`, `localStorage.getItem(k)` is `String?`; a handler's event is
+  the browser's (`on keydown(e)` is a `KeyboardEvent`), a `ref:` an
+  `Element`, and `catch e` an `Error`.
 - `let { a, b } = m` and `let [x, y] = l` bind the fields and the items.
 
 ## Narrowing optionals

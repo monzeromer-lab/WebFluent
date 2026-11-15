@@ -22,3 +22,23 @@
     }
     throw { wfTried: true, error };
   }
+
+  /// What `catch e` binds: what was thrown, as an `Error` — a string, a
+  /// number or a plain object thrown by a script is wrapped in one, its
+  /// text the message, so `e.message` is always there.
+  function thrown(e) {
+    if (e instanceof Error) return e;
+    let message;
+    if (typeof e === "string") message = e;
+    else if (e && typeof e.message === "string") message = e.message;
+    else {
+      try {
+        message = JSON.stringify(e);
+      } catch (_) {
+        message = String(e);
+      }
+    }
+    const error = new Error(message === undefined ? String(e) : message);
+    error.thrown = e;
+    return error;
+  }

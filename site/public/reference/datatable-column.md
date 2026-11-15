@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/datatable-column
 One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.
 
 ```wf
-DataTable.Column(_ title: String, value: Any, sortable: Bool)
+DataTable.Column(_ title: String, value: (Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money, sortable: Bool)
 ```
 
 ## Props
@@ -15,7 +15,7 @@ DataTable.Column(_ title: String, value: Any, sortable: Bool)
 | Prop | Type | Meaning |
 |---|---|---|
 | `title` | `String  (positional)` | Its header |
-| `value:` | `Any` | What the column holds for a row: `r => r.service` |
+| `value:` | `(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money` | What the column holds for a row: `r => r.service` |
 | `sortable:` | `Bool` | Its header sorts the rows by its `value:` |
 
 ## Flags

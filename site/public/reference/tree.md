@@ -7,19 +7,19 @@ The page: https://webfluent.monzeromer.dev/reference/tree
 Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. row(item) { … } draws each; bind: holds the chosen item's key, or a list of keys with .multiple.
 
 ```wf
-Tree(items: Any, children: Any, key: Any, …)
+Tree(items: [Item], children: (Item) -> [Item]?, key: (Item) -> String or (Item) -> Number, …)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `items:` | `Any  (required)` | The items at the top |
-| `children:` | `Any  (required)` | An item's children: `f => f.children`; none, or an empty list, for a leaf |
-| `key:` | `Any  (required)` | What tells two items apart: `f => f.path` |
+| `items:` | `[Item]  (required)` | The items at the top |
+| `children:` | `(Item) -> [Item]?  (required)` | An item's children: `f => f.children`; none, or an empty list, for a leaf |
+| `key:` | `(Item) -> String or (Item) -> Number  (required)` | What tells two items apart: `f => f.path` |
 | `bind:` | `State` | The chosen key, or a list of them with `.multiple` |
 | `multiple:` | `Bool` | Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A |
-| `open:` | `Any` | The keys open when it is drawn |
+| `open:` | `[String] or [Number]` | The keys open when it is drawn |
 | `label:` | `String  (required)` | What the tree is, for a screen reader |
 
 ## Flags

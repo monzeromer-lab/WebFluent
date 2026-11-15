@@ -292,12 +292,13 @@ impl Checker<'_, '_> {
                 for (_, value) in &c.options {
                     self.infer(value, None);
                 }
+                let receive = match self.connection_type(c) {
+                    Type::Connection(_, _, receive) => *receive,
+                    _ => Type::Error,
+                };
                 for handler in &c.handlers {
                     self.push_scope();
-                    let ty = match &c.receives {
-                        Some(t) => self.world.resolve(Type::from_ref(t)),
-                        None => self.hole(HoleKind::Connection, format!("{} message", c.name)),
-                    };
+                    let ty = Self::connection_event(&receive, &handler.event);
                     self.handler_names(
                         handler,
                         &[ty],
@@ -443,7 +444,7 @@ impl Checker<'_, '_> {
             }
             StatementKind::EventHandler(h) => {
                 self.push_scope();
-                let event = self.dom_event(h);
+                let event = self.dom_event(h, false);
                 self.handler_names(h, &[event], DOM_SENDS);
                 let was = std::mem::replace(&mut self.async_ok, true);
                 self.in_handler += 1;
@@ -460,8 +461,9 @@ impl Checker<'_, '_> {
                 self.pop_scope();
                 self.push_scope();
                 if let Some(param) = &t.param {
-                    let caught = self.hole(HoleKind::CaughtError, param.clone());
-                    self.bind(param, caught, span);
+                    // What was thrown, an `Error` always: the runtime
+                    // wraps anything else that is thrown in one.
+                    self.bind(param, Type::Host("Error".to_string()), span);
                 }
                 self.statements(&t.catch_body, body);
                 self.pop_scope();
@@ -954,6 +956,24 @@ impl Checker<'_, '_> {
                     }
                     if let Some(name) = &arm.binding {
                         self.bind_fixed(name, Type::Error, arm.span, ARM);
+                    }
+                    self.statements(&arm.body, body);
+                    self.pop_scope();
+                }
+            }
+            // A connection: `connecting`, `open`, `closed(c)`, `error(e)`.
+            Type::Connection(..) => {
+                for arm in &m.arms {
+                    self.push_scope();
+                    if let Some(name) = &arm.binding {
+                        let ty = match &arm.pattern {
+                            ArmPattern::Error => Type::Host("Error".to_string()),
+                            ArmPattern::State(s) if s == "closed" => {
+                                super::connection::closure_type()
+                            }
+                            _ => Type::Error,
+                        };
+                        self.bind_fixed(name, ty, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();

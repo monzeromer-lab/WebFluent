@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/radio
 One choice of a group; every radio bound to the same state is one group.
 
 ```wf
-Radio(bind: State, value: Any, checked: Bool, …)
+Radio(bind: State, value: String or Number or Bool, checked: Bool, …)
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Radio(bind: State, value: Any, checked: Bool, …)
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `value:` | `Any` | The value `bind` takes when this one is chosen |
+| `value:` | `String or Number or Bool` | The value `bind` takes when this one is chosen |
 | `checked:` | `Bool` | Whether it is checked, when its state is not bound |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |

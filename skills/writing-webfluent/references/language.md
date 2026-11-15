@@ -587,9 +587,17 @@ Text(env.PUBLIC_APP_NAME)
 shell's variables and a `.env` file, fixed at build time. A page, a
 component, a store or an `api` may only read a name that begins `PUBLIC_`
 or that `public_env` lists — everything it reads is in the bundle, so any
-other name there is a compile error. `env` is the language's name for
+other name there is a compile error. `env` is a record of exactly the
+names the build knows, each typed by its value (`String` for text), so
+`env.PUBLIC_APII` is `T05` with the nearest name; a name that may be unset
+is given a default in the config's `env`. `env` is the language's name for
 these settings and nothing else's: a `state`, prop, parameter, loop item or
 `const` called `env` is `E118` (call it `target` or `stage`).
+
+The language's other values are typed the same way: `query` is `[String:
+String]` (`query.tab ?? "all"`), a page's `params` a record of its own
+route parameters, `locale` and `dir` `String`s, and a form handle's
+`errors` and `touched` `[String: String]` and `[String: Bool]`, by field.
 
 ### Images the build processes
 
@@ -1090,31 +1098,47 @@ action sync() -> ! {
 
 ### Browser Globals
 
-Standard browser APIs are available without any prefix — they compile directly to their JavaScript equivalents:
+The browser's names are used without a prefix, compile to themselves, and
+are typed by the language's browser table — so a misspelt member is found
+where it is written:
 
 ```wf
-// Storage
-localStorage.setItem("token", tok)
-sessionStorage.getItem("key")
-
-// Window & Document
-window.open("https://example.com")
+localStorage.setItem("token", tok)            // (key: String, value: String)
+let saved = localStorage.getItem("token")     // String?
+window.open("/docs", "_blank", "noopener")
 document.title = "New Title"
-
-// Console
-console.log("debug info")
-
-// JSON
-payload = JSON.parse(responseText)
-text = JSON.stringify(obj)
-
-// Timers
-setTimeout(callback, 1000)
-
-// Other globals: Math, Date, Array, Object, Promise, Error,
-// parseInt, parseFloat, encodeURIComponent, atob, btoa, fetch,
-// alert, confirm, prompt, RegExp, Map, Set, etc.
+console.log("saved", count)                   // anything but a Secret
+let raw = JSON.parse(text)                    // Json: match it, or decode it
+let text = JSON.stringify({ a: 1 })           // any plain data
+setTimeout(() => close(), 1000)
+await navigator.clipboard.writeText(url)
+let wide = Math.max(1, viewport.width / 2)
 ```
+
+The table types `window`, `document`, `console`, `localStorage`,
+`sessionStorage`, `JSON`, `Math`, `Date.now()`, `Object.keys`, `Number.*`,
+`navigator` (and its clipboard), `location`, `history`, `performance`,
+`screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and the
+rest of the plain functions. A global or a member it does not list —
+`navigator.bluetooth`, `crypto` — is `T30`, with the nearest name: reach it
+from a project script whose JSDoc says its types (see [Your own
+JavaScript](#your-own-javascript)).
+
+A handler's event is the browser's: `on keydown(e)` is a `KeyboardEvent`
+(`key`, `code`, `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `repeat`,
+`preventDefault()`), `on click(e)` a `MouseEvent` (`clientX`, `clientY`,
+`button`), and so `PointerEvent`, `InputEvent`, `SubmitEvent`,
+`FocusEvent`, `WheelEvent`, `DragEvent`, `ClipboardEvent`, `TouchEvent`,
+`MessageEvent`; `target` and `currentTarget` are an `Element`. The
+runtime's gestures hand over what they say: `on swipe(s)` `s.direction`,
+`s.dx`, `s.dy`; `on longpress(p)` `p.x`, `p.y`; `on receive(d)` `d.value`
+(`Json`), `d.over`, `d.position`. A `ref:` handle is an `Element` too —
+`value`, `checked`, `focus()`, `blur()`, `select()`, `scrollIntoView()`,
+`getBoundingClientRect()`, `dataset`, `closest(…)`, `contains(…)`.
+
+`catch e` binds an `Error` — `e.name`, `e.message`, `e.stack` — whatever
+was thrown: the runtime wraps a string, a number or a plain object a script
+throws in one, its text the message.
 
 <!-- core -->
 ### Expressions
@@ -1315,7 +1339,7 @@ server changes its contract the build says so.
 ```wf
 type User { id: String, name: String }
 
-api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
     credentials: .sameOrigin           // .omit · .sameOrigin · .include — the
@@ -1497,6 +1521,9 @@ Each is a handle, not a signal: `.state` (what a `match` reads),
 `.messages` (the newest 500; `keep: n` on the connection says how many),
 `.last(kind)`, `.error`, `.closure` (`.code`, `.reason`),
 `.close()`, and `.send(v)` on a socket or a peer, `.post(v)` on a channel.
+Each is typed by what it declares — `send Outgoing` is what `.send` takes,
+`receive Incoming` what `.messages` holds and `on message(m)` is given —
+and one that declares neither sends and receives `Json`.
 A store may hold any of them too: opened when the store is first read,
 closed with it, read as `Lang.css.state` and in its actions as `css`.
 
@@ -3423,6 +3450,7 @@ And what the type checker finds:
 | `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
 | `T22` | A handler that names more values than its event sends — `on click(e, x)`, or `on menu(a, b, c, d)` for an event of three |
 | `T26` | An action that returns a value without `-> T`; the fix writes the type it returns |
+| `T30` | A browser global, or a member of an element, an event or a browser object, the language does not type — `navigator.bluetooth`, `e.kye`; reach it from a project script with JSDoc |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
 | `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces |

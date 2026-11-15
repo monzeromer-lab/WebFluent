@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/copybutton
 A button that copies value: to the clipboard, says Copied for a moment, and tells a screen reader so.
 
 ```wf
-CopyButton(_ label: String, value: Any, copied: String)
+CopyButton(_ label: String, value: String or Number, copied: String)
 ```
 
 ## Props
@@ -15,7 +15,7 @@ CopyButton(_ label: String, value: Any, copied: String)
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | Its words; unset, `Copy` |
-| `value:` | `Any  (required)` | What it copies |
+| `value:` | `String or Number  (required)` | What it copies |
 | `copied:` | `String` | What it says once it has copied; unset, `Copied` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).

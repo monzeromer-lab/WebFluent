@@ -45,7 +45,9 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
     Stack(gap: .sm, role: "list") {
         for job, i in jobs by job.id {
             Card(drag: job.id, dropValue: job.id, role: "listitem") {
-                on receive(d) { move(d.value, job.id, d.position) }
+                on receive(d) {
+                    if let .string(id) = d.value { move(id, job.id, d.position) }
+                }
                 Row(gap: .sm, align: .center) {
                     Icon("grid")
                     Text("{i + 1}. {job.title}")
@@ -70,7 +72,9 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
   still for a moment. While it moves, the runtime draws a ghost of the row
   and a line where it would land, and Escape puts it back.
 - `on receive(d)` on the same `Card` makes every row a place to drop one.
-  `d.value` is the dropped row's `drag:` value (the job's `id`), and
+  `d.value` is the dropped row's `drag:` value (the job's `id`), as
+  `Json` — anything may be dragged — so `if let .string(id)` takes the
+  text out of it; and
   `d.position` is `"before"` or `"after"`: which half of this row the
   pointer was over.
 - `move` takes the job out of the list and puts it back next to the row it

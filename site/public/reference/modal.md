@@ -18,7 +18,7 @@ Modal(visible: State, title: String, closable: Bool, …) { … }
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 | `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 

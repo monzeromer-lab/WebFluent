@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/codeblock
 A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.
 
 ```wf
-CodeBlock(_ code: String, highlight: Any, files: Any, language: String, …)
+CodeBlock(_ code: String, highlight: [Number], files: [CodeFile], language: String, …)
 ```
 
 ## Props
@@ -15,8 +15,8 @@ CodeBlock(_ code: String, highlight: Any, files: Any, language: String, …)
 | Prop | Type | Meaning |
 |---|---|---|
 | `code` | `String  (positional)` | The code |
-| `highlight:` | `Any` | The lines to mark, counted from 1: `[3, 4]` |
-| `files:` | `Any` | A tab for each file: `[{ name: "App.wf", code: app, language: "wf" }, …]` |
+| `highlight:` | `[Number]` | The lines to mark, counted from 1: `[3, 4]` |
+| `files:` | `[CodeFile]` | A tab for each file: `[{ name: "App.wf", code: app, language: "wf" }, …]` |
 | `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
 | `title:` | `String` | The file name or the language, in the bar |
 | `copy:` | `Bool` | A button in the bar that copies the code |

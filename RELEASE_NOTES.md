@@ -142,6 +142,42 @@ Every one has a fix, and `wf fix` applies those that are mechanical.
 - An endpoint read from an OpenAPI file answers with a result, `T!`, and a
   failure's body arrives in the `HttpError`'s `.status(code, problem)`.
 
+## The browser, events and the built-ins, typed
+
+What a program reaches without declaring it now has a type the checker
+knows, so a slip is found where it is written rather than in a reader's
+browser.
+
+- **The browser.** `window`, `document`, `localStorage`, `JSON`, `Math`,
+  `navigator`, `location`, the timers and the plain functions are typed by
+  a table the checker, the editor and `wf types` read: `JSON.parse` hands
+  back `Json`, `localStorage.getItem` a `String?`, `setTimeout` takes a
+  function and milliseconds. A global or a member the table does not list
+  is `T30`, with the nearest name — `Math.florr` → `floor` — and anything
+  it leaves out is reached from a project script whose JSDoc says its
+  types.
+- **Events.** `on keydown(e)` is a `KeyboardEvent`, `on click(e)` a
+  `MouseEvent`, and so on through the DOM's events; `target` is an
+  `Element`. The gestures hand over what they say (`on swipe(s)`'s
+  `s.direction`), and a dragged value arrives as `Json`.
+- **Handles.** A `ref:` is an `Element` (`focus()`, `value`,
+  `scrollIntoView()`, …). A connection is typed by its `send` and
+  `receive`, `Json` where it names neither, so `chat.sned(m)` is found.
+- **`catch e`** is an `Error` — `name`, `message`, `stack` — whatever was
+  thrown: the runtime wraps a string, a number or a plain object a script
+  throws in one.
+- **The language's own values.** `env` is a record of the names the build
+  knows (`env.PUBLIC_APII` is `T05`), `query` is `[String: String]`, a
+  page's `params` a record of its own route parameters, `locale` and `dir`
+  `String`s, and a form's `errors` `[String: String]`.
+- **The built-ins' props.** The 72 that took anything now each say what
+  they take: `Portal(into: Element?)`, `AspectRatio(ratio: Number)`,
+  `Text(String or Number or Bool)`, `Calendar(disabled: [Date] or (Date)
+  -> Bool)`. A built-in that shows a list types its other props, its parts
+  and its slots by one of its items: a `DataTable`'s `key: r => r.id`, a
+  column's `value: r => r.nmae` (`T05`), a `cell(r)`. `wf registry --json`
+  and the docs show these types.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

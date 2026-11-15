@@ -348,6 +348,45 @@ impl Checker<'_, '_> {
             self.plan_await(obj);
             return Type::Error;
         }
+        // An object the browser hands over, by the browser table.
+        if let Type::Host(name) = &obj_ty {
+            let name = name.clone();
+            return self.host_method(&name, obj, method, args);
+        }
+        // A connection's handle, by what it declares.
+        if let Type::Connection(kind, send, receive) = &obj_ty {
+            let member = self.connection_member(*kind, send, receive, obj, method);
+            return match member {
+                Type::Func(params, ret) => {
+                    self.call_args_optional(
+                        &params,
+                        args,
+                        &format!("`{}.{method}`", expr_text(obj)),
+                    );
+                    *ret
+                }
+                Type::Error => {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                    Type::Error
+                }
+                other => {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                    self.error_at_current(
+                        "T10",
+                        format!(
+                            "`{}.{method}` is a `{other}`, not a function",
+                            expr_text(obj)
+                        ),
+                        "Read it without calling it",
+                    );
+                    Type::Error
+                }
+            };
+        }
         // A resource does what it says it does, and nothing else.
         if let Type::Resource(..) = &obj_ty {
             for a in args {

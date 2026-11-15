@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/tabs-page
 One tab and its panel.
 
 ```wf
-Tabs.Page(_ label: String, value: Any, disabled: Bool) { … }
+Tabs.Page(_ label: String, value: String or Number, disabled: Bool) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Tabs.Page(_ label: String, value: Any, disabled: Bool) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | The tab's label |
-| `value:` | `Any` | What the Tabs' `bind:` holds while this tab is open |
+| `value:` | `String or Number` | What the Tabs' `bind:` holds while this tab is open |
 | `disabled:` | `Bool` | Shown, but not opened: the arrow keys pass over it |
 
 ## Flags

@@ -138,6 +138,12 @@ fn build_all() -> (Vec<String>, Vec<String>) {
             let lang = site_lang(&markdown)
                 .map(|l| format!(r#", "meta": {{ "lang": "{l}" }}"#))
                 .unwrap_or_default();
+            // The `env` the page shows the config giving, which is the
+            // record of names an example's `env.NAME` reads.
+            let lang = match site_env(&markdown) {
+                Some(env) => format!(r#"{lang}, "env": {env}"#),
+                None => lang,
+            };
             // An example is a page of a bigger site: a link it shows to a
             // page it does not, and the translations it reads, are the
             // site's, so `R01` and the `I` family are off here.
@@ -234,6 +240,15 @@ fn every_page_the_guide_shows_builds_and_runs() {
         String::from_utf8_lossy(&out.stderr)
     );
     let _ = Path::new("");
+}
+
+/// The `env` map of a JSON block the page shows, if one sets it.
+fn site_env(markdown: &str) -> Option<String> {
+    markdown.split("```json").skip(1).find_map(|rest| {
+        let block = rest.split("```").next()?;
+        let value: serde_json::Value = serde_json::from_str(block).ok()?;
+        Some(value.get("env")?.to_string())
+    })
 }
 
 /// `meta.lang` from a JSON block the page shows, if one sets it.

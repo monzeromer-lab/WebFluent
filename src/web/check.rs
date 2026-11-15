@@ -155,6 +155,8 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
     };
     let shared = &shared;
     let site_lang = p.config.map(ProjectConfig::page_lang);
+    let env = p.config.map(|c| &c.env);
+    let program = p.program;
 
     // The checks that read the program as parsed, and those that read it
     // lowered, side by side; their findings are joined in the order they
@@ -162,7 +164,9 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
     let (around, (program_found, types), structure, lowered, from_lowered) =
         crate::base::platform::scope(|s| {
             let around = deep(s, || project_checks_via(vfs, shared, file_of));
-            let typed = deep(s, || program_checks_typed(p.program, file_of, &source_of));
+            let typed = deep(s, || {
+                program_checks_typed(program, file_of, &source_of, env)
+            });
             let structure = deep(s, || {
                 crate::check::linter::structure::lint_structure(
                     p.program,
@@ -381,9 +385,12 @@ pub fn program_checks(
     source_of: &dyn Fn(usize) -> Option<String>,
 ) -> Vec<Diagnostic> {
     let texts: Vec<Option<String>> = (0..program.declarations.len()).map(source_of).collect();
-    program_checks_typed(program, file_of, &|i| {
-        texts.get(i).and_then(|t| t.as_deref())
-    })
+    program_checks_typed(
+        program,
+        file_of,
+        &|i| texts.get(i).and_then(|t| t.as_deref()),
+        None,
+    )
     .0
 }
 
@@ -393,12 +400,13 @@ fn program_checks_typed<'s>(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
     source_of: &dyn Fn(usize) -> Option<&'s str>,
+    env: Option<&std::collections::BTreeMap<String, serde_json::Value>>,
 ) -> (Vec<Diagnostic>, crate::check::sema::types::TypeInfo) {
     let mut out = crate::check::linter::validate_semantics_in(program, file_of);
     let findings = crate::check::sema::check(program, file_of);
     out.extend(findings.errors);
     out.extend(findings.warnings);
-    let typed = crate::check::sema::types::check_sources(program, file_of, source_of);
+    let typed = crate::check::sema::types::check_sources_with(program, file_of, source_of, env);
     out.extend(typed.findings.errors.iter().cloned());
     out.extend(typed.findings.warnings.iter().cloned());
     out.extend(typed.unresolved.iter().cloned());

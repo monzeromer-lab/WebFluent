@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/tour-step
 One step: what it points at, its title, and its block.
 
 ```wf
-Tour.Step(target: Any, title: String) { … }
+Tour.Step(target: Element, title: String) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `target:` | `Any  (required)` | The element it points at: a `ref:` |
+| `target:` | `Element  (required)` | The element it points at: a `ref:` |
 | `title:` | `String` | Its heading |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).

@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/option
 One choice in a Select (the original spelling of Select.Option).
 
 ```wf
-Option(_ label: String, value: Any)
+Option(_ label: String, value: String or Number or Bool)
 ```
 
 Use [`Select.Option`](https://webfluent.monzeromer.dev/reference/select-option.md) in new code: it is the current spelling, and its page has the example.
@@ -17,7 +17,7 @@ Use [`Select.Option`](https://webfluent.monzeromer.dev/reference/select-option.m
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | The visible label |
-| `value:` | `Any` | The value sent with the form |
+| `value:` | `String or Number or Bool` | The value sent with the form |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

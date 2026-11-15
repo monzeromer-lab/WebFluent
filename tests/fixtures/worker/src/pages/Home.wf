@@ -14,7 +14,10 @@ store Lang {
         on restart(e) { restarted = restarted + 1 }
     }
     action upper(text: String) {
-        answer = await lang.request("upper", { text: text })
+        match await lang.request("upper", { text: text }) {
+            .string(said) { answer = said }
+            else { }
+        }
     }
     action fail() {
         try {
@@ -26,7 +29,10 @@ store Lang {
     action lint(text: String) { lang.send({ method: "lint", params: { text: text } }) }
     action slow(n: Number) {
         try {
-            answer = await lang.request("slow", { n: n }, { supersede: true })
+            match await lang.request("slow", { n: n }, { supersede: true }) {
+                .string(said) { answer = said }
+                else { }
+            }
         } catch e {
             failed = e.message
         }
@@ -45,7 +51,12 @@ page Home(path: "/", title: "Worker", description: "A worker held like a connect
     // A page's own worker, stopped when the page leaves.
     state echoed = ""
     worker echo = spawn("/workers/lang.js")
-    action shout() { echoed = await echo.request("upper", { text: "page" }) }
+    action shout() {
+        match await echo.request("upper", { text: "page" }) {
+            .string(said) { echoed = said }
+            else { }
+        }
+    }
     Heading("Worker").h1
     Button("Shout", id: "shout") { on click { shout() } }
     Text(echoed, id: "echoed")

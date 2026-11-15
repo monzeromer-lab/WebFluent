@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/chart
 A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
 
 ```wf
-Chart(kind: Enum, data: Any, x: String, …)
+Chart(kind: Enum, data: [Json], x: String, …)
 ```
 
 ## Props
@@ -15,10 +15,10 @@ Chart(kind: Enum, data: Any, x: String, …)
 | Prop | Type | Meaning |
 |---|---|---|
 | `kind:` | `.bar .line .area .pie .donut` | What it draws |
-| `data:` | `Any` | The rows: a list of records, or of numbers |
+| `data:` | `[Json]` | The rows: a list of records, or of numbers |
 | `x:` | `String` | The key of each row's label |
-| `y:` | `Any` | The key of each row's value, or a list of keys for several series |
-| `colors:` | `Any` | The series' colours, in order |
+| `y:` | `String or [String]` | The key of each row's value, or a list of keys for several series |
+| `colors:` | `[String]` | The series' colours, in order |
 | `width:` | `Number` | Its width in user units (it scales to its box) |
 | `height:` | `Number` | Its height in user units |
 | `ink:` | `String` | The colour of its labels |

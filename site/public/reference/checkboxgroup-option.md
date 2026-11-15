@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/checkboxgroup-option
 One box: its words and its value.
 
 ```wf
-CheckboxGroup.Option(_ label: String, value: Any)
+CheckboxGroup.Option(_ label: String, value: String or Number or Bool)
 ```
 
 ## Props
@@ -15,7 +15,7 @@ CheckboxGroup.Option(_ label: String, value: Any)
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | Its words |
-| `value:` | `Any` | What the list holds while it is ticked; unset, its words |
+| `value:` | `String or Number or Bool` | What the list holds while it is ticked; unset, its words |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

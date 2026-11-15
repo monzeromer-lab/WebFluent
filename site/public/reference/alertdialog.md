@@ -17,7 +17,7 @@ AlertDialog(visible: State, title: String, dismiss: Enum, …) { … }
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 | `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 

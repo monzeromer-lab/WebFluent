@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/code
 Inline code, or a code block with block; language: colours it.
 
 ```wf
-Code(_ content: Any, block: Bool, language: String)
+Code(_ content: String or Number or Bool, block: Bool, language: String)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `Any  (positional)` | The code |
+| `content` | `String or Number or Bool  (positional)` | The code |
 | `block:` | `Bool` | A multi-line block |
 | `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
 

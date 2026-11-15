@@ -950,6 +950,25 @@
   "related": []
  },
  {
+  "code": "T30",
+  "title": "A part of the browser the language does not type",
+  "plain": "A part of the browser the language does not type",
+  "severity": "error",
+  "family": "T",
+  "group": "Types",
+  "summary": "The browser's globals and the objects it hands a program — an element, an event, `localStorage`, the clipboard — are typed by the language's browser table, so a misspelt member is found where it is written. A global or a member the table does not list is reached from a project script whose JSDoc says its types: the call is then checked like any other.",
+  "lowerable": false,
+  "description": "A browser global, or a member of an element or an event, the language does not type: reach it from a project script whose JSDoc says its types.",
+  "printed": "error[T30]: the language does not type `navigator.clipbaord`\n --> src/App.wf:6:23\n  |\n6 |             navigator.clipbaord.writeText(location.href)\n  |                       ^^^^^^^^^\n  = help: Did you mean `clipboard`? Reach it from a script under src/ and say its types in JSDoc; the call is then checked like any other\n  = docs: https://webfluent.monzeromer.dev/errors/T30",
+  "broken": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state copied = false\n    Heading(\"Share\").h1\n    Button(\"Copy the link\") {\n        on click {\n            navigator.clipbaord.writeText(location.href)\n            copied = true\n        }\n    }\n    if copied { Text(\"Copied\") }\n}",
+  "fixed": "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state copied = false\n    Heading(\"Share\").h1\n    Button(\"Copy the link\") {\n        on click {\n            navigator.clipboard.writeText(location.href)\n            copied = true\n        }\n    }\n    if copied { Text(\"Copied\") }\n}",
+  "lang": "wf",
+  "quickfix": "Change to `clipboard`",
+  "why": "Error.\n\nThe browser's names keep the meaning the browser gives them, and the\nlanguage types them: `window`, `document`, `localStorage`, `JSON`, `Math`,\n`navigator`, `location`, the timers, the element a `ref:` names, and the\nevent a handler is given — `on keydown(e)` is a `KeyboardEvent`, so\n`e.key` is a `String` and `e.kye` is found where it is written. The table\ncovers what pages reach for. Anything it does not list is `T30`, whether it\nis misspelt or simply a part of the browser the language leaves out.",
+  "fix": "When it is a slip, the help names the member meant, and the\neditor's quick fix writes it. When it is a part of the browser the table\ndoes not cover — `navigator.bluetooth`, `crypto.subtle` — reach it from a\nplain script under `src/`, with JSDoc for what it takes and returns; the\ncall from the page is then checked like any other (see *Your own\nJavaScript*).\n\n```js\n// src/share.js\n/**\n * Ask the system to share a link.\n * @param {string} url\n * @returns {Promise<void>}\n */\nasync function share(url) {\n  await navigator.share({ url });\n}\n```",
+  "related": []
+ },
+ {
   "code": "C01",
   "title": "A required prop or field left out",
   "plain": "A required prop or field left out",

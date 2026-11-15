@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/sparkline
 A tiny chart in a line of text — a line, or .bar — of a list of numbers, drawn as an SVG when the page is built.
 
 ```wf
-Sparkline(_ data: Any, bar: Bool, width: Number, height: Number, …)
+Sparkline(_ data: [Number], bar: Bool, width: Number, height: Number, …)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `data` | `Any  (positional)` | The numbers: a list |
+| `data` | `[Number]  (positional)` | The numbers: a list |
 | `bar:` | `Bool` | Bars rather than a line |
 | `width:` | `Number` | Its width in px (unset, 80) |
 | `height:` | `Number` | Its height in px (unset, 20) |

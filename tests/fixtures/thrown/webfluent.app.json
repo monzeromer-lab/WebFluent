@@ -1,0 +1,12 @@
+{
+  "name": "thrown",
+  "build": {
+    "output": "build",
+    "output_type": "spa",
+    "ssg": false
+  },
+  "meta": {
+    "title": "Thrown",
+    "description": "What a catch binds, whatever was thrown."
+  }
+}

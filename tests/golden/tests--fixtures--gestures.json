@@ -1,9 +1,11 @@
 {
-  "diagnostics": [],
+  "diagnostics": [
+    "{\"code\":\"T19\",\"severity\":\"warning\",\"message\":\"`d.position` may be null, and in text it would show as `null`\",\"file\":\"src/pages/Home.wf\",\"line\":80,\"column\":83,\"end_line\":80,\"end_column\":93,\"hint\":\"Say what to show instead: `{d.position ?? \\\"\\\"}`\",\"related\":[],\"fixes\":[],\"tags\":[]}"
+  ],
   "files": {
     "_headers": "6346b0222198fb8bcb1b20d9b54cfdd41492b1ee39f30f1c7456001d7678f1a8",
-    "app.js": "ff70ea8c009a174813f4620833fe9f2d24f8b7c4ce3ec09e1acc09e9fd01e440",
-    "app.js.gz": "2cfa1793e58372a9b80af9c31fb1507eee3aa67077a5816e685d78ce42fbcd1a",
+    "app.js": "07eebb355f3ee50062a96e499a969d669bd45202651bbeceff7778996ce90f7a",
+    "app.js.gz": "4a77f7fa40376c6e4f05a65f0f6ea75a47cfd0ed7d74d59229c1807bdfc49fa0",
     "index.html": "21cd8b42de97454eb63750d1fb9a1a73fec919f0d0795244e7dd564a71049b54",
     "index.html.gz": "5cb09e2e97e31bfd3f1ff6a3551cb19458332f71978c1db958c8564f67b590d4",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",

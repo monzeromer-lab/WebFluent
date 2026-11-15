@@ -19,7 +19,7 @@ fn checks(src: &str) -> String {
 #[test]
 fn a_drag_carries_a_value_to_what_receives_it() {
     let src = page(
-        "state rows = [\"a\", \"b\"]\n    state landing = \"\"\n    for r in rows {\n        Card(drag: r, dragGroup: \"tree\", dropValue: r, dropInside: r == \"a\", dropAxis: .y) {\n            on receive(d) { log(d.value) }\n            on dragmove(d) { landing = d.position }\n            Text(r)\n        }\n    }",
+        "state rows = [\"a\", \"b\"]\n    state landing = \"\"\n    for r in rows {\n        Card(drag: r, dragGroup: \"tree\", dropValue: r, dropInside: r == \"a\", dropAxis: .y) {\n            on receive(d) { log(d.value) }\n            on dragmove(d) { landing = d.position ?? \"\" }\n            Text(r)\n        }\n    }",
     );
     assert_eq!(checks(&src), "");
     let js = spa_generated(&src);

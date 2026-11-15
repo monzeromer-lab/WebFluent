@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/select-option
 One choice: the visible label, and the value sent with the form.
 
 ```wf
-Select.Option(_ label: String, value: Any)
+Select.Option(_ label: String, value: String or Number or Bool)
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Select.Option(_ label: String, value: Any)
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | The visible label |
-| `value:` | `Any` | The value `bind` takes when this one is chosen; the label when absent |
+| `value:` | `String or Number or Bool` | The value `bind` takes when this one is chosen; the label when absent |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

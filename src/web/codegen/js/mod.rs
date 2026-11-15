@@ -931,12 +931,16 @@ impl JsCodegen {
         }
 
         // What a `match` over `Json` is over, which only the type checker
-        // knows — asked only of a program that names `Json` at all.
-        self.json_subjects = if program
-            .declarations
-            .iter()
-            .any(|d| format!("{d:?}").contains("\"Json\""))
-        {
+        // knows — asked only of a program that names `Json`, or matches one
+        // of its cases: a dropped value, a worker's answer and
+        // `JSON.parse(…)` are `Json` without the program saying so.
+        self.json_subjects = if program.declarations.iter().any(|d| {
+            let text = format!("{d:?}");
+            text.contains("\"Json\"")
+                || ["string", "number", "object", "array", "bool", "null"]
+                    .iter()
+                    .any(|case| text.contains(&format!("Case(\"{case}\"")))
+        }) {
             crate::check::sema::types::check(program, &|_| String::new()).json_subjects
         } else {
             Vec::new()

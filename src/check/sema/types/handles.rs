@@ -9,10 +9,19 @@ pub fn form_type() -> Type {
         ("pending".to_string(), Type::Bool),
         // The message of every field that has one, and the fields the
         // reader has left, each by the control's name.
-        ("errors".to_string(), Type::Map),
-        ("touched".to_string(), Type::Map),
-        ("values".to_string(), Type::Map),
-        ("element".to_string(), Type::Any),
+        ("errors".to_string(), text_by_name()),
+        (
+            "touched".to_string(),
+            Type::Dict(Box::new(Type::String), Box::new(Type::Bool)),
+        ),
+        (
+            "values".to_string(),
+            Type::Dict(
+                Box::new(Type::String),
+                Box::new(Type::Enum("Json".to_string())),
+            ),
+        ),
+        ("element".to_string(), Type::Host("Element".to_string())),
         (
             "reset".to_string(),
             Type::Func(Vec::new(), Box::new(Type::Null)),
@@ -24,9 +33,14 @@ pub fn form_type() -> Type {
         // What a 422 said, by field name.
         (
             "apply".to_string(),
-            Type::Func(vec![Type::Map], Box::new(Type::Null)),
+            Type::Func(vec![text_by_name()], Box::new(Type::Null)),
         ),
     ])
+}
+
+/// `[String: String]`: a message by a field's name.
+fn text_by_name() -> Type {
+    Type::Dict(Box::new(Type::String), Box::new(Type::String))
 }
 
 /// The names every `Form(bind: name)` in `stmts` declares, at any depth.

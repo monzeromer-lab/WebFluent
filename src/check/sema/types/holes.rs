@@ -300,13 +300,40 @@ impl Checker<'_, '_> {
         joined
     }
 
-    /// What a DOM event's handler is given: an event the checker does not
-    /// type, a hole where the handler names it.
-    pub(super) fn dom_event(&mut self, handler: &crate::syntax::parser::ast::EventHandler) -> Type {
-        match handler.params.first() {
-            Some(name) => self.hole(HoleKind::DomEvent, format!("on {}({name})", handler.event)),
-            None => Type::Any,
+    /// What a DOM event's handler is given — a `KeyboardEvent` for
+    /// `keydown`, by the browser table — or, for an event of a built-in's
+    /// own, what it hands over: a layer's `close` its reason, a `Tabs`'
+    /// `change` the tab picked. A handler that names nothing reads it as
+    /// `event`, and every handler reads `key` (the key a key event names)
+    /// and `value` (what its control holds), unless the program has a name
+    /// of its own for them.
+    pub(super) fn dom_event(
+        &mut self,
+        handler: &crate::syntax::parser::ast::EventHandler,
+        own: bool,
+    ) -> Type {
+        let ty = match handler.event.as_str() {
+            "close" if own => Type::String,
+            "change" if own => Type::String,
+            "resize" if own => Type::list(Type::Number),
+            event => Self::event_type(event),
+        };
+        let mut implicit = vec![("value", Type::String), ("key", Type::String)];
+        if handler.params.is_empty() {
+            implicit.push(("event", ty.clone()));
+            implicit.push(("e", ty.clone()));
         }
+        for (name, t) in implicit {
+            if self.lookup(name).is_none()
+                && !self.world.consts.contains_key(name)
+                && !self.world.stores.contains_key(name)
+                && !self.world.scripts.contains_key(name)
+                && let Some(scope) = self.scopes.last_mut()
+            {
+                scope.insert(name.to_string(), t);
+            }
+        }
+        ty
     }
 
     /// `Any` and `Map` written in a declared type, and a parameter written
@@ -545,8 +572,9 @@ mod tests {
             test "it loads" { Text("a")  expect "a" }
         "#;
         assert_eq!(of(src, HoleKind::NullState), ["picked"]);
-        assert_eq!(of(src, HoleKind::CaughtError), ["e"]);
-        assert_eq!(of(src, HoleKind::BrowserGlobal), ["JSON"]);
+        // `catch e` is an `Error`, and `JSON` is the browser table's.
+        assert_eq!(of(src, HoleKind::CaughtError).len(), 0);
+        assert_eq!(of(src, HoleKind::BrowserGlobal).len(), 0);
         assert_eq!(of(src, HoleKind::UncheckedTest), ["it loads"]);
     }
 

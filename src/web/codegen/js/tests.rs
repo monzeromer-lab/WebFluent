@@ -1431,7 +1431,7 @@ fn a_store_action_keeps_its_own_names_inside_try_for_and_else_if() {
         "store.n = (store.n + i);",
         "} else if (row.bad) {",
         "console.log(row);",
-        "} catch (e) {",
+        "} catch ($thrown) { const e = WF.thrown($thrown);",
         "store.error = e.message;",
     ] {
         assert!(action.contains(expected), "{expected} in {action}");

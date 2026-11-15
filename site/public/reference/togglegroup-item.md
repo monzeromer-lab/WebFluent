@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/togglegroup-item
 One choice: its words, and the value bind: holds when it is chosen.
 
 ```wf
-ToggleGroup.Item(_ label: String, value: Any, icon: String, disabled: Bool)
+ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String, disabled: Bool)
 ```
 
 ## Props
@@ -15,7 +15,7 @@ ToggleGroup.Item(_ label: String, value: Any, icon: String, disabled: Bool)
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | Its words |
-| `value:` | `Any  (required)` | What `bind:` holds when it is chosen |
+| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
 | `icon:` | `String` | An icon before the words |
 | `disabled:` | `Bool` | Whether the control is inert |
 

@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/tabs
 Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.
 
 ```wf
-Tabs(bind: State, value: Any, orientation: Enum, …) { … }
+Tabs(bind: State, value: String or Number, orientation: Enum, …) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Tabs(bind: State, value: Any, orientation: Enum, …) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none |
-| `value:` | `Any` | The open tab, read only: `on change(v)` hears the one the reader picks |
+| `value:` | `String or Number` | The open tab, read only: `on change(v)` hears the one the reader picks |
 | `orientation:` | `.horizontal .vertical` | Which way the tabs run |
 | `activation:` | `.automatic .manual` | Whether moving the focus opens a tab |
 | `label:` | `String` | The tab strip's accessible name |

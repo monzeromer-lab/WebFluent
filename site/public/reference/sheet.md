@@ -18,10 +18,10 @@ Sheet(visible: State, title: String, closable: Bool, …) { … }
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
 | `side:` | `.bottom .start .end` | The edge it comes in from |
-| `snap:` | `Any` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
+| `snap:` | `[Number]` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
 | `label:` | `String` | Its accessible name, when it has no `title:` |
 | `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 

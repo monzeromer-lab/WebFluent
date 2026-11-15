@@ -55,6 +55,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T22 A handler that names more values than its event sends", to: "/errors/T22", group: "Types"),
     IndexEntry(label: "T21 A resource match with no error arm", to: "/errors/T21", group: "Types"),
     IndexEntry(label: "T26 An action that returns a value and does not say what", to: "/errors/T26", group: "Types"),
+    IndexEntry(label: "T30 A part of the browser the language does not type", to: "/errors/T30", group: "Types"),
     IndexEntry(label: "C01 A required prop or field left out", to: "/errors/C01", group: "Components"),
     IndexEntry(label: "C02 A prop the component does not declare", to: "/errors/C02", group: "Components"),
     IndexEntry(label: "C03 A part outside the component it belongs to", to: "/errors/C03", group: "Components"),
@@ -1270,6 +1271,44 @@ page P(path: "/", title: "T", description: "D") {
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Error.\n\nWhat an action returns is part of what it is. A page in another file\ncalls `Cart.total()` and reads what comes back; with the type declared\nbeside the action's name it knows what that is without reading the body,\nand every `return` in the body is held to it. An action that returns\nnothing declares nothing.")
+    }
+}
+
+page ErrorT30(path: "/errors/T30", title: "T30 — A part of the browser the language does not type", description: "A browser global, or a member of an element or an event, the language does not type: reach it from a project script whose JSDoc says its types.") {
+    ErrorShell("T30", title: "A part of the browser the language does not type", severity: "error", family: "Types", summary: "The browser's globals and the objects it hands a program — an element, an event, `localStorage`, the clipboard — are typed by the language's browser table, so a misspelt member is found where it is written. A global or a member the table does not list is reached from a project script whose JSDoc says its types: the call is then checked like any other.", printed: #"error[T30]: the language does not type `navigator.clipbaord`
+ --> src/App.wf:6:23
+  |
+6 |             navigator.clipbaord.writeText(location.href)
+  |                       ^^^^^^^^^
+  = help: Did you mean `clipboard`? Reach it from a script under src/ and say its types in JSDoc; the call is then checked like any other
+  = docs: https://webfluent.monzeromer.dev/errors/T30"#, quickfix: "Change to `clipboard`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T30.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state copied = false
+    Heading("Share").h1
+    Button("Copy the link") {
+        on click {
+            navigator.clipbaord.writeText(location.href)
+            copied = true
+        }
+    }
+    if copied { Text("Copied") }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state copied = false
+    Heading("Share").h1
+    Button("Copy the link") {
+        on click {
+            navigator.clipboard.writeText(location.href)
+            copied = true
+        }
+    }
+    if copied { Text("Copied") }
+}"#, title: "wf") }
+        note {
+            Markdown("When it is a slip, the help names the member meant, and the\neditor's quick fix writes it. When it is a part of the browser the table\ndoes not cover — `navigator.bluetooth`, `crypto.subtle` — reach it from a\nplain script under `src/`, with JSDoc for what it takes and returns; the\ncall from the page is then checked like any other (see *Your own\nJavaScript*).\n\n```js\n// src/share.js\n/**\n * Ask the system to share a link.\n * @param \{string\} url\n * @returns \{Promise<void>\}\n */\nasync function share(url) \{\n  await navigator.share(\{ url \});\n\}\n```")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nThe browser's names keep the meaning the browser gives them, and the\nlanguage types them: `window`, `document`, `localStorage`, `JSON`, `Math`,\n`navigator`, `location`, the timers, the element a `ref:` names, and the\nevent a handler is given — `on keydown(e)` is a `KeyboardEvent`, so\n`e.key` is a `String` and `e.kye` is found where it is written. The table\ncovers what pages reach for. Anything it does not list is `T30`, whether it\nis misspelt or simply a part of the browser the language leaves out.")
     }
 }
 

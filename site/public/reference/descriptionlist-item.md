@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/descriptionlist-item
 One pair: its term, and value: or its block.
 
 ```wf
-DescriptionList.Item(_ term: String, value: Any) { … }
+DescriptionList.Item(_ term: String, value: String or Number or Bool) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ DescriptionList.Item(_ term: String, value: Any) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `term` | `String  (positional)` | What it is |
-| `value:` | `Any` | Its value, as text; unset, its block |
+| `value:` | `String or Number or Bool` | Its value, as text; unset, its block |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

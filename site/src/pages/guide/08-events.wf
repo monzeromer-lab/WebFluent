@@ -39,7 +39,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
         on dragover(e) { e.preventDefault() }
         on drop(e) {
             e.preventDefault()
-            names = Array.from(e.dataTransfer.files).map(f => f.name)
+            names = (e.dataTransfer?.files ?? []).map(f => f.name)
         }
         Text(if names.length == 0 { "Nothing yet" } else { names.join(", ") })
     }
@@ -302,14 +302,16 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
     Row {
         for tab in tabs by tab {
             Card(drag: tab, dragGroup: "tabs", dropAxis: .x) {
-                on receive(d) { move(d.value, tab, d.position) }
+                on receive(d) {
+                    if let .string(what) = d.value { move(what, tab, d.position) }
+                }
                 Text(tab)
             }
         }
     }
 }"#, title: "wf")
 
-        Markdown("- **`drag: value`** picks an element up: a mouse moved a few pixels, or a finger held still. Escape puts it back, and the click a drag ends with is not a click.\n- **`on receive(d)`** takes a drop: `d.value` is what was dropped, and `d.position` is `\"before\"` or `\"after\"` along `dropAxis:` (`.y`, down the page, unless you say `.x`), or `\"inside\"` on a target with `dropInside: true`.\n- **`dragGroup:`** on a drag and its targets keeps groups apart, such as tabs and tree rows.\n- **`on longpress(p)`** is half a second held still; **`on swipe(s)`** is a finger or a pen swept across, with `s.direction`.\n- **`Splitter(bind: side, min: 160, max: 480, reset: 240, label: \"Sidebar width\")`** sizes the region beside it, by drag or by the arrow keys. A drag or a key starts from the region's size as it is drawn.\n\n[On every element](/reference#on-every-element) lists the drag props and the gesture events in full, `dropValue:` and `on dragmove(d)` among them; [`Splitter`](/reference#splitter) lists its props.\n\nOn a call of your own component, the drag, the drop and the gestures apply to the one element it draws. A component whose body is an `if`, a `for` or several elements has no one element for them, and the build says so (`C07`): wrap what it draws in a `Stack` or a `Row`.")
+        Markdown("- **`drag: value`** picks an element up: a mouse moved a few pixels, or a finger held still. Escape puts it back, and the click a drag ends with is not a click.\n- **`on receive(d)`** takes a drop: `d.value` is what was dropped — as `Json`, since any element may have carried it, so match it for the kind you dragged (`if let .string(what) = d.value`) — and `d.position` is `\"before\"` or `\"after\"` along `dropAxis:` (`.y`, down the page, unless you say `.x`), or `\"inside\"` on a target with `dropInside: true`.\n- **`dragGroup:`** on a drag and its targets keeps groups apart, such as tabs and tree rows.\n- **`on longpress(p)`** is half a second held still; **`on swipe(s)`** is a finger or a pen swept across, with `s.direction`.\n- **`Splitter(bind: side, min: 160, max: 480, reset: 240, label: \"Sidebar width\")`** sizes the region beside it, by drag or by the arrow keys. A drag or a key starts from the region's size as it is drawn.\n\n[On every element](/reference#on-every-element) lists the drag props and the gesture events in full, `dropValue:` and `on dragmove(d)` among them; [`Splitter`](/reference#splitter) lists its props.\n\nOn a call of your own component, the drag, the drop and the gestures apply to the one element it draws. A component whose body is an `if`, a `for` or several elements has no one element for them, and the build says so (`C07`): wrap what it draws in a `Stack` or a `Row`.")
 
         Callout("A drag has no keyboard of its own. Give what it does a menu item or a command too (`Move left`, `Move to…`), as the platform's accessibility rules ask of every pointer action.", kind: .important)
 
@@ -328,7 +330,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         CodeBlock(#"page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
     state picked = ""
-    action track() { picked = document.getSelection().toString() }
+    action track() { picked = document.getSelection()?.toString() ?? "" }
     effect {
         document.addEventListener("selectionchange", track)
         cleanup { document.removeEventListener("selectionchange", track) }

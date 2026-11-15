@@ -76,6 +76,9 @@ impl Checker<'_, '_> {
     }
 
     pub(super) fn element(&mut self, el: &UIElement, span: Span) {
+        // Whether this element shows a list, whose item its parts and slots
+        // speak of until it ends.
+        let mut pushed = false;
         match &el.component {
             ComponentRef::UserDefined(name) => {
                 if let Some(component) = self.world.components.get(name.as_str()) {
@@ -133,6 +136,10 @@ impl Checker<'_, '_> {
             }
             ComponentRef::BuiltIn(name) => {
                 let sig = registry::component(name);
+                if let Some(item) = sig.and_then(|sig| self.item_of(el, sig)) {
+                    self.items.push(item);
+                    pushed = true;
+                }
                 self.builtin_args(el, sig, span);
             }
             ComponentRef::SubComponent(owner, part) => {
@@ -235,7 +242,14 @@ impl Checker<'_, '_> {
                     },
                 );
             } else {
-                let event = self.dom_event(handler);
+                // An event of the built-in's own, beside the DOM's.
+                let own = match &el.component {
+                    ComponentRef::BuiltIn(n) => registry::component(n),
+                    ComponentRef::SubComponent(o, n) => registry::part(o, n),
+                    ComponentRef::UserDefined(_) => None,
+                }
+                .is_some_and(|c| c.events.contains(&handler.event.as_str()));
+                let event = self.dom_event(handler, own);
                 self.handler_names(handler, &[event], DOM_SENDS);
             }
             let was = std::mem::replace(&mut self.async_ok, true);
@@ -272,6 +286,13 @@ impl Checker<'_, '_> {
             for (i, name) in fill.params.iter().enumerate() {
                 let ty = if let Some(ty) = params.get(i) {
                     ty.clone()
+                } else if built_in
+                    && i == 0
+                    && let Some(item) = self.items.last()
+                {
+                    // A built-in's slot hands over one of its items: a
+                    // `DataTable` column's `cell(row)`, a `Tree`'s `row(item)`.
+                    item.clone()
                 } else {
                     self.current_span = fill.span;
                     let kind = if built_in {
@@ -293,6 +314,43 @@ impl Checker<'_, '_> {
         self.in_running += usize::from(running);
         self.statements(&el.children, Body::Page);
         self.in_running -= usize::from(running);
+        if pushed {
+            self.items.pop();
+        }
+    }
+
+    /// What one of the items a built-in shows is: an item of the list its
+    /// `rows:`, `items:` or `options:` is given, or of what its `search:`
+    /// answers.
+    fn item_of(&mut self, el: &UIElement, sig: &'static registry::ComponentSig) -> Option<Type> {
+        let list = sig.props.iter().find(|p| p.ty == PropType::Items)?;
+        let named = |key: &str| {
+            el.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v),
+                _ => None,
+            })
+        };
+        let given = if let Some(value) = named(list.name) {
+            self.infer_quiet(value)
+        } else {
+            let search = named("search")?;
+            let asks = Type::Func(vec![Type::String], Box::new(Type::Null));
+            match self.infer_quiet_as(search, Some(&asks)) {
+                Type::Func(_, ret) => match *ret {
+                    Type::Promise(inner) => *inner,
+                    other => other,
+                },
+                _ => return None,
+            }
+        };
+        match given.unwrapped() {
+            Type::List(item) => Some(*item),
+            Type::Result(value, _) => match value.unwrapped() {
+                Type::List(item) => Some(*item),
+                _ => None,
+            },
+            _ => None,
+        }
     }
 
     /// The arguments of a call to a user component, against its props.
@@ -514,6 +572,12 @@ impl Checker<'_, '_> {
                     PropType::Num => Some(Type::Number),
                     PropType::Str | PropType::File(_) => Some(Type::String),
                     PropType::Bool => Some(Type::Bool),
+                    PropType::Ty(spelling) => {
+                        match self.prop_alternatives(spelling, None).as_slice() {
+                            [one] => Some(one.clone()),
+                            _ => None,
+                        }
+                    }
                     _ => None,
                 };
                 if let Expr::MapLiteral(pairs) = value {
@@ -641,14 +705,202 @@ impl Checker<'_, '_> {
                         &format!("`{}:` on `{name}`", prop.name),
                     );
                 }
-                (ty, prop_name) => {
-                    if ty == PropType::Any {
-                        self.hole(HoleKind::BuiltinProp, format!("{name}({prop_name}:)"));
+                (PropType::Items, prop_name) => {
+                    let given = self.infer(value, None);
+                    if !matches!(given.unwrapped(), Type::List(_)) && !given.is_any() {
+                        self.error(
+                            at,
+                            "T01",
+                            format!(
+                                "`{prop_name}:` on `{name}` is a list, but `{}` is `{given}`",
+                                expr_text(value)
+                            ),
+                            "Give it the list it shows",
+                        );
                     }
+                }
+                (PropType::Mount, prop_name) => {
+                    let wanted = Type::Func(
+                        vec![Type::Host("Element".to_string())],
+                        Box::new(Type::Null),
+                    );
+                    let given = self.infer(value, Some(&wanted));
+                    self.expect(&given, &wanted, at, &format!("`{prop_name}:` on `{name}`"));
+                }
+                (PropType::Ty(spelling), prop_name) => {
+                    let handle = self.mount_handle(el);
+                    let alternatives = self.prop_alternatives(spelling, handle.as_ref());
+                    self.check_alternatives(
+                        value,
+                        &alternatives,
+                        at,
+                        &format!("`{prop_name}:` on `{name}`"),
+                    );
+                }
+                (_, _) => {
                     self.infer(value, None);
                 }
             }
         }
         self.in_args = false;
+    }
+
+    /// What `mount:` on `el` hands back: the handle `update:` and
+    /// `cleanup:` are given.
+    fn mount_handle(&mut self, el: &UIElement) -> Option<Type> {
+        let value = el.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "mount" => Some(v),
+            _ => None,
+        })?;
+        let wanted = Type::Func(
+            vec![Type::Host("Element".to_string())],
+            Box::new(Type::Null),
+        );
+        match self.infer_quiet_as(value, Some(&wanted)) {
+            Type::Func(_, ret) => Some(*ret),
+            _ => None,
+        }
+    }
+
+    /// The types a registry prop's spelling allows, `Number or Money`, each
+    /// read as the checker reads it: `Item` one of the items the enclosing
+    /// built-in shows, `Handle` what its `mount:` hands back, `Picture` an
+    /// `image`, and an object of the browser's as that object.
+    pub(super) fn prop_alternatives(&self, spelling: &str, handle: Option<&Type>) -> Vec<Type> {
+        let item = self.items.last().cloned();
+        let mut out = Vec::new();
+        for part in split_or(spelling) {
+            let Some(t) = crate::syntax::parser::v2::parse_type_text(part) else {
+                continue;
+            };
+            let placed = place(Type::from_ref(&t), item.as_ref(), handle);
+            out.push(self.host_type_of(placed));
+        }
+        out
+    }
+
+    /// `value` checked against what a prop allows: the first of
+    /// `alternatives` it fits, or `T01` naming them all.
+    pub(super) fn check_alternatives(
+        &mut self,
+        value: &Expr,
+        alternatives: &[Type],
+        at: Span,
+        what: &str,
+    ) {
+        // A value the checker cannot say — an error already reported about
+        // it, or what an untyped program leaves `Any` — is not refused again.
+        let fits = |given: &Type, wanted: &Type| {
+            given.unwrapped().is_any()
+                || given.assignable_to(wanted)
+                || settles_to(given).is_some_and(|g| g.assignable_to(wanted))
+        };
+        let chosen = if alternatives.len() == 1 {
+            alternatives.first()
+        } else {
+            // It fits when it is checked against it and nothing is wrong:
+            // an ISO string is not a `Date`, but it is a `String`. Failing
+            // that, the first it fits, when what is wrong is inside it and
+            // reported there.
+            let probes: Vec<(Type, bool)> = alternatives
+                .iter()
+                .map(|alt| self.probe(value, Some(alt)))
+                .collect();
+            alternatives
+                .iter()
+                .zip(&probes)
+                .find(|(alt, (given, clean))| *clean && fits(given, alt))
+                .or_else(|| {
+                    alternatives
+                        .iter()
+                        .zip(&probes)
+                        .find(|(alt, (given, _))| fits(given, alt))
+                })
+                .map(|(alt, _)| alt)
+        };
+        if let Some(wanted) = chosen {
+            let wanted = wanted.clone();
+            let given = self.infer(value, Some(&wanted));
+            if !fits(&given, &wanted) {
+                self.expect(&given, &wanted, at, what);
+            }
+        } else {
+            {
+                let given = self.infer(value, alternatives.first());
+                if !given.unwrapped().is_any() {
+                    let mut wanted: Vec<String> =
+                        alternatives.iter().map(|t| format!("`{t}`")).collect();
+                    let last = wanted.pop().unwrap_or_default();
+                    let takes = if wanted.is_empty() {
+                        last
+                    } else {
+                        format!("{} or {last}", wanted.join(", "))
+                    };
+                    self.error(
+                        at,
+                        "T01",
+                        format!(
+                            "{what} takes {takes}, but `{}` is `{given}`",
+                            expr_text(value)
+                        ),
+                        "",
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// A function whose result is a promise of `R` — an async lambda, a call
+/// to a service — as the function of `R` it settles to: `search:` may ask
+/// the server.
+fn settles_to(t: &Type) -> Option<Type> {
+    match t {
+        Type::Func(params, ret) => match &**ret {
+            Type::Promise(inner) => Some(Type::Func(params.clone(), inner.clone())),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// `A or B or C`, split where ` or ` stands outside brackets.
+fn split_or(spelling: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    let mut depth = 0i32;
+    let mut start = 0;
+    let bytes = spelling.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        match bytes[i] {
+            b'(' | b'[' | b'{' => depth += 1,
+            b')' | b']' | b'}' => depth -= 1,
+            b' ' if depth == 0 && spelling[i..].starts_with(" or ") => {
+                out.push(spelling[start..i].trim());
+                start = i + 4;
+                i += 4;
+                continue;
+            }
+            _ => {}
+        }
+        i += 1;
+    }
+    out.push(spelling[start..].trim());
+    out
+}
+
+/// A registry spelling's placeholders put in: `Item`, `Handle`, `Picture`.
+fn place(t: Type, item: Option<&Type>, handle: Option<&Type>) -> Type {
+    let go = |t: Type| place(t, item, handle);
+    match t {
+        Type::Record(n) if n == "Item" => item.cloned().unwrap_or(Type::Error),
+        Type::Record(n) if n == "Handle" => handle.cloned().unwrap_or(Type::Error),
+        Type::Record(n) if n == "Picture" => super::image_type(),
+        Type::List(i) => Type::list(go(*i)),
+        Type::Optional(i) => Type::optional(go(*i)),
+        Type::Dict(k, v) => Type::Dict(Box::new(go(*k)), Box::new(go(*v))),
+        Type::Func(ps, r) => Type::Func(ps.into_iter().map(go).collect(), Box::new(go(*r))),
+        Type::Result(v, e) => Type::Result(Box::new(go(*v)), Box::new(go(*e))),
+        other => other,
     }
 }

@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/table-cell
 A cell. header makes it a <th> anywhere, as Table.Head does for its cells.
 
 ```wf
-Table.Cell(_ content: Any, header: Bool) { … }
+Table.Cell(_ content: String or Number or Bool, header: Bool) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `Any  (positional)` | The cell's content |
+| `content` | `String or Number or Bool  (positional)` | The cell's content |
 | `header:` | `Bool` | Render as a `<th>` |
 
 ## Flags

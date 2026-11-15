@@ -539,6 +539,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [T21 — A resource `match` with no `error` arm](https://webfluent.monzeromer.dev/errors/T21.md): When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.
 - [T22 — A handler that names more values than its event sends](https://webfluent.monzeromer.dev/errors/T22.md): A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM…
 - [T26 — An action that returns a value and does not say what](https://webfluent.monzeromer.dev/errors/T26.md): An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.
+- [T30 — A part of the browser the language does not type](https://webfluent.monzeromer.dev/errors/T30.md): A browser global, or a member of an element or an event, the language does not type: reach it from a project script whose JSDoc says its types.
 - [U01 — A state nothing reads](https://webfluent.monzeromer.dev/errors/U01.md): A `state` nothing in its page or component reads; an assignment alone does not read it.
 - [U02 — A derived value nothing reads](https://webfluent.monzeromer.dev/errors/U02.md): A `derived` nothing reads.
 - [U03 — A component nothing places](https://webfluent.monzeromer.dev/errors/U03.md): A component nothing places, names as a layout, or reaches as a part.

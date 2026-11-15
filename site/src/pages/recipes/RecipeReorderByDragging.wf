@@ -30,7 +30,9 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
     Stack(gap: .sm, role: "list") {
         for job, i in jobs by job.id {
             Card(drag: job.id, dropValue: job.id, role: "listitem") {
-                on receive(d) { move(d.value, job.id, d.position) }
+                on receive(d) {
+                    if let .string(id) = d.value { move(id, job.id, d.position) }
+                }
                 Row(gap: .sm, align: .center) {
                     Icon("grid")
                     Text("{i + 1}. {job.title}")
@@ -81,7 +83,9 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
     Stack(gap: .sm, role: "list") {
         for job, i in jobs by job.id {
             Card(drag: job.id, dropValue: job.id, role: "listitem") {
-                on receive(d) { move(d.value, job.id, d.position) }
+                on receive(d) {
+                    if let .string(id) = d.value { move(id, job.id, d.position) }
+                }
                 Row(gap: .sm, align: .center) {
                     Icon("grid")
                     Text("{i + 1}. {job.title}")
@@ -112,7 +116,7 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
             Markdown("That test needs the page above in the same project, so it is not compiled on its own here.")
 
         }
-        Markdown("- `drag: job.id` makes each `Card` something the reader can pick up: with a mouse, by moving it a few pixels; with a finger or a pen, by holding it still for a moment. While it moves, the runtime draws a ghost of the row and a line where it would land, and Escape puts it back.\n- `on receive(d)` on the same `Card` makes every row a place to drop one. `d.value` is the dropped row's `drag:` value (the job's `id`), and `d.position` is `\"before\"` or `\"after\"`: which half of this row the pointer was over.\n- `move` takes the job out of the list and puts it back next to the row it was dropped on. It builds a new list rather than changing the old one in place, so everything that reads `jobs` draws again. The `for … by job.id` keeps each row's nodes and moves them, so nothing is redrawn from scratch.\n- Dragging needs a pointer. The arrow buttons do the same move from the keyboard, and their labels name the job (`Move Write the brief up`), so a screen reader says which row each one moves. The first row's up button and the last row's down button are disabled.\n- `role: \"list\"` and `role: \"listitem\"` tell a screen reader the cards are a list, and how many items it has.\n\nThe new order lasts as long as the page is open. To keep it across visits, make the list a `persist` instead of a `state`: `persist jobs: [Job] = [ … ]`.")
+        Markdown("- `drag: job.id` makes each `Card` something the reader can pick up: with a mouse, by moving it a few pixels; with a finger or a pen, by holding it still for a moment. While it moves, the runtime draws a ghost of the row and a line where it would land, and Escape puts it back.\n- `on receive(d)` on the same `Card` makes every row a place to drop one. `d.value` is the dropped row's `drag:` value (the job's `id`), as `Json` — anything may be dragged — so `if let .string(id)` takes the text out of it; and `d.position` is `\"before\"` or `\"after\"`: which half of this row the pointer was over.\n- `move` takes the job out of the list and puts it back next to the row it was dropped on. It builds a new list rather than changing the old one in place, so everything that reads `jobs` draws again. The `for … by job.id` keeps each row's nodes and moves them, so nothing is redrawn from scratch.\n- Dragging needs a pointer. The arrow buttons do the same move from the keyboard, and their labels name the job (`Move Write the brief up`), so a screen reader says which row each one moves. The first row's up button and the last row's down button are disabled.\n- `role: \"list\"` and `role: \"listitem\"` tell a screen reader the cards are a list, and how many items it has.\n\nThe new order lasts as long as the page is open. To keep it across visits, make the list a `persist` instead of a `state`: `persist jobs: [Job] = [ … ]`.")
 
     }
 }

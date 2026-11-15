@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/paragraph
 Block of text with paragraph spacing.
 
 ```wf
-Paragraph(_ content: Any, tone: Enum, size: Enum, align: Enum, …)
+Paragraph(_ content: String or Number or Bool, tone: Enum, size: Enum, align: Enum, …)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `Any  (positional)` | The text |
+| `content` | `String or Number or Bool  (positional)` | The text |
 | `tone:` | `.primary .secondary .success .danger .warning .info` | Colour |
 | `size:` | `.sm .md .lg` | Its size |
 | `align:` | `.left .center .right` | Text alignment |

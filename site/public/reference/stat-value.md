@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/stat-value
 Its figure.
 
 ```wf
-Stat.Value(_ text: Any)
+Stat.Value(_ text: String or Number)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `Any  (positional)` | The figure |
+| `text` | `String or Number  (positional)` | The figure |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

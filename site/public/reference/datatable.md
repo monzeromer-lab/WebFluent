@@ -7,15 +7,15 @@ The page: https://webfluent.monzeromer.dev/reference/datatable
 Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) { … } draws a cell, empty { … } shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).
 
 ```wf
-DataTable(rows: Any, key: Any, bind: State, …) { … }
+DataTable(rows: [Item], key: (Item) -> String or (Item) -> Number, bind: State, …) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `rows:` | `Any  (required)` | The records |
-| `key:` | `Any  (required)` | What tells two rows apart: `r => r.id` |
+| `rows:` | `[Item]  (required)` | The records |
+| `key:` | `(Item) -> String or (Item) -> Number  (required)` | What tells two rows apart: `r => r.id` |
 | `bind:` | `State` | The chosen row's key, or a list of them with `.multiple` |
 | `multiple:` | `Bool` | Several rows at once |
 | `label:` | `String  (required)` | What the table is: its caption, read by a screen reader |

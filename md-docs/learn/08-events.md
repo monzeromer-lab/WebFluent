@@ -96,7 +96,7 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
         on dragover(e) { e.preventDefault() }
         on drop(e) {
             e.preventDefault()
-            names = Array.from(e.dataTransfer.files).map(f => f.name)
+            names = (e.dataTransfer?.files ?? []).map(f => f.name)
         }
         Text(if names.length == 0 { "Nothing yet" } else { names.join(", ") })
     }
@@ -553,7 +553,9 @@ page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
     Row {
         for tab in tabs by tab {
             Card(drag: tab, dragGroup: "tabs", dropAxis: .x) {
-                on receive(d) { move(d.value, tab, d.position) }
+                on receive(d) {
+                    if let .string(what) = d.value { move(what, tab, d.position) }
+                }
                 Text(tab)
             }
         }
@@ -564,7 +566,9 @@ page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
 - **`drag: value`** picks an element up: a mouse moved a few pixels, or a
   finger held still. Escape puts it back, and the click a drag ends with is
   not a click.
-- **`on receive(d)`** takes a drop: `d.value` is what was dropped, and
+- **`on receive(d)`** takes a drop: `d.value` is what was dropped — as
+  `Json`, since any element may have carried it, so match it for the kind
+  you dragged (`if let .string(what) = d.value`) — and
   `d.position` is `"before"` or `"after"` along `dropAxis:` (`.y`, down the
   page, unless you say `.x`), or `"inside"` on a target with
   `dropInside: true`.
@@ -616,7 +620,7 @@ function itself, so you can hand it to the browser:
 ```wf
 page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
     state picked = ""
-    action track() { picked = document.getSelection().toString() }
+    action track() { picked = document.getSelection()?.toString() ?? "" }
     effect {
         document.addEventListener("selectionchange", track)
         cleanup { document.removeEventListener("selectionchange", track) }

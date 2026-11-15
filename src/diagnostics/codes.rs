@@ -371,6 +371,12 @@ pub static CODES: &[CodeInfo] = &[
         "An action that returns a value and does not say what",
         "What an action returns is part of what it is: a caller in another file reads it without reading the action's body. An action that returns a value declares it, `-> T`, and every `return` is held to it.",
     ),
+    code(
+        "T30",
+        Error,
+        "A part of the browser the language does not type",
+        "The browser's globals and the objects it hands a program — an element, an event, `localStorage`, the clipboard — are typed by the language's browser table, so a misspelt member is found where it is written. A global or a member the table does not list is reached from a project script whose JSDoc says its types: the call is then checked like any other.",
+    ),
     // ── C: components ────────────────────────────────────────────────
     code(
         "C01",

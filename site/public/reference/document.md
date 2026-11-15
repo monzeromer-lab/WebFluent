@@ -17,7 +17,7 @@ Document(page_size: Enum, size: String, landscape: Bool, …) { … }
 | `page_size:` | `.A4 .A3 .A5 .Letter .Legal` | Paper size (also `size:`) |
 | `size:` | `String` | Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm` |
 | `landscape:` | `Bool` | Turn the paper on its side |
-| `margin:` | `Any` | The page margins: one length, or top right bottom left (`72`, `20mm 25mm`) |
+| `margin:` | `Number or String` | The page margins: one length, or top right bottom left (`72`, `20mm 25mm`) |
 | `title:` | `String` | The file's title, shown by a reader in place of its name |
 | `author:` | `String` | The file's author; several separated by commas |
 | `subject:` | `String` | What the document is about |

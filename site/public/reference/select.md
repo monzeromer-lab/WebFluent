@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/select
 Drop-down of Select.Option children.
 
 ```wf
-Select(bind: State, value: Any, label: String, …) { … }
+Select(bind: State, value: String or Number, label: String, …) { … }
 ```
 
 ## Props
@@ -15,7 +15,7 @@ Select(bind: State, value: Any, label: String, …) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `value:` | `Any` | The control's value, when its state is not bound |
+| `value:` | `String or Number` | The control's value, when its state is not bound |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |

@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/popover
 A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.
 
 ```wf
-Popover(visible: State, anchor: Any, at: Any, …) { … }
+Popover(visible: State, anchor: Element or Point, at: Point, …) { … }
 ```
 
 ## Props
@@ -15,14 +15,14 @@ Popover(visible: State, anchor: Any, at: Any, …) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `visible:` | `State` | State flag that opens and closes it |
-| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
-| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
+| `anchor:` | `Element or Point` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
+| `at:` | `Point` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
 | `placement:` | `.bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
 | `offset:` | `Number` | How far from the anchor, in px |
 | `label:` | `String` | What it is, for a screen reader: its accessible name |
 | `arrow:` | `Bool` | A point toward the anchor |
 | `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 

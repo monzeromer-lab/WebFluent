@@ -29,7 +29,9 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
     Heading("The talk").h1
     Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
     Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-        on message(m) { heard = m.data }
+        on message(m) {
+            if let .string(said) = m.data { heard = said }
+        }
     }
     Text(heard)
 }
@@ -41,7 +43,8 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
   its title, and a frame without one draws an `A17` warning.
 - `on message(m)` hears what the framed page posts with
   `window.parent.postMessage(…)`, and nothing that any other page posts.
-  `m.data` is what it sent.
+  `m.data` is what it sent, as `Json`: `if let .string(said)` takes it
+  when it is text.
 - `sandbox:` limits what the framed page may do: `"allow-scripts
   allow-forms"` allows scripts and forms, and an empty string allows
   nothing.

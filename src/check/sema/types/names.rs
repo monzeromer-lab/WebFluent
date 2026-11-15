@@ -129,12 +129,12 @@ pub(super) fn own_name_for(name: &str) -> Option<&'static str> {
 
 pub(super) fn global_type(name: &str) -> Type {
     match name {
-        "event" | "params" | "window" | "document" | "console" | "localStorage"
-        | "sessionStorage" | "JSON" | "Math" | "Date" | "navigator" | "location" | "fetch"
-        | "setTimeout" | "clearTimeout" | "setInterval" | "clearInterval" | "Object" | "Array"
-        | "Promise" | "locale" | "dir" => Type::Any,
-        // The project's `env`: a map of what the config set.
-        "env" => Type::Map,
+        // The reader's language and its direction.
+        "locale" | "dir" => Type::String,
+        // The project's `env`, the route's parameters: text by name. The
+        // checker reads `env` as a record of the names the build knows,
+        // and a page's `params` as a record of its own.
+        "env" | "params" => Type::Dict(Box::new(Type::String), Box::new(Type::String)),
         // The browser as values.
         "viewport" => Type::Shape(vec![
             ("width".to_string(), Type::Number),
@@ -144,7 +144,7 @@ pub(super) fn global_type(name: &str) -> Type {
             ("lg".to_string(), Type::Bool),
             ("xl".to_string(), Type::Bool),
         ]),
-        "query" => Type::Map,
+        "query" => Type::Dict(Box::new(Type::String), Box::new(Type::String)),
         "hash" => Type::String,
         // What the reader chose: `light`, `dark` or `system`.
         "theme" => Type::String,

@@ -7,14 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/aspectratio
 A box that keeps its shape as its width changes — ratio: 16 / 9 — its child filling it: a picture, a video, a frame.
 
 ```wf
-AspectRatio(ratio: Any) { … }
+AspectRatio(ratio: Number) { … }
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `ratio:` | `Any  (required)` | Its width over its height, `16 / 9` |
+| `ratio:` | `Number  (required)` | Its width over its height, `16 / 9` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

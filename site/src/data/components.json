@@ -676,7 +676,7 @@
    "ownerSlug": "",
    "summary": "A scrolling box that draws only the rows in view of the one keyed `for` inside it — for a tree, search results or a diff of thousands of rows.",
    "plain": "A scrolling box that draws only the rows in view of the one keyed for inside it — for a tree, search results or a diff of thousands of rows.",
-   "signature": "VirtualList(rowHeight: Number, estimate: Number, reveal: Any, …) { … }",
+   "signature": "VirtualList(rowHeight: Number, estimate: Number, reveal: String or Number, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -696,7 +696,7 @@
     },
     {
      "name": "reveal:",
-     "type": "Any",
+     "type": "String or Number",
      "meaning": "A row's key: when it changes, that row is scrolled into view — the selection, the current match"
     },
     {
@@ -926,7 +926,7 @@
    "ownerSlug": "",
    "summary": "Its children in `columns:` columns, each placed under the last in its column, keeping its own height.",
    "plain": "Its children in columns: columns, each placed under the last in its column, keeping its own height.",
-   "signature": "Masonry(columns: Any) { … }",
+   "signature": "Masonry(columns: Number) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -936,7 +936,7 @@
    "props": [
     {
      "name": "columns:",
-     "type": "Any",
+     "type": "Number",
      "meaning": "How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }`"
     }
    ],
@@ -989,7 +989,7 @@
    "ownerSlug": "",
    "summary": "A box that keeps its shape as its width changes — `ratio: 16 / 9` — its child filling it: a picture, a video, a frame.",
    "plain": "A box that keeps its shape as its width changes — ratio: 16 / 9 — its child filling it: a picture, a video, a frame.",
-   "signature": "AspectRatio(ratio: Any) { … }",
+   "signature": "AspectRatio(ratio: Number) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -999,7 +999,7 @@
    "props": [
     {
      "name": "ratio:",
-     "type": "Any  (required)",
+     "type": "Number  (required)",
      "meaning": "Its width over its height, `16 / 9`"
     }
    ],
@@ -1798,7 +1798,7 @@
    "ownerSlug": "",
    "summary": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a `ref:` handle. When `into:` names another node the block moves there with its nodes and state; `null` keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, `emit` and lifetimes.",
    "plain": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.",
-   "signature": "Portal(into: Any) { … }",
+   "signature": "Portal(into: Element?) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -1808,7 +1808,7 @@
    "props": [
     {
      "name": "into:",
-     "type": "Any  (required)",
+     "type": "Element?  (required)",
      "meaning": "Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes"
     }
    ],
@@ -2622,7 +2622,7 @@
    "ownerSlug": "",
    "summary": "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.",
    "plain": "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.",
-   "signature": "Tabs(bind: State, value: Any, orientation: Enum, …) { … }",
+   "signature": "Tabs(bind: State, value: String or Number, orientation: Enum, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -2637,7 +2637,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number",
      "meaning": "The open tab, read only: `on change(v)` hears the one the reader picks"
     },
     {
@@ -2756,7 +2756,7 @@
    "ownerSlug": "tabs",
    "summary": "One tab and its panel.",
    "plain": "One tab and its panel.",
-   "signature": "Tabs.Page(_ label: String, value: Any, disabled: Bool) { … }",
+   "signature": "Tabs.Page(_ label: String, value: String or Number, disabled: Bool) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -2771,7 +2771,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number",
      "meaning": "What the Tabs' `bind:` holds while this tab is open"
     },
     {
@@ -3010,12 +3010,12 @@
     },
     {
      "name": "anchor:",
-     "type": "Any",
+     "type": "Element or Point",
      "meaning": "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`"
     },
     {
      "name": "at:",
-     "type": "Any",
+     "type": "Point",
      "meaning": "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu"
     },
     {
@@ -5931,7 +5931,7 @@
    "ownerSlug": "descriptionlist",
    "summary": "One pair: its term, and `value:` or its block.",
    "plain": "One pair: its term, and value: or its block.",
-   "signature": "DescriptionList.Item(_ term: String, value: Any) { … }",
+   "signature": "DescriptionList.Item(_ term: String, value: String or Number or Bool) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -5946,7 +5946,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number or Bool",
      "meaning": "Its value, as text; unset, its block"
     }
    ],
@@ -6216,7 +6216,7 @@
    "ownerSlug": "timeline",
    "summary": "One event: its title, `at:` its time, and its block.",
    "plain": "One event: its title, at: its time, and its block.",
-   "signature": "Timeline.Item(_ title: String, at: Any) { … }",
+   "signature": "Timeline.Item(_ title: String, at: Date or DateTime or String) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -6231,7 +6231,7 @@
     },
     {
      "name": "at:",
-     "type": "Any",
+     "type": "Date or DateTime or String",
      "meaning": "When: a `Date`, a `DateTime` or an ISO string, written as a date"
     }
    ],
@@ -6733,7 +6733,7 @@
    "ownerSlug": "",
    "summary": "A tiny chart in a line of text — a line, or `.bar` — of a list of numbers, drawn as an SVG when the page is built.",
    "plain": "A tiny chart in a line of text — a line, or .bar — of a list of numbers, drawn as an SVG when the page is built.",
-   "signature": "Sparkline(_ data: Any, bar: Bool, width: Number, height: Number, …)",
+   "signature": "Sparkline(_ data: [Number], bar: Bool, width: Number, height: Number, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -6743,7 +6743,7 @@
    "props": [
     {
      "name": "data",
-     "type": "Any  (positional)",
+     "type": "[Number]  (positional)",
      "meaning": "The numbers: a list"
     },
     {
@@ -6831,7 +6831,7 @@
    "ownerSlug": "",
    "summary": "A moment as `3 minutes ago`, kept current, with the exact time on hover (`<time>`).",
    "plain": "A moment as 3 minutes ago, kept current, with the exact time on hover (<time>).",
-   "signature": "RelativeTime(_ when: Any, datetime: String)",
+   "signature": "RelativeTime(_ when: Date or DateTime or String, datetime: String)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -6841,7 +6841,7 @@
    "props": [
     {
      "name": "when",
-     "type": "Any  (positional)",
+     "type": "Date or DateTime or String  (positional)",
      "meaning": "The moment: a `Date`, a `DateTime` or an ISO string"
     },
     {
@@ -7464,7 +7464,7 @@
    "ownerSlug": "table",
    "summary": "A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.",
    "plain": "A cell. header makes it a <th> anywhere, as Table.Head does for its cells.",
-   "signature": "Table.Cell(_ content: Any, header: Bool) { … }",
+   "signature": "Table.Cell(_ content: String or Number or Bool, header: Bool) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -7474,7 +7474,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The cell's content"
     },
     {
@@ -8076,7 +8076,7 @@
    "ownerSlug": "",
    "summary": "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. `row(item) { … }` draws each; `bind:` holds the chosen item's key, or a list of keys with `.multiple`.",
    "plain": "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. row(item) { … } draws each; bind: holds the chosen item's key, or a list of keys with .multiple.",
-   "signature": "Tree(items: Any, children: Any, key: Any, …)",
+   "signature": "Tree(items: [Item], children: (Item) -> [Item]?, key: (Item) -> String or (Item) -> Number, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -8086,17 +8086,17 @@
    "props": [
     {
      "name": "items:",
-     "type": "Any  (required)",
+     "type": "[Item]  (required)",
      "meaning": "The items at the top"
     },
     {
      "name": "children:",
-     "type": "Any  (required)",
+     "type": "(Item) -> [Item]?  (required)",
      "meaning": "An item's children: `f => f.children`; none, or an empty list, for a leaf"
     },
     {
      "name": "key:",
-     "type": "Any  (required)",
+     "type": "(Item) -> String or (Item) -> Number  (required)",
      "meaning": "What tells two items apart: `f => f.path`"
     },
     {
@@ -8111,7 +8111,7 @@
     },
     {
      "name": "open:",
-     "type": "Any",
+     "type": "[String] or [Number]",
      "meaning": "The keys open when it is drawn"
     },
     {
@@ -8178,7 +8178,7 @@
    "ownerSlug": "",
    "summary": "Rows of records with their columns declared once: a column sorts when it is `.sortable` (its header a button, `aria-sort` saying which way), `cell(r) { … }` draws a cell, `empty { … }` shows when there are no rows, and `bind:` chooses rows (a list with `.multiple`, a box for each and one for all).",
    "plain": "Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) { … } draws a cell, empty { … } shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).",
-   "signature": "DataTable(rows: Any, key: Any, bind: State, …) { … }",
+   "signature": "DataTable(rows: [Item], key: (Item) -> String or (Item) -> Number, bind: State, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -8188,12 +8188,12 @@
    "props": [
     {
      "name": "rows:",
-     "type": "Any  (required)",
+     "type": "[Item]  (required)",
      "meaning": "The records"
     },
     {
      "name": "key:",
-     "type": "Any  (required)",
+     "type": "(Item) -> String or (Item) -> Number  (required)",
      "meaning": "What tells two rows apart: `r => r.id`"
     },
     {
@@ -8300,7 +8300,7 @@
    "ownerSlug": "datatable",
    "summary": "One column: its title, its `value:` (what it shows and sorts by), and a `cell(r) { … }` that draws it instead.",
    "plain": "One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.",
-   "signature": "DataTable.Column(_ title: String, value: Any, sortable: Bool)",
+   "signature": "DataTable.Column(_ title: String, value: (Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money, sortable: Bool)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -8315,7 +8315,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money",
      "meaning": "What the column holds for a row: `r => r.service`"
     },
     {
@@ -8382,7 +8382,7 @@
    "ownerSlug": "",
    "summary": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
    "plain": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
-   "signature": "Chart(kind: Enum, data: Any, x: String, …)",
+   "signature": "Chart(kind: Enum, data: [Json], x: String, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -8397,7 +8397,7 @@
     },
     {
      "name": "data:",
-     "type": "Any",
+     "type": "[Json]",
      "meaning": "The rows: a list of records, or of numbers"
     },
     {
@@ -8407,12 +8407,12 @@
     },
     {
      "name": "y:",
-     "type": "Any",
+     "type": "String or [String]",
      "meaning": "The key of each row's value, or a list of keys for several series"
     },
     {
      "name": "colors:",
-     "type": "Any",
+     "type": "[String]",
      "meaning": "The series' colours, in order"
     },
     {
@@ -9159,7 +9159,7 @@
    "ownerSlug": "",
    "summary": "A figure with its label — revenue, sign-ups — and how it moved: `Stat(\"Revenue\", value: total, format: .currency, change: 0.124)`. `count:` counts to a new value.",
    "plain": "A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to a new value.",
-   "signature": "Stat(_ label: String, value: Any, format: Enum, change: Number, …) { … }",
+   "signature": "Stat(_ label: String, value: Number or Money or String, format: Enum, change: Number, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -9174,7 +9174,7 @@
     },
     {
      "name": "value:",
-     "type": "Any  (required)",
+     "type": "Number or Money or String  (required)",
      "meaning": "The figure"
     },
     {
@@ -9189,7 +9189,7 @@
     },
     {
      "name": "trend:",
-     "type": "Any",
+     "type": "[Number]",
      "meaning": "Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]`"
     }
    ],
@@ -9345,7 +9345,7 @@
    "ownerSlug": "stat",
    "summary": "Its figure.",
    "plain": "Its figure.",
-   "signature": "Stat.Value(_ text: Any)",
+   "signature": "Stat.Value(_ text: String or Number)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -9355,7 +9355,7 @@
    "props": [
     {
      "name": "text",
-     "type": "Any  (positional)",
+     "type": "String or Number  (positional)",
      "meaning": "The figure"
     }
    ],
@@ -9464,7 +9464,7 @@
    "ownerSlug": "",
    "summary": "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`; `highlight:` marks lines; `files:` makes it a tab for each file.",
    "plain": "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.",
-   "signature": "CodeBlock(_ code: String, highlight: Any, files: Any, language: String, …)",
+   "signature": "CodeBlock(_ code: String, highlight: [Number], files: [CodeFile], language: String, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -9479,12 +9479,12 @@
     },
     {
      "name": "highlight:",
-     "type": "Any",
+     "type": "[Number]",
      "meaning": "The lines to mark, counted from 1: `[3, 4]`"
     },
     {
      "name": "files:",
-     "type": "Any",
+     "type": "[CodeFile]",
      "meaning": "A tab for each file: `[{ name: \"App.wf\", code: app, language: \"wf\" }, …]`"
     },
     {
@@ -10556,7 +10556,7 @@
    "ownerSlug": "",
    "summary": "A colour, chosen from `swatches:` (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; `bind:` holds it as `#rrggbb`.",
    "plain": "A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as #rrggbb.",
-   "signature": "ColorPicker(bind: State, label: String, swatches: Any)",
+   "signature": "ColorPicker(bind: State, label: String, swatches: [String])",
    "block": false,
    "legacy": false,
    "modern": [
@@ -10576,7 +10576,7 @@
     },
     {
      "name": "swatches:",
-     "type": "Any",
+     "type": "[String]",
      "meaning": "The colours offered first: a list of `#rrggbb`"
     }
    ],
@@ -10629,7 +10629,7 @@
    "ownerSlug": "",
    "summary": "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; `bind:` holds the keys of the chosen.",
    "plain": "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the keys of the chosen.",
-   "signature": "TransferList(bind: State, options: Any, text: Any, …)",
+   "signature": "TransferList(bind: State, options: [Item], text: (Item) -> String, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -10644,17 +10644,17 @@
     },
     {
      "name": "options:",
-     "type": "Any  (required)",
+     "type": "[Item]  (required)",
      "meaning": "Everything that can be chosen"
     },
     {
      "name": "text:",
-     "type": "Any",
+     "type": "(Item) -> String",
      "meaning": "What an option says: `o => o.name` (unset, the option)"
     },
     {
      "name": "key:",
-     "type": "Any",
+     "type": "(Item) -> String or (Item) -> Number",
      "meaning": "What identifies an option: `o => o.id` (unset, the option)"
     },
     {
@@ -10858,17 +10858,17 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number",
      "meaning": "The control's value, when its state is not bound"
     },
     {
      "name": "min:",
-     "type": "Any",
+     "type": "Number or String",
      "meaning": "Lowest value"
     },
     {
      "name": "max:",
-     "type": "Any",
+     "type": "Number or String",
      "meaning": "Highest value"
     },
     {
@@ -11066,7 +11066,7 @@
    "ownerSlug": "",
    "summary": "Drop-down of `Select.Option` children.",
    "plain": "Drop-down of Select.Option children.",
-   "signature": "Select(bind: State, value: Any, label: String, …) { … }",
+   "signature": "Select(bind: State, value: String or Number, label: String, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -11081,7 +11081,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number",
      "meaning": "The control's value, when its state is not bound"
     },
     {
@@ -11232,7 +11232,7 @@
    "ownerSlug": "select",
    "summary": "One choice: the visible label, and the value sent with the form.",
    "plain": "One choice: the visible label, and the value sent with the form.",
-   "signature": "Select.Option(_ label: String, value: Any)",
+   "signature": "Select.Option(_ label: String, value: String or Number or Bool)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -11247,7 +11247,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number or Bool",
      "meaning": "The value `bind` takes when this one is chosen; the label when absent"
     }
    ],
@@ -11418,7 +11418,7 @@
    "ownerSlug": "",
    "summary": "One choice of a group; every radio bound to the same state is one group.",
    "plain": "One choice of a group; every radio bound to the same state is one group.",
-   "signature": "Radio(bind: State, value: Any, checked: Bool, …)",
+   "signature": "Radio(bind: State, value: String or Number or Bool, checked: Bool, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -11433,7 +11433,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number or Bool",
      "meaning": "The value `bind` takes when this one is chosen"
     },
     {
@@ -13099,7 +13099,7 @@
    "ownerSlug": "radiogroup",
    "summary": "One choice: its words, its value, and a hint said with it.",
    "plain": "One choice: its words, its value, and a hint said with it.",
-   "signature": "RadioGroup.Option(_ label: String, value: Any, hint: String) { … }",
+   "signature": "RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -13114,7 +13114,7 @@
     },
     {
      "name": "value:",
-     "type": "Any  (required)",
+     "type": "String or Number or Bool  (required)",
      "meaning": "What `bind:` holds when it is chosen"
     },
     {
@@ -13588,7 +13588,7 @@
    "ownerSlug": "",
    "summary": "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. `bind:` holds a `Date`, a `{ start, end }` with `.range`, a list with `.multiple`.",
    "plain": "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a { start, end } with .range, a list with .multiple.",
-   "signature": "Calendar(bind: State, mode: Enum, min: Any, …)",
+   "signature": "Calendar(bind: State, mode: Enum, min: Date, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -13608,17 +13608,17 @@
     },
     {
      "name": "min:",
-     "type": "Any",
+     "type": "Date",
      "meaning": "The first day that can be chosen"
     },
     {
      "name": "max:",
-     "type": "Any",
+     "type": "Date",
      "meaning": "The last day that can be chosen"
     },
     {
      "name": "disabled:",
-     "type": "Any",
+     "type": "[Date] or (Date) -> Bool",
      "meaning": "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`"
     },
     {
@@ -13787,7 +13787,7 @@
    "ownerSlug": "listbox",
    "summary": "One option: its words, and the value `bind:` holds when it is chosen.",
    "plain": "One option: its words, and the value bind: holds when it is chosen.",
-   "signature": "Listbox.Option(_ label: String, value: Any, icon: String, aria-disabled: String) { … }",
+   "signature": "Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, aria-disabled: String) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -13802,7 +13802,7 @@
     },
     {
      "name": "value:",
-     "type": "Any  (required)",
+     "type": "String or Number or Bool  (required)",
      "meaning": "What `bind:` holds when it is chosen"
     },
     {
@@ -13884,7 +13884,7 @@
    "ownerSlug": "",
    "summary": "A text field that offers what matches as the reader types: from `options:`, or `search:` asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; `.multiple` keeps several, each a chip Backspace takes back. `option(o) { … }` draws an offer; `empty { … }` shows when nothing matches.",
    "plain": "A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; .multiple keeps several, each a chip Backspace takes back. option(o) { … } draws an offer; empty { … } shows when nothing matches.",
-   "signature": "Combobox(bind: State, options: Any, search: Any, …)",
+   "signature": "Combobox(bind: State, options: [Item], search: (String) -> [Item] or (String) -> [Item]!, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -13899,27 +13899,27 @@
     },
     {
      "name": "options:",
-     "type": "Any",
+     "type": "[Item]",
      "meaning": "Every option, filtered as the reader types"
     },
     {
      "name": "search:",
-     "type": "Any",
+     "type": "(String) -> [Item] or (String) -> [Item]!",
      "meaning": "Options asked for as the reader types: `q => Geo.cities(q: q)`"
     },
     {
      "name": "text:",
-     "type": "Any  (required)",
+     "type": "(Item) -> String  (required)",
      "meaning": "An option's words: `p => p.name`"
     },
     {
      "name": "key:",
-     "type": "Any",
+     "type": "(Item) -> String or (Item) -> Number",
      "meaning": "What tells two options apart: `p => p.id`"
     },
     {
      "name": "debounce:",
-     "type": "Any",
+     "type": "Number or Duration",
      "meaning": "How long the typing rests before `search:` is asked (unset, 200ms)"
     },
     {
@@ -14101,7 +14101,7 @@
    "ownerSlug": "checkboxgroup",
    "summary": "One box: its words and its value.",
    "plain": "One box: its words and its value.",
-   "signature": "CheckboxGroup.Option(_ label: String, value: Any)",
+   "signature": "CheckboxGroup.Option(_ label: String, value: String or Number or Bool)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -14116,7 +14116,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number or Bool",
      "meaning": "What the list holds while it is ticked; unset, its words"
     }
    ],
@@ -14491,7 +14491,7 @@
    "ownerSlug": "",
    "summary": "A first and a last day, chosen in two months side by side that a button opens, or by a preset: `presets: [.last7, .thisMonth]`. `bind:` holds `{ start, end }`.",
    "plain": "A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds { start, end }.",
-   "signature": "DateRangePicker(bind: State, label: String, min: Any, …)",
+   "signature": "DateRangePicker(bind: State, label: String, min: Date, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -14511,17 +14511,17 @@
     },
     {
      "name": "min:",
-     "type": "Any",
+     "type": "Date",
      "meaning": "The first day that can be chosen"
     },
     {
      "name": "max:",
-     "type": "Any",
+     "type": "Date",
      "meaning": "The last day that can be chosen"
     },
     {
      "name": "presets:",
-     "type": "Any",
+     "type": "[RangePreset]",
      "meaning": "Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`"
     }
    ],
@@ -15066,7 +15066,7 @@
    "ownerSlug": "tour",
    "summary": "One step: what it points at, its title, and its block.",
    "plain": "One step: what it points at, its title, and its block.",
-   "signature": "Tour.Step(target: Any, title: String) { … }",
+   "signature": "Tour.Step(target: Element, title: String) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -15076,7 +15076,7 @@
    "props": [
     {
      "name": "target:",
-     "type": "Any  (required)",
+     "type": "Element  (required)",
      "meaning": "The element it points at: a `ref:`"
     },
     {
@@ -15796,7 +15796,7 @@
     },
     {
      "name": "initialFocus:",
-     "type": "Any",
+     "type": "Element",
      "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
@@ -16033,7 +16033,7 @@
    "ownerSlug": "",
    "summary": "A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.",
    "plain": "A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.",
-   "signature": "Popover(visible: State, anchor: Any, at: Any, …) { … }",
+   "signature": "Popover(visible: State, anchor: Element or Point, at: Point, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -16048,12 +16048,12 @@
     },
     {
      "name": "anchor:",
-     "type": "Any",
+     "type": "Element or Point",
      "meaning": "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`"
     },
     {
      "name": "at:",
-     "type": "Any",
+     "type": "Point",
      "meaning": "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu"
     },
     {
@@ -16083,7 +16083,7 @@
     },
     {
      "name": "initialFocus:",
-     "type": "Any",
+     "type": "Element",
      "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
@@ -16233,7 +16233,7 @@
     },
     {
      "name": "initialFocus:",
-     "type": "Any",
+     "type": "Element",
      "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
@@ -16427,7 +16427,7 @@
     },
     {
      "name": "initialFocus:",
-     "type": "Any",
+     "type": "Element",
      "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
@@ -16676,7 +16676,7 @@
     },
     {
      "name": "snap:",
-     "type": "Any",
+     "type": "[Number]",
      "meaning": "A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first"
     },
     {
@@ -16691,7 +16691,7 @@
     },
     {
      "name": "initialFocus:",
-     "type": "Any",
+     "type": "Element",
      "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
@@ -17475,7 +17475,7 @@
    "ownerSlug": "",
    "summary": "A button that copies `value:` to the clipboard, says `Copied` for a moment, and tells a screen reader so.",
    "plain": "A button that copies value: to the clipboard, says Copied for a moment, and tells a screen reader so.",
-   "signature": "CopyButton(_ label: String, value: Any, copied: String)",
+   "signature": "CopyButton(_ label: String, value: String or Number, copied: String)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -17490,7 +17490,7 @@
     },
     {
      "name": "value:",
-     "type": "Any  (required)",
+     "type": "String or Number  (required)",
      "meaning": "What it copies"
     },
     {
@@ -17832,7 +17832,7 @@
    "ownerSlug": "togglegroup",
    "summary": "One choice: its words, and the value `bind:` holds when it is chosen.",
    "plain": "One choice: its words, and the value bind: holds when it is chosen.",
-   "signature": "ToggleGroup.Item(_ label: String, value: Any, icon: String, disabled: Bool)",
+   "signature": "ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String, disabled: Bool)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -17847,7 +17847,7 @@
     },
     {
      "name": "value:",
-     "type": "Any  (required)",
+     "type": "String or Number or Bool  (required)",
      "meaning": "What `bind:` holds when it is chosen"
     },
     {
@@ -18687,7 +18687,7 @@
    "ownerSlug": "",
    "summary": "Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.",
    "plain": "Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.",
-   "signature": "Gallery(columns: Any, ratio: Any) { … }",
+   "signature": "Gallery(columns: Number, ratio: Number) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -18697,12 +18697,12 @@
    "props": [
     {
      "name": "columns:",
-     "type": "Any",
+     "type": "Number",
      "meaning": "How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit"
     },
     {
      "name": "ratio:",
-     "type": "Any",
+     "type": "Number",
      "meaning": "Each picture's shape, `4 / 3` (unset, `1`)"
     }
    ],
@@ -18755,7 +18755,7 @@
    "ownerSlug": "",
    "summary": "Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.",
    "plain": "Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.",
-   "signature": "Image(_ source: Any, src: String, sizes: String, placeholder: Enum, …)",
+   "signature": "Image(_ source: Picture or String, src: String, sizes: String, placeholder: Enum, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -18765,7 +18765,7 @@
    "props": [
     {
      "name": "source",
-     "type": "Any  (positional)",
+     "type": "Picture or String  (positional)",
      "meaning": "An `image` the program declares, or a URL"
     },
     {
@@ -19785,7 +19785,7 @@
    "ownerSlug": "",
    "summary": "A paragraph of text. `{…}` in the string reads state and stays live.",
    "plain": "A paragraph of text. {…} in the string reads state and stays live.",
-   "signature": "Text(_ content: Any, tone: Enum, size: Enum, align: Enum, …)",
+   "signature": "Text(_ content: String or Number or Bool, tone: Enum, size: Enum, align: Enum, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -19795,7 +19795,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The text"
     },
     {
@@ -19965,7 +19965,7 @@
    "ownerSlug": "",
    "summary": "Heading; `level` picks the tag (`h2` when none is given).",
    "plain": "Heading; level picks the tag (h2 when none is given).",
-   "signature": "Heading(_ content: Any, level: Enum, align: Enum, muted: Bool)",
+   "signature": "Heading(_ content: String or Number or Bool, level: Enum, align: Enum, muted: Bool)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -19975,7 +19975,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The heading text"
     },
     {
@@ -20089,7 +20089,7 @@
    "ownerSlug": "",
    "summary": "Inline code, or a code block with `block`; `language:` colours it.",
    "plain": "Inline code, or a code block with block; language: colours it.",
-   "signature": "Code(_ content: Any, block: Bool, language: String)",
+   "signature": "Code(_ content: String or Number or Bool, block: Bool, language: String)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -20099,7 +20099,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The code"
     },
     {
@@ -20363,7 +20363,7 @@
    "ownerSlug": "",
    "summary": "Quotation: the text, or its block as the quoted content.",
    "plain": "Quotation: the text, or its block as the quoted content.",
-   "signature": "Blockquote(_ content: Any) { … }",
+   "signature": "Blockquote(_ content: String or Number or Bool) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -20373,7 +20373,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The quoted text"
     }
    ],
@@ -20516,7 +20516,7 @@
     },
     {
      "name": "margin:",
-     "type": "Any",
+     "type": "Number or String",
      "meaning": "The page margins: one length, or top right bottom left (`72`, `20mm 25mm`)"
     },
     {
@@ -20707,7 +20707,7 @@
    "ownerSlug": "",
    "summary": "Block of text with paragraph spacing.",
    "plain": "Block of text with paragraph spacing.",
-   "signature": "Paragraph(_ content: Any, tone: Enum, size: Enum, align: Enum, …)",
+   "signature": "Paragraph(_ content: String or Number or Bool, tone: Enum, size: Enum, align: Enum, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -20717,7 +20717,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The text"
     },
     {
@@ -21924,7 +21924,7 @@
    "ownerSlug": "",
    "summary": "Table cell (the original spelling of `Table.Cell`).",
    "plain": "Table cell (the original spelling of Table.Cell).",
-   "signature": "Tcell(_ content: Any, header: Bool) { … }",
+   "signature": "Tcell(_ content: String or Number or Bool, header: Bool) { … }",
    "block": true,
    "legacy": true,
    "modern": [
@@ -21934,7 +21934,7 @@
    "props": [
     {
      "name": "content",
-     "type": "Any  (positional)",
+     "type": "String or Number or Bool  (positional)",
      "meaning": "The cell's content"
     },
     {
@@ -21998,7 +21998,7 @@
    "ownerSlug": "",
    "summary": "One choice in a `Select` (the original spelling of `Select.Option`).",
    "plain": "One choice in a Select (the original spelling of Select.Option).",
-   "signature": "Option(_ label: String, value: Any)",
+   "signature": "Option(_ label: String, value: String or Number or Bool)",
    "block": false,
    "legacy": true,
    "modern": [
@@ -22013,7 +22013,7 @@
     },
     {
      "name": "value:",
-     "type": "Any",
+     "type": "String or Number or Bool",
      "meaning": "The value sent with the form"
     }
    ],
@@ -22203,7 +22203,7 @@
    },
    {
     "name": "drag:",
-    "type": "Any",
+    "type": "Json",
     "meaning": "What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)`"
    },
    {
@@ -22213,7 +22213,7 @@
    },
    {
     "name": "dropValue:",
-    "type": "Any",
+    "type": "Json",
     "meaning": "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`"
    },
    {
@@ -22238,17 +22238,17 @@
    },
    {
     "name": "mount:",
-    "type": "Any",
+    "type": "(Element) -> Handle",
     "meaning": "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get"
    },
    {
     "name": "update:",
-    "type": "Any",
+    "type": "(Handle) -> ()",
     "meaning": "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`"
    },
    {
     "name": "cleanup:",
-    "type": "Any",
+    "type": "(Handle) -> ()",
     "meaning": "Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`"
    }
   ],

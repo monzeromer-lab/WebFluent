@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/virtuallist
 A scrolling box that draws only the rows in view of the one keyed for inside it — for a tree, search results or a diff of thousands of rows.
 
 ```wf
-VirtualList(rowHeight: Number, estimate: Number, reveal: Any, …) { … }
+VirtualList(rowHeight: Number, estimate: Number, reveal: String or Number, …) { … }
 ```
 
 ## Props
@@ -16,7 +16,7 @@ VirtualList(rowHeight: Number, estimate: Number, reveal: Any, …) { … }
 |---|---|---|
 | `rowHeight:` | `Number` | Every row's height, in px: the fast path. Unset, each row is measured |
 | `estimate:` | `Number` | The height a row not yet drawn stands for, in px. Unset, 32 |
-| `reveal:` | `Any` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
+| `reveal:` | `String or Number` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
 | `label:` | `String` | What the list is, for a screen reader |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).

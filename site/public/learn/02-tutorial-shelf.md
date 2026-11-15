@@ -408,7 +408,7 @@ file of its own,
 
 ```wf
 // … in src/api.wf, beside the pages
-api Suggestions(base: env.PUBLIC_API ?? "/api") {
+api Suggestions(base: "/api") {
     post suggest(body: Json) -> !
 }
 ```

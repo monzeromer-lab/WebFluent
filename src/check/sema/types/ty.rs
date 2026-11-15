@@ -62,6 +62,18 @@ pub enum Type {
     /// `T ! E`: `.ok(value)` or `.err(error)`. A result with no value
     /// holds `Null`.
     Result(Box<Type>, Box<Type>),
+    /// An object the browser hands a program — an element, an event,
+    /// `localStorage` — by its name in the browser table
+    /// ([`crate::registry::browser::BROWSER_TYPES`]).
+    Host(String),
+    /// A connection the page holds open — a socket, a stream, a channel, a
+    /// peer, a worker — with what it sends and what it receives (`Json`
+    /// where it does not say).
+    Connection(
+        crate::syntax::parser::ast::ConnectionKind,
+        Box<Type>,
+        Box<Type>,
+    ),
 }
 
 /// The name of the language's open JSON: an enum whose cases are JSON's
@@ -263,6 +275,8 @@ impl Type {
             (from, Type::Optional(b)) => from.assignable_to(b),
             (Type::List(a), Type::List(b)) => a.assignable_to(b),
             (Type::Map, Type::Record(_)) | (Type::Record(_), Type::Map) => true,
+            // `Map`, which 7.0 retires, is open JSON already.
+            (Type::Enum(name), Type::Map) if name == JSON => true,
             (Type::Shape(_), Type::Map | Type::Record(_))
             | (Type::Map | Type::Record(_), Type::Shape(_)) => true,
             // A shape fits another when the fields they share agree.
@@ -297,6 +311,8 @@ impl Type {
             (Type::Resource(a, _), Type::Resource(b, _)) => a.assignable_to(b),
             (Type::NetError(_), Type::NetError(_)) => true,
             (Type::Promise(a), Type::Promise(b)) => a.assignable_to(b),
+            // A `KeyboardEvent` is an `Event`.
+            (Type::Host(a), Type::Host(b)) => crate::registry::browser::browser().extends(a, b),
             (a, b) => a == b,
         }
     }
@@ -356,7 +372,9 @@ impl std::fmt::Display for Type {
                 let inner: Vec<String> = fields.iter().map(|(n, t)| format!("{n}: {t}")).collect();
                 write!(f, "{{ {} }}", inner.join(", "))
             }
-            Type::Record(name) | Type::Enum(name) | Type::Store(name) => write!(f, "{name}"),
+            Type::Record(name) | Type::Enum(name) | Type::Store(name) | Type::Host(name) => {
+                write!(f, "{name}")
+            }
             Type::Case(name) => write!(f, ".{name}"),
             Type::Optional(inner) => write!(f, "{inner}?"),
             Type::Func(params, ret) => {
@@ -387,6 +405,17 @@ impl std::fmt::Display for Type {
             Type::Never => write!(f, "never"),
             Type::Scalar(s) => write!(f, "{}", s.name()),
             Type::Api(name) => write!(f, "{name}"),
+            Type::Connection(kind, _, receive) => {
+                use crate::syntax::parser::ast::ConnectionKind as K;
+                let word = match kind {
+                    K::Socket => "socket",
+                    K::Stream => "stream",
+                    K::Channel => "channel",
+                    K::Peer => "peer",
+                    _ => "worker",
+                };
+                write!(f, "{word} of {receive}")
+            }
             Type::NetError(_) => write!(f, "NetworkError"),
         }
     }

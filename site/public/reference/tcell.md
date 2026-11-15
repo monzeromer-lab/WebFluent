@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/tcell
 Table cell (the original spelling of Table.Cell).
 
 ```wf
-Tcell(_ content: Any, header: Bool) { … }
+Tcell(_ content: String or Number or Bool, header: Bool) { … }
 ```
 
 Use [`Table.Cell`](https://webfluent.monzeromer.dev/reference/table-cell.md) in new code: it is the current spelling, and its page has the example.
@@ -16,7 +16,7 @@ Use [`Table.Cell`](https://webfluent.monzeromer.dev/reference/table-cell.md) in 
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `Any  (positional)` | The cell's content |
+| `content` | `String or Number or Bool  (positional)` | The cell's content |
 | `header:` | `Bool` | Render as a `<th>` |
 
 ## Flags

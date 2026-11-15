@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/calendar
 A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a { start, end } with .range, a list with .multiple.
 
 ```wf
-Calendar(bind: State, mode: Enum, min: Any, …)
+Calendar(bind: State, mode: Enum, min: Date, …)
 ```
 
 ## Props
@@ -16,9 +16,9 @@ Calendar(bind: State, mode: Enum, min: Any, …)
 |---|---|---|
 | `bind:` | `State  (required)` | The chosen day, range or days |
 | `mode:` | `.single .range .multiple` | How many days it holds |
-| `min:` | `Any` | The first day that can be chosen |
-| `max:` | `Any` | The last day that can be chosen |
-| `disabled:` | `Any` | Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6` |
+| `min:` | `Date` | The first day that can be chosen |
+| `max:` | `Date` | The last day that can be chosen |
+| `disabled:` | `[Date] or (Date) -> Bool` | Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6` |
 | `label:` | `String` | Its name for a screen reader; unset, `Calendar` |
 
 ## Flags
