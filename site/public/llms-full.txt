@@ -5998,6 +5998,10 @@ Writing `total: 120` fixes it. Had the invoice been an untyped map,
 | Optional | `String?`, `Todo?` | a value or `null` |
 | Record | the `type`'s name | `Todo(id: "a", title: "b")` |
 | Enum | the `enum`'s name | `.case` |
+| Dictionary | `[String: Number]`, `[Region: Money]` | `{ ada: 3, bo: 5 }` — keys of one type to values of another |
+| Function | `(Todo) -> Bool`, `() -> ()` | `t => t.done`, an action |
+| Result | `Settings ! DecodeError` | `.ok(value)` or `.err(error)` |
+| JSON | `Json` | JSON as it arrives: matched, or decoded into a type |
 | Any | `Any` | anything; what is not known |
 
 You write a type after a colon on a `state`, a prop, an action parameter, a
@@ -6285,6 +6289,115 @@ page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape
 }
 ```
 
+## Dictionaries, functions and aliases
+
+A *dictionary* holds values of one type under keys of another: `[String:
+Number]` is a score per name, `[Region: Money]` a price per region of an
+enum. It is written as a map literal where one is wanted, every value
+checked against its type and, for an enum's keys, every key against its
+cases. A key may be missing, so reading one — `scores["ada"]` or
+`scores.ada` — gives a `Number?`. Its methods are `keys()`, `values()`,
+`entries()` (each `{ key, value }`), `has(k)`, and `with(k, v)` and
+`without(k)`, which make a copy with one key more or one fewer.
+
+A *function type* is written with its parameters in parentheses and its
+result after `->`: `(Todo) -> Bool`. `()` is nothing: `() -> ()` takes and
+returns nothing. A prop that takes a lambda declares one, and what the
+caller passes is held to it, parameters and result.
+
+`type Name = T` gives a type a second name, read as the type it names:
+
+```wf
+type Scores = [String: Number]
+enum Region { north, south }
+
+component Label(_ region: Region, describe: (Region) -> String) {
+    Text(describe(region))
+}
+
+page Dictionaries(path: "/", title: "Dictionaries", description: "Values by key, and a function as a prop.") {
+    state scores: Scores = { ada: 3, bo: 5 }
+    state prices: [Region: Number] = { north: 10, south: 20 }
+    Heading("Dictionaries").h1
+    Text("{scores.values().sum()} points; Ada has {scores.ada ?? 0}")
+    Text("North costs {prices.north ?? 0}")
+    Button("Add Cy") { on click { scores = scores.with("cy", 7) } }
+    Label(.south, describe: r => "Region {r}")
+}
+```
+
+An action that returns a value says what with `-> T`, and every `return`
+in it is held to that; its callers see the type it declares. A lambda's
+parameter may say its type too, where nothing it is handed to does:
+
+```wf
+type Todo { id: String, title: String, done: Bool = false }
+
+store Todos {
+    state items: [Todo] = []
+    action open() -> Number {
+        return items.filter(todo => !todo.done).length
+    }
+}
+
+page Typed(path: "/", title: "Typed", description: "An action's result and a typed lambda.") {
+    use Todos
+    derived byTitle = (a: Todo, b: Todo) => a.title.localeCompare(b.title)
+    Heading("Typed").h1
+    Text("{Todos.open()} open")
+    for todo in Todos.items.slice().sort(byTitle) by todo.id { Text(todo.title) }
+}
+```
+
+## JSON, decoding and results
+
+`Json` is JSON as it arrives — an object, a list, a string, a number, a
+flag or `null` — with nothing yet known about it. It is the language's own
+enum, and a value of it is written by its case, `Json.null`,
+`Json.string("x")`. Any plain value — a string, a number, a list, a record
+— fits where `Json` is wanted; a `Json` value is read by matching it:
+
+```wf
+page Kinds(path: "/", title: "Kinds", description: "A JSON value read by what it is.") {
+    state raw: Json = Json.array([Json.number(1), Json.number(2)])
+    Heading("Kinds").h1
+    match raw {
+        .object(fields) { Text("An object of {fields.keys().length} fields") }
+        .array(items) { Text("A list of {items.length}") }
+        .string(s) { Text("The text {s}") }
+        .number(n) { Text("The number {n}") }
+        .bool(b) { Text("The flag {b}") }
+        .null { Text("Nothing") }
+    }
+}
+```
+
+More often it is *decoded*: every record, enum and alias a program declares
+has `decode`, which checks a value against the type, field by field, as the
+page runs. `Settings.decode(raw)` is a *result*, `Settings ! DecodeError`:
+`.ok(settings)` when it fits, or `.err(e)` with `e.at` saying where it went
+wrong (`$.tags[0]`) and `e.message` what is wrong there (`is 1, not a
+String`):
+
+```wf
+type Settings { theme: String, columns: Number }
+
+page Restore(path: "/", title: "Restore", description: "Settings decoded from text.") {
+    state text = "{\"theme\": \"dark\", \"columns\": 3}"
+    Heading("Restore").h1
+    Textarea(bind: text, label: "Settings", rows: 3)
+    match Settings.decode(JSON.parse(text)) {
+        .ok(s) { Text("{s.theme}, {s.columns} columns") }
+        .err(e) { Alert("{e.at} {e.message}").danger }
+    }
+}
+```
+
+A result is written `T ! E` — a `T`, or an error of `E` — and `T!` for one
+whose error is a request's failure. An action declares one with `-> T !
+E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A
+`match` on a result gives both `.ok` and `.err` an arm, or an `else`.
+
 ## Where types come from
 
 The checker reads a type from five places.
@@ -6476,14 +6589,15 @@ the narrowing forms above. `wf explain T05` prints a code's full entry, and
 
 ## What the checker does not check
 
-- It does not check a lambda's body against a return type.
+- It does not check a lambda's body against a return type unless the lambda
+  is handed to a function type, which says one.
 - It does not know what a plain `fetch` returns. Annotate it, or describe
   the service with an `api`.
 
 ## In the editor
 
 Hover shows a name's inferred type: `state draft: String`, `derived
-remaining: Number`, `Todos.add: action(String)`. Completion after `.`
+remaining: Number`, `Todos.add: (String) -> ()`. Completion after `.`
 offers a record's fields, an enum's cases where one is wanted, and the
 methods of a `String`, a `Number` or a list. A type error appears as a
 diagnostic on the argument it belongs to. To set up the editor, see
@@ -6495,6 +6609,11 @@ diagnostic on the argument it belongs to. To set up the editor, see
 |---|---|
 | `state x: T = v` | Annotate a state; props, parameters, fields and `let` take `: T` the same way |
 | `[T]` · `T?` · `Map` · `Any` | A list, a value that may be `null`, an object with unknown keys, anything |
+| `[K: V]` · `(A) -> R` · `()` | A dictionary, a function, nothing |
+| `type Name = T` | Another name for a type |
+| `action f() -> T` · `(a: T) => …` | What an action returns; a lambda's parameter type |
+| `Json` · `Json.null` · `Json.string(s)` | JSON as it arrives, and its cases |
+| `T.decode(json)` · `T ! E` · `.ok(v)` · `.err(e)` | Read a type out of JSON; a result, and its cases |
 | `type Name { field: T = default }` | Declare a record |
 | `type B = A { extra: T }` | Extend a record |
 | `Name(field: v)` · `Name()` | Build a record |

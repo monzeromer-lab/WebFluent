@@ -194,8 +194,10 @@
     return out;
   }
   /// `site.with(query: { page: 2 })` — the same URL, that much changed.
-  function withParts(v, parts) {
-    if (own(v, "with")) return v.with(parts);
+  function withParts(v, parts, ...more) {
+    if (own(v, "with")) return v.with(parts, ...more);
+    // A dictionary's `with(key, value)`: a copy with that key.
+    if (v != null && typeof v === "object" && !Array.isArray(v)) return { ...v, [parts]: more[0] };
     const url = asUrl(v);
     const p = parts || {};
     if (p.path != null) url.pathname = p.path;

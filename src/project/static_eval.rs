@@ -1082,7 +1082,10 @@ fn apply(lambda: &Expr, args: &[Static], scope: &Scope, fuel: &Fuel) -> Option<S
     };
     let mut inner = scope.clone();
     let mut frame = HashMap::new();
-    for (param, arg) in params.split(',').map(str::trim).zip(args) {
+    for (param, arg) in crate::syntax::parser::lambda_names(params)
+        .into_iter()
+        .zip(args)
+    {
         frame.insert(param.to_string(), arg.clone());
     }
     inner.frames.push(Arc::new(frame));

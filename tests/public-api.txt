@@ -2424,13 +2424,17 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::StringP
 #[non_exhaustive] pub enum webfluent::syntax::parser::ast::TypeRef
 pub webfluent::syntax::parser::ast::TypeRef::Any
 pub webfluent::syntax::parser::ast::TypeRef::Bool
+pub webfluent::syntax::parser::ast::TypeRef::Dict(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>, alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
+pub webfluent::syntax::parser::ast::TypeRef::Func(alloc::vec::Vec<webfluent::syntax::parser::TypeRef>, alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
 pub webfluent::syntax::parser::ast::TypeRef::List(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
 pub webfluent::syntax::parser::ast::TypeRef::Map
 pub webfluent::syntax::parser::ast::TypeRef::Named(alloc::string::String)
 pub webfluent::syntax::parser::ast::TypeRef::Number
 pub webfluent::syntax::parser::ast::TypeRef::Optional(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
 pub webfluent::syntax::parser::ast::TypeRef::Refined(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>, alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>)
+pub webfluent::syntax::parser::ast::TypeRef::Result(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>, core::option::Option<alloc::boxed::Box<webfluent::syntax::parser::TypeRef>>)
 pub webfluent::syntax::parser::ast::TypeRef::String
+pub webfluent::syntax::parser::ast::TypeRef::Unit
 impl webfluent::syntax::parser::TypeRef
 pub fn webfluent::syntax::parser::TypeRef::base(&self) -> &webfluent::syntax::parser::TypeRef
 pub fn webfluent::syntax::parser::TypeRef::refinement(&self) -> &[(alloc::string::String, webfluent::syntax::parser::Expr)]
@@ -2471,6 +2475,7 @@ pub webfluent::syntax::parser::ast::ActionDecl::concurrent: bool
 pub webfluent::syntax::parser::ast::ActionDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::ActionDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::ActionDecl::params: alloc::vec::Vec<webfluent::syntax::parser::ParamDecl>
+pub webfluent::syntax::parser::ast::ActionDecl::returns: core::option::Option<webfluent::syntax::parser::TypeRef>
 impl core::clone::Clone for webfluent::syntax::parser::ActionDecl
 pub fn webfluent::syntax::parser::ActionDecl::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::ActionDecl
@@ -3438,6 +3443,7 @@ impl core::marker::UnsafeUnpin for webfluent::syntax::parser::TryStmt
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::TryStmt
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::TryStmt
 pub struct webfluent::syntax::parser::ast::TypeDecl
+pub webfluent::syntax::parser::ast::TypeDecl::alias: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ast::TypeDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::TypeDecl::extends: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::TypeDecl::fields: alloc::vec::Vec<webfluent::syntax::parser::FieldDecl>
@@ -3515,6 +3521,8 @@ impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ValidateDecl
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ValidateDecl
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ValidateDecl
 pub fn webfluent::syntax::parser::ast::awaits(&[webfluent::syntax::parser::Statement]) -> bool
+pub fn webfluent::syntax::parser::ast::lambda_names(&str) -> alloc::vec::Vec<&str>
+pub fn webfluent::syntax::parser::ast::lambda_params(&str) -> alloc::vec::Vec<(&str, core::option::Option<&str>)>
 pub fn webfluent::syntax::parser::ast::walk_exprs_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 pub fn webfluent::syntax::parser::ast::walk_statements_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Statement))
 pub enum webfluent::syntax::parser::Arg
@@ -3822,13 +3830,17 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::StringP
 #[non_exhaustive] pub enum webfluent::syntax::parser::TypeRef
 pub webfluent::syntax::parser::TypeRef::Any
 pub webfluent::syntax::parser::TypeRef::Bool
+pub webfluent::syntax::parser::TypeRef::Dict(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>, alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
+pub webfluent::syntax::parser::TypeRef::Func(alloc::vec::Vec<webfluent::syntax::parser::TypeRef>, alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
 pub webfluent::syntax::parser::TypeRef::List(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
 pub webfluent::syntax::parser::TypeRef::Map
 pub webfluent::syntax::parser::TypeRef::Named(alloc::string::String)
 pub webfluent::syntax::parser::TypeRef::Number
 pub webfluent::syntax::parser::TypeRef::Optional(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>)
 pub webfluent::syntax::parser::TypeRef::Refined(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>, alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>)
+pub webfluent::syntax::parser::TypeRef::Result(alloc::boxed::Box<webfluent::syntax::parser::TypeRef>, core::option::Option<alloc::boxed::Box<webfluent::syntax::parser::TypeRef>>)
 pub webfluent::syntax::parser::TypeRef::String
+pub webfluent::syntax::parser::TypeRef::Unit
 impl webfluent::syntax::parser::TypeRef
 pub fn webfluent::syntax::parser::TypeRef::base(&self) -> &webfluent::syntax::parser::TypeRef
 pub fn webfluent::syntax::parser::TypeRef::refinement(&self) -> &[(alloc::string::String, webfluent::syntax::parser::Expr)]
@@ -3869,6 +3881,7 @@ pub webfluent::syntax::parser::ActionDecl::concurrent: bool
 pub webfluent::syntax::parser::ActionDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ActionDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ActionDecl::params: alloc::vec::Vec<webfluent::syntax::parser::ParamDecl>
+pub webfluent::syntax::parser::ActionDecl::returns: core::option::Option<webfluent::syntax::parser::TypeRef>
 impl core::clone::Clone for webfluent::syntax::parser::ActionDecl
 pub fn webfluent::syntax::parser::ActionDecl::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::ActionDecl
@@ -4836,6 +4849,7 @@ impl core::marker::UnsafeUnpin for webfluent::syntax::parser::TryStmt
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::TryStmt
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::TryStmt
 pub struct webfluent::syntax::parser::TypeDecl
+pub webfluent::syntax::parser::TypeDecl::alias: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::TypeDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::TypeDecl::extends: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::TypeDecl::fields: alloc::vec::Vec<webfluent::syntax::parser::FieldDecl>
@@ -4915,6 +4929,8 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Validat
 pub const webfluent::syntax::parser::MAX_NESTING: usize
 pub const webfluent::syntax::parser::NESTING_MESSAGE: &str
 pub fn webfluent::syntax::parser::awaits(&[webfluent::syntax::parser::Statement]) -> bool
+pub fn webfluent::syntax::parser::lambda_names(&str) -> alloc::vec::Vec<&str>
+pub fn webfluent::syntax::parser::lambda_params(&str) -> alloc::vec::Vec<(&str, core::option::Option<&str>)>
 pub fn webfluent::syntax::parser::walk_exprs_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 pub fn webfluent::syntax::parser::walk_statements_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Statement))
 pub enum webfluent::syntax::Dialect

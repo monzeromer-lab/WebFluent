@@ -122,8 +122,13 @@ pub struct JsCodegen {
     /// A build for `wf serve`: each response a type is declared for carries
     /// that type's shape, which the runtime holds the response to.
     dev: bool,
-    /// The program's records and enums, for those shapes.
+    /// The program's records and enums, for those shapes, and for what a
+    /// type's `decode` holds a value to.
     shapes: (HashMap<String, TypeDecl>, HashMap<String, Vec<String>>),
+    /// What each `match` over the language's `Json` is over, as the type
+    /// checker finds them: a JSON value is plain at run time, so such a
+    /// match reads the value's kind rather than a tag.
+    json_subjects: Vec<Expr>,
     /// `Some(sync)` when the config names `offline`: the service worker is
     /// registered at boot, and `sync` keeps writes made offline.
     offline: Option<bool>,
@@ -397,6 +402,7 @@ impl JsCodegen {
             pending_mark: None,
             dev: false,
             shapes: Default::default(),
+            json_subjects: Vec::new(),
             offline: None,
             later: Vec::new(),
             consented: Vec::new(),
@@ -533,6 +539,16 @@ impl JsCodegen {
             TypeRef::List(t) => format!("[\"l\", {}]", self.shape_of(t, depth + 1)),
             TypeRef::Optional(t) => format!("[\"?\", {}]", self.shape_of(t, depth + 1)),
             TypeRef::Refined(t, _) => self.shape_of(t, depth),
+            TypeRef::Dict(_, v) => format!("[\"d\", {}]", self.shape_of(v, depth + 1)),
+            // What a function, a result or nothing is, JSON does not carry.
+            TypeRef::Func(..) | TypeRef::Unit | TypeRef::Result(..) => "\"*\"".into(),
+            TypeRef::Named(name) if name == "Json" && !self.shapes.0.contains_key(name) => {
+                "\"j\"".into()
+            }
+            TypeRef::Named(name) if self.shapes.0.get(name).is_some_and(|d| d.alias.is_some()) => {
+                let alias = self.shapes.0[name].alias.clone().expect("an alias");
+                self.shape_of(&alias, depth + 1)
+            }
             TypeRef::Named(name) => {
                 if let Some(cases) = self.shapes.1.get(name) {
                     let cases: Vec<String> = cases.iter().map(|c| format!("\"{c}\"")).collect();
@@ -904,8 +920,20 @@ impl JsCodegen {
                 .collect();
         }
 
-        // The records and enums a dev build's response shapes name.
-        if self.dev {
+        // What a `match` over `Json` is over, which only the type checker
+        // knows — asked only of a program that names `Json` at all.
+        self.json_subjects = if program
+            .declarations
+            .iter()
+            .any(|d| format!("{d:?}").contains("\"Json\""))
+        {
+            crate::check::sema::types::check(program, &|_| String::new()).json_subjects
+        } else {
+            Vec::new()
+        };
+        // The records and enums a type's shape names: what `decode` holds a
+        // value to, and a dev build's responses.
+        {
             for decl in &program.declarations {
                 match decl {
                     Declaration::Type(t) => {

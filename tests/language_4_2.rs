@@ -599,8 +599,7 @@ fn a_lambda_of_no_parameters_takes_none() {
         ],
     );
     assert!(
-        said.contains("T01")
-            && said.contains("`ask` of `askThen` is `action() -> Bool`, but `x => …`"),
+        said.contains("T01") && said.contains("`ask` of `askThen` is `() -> Bool`, but `x => …`"),
         "{said}"
     );
     let _ = std::fs::remove_dir_all(&dir);

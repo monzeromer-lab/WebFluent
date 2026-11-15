@@ -47,7 +47,8 @@ impl Checker<'_, '_> {
         // `match` over an enum as a value: `__is` asks for a case, `__payload`
         // for the payload where the case is the one asked for.
         if method == "__case" && args.is_empty() {
-            self.infer(obj, None);
+            let subject = self.infer(obj, None);
+            self.note_json_subject(obj, &subject);
             return Type::String;
         }
         if (method == "__is" || method == "__payload")
@@ -55,7 +56,14 @@ impl Checker<'_, '_> {
             && let Expr::StringLiteral(case) = &args[0]
         {
             let subject = self.infer(obj, None);
+            self.note_json_subject(obj, &subject);
             let fields = match subject.unwrapped() {
+                Type::Result(value, error) => Some(
+                    super::stmt::result_payload(case, &value, &error)
+                        .into_iter()
+                        .map(|t| (String::new(), t))
+                        .collect(),
+                ),
                 Type::Enum(name) => {
                     let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
                     let fields = self.payload_of(&name, case);
@@ -119,6 +127,22 @@ impl Checker<'_, '_> {
             && self.lookup(global).is_none()
         {
             self.secret_args(&format!("{global}.{method}"), args);
+        }
+        // `Json.string("x")`, and `Settings.decode(raw)`: a type's name
+        // where a value would be, which nothing in scope takes.
+        if let Expr::Identifier(name) = obj {
+            if self.is_json_namespace(name) {
+                return self.json_case(method, Some(args));
+            }
+            if method == "decode"
+                && self.lookup(name).is_none()
+                && !self.world.stores.contains_key(name.as_str())
+                && !self.world.apis.contains_key(name.as_str())
+                && !self.world.consts.contains_key(name.as_str())
+                && self.world.decodable(name)
+            {
+                return self.decode_call(name, args);
+            }
         }
         let obj_ty = self.infer(obj, None);
         // `Backend.users(page: 2)`: an endpoint of a service, whose
@@ -555,6 +579,39 @@ impl Checker<'_, '_> {
                         }
                     }
                 }
+            }
+            // A dictionary's own: its keys, values and entries, whether it
+            // has a key, and a copy with one more or one fewer.
+            Type::Dict(key, value) => {
+                let (key, value) = ((**key).clone(), (**value).clone());
+                let dict = obj_ty.clone();
+                let (params, ret): (Vec<Type>, Type) = match method {
+                    "keys" => (Vec::new(), Type::list(key)),
+                    "values" => (Vec::new(), Type::list(value)),
+                    "entries" => (
+                        Vec::new(),
+                        Type::list(Type::Shape(vec![
+                            ("key".to_string(), key),
+                            ("value".to_string(), value),
+                        ])),
+                    ),
+                    "has" => (vec![key], Type::Bool),
+                    "with" => (vec![key, value], dict),
+                    "without" => (vec![key], dict),
+                    _ => {
+                        for a in args {
+                            self.infer(a, None);
+                        }
+                        self.unknown_method(
+                            &obj_ty,
+                            method,
+                            &["keys", "values", "entries", "has", "with", "without"],
+                        );
+                        return Type::Error;
+                    }
+                };
+                self.call_args(&params, args, &format!("`{}.{method}`", expr_text(obj)));
+                ret
             }
             Type::String => {
                 for a in args {

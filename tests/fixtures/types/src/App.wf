@@ -1,0 +1,54 @@
+type Settings { theme: String, columns: Number, tags: [String] }
+type Scores = [String: Number]
+enum Region { north, south }
+
+store Prefs {
+    state text = "{\"theme\": \"dark\", \"columns\": 3, \"tags\": [\"a\"]}"
+    state raw: Json = Json.null
+    state scores: Scores = { ada: 3, bo: 5 }
+    state prices: [Region: Number] = { north: 10, south: 20 }
+
+    action total() -> Number {
+        return scores.values().sum()
+    }
+    action add(name: String, score: Number) {
+        scores = scores.with(name, score)
+    }
+    action drop(name: String) {
+        scores = scores.without(name)
+    }
+    action read(json: String) {
+        raw = JSON.parse(json)
+    }
+}
+
+component Label(_ region: Region, describe: (Region) -> String) {
+    Text(describe(region), id: "label")
+}
+
+page Home(path: "/", title: "Types", description: "Values decoded, matched and looked up by key.") {
+    use Prefs
+    Heading("Types").h1
+    Input(bind: Prefs.text, label: "Settings")
+    match Settings.decode(JSON.parse(Prefs.text)) {
+        .ok(s) { Text("theme {s.theme}, {s.columns} columns", id: "decoded") }
+        .err(e) { Text("{e.at} {e.message}", id: "decoded") }
+    }
+    Text("{Prefs.total()} in {Prefs.scores.keys().join(\",\")}", id: "scores")
+    Text("{Prefs.scores.has(\"ada\")} {Prefs.prices.north ?? 0}", id: "lookup")
+    Button("Add cy") { on click { Prefs.add("cy", 7) } }
+    Button("Drop ada") { on click { Prefs.drop("ada") } }
+    Button("A list") { on click { Prefs.read("[1, 2, 3]") } }
+    Button("A word") { on click { Prefs.read("\"hello\"") } }
+    match Prefs.raw {
+        .object(fields) { Text("an object of {fields.keys().length}", id: "kind") }
+        .array(items) { Text("a list of {items.length}", id: "kind") }
+        .string(s) { Text("the text {s}", id: "kind") }
+        .number(n) { Text("the number {n}", id: "kind") }
+        .bool(b) { Text("the flag {b}", id: "kind") }
+        .null { Text("nothing", id: "kind") }
+    }
+    Label(.south, describe: (r: Region) => "region {r}")
+}
+
+app { Router }

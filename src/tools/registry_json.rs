@@ -362,6 +362,8 @@ fn type_ref_json(ty: &TypeRef) -> String {
         // A condition is the editor's to show as a hint, not part of the
         // type's name.
         TypeRef::Refined(inner, _) => type_ref_json(inner),
+        TypeRef::Dict(k, v) => format!("[{}: {}]", type_ref_json(k), type_ref_json(v)),
+        other => crate::syntax::print::type_ref(other),
     }
 }
 

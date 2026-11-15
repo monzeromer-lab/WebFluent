@@ -162,6 +162,8 @@ mod serve_and_verify;
 mod serve_security;
 #[path = "sourcemap.rs"]
 mod sourcemap;
+#[path = "spellings.rs"]
+mod spellings;
 #[path = "stale_version.rs"]
 mod stale_version;
 #[path = "starter_fixes.rs"]

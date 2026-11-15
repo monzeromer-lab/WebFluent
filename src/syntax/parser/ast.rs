@@ -113,6 +113,9 @@ pub struct TypeDecl {
     /// `type Admin = User { role: String }`: the record this one extends;
     /// its fields come first, and a field of the same name here replaces it.
     pub extends: Option<String>,
+    /// `type Scores = [String: Number]`: another name for a type, read as
+    /// it. An alias has no fields of its own.
+    pub alias: Option<TypeRef>,
     pub fields: Vec<FieldDecl>,
     /// The `///` comment above it.
     pub doc: Option<String>,
@@ -217,6 +220,17 @@ pub enum TypeRef {
     /// The condition is what the checker holds a literal to, and what
     /// validation reads to say why a value was refused.
     Refined(Box<TypeRef>, Vec<(String, Expr)>),
+    /// `[K: V]`: a dictionary, keys of `K` (a `String` or an enum) to
+    /// values of `V`.
+    Dict(Box<TypeRef>, Box<TypeRef>),
+    /// `(A, B) -> R`: a function, an action passed as a value.
+    Func(Vec<TypeRef>, Box<TypeRef>),
+    /// `()`: nothing — what a function that returns no value gives.
+    Unit,
+    /// `T ! E`: a `T`, or an error of `E`. `T!` names no error (`None`):
+    /// a request's failure. A result with no value — `! E`, `!` — holds
+    /// [`TypeRef::Unit`].
+    Result(Box<TypeRef>, Option<Box<TypeRef>>),
 }
 
 /// Two types are the same type when they are written the same way; a
@@ -228,7 +242,11 @@ impl PartialEq for TypeRef {
             | (TypeRef::Number, TypeRef::Number)
             | (TypeRef::Bool, TypeRef::Bool)
             | (TypeRef::Map, TypeRef::Map)
-            | (TypeRef::Any, TypeRef::Any) => true,
+            | (TypeRef::Any, TypeRef::Any)
+            | (TypeRef::Unit, TypeRef::Unit) => true,
+            (TypeRef::Dict(k, v), TypeRef::Dict(k2, v2)) => k == k2 && v == v2,
+            (TypeRef::Func(a, r), TypeRef::Func(b, s)) => a == b && r == s,
+            (TypeRef::Result(t, e), TypeRef::Result(u, f)) => t == u && e == f,
             (TypeRef::List(a), TypeRef::List(b)) | (TypeRef::Optional(a), TypeRef::Optional(b)) => {
                 a == b
             }
@@ -861,6 +879,8 @@ pub struct TimerStmt {
 pub struct ActionDecl {
     pub name: String,
     pub params: Vec<ParamDecl>,
+    /// `-> T`: what it returns, when it returns a value.
+    pub returns: Option<TypeRef>,
     pub body: Vec<Statement>,
     /// `action poll() concurrent { … }`: every call runs, where a call
     /// with the arguments of one still running is otherwise that call.
@@ -1740,4 +1760,46 @@ pub(crate) fn draws_its_own_main(program: &Program) -> bool {
         Declaration::App(a) => any(&a.body),
         _ => false,
     })
+}
+
+/// A lambda's parameters as its tree holds them — `a`, `a, b`, or with
+/// types, `a: User, b: User` — each name with the type written after it.
+pub fn lambda_params(params: &str) -> Vec<(&str, Option<&str>)> {
+    top_level_split(params, ',')
+        .into_iter()
+        .map(str::trim)
+        .filter(|p| !p.is_empty())
+        .map(|p| match top_level_split(p, ':').as_slice() {
+            [name, _, ..] => {
+                let ty_start = name.len() + 1;
+                (name.trim(), Some(p[ty_start..].trim()))
+            }
+            _ => (p, None),
+        })
+        .collect()
+}
+
+/// A lambda's parameter names, without the types written beside them.
+pub fn lambda_names(params: &str) -> Vec<&str> {
+    lambda_params(params).into_iter().map(|(n, _)| n).collect()
+}
+
+/// `text` split at each `sep` outside brackets and parentheses.
+fn top_level_split(text: &str, sep: char) -> Vec<&str> {
+    let mut parts = Vec::new();
+    let mut depth = 0usize;
+    let mut start = 0;
+    for (i, c) in text.char_indices() {
+        match c {
+            '[' | '(' | '{' => depth += 1,
+            ']' | ')' | '}' => depth = depth.saturating_sub(1),
+            c if c == sep && depth == 0 => {
+                parts.push(&text[start..i]);
+                start = i + c.len_utf8();
+            }
+            _ => {}
+        }
+    }
+    parts.push(&text[start..]);
+    parts
 }

@@ -1295,8 +1295,8 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
         // A lambda's own parameters (`a, b` for several) shadow the props.
         Expr::Lambda(param, body) => {
             let mut inner = bindings.clone();
-            for p in param.split(',') {
-                inner.remove(p.trim());
+            for p in crate::syntax::parser::lambda_names(param) {
+                inner.remove(p);
             }
             Expr::Lambda(param.clone(), Box::new(substitute_expr(body, &inner)))
         }
@@ -4507,7 +4507,7 @@ fn apply_static(f: &Expr, row: &Static, scope: &Scope) -> Option<Static> {
     let Expr::Lambda(params, body) = f else {
         return None;
     };
-    let param = params.split(',').next()?.trim();
+    let param = *crate::syntax::parser::lambda_names(params).first()?;
     eval(body, &scope.with(param, row.clone()))
 }
 

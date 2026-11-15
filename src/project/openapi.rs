@@ -440,6 +440,7 @@ impl<'a> Spec<'a> {
         };
         record.collect(schema, &[], 0);
         TypeDecl {
+            alias: None,
             name: pascal(name),
             extends: record.extends,
             fields: record.fields,

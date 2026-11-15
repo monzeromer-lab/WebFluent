@@ -318,12 +318,39 @@ impl Checker<'_, '_> {
                     let ty = self.world.resolve(Type::from_ref(&p.param_type));
                     self.bind(&p.name, ty, span);
                 }
+                let declared = a
+                    .returns
+                    .as_ref()
+                    .map(|t| self.world.resolve(Type::from_ref(t)));
                 self.returns.push(Vec::new());
+                self.declared_returns.push(declared.clone());
                 let was = std::mem::replace(&mut self.async_ok, true);
                 self.statements(&a.body, Body::Imperative);
                 self.async_ok = was;
+                self.declared_returns.pop();
                 let returned = self.returns.pop().unwrap_or_default();
                 self.pop_scope();
+                // An action that says what it returns returns that, and
+                // every way out of it was held to it as it was read.
+                if let Some(declared) = &declared
+                    && *declared != Type::Null
+                    && !matches!(declared, Type::Result(..))
+                    && !returned.iter().any(|t| *t != Type::Null)
+                {
+                    self.error(
+                        span,
+                        "T01",
+                        format!(
+                            "`{}` says it returns `{declared}`, and returns nothing",
+                            a.name
+                        ),
+                        "Return a value, or take the `-> …` off",
+                    );
+                }
+                let returned = match declared {
+                    Some(d) => vec![d],
+                    None => returned,
+                };
                 let mut ret: Option<Type> = None;
                 for ty in returned {
                     ret = Some(match ret {
@@ -508,10 +535,25 @@ impl Checker<'_, '_> {
                 }
             }
             StatementKind::Return(e) => {
+                let declared = self.declared_returns.last().cloned().flatten();
                 let ty = match e {
-                    Some(e) => self.infer(e, None),
+                    Some(e) => self.infer(e, declared.as_ref()),
                     None => Type::Null,
                 };
+                if let Some(declared) = &declared {
+                    if e.is_none() && *declared != Type::Null {
+                        if !matches!(declared, Type::Result(value, _) if **value == Type::Null) {
+                            self.error(
+                                span,
+                                "T01",
+                                format!("this returns nothing, but `{declared}` is declared"),
+                                "Return a value of the declared type",
+                            );
+                        }
+                    } else if e.is_some() {
+                        self.expect(&ty, declared, span, "what this returns");
+                    }
+                }
                 if let Some(returns) = self.returns.last_mut() {
                     returns.push(ty);
                 }
@@ -640,7 +682,18 @@ impl Checker<'_, '_> {
             }
         }
         self.current_span = span;
+        self.note_json_subject(&m.scrutinee, &scrutinee);
         match scrutinee.unwrapped() {
+            Type::Result(..) => {
+                self.match_coverage(
+                    &expr_text(&m.scrutinee),
+                    &scrutinee.unwrapped(),
+                    &cases,
+                    &dupes,
+                    has_else,
+                    true,
+                );
+            }
             Type::Enum(_) => {
                 self.match_coverage(
                     &expr_text(&m.scrutinee),
@@ -772,6 +825,61 @@ impl Checker<'_, '_> {
                             let ty = fields.get(i).map_or(Type::Error, |(_, t)| t.clone());
                             self.bind_fixed(bound, ty, arm.span, ARM);
                         }
+                    }
+                    self.statements(&arm.body, body);
+                    self.pop_scope();
+                }
+            }
+            // A result: `.ok(value)` or `.err(error)`.
+            Type::Result(value, error) => {
+                for arm in &m.arms {
+                    self.push_scope();
+                    match &arm.pattern {
+                        ArmPattern::Case(case) if case == "ok" || case == "err" => {
+                            let fields = result_payload(case, value, error);
+                            if arm.bindings.len() > fields.len() {
+                                self.error(
+                                    arm.span,
+                                    "T10",
+                                    format!(
+                                        "`.{case}` carries {} value{}, but {} {} bound",
+                                        fields.len(),
+                                        if fields.len() == 1 { "" } else { "s" },
+                                        arm.bindings.len(),
+                                        if arm.bindings.len() == 1 { "is" } else { "are" }
+                                    ),
+                                    &format!("Write `.{case}{}`", if fields.is_empty() { "" } else { "(value)" }),
+                                );
+                            }
+                            for (i, bound) in arm.bindings.iter().enumerate() {
+                                let ty = fields.get(i).cloned().unwrap_or(Type::Error);
+                                self.bind_fixed(bound, ty, arm.span, ARM);
+                            }
+                        }
+                        ArmPattern::Case(case) => {
+                            self.error(
+                                arm.span,
+                                "T02",
+                                format!("a result has no case `.{case}`"),
+                                "A result is `.ok(value)` or `.err(error)`",
+                            );
+                            for bound in &arm.bindings {
+                                self.bind_fixed(bound, Type::Error, arm.span, ARM);
+                            }
+                        }
+                        ArmPattern::Else => {}
+                        _ => self.error(
+                            arm.span,
+                            "T11",
+                            format!(
+                                "`{}` is a result, not a resource; it has no `loading`, `error` or `ready`",
+                                expr_text(&m.scrutinee)
+                            ),
+                            "Match its cases: `.ok(value) { … }` and `.err(e) { … }`",
+                        ),
+                    }
+                    if let Some(name) = &arm.binding {
+                        self.bind_fixed(name, Type::Error, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
@@ -1067,6 +1175,29 @@ impl Checker<'_, '_> {
                 span,
                 &format!("`{}` of `emit {}`", param.name, e.event),
             );
+        }
+    }
+}
+
+/// What a result's case carries: `.ok` its value, unless it has none, and
+/// `.err` its error.
+pub(super) fn result_payload(case: &str, value: &Type, error: &Type) -> Vec<Type> {
+    match case {
+        "ok" if *value == Type::Null => Vec::new(),
+        "ok" => vec![value.clone()],
+        "err" => vec![error.clone()],
+        _ => Vec::new(),
+    }
+}
+
+impl Checker<'_, '_> {
+    /// A `match` over the language's `Json`, kept for the code generator.
+    pub(super) fn note_json_subject(&mut self, subject: &Expr, ty: &Type) {
+        if self.world.built_in_json
+            && matches!(ty.unwrapped(), Type::Enum(n) if n == super::ty::JSON)
+            && !self.info.json_subjects.contains(subject)
+        {
+            self.info.json_subjects.push(subject.clone());
         }
     }
 }

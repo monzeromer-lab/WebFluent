@@ -57,7 +57,16 @@ pub enum Type {
     Promise(Box<Type>),
     /// What no value is: the arm of a `match` that covers every case.
     Never,
+    /// `[K: V]`: a dictionary.
+    Dict(Box<Type>, Box<Type>),
+    /// `T ! E`: `.ok(value)` or `.err(error)`. A result with no value
+    /// holds `Null`.
+    Result(Box<Type>, Box<Type>),
 }
+
+/// The name of the language's open JSON: an enum whose cases are JSON's
+/// kinds, a plain JSON value at run time.
+pub(super) const JSON: &str = "Json";
 
 /// The types the language brings with it.
 ///
@@ -172,6 +181,43 @@ impl Type {
             TypeRef::Named(name) => Type::Record(name.clone()),
             // A condition narrows the values, not the type.
             TypeRef::Refined(inner, _) => Type::from_ref(inner),
+            TypeRef::Dict(k, v) => {
+                Type::Dict(Box::new(Type::from_ref(k)), Box::new(Type::from_ref(v)))
+            }
+            TypeRef::Func(params, ret) => Type::Func(
+                params.iter().map(Type::from_ref).collect(),
+                Box::new(Type::from_ref(ret)),
+            ),
+            // Nothing is what a function that returns no value gives.
+            TypeRef::Unit => Type::Null,
+            // `T!` names no error of its own: a request's failure.
+            TypeRef::Result(value, error) => Type::Result(
+                Box::new(Type::from_ref(value)),
+                Box::new(error.as_ref().map_or_else(
+                    || Type::NetError(Box::new(Type::Any)),
+                    |e| Type::from_ref(e),
+                )),
+            ),
+        }
+    }
+
+    /// Whether a value of this type is plain data — what JSON can carry —
+    /// and so fits where `Json` is wanted.
+    fn is_data(&self) -> bool {
+        match self {
+            Type::String
+            | Type::Number
+            | Type::Bool
+            | Type::Null
+            | Type::Map
+            | Type::Record(_)
+            | Type::Enum(_)
+            | Type::Case(_) => true,
+            Type::Scalar(s) => *s != Scalar::File && *s != Scalar::Secret,
+            Type::List(t) | Type::Optional(t) => t.is_data(),
+            Type::Dict(_, v) => v.is_data(),
+            Type::Shape(fields) => fields.iter().all(|(_, t)| t.is_data()),
+            _ => false,
         }
     }
 
@@ -207,6 +253,8 @@ impl Type {
             (Type::Case(_), Type::Enum(_)) => true,
             (Type::Null, Type::Optional(_)) => true,
             (Type::Null, Type::Null) => true,
+            // Plain data is JSON; `Json` is read only by matching or decoding.
+            (from, Type::Enum(name)) if name == JSON && from.is_data() => true,
             (Type::Optional(a), Type::Optional(b)) => a.assignable_to(b),
             (from, Type::Optional(b)) => from.assignable_to(b),
             (Type::List(a), Type::List(b)) => a.assignable_to(b),
@@ -223,10 +271,19 @@ impl Type {
             // arguments than it will be given — JavaScript passes a
             // function every argument, and one it does not name is
             // dropped — and can take the ones it is given.
-            (Type::Func(from, _), Type::Func(to, _)) => {
+            // What it returns fits what is wanted of it, unless nothing is.
+            (Type::Func(from, from_ret), Type::Func(to, to_ret)) => {
                 from.len() <= to.len()
                     && from.iter().zip(to.iter()).all(|(f, t)| t.assignable_to(f))
+                    && (**to_ret == Type::Null || from_ret.assignable_to(to_ret))
             }
+            (Type::Dict(k, v), Type::Dict(k2, v2)) => k.assignable_to(k2) && v.assignable_to(v2),
+            // A map literal is a dictionary when every value fits.
+            (Type::Shape(fields), Type::Dict(_, v)) => {
+                fields.iter().all(|(_, t)| t.assignable_to(v))
+            }
+            (Type::Map, Type::Dict(..)) | (Type::Dict(..), Type::Map) => true,
+            (Type::Result(a, e), Type::Result(b, f)) => a.assignable_to(b) && e.assignable_to(f),
             // A scalar is a plain value at run time, so it shows wherever
             // text shows — except a `Secret`, which must not be shown at
             // all, and `Duration`, which is a number of milliseconds.
@@ -250,6 +307,7 @@ impl Type {
             (Type::Null, other) | (other, Type::Null) => Type::optional(other),
             (Type::Optional(a), b) | (b, Type::Optional(a)) => Type::optional(Type::join(*a, b)),
             (Type::List(a), Type::List(b)) => Type::list(Type::join(*a, *b)),
+            (Type::Dict(k, a), Type::Dict(_, b)) => Type::Dict(k, Box::new(Type::join(*a, *b))),
             // Two shapes join to every field either has; a field only one
             // of them has may be missing.
             (Type::Shape(a), Type::Shape(b)) => {
@@ -303,9 +361,21 @@ impl std::fmt::Display for Type {
                     .map(std::string::ToString::to_string)
                     .collect();
                 if **ret == Type::Null {
-                    write!(f, "action({})", params.join(", "))
+                    write!(f, "({}) -> ()", params.join(", "))
                 } else {
-                    write!(f, "action({}) -> {ret}", params.join(", "))
+                    write!(f, "({}) -> {ret}", params.join(", "))
+                }
+            }
+            Type::Dict(k, v) => write!(f, "[{k}: {v}]"),
+            Type::Result(value, error) => {
+                let error = match &**error {
+                    Type::NetError(_) => String::new(),
+                    other => format!(" {other}"),
+                };
+                match &**value {
+                    Type::Null => write!(f, "!{error}"),
+                    v if error.is_empty() => write!(f, "{v}!"),
+                    v => write!(f, "{v} !{error}"),
                 }
             }
             Type::Resource(inner, _) => write!(f, "resource<{inner}>"),
@@ -343,7 +413,7 @@ pub(super) fn disjoint(a: &Type, b: &Type) -> bool {
             Type::Number => 1,
             Type::Bool => 2,
             Type::List(_) => 3,
-            Type::Record(_) | Type::Shape(_) | Type::Map => 4,
+            Type::Record(_) | Type::Shape(_) | Type::Map | Type::Dict(..) => 4,
             Type::Enum(_) | Type::Case(_) => 0,
             _ => return None,
         })

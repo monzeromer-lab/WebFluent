@@ -188,7 +188,7 @@ pub fn expr(e: &Expr) -> String {
                 .join(", ")
         ),
         Expr::Lambda(params, body) => {
-            let head = if params.is_empty() || params.contains(',') {
+            let head = if params.is_empty() || params.contains(',') || params.contains(':') {
                 format!("({params})")
             } else {
                 params.clone()
@@ -561,7 +561,33 @@ pub fn type_ref(t: &TypeRef) -> String {
                 .collect();
             format!("{}({})", type_ref(base), parts.join(", "))
         }
+        TypeRef::Dict(k, v) => format!("[{}: {}]", type_ref(k), type_ref(v)),
+        TypeRef::Func(params, ret) => format!(
+            "({}) -> {}",
+            params.iter().map(type_ref).collect::<Vec<_>>().join(", "),
+            result_type(ret)
+        ),
+        TypeRef::Unit => "()".into(),
+        TypeRef::Result(value, error) => {
+            let error = error
+                .as_ref()
+                .map(|e| format!(" {}", type_ref(e)))
+                .unwrap_or_default();
+            if **value == TypeRef::Unit {
+                format!("!{error}")
+            } else if error.is_empty() {
+                format!("{}!", type_ref(value))
+            } else {
+                format!("{} !{error}", type_ref(value))
+            }
+        }
     }
+}
+
+/// A declared result, where `! E` and `!` alone may stand: an action's or
+/// an endpoint's `-> …`, a function type's.
+pub fn result_type(t: &TypeRef) -> String {
+    type_ref(t)
 }
 
 fn typed_name(name: &str, ty: Option<&TypeRef>) -> String {
@@ -982,7 +1008,9 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
             body(&t.body, Block::Imperative, indent)
         ),
         StatementKind::Action(a) => {
-            let params = if a.params.is_empty() {
+            let params = if a.params.is_empty() && a.returns.is_some() {
+                "()".to_string()
+            } else if a.params.is_empty() {
                 String::new()
             } else {
                 format!(
@@ -998,8 +1026,12 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                 )
             };
             format!(
-                "action {}{params}{}{}",
+                "action {}{params}{}{}{}",
                 a.name,
+                a.returns
+                    .as_ref()
+                    .map(|t| format!(" -> {}", result_type(t)))
+                    .unwrap_or_default(),
                 if a.concurrent { " concurrent" } else { "" },
                 body(&a.body, Block::Imperative, indent)
             )
@@ -1532,8 +1564,11 @@ pub fn field(f: &FieldDecl) -> String {
     }
 }
 
-/// `type Admin = User`.
+/// `type Admin = User`, or an alias whole: `type Scores = [String: Number]`.
 pub fn type_header(t: &TypeDecl) -> String {
+    if let Some(alias) = &t.alias {
+        return format!("type {} = {}", t.name, type_ref(alias));
+    }
     match &t.extends {
         Some(base) => format!("type {} = {base}", t.name),
         None => format!("type {}", t.name),
@@ -1614,6 +1649,9 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
             t.name,
             lines_block(t.tokens.iter().map(token).collect(), 0)
         ),
+        Declaration::Type(t) if t.alias.is_some() => {
+            format!("{}{}", doc(t.doc.as_deref(), 0), type_header(t))
+        }
         Declaration::Type(t) => {
             let lines: Vec<String> = t
                 .fields

@@ -50,6 +50,30 @@ Requests stop losing and duplicating data.
 - A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`;
   `rows.relaod()` is `T16`.
 
+## Types a program can write
+
+- **Dictionaries**, `[K: V]`: keys of `String` or an enum, values of `V`.
+  Reading a key gives a `V?`; `keys()`, `values()`, `entries()`,
+  `has(k)`, `with(k, v)` and `without(k)` are its methods. A dictionary is
+  a plain object at run time.
+- **Function types**, `(A, B) -> R`, with `()` for nothing: a prop that
+  takes a lambda says what it takes, and a lambda handed to it is held to
+  it. Hover and messages now write an action's type this way, `(String) ->
+  ()`, where they wrote `action(String)`.
+- **Aliases**, `type Scores = [String: Number]`.
+- **`-> T` on an action**: what it returns, held at every `return` and seen
+  by every caller. A lambda's parameter may say its type, `(a: User) => …`.
+- **`Json`**, the language's own enum for JSON as it arrives — `.object`,
+  `.array`, `.string`, `.number`, `.bool`, `.null` — written
+  `Json.string("x")` and read by `match`. A JSON value is plain at run
+  time.
+- **`T.decode(json)`** on every declared record, enum and alias: the value
+  checked against the type as the page runs, in every build. It is a
+  result, `T ! DecodeError` — `.ok(value)`, or `.err(e)` with `e.at` (where)
+  and `e.message` (what).
+- **Results**, `T ! E` and `T!`, matched by `.ok` and `.err`; an action may
+  declare `-> T ! E`, `-> ! E` or `-> !`.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

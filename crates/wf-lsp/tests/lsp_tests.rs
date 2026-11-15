@@ -202,7 +202,7 @@ fn hover_shows_the_type_the_checker_infers() {
     let count = hover_text(src, "count\n").unwrap();
     assert!(count.contains("Type `Number`"), "{count}");
     let add = hover_text(src, "add(t").unwrap();
-    assert!(add.contains("Type `action(Todo)`"), "{add}");
+    assert!(add.contains("Type `(Todo) -> ()`"), "{add}");
 }
 
 // ─── Completion ───────────────────────────────────────────────────────────

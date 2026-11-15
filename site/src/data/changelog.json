@@ -106,6 +106,49 @@
     "after": ""
    },
    {
+    "title": "Types a program can write",
+    "id": "7.0.0-types-a-program-can-write",
+    "intro": "",
+    "items": [
+     {
+      "text": "**Dictionaries**, `[K: V]`: keys of `String` or an enum, values of `V`.\nReading a key gives a `V?`; `keys()`, `values()`, `entries()`,\n`has(k)`, `with(k, v)` and `without(k)` are its methods. A dictionary is\na plain object at run time.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Function types**, `(A, B) -> R`, with `()` for nothing: a prop that\ntakes a lambda says what it takes, and a lambda handed to it is held to\nit. Hover and messages now write an action's type this way, `(String) ->\n()`, where they wrote `action(String)`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Aliases**, `type Scores = [String: Number]`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`-> T` on an action**: what it returns, held at every `return` and seen\nby every caller. A lambda's parameter may say its type, `(a: User) => …`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`Json`**, the language's own enum for JSON as it arrives — `.object`,\n`.array`, `.string`, `.number`, `.bool`, `.null` — written\n`Json.string(\"x\")` and read by `match`. A JSON value is plain at run\ntime.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`T.decode(json)`** on every declared record, enum and alias: the value\nchecked against the type as the page runs, in every build. It is a\nresult, `T ! DecodeError` — `.ok(value)`, or `.err(e)` with `e.at` (where)\nand `e.message` (what).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Results**, `T ! E` and `T!`, matched by `.ok` and `.err`; an action may\ndeclare `-> T ! E`, `-> ! E` or `-> !`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -126,7 +169,7 @@
     "after": ""
    }
   ],
-  "count": 16
+  "count": 23
  },
  {
   "version": "6.2.0",

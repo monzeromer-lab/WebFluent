@@ -773,6 +773,51 @@
       "deps": [],
       "exports": [
         [
+          "decode",
+          "decode"
+        ],
+        [
+          "jsonCase",
+          "jsonCase"
+        ],
+        [
+          "jsonTagged",
+          "jsonTagged"
+        ],
+        [
+          "jsonPayload",
+          "jsonPayload"
+        ],
+        [
+          "dictKeys",
+          "dictKeys"
+        ],
+        [
+          "dictValues",
+          "dictValues"
+        ],
+        [
+          "dictEntries",
+          "dictEntries"
+        ],
+        [
+          "dictHas",
+          "dictHas"
+        ],
+        [
+          "dictWithout",
+          "dictWithout"
+        ]
+      ],
+      "name": "json",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "json"
+      ],
+      "exports": [
+        [
           "send",
           "send"
         ],

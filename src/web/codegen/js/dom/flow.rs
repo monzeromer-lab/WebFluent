@@ -472,6 +472,12 @@ impl JsCodegen {
                     "() => {subject}.state() === \"error\" ? {subject}.error() : {subject}.data()"
                 ),
             )
+        } else if self.is_json_subject(&m.scrutinee) {
+            // `Json`: the arm is chosen by what the value is, and handed it.
+            (
+                format!("() => WF.jsonCase({subject})"),
+                format!("() => WF.jsonTagged({subject})"),
+            )
         } else {
             // An enum: the arm is chosen by the case, and handed the payload.
             (

@@ -568,6 +568,7 @@ fn if_let_binds_the_value_and_for_by_passes_the_key() {
                 body: vec![text(Expr::Identifier("it".to_string()))],
             })),
             stmt(StatementKind::Action(ActionDecl {
+                returns: None,
                 name: "load".to_string(),
                 params: Vec::new(),
                 body: vec![stmt(StatementKind::Assignment(Assignment {

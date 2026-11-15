@@ -322,7 +322,27 @@ impl Checker<'_, '_> {
             TypeRef::List(inner) | TypeRef::Optional(inner) | TypeRef::Refined(inner, _) => {
                 self.written(inner, what);
             }
-            TypeRef::String | TypeRef::Number | TypeRef::Bool | TypeRef::Named(_) => {}
+            TypeRef::Dict(k, v) => {
+                self.written(k, what);
+                self.written(v, what);
+            }
+            TypeRef::Func(params, ret) => {
+                for p in params {
+                    self.written(p, what);
+                }
+                self.written(ret, what);
+            }
+            TypeRef::Result(value, error) => {
+                self.written(value, what);
+                if let Some(e) = error {
+                    self.written(e, what);
+                }
+            }
+            TypeRef::String
+            | TypeRef::Number
+            | TypeRef::Bool
+            | TypeRef::Named(_)
+            | TypeRef::Unit => {}
         }
     }
 
@@ -395,6 +415,7 @@ fn has_any(ty: &Type) -> bool {
     match ty {
         Type::Any | Type::Error => true,
         Type::List(t) | Type::Optional(t) | Type::Promise(t) | Type::NetError(t) => has_any(t),
+        Type::Dict(k, v) | Type::Result(k, v) => has_any(k) || has_any(v),
         Type::Resource(a, b) => has_any(a) || has_any(b),
         Type::Func(params, ret) => params.iter().any(has_any) || has_any(ret),
         Type::Shape(fields) => fields.iter().any(|(_, t)| has_any(t)),

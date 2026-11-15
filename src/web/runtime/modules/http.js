@@ -297,48 +297,6 @@
   /// How many entries the cache holds (for tests and the studio).
   send.cacheSize = () => _httpCache.size;
 
-  /// Under `wf serve`: what is wrong with a response against the type the
-  /// program declared for it — `$[1].name is missing` — or nothing. A
-  /// shape is `"s"`, `"n"`, `"b"`, `"m"`, `"*"`, `["?", s]`, `["l", s]`,
-  /// `["r", name, { field: s }]` or `["e", [cases]]`.
-  function shapeProblem(value, shape, at) {
-    const what = (v) => Array.isArray(v) ? "a list" : v === null ? "null" : typeof v === "object" ? "a map" : JSON.stringify(v);
-    if (shape === "*") return null;
-    if (Array.isArray(shape) && shape[0] === "?") return value == null ? null : shapeProblem(value, shape[1], at);
-    if (value === undefined) return at + " is missing";
-    if (value === null) return at + " is null";
-    if (Array.isArray(shape)) {
-      const [kind, a, b] = shape;
-      if (kind === "l") {
-        if (!Array.isArray(value)) return at + " is " + what(value) + ", not a list";
-        for (let i = 0; i < value.length; i++) {
-          const wrong = shapeProblem(value[i], a, at + "[" + i + "]");
-          if (wrong) return wrong;
-        }
-        return null;
-      }
-      if (kind === "r") {
-        if (typeof value !== "object" || Array.isArray(value)) return at + " is " + what(value) + ", not a " + a;
-        for (const field of Object.keys(b)) {
-          const wrong = shapeProblem(value[field], b[field], at + "." + field);
-          if (wrong) return wrong;
-        }
-        return null;
-      }
-      if (kind === "e") {
-        const name = Array.isArray(value) ? value[0] : value;
-        return a.includes(name) ? null : at + " is " + JSON.stringify(value) + ", which is none of " + a.map((c) => "." + c).join(", ");
-      }
-      return null;
-    }
-    const kinds = { s: ["string", "String"], n: ["number", "Number"], b: ["boolean", "Bool"], m: ["object", "Map"] };
-    const want = kinds[shape];
-    if (want && (typeof value !== want[0] || (shape === "m" && Array.isArray(value)))) {
-      return at + " is " + what(value) + ", not a " + want[1];
-    }
-    return null;
-  }
-
   async function run(url, opts, entry) {
     const policy = opts.retry || { times: 0 };
     const times = policy.times || 0;

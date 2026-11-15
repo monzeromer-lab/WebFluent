@@ -104,6 +104,8 @@ struct World<'p> {
     /// Each store's state the program writes, from anywhere, as
     /// `Store.member`.
     store_written: HashSet<String>,
+    /// Whether `Json` is the language's, not a type of the program's own.
+    built_in_json: bool,
 }
 
 impl<'p> World<'p> {
@@ -129,9 +131,28 @@ impl<'p> World<'p> {
         Some(decl.all_fields(&|name| self.types.get(name).copied()))
     }
 
-    /// A `TypeRef::Named` may name an enum rather than a record.
+    /// A `TypeRef::Named` may name an enum rather than a record, or another
+    /// type by an alias.
     fn resolve(&self, ty: Type) -> Type {
+        self.resolve_at(ty, 0)
+    }
+
+    fn resolve_at(&self, ty: Type, depth: usize) -> Type {
         match ty {
+            // `type Scores = [String: Number]` is read as what it names; an
+            // alias that names itself, however far round, is left unknown.
+            Type::Record(name)
+                if self
+                    .types
+                    .get(name.as_str())
+                    .is_some_and(|t| t.alias.is_some()) =>
+            {
+                if depth > 16 {
+                    return Type::Error;
+                }
+                let alias = self.types[name.as_str()].alias.as_ref().expect("an alias");
+                self.resolve_at(Type::from_ref(alias), depth + 1)
+            }
             Type::Record(name) if self.enums.contains_key(name.as_str()) => Type::Enum(name),
             // A name the language knows, unless the program declares a type
             // of its own by that name — which wins, so nothing the language
@@ -141,11 +162,61 @@ impl<'p> World<'p> {
             {
                 Type::Scalar(Scalar::of_name(&name).expect("just checked"))
             }
-            Type::List(inner) => Type::list(self.resolve(*inner)),
-            Type::Optional(inner) => Type::optional(self.resolve(*inner)),
+            Type::List(inner) => Type::list(self.resolve_at(*inner, depth)),
+            Type::Optional(inner) => Type::optional(self.resolve_at(*inner, depth)),
+            Type::Dict(k, v) => Type::Dict(
+                Box::new(self.resolve_at(*k, depth)),
+                Box::new(self.resolve_at(*v, depth)),
+            ),
+            Type::Func(params, ret) => Type::Func(
+                params
+                    .into_iter()
+                    .map(|p| self.resolve_at(p, depth))
+                    .collect(),
+                Box::new(self.resolve_at(*ret, depth)),
+            ),
+            Type::Result(value, error) => Type::Result(
+                Box::new(self.resolve_at(*value, depth)),
+                Box::new(self.resolve_at(*error, depth)),
+            ),
+            Type::Promise(inner) => Type::Promise(Box::new(self.resolve_at(*inner, depth))),
             other => other,
         }
     }
+
+    /// Whether `name` is a type the program can decode to: a record, an
+    /// enum or an alias it declares, or one the language brings.
+    fn decodable(&self, name: &str) -> bool {
+        self.types.contains_key(name) || self.enums.contains_key(name)
+    }
+}
+
+/// The types every program has without declaring them: `Json`, the open
+/// JSON a value is matched or decoded out of, and `DecodeError`, what a
+/// value that does not fit its type is refused with. A program's own type
+/// of either name wins.
+static BUILT_IN_TYPES: std::sync::LazyLock<Program> = std::sync::LazyLock::new(|| {
+    crate::syntax::parse_source(
+        "/// Open JSON: a value matched, or decoded into a declared type, before it is read.
+enum Json {
+    object(fields: [String: Json])
+    array(items: [Json])
+    string(value: String)
+    number(value: Number)
+    bool(value: Bool)
+    null
+}
+/// Why a value is not the type it was decoded to: where, and what is wrong.
+type DecodeError { at: String, message: String }
+",
+        "<built-in>",
+    )
+    .expect("the built-in types parse")
+});
+
+/// The declarations [`BUILT_IN_TYPES`] makes, for a tool to list.
+pub fn built_in_types() -> &'static Program {
+    &BUILT_IN_TYPES
 }
 
 /// A name's type, recorded where it is declared, for the editor.
@@ -173,6 +244,10 @@ pub struct TypeInfo {
     /// Every place a value's type is unknown, and why, in the order of
     /// their files and lines.
     pub holes: Vec<Hole>,
+    /// What each `match` on the language's `Json` is over: a JSON value is
+    /// plain at run time, so its case is read from what it is, and the code
+    /// generator asks which subjects those are.
+    pub json_subjects: Vec<Expr>,
 }
 
 impl TypeInfo {
@@ -231,6 +306,7 @@ pub fn check_sources<'s>(
         store_fixed: HashMap::new(),
         store_actions: HashMap::new(),
         store_written: HashSet::new(),
+        built_in_json: false,
     };
     for decl in &program.declarations {
         match decl {
@@ -293,6 +369,19 @@ pub fn check_sources<'s>(
                         "a `data` constant"
                     },
                 );
+            }
+            _ => {}
+        }
+    }
+    for decl in &BUILT_IN_TYPES.declarations {
+        let taken = |name: &str| world.types.contains_key(name) || world.enums.contains_key(name);
+        match decl {
+            Declaration::Enum(e) if !taken(&e.name) => {
+                world.built_in_json |= e.name == ty::JSON;
+                world.enums.insert(e.name.as_str(), e);
+            }
+            Declaration::Type(t) if !taken(&t.name) => {
+                world.types.insert(t.name.as_str(), t);
             }
             _ => {}
         }
@@ -557,12 +646,14 @@ pub fn check_sources<'s>(
                         &format!("an `api`'s `on {}` hook receives one value", hook.event),
                     );
                     cx.returns.push(Vec::new());
+                    cx.declared_returns.push(None);
                     cx.async_ok = true;
                     cx.in_handler += 1;
                     cx.statements(&hook.body, Body::Imperative);
                     cx.in_handler -= 1;
                     cx.async_ok = false;
                     cx.returns.pop();
+                    cx.declared_returns.pop();
                     cx.pop_scope();
                 }
             }
@@ -619,6 +710,9 @@ struct Checker<'a, 'p> {
     component: Option<&'p ComponentDecl>,
     /// The `return` types met in the action being checked.
     returns: Vec<Vec<Type>>,
+    /// What the action being checked declares it returns (`-> T`), beside
+    /// `returns`; `None` where nothing is declared.
+    declared_returns: Vec<Option<Type>>,
     /// The span of the statement or argument being checked: where an
     /// expression's error lands, since expressions carry no span.
     current_span: Span,
@@ -686,6 +780,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             widened: Vec::new(),
             component: None,
             returns: Vec::new(),
+            declared_returns: Vec::new(),
             current_span: Span::dummy(),
             in_args: false,
             async_ok: false,
@@ -1045,9 +1140,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                     .iter()
                     .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
                     .collect();
-                // The return type is found when the body is checked; an
-                // action that awaits hands back a promise of it.
-                let result = if holes::returns_value(&a.body) {
+                // What it declares it returns; else the return type is
+                // found when the body is checked. An action that awaits
+                // hands back a promise of it.
+                let result = if let Some(t) = &a.returns {
+                    self.written(t, &a.name);
+                    self.world.resolve(Type::from_ref(t))
+                } else if holes::returns_value(&a.body) {
                     self.hole(HoleKind::ActionResult, &a.name)
                 } else {
                     Type::Any

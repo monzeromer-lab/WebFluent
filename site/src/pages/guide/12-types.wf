@@ -1,6 +1,6 @@
 /// Chapter 12 of the guide, written from md-docs/learn/12-types.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it.", source: "md-docs/learn/12-types.md", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
+page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it.", source: "md-docs/learn/12-types.md", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers WebFluent's types and the checker that holds a program to them. The checker runs in `wf build`, `wf check` and the editor, before any output is written. It is *gradual*: a program that declares no types still checks, because whatever the checker cannot work out has the type `Any`, and `Any` agrees with everything. Every annotation you add lets the checker say more. It is also *structural*: a value fits a type when it has the right fields, whatever it was declared as. The checker changes nothing in the output; it only reports.\n\n**In this chapter**\n\n- The type language, and the types that come with the language\n- Records (`type`), enums and the shapes of map literals\n- Where the checker gets a type from, and how it infers one\n- Narrowing a value that may be `null`\n- Typing data from the network\n- The checks, and what the checker does not check")
 
@@ -73,6 +73,26 @@ page Invoices(path: "/", title: "Invoices", description: "What is owed.") {
                     Table.Cell("Enum")
                     Table.Cell { Markdown("the `enum`'s name") }
                     Table.Cell { Markdown("`.case`") }
+                }
+                Table.Row {
+                    Table.Cell("Dictionary")
+                    Table.Cell { Markdown("`[String: Number]`, `[Region: Money]`") }
+                    Table.Cell { Markdown("`\{ ada: 3, bo: 5 \}` — keys of one type to values of another") }
+                }
+                Table.Row {
+                    Table.Cell("Function")
+                    Table.Cell { Markdown("`(Todo) -> Bool`, `() -> ()`") }
+                    Table.Cell { Markdown("`t => t.done`, an action") }
+                }
+                Table.Row {
+                    Table.Cell("Result")
+                    Table.Cell { Markdown("`Settings ! DecodeError`") }
+                    Table.Cell { Markdown("`.ok(value)` or `.err(error)`") }
+                }
+                Table.Row {
+                    Table.Cell("JSON")
+                    Table.Cell { Markdown("`Json`") }
+                    Table.Cell("JSON as it arrives: matched, or decoded into a type")
                 }
                 Table.Row {
                     Table.Cell("Any")
@@ -364,6 +384,79 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
     Text("{form.name} is {form.age} with {form.tags.length} tags")
 }"#, title: "wf")
 
+        Heading("Dictionaries, functions and aliases", id: "dictionaries-functions-and-aliases").h2
+
+        Markdown("A *dictionary* holds values of one type under keys of another: `[String: Number]` is a score per name, `[Region: Money]` a price per region of an enum. It is written as a map literal where one is wanted, every value checked against its type and, for an enum's keys, every key against its cases. A key may be missing, so reading one — `scores[\"ada\"]` or `scores.ada` — gives a `Number?`. Its methods are `keys()`, `values()`, `entries()` (each `\{ key, value \}`), `has(k)`, and `with(k, v)` and `without(k)`, which make a copy with one key more or one fewer.\n\nA *function type* is written with its parameters in parentheses and its result after `->`: `(Todo) -> Bool`. `()` is nothing: `() -> ()` takes and returns nothing. A prop that takes a lambda declares one, and what the caller passes is held to it, parameters and result.\n\n`type Name = T` gives a type a second name, read as the type it names:")
+
+        CodeBlock(#"type Scores = [String: Number]
+enum Region { north, south }
+
+component Label(_ region: Region, describe: (Region) -> String) {
+    Text(describe(region))
+}
+
+page Dictionaries(path: "/", title: "Dictionaries", description: "Values by key, and a function as a prop.") {
+    state scores: Scores = { ada: 3, bo: 5 }
+    state prices: [Region: Number] = { north: 10, south: 20 }
+    Heading("Dictionaries").h1
+    Text("{scores.values().sum()} points; Ada has {scores.ada ?? 0}")
+    Text("North costs {prices.north ?? 0}")
+    Button("Add Cy") { on click { scores = scores.with("cy", 7) } }
+    Label(.south, describe: r => "Region {r}")
+}"#, title: "wf")
+
+        Markdown("An action that returns a value says what with `-> T`, and every `return` in it is held to that; its callers see the type it declares. A lambda's parameter may say its type too, where nothing it is handed to does:")
+
+        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+
+store Todos {
+    state items: [Todo] = []
+    action open() -> Number {
+        return items.filter(todo => !todo.done).length
+    }
+}
+
+page Typed(path: "/", title: "Typed", description: "An action's result and a typed lambda.") {
+    use Todos
+    derived byTitle = (a: Todo, b: Todo) => a.title.localeCompare(b.title)
+    Heading("Typed").h1
+    Text("{Todos.open()} open")
+    for todo in Todos.items.slice().sort(byTitle) by todo.id { Text(todo.title) }
+}"#, title: "wf")
+
+        Heading("JSON, decoding and results", id: "json-decoding-and-results").h2
+
+        Markdown("`Json` is JSON as it arrives — an object, a list, a string, a number, a flag or `null` — with nothing yet known about it. It is the language's own enum, and a value of it is written by its case, `Json.null`, `Json.string(\"x\")`. Any plain value — a string, a number, a list, a record — fits where `Json` is wanted; a `Json` value is read by matching it:")
+
+        CodeBlock(#"page Kinds(path: "/", title: "Kinds", description: "A JSON value read by what it is.") {
+    state raw: Json = Json.array([Json.number(1), Json.number(2)])
+    Heading("Kinds").h1
+    match raw {
+        .object(fields) { Text("An object of {fields.keys().length} fields") }
+        .array(items) { Text("A list of {items.length}") }
+        .string(s) { Text("The text {s}") }
+        .number(n) { Text("The number {n}") }
+        .bool(b) { Text("The flag {b}") }
+        .null { Text("Nothing") }
+    }
+}"#, title: "wf")
+
+        Markdown("More often it is *decoded*: every record, enum and alias a program declares has `decode`, which checks a value against the type, field by field, as the page runs. `Settings.decode(raw)` is a *result*, `Settings ! DecodeError`: `.ok(settings)` when it fits, or `.err(e)` with `e.at` saying where it went wrong (`$.tags[0]`) and `e.message` what is wrong there (`is 1, not a String`):")
+
+        CodeBlock(#"type Settings { theme: String, columns: Number }
+
+page Restore(path: "/", title: "Restore", description: "Settings decoded from text.") {
+    state text = "{\"theme\": \"dark\", \"columns\": 3}"
+    Heading("Restore").h1
+    Textarea(bind: text, label: "Settings", rows: 3)
+    match Settings.decode(JSON.parse(text)) {
+        .ok(s) { Text("{s.theme}, {s.columns} columns") }
+        .err(e) { Alert("{e.at} {e.message}").danger }
+    }
+}"#, title: "wf")
+
+        Markdown("A result is written `T ! E` — a `T`, or an error of `E` — and `T!` for one whose error is a request's failure. An action declares one with `-> T ! E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A `match` on a result gives both `.ok` and `.err` an arm, or an `else`.")
+
         Heading("Where types come from", id: "where-types-come-from").h2
 
         Markdown("The checker reads a type from five places.\n\n**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's route parameters, an event's parameters, a component's props.\n\n**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`, `[]` is `[Any]`); a record construction; a `derived` value from its expression; a `state` from its initial value (one that starts as `null` is `Any?`); a `for` binding from the list's item type; a `match` arm's binding; an `if let` binding; a lambda's parameters from what the method expects (`items.filter(item => …)` gives `item` the item type).\n\n**From the registry:** the type of every built-in prop, and what a `bind:` needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a `String` or a `Number` by its input type.\n\n**From the method tables:**\n\n- On a `String`: `trim`, `toLowerCase`, `toUpperCase`, `replace`, `slice`, `padStart`, `repeat`, `capitalize`, `truncate(n)` → `String`; `length`, `indexOf` → `Number`; `includes`, `startsWith`, `endsWith` → `Bool`; `split` → `[String]`.\n- On a list: `map` → `[U]` from the lambda; `filter`, `slice`, `concat`, `sort`, `sortBy`, `unique`, `take`, `flatMap` → `[T]`; `find`, `first`, `last` → `T?`; `some`, `every`, `includes` → `Bool`; `length`, `sum`, `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`; `reduce` → the initial value's type.\n- On a `Number`: `toFixed`, `toString` → `String`.\n\nAny other method is `Any`. The full lists are in [Built-ins](/reference/built-ins).\n\n**From stores:** `Todos.items` has the type of the store's state, and `Todos.add` the signature of its action.\n\nBrowser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are `Any`.\n\nA name keeps the type it was declared or inferred with: `state x = 1` stays a `Number`, and assigning a string to it later is `T01`.")
@@ -536,11 +629,11 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 
         Heading("What the checker does not check", id: "what-the-checker-does-not-check").h2
 
-        Markdown("- It does not check a lambda's body against a return type.\n- It does not know what a plain `fetch` returns. Annotate it, or describe the service with an `api`.")
+        Markdown("- It does not check a lambda's body against a return type unless the lambda is handed to a function type, which says one.\n- It does not know what a plain `fetch` returns. Annotate it, or describe the service with an `api`.")
 
         Heading("In the editor", id: "in-the-editor").h2
 
-        Markdown("Hover shows a name's inferred type: `state draft: String`, `derived remaining: Number`, `Todos.add: action(String)`. Completion after `.` offers a record's fields, an enum's cases where one is wanted, and the methods of a `String`, a `Number` or a list. A type error appears as a diagnostic on the argument it belongs to. To set up the editor, see [Editors](/reference/cli#editors).")
+        Markdown("Hover shows a name's inferred type: `state draft: String`, `derived remaining: Number`, `Todos.add: (String) -> ()`. Completion after `.` offers a record's fields, an enum's cases where one is wanted, and the methods of a `String`, a `Number` or a list. A type error appears as a diagnostic on the argument it belongs to. To set up the editor, see [Editors](/reference/cli#editors).")
 
         Heading("Quick reference", id: "quick-reference").h2
 
@@ -559,6 +652,26 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
                 Table.Row {
                     Table.Cell { Markdown("`[T]` · `T?` · `Map` · `Any`") }
                     Table.Cell { Markdown("A list, a value that may be `null`, an object with unknown keys, anything") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`[K: V]` · `(A) -> R` · `()`") }
+                    Table.Cell("A dictionary, a function, nothing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type Name = T`") }
+                    Table.Cell("Another name for a type")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`action f() -> T` · `(a: T) => …`") }
+                    Table.Cell("What an action returns; a lambda's parameter type")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Json` · `Json.null` · `Json.string(s)`") }
+                    Table.Cell("JSON as it arrives, and its cases")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T.decode(json)` · `T ! E` · `.ok(v)` · `.err(e)`") }
+                    Table.Cell("Read a type out of JSON; a result, and its cases")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`type Name \{ field: T = default \}`") }

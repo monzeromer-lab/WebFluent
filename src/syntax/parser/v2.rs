@@ -384,6 +384,14 @@ impl ParserV2 {
         }
     }
 
+    /// A case's name: a word, or `null` — `Json`'s case for JSON's `null`.
+    fn expect_case_name(&mut self, what: &str) -> Result<String> {
+        if self.eat(&TokenType::Null) {
+            return Ok("null".to_string());
+        }
+        self.expect_ident(what)
+    }
+
     fn is_capitalized(&self) -> bool {
         self.ident()
             .and_then(|w| w.chars().next())
@@ -507,6 +515,15 @@ impl ParserV2 {
     /// [`WebFluentError::ParseError`] when one declaration does not parse,
     /// and [`WebFluentError::Diagnostics`] with every error when several
     /// do (see [`ParserV2::parse_recovering`]).
+    /// One type, as `name: Type` writes it, and nothing after it.
+    fn parse_whole_type(&mut self) -> Result<TypeRef> {
+        let ty = self.parse_type_ref()?;
+        if !self.at_end() {
+            return Err(self.error(format!("Expected the end of the type, got {}", self.describe())));
+        }
+        Ok(ty)
+    }
+
     pub fn parse(&mut self) -> Result<Program> {
         let (program, mut errors) = self.parse_recovering();
         match errors.len() {
@@ -925,13 +942,84 @@ impl ParserV2 {
         })
     }
 
-    /// `String`, `Number`, `Bool`, `Map`, `Any`, `[T]`, `T?`, or a declared
-    /// name.
+    /// A type, and what may fail with it: `T ! E`, or `T!` — a `T`, or a
+    /// request's failure.
     fn parse_type_ref(&mut self) -> Result<TypeRef> {
+        let ty = self.parse_plain_type_ref()?;
+        if !self.check(&TokenType::Not) {
+            return Ok(ty);
+        }
+        self.advance();
+        let error = self.parse_result_error()?;
+        Ok(TypeRef::Result(Box::new(ty), error))
+    }
+
+    /// What a declared result says: a type, `T ! E`, or `! E` and `!` for
+    /// one that has no value but may fail.
+    fn parse_result_type(&mut self) -> Result<TypeRef> {
+        if self.eat(&TokenType::Not) {
+            let error = self.parse_result_error()?;
+            return Ok(TypeRef::Result(Box::new(TypeRef::Unit), error));
+        }
+        self.parse_type_ref()
+    }
+
+    /// The error after a `!`, when one is written on its line: `! E`. A `!`
+    /// with nothing after it names none.
+    fn parse_result_error(&mut self) -> Result<Option<Box<TypeRef>>> {
+        let bang_line = self.tokens.get(self.pos.saturating_sub(1)).map(|t| t.line);
+        let starts_type = matches!(
+            self.kind(),
+            TokenType::Identifier(_) | TokenType::OpenBracket | TokenType::OpenParen
+        );
+        if starts_type && Some(self.current().line) == bang_line {
+            Ok(Some(Box::new(self.nested(Self::parse_plain_type_ref)?)))
+        } else {
+            Ok(None)
+        }
+    }
+
+    /// `String`, `Number`, `Bool`, `Map`, `Any`, `[T]`, `[K: V]`,
+    /// `(A) -> R`, `()`, `T?`, or a declared name.
+    fn parse_plain_type_ref(&mut self) -> Result<TypeRef> {
         let base = if self.eat(&TokenType::OpenBracket) {
             let inner = self.nested(Self::parse_type_ref)?;
-            self.expect(&TokenType::CloseBracket, "`]` to close the list type")?;
-            TypeRef::List(Box::new(inner))
+            if self.eat(&TokenType::Colon) {
+                let value = self.nested(Self::parse_type_ref)?;
+                self.expect(&TokenType::CloseBracket, "`]` to close the dictionary type")?;
+                TypeRef::Dict(Box::new(inner), Box::new(value))
+            } else {
+                self.expect(&TokenType::CloseBracket, "`]` to close the list type")?;
+                TypeRef::List(Box::new(inner))
+            }
+        } else if self.eat(&TokenType::OpenParen) {
+            // `(A, B) -> R`, `() -> R`, `()` — nothing — or a type in
+            // parentheses, `((Todo) -> Bool)?`.
+            let mut params = Vec::new();
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                params.push(self.nested(Self::parse_type_ref)?);
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,` between the types")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+            if matches!(self.kind(), TokenType::Minus)
+                && matches!(self.kind_at(1), TokenType::GreaterThan)
+            {
+                self.advance();
+                self.advance();
+                let returns = self.nested(Self::parse_result_type)?;
+                TypeRef::Func(params, Box::new(returns))
+            } else if params.is_empty() {
+                TypeRef::Unit
+            } else if params.len() == 1 {
+                params.pop().expect("one type")
+            } else {
+                return Err(self.error_with_hint(
+                    "a list of types is not a type".into(),
+                    "A function's type has a result: `(String, Number) -> Bool`",
+                ));
+            }
         } else {
             let name = self.expect_ident("a type")?;
             match name.as_str() {
@@ -1044,19 +1132,32 @@ impl ParserV2 {
         let mark = self.mark();
         self.expect_word("type")?;
         let name = self.expect_ident("the type's name")?;
-        // `type Admin = User { … }` extends `User`.
-        let extends = if self.eat(&TokenType::Equals) {
-            Some(self.expect_ident("the record to extend")?)
-        } else {
-            None
-        };
+        // `type Admin = User { … }` extends `User`; `type Scores = [String:
+        // Number]` is another name for the type after the `=`.
+        let mut extends = None;
+        let mut alias = None;
+        if self.eat(&TokenType::Equals) {
+            if matches!(self.kind(), TokenType::Identifier(_))
+                && matches!(self.kind_at(1), TokenType::OpenBrace)
+            {
+                extends = Some(self.expect_ident("the record to extend")?);
+            } else {
+                alias = Some(self.parse_type_ref()?);
+            }
+        }
         let header_span = self.span_since(mark);
-        self.expect(&TokenType::OpenBrace, "`{`")?;
-        let fields = self.parse_field_list(&TokenType::CloseBrace)?;
-        self.expect(&TokenType::CloseBrace, "`}`")?;
+        let fields = if alias.is_some() {
+            Vec::new()
+        } else {
+            self.expect(&TokenType::OpenBrace, "`{`")?;
+            let fields = self.parse_field_list(&TokenType::CloseBrace)?;
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+            fields
+        };
         Ok(Declaration::Type(TypeDecl {
             name,
             extends,
+            alias,
             fields,
             doc,
             span: self.span_since(mark),
@@ -1327,7 +1428,7 @@ impl ParserV2 {
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             self.take_docs();
             self.eat(&TokenType::Dot);
-            let case_name = self.expect_ident("a case name")?;
+            let case_name = self.expect_case_name("a case name")?;
             // `failed(reason: String)`: the payload the case carries.
             let fields = if self.eat(&TokenType::OpenParen) {
                 let fields = self.parse_field_list(&TokenType::CloseParen)?;
@@ -2215,11 +2316,22 @@ impl ParserV2 {
         } else {
             Vec::new()
         };
+        // `-> T`: what it returns.
+        let returns = if matches!(self.kind(), TokenType::Minus)
+            && matches!(self.kind_at(1), TokenType::GreaterThan)
+        {
+            self.advance();
+            self.advance();
+            Some(self.parse_result_type()?)
+        } else {
+            None
+        };
         let concurrent = self.eat_word("concurrent");
         let (stmts, _) = self.parse_imperative_block()?;
         Ok(StatementKind::Action(ActionDecl {
             name,
             params,
+            returns,
             body: stmts,
             concurrent,
             doc: None,
@@ -2352,7 +2464,7 @@ impl ParserV2 {
             name.clone()
         };
         let returns = if self.eat(&TokenType::Minus) && self.eat(&TokenType::GreaterThan) {
-            Some(self.parse_type_ref()?)
+            Some(self.parse_result_type()?)
         } else {
             None
         };
@@ -2751,7 +2863,7 @@ impl ParserV2 {
 
     fn parse_arm_head(&mut self) -> Result<(ArmPattern, Option<String>, Vec<String>)> {
         if self.eat(&TokenType::Dot) {
-            let case = self.expect_ident("a case name after `.`")?;
+            let case = self.expect_case_name("a case name after `.`")?;
             return Ok((ArmPattern::Case(case), None, self.parse_arm_bindings()?));
         }
         let word = self.expect_ident(
@@ -3755,7 +3867,7 @@ impl ParserV2 {
             if self.check(&TokenType::Dot) {
                 // `.name` or `.name(args)`; a `.` before a case is a primary.
                 self.advance();
-                let name = self.expect_ident("a property or method name")?;
+                let name = self.expect_case_name("a property or method name")?;
                 // `3.days`, `90.minutes`, `250.ms` — a length of time, which
                 // is the only thing a number's `.name` can mean.
                 if let Expr::NumberLiteral(n) = expr
@@ -3931,7 +4043,7 @@ impl ParserV2 {
             }
             TokenType::Dot => {
                 self.advance();
-                let case = self.expect_ident("a case name after `.`")?;
+                let case = self.expect_case_name("a case name after `.`")?;
                 // `.failed("x")`, `.backoff(times: 3)`: the case with its
                 // payload, named or not.
                 if self.eat(&TokenType::OpenParen) {
@@ -3958,16 +4070,23 @@ impl ParserV2 {
             },
             TokenType::OpenParen => {
                 // `(a, b) => body` or a grouped expression.
-                if let Some(params) = self.lambda_params_ahead() {
-                    // `(`, the names with their commas, `)`.
-                    let tokens = if params.is_empty() {
-                        2
-                    } else {
-                        params.len() * 2 + 1
-                    };
-                    for _ in 0..tokens {
-                        self.advance();
+                if self.lambda_params_ahead().is_some() {
+                    // `(`, each name and the type written after it, `)`.
+                    self.advance();
+                    let mut params = Vec::new();
+                    while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                        let name = self.expect_ident("a parameter name")?;
+                        if self.eat(&TokenType::Colon) {
+                            let ty = self.nested(Self::parse_type_ref)?;
+                            params.push(format!("{name}: {}", crate::syntax::print::type_ref(&ty)));
+                        } else {
+                            params.push(name);
+                        }
+                        if !self.check(&TokenType::CloseParen) {
+                            self.expect(&TokenType::Comma, "`,`")?;
+                        }
                     }
+                    self.expect(&TokenType::CloseParen, "`)`")?;
                     self.expect(&TokenType::Arrow, "`=>`")?;
                     let body = self.parse_expression()?;
                     return Ok(Expr::Lambda(params.join(", "), Box::new(body)));
@@ -4025,6 +4144,26 @@ impl ParserV2 {
                 _ => return None,
             }
             i += 1;
+            // `name: Type`: the type's tokens, brackets balanced, up to the
+            // `,` or `)` that ends it.
+            if matches!(self.kind_at(i), TokenType::Colon) {
+                i += 1;
+                let mut depth = 0usize;
+                loop {
+                    match self.kind_at(i) {
+                        TokenType::OpenBracket | TokenType::OpenParen => depth += 1,
+                        TokenType::CloseBracket => depth = depth.checked_sub(1)?,
+                        TokenType::CloseParen if depth > 0 => depth -= 1,
+                        TokenType::CloseParen | TokenType::Comma if depth == 0 => break,
+                        TokenType::Eof
+                        | TokenType::OpenBrace
+                        | TokenType::CloseBrace
+                        | TokenType::Arrow => return None,
+                        _ => {}
+                    }
+                    i += 1;
+                }
+            }
             match self.kind_at(i) {
                 TokenType::Comma => i += 1,
                 TokenType::CloseParen => {
@@ -4099,7 +4238,7 @@ impl ParserV2 {
         let mut arms: Vec<Arm> = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let case = if self.eat(&TokenType::Dot) {
-                let case = self.expect_ident("a case name")?;
+                let case = self.expect_case_name("a case name")?;
                 let bindings = self.parse_arm_bindings()?;
                 if bindings.len() > 1 {
                     return Err(self.error_with_hint(
@@ -4648,6 +4787,15 @@ pub(crate) fn is_language_tag(tag: &str) -> bool {
     (2..=3).contains(&language.len())
         && language.chars().all(|c| c.is_ascii_alphabetic())
         && parts.all(|p| (1..=8).contains(&p.len()) && p.chars().all(|c| c.is_ascii_alphanumeric()))
+}
+
+/// A type read from its text — `[String: Number]`, `(Todo) -> Bool` — as a
+/// typed lambda's parameter keeps it in the tree; `None` when it is not one.
+pub fn parse_type_text(text: &str) -> Option<TypeRef> {
+    let tokens = crate::syntax::lexer::LexerV2::for_file(text, "<type>")
+        .tokenize()
+        .ok()?;
+    ParserV2::new(tokens, "<type>").parse_whole_type().ok()
 }
 
 #[cfg(test)]
@@ -5359,3 +5507,4 @@ app { Navbar(brand: "x") { Navbar.Links { Link("Home", to: "/") } }  Router }
         assert!(err.contains("binds nothing"), "{err}");
     }
 }
+

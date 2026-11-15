@@ -563,6 +563,7 @@ impl Parser {
         let body = self.parse_block()?;
 
         Ok(StatementKind::Action(ActionDecl {
+            returns: None,
             name,
             params,
             body,

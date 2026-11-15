@@ -229,6 +229,10 @@ jobs:
         working-directory: tests/browser
         run: node fetch.mjs
 
+      - name: Values decoded, matched and looked up by key
+        working-directory: tests/browser
+        run: node types.mjs
+
       - name: A long session lets go
         working-directory: tests/browser
         run: node leaks.mjs

@@ -33,6 +33,42 @@ impl Checker<'_, '_> {
     }
 
     pub(super) fn infer_nested(&mut self, expr: &Expr, expected: Option<&Type>) -> Type {
+        // `Json.null`: a case of the language's JSON, by its name.
+        if let Expr::PropertyAccess(base, case) = expr
+            && let Expr::Identifier(name) = &**base
+            && self.is_json_namespace(name)
+        {
+            return self.json_case(case, None);
+        }
+        // `.null` where `Json` is wanted: a JSON value is a plain value at
+        // run time, so its case is written by the type's name.
+        if let Expr::EnumCase(case) | Expr::CaseValue(case, _) = expr
+            && self.world.built_in_json
+            && matches!(expected.map(Type::unwrapped), Some(Type::Enum(n)) if n == super::ty::JSON)
+        {
+            let written = match expr {
+                Expr::CaseValue(_, args) => {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                    format!("Json.{case}(…)")
+                }
+                _ => format!("Json.{case}"),
+            };
+            self.error_at_current(
+                "T01",
+                format!("a `Json` value is written by its type's name: `{written}`"),
+                "`Json` is JSON as it arrives, so it carries no case of its own",
+            );
+            self.plan_last(
+                format!("Write `{written}`"),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: format!(".{case}"),
+                    to: format!("Json.{case}"),
+                },
+            );
+            return Type::Enum(super::ty::JSON.to_string());
+        }
         match expr {
             // A literal written where one of the language's own types is
             // wanted is read as one, and held to its shape — so a `Url`
@@ -64,6 +100,7 @@ impl Checker<'_, '_> {
                             ty.unwrapped(),
                             Type::List(_)
                                 | Type::Map
+                                | Type::Dict(..)
                                 | Type::Shape(_)
                                 | Type::Record(_)
                                 | Type::Func(..)
@@ -292,6 +329,8 @@ impl Checker<'_, '_> {
                     }
                     Type::List(inner) => *inner,
                     Type::String => Type::String,
+                    // A key may be missing.
+                    Type::Dict(_, value) => Type::optional(*value),
                     _ => self.loose(&base_ty, HoleKind::LooseIndex, expr_text(expr)),
                 };
                 if optional { Type::optional(ty) } else { ty }
@@ -305,7 +344,7 @@ impl Checker<'_, '_> {
                 let base_ty = self.infer(base, None).unwrapped();
                 self.infer(index, None);
                 Type::optional(match base_ty {
-                    Type::List(inner) => *inner,
+                    Type::List(inner) | Type::Dict(_, inner) => *inner,
                     Type::String => Type::String,
                     other => self.loose(&other, HoleKind::LooseIndex, expr_text(expr)),
                 })
@@ -446,6 +485,12 @@ impl Checker<'_, '_> {
                     Some(Type::Shape(fields)) => Some(fields.clone()),
                     _ => None,
                 };
+                // A map written where a dictionary is wanted: every value
+                // one of its values, every key one of its keys.
+                let dict = match expected.map(super::ty::Type::unwrapped) {
+                    Some(Type::Dict(k, v)) => Some((*k, *v)),
+                    _ => None,
+                };
                 let mut shape: Vec<(String, Type)> = Vec::new();
                 let mut spread = false;
                 for (k, v) in pairs {
@@ -455,9 +500,24 @@ impl Checker<'_, '_> {
                         continue;
                     }
                     let key = k.trim_matches('"').to_string();
-                    let want = wanted
-                        .as_ref()
-                        .and_then(|w| w.iter().find(|(n, _)| *n == key).map(|(_, t)| t.clone()));
+                    let want = match &dict {
+                        Some((k, v)) => {
+                            if let Type::Enum(e) = k
+                                && let Some(decl) = self.world.enums.get(e.as_str())
+                                && !decl.case_names().contains(&key)
+                            {
+                                self.error_at_current(
+                                    "T02",
+                                    format!("`{e}` has no case `.{key}`, so it is no key of this dictionary"),
+                                    &format!("Its keys are `{e}`'s cases: {}", decl.case_names().iter().map(|c| format!("`{c}`")).collect::<Vec<_>>().join(", ")),
+                                );
+                            }
+                            Some(v.clone())
+                        }
+                        None => wanted.as_ref().and_then(|w| {
+                            w.iter().find(|(n, _)| *n == key).map(|(_, t)| t.clone())
+                        }),
+                    };
                     let ty = self.infer(v, want.as_ref());
                     if let Some(want) = &want
                         && !ty.assignable_to(want)
@@ -484,7 +544,11 @@ impl Checker<'_, '_> {
                     self.record_keys_given(&record, &keys, "the map");
                 }
                 // An empty literal says nothing about its keys.
-                if spread {
+                if let Some((k, v)) = dict
+                    && !spread
+                {
+                    Type::Dict(Box::new(k), Box::new(v))
+                } else if spread {
                     self.hole(HoleKind::SpreadMap, expr_text(expr));
                     Type::Map
                 } else if shape.is_empty() {
@@ -544,23 +608,41 @@ impl Checker<'_, '_> {
                 }
             }
             Expr::Lambda(params, body) => {
-                // `() => …` takes nothing: its parameters are the empty string.
-                let names: Vec<&str> = params
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|n| !n.is_empty())
-                    .collect();
-                let param_types: Vec<Type> = match expected {
-                    Some(Type::Func(types, _)) => names
-                        .iter()
-                        .enumerate()
-                        .map(|(i, _)| types.get(i).cloned().unwrap_or(Type::Error))
-                        .collect(),
-                    _ => names
-                        .iter()
-                        .map(|n| self.hole(HoleKind::UntypedLambda, *n))
-                        .collect(),
+                // `() => …` takes nothing: its parameters are the empty
+                // string. A parameter may say its type: `(a: User) => …`.
+                let written = crate::syntax::parser::lambda_params(params);
+                let names: Vec<&str> = written.iter().map(|(n, _)| *n).collect();
+                let offered: Option<&Vec<Type>> = match expected {
+                    Some(Type::Func(types, _)) => Some(types),
+                    _ => None,
                 };
+                let mut param_types: Vec<Type> = Vec::new();
+                for (i, (name, ty)) in written.iter().enumerate() {
+                    let given = offered.map(|o| o.get(i).cloned().unwrap_or(Type::Error));
+                    let declared = ty.map(|text| {
+                        crate::syntax::parser::v2::parse_type_text(text).map_or(Type::Error, |t| {
+                            self.written(&t, name);
+                            self.world.resolve(Type::from_ref(&t))
+                        })
+                    });
+                    param_types.push(match (declared, given) {
+                        (Some(declared), Some(given)) => {
+                            // What the caller hands it must be what it says
+                            // it takes.
+                            if !given.assignable_to(&declared) {
+                                self.error_at_current(
+                                    "T01",
+                                    format!("`{name}` is given `{given}`, but says it takes `{declared}`"),
+                                    &format!("Write `{name}: {given}`, or leave the type out"),
+                                );
+                            }
+                            declared
+                        }
+                        (Some(declared), None) => declared,
+                        (None, Some(given)) => given,
+                        (None, None) => self.hole(HoleKind::UntypedLambda, *name),
+                    });
+                }
                 self.push_scope();
                 for (name, ty) in names.iter().zip(&param_types) {
                     self.refuse_language_name(name, self.current_span);
@@ -788,6 +870,8 @@ impl Checker<'_, '_> {
                 "length" => Type::Number,
                 _ => self.hole(HoleKind::ListField, format!("{}.{field}", expr_text(base))),
             },
+            // `scores.ada` is `scores["ada"]`: a key may be missing.
+            Type::Dict(_, value) => Type::optional((**value).clone()),
             Type::Resource(inner, _) => match field {
                 "data" => Type::optional((**inner).clone()),
                 "state" => Type::String,
@@ -951,6 +1035,28 @@ impl Checker<'_, '_> {
                 format!("`.{case}` has two arms in this `match`; the second is never reached"),
                 "Keep one of them",
             );
+        }
+        // A result's cases are `.ok` and `.err`.
+        if let Type::Result(..) = ty {
+            let missing: Vec<&str> = ["ok", "err"]
+                .into_iter()
+                .filter(|c| !cases.iter().any(|x| x == c))
+                .collect();
+            if !has_else && !missing.is_empty() {
+                self.error_at_current(
+                    "T15",
+                    format!(
+                        "this `match` on `{subject}` has no arm for {}",
+                        missing
+                            .iter()
+                            .map(|c| format!("`.{c}`"))
+                            .collect::<Vec<_>>()
+                            .join(" or ")
+                    ),
+                    "A result is `.ok(value)` or `.err(error)`; add the arm, or `else { … }`",
+                );
+            }
+            return;
         }
         let Type::Enum(name) = ty else {
             if !has_else {
@@ -1177,5 +1283,97 @@ impl Checker<'_, '_> {
         self.info.unresolved.truncate(unresolved);
         self.info.holes.truncate(holes);
         ty
+    }
+}
+
+impl Checker<'_, '_> {
+    /// Whether `name`, read where it is, is the language's `Json`: nothing
+    /// in scope, no constant, no script and no type of the program's own
+    /// takes the name.
+    pub(super) fn is_json_namespace(&self, name: &str) -> bool {
+        name == super::ty::JSON
+            && self.world.built_in_json
+            && self.lookup(name).is_none()
+            && !self.world.consts.contains_key(name)
+            && !self.world.scripts.contains_key(name)
+    }
+
+    /// `Json.null`, `Json.string("x")`: one of the cases of the language's
+    /// JSON, its payload held to the case's.
+    pub(super) fn json_case(&mut self, case: &str, args: Option<&[Expr]>) -> Type {
+        let json = Type::Enum(super::ty::JSON.to_string());
+        match (self.payload_of(super::ty::JSON, case), args) {
+            (Some(fields), Some(args)) if !fields.is_empty() => {
+                let params: Vec<Type> = fields.iter().map(|(_, t)| t.clone()).collect();
+                self.call_args(&params, args, &format!("`Json.{case}`"));
+            }
+            (Some(fields), None) if fields.is_empty() => {}
+            (Some(fields), _) => {
+                if let Some(args) = args {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                }
+                let hint = if fields.is_empty() {
+                    format!("Write `Json.{case}`")
+                } else {
+                    format!("Give it: `Json.{}`", case_signature(case, &fields))
+                };
+                self.error_at_current(
+                    "T10",
+                    format!(
+                        "`Json.{case}` {}",
+                        if fields.is_empty() {
+                            "carries nothing"
+                        } else {
+                            "carries a value"
+                        }
+                    ),
+                    &hint,
+                );
+            }
+            (None, _) => {
+                if let Some(args) = args {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                }
+                let cases = self
+                    .world
+                    .enums
+                    .get(super::ty::JSON)
+                    .map(|e| e.case_names())
+                    .unwrap_or_default();
+                self.error_naming(
+                    "T02",
+                    format!("`Json` has no case `.{case}`"),
+                    &format!(
+                        "`Json` is one of {}",
+                        cases
+                            .iter()
+                            .map(|c| format!("`.{c}`"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ),
+                    case,
+                    &cases.iter().map(String::as_str).collect::<Vec<_>>(),
+                    true,
+                );
+                return Type::Error;
+            }
+        }
+        json
+    }
+
+    /// `Settings.decode(value)`: the value read as the type, checked
+    /// against it field by field when it runs — the type, or why it is not
+    /// one. What is decoded is JSON, or plain data.
+    pub(super) fn decode_call(&mut self, name: &str, args: &[Expr]) -> Type {
+        let json = Type::Enum(super::ty::JSON.to_string());
+        self.call_args(&[json], args, &format!("`{name}.decode`"));
+        Type::Result(
+            Box::new(self.world.resolve(Type::Record(name.to_string()))),
+            Box::new(Type::Record("DecodeError".to_string())),
+        )
     }
 }

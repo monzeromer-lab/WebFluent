@@ -641,10 +641,9 @@ pub(crate) fn reads(e: &Expr, bound: &mut Vec<String>, out: &mut Vec<String>) {
             }
         }
         Expr::Lambda(params, body) => {
-            let added: Vec<String> = params
-                .split(',')
-                .map(|p| p.trim().to_string())
-                .filter(|p| !p.is_empty())
+            let added: Vec<String> = crate::syntax::parser::lambda_names(params)
+                .into_iter()
+                .map(str::to_string)
                 .collect();
             let len = bound.len();
             bound.extend(added);

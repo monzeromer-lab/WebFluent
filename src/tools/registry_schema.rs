@@ -338,8 +338,8 @@ fn kind_of(ty: &TypeRef, program: &Program) -> Kind {
         TypeRef::String => plain("text"),
         TypeRef::Number => plain("number"),
         TypeRef::Bool => plain("bool"),
-        TypeRef::Map => plain("map"),
-        TypeRef::Any => plain("any"),
+        TypeRef::Map | TypeRef::Dict(..) => plain("map"),
+        TypeRef::Any | TypeRef::Func(..) | TypeRef::Unit | TypeRef::Result(..) => plain("any"),
         TypeRef::Optional(inner) => Kind {
             optional: true,
             ..kind_of(inner, program)

@@ -117,6 +117,29 @@ returns `User`."#),
                     Change(text: #"A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`;
 `rows.relaod()` is `T16`."#)
                 ]),
+                NotesSection(title: #"Types a program can write"#, id: "7.0.0-types-a-program-can-write", items: [
+                    Change(text: #"**Dictionaries**, `[K: V]`: keys of `String` or an enum, values of `V`.
+Reading a key gives a `V?`; `keys()`, `values()`, `entries()`,
+`has(k)`, `with(k, v)` and `without(k)` are its methods. A dictionary is
+a plain object at run time."#),
+                    Change(text: #"**Function types**, `(A, B) -> R`, with `()` for nothing: a prop that
+takes a lambda says what it takes, and a lambda handed to it is held to
+it. Hover and messages now write an action's type this way, `(String) ->
+()`, where they wrote `action(String)`."#),
+                    Change(text: #"**Aliases**, `type Scores = [String: Number]`."#),
+                    Change(text: #"**`-> T` on an action**: what it returns, held at every `return` and seen
+by every caller. A lambda's parameter may say its type, `(a: User) => …`."#),
+                    Change(text: #"**`Json`**, the language's own enum for JSON as it arrives — `.object`,
+`.array`, `.string`, `.number`, `.bool`, `.null` — written
+`Json.string("x")` and read by `match`. A JSON value is plain at run
+time."#),
+                    Change(text: #"**`T.decode(json)`** on every declared record, enum and alias: the value
+checked against the type as the page runs, in every build. It is a
+result, `T ! DecodeError` — `.ok(value)`, or `.err(e)` with `e.at` (where)
+and `e.message` (what)."#),
+                    Change(text: #"**Results**, `T ! E` and `T!`, matched by `.ok` and `.err`; an action may
+declare `-> T ! E`, `-> ! E` or `-> !`."#)
+                ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
 `catch e`, a built-in's prop of no declared type — with its file, line and
@@ -130,7 +153,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 16), latest: true)
+            ], count: 23), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -3916,6 +3939,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

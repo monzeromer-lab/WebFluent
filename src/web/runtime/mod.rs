@@ -139,9 +139,16 @@ pub const MODULES: &[Module] = &[
         same("store"), same("dropRouteStores"), same("watchStores"), same("storeSnapshot"),
         same("restoreStore"),
     ], deps: ["keep", "busy"], triggers: []),
+    // `Json` read by its case, a value decoded into a declared type, and a
+    // dictionary's methods.
+    module!("json", exports: [
+        same("decode"), same("jsonCase"), same("jsonTagged"), same("jsonPayload"),
+        same("dictKeys"), same("dictValues"), same("dictEntries"), same("dictHas"),
+        same("dictWithout"),
+    ], deps: [], triggers: []),
     module!("http", exports: [
         same("send"), same("beacon"), same("invalidate"),
-    ], deps: [], triggers: []),
+    ], deps: ["json"], triggers: []),
     module!("api", exports: [
         same("api"), same("ws"), same("sse"), same("broadcast"),
     ], deps: ["http"], triggers: []),

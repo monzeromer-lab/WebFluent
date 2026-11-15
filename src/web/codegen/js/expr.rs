@@ -113,6 +113,17 @@ pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) ->
         m if scalar_method(m).is_some() => with_obj(scalar_method(m).expect("just checked")),
         // The helpers the runtime adds to lists and strings.
         m if LIST_AND_STRING_HELPERS.contains(&m) => with_obj(m),
+        // A dictionary's methods. The browser's own objects — `Object.keys`,
+        // a `Map`'s `has` — keep theirs, and the runtime defers to a
+        // receiver that has the method.
+        "keys" | "values" | "entries" | "has" | "without"
+            if !super::BROWSER_GLOBALS.contains(&obj) =>
+        {
+            let mut name = String::from("dict");
+            name.push_str(&method[..1].to_uppercase());
+            name.push_str(&method[1..]);
+            with_obj(&name)
+        }
         _ => format!("{obj}.{method}({joined})"),
     }
 }
@@ -324,6 +335,12 @@ impl JsCodegen {
                 }
             }
 
+            // `Json.null`: a JSON value is plain at run time.
+            (Expr::PropertyAccess(base, prop), _)
+                if prop == "null" && self.is_json_name(base, cx) =>
+            {
+                "null".to_string()
+            }
             // `save.pending` and `Store.save.pending`: whether a call of an
             // async action is under way, a signal.
             (Expr::PropertyAccess(base, prop), Cx::Page)
@@ -470,6 +487,27 @@ impl JsCodegen {
                     UnaryOp::Neg => format!("-{e}"),
                 }
             }
+            // `Json.string("x")`: the value itself, which is the JSON.
+            (Expr::MethodCall(obj, _, args), _)
+                if args.len() == 1 && self.is_json_name(obj, cx) =>
+            {
+                format!("({})", self.emit_expr_in(&args[0], cx))
+            }
+            // `Settings.decode(raw)`: the value held to the type's shape.
+            (Expr::MethodCall(obj, method, args), _)
+                if method == "decode"
+                    && args.len() == 1
+                    && matches!(obj.as_ref(), Expr::Identifier(n)
+                        if (self.shapes.0.contains_key(n) || self.shapes.1.contains_key(n))
+                            && !self.stores.contains(n)
+                            && !self.programs_own(n, cx)) =>
+            {
+                let Expr::Identifier(name) = obj.as_ref() else {
+                    unreachable!("matched a name")
+                };
+                let shape = self.shape_of(&crate::syntax::parser::TypeRef::Named(name.clone()), 0);
+                format!("WF.decode({shape}, {})", self.emit_expr_in(&args[0], cx))
+            }
             (Expr::MethodCall(obj, method, args), _) => {
                 // `toast.promise(p, loading: …, done: …)`: a toast that
                 // follows a promise, unless `toast` is the program's own.
@@ -487,17 +525,24 @@ impl JsCodegen {
                 }
                 // The case of an enum value, its payload aside.
                 if method == "__case" && args.is_empty() {
-                    return format!("WF.caseOf({})", self.emit_expr_in(obj, cx));
+                    let of = if self.is_json_subject(obj) {
+                        "jsonCase"
+                    } else {
+                        "caseOf"
+                    };
+                    return format!("WF.{of}({})", self.emit_expr_in(obj, cx));
                 }
                 // `match` over an enum as a value: the case, and the payload
                 // where the case is the one asked for.
                 if (method == "__is" || method == "__payload") && args.len() == 1 {
                     let subject = self.emit_expr_in(obj, cx);
                     let case = self.emit_expr_in(&args[0], cx);
-                    return if method == "__is" {
-                        format!("(WF.caseOf({subject}) === {case})")
-                    } else {
-                        format!("WF.payload({subject}, {case})")
+                    let json = self.is_json_subject(obj);
+                    return match (method == "__is", json) {
+                        (true, false) => format!("(WF.caseOf({subject}) === {case})"),
+                        (true, true) => format!("(WF.jsonCase({subject}) === {case})"),
+                        (false, false) => format!("WF.payload({subject}, {case})"),
+                        (false, true) => format!("WF.jsonPayload({subject}, {case})"),
                     };
                 }
                 if method == "__if" && args.len() == 2 {
@@ -802,13 +847,12 @@ impl JsCodegen {
             // A lambda's parameters shadow what a program or a store declares
             // of their names, in its body.
             (Expr::Lambda(param, body), _) => {
-                let names = param
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|p| !p.is_empty())
-                    .map(str::to_string);
+                // The types a parameter is written with are the checker's.
+                let names: Vec<&str> = crate::syntax::parser::lambda_names(param);
+                let list = names.join(", ");
+                let names = names.into_iter().map(str::to_string);
                 let body_str = self.with_locals(cx, names, || self.emit_expr_in(body, cx));
-                format!("(({}) => {})", bare_list(param), body_str)
+                format!("(({}) => {})", bare_list(&list), body_str)
             }
             (Expr::EnumCase(case), _) => format!("\"{case}\""),
             (Expr::CaseValue(case, args), _) => {
@@ -848,4 +892,22 @@ impl JsCodegen {
 /// setter over it, so it is changed and put back, not only read.
 fn place_holder(read: &str) -> String {
     format!("{{ get: () => {read}, set: (v) => {{ {read} = v; }} }}")
+}
+
+impl JsCodegen {
+    /// Whether `expr` names the language's `Json` where it is written: no
+    /// type, store or name of the program's own takes it.
+    pub(super) fn is_json_name(&self, expr: &Expr, cx: Cx<'_>) -> bool {
+        matches!(expr, Expr::Identifier(n) if n == "Json")
+            && !self.shapes.0.contains_key("Json")
+            && !self.shapes.1.contains_key("Json")
+            && !self.stores.iter().any(|s| s == "Json")
+            && !self.programs_own("Json", cx)
+    }
+
+    /// Whether a `match` over `subject` is over `Json`: its case is read
+    /// from what the value is, not from a tag.
+    pub(super) fn is_json_subject(&self, subject: &Expr) -> bool {
+        self.json_subjects.iter().any(|s| s == subject)
+    }
 }

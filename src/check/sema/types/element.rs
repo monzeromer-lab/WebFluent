@@ -459,7 +459,16 @@ impl Checker<'_, '_> {
             TypeRef::Bool => "false".to_string(),
             TypeRef::Map => "{}".to_string(),
             TypeRef::List(_) => "[]".to_string(),
-            TypeRef::Optional(_) | TypeRef::Any => "null".to_string(),
+            TypeRef::Optional(_) | TypeRef::Any | TypeRef::Unit => "null".to_string(),
+            TypeRef::Dict(..) => "{}".to_string(),
+            TypeRef::Func(params, _) => format!(
+                "({}) => null",
+                (0..params.len())
+                    .map(|i| format!("a{i}"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            ),
+            TypeRef::Result(..) => "null".to_string(),
             TypeRef::Refined(inner, _) => self.placeholder(inner),
             TypeRef::Named(name) => match self.world.enums.get(name.as_str()) {
                 Some(e) => e

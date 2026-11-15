@@ -193,8 +193,8 @@ fn declared_and_inferred_types_of_names() {
     assert_eq!(type_of(&src, "remaining"), "Number");
     assert_eq!(type_of(&src, "titles"), "[String]");
     assert_eq!(type_of(&src, "first"), "Todo?");
-    assert_eq!(type_of(&src, "add"), "action(String)");
-    assert_eq!(type_of(&src, "count"), "action() -> Number");
+    assert_eq!(type_of(&src, "add"), "(String) -> ()");
+    assert_eq!(type_of(&src, "count"), "() -> Number");
     assert_eq!(type_of(&src, "id"), "String");
     assert_eq!(type_of(&src, "rows"), "resource<[Todo]>");
     assert_eq!(type_of(&src, "item"), "Todo");

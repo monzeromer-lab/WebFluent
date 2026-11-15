@@ -1,0 +1,12 @@
+{
+  "name": "types",
+  "build": {
+    "output": "build",
+    "output_type": "spa",
+    "ssg": false
+  },
+  "meta": {
+    "title": "Types",
+    "description": "Values decoded, matched and looked up by key."
+  }
+}
