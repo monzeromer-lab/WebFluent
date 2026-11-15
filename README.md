@@ -131,9 +131,9 @@ A `.flag` sets a boolean prop or picks an enum case. A flag the component does n
 resource users = fetch("/api/users")
 
 match users {
-    loading      { Spinner }
-    error(err)   { Alert("Failed to load").danger }
-    ready(users) { for u in users by u.id { UserCard(u.name, role: u.role) } }
+    .loading      { Spinner }
+    .failed(err)   { Alert("Failed to load").danger }
+    .loaded(users) { for u in users by u.id { UserCard(u.name, role: u.role) } }
 }
 ```
 

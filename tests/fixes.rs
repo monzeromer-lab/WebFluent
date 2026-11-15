@@ -123,13 +123,40 @@ fn t17_await_where_await_may_be_written() {
 #[test]
 fn t21_an_error_arm() {
     let src = page(
-        "    resource r: Json = http.get(\"/x\")\n    match r {\n        loading { Spinner }\n        ready(v) { Text(\"{v}\") }\n    }",
+        "    resource r: Json = http.get(\"/x\")\n    match r {\n        .loading { Spinner }\n        .loaded(v) { Text(\"{v}\") }\n    }",
     );
     let want = src.replace(
-        "        ready(v) { Text(\"{v}\") }\n    }",
-        "        ready(v) { Text(\"{v}\") }\n        error(e) { Alert(e.message).danger }\n    }",
+        "        .loaded(v) { Text(\"{v}\") }\n    }",
+        "        .loaded(v) { Text(\"{v}\") }\n        .failed(e) { Alert(e.message).danger }\n    }",
     );
-    assert_eq!(fixes_it(&src, "T21", &want), "Add an `error` arm");
+    assert_eq!(fixes_it(&src, "T21", &want), "Add an arm for `.failed`");
+}
+
+#[test]
+fn n08_a_reads_old_arms_members_and_refresh() {
+    let src = page(
+        "    resource r: [String] = http.get(\"/x\", on: .focus)\n    Text(\"{r.data?.length ?? 0}\")\n    match r {\n        loading { Spinner }\n        error(e) { Text(e.message) }\n        ready(v) { Text(\"{v.length}\") }\n    }",
+    );
+    let (out, _) = fixed(&src, "N08");
+    assert_eq!(
+        out,
+        src.replace("on: .focus", "refresh: .onFocus"),
+        "the first finding is `on:`, written as `refresh:`"
+    );
+    // Each finding has its own fix; `wf fix` applies them all.
+    let mut text = src;
+    for _ in 0..8 {
+        let Some(d) = findings(&text).into_iter().find(|d| d.code == "N08") else {
+            break;
+        };
+        text = apply(&text, d.fixes.first().expect("a fix"));
+    }
+    assert_eq!(
+        text,
+        page(
+            "    resource r: [String] = http.get(\"/x\", refresh: .onFocus)\n    Text(\"{r.value?.length ?? 0}\")\n    match r {\n        .loading { Spinner }\n        .failed(e) { Text(e.message) }\n        .loaded(v) { Text(\"{v.length}\") }\n    }",
+        )
+    );
 }
 
 // ─── C: components ─────────────────────────────────────────────────────

@@ -180,12 +180,12 @@ otherwise hand the list a fresh array of fresh rows every 30 seconds.
 type Server { id: String, name: String, status: String }
 
 page Servers(path: "/", title: "Servers", description: "Every server, kept current.") {
-    resource servers: [Server] = http.get("/api/servers", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers", refresh: .every(30.seconds))
     Heading("Servers").h1
     match servers {
-        loading { Text("Loading…") }
-        error(e) { Text(e.message) }
-        ready(list) {
+        .loading { Text("Loading…") }
+        .failed(e) { Text(e.message) }
+        .loaded(list) {
             for s in list by s.id { Text("{s.name}: {s.status}") }
         }
     }
@@ -195,8 +195,8 @@ page Servers(path: "/", title: "Servers", description: "Every server, kept curre
 Before the answer to a refresh is stored, the runtime lays it over what
 was there: a row with the same `id` that is equal to the old one is
 replaced by the old object, and a list in which nothing changed is the old
-list. Then the ordinary machinery does the rest. The `ready` arm stays
-drawn, since the arm is still `ready`. The list, handed the same array,
+list. Then the ordinary machinery does the rest. The `.loaded` arm stays
+drawn, since the case is still `.loaded`. The list, handed the same array,
 has nothing to do. A server whose status changed gives a new object under
 the same key, and its row's text node updates. An answer that changed
 nothing redraws nothing.

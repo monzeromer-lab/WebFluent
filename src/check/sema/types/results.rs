@@ -264,6 +264,7 @@ impl Checker<'_, '_> {
                 ),
                 ("err".to_string(), vec![*error]),
             ]),
+            Type::Resource(value, failed) => Some(super::read::read_cases(&value, &failed)),
             Type::Enum(name) => {
                 let decl = self.world.enums.get(name.as_str())?;
                 Some(

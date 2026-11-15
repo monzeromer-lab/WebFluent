@@ -265,6 +265,39 @@
     "after": ""
    },
    {
+    "title": "A read is one value",
+    "id": "7.0.0-a-read-is-one-value",
+    "intro": "A `resource` was a string, `state`, beside `data`, `error` and\n`refreshing`, which a page had to keep in step itself — and could read in\ncombinations that never happen. It is now one value with three cases:\n\n```wf\nmatch users {\n    .loading { Skeleton(height: \"20px\") }\n    .failed(e) { Alert(e.message).danger }                 // e: HttpError, or the endpoint's error enum\n    .loaded(list, refreshing, stale) {\n        if refreshing { Spinner.sm }\n        if stale != null { Alert(\"Could not refresh\").warning }\n        for u in list by u.id { Text(u.name) }\n    }\n}\n```",
+    "items": [
+     {
+      "text": "\"Loaded, and the last refresh failed\" is `.loaded(value, false, e)`;\n\"loading, with data\" cannot be written. A `match` covers every case or\nsays `else`: one with no `.failed` arm is `T21`, now an error, and one\nmissing another case `T15`. `if let .failed(e) = users { … }` takes one\ncase, and a `match` expression reads one too.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A failure is what `.err` holds for the same request — an `HttpError`, or\nthe endpoint's error enum for one declared `-> T ! E` — not 6.x's loose\nerror object.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "To read one fact, a read has members worked out from its value, which\ncannot disagree with it: `value` (`T?`), `isLoading`, `isLoaded`,\n`isFailed`, `isRefreshing`, `error` (`E?`) and `pending`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`refresh:` says when a read asks again besides an argument changing:\n`.onReconnect` — what a read now does when it says nothing — `.onFocus`,\n`.every(30.seconds)`, `.never`, or a list.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`placeholder: .previous` keeps the last value shown, refreshing, while\nanother request of it loads — a search whose results stay while the next\nones arrive — where a changed request used to go back to loading.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": "6.x's forms are `N08`, and `wf fix` rewrites them: the `loading`,\n`error(e)` and `ready(v)` arms become `.loading`, `.failed(e)` and\n`.loaded(v)`; `.data` becomes `.value` and `.refreshing` `.isRefreshing`;\n`on: .focus`, `.reconnect` and `.interval(d)` become `refresh: .onFocus`,\n`.onReconnect` and `.every(d)`. `.state` has no one rewrite: compare with\n`isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`\narm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:\n`.status(code, problem)`."
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -285,7 +318,7 @@
     "after": ""
    }
   ],
-  "count": 40
+  "count": 45
  },
  {
   "version": "6.2.0",

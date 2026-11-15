@@ -130,7 +130,7 @@ these statements:
 | conditional | `if cond { … } else if cond { … } else { … }`, `if let x = expr { … }` |
 | loop | `for item, index in list by key { … }` |
 | visibility | `show cond { … }` |
-| choice | `match expr { .case(a) { … }  loading { … }  error(e) { … }  ready(v) { … }  else { … } }` |
+| choice | `match expr { .case(a) { … }  .loading { … }  .failed(e) { … }  .loaded(v) { … }  else { … } }` |
 | orchestration | `sequence { step(after: "120ms") { … } }` |
 | set-up | `Store.action(args)` — a call, run once when the block renders |
 | element | `Name(positional, prop: value).flag.flag { block }` |

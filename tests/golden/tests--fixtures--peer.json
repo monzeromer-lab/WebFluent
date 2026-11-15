@@ -3,8 +3,8 @@
     "{\"code\":\"T19\",\"severity\":\"warning\",\"message\":\"`query.role` may be null, and in text it would show as `null`\",\"file\":\"src/App.wf\",\"line\":27,\"column\":55,\"end_line\":27,\"end_column\":65,\"hint\":\"Say what to show instead: `{query.role ?? \\\"\\\"}`\",\"related\":[],\"fixes\":[],\"tags\":[]}"
   ],
   "files": {
-    "app.js": "a2a4edc3b9e0d6198c8505cca6ea2a46ac6a04ee4059d06c700d58d65b8dc2bc",
-    "app.js.gz": "2e0b34f64445d1fd185d683cc41cd0f3c6dd4a5d3ce43b8bb92e19b60a3b55b9",
+    "app.js": "6ee970cd6cbaa370b6913cc58dc2a02549a389eda383eeeca12fdc869b1d27f5",
+    "app.js.gz": "1477af8b924620d985aafd73e8497276e6e92a8cd284e472248e2294954961ac",
     "index.html": "c01da947fb8d194b0170b200bf756c45baac0d5709fedd356a4c35dd05e29ce1",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "6c7d08350821371cabe18880bccd1f8891a25c3cbd732bb99c60fe942670d34a",

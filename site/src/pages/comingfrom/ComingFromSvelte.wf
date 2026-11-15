@@ -58,7 +58,7 @@ component Counter(start: Number = 0) {
         CheatRow("A route", theirs: "SvelteKit src/routes/users/[id]/+page.svelte", ours: "page User(path: \"/users/:id\", id: String) \{ … \}", language: "svelte")
         CheatRow("\{#if\}", theirs: "\{#if open\}<Panel />\{:else\}<p>…</p>\{/if\}", ours: "if open \{ Panel \} else \{ Text(\"…\") \}", language: "svelte")
         CheatRow("\{#each\}", theirs: "\{#each items as i (i.id)\}<li>\{i.name\}</li>\{/each\}", ours: "for i in items by i.id \{ Text(i.name) \}", language: "svelte")
-        CheatRow("\{#await\}", theirs: "\{#await promise\}…\{:then data\}…\{:catch e\}…\{/await\}", ours: "match users \{ loading \{ … \} ready(list) \{ … \} error(e) \{ … \} \}", language: "svelte")
+        CheatRow("\{#await\}", theirs: "\{#await promise\}…\{:then data\}…\{:catch e\}…\{/await\}", ours: "match users \{ .loading \{ … \} .loaded(list) \{ … \} .failed(e) \{ … \} \}", language: "svelte")
         CheatRow("A class that follows state", theirs: "class:done=\{todo.done\}", ours: "class: \{ \"done\": todo.done \}", language: "svelte")
         CheatRow("Transitions", theirs: "transition:fade", ours: ".fadeIn, exit: .fadeOut", language: "svelte")
         CheatRow("A test", theirs: "Vitest with Testing Library: render, fireEvent.click, getByText", ours: "test \"…\" \{ click \"Save\"  expect \"Saved\" \}", language: "svelte")

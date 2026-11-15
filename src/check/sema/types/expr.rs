@@ -958,6 +958,19 @@ impl Checker<'_, '_> {
             },
             // Every way a request goes wrong says so in words.
             Type::Enum(name) if name == super::ty::HTTP_ERROR && field == "message" => Type::String,
+            // What went wrong is matched by its case; its one field is
+            // what it says in words.
+            Type::Enum(name) if name == super::ty::HTTP_ERROR => {
+                self.error_naming(
+                    "T05",
+                    format!("`{}` is an `HttpError`; it has no field `{field}`", expr_text(base)),
+                    "It has `message`; what it carries is matched by its case: `match e { .status(code, problem) { … } .timeout(after) { … } else { … } }`",
+                    field,
+                    &["message"],
+                    true,
+                );
+                Type::Error
+            }
             // `env` read without the build's settings: whatever name, as
             // text — the build that knows them says which it has.
             Type::Dict(_, value)
@@ -968,13 +981,21 @@ impl Checker<'_, '_> {
             }
             // `scores.ada` is `scores["ada"]`: a key may be missing.
             Type::Dict(_, value) => Type::optional((**value).clone()),
-            Type::Resource(inner, _) => match field {
-                "data" => Type::optional((**inner).clone()),
-                "state" => Type::String,
-                "error" => Type::optional(
-                    self.hole(HoleKind::RequestError, format!("{}.error", expr_text(base))),
-                ),
-                "refreshing" | "pending" | "hasMore" => Type::Bool,
+            Type::Resource(inner, failed) => match field {
+                "value" => Type::optional((**inner).clone()),
+                "error" => Type::optional((**failed).clone()),
+                "isLoading" | "isLoaded" | "isFailed" | "isRefreshing" | "pending" | "hasMore" => {
+                    Type::Bool
+                }
+                // 6.x's members, which the one value replaced.
+                "data" | "state" | "refreshing" => {
+                    self.old_read_member(base, field);
+                    match field {
+                        "data" => Type::optional((**inner).clone()),
+                        "state" => Type::String,
+                        _ => Type::Bool,
+                    }
+                }
                 // `paginate:`'s pages, gathered: each answer if it is a list,
                 // or its `items` if it carries them.
                 "items" => match &**inner {
@@ -997,7 +1018,10 @@ impl Checker<'_, '_> {
                     },
                     _ => self.hole(HoleKind::RequestError, format!("{}.items", expr_text(base))),
                 },
-                _ => self.hole(HoleKind::MapField, format!("{}.{field}", expr_text(base))),
+                _ => {
+                    self.no_read_member(base, field);
+                    Type::Error
+                }
             },
             // `save.pending`: whether a call of the action is under way —
             // which is only ever for an action that awaits something.
@@ -1147,6 +1171,56 @@ impl Checker<'_, '_> {
                 format!("`.{case}` has two arms in this `match`; the second is never reached"),
                 "Keep one of them",
             );
+        }
+        // A read's cases are `.loading`, `.failed` and `.loaded`; one that
+        // leaves out `.failed` shows nothing when the request fails.
+        if let Type::Resource(value, failed) = ty {
+            let all = super::read::read_cases(value, failed);
+            let missing: Vec<&str> = all
+                .iter()
+                .map(|(c, _)| c.as_str())
+                .filter(|c| !cases.iter().any(|x| x == c))
+                .collect();
+            if has_else || missing.is_empty() {
+                if has_else && missing.is_empty() {
+                    self.warn(
+                        "U10",
+                        format!("every case of `{subject}` has its own arm, so this `match`'s `else` is never reached"),
+                        "Remove the `else`",
+                    );
+                }
+                return;
+            }
+            let arm = |c: &str| match c {
+                "failed" => ".failed(e) { Alert(e.message).danger }".to_string(),
+                "loaded" => ".loaded(value) { }".to_string(),
+                other => format!(".{other} {{ }}"),
+            };
+            let listed = missing
+                .iter()
+                .map(|c| format!("`.{c}`"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            if missing.contains(&"failed") {
+                self.error_at_current(
+                    "T21",
+                    format!("this `match` on `{subject}` has no `.failed` arm and no `else`, so a failed request shows nothing"),
+                    "Add `.failed(e) { Alert(e.message).danger }`, or `else { … }`",
+                );
+            } else {
+                self.error_at_current(
+                    "T15",
+                    format!("this `match` on `{subject}` has no arm for {listed}, and no `else`"),
+                    "Add an arm for each, or `else { … }` for the rest",
+                );
+            }
+            self.plan_last(
+                format!("Add an arm for {listed}"),
+                crate::diagnostics::fixes::Plan::AddArms {
+                    arms: missing.iter().map(|c| arm(c)).collect(),
+                },
+            );
+            return;
         }
         // A result's cases are `.ok` and `.err`.
         if let Type::Result(..) = ty {

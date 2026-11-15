@@ -355,17 +355,35 @@ fn a_request_s_options_and_their_cases_are_offered() {
     let fetch = "    resource r = fetch(\"/x\", method: \"GET\")";
     offers(
         &in_page(fetch, &fetch.replace("method: \"GET\"", "‸")),
-        &["method", "body", "on", "cache", "paginate"],
+        &[
+            "method",
+            "body",
+            "refresh",
+            "placeholder",
+            "cache",
+            "paginate",
+        ],
     );
     offers(
-        &in_page(fetch, &fetch.replace("method: \"GET\"", "on: .‸")),
-        &["focus", "reconnect", "interval"],
+        &in_page(fetch, &fetch.replace("method: \"GET\"", "refresh: .‸")),
+        &["onFocus", "onReconnect", "every", "never"],
     );
     let api =
         "api Backend(base: \"/api\") {\n    get users(page: Number = 1, q: String?) -> [Map]\n}\n";
     let v = format!("{api}{HEAD}    resource r = Backend.users(page: 1)\n}}\n");
     let call = offered(&v, &v.replace("page: 1", "‸"));
-    offers(&call, &["page", "q", "cache", "as", "on", "paginate"]);
+    offers(
+        &call,
+        &[
+            "page",
+            "q",
+            "cache",
+            "as",
+            "refresh",
+            "placeholder",
+            "paginate",
+        ],
+    );
     offers(
         &offered(&v, &v.replace("page: 1", "cache: .‸")),
         &["swr", "none", "forever"],
@@ -432,7 +450,7 @@ fn a_match_offers_an_enum_s_cases_and_a_connection_s_states() {
         ),
     );
     offers(&arms, &[".loud", ".odd", "else"]);
-    lacks(&arms, &[".calm", "loading", "ready"]);
+    lacks(&arms, &[".calm", ".loading", ".loaded"]);
     let v = format!(
         "{HEAD}    socket s = ws(\"wss://x\")\n    match s {{\n        open {{ Text(\"o\") }}\n    }}\n}}\n"
     );
@@ -444,7 +462,7 @@ fn a_match_offers_an_enum_s_cases_and_a_connection_s_states() {
         ),
     );
     offers(&arms, &["connecting", "closed", "error", "else"]);
-    lacks(&arms, &["open", "loading", "ready"]);
+    lacks(&arms, &["open", ".loading", ".loaded"]);
 }
 
 // ─── The outline ─────────────────────────────────────────────────────────

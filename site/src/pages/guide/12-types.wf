@@ -516,9 +516,9 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
     resource deploys: [Deploy] = http.get("/api/deploys")
     Heading("Deploys").h1
     match deploys {
-        loading { Spinner }
-        error(e) { Alert("Failed: {e.message}").danger }
-        ready(rows) {
+        .loading { Spinner }
+        .failed(e) { Alert("Failed: {e.message}").danger }
+        .loaded(rows) {
             for d in rows by d.id { Text("{d.id} {d.status} {ago(d.startedAt)}") }
         }
     }

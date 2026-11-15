@@ -1,5 +1,5 @@
 //! A store's `resource`: made with the store, outside any page, and read as
-//! signals — `Feed.rows.state` from a page, `rows.data` in the store's own
+//! signals — `Feed.rows.isLoaded` from a page, `rows.value` in the store's own
 //! actions and derived values. It used to be dropped from the store, and
 //! its name compiled to a bare identifier nothing declared. What the
 //! runtime does is `tests/js/store.test.mjs` and
@@ -32,22 +32,22 @@ fn diagnostics(src: &str, code: &str) -> Vec<String> {
 const FEED: &str = "type Row { name: String }
 store Feed {
     state page = 1
-    resource rows: [Row] = http.get(\"/api/rows?page={page}\", on: .focus)
-    derived count = rows.data?.length ?? 0
-    derived loaded = rows.state == \"ready\"
+    resource rows: [Row] = http.get(\"/api/rows?page={page}\", refresh: .onFocus)
+    derived count = rows.value?.length ?? 0
+    derived loaded = rows.isLoaded
     action next() { page = page + 1 }
     action again() { rows.reload() }
     action peek(rows: Map) { page = rows.data }
 }
 page P(path: \"/\", title: \"T\") {
     Heading(\"Feed\").h1
-    Text(Feed.rows.state)
+    Text(match Feed.rows { .loading { \"loading\" } .failed(e) { \"error\" } .loaded(v) { \"ready\" } })
     Text(\"{Feed.count} {Feed.loaded}\")
-    if Feed.rows.refreshing { Text(\"Refreshing\") }
+    if Feed.rows.isRefreshing { Text(\"Refreshing\") }
     match Feed.rows {
-        loading { Text(\"Loading\") }
-        error(e) { Text(e.message) }
-        ready(rows) { for r in rows { Text(r.name) } }
+        .loading { Text(\"Loading\") }
+        .failed(e) { Text(e.message) }
+        .loaded(rows) { for r in rows { Text(r.name) } }
     }
     Button(\"Next\") { on click { Feed.next()  Feed.again()  Feed.peek({ data: 2 }) } }
 }
@@ -59,16 +59,16 @@ fn a_store_makes_its_resource_and_reads_it_in_its_own_terms() {
     assert!(js.contains("resources: {"), "{js}");
     assert!(
         js.contains(
-            "rows: (store) => WF.resource(() => `/api/rows?page=${encodeURIComponent(store.page)}`, { on: { focus: true } }),"
+            "rows: (store) => WF.resource(() => `/api/rows?page=${encodeURIComponent(store.page)}`, { refresh: { focus: true } }),"
         ),
         "the address reads the store's state, and is asked again when it changes: {js}"
     );
     assert!(
-        js.contains("count: (store) => (store.rows.data()?.length ?? 0),"),
+        js.contains("count: (store) => (store.rows.value()?.length ?? 0),"),
         "a derived value reads what it holds as a signal: {js}"
     );
     assert!(
-        js.contains("loaded: (store) => (store.rows.state() === \"ready\"),"),
+        js.contains("loaded: (store) => store.rows.isLoaded(),"),
         "{js}"
     );
     assert!(js.contains("store.rows.reload();"), "{js}");
@@ -90,26 +90,25 @@ fn a_parameter_named_like_the_resource_is_the_parameter() {
 #[test]
 fn a_page_reads_a_store_s_resource_as_signals() {
     let js = spa_generated(FEED);
-    assert!(js.contains("Feed.rows.state()"), "{js}");
-    assert!(js.contains("Feed.rows.refreshing()"), "{js}");
+    assert!(js.contains("Feed.rows.isRefreshing()"), "{js}");
     assert!(
         js.contains(
-            "() => Feed.rows.state(), () => Feed.rows.state() === \"error\" ? Feed.rows.error() : Feed.rows.data(), {"
+            "WF.match(_root, () => WF.caseOf(WF.readOf(Feed.rows)), () => WF.readOf(Feed.rows), {"
         ),
-        "a match over it is chosen by its state: {js}"
+        "a match over it is chosen by its case: {js}"
     );
-    // `Text(Feed.rows.state)` follows the state: it is read in a function.
+    // A match expression over it follows it: it is read in a function.
     assert!(
-        js.contains("() => Feed.rows.state()"),
+        js.contains("() => ((WF.caseOf(WF.readOf(Feed.rows)) === \"loading\")"),
         "what is shown follows it: {js}"
     );
 }
 
 #[test]
 fn only_the_store_that_declares_it_has_the_resource() {
-    let src = "store Feed {\n    resource rows: Json = http.get(\"/api/rows\")\n}\nstore Other {\n    state rows = { state: \"x\" }\n}\npage P(path: \"/\", title: \"T\") {\n    Text(\"{Feed.rows.state} {Other.rows.state}\")\n}\n";
+    let src = "store Feed {\n    resource rows: Json = http.get(\"/api/rows\")\n}\nstore Other {\n    state rows = { state: \"x\" }\n}\npage P(path: \"/\", title: \"T\") {\n    Text(\"{Feed.rows.isLoaded} {Other.rows.state}\")\n}\n";
     let js = spa_generated(src);
-    assert!(js.contains("Feed.rows.state()"), "{js}");
+    assert!(js.contains("Feed.rows.isLoaded()"), "{js}");
     assert!(
         js.contains("Other.rows.state}") || js.contains("Other.rows.state)"),
         "another store's state of the same name is a plain value: {js}"
@@ -123,10 +122,10 @@ fn only_the_store_that_declares_it_has_the_resource() {
 
 #[test]
 fn a_store_s_endpoint_resource_takes_its_arguments_from_the_store() {
-    let src = "type Item { id: String, name: String }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) -> [Item]\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page, on: .interval(30000), cache: .swr(60000))\n    derived names = list.items.map(i => i.name)\n}\npage P(path: \"/\", title: \"T\") {\n    for item in Shelf.list.items by item.id { Text(item.name) }\n    if Shelf.list.hasMore { Button(\"More\") { on click { Shelf.list.loadMore() } } }\n    Text(\"{Shelf.names.length}\")\n}\n";
+    let src = "type Item { id: String, name: String }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) -> [Item]\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page, refresh: .every(30000), cache: .swr(60000))\n    derived names = list.items.map(i => i.name)\n}\npage P(path: \"/\", title: \"T\") {\n    for item in Shelf.list.items by item.id { Text(item.name) }\n    if Shelf.list.hasMore { Button(\"More\") { on click { Shelf.list.loadMore() } } }\n    Text(\"{Shelf.names.length}\")\n}\n";
     let js = spa_generated(src);
     assert!(
-        js.contains("list: (store) => WF.resource(Catalog.items, { call: true, args: () => ({ page: store.page, cache: { kind: \"swr\", ttl: 60000 } }), on: { interval: 30000 }, paginate: { by: \"page\", set: (v) => { store.page = v; } } }),"),
+        js.contains("list: (store) => WF.resource(Catalog.items, { call: true, args: () => ({ page: store.page, cache: { kind: \"swr\", ttl: 60000 } }), refresh: { interval: 30000 }, paginate: { by: \"page\", set: (v) => { store.page = v; } } }),"),
         "{js}"
     );
     assert!(js.contains("store.list.items().map("), "{js}");
@@ -138,13 +137,13 @@ fn a_store_s_endpoint_resource_takes_its_arguments_from_the_store() {
 #[test]
 fn a_page_s_own_resource_is_as_it_was() {
     let js = spa_generated(&page(
-        "resource rows: Json = http.get(\"/api/rows\")\n    Text(rows.state)",
+        "resource rows: Json = http.get(\"/api/rows\")\n    Text(rows.isLoaded)",
     ));
     assert!(
         js.contains("const _rows = WF.resource(\"/api/rows\", null);"),
         "{js}"
     );
-    assert!(js.contains("_rows.state()"), "{js}");
+    assert!(js.contains("_rows.isLoaded()"), "{js}");
 }
 
 #[test]

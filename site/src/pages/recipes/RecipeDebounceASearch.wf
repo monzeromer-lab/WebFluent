@@ -13,9 +13,9 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
     }
     if q != "" {
         match hits {
-            loading { Spinner.sm }
-            error(e) { Text(e.message).danger }
-            ready(list) { Text("{list.length} results for {q}") }
+            .loading { Spinner.sm }
+            .failed(e) { Text(e.message).danger }
+            .loaded(list) { Text("{list.length} results for {q}") }
         }
     }
 }
@@ -37,9 +37,9 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
     }
     if q != "" {
         match hits {
-            loading { Spinner.sm }
-            error(e) { Text(e.message).danger }
-            ready(list) { Text("{list.length} results for {q}") }
+            .loading { Spinner.sm }
+            .failed(e) { Text(e.message).danger }
+            .loaded(list) { Text("{list.length} results for {q}") }
         }
     }
 }"#, title: "wf")

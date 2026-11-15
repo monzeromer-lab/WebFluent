@@ -284,7 +284,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("choice")
-                    Table.Cell { Markdown("`match expr \{ .case(a) \{ … \}  loading \{ … \}  error(e) \{ … \}  ready(v) \{ … \}  else \{ … \} \}`") }
+                    Table.Cell { Markdown("`match expr \{ .case(a) \{ … \}  .loading \{ … \}  .failed(e) \{ … \}  .loaded(v) \{ … \}  else \{ … \} \}`") }
                 }
                 Table.Row {
                     Table.Cell("orchestration")

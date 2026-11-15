@@ -96,12 +96,17 @@ impl JsCodegen {
             // `on:` is the resource's — when to look again — and every
             // other argument is the request's.
             let mut refetch = None;
+            let mut placeholder = None;
             let mut paginate = None;
             let pairs: Vec<(String, Expr)> = named.into_iter().flatten().cloned().collect();
             for (key, value) in &pairs {
                 let key = key.trim_matches('"');
-                if key == "on" {
+                if key == "on" || key == "refresh" {
                     refetch = Some(self.refetch_policy_in(value, store));
+                    continue;
+                }
+                if key == "placeholder" {
+                    placeholder = Some(self.placeholder_in(value, store));
                     continue;
                 }
                 // `paginate: .page` — `.items` gathers the pages, and
@@ -133,10 +138,13 @@ impl JsCodegen {
                 };
                 parts.push(format!("{key}: {emitted}"));
             }
-            let on = match refetch {
-                Some(policy) => format!(", on: {policy}"),
+            let mut on = match refetch {
+                Some(policy) => format!(", refresh: {policy}"),
                 None => String::new(),
             };
+            if let Some(kept) = placeholder {
+                on.push_str(&format!(", placeholder: {kept}"));
+            }
             let paging = match paginate {
                 Some(policy) => format!(", paginate: {policy}"),
                 None => String::new(),
@@ -166,15 +174,20 @@ impl JsCodegen {
             .options
             .iter()
             .map(|opt| {
-                let value = match opt.key.trim_matches('"') {
-                    "on" => self.refetch_policy_in(&opt.value, store),
+                let key = match opt.key.trim_matches('"') {
+                    "on" => "refresh",
+                    other => other,
+                };
+                let value = match key {
+                    "refresh" => self.refetch_policy_in(&opt.value, store),
+                    "placeholder" => self.placeholder_in(&opt.value, store),
                     "cache" => self.cache_policy_in(&opt.value, store),
                     // What is sent is read on every load, so a body or a
                     // header that reads state asks again when it changes.
                     "body" | "headers" => format!("() => ({})", self.term(&opt.value, store)),
                     _ => self.term(&opt.value, store),
                 };
-                format!("{}: {value}", opt.key)
+                format!("{key}: {value}")
             })
             .collect();
         // `http.post(…)`: the verb is the request's method.
@@ -257,15 +270,23 @@ impl JsCodegen {
         }
     }
 
-    /// `.focus`, `.reconnect`, `.interval(30.seconds)`, `.never` — when to
-    /// look again; `store` reads it in a store's terms.
+    /// `refresh: .onFocus`, `.onReconnect`, `.every(30.seconds)`, `.never`,
+    /// or a list of them — when to look again; `store` reads it in a store's
+    /// terms.
     pub(super) fn refetch_policy_in(&self, value: &Expr, store: Option<&[String]>) -> String {
+        let word = |name: &str| match name {
+            "onFocus" => "focus".to_string(),
+            "onReconnect" => "reconnect".to_string(),
+            "every" => "interval".to_string(),
+            other => other.to_string(),
+        };
         let one = |e: &Expr| -> Option<String> {
             match e {
                 Expr::EnumCase(name) if name == "never" => Some(String::new()),
-                Expr::EnumCase(name) => Some(format!("{name}: true")),
+                Expr::EnumCase(name) => Some(format!("{}: true", word(name))),
                 Expr::CaseValue(name, args) => Some(format!(
-                    "{name}: {}",
+                    "{}: {}",
+                    word(name),
                     args.first()
                         .map_or_else(|| "0".to_string(), |a| self.term(a, store))
                 )),
@@ -280,6 +301,15 @@ impl JsCodegen {
             return self.term(value, store);
         }
         format!("{{ {} }}", parts.join(", "))
+    }
+
+    /// `placeholder: .previous` — what a read shows while another request
+    /// of it loads.
+    pub(super) fn placeholder_in(&self, value: &Expr, store: Option<&[String]>) -> String {
+        match value {
+            Expr::EnumCase(name) => format!("\"{name}\""),
+            other => self.term(other, store),
+        }
     }
 
     /// What the state's declared type says its values must be.

@@ -6,8 +6,8 @@ type Note { title: String }
 store Feed {
     state page = 1
     resource rows: [Row] = http.get("/data/rows-{page}.json")
-    derived count = rows.data?.length ?? 0
-    derived loaded = rows.state == "ready"
+    derived count = rows.value?.length ?? 0
+    derived loaded = rows.isLoaded
     action next() { page = page + 1 }
     action again() { rows.reload() }
 }
@@ -16,5 +16,5 @@ store Feed {
 // when the route comes back.
 store Draft(scope: .route) {
     resource note: Note = http.get("/data/note.json")
-    derived title = note.data?.title ?? ""
+    derived title = note.value?.title ?? ""
 }

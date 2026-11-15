@@ -823,17 +823,10 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
             // with the payload bound, and its `else` arm when the value is
             // not known until run time.
             StatementKind::Match(m) => {
-                let over_resource = m.arms.iter().any(|a| {
-                    matches!(
-                        a.pattern,
-                        ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
-                    )
-                });
-                let value = if over_resource {
-                    None
-                } else {
-                    eval(&m.scrutinee, &ctx.scope)
-                };
+                let over_resource = crate::syntax::parser::ast::over_read(&m.arms);
+                // A read is not known when the page is painted; an enum
+                // whose cases are named like a read's may be.
+                let value = eval(&m.scrutinee, &ctx.scope);
                 let by_case = value.as_ref().and_then(|v| {
                     let case = case_of(v);
                     m.arms
@@ -841,7 +834,12 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
                         .find(|a| matches!(&a.pattern, ArmPattern::Case(c) if Static::Str(c.clone()) == case))
                 });
                 let arm = by_case
-                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Loading))
+                    .or_else(|| {
+                        m.arms.iter().find(|a| {
+                            a.pattern == ArmPattern::Loading
+                                || a.pattern == ArmPattern::Case("loading".into()) && over_resource
+                        })
+                    })
                     .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Else));
                 match arm {
                     Some(arm) => {

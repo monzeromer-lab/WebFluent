@@ -10,7 +10,7 @@ makes on demand, and from a file the build reads.
 
 You will be able to:
 
-- show a request's loading, error and ready states with `resource` and
+- show a read's `.loading`, `.failed(e)` and `.loaded(value)` cases with `resource` and
   `match`;
 - refresh data without the page going blank;
 - describe a service once with `api`, so every call is typed, retried,
@@ -47,8 +47,8 @@ This chapter does not cover:
 ## Show a request with `resource`
 
 To fetch data while a page shows, declare a `resource` and show its states
-with `match`. A *resource* is a request the page makes, and a value that
-says where the request is: loading, failed or ready.
+with `match`. A *resource* is a request the page makes, and one value that
+says where it is: `.loading`, `.failed(e)` or `.loaded(value)`.
 
 This page lists recent deploys, with a spinner while they load and an alert
 if the request fails:
@@ -61,9 +61,9 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 
     Heading("Deploys").h1
     match deploys {
-        loading { Spinner }
-        error(e) { Alert("Could not load: {e.message}").danger }
-        ready(rows) {
+        .loading { Spinner }
+        .failed(e) { Alert("Could not load: {e.message}").danger }
+        .loaded(rows) {
             if rows.length == 0 { Text("No deploys yet.").muted }
             for d in rows by d.id {
                 Row(justify: .between) {
@@ -82,53 +82,67 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 > **Coming from React?** There, a fetch is a `useEffect` that sets
 > `loading`, `error` and `data` states by hand, or a `useQuery`. A
 > `resource` is the request and its state together: no effect, no flags to
-> keep in step, and a `match` with one arm per state. See
+> keep in step, and a `match` with one arm per case. See
 > [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 How it works:
 
 - `resource name: T = http.get(url)` starts the request when the page renders.
-- The annotation (`: [Deploy]`) types the value. Without one, the value is
-  `Any`.
-- A `match` over a resource has three arms — `loading`, `error(e)` and
-  `ready(v)` — and may have an `else`. A resource `match` with no `error`
-  arm and no `else` is `T21`.
+- The annotation (`: [Deploy]`) types the value. A read of `http.get` must
+  have one (`N11`); a read of an endpoint takes the endpoint's.
+- A read is one value in one of three cases, and a `match` over it has an
+  arm for each, or an `else`:
+
+  | Case | When |
+  |---|---|
+  | `.loading` | nothing to show yet |
+  | `.failed(e)` | the first load failed; `e` is an `HttpError` — or the endpoint's error enum, for one declared `-> T ! E` |
+  | `.loaded(value, refreshing, stale)` | something to show; `refreshing` while it is asked again; `stale` the failure of a refresh, else `null` |
+
+  An arm names as many of its case's places as it uses: `.loaded(rows)`.
+  One with no `.failed` arm and no `else` is `T21`; one that leaves out
+  another case is `T15`.
 - The pre-rendered page — the HTML the build writes for a static site —
-  shows the `loading` arm. The live page fetches and replaces it.
-- A failed response (one that is not `ok`) is an error whose `e.message` is
-  `HTTP 500`, or whatever the status was.
+  shows the `.loading` arm. The live page fetches and replaces it.
+- A failed response (one that is not `ok`) is `.status(code, problem)`,
+  whose `e.message` is `HTTP 500`, or whatever the status was.
 
-### Read a resource's state anywhere
+### Read one fact of a resource anywhere
 
-A resource has these values. Each is live wherever you read it — a label, a
-splice, an attribute — with no `derived` in between:
+Without a `match`, a resource has these, each worked out from its one
+value, so they cannot disagree. Each is live wherever you read it — a
+label, a splice, an attribute — with no `derived` in between:
 
 | Value | What it is |
 |---|---|
-| `name.state` | `"loading"`, `"ready"` or `"error"` |
-| `name.data` | The last value, or `null` before the first (`T?`) |
-| `name.error` | The last error |
-| `name.refreshing` | `true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page)) |
+| `name.value` | The value, while it is `.loaded`; else `null` (`T?`) |
+| `name.isLoading` · `name.isLoaded` · `name.isFailed` | Which case it is in |
+| `name.isRefreshing` | `true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page)) |
+| `name.error` | What went wrong: the first load's failure, or the last refresh's (`E?`) |
 | `name.pending` | `true` while any request of it runs, the first load included |
 | `name.reload()` | Makes the request again |
 | `name.invalidate()` | Drops what the cache holds for it, and asks again |
 | `name.cancel()` | Aborts the request that is running |
 
-So `Button(if plan.data != null { "Request approval" } else { "Deploy" })`
-changes its label when the plan arrives.
+So `Button(if plan.isLoaded { "Request approval" } else { "Deploy" })`
+changes its label when the plan arrives, and `if let .failed(e) = plan {
+Alert(e.message).danger }` shows one case without a `match`.
 
 ### Refresh without clearing the page
 
 These ask for a resource again:
 
-- the `on:` option of `http.get(…)` or of an endpoint's call: `.focus` (when
-  the reader comes back to the tab), `.reconnect` (when the network
-  returns), or `.interval(30.seconds)`;
+- an argument, or a part of the address, a body or a header, that reads
+  state and changes;
+- the `refresh:` option of `http.get(…)` or of an endpoint's call:
+  `.onReconnect` (when the network returns — what a read does when it says
+  nothing), `.onFocus` (when the reader comes back to the tab),
+  `.every(30.seconds)`, `.never`, or a list of them;
 - `name.reload()` and `name.invalidate()`.
 
 Asking again for the request already shown is a *refresh*. The page stays
-as it is while a refresh runs: `name.state` stays `"ready"`, the data stays,
-and the answer is drawn in place.
+as it is while a refresh runs: the read stays `.loaded`, with its value and
+`refreshing` true, and the answer is drawn in place.
 
 This page polls a list of servers every 30 seconds, and shows a small
 spinner during each refresh:
@@ -138,16 +152,16 @@ type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
-    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers?env={stage}", refresh: .every(30.seconds))
 
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
-        loading { Skeleton(height: "20px") }
-        error(e) { Alert(e.message).danger }
-        ready(list) {
-            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
-            if servers.refreshing { Spinner.sm }
+        .loading { Skeleton(height: "20px") }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list, refreshing, stale) {
+            if stale != null { Alert("Could not refresh; this is what was there.").warning }
+            if refreshing { Spinner.sm }
             for s in list by s.id { Text("{s.name}: {s.status}") }
         }
     }
@@ -155,17 +169,17 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
 ```
 
 > [!NOTE]
-> **Coming from TanStack Query?** `isLoading` is `name.state == "loading"`,
-> true only while there is nothing to show; `isFetching` is `name.pending`;
-> and `name.refreshing` is a fetch while data is on screen. See
+> **Coming from TanStack Query?** `isLoading` is `name.isLoading`, true
+> only while there is nothing to show; `isFetching` is `name.pending`; and
+> `name.isRefreshing` is a fetch while data is on screen. The three cases
+> are its `status`, made one value. See
 > [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 What a refresh keeps:
 
-- **The arm.** The `ready` arm's binding is live. Text, attributes, `if`,
-  `if let`, a keyed `for … by` and component props inside the arm follow the
-  new data. The arm is drawn again only when the arm changes — loading,
-  ready, error.
+- **The arm.** The `.loaded` arm's bindings are live. Text, attributes,
+  `if`, `if let`, a keyed `for … by` and component props inside the arm
+  follow the new value. The arm is drawn again only when the case changes.
 - **The rows.** A row whose key is still in the list keeps its nodes, its
   focus and its components' state. An input keeps what was typed.
 - **Unchanged data.** The parts of an answer equal to what was shown are
@@ -174,21 +188,25 @@ What a refresh keeps:
 
 What happens when a request fails, or changes:
 
-- A refresh that fails keeps the data and `"ready"`, and sets `name.error`
-  until the next answer, so the arm can say the data is stale.
-- A first load that fails is `"error"`, and its `reload()` is a first load
-  again.
-- A request that changed is a first load again, shown as `loading`. A
-  request changes when an address or an argument that reads state now names
-  something else — another environment, another page — because the data on
-  screen would be the wrong data. What the last request brought goes with
-  it: `name.data` is `null` (and a paged resource's `name.items` empty)
-  until the answer arrives, and stays so if it fails, so a `derived` value
-  over it never reads the other request's answer. With `paginate:`, the
-  next page is a refresh instead.
+- A refresh that fails stays `.loaded`, with the value, and its failure is
+  `stale` until the next answer, so the arm can say the value is out of
+  date.
+- A first load that fails is `.failed(e)`, and its `reload()` is a first
+  load again.
+- A request that changed is a first load again, shown as `.loading`. A
+  request changes when an argument that reads state now names something
+  else — another environment, another page — because the value on screen
+  would be the wrong one. What the last request brought goes with it:
+  `name.value` is `null` (and a paged resource's `name.items` empty) until
+  the answer arrives, and stays so if it fails, so a `derived` value over it
+  never reads the other request's answer. With `paginate:`, the next page
+  is a refresh instead.
+- `placeholder: .previous` keeps the last value shown instead, `.loaded`
+  and refreshing, until the new answer arrives — a search whose results
+  stay while the next ones load.
 
 Pressing **Production** above changes `stage`, so the list shows its
-`loading` arm and then the production servers.
+`.loading` arm and then the production servers.
 
 ### Send options with a request
 
@@ -215,9 +233,9 @@ page Search(path: "/search", title: "Search", description: "Search the catalogue
     Heading("Search").h1
     Input(bind: q, label: "Search")
     match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text("{list.length} hits") }
+        .loading { Spinner.sm }
+        .failed(e) { Text(e.message).danger }
+        .loaded(list) { Text("{list.length} hits") }
     }
 }
 ```
@@ -234,9 +252,9 @@ type Post { slug: String, title: String, body: String }
 page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
     resource post: Post = http.get("/api/posts/{slug}")
     match post {
-        loading { Skeleton }
-        error(e) { Alert("Not found").warning }
-        ready(p) {
+        .loading { Skeleton }
+        .failed(e) { Alert("Not found").warning }
+        .loaded(p) {
             Heading(p.title).h1
             Markdown(p.body)
         }
@@ -262,9 +280,9 @@ page Lookup(path: "/lookup", title: "Lookup", description: "Search when you pres
     Heading("Lookup").h1
     Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
     match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text("{list.length} results for {submitted}") }
+        .loading { Spinner.sm }
+        .failed(e) { Text(e.message).danger }
+        .loaded(list) { Text("{list.length} results for {submitted}") }
     }
 }
 ```
@@ -301,12 +319,12 @@ api Backend(base: "/api/v1") {
 
 page Users(path: "/users", title: "Users", description: "Everyone.") {
     state page: Number = 1
-    resource rows = Backend.users(page: page, cache: .swr(60.seconds), on: .focus)
+    resource rows = Backend.users(page: page, cache: .swr(60.seconds), refresh: .onFocus)
 
     Heading("Users").h1
     match rows {
-        loading { Skeleton(height: "20px") }
-        error(e) {
+        .loading { Skeleton(height: "20px") }
+        .failed(e) {
             match e {
                 .offline { Alert("You are offline.").warning }
                 .timeout { Alert("The server took too long.").warning }
@@ -314,7 +332,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
             }
             Button("Try again") { on click { rows.reload() } }
         }
-        ready(list) { for u in list by u.id { Text(u.name) } }
+        .loaded(list) { for u in list by u.id { Text(u.name) } }
     }
 }
 ```
@@ -380,7 +398,7 @@ A hook may `await`. A hook that throws fails the call it was watching.
 | Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice |
 | Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address, body and credentials, revalidated with `ETag`, and holding the 256 answers read most recently |
 | Dedupe | Two readers of one address make one request, cached or not |
-| Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` |
+| Refetch | `refresh: .onFocus`, `.reconnect`, `.interval(30.seconds)` |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
 | Progress | A `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
 
@@ -497,8 +515,8 @@ get report(id: String) at "reports/:id" -> Json! as: .blob
   One that is empty (`null` or `""`) is not sent at all, since `users/`
   would be the whole collection, not the user; nor is one that is `.` or
   `..`, which the browser reads as this folder or the one above. The call
-  ends as `.aborted`, and a resource over it stays `loading` until the value
-  arrives.
+  ends as `.cancelled`, and a resource over it stays `.loading` until the
+  value arrives.
 - **The body.** A parameter called `body` is the request body; a map is
   sent as JSON. A `File` parameter makes the call a multipart upload.
 - **Query parameters.** Every other parameter goes in the query string, and
@@ -874,7 +892,7 @@ source of data puts in that HTML:
 |---|---|
 | `data`, `const`, `env` | Fully painted |
 | `state` initial values, and `derived` values over them | Painted |
-| `resource` | The `loading` arm; the live page fetches and replaces it |
+| `resource` | The `.loading` arm; the live page fetches and replaces it |
 | `http` in an action | Nothing until the action runs |
 
 ## Troubleshooting
@@ -884,8 +902,8 @@ source of data puts in that HTML:
 | The browser console says a response was blocked by CORS | The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)). |
 | A request gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
 | A `.parse` error naming a place, such as `$[1].name is missing` | Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
-| A resource stays `loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
-| The page goes back to `loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the data. |
+| A resource stays `.loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
+| The page goes back to `.loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the value; `placeholder: .previous` keeps it for a new address too. |
 | `T05` on a field of the data | The declared type has no such field. Fix the name, or add the field to the `type`. |
 | `T06` or `T10` on an endpoint call | The service has no such endpoint, or the endpoint takes no such argument. |
 | A post's page is missing from a static build | Its value is not in `paths:`. |
@@ -893,30 +911,30 @@ source of data puts in that HTML:
 ## Quiz
 
 ```quiz
-A resource's `match` has a `loading` arm and a `ready` arm, and no other. What does the reader see when the request fails?
-- An error message the runtime draws for you -- The runtime draws only the arms you write; the build warns about the missing one with T21.
-+ Nothing where the `match` is, and the build warns with T21 -- No arm matches `"error"`, so the place stays empty. Add `error(e) { … }` or an `else`.
-- The `loading` arm, until a retry succeeds -- A first load that fails is `"error"`, not `"loading"`.
+A resource's `match` has a `.loading` arm and a `.loaded` arm, and no other. What happens?
+- The runtime draws an error message for you when the request fails -- The runtime draws only the arms you write.
++ The build stops with T21 -- A failed first load is `.failed(e)`, which no arm takes, so the place would stay empty. Add `.failed(e) { … }` or an `else`.
+- The `.loading` arm shows until a retry succeeds -- A first load that fails is `.failed(e)`, not `.loading`.
 ```
 
 ```quiz
 A resource is making its very first request. Which is true?
-+ `pending` is true and `refreshing` is false -- `pending` covers every request of it, the first load included; `refreshing` only a request made again while data is shown.
-- `refreshing` is true and `pending` is false -- It is the other way round: there is no data yet to refresh.
-- Both are true -- `refreshing` is true only while data is on screen, and on a first load there is none.
++ `pending` is true and `isRefreshing` is false -- `pending` covers every request of it, the first load included; `isRefreshing` only a request made again while a value is shown.
+- `isRefreshing` is true and `pending` is false -- It is the other way round: there is no value yet to refresh.
+- Both are true -- `isRefreshing` is true only while the read is `.loaded`, and on a first load it is `.loading`.
 ```
 
 ```quiz
-A resource with `on: .interval(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?
-- The `loading` arm, then the new list -- Only a first load, or a request whose address changed, shows `loading`.
-- An empty list until the answer arrives -- The data stays while a refresh runs; `name.data` is never cleared by one.
-+ The `ready` arm with the old list, then the answer drawn in place -- A refresh keeps `"ready"` and the data; rows whose key is still there keep their nodes.
+A resource with `refresh: .every(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?
+- The `.loading` arm, then the new list -- Only a first load, or a request whose address changed, shows `.loading`.
+- An empty list until the answer arrives -- The value stays while a refresh runs; `name.value` is never cleared by one.
++ The `.loaded` arm with the old list, then the answer drawn in place -- A refresh stays `.loaded`, with `refreshing` true; rows whose key is still there keep their nodes.
 ```
 
 ```quiz
 The address is `http.get("/api/servers?env={stage}")`, and a button sets `stage` from `"test"` to `"prod"`. What shows next?
-+ The `loading` arm, then the production servers -- The request now names something else, so it is a first load; the test servers would be the wrong data.
-- The test servers, with `refreshing` true, until the production servers arrive -- That is a refresh, which asks again for the same request; this one changed.
++ The `.loading` arm, then the production servers -- The request now names something else, so it is a first load; the test servers would be the wrong data.
+- The test servers, with `refreshing` true, until the production servers arrive -- That is a refresh, which asks again for the same request; this one changed. `placeholder: .previous` would ask for it.
 - Nothing changes until the reader reloads the page -- An address that reads state is fetched again whenever that state changes.
 ```
 
@@ -930,8 +948,8 @@ page P(path: "/", title: "Users", description: "Everyone.") {
     resource users = http.get("/api/users")
     Heading("Users").h1
     match users {
-        loading { Spinner }
-        ready(list) { Text("{list.length} users") }
+        .loading { Spinner }
+        .loaded(list) { Text("{list.length} users") }
     }
 }
 ```
@@ -949,9 +967,9 @@ page P(path: "/", title: "Users", description: "Everyone.") {
     resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
-        loading { Spinner }
-        error(e) { Alert(e.message).danger }
-        ready(list) { for u in list by u.id { Text(u.fullName) } }
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for u in list by u.id { Text(u.fullName) } }
     }
 }
 ```
@@ -968,12 +986,12 @@ type User { id: String, name: String }
 page P(path: "/", title: "Users", description: "Everyone.") {
     resource users: [User] = http.get("/api/users")
     Heading("Users").h1
-    Text("{users.data.length} users")
+    Text("{users.value.length} users")
 }
 ```
 
-Read it through `?.` with a fallback, `{users.data?.length ?? 0}`, or show
-it inside the `ready` arm, where the binding is never null
+Read it through `?.` with a fallback, `{users.value?.length ?? 0}`, or show
+it inside the `.loaded` arm, where the binding is never null
 ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
 
 Going further: [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md) keeps a

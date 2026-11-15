@@ -247,6 +247,7 @@ impl JsCodegen {
             // matches runs, its names bound to their places in the value.
             (StatementKind::Match(m), _) => {
                 let subject = self.emit_expr_in(&m.scrutinee, ecx);
+                let subject = self.as_seen(&m.scrutinee, subject);
                 let json = self.is_json_subject(&m.scrutinee);
                 let var = self.fresh_var();
                 self.emit_line("{");
@@ -290,6 +291,7 @@ impl JsCodegen {
                 let pattern = if_stmt.pattern.as_ref().expect("checked");
                 let mark = self.scope_mark(cx);
                 let value = self.emit_expr_in(&if_stmt.condition, ecx);
+                let value = self.as_seen(&if_stmt.condition, value);
                 let json = self.is_json_subject(&if_stmt.condition);
                 let var = self.fresh_var();
                 self.emit_line("{");

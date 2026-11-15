@@ -298,12 +298,12 @@ api Releases(base: "/api") {
 }
 
 page Changelog(path: "/changelog", title: "Changelog", description: "What changed, newest first.", layout: BoardShell) {
-    resource releases = Releases.list(cache: .swr(60.seconds), on: .focus)
+    resource releases = Releases.list(cache: .swr(60.seconds), refresh: .onFocus)
 
     Heading("Changelog").h1
     match releases {
-        loading { Skeleton(height: "20px") }
-        error(e) {
+        .loading { Skeleton(height: "20px") }
+        .failed(e) {
             match e {
                 .offline { Alert("You are offline.").warning }
                 .timeout { Alert("The server took too long.").warning }
@@ -311,9 +311,9 @@ page Changelog(path: "/changelog", title: "Changelog", description: "What change
             }
             Button("Try again") { on click { releases.reload() } }
         }
-        ready(list) {
+        .loaded(list) {
             if releases.error != null { Alert("Could not refresh; this is what was there.").warning }
-            if releases.refreshing { Spinner.sm }
+            if releases.isRefreshing { Spinner.sm }
             if list.length == 0 { Text("Nothing released yet.").muted }
             for r in list by r.tag {
                 Row(gap: .sm, align: .baseline) {

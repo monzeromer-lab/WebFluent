@@ -41,6 +41,7 @@ mod members;
 mod method;
 mod names;
 mod reactivity;
+mod read;
 mod refine;
 mod report;
 mod results;
@@ -915,23 +916,25 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// The body a failure of this request is declared to carry: what the
     /// endpoint's `errors { 422 -> T }` names, when every status it lists
     /// carries the one type; `Any` otherwise, and for a plain `fetch`.
-    fn declared_failure(&self, url: &Expr) -> Type {
+    /// What a read over `url` fails with: the error its endpoint declares
+    /// (`-> T ! E`), or an `HttpError` — what `.err` holds for the same
+    /// request.
+    fn read_failure(&self, url: &Expr) -> Type {
+        let http = || self.world.resolve(Type::Record(ty::HTTP_ERROR.to_string()));
         let Expr::MethodCall(obj, method, _) = url else {
-            return Type::Any;
+            return http();
         };
         let Expr::Identifier(api) = &**obj else {
-            return Type::Any;
+            return http();
         };
-        let Some(endpoint) = self.world.endpoint(api, method) else {
-            return Type::Any;
-        };
-        let mut bodies = endpoint
-            .errors
-            .iter()
-            .map(|(_, t)| self.world.resolve(Type::from_ref(t)));
-        match bodies.next() {
-            Some(first) if bodies.all(|b| b == first) => first,
-            _ => Type::Any,
+        match self
+            .world
+            .endpoint(api, method)
+            .and_then(|e| e.returns.as_ref())
+            .map(|t| self.world.resolve(Type::from_ref(t)))
+        {
+            Some(Type::Result(_, error)) => self.world.resolve(*error),
+            _ => http(),
         }
     }
 
@@ -1129,6 +1132,8 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
                 StatementKind::Resource(r) => {
                     self.resource_source(r, stmt.span);
+                    self.current_span = stmt.span;
+                    self.read_options(r);
                     let inner = match &r.ty {
                         Some(t) => {
                             self.written(t, &r.name);
@@ -1181,7 +1186,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                             );
                         }
                     }
-                    let failed = self.declared_failure(&r.url);
+                    let failed = self.read_failure(&r.url);
                     self.bind_fixed(
                         &r.name,
                         Type::Resource(Box::new(inner), Box::new(failed)),

@@ -57,6 +57,26 @@ impl Checker<'_, '_> {
         {
             let subject = self.infer(obj, None);
             self.note_json_subject(obj, &subject);
+            // A read binds one name in a match expression: the first place
+            // of its case — the value, or what went wrong.
+            if let Type::Resource(value, failed) = subject.unwrapped() {
+                let cases = super::read::read_cases(&value, &failed);
+                return match cases.iter().find(|(c, _)| c == case) {
+                    _ if method == "__is" => Type::Bool,
+                    Some((_, payload)) => payload.first().cloned().unwrap_or(Type::Null),
+                    None => {
+                        self.error_at_current(
+                            "T02",
+                            format!(
+                                "`{}` is a read; `.{case}` is not one of its cases",
+                                expr_text(obj)
+                            ),
+                            "A read is `.loading`, `.failed(e)` or `.loaded(value)`",
+                        );
+                        Type::Error
+                    }
+                };
+            }
             let fields = match subject.unwrapped() {
                 Type::Result(value, error) => Some(
                     super::stmt::result_payload(case, &value, &error)
@@ -225,6 +245,8 @@ impl Checker<'_, '_> {
                                         key,
                                         "cache"
                                             | "on"
+                                            | "refresh"
+                                            | "placeholder"
                                             | "timeout"
                                             | "signal"
                                             | "headers"

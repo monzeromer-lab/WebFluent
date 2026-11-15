@@ -271,7 +271,7 @@ fn a_spliced_value_in_a_route_or_a_fetch_is_encoded() {
 /// which the runtime holds the response to; a build for a host carries none.
 #[test]
 fn a_dev_build_carries_the_shapes_of_declared_responses() {
-    let src = "type User { id: String, name: String, tag: String = \"\" }\nenum Tone { calm, loud }\napi Backend(base: \"/api\") {\n    get user(id: String) at \"users/:id\" -> User\n    get tones() -> [Tone]\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"T\").h1\n    resource users: [User] = http.get(\"/api/users\")\n    match users { ready(list) { Text(\"{list.length}\") } else { Text(\"…\") } }\n}\n";
+    let src = "type User { id: String, name: String, tag: String = \"\" }\nenum Tone { calm, loud }\napi Backend(base: \"/api\") {\n    get user(id: String) at \"users/:id\" -> User\n    get tones() -> [Tone]\n}\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"T\").h1\n    resource users: [User] = http.get(\"/api/users\")\n    match users { .loaded(list) { Text(\"{list.length}\") } else { Text(\"…\") } }\n}\n";
     let program = common::parse_program_as(src, "<test>").expect("parses");
     let mut dev = webfluent::codegen::JsCodegen::new();
     dev.set_dev(true);

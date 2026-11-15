@@ -2867,7 +2867,10 @@ impl ParserV2 {
         }))
     }
 
-    /// `match x { loading { } error(e) { } ready(v) { } .case { } else { } }`.
+    /// `match x { .case { } .case(a, b) { } connecting { } else { } }` — a
+    /// read's `.loading`, `.failed(e)` and `.loaded(v)` are cases; 6.x's
+    /// `loading`, `error(e)` and `ready(v)` still parse, for the checker to
+    /// refuse with their fix.
     fn parse_match_stmt(&mut self, imperative: bool) -> Result<StatementKind> {
         self.expect_word("match")?;
         let scrutinee = self.parse_expression()?;
@@ -2964,7 +2967,7 @@ impl ParserV2 {
             return Ok((ArmPattern::Case(case), None, self.parse_payload_patterns()?));
         }
         let word = self.expect_ident(
-            "a match arm: `loading`, `error(e)`, `ready(v)`, `.case`, a connection's state, or `else`",
+            "a match arm: `.case`, `.case(a, b)`, a connection's state, or `else`",
         )?;
         let pattern = match word.as_str() {
             "loading" => ArmPattern::Loading,
@@ -2976,7 +2979,7 @@ impl ParserV2 {
             other => {
                 return Err(self.error_with_hint(
                     format!("`{other}` is not a match arm"),
-                    "Arms are `loading`, `error(e)`, `ready(v)`, `.case` or `else`",
+                    "Arms are `.case` — a read's `.loading`, `.failed(e)`, `.loaded(v)` — a connection's state, or `else`",
                 ));
             }
         };
@@ -4365,7 +4368,7 @@ impl ParserV2 {
             } else {
                 return Err(self.error_with_hint(
                     format!("Expected `.case` or `else`, got {}", self.describe()),
-                    "A match expression chooses by enum case; `loading`/`error`/`ready` arms belong to a match statement",
+                    "A match expression chooses by case: `.loaded(v) { … }`, `.failed(e) { … }`, `else { … }`",
                 ));
             };
             self.expect(&TokenType::OpenBrace, "`{`")?;

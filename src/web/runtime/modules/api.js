@@ -134,6 +134,8 @@
         )
       : raw;
     call.raw = raw;
+    // What a read of it holds when it fails: what `.err` would.
+    call.failure = (error) => (result ? failureOf(error, result) : httpError(error));
     call.progress = progress;
     call.key = (args) => optionsOf(args).key;
     call.url = addressOf;

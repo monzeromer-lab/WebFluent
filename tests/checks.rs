@@ -430,7 +430,7 @@ fn u10_an_else_no_value_reaches_and_t21_a_resource_with_no_error_arm() {
     let src = format!(
         "{STATUS}{}",
         page(
-            "    state s: Status = .draft\n    match s {\n        .draft { Text(\"d\") }\n        .review { Text(\"r\") }\n        .live { Text(\"l\") }\n        else { Text(\"?\") }\n    }\n    resource users: [String] = http.get(\"/u\")\n    match users {\n        loading { Spinner }\n        ready(list) { Text(\"{list.length}\") }\n    }"
+            "    state s: Status = .draft\n    match s {\n        .draft { Text(\"d\") }\n        .review { Text(\"r\") }\n        .live { Text(\"l\") }\n        else { Text(\"?\") }\n    }\n    resource users: [String] = http.get(\"/u\")\n    match users {\n        .loading { Spinner }\n        .loaded(list) { Text(\"{list.length}\") }\n    }"
         )
     );
     assert_eq!(with(&src, "U10").len(), 1);
@@ -753,7 +753,7 @@ fn t12_a_secret_does_not_escape_through_joins_the_browser_or_its_members() {
     );
     // Handed to a request's headers, it is where it belongs.
     clean(&page(
-        "    state token: Secret = \"\"\n    resource me: String = http.get(\"/me\", headers: { \"Authorization\": token })\n    Text(\"{me.state}\")",
+        "    state token: Secret = \"\"\n    resource me: String = http.get(\"/me\", headers: { \"Authorization\": token })\n    Text(\"{me.isLoaded}\")",
     ));
 }
 
@@ -881,7 +881,7 @@ fn an_if_let_binding_is_a_name_in_the_whole_of_its_branch() {
             "    resource r: E = http.get(\"/e\")\n    \
              Tile(e: E(reason: null))\n    \
              match r {\n        \
-                 ready(e) {\n            \
+                 .loaded(e) {\n            \
                      if let why = e.reason { Row { Pill(why) } }\n            \
                      Pill(nope)\n        \
                  }\n        \
@@ -1237,15 +1237,17 @@ fn with_service(body: &str) -> String {
 }
 
 #[test]
-fn a_failed_requests_status_and_body_are_bound_by_its_match() {
+fn a_failed_reads_error_is_what_its_endpoint_declares() {
+    // `-> User ! CreateUserError`: a read's `.failed(e)` holds the error
+    // enum, a declared status with its typed body.
     clean(&with_service(
-        "    resource made = Backend.createUser(body: NewUser(name: \"Ada\"))\n    match made {\n        loading { Text(\"…\") }\n        error(e) {\n            match e {\n                .status(code, body) { Text(\"{code}: {body.field}\") }\n                else { Text(e.message) }\n            }\n        }\n        ready(u) { Text(u.name) }\n    }",
+        "    resource made = Backend.createUser(body: NewUser(name: \"Ada\"))\n    match made {\n        .loading { Text(\"…\") }\n        .failed(e) {\n            match e {\n                .unprocessableContent(p) { Text(\"{p.status ?? 0}: {p.field}\") }\n                .http(h) { Text(h.message) }\n            }\n        }\n        .loaded(u) { Text(u.name) }\n    }",
     ));
-    // Only `.status` carries anything.
+    // `-> User!`: an `HttpError`, whose `.offline` carries nothing.
     let src = with_service(
-        "    resource one = Backend.user(userId: \"1\")\n    match one {\n        loading { Text(\"…\") }\n        error(e) { match e { .timeout(t) { Text(\"slow\") } else { Text(\"\") } } }\n        ready(u) { Text(u.name) }\n    }",
+        "    resource one = Backend.user(userId: \"1\")\n    match one {\n        .loading { Text(\"…\") }\n        .failed(e) { match e { .offline(t) { Text(\"off\") } else { Text(\"\") } } }\n        .loaded(u) { Text(u.name) }\n    }",
     );
-    assert_eq!(with(&src, "T10").len(), 1, "{:?}", with(&src, "T10"));
+    assert_eq!(with(&src, "T10").len(), 1, "{:?}", findings(&src));
 }
 
 #[test]
@@ -1261,7 +1263,7 @@ fn an_endpoint_call_is_a_promise_until_it_is_awaited() {
 
 #[test]
 fn an_endpoint_call_needs_the_parameters_that_have_no_default() {
-    let src = with_service("    resource one = Backend.user()\n    Text(one.state)");
+    let src = with_service("    resource one = Backend.user()\n    Text(one.isLoaded)");
     assert!(
         with(&src, "C01")[0].contains("`Backend.user` needs `userId:`"),
         "{:?}",
@@ -1269,28 +1271,29 @@ fn an_endpoint_call_needs_the_parameters_that_have_no_default() {
     );
     // One that may be null need not be given.
     clean(&with_service(
-        "    resource all = Backend.users()\n    Text(all.state)",
+        "    resource all = Backend.users()\n    Text(all.isLoaded)",
     ));
 }
 
 #[test]
 fn a_resources_annotation_is_held_to_what_its_endpoint_returns() {
-    let src =
-        with_service("    resource one: [User] = Backend.user(userId: \"1\")\n    Text(one.state)");
+    let src = with_service(
+        "    resource one: [User] = Backend.user(userId: \"1\")\n    Text(one.isLoaded)",
+    );
     assert!(
         with(&src, "T01")[0].contains("`Backend.user` returns `User`"),
         "{:?}",
         with(&src, "T01")
     );
     clean(&with_service(
-        "    resource one: User = Backend.user(userId: \"1\")\n    Text(one.state)",
+        "    resource one: User = Backend.user(userId: \"1\")\n    Text(one.isLoaded)",
     ));
 }
 
 #[test]
 fn a_resource_has_the_methods_it_has() {
     let src = with_service(
-        "    resource all = Backend.users()\n    Text(all.state)\n    Button(\"x\") { on click { all.relaod() } }",
+        "    resource all = Backend.users()\n    Text(all.isLoaded)\n    Button(\"x\") { on click { all.relaod() } }",
     );
     assert!(
         with(&src, "T16")[0].contains("no method `relaod`"),
@@ -1298,6 +1301,6 @@ fn a_resource_has_the_methods_it_has() {
         with(&src, "T16")
     );
     clean(&with_service(
-        "    resource all = Backend.users()\n    Text(all.state)\n    Button(\"x\") { on click { all.reload()  all.invalidate()  all.cancel() } }",
+        "    resource all = Backend.users()\n    Text(all.isLoaded)\n    Button(\"x\") { on click { all.reload()  all.invalidate()  all.cancel() } }",
     ));
 }

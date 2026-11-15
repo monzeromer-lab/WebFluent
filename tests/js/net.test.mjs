@@ -215,7 +215,8 @@ test("an editor's preview holds every resource in its loading or error arm", asy
     const rows = WF.resource("/api/rows", null);
     await settle();
     assert.equal(rows.state(), "error", "held in the error arm, though the request answered");
-    assert.equal(rows.error().status, 503, "with an error a server gives");
+    assert.deepEqual(rows.error().slice(0, 2), ["status", 503], "with an error a server gives");
+    assert.equal(rows.read()[0], "failed", "a read held in its `.failed` case");
     assert.equal(rows.error().message, "503 Service Unavailable");
     assert.deepEqual(rows.data(), [{ id: 1 }], "and the answer kept for when it is let go");
   }

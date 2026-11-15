@@ -53,7 +53,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T18 Arithmetic on something that is not a number", to: "/errors/T18", group: "Types"),
     IndexEntry(label: "T15 A match that misses a case, or has one twice", to: "/errors/T15", group: "Types"),
     IndexEntry(label: "T22 A handler that names more values than its event sends", to: "/errors/T22", group: "Types"),
-    IndexEntry(label: "T21 A resource match with no error arm", to: "/errors/T21", group: "Types"),
+    IndexEntry(label: "T21 A read's match with no .failed arm", to: "/errors/T21", group: "Types"),
     IndexEntry(label: "T26 An action that returns a value and does not say what", to: "/errors/T26", group: "Types"),
     IndexEntry(label: "T30 A part of the browser the language does not type", to: "/errors/T30", group: "Types"),
     IndexEntry(label: "C01 A required prop or field left out", to: "/errors/C01", group: "Components"),
@@ -887,8 +887,8 @@ page ErrorT10(path: "/errors/T10", title: "T10 — A call with the wrong argumen
     }
 }
 
-page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that cannot be matched", description: "A `match` is over a resource (`loading`, `error`, `ready`) or an enum (`.case`); its arms are of that kind.") {
-    ErrorShell("T11", title: "A match on something that cannot be matched", severity: "error", family: "Types", summary: "A `match` is over a resource (`loading`, `error`, `ready`) or an enum (`.case`); its arms are of that kind.", printed: #"error[T11]: `match` needs a resource or an enum, but `n` is `Number`
+page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that cannot be matched", description: "A `match` is over a read, a result, a connection or an enum; its arms are the cases of that kind.") {
+    ErrorShell("T11", title: "A match on something that cannot be matched", severity: "error", family: "Types", summary: "A `match` is over a read, a result, a connection or an enum; its arms are the cases of that kind.", printed: #"error[T11]: `match` needs a resource or an enum, but `n` is `Number`
  --> src/App.wf:4:5
   |
 4 |     match n {
@@ -899,7 +899,7 @@ page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that can
     state n = 1
     Heading("Match").h1
     match n {
-        loading { Spinner }
+        .loading { Spinner }
         else { Text("?") }
     }
 }"#, title: "wf") }
@@ -1197,22 +1197,22 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT21(path: "/errors/T21", title: "T21 — A resource match with no error arm", description: "When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.") {
-    ErrorShell("T21", title: "A resource match with no error arm", severity: "warning", family: "Types", summary: "When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.", printed: #"warning[T21]: this `match` on `users` has no `error` arm, so a failed request shows nothing
+page ErrorT21(path: "/errors/T21", title: "T21 — A read's match with no .failed arm", description: "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.") {
+    ErrorShell("T21", title: "A read's match with no .failed arm", severity: "error", family: "Types", summary: "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.", printed: #"error[T21]: this `match` on `users` has no `.failed` arm and no `else`, so a failed request shows nothing
  --> src/App.wf:6:5
   |
 6 |     match users {
   |     ^^^^^
-  = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
-  = docs: https://webfluent.monzeromer.dev/errors/T21"#, quickfix: "Add an `error` arm", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T21.md") {
+  = help: Add `.failed(e) { Alert(e.message).danger }`, or `else { … }`
+  = docs: https://webfluent.monzeromer.dev/errors/T21"#, quickfix: "Add an arm for `.failed`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T15", title: "A match that misses a case, or has one twice", to: "/errors/T15")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T21.md") {
         broken { CodeBlock(#"type User { name: String }
 
 page P(path: "/", title: "T", description: "D") {
     resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
-        loading { Spinner }
-        ready(list) { Text("{list.length} users") }
+        .loading { Spinner }
+        .loaded(list) { Text("{list.length} users") }
     }
 }"#, title: "wf") }
         fixed { CodeBlock(#"type User { name: String }
@@ -1221,16 +1221,16 @@ page P(path: "/", title: "T", description: "D") {
     resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
-        loading { Spinner }
-        error(e) { Alert(e.message).danger }
-        ready(list) { Text("{list.length} users") }
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { Text("{list.length} users") }
     }
 }"#, title: "wf") }
         note {
-            Markdown("`error(e) \{ Alert(e.message).danger \}`, or an `else`.")
+            Markdown("`.failed(e) \{ Alert(e.message).danger \}`, or an `else`. The\neditor's quick fix and `wf fix --code T21` add an arm for every case the\n`match` leaves out.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
-        Markdown("Warning.")
+        Markdown("Error.\n\nA read is `.loading`, `.failed(e)` or `.loaded(value)`. A first load that\nfails is `.failed(e)`; with no arm for it, the place stays empty and the\nreader is never told. A `match` that misses `.loading` or `.loaded` is\n[T15](/errors/T15).")
     }
 }
 
@@ -2055,8 +2055,8 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN08(path: "/errors/N08", title: "N08 — A form 7.0 removed", description: "`fetch(…)`, an endpoint that does not say how it fails, and `errors \{ \}` were 6.x's; 7.0 asks with `http` and endpoints whose answer is a result.") {
-    ErrorShell("N08", title: "A form 7.0 removed", severity: "error", family: "Requests", summary: "`fetch(…)`, an endpoint that does not say how it fails, and `errors \{ \}` were how 6.x asked a service for things. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result. Each form has its fix.", printed: #"error[N08]: `resource rows = fetch(…)`: `fetch` is the browser's, and a read is `http.get(…)`
+page ErrorN08(path: "/errors/N08", title: "N08 — A form 7.0 removed", description: "`fetch(…)`, an endpoint that does not say how it fails, `errors \{ \}`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.") {
+    ErrorShell("N08", title: "A form 7.0 removed", severity: "error", family: "Requests", summary: "`fetch(…)`, an endpoint that does not say how it fails, `errors \{ \}`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.", printed: #"error[N08]: `resource rows = fetch(…)`: `fetch` is the browser's, and a read is `http.get(…)`
  --> src/App.wf:4:5
   |
 4 |     resource rows: [Row] = fetch("/api/rows")
@@ -2069,7 +2069,7 @@ page P(path: "/", title: "T", description: "D") {
     resource rows: [Row] = fetch("/api/rows")
     Heading("Rows").h1
     match rows {
-        ready(list) { for r in list by r.id { Text(r.title) } }
+        .loaded(list) { for r in list by r.id { Text(r.title) } }
         else { Text("…") }
     }
 }"#, title: "wf") }
@@ -2079,15 +2079,15 @@ page P(path: "/", title: "T", description: "D") {
     resource rows: [Row] = http.get("/api/rows")
     Heading("Rows").h1
     match rows {
-        ready(list) { for r in list by r.id { Text(r.title) } }
+        .loaded(list) { for r in list by r.id { Text(r.title) } }
         else { Text("…") }
     }
 }"#, title: "wf") }
         note {
-            Markdown("The editor's quick fix and `wf fix --code N08` write `http.get`\nfor `fetch`, and `-> T!` for an endpoint. An `errors \{ \}` block, and a\n`fetch` with a `method:`, are rewritten by hand.")
+            Markdown("The editor's quick fix and `wf fix --code N08` write `http.get`\nfor `fetch`, `-> T!` for an endpoint, a read's 7.0 arms, `.value`,\n`.isRefreshing` and `refresh:`. An `errors \{ \}` block, a `fetch` with a\n`method:` and a read's `.state` are rewritten by hand.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
-        Markdown("Error.\n\nWebFluent 6 asked a service for things three ways that 7.0 does not keep:\n\n- **`fetch(…)`**, in a `resource` or an action. A request is now\n  `http.get(url, …)`, `http.post(…)`, `http.put(…)`, `http.patch(…)`,\n  `http.delete(…)`; in an action its answer is a result — `.ok(value)` or\n  `.err(e)` with an `HttpError` — read with `try` or `match`, and its type\n  is named where the answer goes: `let rows: [Row] = try await\n  http.get(url)`. `window.fetch` is the browser's own, untouched.\n- **An endpoint that does not say how it fails**: `get user(id: String) ->\n  User`. Every call of an endpoint answers with a result, so it is declared\n  `-> User!` — a `User` or an `HttpError` — or `-> User ! UserError` with an\n  error enum; `-> !` for one that answers with nothing.\n- **`errors \{ 422 -> T \}`**, which typed a failure's body. A status is now\n  a case of an error enum, carrying its body: `unprocessableContent(problem:\n  T) on 422`, beside `http(error: HttpError)`.")
+        Markdown("Error.\n\nWebFluent 6 asked a service for things, and read the answers, in ways\nthat 7.0 does not keep:\n\n- **`fetch(…)`**, in a `resource` or an action. A request is now\n  `http.get(url, …)`, `http.post(…)`, `http.put(…)`, `http.patch(…)`,\n  `http.delete(…)`; in an action its answer is a result — `.ok(value)` or\n  `.err(e)` with an `HttpError` — read with `try` or `match`, and its type\n  is named where the answer goes: `let rows: [Row] = try await\n  http.get(url)`. `window.fetch` is the browser's own, untouched.\n- **An endpoint that does not say how it fails**: `get user(id: String) ->\n  User`. Every call of an endpoint answers with a result, so it is declared\n  `-> User!` — a `User` or an `HttpError` — or `-> User ! UserError` with an\n  error enum; `-> !` for one that answers with nothing.\n- **`errors \{ 422 -> T \}`**, which typed a failure's body. A status is now\n  a case of an error enum, carrying its body: `unprocessableContent(problem:\n  T) on 422`, beside `http(error: HttpError)`.\n- **A read's 6.x arms and members.** A `resource` is one value:\n  `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`. The arms\n  `loading`, `error(e)` and `ready(v)` are those cases; `.data` is\n  `.value`, `.refreshing` is `.isRefreshing`, and `.state` is asked as\n  `.isLoading`, `.isLoaded` or `.isFailed`. `on:` is `refresh:` —\n  `.onFocus`, `.onReconnect`, `.every(30.seconds)`, `.never`.")
     }
 }
 

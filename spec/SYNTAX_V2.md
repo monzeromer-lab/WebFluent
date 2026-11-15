@@ -288,9 +288,9 @@ A `match` on a resource has the arms `loading { }`, `error(e) { }`,
 ```wf
 resource posts = fetch("/api/posts")
 match posts {
-    loading { Spinner }
-    error(e) { Alert(e.message).danger }
-    ready(list) { for p in list by p.id { PostCard(p) } }
+    .loading { Spinner }
+    .failed(e) { Alert(e.message).danger }
+    .loaded(list) { for p in list by p.id { PostCard(p) } }
 }
 ```
 
@@ -606,6 +606,6 @@ the migrated project builds to the same output. The rules, in outline:
 | `style { padding: "2rem" background: surface }` | `style { padding: 2rem; background: $surface }` |
 | `hover { }` in a style block | `&:hover { }` |
 | `if c, animate(fadeIn, fadeOut) {` | `if c {` with `exit: .fadeOut` and `.fadeIn` on the branch's roots |
-| `fetch x from url { loading {} error(e) {} success {} }` | `resource x = fetch(url)` + `match x { loading {} error(e) {} ready(x) {} }` |
+| `fetch x from url { loading {} error(e) {} success {} }` | `resource x = fetch(url)` + `match x { .loading {} .failed(e) {} .loaded(x) {} }` |
 | `Router { Route(path:, page:) }` | `Router` — pages own their paths |
 | `state x` inside an action | `let x` |

@@ -22,9 +22,9 @@ page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.")
     resource rows: RowPage = http.get("/api/rows?page={page}&per={perPage}")
     Heading("Rows").h1
     match rows {
-        loading { Spinner }
-        error(e) { Text(e.message).danger }
-        ready(r) {
+        .loading { Spinner }
+        .failed(e) { Text(e.message).danger }
+        .loaded(r) {
             for row in r.items by row.id { Text(row.name) }
             Row(gap: .sm, align: .center) {
                 Button("Previous", disabled: page == 1) { on click { page = page - 1 } }
@@ -46,7 +46,7 @@ counts up; on the last page **Next** is greyed out instead.
   [resource](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource) splices both
   into its address.
 - The server answers with the page's `items` and the number of `pages`.
-  The `ready` arm lists the items and draws the buttons.
+  The `.loaded` arm lists the items and draws the buttons.
 - **Previous** and **Next** change `page`. A change of `page` changes the
   address, so the resource asks again
   ([Fetch again when state changes](https://webfluent.monzeromer.dev/learn/15-data.md#fetch-again-when-state-changes)).

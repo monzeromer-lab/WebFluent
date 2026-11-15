@@ -827,16 +827,16 @@ page Shop(path: "/shop") {
 
 A store may own a `resource`: asked for when the store is built, kept for
 as long as the store lives (not the page that first read it), and
-abandoned with it. Its address reads the store's state; its `state`,
-`data`, `error`, `refreshing` and `pending` are signals, read as
-`rows.data` inside the store and `Feed.rows.state` outside it, and
-`match Feed.rows { loading … error(e) … ready(rows) … }` draws it.
+abandoned with it. Its address reads the store's state; its members —
+`value`, `isLoading`, `isRefreshing`, `error`, … — are signals, read as
+`rows.value` inside the store and `Feed.rows.isLoaded` outside it, and
+`match Feed.rows { .loading … .failed(e) … .loaded(rows) … }` draws it.
 
 ```wf
 store Feed {
     state page = 1
     resource rows: [Row] = http.get("/api/rows?page={page}")
-    derived count = rows.data?.length ?? 0
+    derived count = rows.value?.length ?? 0
     action next() { page = page + 1 }
 }
 ```
@@ -1253,9 +1253,9 @@ match tone {
 ```wf
 resource users: [User] = http.get("/api/users")
 match users {
-    loading { Spinner }
-    error(err) { Alert("Failed: {err.message}").danger }
-    ready(users) {
+    .loading { Spinner }
+    .failed(err) { Alert("Failed: {err.message}").danger }
+    .loaded(users) {
         for user in users by user.id {
             Text(user.name)
         }
@@ -1263,53 +1263,73 @@ match users {
 }
 ```
 
-A resource declares its type — `resource users: [User] = http.get(…)`, `N11`
-without one — and the `ready` arm's binding has it. The verb is the
-method — `http.get`, `http.post`, `http.put`, `http.patch`, `http.delete` —
-and options follow the address: `http.post(url, body: { key: value },
-headers: { "Authorization": token })`. The request
-repeats when a URL, a body or a header that reads state changes. `users.state`, `users.data`,
-`users.error`, `users.refreshing` and `users.pending` (and a connection's
-`.messages`) are live wherever they are read — `Button(if plan.data != null
-{ "Request approval" } else { "Deploy" })` changes when the plan arrives,
-with no `derived` in between.
+A read is **one value**, in one of three cases, and a `match` takes each:
 
-**Asking again.** `on: .focus`, `.reconnect` or `.interval(30.seconds)` (an
-option of `http.get(…)`, or of an endpoint's call), `users.reload()` and
-`users.invalidate()` ask again. Asking again for the request already shown
-is a **refresh**, and the page stays as it is while it runs: `users.state`
-stays `"ready"`, the data stays, and the answer is drawn in place. The
-`ready` arm's binding is live — text, attributes, `if`, `if let`, a keyed
-`for … by` and component props inside the arm follow the new data; a row
-whose key is still there keeps its nodes, its focus and its components'
+| Case | When |
+|---|---|
+| `.loading` | nothing to show yet |
+| `.failed(e)` | the first load failed; `e` is what `.err` holds for the same request — an `HttpError`, or the endpoint's error enum (`-> T ! E`) |
+| `.loaded(value, refreshing, stale)` | something to show; `refreshing` while it is asked again; `stale` the `E?` of a refresh that failed |
+
+"Loaded, and the last refresh failed" is `.loaded(value, false, e)`;
+"loading, with data" cannot be written. An arm binds as many of its case's
+places as it wants (`.loaded(list)`), `_` none; a `match` with no `else` covers
+all three (`T15`, and `T21` for a missing `.failed`); `if let .failed(e) =
+users { … }` takes one case. A read declares its type — `resource users:
+[User] = http.get(…)`, `N11` without one — and the `.loaded` binding has
+it; one over an endpoint takes the endpoint's. The verb is the method —
+`http.get`, `http.post`, `http.put`, `http.patch`, `http.delete` — and
+options follow the address: `http.post(url, body: { key: value }, headers:
+{ "Authorization": token })`.
+
+To read one fact without a `match`, a read has members worked out from the
+one value, which cannot disagree with it: `users.value` (`T?`),
+`users.isLoading`, `users.isLoaded`, `users.isFailed`, `users.isRefreshing`,
+`users.error` (`E?`: the first load's failure, or a refresh's), and
+`users.pending` (any request of it running). Each is live wherever it is
+read — `Button(if plan.isLoaded { "Request approval" } else { "Deploy" })`
+changes when the plan arrives, with no `derived` in between. 6.x's
+`.state`, `.data` and `.refreshing`, and its `loading`, `error(e)` and
+`ready(v)` arms, are `N08`, each with its fix.
+
+**Asking again.** Every argument and every part of the address, a body or a
+header that reads state is followed: when one changes, the read asks again.
+`refresh:` says when else — `.onReconnect` (what a read does when it says
+nothing), `.onFocus`, `.every(30.seconds)`, `.never`, or a list (an option
+of `http.get(…)`, or of an endpoint's call) — and `users.reload()` and
+`users.invalidate()` ask now. Asking again for the request already shown is
+a **refresh**, and the page stays as it is while it runs: the read stays
+`.loaded`, `refreshing` true, and the answer is drawn in place. The
+`.loaded` arm's bindings are live — text, attributes, `if`, `if let`, a
+keyed `for … by` and component props inside the arm follow the new value; a
+row whose key is still there keeps its nodes, its focus and its components'
 state; and the parts of the answer equal to what was shown are kept as the
 same objects, so an answer that changed nothing redraws nothing. The arm is
-drawn again only when the arm changes — loading, ready, error.
+drawn again only when the case changes.
 
-- `users.refreshing` is true while a refresh runs, with the data shown;
-  `users.pending` while any request of it runs, the first load included.
-- A refresh that fails keeps the data and `"ready"`, and sets `users.error`
-  until the next answer arrives, so the arm can say the data is stale. A
-  first load that fails is `"error"`.
-- A request that changed — an address or an argument that reads state now
-  names something else: another environment, another page — is a first load
-  again, `"loading"`, since the data on screen would be the wrong data. With
-  `paginate:`, the next page is a refresh.
+- A refresh that fails stays `.loaded`, with the value, and its failure is
+  `stale` until the next answer arrives, so the arm can say the value is
+  out of date. A first load that fails is `.failed(e)`.
+- A request that changed — an argument that reads state now names something
+  else: another environment, another page — is a first load again,
+  `.loading`, since the value on screen would be the wrong one;
+  `placeholder: .previous` keeps the last value shown, refreshing, until the
+  new one arrives. With `paginate:`, the next page is a refresh.
 
 ```wf
 type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
-    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers?env={stage}", refresh: .every(30.seconds), placeholder: .previous)
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
-        loading { Skeleton(height: "20px") }
-        error(e) { Alert(e.message).danger }
-        ready(list) {
-            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
-            if servers.refreshing { Spinner.sm }
+        .loading { Skeleton(height: "20px") }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list, refreshing, stale) {
+            if stale != null { Alert("Could not refresh; this is what was there.").warning }
+            if refreshing { Spinner.sm }
             for s in list by s.id { Text("{s.name}: {s.status}") }
         }
     }
@@ -1323,7 +1343,7 @@ resource data: Created = http.post("/api/users",
     headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
     body: { action: "create", token: sessionToken })
 match data {
-    ready(data) { Text("Done") }
+    .loaded(created) { Text("Done") }
     else { Spinner }
 }
 ```
@@ -1384,11 +1404,11 @@ An endpoint is called like anything else, and a `resource` over one is
 typed by what it returns:
 
 ```wf
-resource users = Backend.users(page: n, cache: .swr(60.seconds), on: .focus)
+resource users = Backend.users(page: n, cache: .swr(60.seconds), refresh: .onFocus)
 
 match users {
-    loading { Skeleton }
-    error(e) {
+    .loading { Skeleton }
+    .failed(e) {
         match e {
             .offline { Alert("You are offline.").warning }
             .timeout { Alert("The server took too long.").warning }
@@ -1396,7 +1416,7 @@ match users {
         }
         Button("Try again") { on click { users.reload() } }
     }
-    ready(list) { for u in list by u.id { Text(u.name) } }
+    .loaded(list) { for u in list by u.id { Text(u.name) } }
 }
 ```
 
@@ -1405,17 +1425,17 @@ What comes with it, at every call site:
 | | |
 |---|---|
 | Abort | on scope leave, on an argument that reads state changing, on `.cancel()`, on timeout |
-| Errors | a call's `.err` is an `HttpError` — `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a resource's `error(e)` arm keeps 6.x's `.offline`, `.timeout`, `.status(code, body)` and `.message` until reads change in a later release |
+| Errors | a call's `.err` is an `HttpError` — `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a read's `.failed(e)` holds the same |
 | Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`); a `POST` or `PATCH` that timed out may have been taken, and is not sent again |
 | Cache | `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, with `ETag`/`If-None-Match` revalidation and `304` served from what is held |
 | Dedupe | two readers of one address make one request, cached or not; each keeps its own abort |
-| Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` — a refresh: the data stays on the page while it runs, and the answer is drawn in place (see Data Fetching) |
+| Refetch | an argument that reads state changing; `refresh: .onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never` — a refresh: the value stays on the page while it runs, and the answer is drawn in place (see Data Fetching) |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()`, `.hasMore` |
 | Progress | a `File` parameter makes `Backend.avatar.progress` a `Number` signal |
 | Bodies | JSON, text, a `File` (sent as a form), `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` |
 | Responses | JSON, `as: .text`, `.blob`, `.arrayBuffer`, `204` as no value, and `.lines()` for a streamed response |
 | Elsewhere | `Backend.users.invalidate()` — every resource over it on the page asks again —, `.prefetch(args)`, `.key(args)`, `.url(args)` |
-| Empty path parameters | a call whose path parameter is `null`, `""`, `.` or `..` is not sent (`users/` would be the collection, not the user); it ends `.aborted`, and a resource over it stays `loading` until the value arrives |
+| Empty path parameters | a call whose path parameter is `null`, `""`, `.` or `..` is not sent (`users/` would be the collection, not the user); it ends `.cancelled`, and a read over it stays `.loading` until the value arrives |
 
 A call is a promise of a result: `await` it in an action or a handler, then
 `match` it or pass its failure up with `try`. A parameter with no default
@@ -2791,7 +2811,7 @@ may too. Its surface:
 | Bodies | `when(parent, cond, then, else, anim)`, and `held(read)` — what an `if let` binding reads: the value now, or the last one while the branch leaves; `each(parent, list, item, {key, index, live, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves, and with `live` across a new value too, handed to `item(value, index, itemOf, indexOf)` as accessors; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` — an arm is called with the value and an accessor of it, and drawn again when the arm changes |
 | Motion | `animate(target, name, duration)` → a handle with `play`/`cancel`/`finished`, playing when it is made; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay, easing)`; `expand(node, open, duration, easing)` to the measured height; `countTo(node, from, to, duration, format)` and `counted(node, valueFn, duration, format)`; `onEnterView(node, name, …)`; `shared(node, name)`; `mark(node, attrs)` puts `data-wf-exit`/`data-wf-delay`/`data-wf-duration`/`data-wf-animate` on a component's root — what `when`, `each`, `show` and `match` play before removing an element, and what times its enter animation |
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
-| Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body; `httpCall(method, url, options)` → a promise of a result (what `http.get(…)` and the other verbs compile to); `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
+| Data | `resource(url, options)` → `{read, value, isLoading, isLoaded, isFailed, isRefreshing, error, pending, reload, invalidate, cancel}`, `read()` its one value — `"loading"`, `["failed", e]`, `["loaded", value, refreshing, stale]`; `request(url, options)` → the parsed body; `httpCall(method, url, options)` → a promise of a result (what `http.get(…)` and the other verbs compile to); `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
 | Stores, seen | `watchStores(fn)` → every action with the state on each side of it, and the function that stops it; `storeSnapshot(name?)`; `restoreStore(name, values)`. Nothing is recorded while nothing is watching |
 | Widgets | `toast(message, { tone, duration, action, onAction, closable })` → `{ close, update }`; `toastPromise(promise, { loading, done, failed })`; `dialog(el, read, write, { dismiss, initial })`; `ask(message, { detail, yes, no, danger })` → a promise of the answer; `sheet(el, { side, snap })`; `popup`; `tabs`; `drawer`; `announce(text, "assertive")`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
@@ -2804,7 +2824,7 @@ may too. Its surface:
 | Focus | `trapFocus(node, read)` — what `trapFocus:` compiles to |
 | Long lists | `windowed(node, listFn, itemFn, options)` — what a `VirtualList`'s `for` compiles to |
 | Gestures | `gesture(node, name, fn)`, `draggable(node, value, options)`, `dropTarget(node, options)`, `splitter(node, read, write, options)` — what `on longpress`, `on swipe`, `drag:`, `on receive` and `Splitter` compile to |
-| Values | `caseOf(v)`, `payload(v)` read an enum case and its payload; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
+| Values | `caseOf(v)`, `payload(v)` read an enum case and its payload, `readOf(v)` a read's one value; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
 
 ## Search and Sharing
 
@@ -3440,11 +3460,12 @@ And what the type checker finds:
 | `T08` | A `for` over something that is not a list |
 | `T09` | An `emit` whose arguments do not match the event's |
 | `T10` | A call with the wrong number or kind of arguments |
-| `T11` | A `match` on something that is neither a resource nor an enum, or with arms of the wrong kind |
+| `T11` | A `match` on something that is neither a read nor an enum, or with arms of the wrong kind |
 | `T12` | A `Secret` where it would escape — shown, spliced into text, joined with `+`, handed to a browser global (`console`, storage, a `fetch` address), logged, or kept with `persist`. A secret has no string members |
 | `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. `event` (`e`), `value` and `key` are names only inside a handler. Not applied to a template rendered with data |
 | `T14` | A comparison that is always the same: `"1" == 1`, a record against a string, an enum against a case it does not have |
-| `T15` | A `match` with no `else` that misses a case of the enum, or one with a case twice. A `match` expression that covers every case needs no `else` |
+| `T15` | A `match` with no `else` that misses a case of the enum, the result or the read, or one with a case twice. A `match` expression that covers every case needs no `else` |
+| `T21` | A `match` over a read with no `.failed` arm and no `else`: a failed request shows nothing |
 | `T16` | A method a number, a string or a list does not have, with the nearest one that it does (`joined` → `join`) |
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
 | `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
@@ -3453,7 +3474,7 @@ And what the type checker finds:
 | `T30` | A browser global, or a member of an element, an event or a browser object, the language does not type — `navigator.bluetooth`, `e.kye`; reach it from a project script with JSDoc |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
-| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces |
+| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces |
 | `N11` | `Any` or `Map` where a service meets the program — an endpoint's parameter or answer, a resource's type — or an `http.get` with nowhere that names what it answers; the fix names `Json`, or declare a `type` |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
@@ -3556,7 +3577,6 @@ paint alike.
 | `U09` | A `for` with no `by` whose items hold state, a control or a stateful component, which starts again when the list changes |
 | `V05` | A style property no CSS defines (`colr:`), with the nearest one that it does |
 | `V07` | A bare number spliced as a whole length (`width: {pct}`), which the browser drops |
-| `T21` | A resource `match` with no `error` arm and no `else` |
 | `U10` | A `match`'s `else` that no value reaches: every case has its arm |
 | `E112` | A key in `webfluent.app.json` nothing reads, with the nearest one that is |
 | `E115` | A project script the compiler could not read (still linked; its names are not in scope) |

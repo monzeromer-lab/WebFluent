@@ -351,9 +351,9 @@ fn completion_in_a_style_block_offers_css_selectors_and_tokens() {
 
 #[test]
 fn completion_in_a_match_body_offers_the_missing_arms() {
-    let src = "page Home(path: \"/\") {\n    resource users = fetch(\"/api\")\n    match users {\n        loading { Spinner }\n        \n    }\n}\n";
+    let src = "type U { id: String }\npage Home(path: \"/\") {\n    resource users: [U] = http.get(\"/api\")\n    match users {\n        .loading { Spinner }\n        \n    }\n}\n";
     let items = labels_after(src, "Spinner }\n        ");
-    assert_eq!(items, vec!["error", "ready", "else"]);
+    assert_eq!(items, vec![".failed", ".loaded", "else"]);
 }
 
 #[test]
@@ -1177,10 +1177,18 @@ fn after_a_dot_a_declaration_or_a_handle_offers_its_members() {
             ][..],
         ),
         (
-            "resource r = fetch(\"/x\")",
-            "r.data",
+            "resource r: [String] = http.get(\"/x\")",
+            "r.value",
             "r.‸",
-            &["reload", "state", "data", "error", "loadMore"][..],
+            &[
+                "reload",
+                "value",
+                "isLoading",
+                "isLoaded",
+                "isRefreshing",
+                "error",
+                "loadMore",
+            ][..],
         ),
         (
             "action save() { await fetch(\"/x\") }",

@@ -412,7 +412,9 @@ store's when its route leaves, to be asked for afresh when the route comes
 back.
 
 Inside the store it is `rows`, anywhere else `Deploys.rows`, and its
-`state`, `data`, `error`, `refreshing` and `pending` follow it in both. Its
+`value`, `isLoading`, `isRefreshing`, `error` and `pending` follow it in
+both, and `match Deploys.rows { .loading … .failed(e) … .loaded(rows) … }`
+draws it. Its
 address and options read the store's own state, so an action that moves
 one asks again:
 
@@ -422,7 +424,7 @@ type Deploy { id: String, status: String }
 store Deploys {
     state page = 1
     resource rows: [Deploy] = http.get("/api/deploys?page={page}")
-    derived failing = (rows.data ?? []).filter(d => d.status == "failed").length
+    derived failing = (rows.value ?? []).filter(d => d.status == "failed").length
     action next() { page = page + 1 }
     action refresh() { rows.reload() }
 }
@@ -431,9 +433,9 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
     Heading("Deploys").h1
     Text("{Deploys.failing} failing")
     match Deploys.rows {
-        loading { Spinner }
-        error(e) { Text(e.message) }
-        ready(rows) {
+        .loading { Spinner }
+        .failed(e) { Text(e.message) }
+        .loaded(rows) {
             for d in rows by d.id { Text("{d.id}: {d.status}") }
         }
     }

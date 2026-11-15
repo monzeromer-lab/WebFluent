@@ -132,9 +132,11 @@ pub(super) fn is_reactive_expr(expr_str: &str) -> bool {
         }
     }
     // Also check for WF.i18n.t( which is reactive (locale changes)
+    // A read's one value — `match users { … }` as a value — follows it.
     if expr_str.contains("WF.i18n.t(")
         || expr_str.contains("WF.i18n.locale()")
         || expr_str.contains("WF.i18n.dir()")
+        || expr_str.contains("WF.readOf(")
     {
         return true;
     }

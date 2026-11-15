@@ -781,29 +781,22 @@ impl Checker<'_, '_> {
                 );
             }
             Type::Resource(..) => {
-                for state in &dupes {
-                    self.error_at_current(
-                        "T15",
-                        format!(
-                            "`{state}` has two arms in this `match`; the second is never reached"
-                        ),
-                        "Keep one of them",
-                    );
-                }
-                if !has_else && !cases.iter().any(|c| c == "error") {
-                    self.warn(
-                        "T21",
-                        format!(
-                            "this `match` on `{}` has no `error` arm, so a failed request shows nothing",
-                            expr_text(&m.scrutinee)
-                        ),
-                        "Add `error(e) { Alert(e.message).danger }`, or `else { … }`",
-                    );
-                    self.plan_last_warning(
-                        "Add an `error` arm".to_string(),
-                        crate::diagnostics::fixes::Plan::AddArms {
-                            arms: vec!["error(e) { Alert(e.message).danger }".to_string()],
-                        },
+                let old = m.arms.iter().any(|a| {
+                    matches!(
+                        a.pattern,
+                        ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
+                    )
+                });
+                if old {
+                    self.old_read_arms(&m.scrutinee, &m.arms);
+                } else {
+                    self.match_coverage(
+                        &expr_text(&m.scrutinee),
+                        &scrutinee.unwrapped(),
+                        &cases,
+                        &dupes,
+                        has_else,
+                        true,
                     );
                 }
             }
@@ -811,24 +804,64 @@ impl Checker<'_, '_> {
         }
         match &scrutinee {
             Type::Resource(inner, failed) => {
+                let all = super::read::read_cases(inner, failed);
                 for arm in &m.arms {
                     self.push_scope();
                     match (&arm.pattern, &arm.binding) {
+                        // 6.x's arms, refused above: their bodies read on
+                        // as they did, so one mistake is one finding.
                         (ArmPattern::Ready, Some(name)) => {
                             self.bind_fixed(name, (**inner).clone(), arm.span, ARM);
                         }
                         (ArmPattern::Error, Some(name)) => {
-                            self.bind_fixed(name, Type::NetError(failed.clone()), arm.span, ARM);
+                            self.bind_fixed(name, (**failed).clone(), arm.span, ARM);
                         }
-                        (ArmPattern::Case(case), _) => self.error(
-                            arm.span,
-                            "T11",
-                            format!(
-                                "`{}` is a resource; `.{case}` is not one of its states",
-                                expr_text(&m.scrutinee)
-                            ),
-                            "A resource matches `loading`, `error(e)`, `ready(value)` and `else`",
-                        ),
+                        (ArmPattern::Case(case), _) => {
+                            if let Some((_, payload)) = all.iter().find(|(c, _)| c == case) {
+                                if arm.bindings.len() > payload.len() {
+                                    self.error(
+                                        arm.span,
+                                        "T10",
+                                        format!(
+                                            "`.{case}` carries {} value{}, but {} are bound",
+                                            payload.len(),
+                                            if payload.len() == 1 { "" } else { "s" },
+                                            arm.bindings.len(),
+                                        ),
+                                        "A read is `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`",
+                                    );
+                                }
+                                for (i, p) in arm_patterns(arm).iter().enumerate() {
+                                    let ty = payload.get(i).cloned().unwrap_or(Type::Error);
+                                    self.bind_pattern(p, &ty, arm.span);
+                                }
+                            } else {
+                                self.error(
+                                    arm.span,
+                                    "T02",
+                                    format!(
+                                        "`{}` is a read; `.{case}` is not one of its cases",
+                                        expr_text(&m.scrutinee)
+                                    ),
+                                    "A read is `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`",
+                                );
+                                if let Some(near) = crate::diagnostics::fixes::nearest(
+                                    case,
+                                    ["loading", "failed", "loaded"],
+                                ) {
+                                    self.plan_last(
+                                        format!("Change to `.{near}`"),
+                                        crate::diagnostics::fixes::Plan::Rename {
+                                            from: format!(".{case}"),
+                                            to: format!(".{near}"),
+                                        },
+                                    );
+                                }
+                                for bound in &arm.bindings {
+                                    self.bind_fixed(bound, Type::Error, arm.span, ARM);
+                                }
+                            }
+                        }
                         _ => {}
                     }
                     self.statements(&arm.body, body);

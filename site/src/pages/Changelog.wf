@@ -238,6 +238,46 @@ and its slots by one of its items: a `DataTable`'s `key: r => r.id`, a
 column's `value: r => r.nmae` (`T05`), a `cell(r)`. `wf registry --json`
 and the docs show these types."#)
                 ]),
+                NotesSection(title: #"A read is one value"#, id: "7.0.0-a-read-is-one-value", intro: #"A `resource` was a string, `state`, beside `data`, `error` and
+`refreshing`, which a page had to keep in step itself — and could read in
+combinations that never happen. It is now one value with three cases:
+
+```wf
+match users {
+    .loading { Skeleton(height: "20px") }
+    .failed(e) { Alert(e.message).danger }                 // e: HttpError, or the endpoint's error enum
+    .loaded(list, refreshing, stale) {
+        if refreshing { Spinner.sm }
+        if stale != null { Alert("Could not refresh").warning }
+        for u in list by u.id { Text(u.name) }
+    }
+}
+```"#, items: [
+                    Change(text: #""Loaded, and the last refresh failed" is `.loaded(value, false, e)`;
+"loading, with data" cannot be written. A `match` covers every case or
+says `else`: one with no `.failed` arm is `T21`, now an error, and one
+missing another case `T15`. `if let .failed(e) = users { … }` takes one
+case, and a `match` expression reads one too."#),
+                    Change(text: #"A failure is what `.err` holds for the same request — an `HttpError`, or
+the endpoint's error enum for one declared `-> T ! E` — not 6.x's loose
+error object."#),
+                    Change(text: #"To read one fact, a read has members worked out from its value, which
+cannot disagree with it: `value` (`T?`), `isLoading`, `isLoaded`,
+`isFailed`, `isRefreshing`, `error` (`E?`) and `pending`."#),
+                    Change(text: #"`refresh:` says when a read asks again besides an argument changing:
+`.onReconnect` — what a read now does when it says nothing — `.onFocus`,
+`.every(30.seconds)`, `.never`, or a list."#),
+                    Change(text: #"`placeholder: .previous` keeps the last value shown, refreshing, while
+another request of it loads — a search whose results stay while the next
+ones arrive — where a changed request used to go back to loading."#)
+                ], after: #"6.x's forms are `N08`, and `wf fix` rewrites them: the `loading`,
+`error(e)` and `ready(v)` arms become `.loading`, `.failed(e)` and
+`.loaded(v)`; `.data` becomes `.value` and `.refreshing` `.isRefreshing`;
+`on: .focus`, `.reconnect` and `.interval(d)` become `refresh: .onFocus`,
+`.onReconnect` and `.every(d)`. `.state` has no one rewrite: compare with
+`isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`
+arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
+`.status(code, problem)`."#),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
 `catch e`, a built-in's prop of no declared type — with its file, line and
@@ -251,7 +291,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 40), latest: true)
+            ], count: 45), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4037,6 +4077,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

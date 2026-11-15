@@ -297,7 +297,7 @@ pub static CODES: &[CodeInfo] = &[
         "T11",
         Error,
         "A `match` on something that cannot be matched",
-        "A `match` is over a resource (`loading`, `error`, `ready`) or an enum (`.case`); its arms are of that kind.",
+        "A `match` is over a read, a result, a connection or an enum; its arms are the cases of that kind.",
     ),
     code(
         "T12",
@@ -361,9 +361,9 @@ pub static CODES: &[CodeInfo] = &[
     ),
     code(
         "T21",
-        Warning,
-        "A resource `match` with no `error` arm",
-        "When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.",
+        Error,
+        "A read's `match` with no `.failed` arm",
+        "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.",
     ),
     code(
         "T26",
@@ -561,7 +561,7 @@ pub static CODES: &[CodeInfo] = &[
         "N08",
         Error,
         "A form 7.0 removed",
-        "`fetch(…)`, an endpoint that does not say how it fails, and `errors { }` were how 6.x asked a service for things. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result. Each form has its fix.",
+        "`fetch(…)`, an endpoint that does not say how it fails, `errors { }`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.",
     ),
     code(
         "N11",

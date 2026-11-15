@@ -446,7 +446,7 @@ fn an_endpoint_is_checked_like_anything_else() {
 #[test]
 fn a_resource_over_an_endpoint_is_typed_by_what_it_returns() {
     let text = errors_of(&served(
-        "resource rows = Backend.users()\n    match rows { ready(list) { for u in list by u.id { Text(u.nam) } } else { Spinner } }",
+        "resource rows = Backend.users()\n    match rows { .loaded(list) { for u in list by u.id { Text(u.nam) } } else { Spinner } }",
     ));
     assert!(text.contains("`User` has no field `nam`"), "{text}");
 }
@@ -454,18 +454,18 @@ fn a_resource_over_an_endpoint_is_typed_by_what_it_returns() {
 #[test]
 fn what_a_request_can_fail_with_is_a_closed_set() {
     let ok = served(
-        "resource rows = Backend.users()\n    match rows { error(e) { match e { .offline { Text(\"off\") } .status { Text(\"s\") } else { Text(e.message) } } } else { Spinner } }",
+        "resource rows = Backend.users()\n    match rows { .failed(e) { match e { .offline { Text(\"off\") } .status { Text(\"s\") } else { Text(e.message) } } } else { Spinner } }",
     );
     assert!(errors_of(&ok).is_empty(), "{}", errors_of(&ok));
 
     let bad = served(
-        "resource rows = Backend.users()\n    match rows { error(e) { match e { .teapot { Text(\"?\") } else { Text(\"x\") } } } else { Spinner } }",
+        "resource rows = Backend.users()\n    match rows { .failed(e) { match e { .teapot { Text(\"?\") } else { Text(\"x\") } } } else { Spinner } }",
     );
     let text = errors_of(&bad);
-    assert!(text.contains("cannot fail with `.teapot`"), "{text}");
+    assert!(text.contains("`HttpError` has no case `.teapot`"), "{text}");
 
     let bad = served(
-        "resource rows = Backend.users()\n    match rows { error(e) { Text(\"{e.reason}\") } else { Spinner } }",
+        "resource rows = Backend.users()\n    match rows { .failed(e) { Text(\"{e.reason}\") } else { Spinner } }",
     );
     assert!(
         errors_of(&bad).contains("no field `reason`"),
@@ -477,10 +477,10 @@ fn what_a_request_can_fail_with_is_a_closed_set() {
 #[test]
 fn what_the_call_site_asks_for_reaches_the_engine() {
     let js = spa_generated(&served(
-        "state n: Number = 1\n    resource rows = Backend.users(page: n, cache: .swr(60.seconds), on: .focus, paginate: .page)\n    Text(\"{rows.hasMore}\")",
+        "state n: Number = 1\n    resource rows = Backend.users(page: n, cache: .swr(60.seconds), refresh: .onFocus, paginate: .page)\n    Text(\"{rows.hasMore}\")",
     ));
     assert!(js.contains("cache: { kind: \"swr\", ttl: 60000 }"), "{js}");
-    assert!(js.contains("on: { focus: true }"), "{js}");
+    assert!(js.contains("refresh: { focus: true }"), "{js}");
     // `loadMore()` moves the state the page number came from.
     assert!(
         js.contains("paginate: { by: \"page\", set: (v) => _n.set(v) }"),
@@ -589,7 +589,7 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
     let src = format!(
         "api Backend from \"api.json\" (base: \"/api\")\n{}",
         page(
-            "resource one = Backend.getUser(id: \"1\")\n    match one { ready(u) { Text(u.name ?? \"?\") } else { Spinner } }"
+            "resource one = Backend.getUser(id: \"1\")\n    match one { .loaded(u) { Text(u.name ?? \"?\") } else { Spinner } }"
         )
     );
     let mut program = parse_source(&src, "t.wf").unwrap();
@@ -761,7 +761,7 @@ fn a_string_schema_with_cases_is_an_enum_and_one_with_unwritable_cases_is_a_stri
         "Heading(\"Ops\").h1\n    \
          resource one = Ops.server(env: .prod)\n    \
          match one {\n        \
-             ready(e) {\n            \
+             .loaded(e) {\n            \
                  Text(\"{e.env}\")\n            \
                  if e.env == .test { Text(\"Test\") }\n            \
                  Text(e.permissions.join(\", \"))\n        \
@@ -811,7 +811,7 @@ fn a_value_that_may_be_null_is_its_type_made_optional() {
     let program = with_ops_spec(
         "resource one = Ops.server(env: .prod)\n    \
          match one {\n        \
-             ready(e) {\n            \
+             .loaded(e) {\n            \
                  Text(e.reason.toUpperCase())\n            \
                  Text(\"{e.workers?.totl}\")\n        \
              }\n        \
@@ -859,7 +859,7 @@ fn an_all_of_is_a_record_that_extends_the_one_it_names() {
         "Heading(\"Ops\").h1\n    \
          resource one = Ops.detail(env: .prod)\n    \
          match one {\n        \
-             ready(d) {\n            \
+             .loaded(d) {\n            \
                  Text(d.reason ?? \"\")\n            \
                  Text(d.host ?? \"—\")\n            \
                  Text(d.loops.join(\", \"))\n            \
@@ -927,7 +927,7 @@ fn a_string_format_is_the_type_the_language_has_for_it() {
          resource made = Ops.stamp(id: typed, body: { when: typed, owner: \"ada\" })\n    \
          resource one = Ops.stamps()\n    \
          match one {\n        \
-             ready(s) {\n            \
+             .loaded(s) {\n            \
                  Text(\"{s.day.plus(days: 3)} · {s.when.date()} · {s.owner.domain()}\")\n            \
                  Text(s.id.domain())\n        \
              }\n        \

@@ -67,7 +67,7 @@ page A(path: "/", title: "A", description: "A page.") {
     state rows: [Item] = [Item(id: "1", name: "x"), Item(id: "2", name: "y")]
     every(100) { tick = tick + 1 }
     on key("Escape") { open = false }
-    resource items: [Item] = http.get("/api/items.json", on: .interval(60.seconds))
+    resource items: [Item] = http.get("/api/items.json", refresh: .every(60.seconds))
     Heading("Page A").h1
     Text("tick {tick} n {Counter.n} w {viewport.width} {now(every: 1.seconds)}")
     Button("Toggle", ref: trigger) { on click { open = !open } }
@@ -75,9 +75,9 @@ page A(path: "/", title: "A", description: "A page.") {
     Tooltip("Tip") { Button("Hover me") }
     Menu(trigger: "Options") { Menu.Item { Text("One") } }
     match items {
-        loading { Text("loading") }
-        error(e) { Text(e.message) }
-        ready(list) { for it in list by it.id { Text(it.name) } }
+        .loading { Text("loading") }
+        .failed(e) { Text(e.message) }
+        .loaded(list) { for it in list by it.id { Text(it.name) } }
     }
     for r in rows by r.id { Card { Text(r.name) } }
     Button("Shuffle") { on click { rows = rows.map(r => Item(id: uuid(), name: r.name)) } }

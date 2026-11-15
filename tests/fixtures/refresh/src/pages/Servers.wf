@@ -2,13 +2,13 @@ type Server { id: String, name: String }
 
 page Servers(path: "/servers", title: "Servers", description: "The servers of one environment.") {
     state stage = "test"
-    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .focus)
+    resource servers: [Server] = http.get("/api/servers?env={stage}", refresh: .onFocus)
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
-        loading { Text("Loading servers", class: "loading") }
-        error(e) { Alert(e.message).danger }
-        ready(list) {
+        .loading { Text("Loading servers", class: "loading") }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) {
             for s in list by s.id { Text(s.name, class: "server") }
         }
     }

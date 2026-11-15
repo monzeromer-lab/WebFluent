@@ -8,9 +8,9 @@ test "a resource asked again keeps what its ready arm drew" {
     // The test's own page, as text: a request the test's server answers.
     resource shell: String = http.get("/index.html", as: .text)
     match shell {
-        loading { Text("Loading the shell") }
-        error(e) { Text("Failed: {e.message}") }
-        ready(html) {
+        .loading { Text("Loading the shell") }
+        .failed(e) { Text("Failed: {e.message}") }
+        .loaded(html) {
             Text("The shell is {html.length > 0}")
             Fold("details")
             Button("Refresh") { on click { shell.reload() } }

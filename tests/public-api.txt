@@ -3571,6 +3571,7 @@ pub const webfluent::syntax::parser::ast::HTTP_VERBS: &[&str]
 pub fn webfluent::syntax::parser::ast::awaits(&[webfluent::syntax::parser::Statement]) -> bool
 pub fn webfluent::syntax::parser::ast::lambda_names(&str) -> alloc::vec::Vec<&str>
 pub fn webfluent::syntax::parser::ast::lambda_params(&str) -> alloc::vec::Vec<(&str, core::option::Option<&str>)>
+pub fn webfluent::syntax::parser::ast::over_read(&[webfluent::syntax::parser::MatchArm]) -> bool
 pub fn webfluent::syntax::parser::ast::walk_exprs_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 pub fn webfluent::syntax::parser::ast::walk_statements_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Statement))
 pub enum webfluent::syntax::parser::Arg
@@ -5027,6 +5028,7 @@ pub const webfluent::syntax::parser::NESTING_MESSAGE: &str
 pub fn webfluent::syntax::parser::awaits(&[webfluent::syntax::parser::Statement]) -> bool
 pub fn webfluent::syntax::parser::lambda_names(&str) -> alloc::vec::Vec<&str>
 pub fn webfluent::syntax::parser::lambda_params(&str) -> alloc::vec::Vec<(&str, core::option::Option<&str>)>
+pub fn webfluent::syntax::parser::over_read(&[webfluent::syntax::parser::MatchArm]) -> bool
 pub fn webfluent::syntax::parser::walk_exprs_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Expr))
 pub fn webfluent::syntax::parser::walk_statements_mut(&mut [webfluent::syntax::parser::Statement], &mut dyn core::ops::function::FnMut(&mut webfluent::syntax::parser::Statement))
 pub enum webfluent::syntax::Dialect

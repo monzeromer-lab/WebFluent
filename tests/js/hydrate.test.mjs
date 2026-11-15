@@ -833,18 +833,23 @@ test("a resource loads, exposes its state, ignores a stale answer, and reloads",
   try {
     const r = WF.resource("/api/rows", null);
     assert.equal(r.state(), "loading");
+    assert.equal(r.read(), "loading", "one value: loading");
     assert.equal(pending[0].url, "/api/rows");
     pending[0].resolve(ok([1, 2]));
     await new Promise((res) => setTimeout(res, 0));
     await new Promise((res) => setTimeout(res, 0));
     assert.equal(r.state(), "ready");
     assert.deepEqual(r.data(), [1, 2]);
+    assert.deepEqual(r.read(), ["loaded", [1, 2], false, null], "loaded, not refreshing, nothing stale");
+    assert.deepEqual(r.value(), [1, 2]);
 
     // A reload of what is shown is a refresh: it stays "ready", with the
     // data, while it runs.
     r.reload();
     assert.equal(r.state(), "ready");
     assert.equal(r.refreshing(), true);
+    assert.equal(r.isRefreshing(), true);
+    assert.deepEqual(r.read(), ["loaded", [1, 2], true, null], "loaded, refreshing");
     assert.equal(r.pending(), true);
     r.reload();
     // The first reload's answer arrives after the second was asked: ignored.
@@ -857,8 +862,10 @@ test("a resource loads, exposes its state, ignores a stale answer, and reloads",
     assert.equal(r.refreshing(), false);
     assert.equal(r.pending(), false);
     assert.equal(r.error().message, "HTTP 500");
-    assert.equal(r.error().kind, "status", "and it says what kind of failure it was");
-    assert.equal(r.error().status, 500);
+    assert.equal(r.error()[0], "status", "an `HttpError`: what kind of failure it was");
+    assert.equal(r.error()[1], 500);
+    const [, value, refreshing, stale] = r.read();
+    assert.deepEqual([value, refreshing, stale[0]], [[1, 2], false, "status"], "loaded, with the refresh's failure");
     assert.deepEqual(r.data(), [1, 2], "a stale answer never landed");
 
     // The next answer clears the error.
@@ -1631,7 +1638,7 @@ test("a match whose list drew again goes when the tab it sits in closes", () => 
   const tab = WF.signal("a");
   const state = WF.signal("ready");
   const rows = WF.signal(["one", "two"]);
-  // if tab == "a" { match res { ready(xs) { for x in xs { … } } } } else { … }
+  // if tab == "a" { match res { .loaded(xs) { for x in xs { … } } } } else { … }
   WF.when(parent, () => tab() === "a", () => body(document, (f) => {
     WF.match(f, () => state(), () => rows(), {
       loading: () => WF.el("p", { className: "spinner" }, ["…"]),

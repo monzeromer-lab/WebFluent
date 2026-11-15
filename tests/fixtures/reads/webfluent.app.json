@@ -1,0 +1,5 @@
+{
+    "name": "Reads",
+    "build": { "minify": false, "ssg": false },
+    "meta": { "lang": "en" }
+}

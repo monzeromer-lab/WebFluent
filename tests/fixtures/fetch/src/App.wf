@@ -24,19 +24,19 @@ page Home(path: "/", title: "Fetch", description: "A page that asks a service fo
     Heading("Fetch").h1
     Input(bind: q, label: "Search")
     match hits {
-        loading { Text("searching") }
-        error(e) { Text("search failed") }
-        ready(h) { Text("found:{h.query}", id: "found") }
+        .loading { Text("searching") }
+        .failed(e) { Text("search failed") }
+        .loaded(h) { Text("found:{h.query}", id: "found") }
     }
     match first {
-        loading { Text("…") }
-        error(e) { Text("first failed") }
-        ready(list) { Text("first:{list.length}", id: "first") }
+        .loading { Text("…") }
+        .failed(e) { Text("first failed") }
+        .loaded(list) { Text("first:{list.length}", id: "first") }
     }
     match second {
-        loading { Text("…") }
-        error(e) { Text("second failed") }
-        ready(list) { Text("second:{list.length}", id: "second") }
+        .loading { Text("…") }
+        .failed(e) { Text("second failed") }
+        .loaded(list) { Text("second:{list.length}", id: "second") }
     }
     Text("said:{said}", id: "said")
     Text("queued:{network.queued}", id: "queued")

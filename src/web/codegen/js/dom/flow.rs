@@ -201,6 +201,11 @@ impl JsCodegen {
 
     pub(in super::super) fn emit_if_dom(&mut self, if_stmt: &IfStmt, parent: &str) {
         let value = self.emit_expr(&if_stmt.condition);
+        let value = if if_stmt.pattern.is_some() {
+            self.as_seen(&if_stmt.condition, value)
+        } else {
+            value
+        };
         let json = self.is_json_subject(&if_stmt.condition);
         // `if let x = e`: the branch shows while the value is not null, and
         // reads it as a plain name. `if let .err(e) = outcome`: while the
@@ -480,6 +485,7 @@ impl JsCodegen {
             .iter()
             .any(|a| matches!(a.pattern, ArmPattern::State(_)));
         let subject = self.emit_expr(&m.scrutinee);
+        let seen = self.as_seen(&m.scrutinee, subject.clone());
         let (key, arg) = if over_connection {
             (
                 format!("() => {subject}.state()"),
@@ -502,10 +508,7 @@ impl JsCodegen {
             )
         } else {
             // An enum: the arm is chosen by the case, and handed the payload.
-            (
-                format!("() => WF.caseOf({subject})"),
-                format!("() => {subject}"),
-            )
+            (format!("() => WF.caseOf({seen})"), format!("() => {seen}"))
         };
         self.emit_line(&format!("WF.match({parent}, {key}, {arg}, {{"));
         self.indent += 1;
@@ -556,6 +559,7 @@ impl JsCodegen {
     /// first that matches is shown, and drawn again when another does.
     fn emit_match_by_patterns(&mut self, m: &MatchStmt, parent: &str) {
         let subject = self.emit_expr(&m.scrutinee);
+        let subject = self.as_seen(&m.scrutinee, subject);
         let json = self.is_json_subject(&m.scrutinee);
         let mut choose = Vec::new();
         for (i, arm) in m.arms.iter().enumerate() {

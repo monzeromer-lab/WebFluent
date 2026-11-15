@@ -1,0 +1,41 @@
+// A read in each of its cases, for tests/browser/reads.mjs: a first load,
+// a refresh, a refresh that fails, an argument that changes, a first load
+// that fails, a read that keeps its last value while the next loads, and
+// one that asks again when the network comes back.
+
+type Item { id: String, name: String }
+
+app { Router }
+
+page Home(path: "/", title: "Reads", description: "A read in each of its cases.") {
+    state q = "a"
+    resource items: [Item] = http.get("/api/items?q={q}", refresh: .never)
+    resource kept: [Item] = http.get("/api/kept?q={q}", refresh: .never, placeholder: .previous)
+    resource ping: [Item] = http.get("/api/ping")
+
+    Heading("Reads").h1
+    Button("Next") { on click { q = "b" } }
+    Button("Reload") { on click { items.reload() } }
+    match items {
+        .loading { Text("loading", id: "items") }
+        .failed(e) { Text("failed: {e.message}", id: "items") }
+        .loaded(list, refreshing, stale) {
+            Text("loaded: {list.length}", id: "items")
+            Text(if refreshing { "refreshing" } else { "settled" }, id: "refreshing")
+            Text(if let s = stale { "stale: {s.message}" } else { "fresh" }, id: "stale")
+        }
+    }
+    Text(if items.isLoaded { "yes" } else { "no" }, id: "is-loaded")
+    Text("{items.value?.length ?? -1}", id: "value")
+    Text(match items { .loading { "L" } .failed(e) { "F" } .loaded(v) { "D{v.length}" } }, id: "expr")
+    if let .failed(e) = items { Text(e.message, id: "if-let") }
+    match kept {
+        .loading { Text("loading", id: "kept") }
+        .failed(e) { Text("failed", id: "kept") }
+        .loaded(list, refreshing) { Text("{list.length} {refreshing}", id: "kept") }
+    }
+    match ping {
+        .loaded(list) { Text("pinged", id: "ping") }
+        else { Text("…", id: "ping") }
+    }
+}

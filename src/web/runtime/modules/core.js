@@ -694,6 +694,11 @@
   function caseOf(v) {
     return Array.isArray(v) ? v[0] : v;
   }
+  /// What a `match` or an `if let` over a read sees: its one value. Any
+  /// other value is itself.
+  function readOf(v) {
+    return v && typeof v.read === "function" && typeof v.reload === "function" ? v.read() : v;
+  }
   function payload(v, name) {
     if (!Array.isArray(v) || v[0] !== name) return null;
     return v.length === 2 ? v[1] : v.slice(1);

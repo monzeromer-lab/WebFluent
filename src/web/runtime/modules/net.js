@@ -1,11 +1,13 @@
   // ─── Resource ────────────────────────────────────────
   //
-  // A request declared once and read anywhere. `state()` is "loading",
-  // "ready" or "error"; `data()` and `error()` hold what arrived; `reload()`
+  // A request declared once and read anywhere. What it holds is one value,
+  // `read()`: `"loading"`, `["failed", e]`, or `["loaded", value,
+  // refreshing, stale]` — and `value()`, `isLoading()`, `isLoaded()`,
+  // `isFailed()`, `isRefreshing()` and `error()` are read from it. `reload()`
   // asks again. A URL that reads state is followed: the request is made again
   // when it changes, and an answer to an older request is ignored. Asking
-  // again for what is already shown is a refresh: it keeps "ready" and the
-  // data while it runs, and `refreshing()` says it is running.
+  // again for what is already shown is a refresh: it stays loaded, with the
+  // value, while it runs.
   // `let r = await fetch(url, opts)` in an action or a handler: the parsed
   // JSON body, or a thrown `Error` on a failed response — the request a
   // `resource` makes, made once. The browser's own is `window.fetch`.
@@ -200,6 +202,12 @@
     state.set = (v) => real.set(v);
     const error = () => armHeld() === "error" ? failed() || netError("status", "503 Service Unavailable", { status: 503 }) : failed();
     error.set = (v) => failed.set(v);
+    // What a failure is to the page: the endpoint's error enum, or an
+    // `HttpError` — what `.err` holds for the same call.
+    const failureOf = (e) => e == null ? null : options && options.call && url.failure ? url.failure(e) : httpError(e);
+    // `placeholder: .previous`: another request keeps the last value shown,
+    // refreshing, until its own answer arrives.
+    const keepPrevious = options && options.placeholder === "previous";
     const refreshing = signal(false);
     const pending = signal(false);
     const opts = requestOptions(options);
@@ -253,7 +261,12 @@
       controller = typeof AbortController !== "undefined" ? new AbortController() : null;
       const signalOf = controller ? controller.signal : undefined;
       const request = requestOf();
-      const again = arrived && request === shown;
+      const again = arrived && (request === shown || keepPrevious);
+      if (again && request !== shown && paging) {
+        hasMore.set(true);
+        extraPage = null;
+        pages = new Map();
+      }
       if (again) {
         refreshing.set(true);
       } else {
@@ -346,19 +359,31 @@
       }
     }));
 
-    // What the page asked for: another look when it comes back into focus,
-    // when the connection returns, or every so often.
-    const on = options && options.on;
-    if (on && typeof window !== "undefined" && window.addEventListener) {
+    // `refresh:` — another look when the page comes back into focus, when
+    // the connection returns (unless it says otherwise), or every so often.
+    const on = (options && options.refresh) || { reconnect: true };
+    if (typeof window !== "undefined" && window.addEventListener) {
       if (on.focus) listen(window, "focus", () => load());
       if (on.reconnect) listen(window, "online", () => load());
       if (on.interval) every(on.interval, () => load());
     }
 
+    const read = () => {
+      const now = state();
+      if (now === "loading") return "loading";
+      if (now === "error") return ["failed", failureOf(error())];
+      return ["loaded", data(), refreshing(), failureOf(error())];
+    };
     return {
+      read,
+      value: () => (state() === "ready" ? data() : null),
+      isLoading: () => state() === "loading",
+      isLoaded: () => state() === "ready",
+      isFailed: () => state() === "error",
+      isRefreshing: () => state() === "ready" && refreshing(),
+      error: () => failureOf(error()),
       state,
       data,
-      error,
       refreshing,
       pending,
       items,

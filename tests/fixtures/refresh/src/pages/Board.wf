@@ -2,14 +2,14 @@ type Board { count: Number, lead: Row?, rows: [Row] }
 
 page Board(path: "/", title: "Board", description: "What is open, kept current.") {
     state note = ""
-    resource board: Board = http.get("/api/board", on: .focus)
+    resource board: Board = http.get("/api/board", refresh: .onFocus)
     Heading("Board").h1
     match board {
-        loading { Text("Loading the board", class: "loading") }
-        error(e) { Alert("Could not load: {e.message}").danger }
-        ready(b) {
+        .loading { Text("Loading the board", class: "loading") }
+        .failed(e) { Alert("Could not load: {e.message}").danger }
+        .loaded(b) {
             Text("{b.count} open", class: "count")
-            if board.refreshing { Text("Refreshing", class: "refreshing") }
+            if board.isRefreshing { Text("Refreshing", class: "refreshing") }
             if board.error != null { Alert("Could not refresh").warning }
             if let lead = b.lead { Text("Lead: {lead.name}", class: "lead") }
             Input(bind: note, label: "Note")

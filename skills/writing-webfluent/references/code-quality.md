@@ -295,7 +295,7 @@ know the query, so draw every item and hide the ones that don't match.
 - **A `resource` is matched with every arm**: `loading`, `error(e)` (`T21` if
   it's missing) and `ready(x)`.
 - **Inside `ready`:**
-  - show `x.refreshing` as a small spinner, not a full reload;
+  - show `x.isRefreshing` as a small spinner, not a full reload;
   - show `x.error` (a failed refresh) as a stale-data note;
   - handle the empty list.
 - **Error kinds.** Branch on them (`.offline`, `.timeout`, `.status(code, body)`)

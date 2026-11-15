@@ -842,7 +842,7 @@ More that differs on a phone:
 - **Network.**
   - `network.online` and `network.saveData` matter more on a phone. Show a
     note when offline.
-  - An `api` can retry on `.network`, and `on: .reconnect` asks again when the
+  - An `api` can retry on `.network`, and `refresh: .onReconnect` asks again when the
     connection returns.
 - **Platform features.** Use phone-only plugins (`haptics`, `biometric`,
   `barcode-scanner`, `geolocation`, `nfc`) through the bridge, each with a

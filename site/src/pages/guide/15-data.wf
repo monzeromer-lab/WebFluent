@@ -1,8 +1,8 @@
 /// Chapter 15 of the guide, written from md-docs/learn/15-data.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; ask with http in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "ask-on-demand-with-http", label: "Ask on demand with http"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "lists-of-data-a-table-a-tree-a-search", label: "Lists of data: a table, a tree, a search"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a request's loading, error and ready states with `resource` and `match`", "Tell a refresh (`refreshing`, the data stays) from a first load (`loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Ask on demand with `http` in an action, handle its result, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
+page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; ask with http in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "ask-on-demand-with-http", label: "Ask on demand with http"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "lists-of-data-a-table-a-tree-a-search", label: "Lists of data: a table, a tree, a search"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a read's three cases — `.loading`, `.failed(e)`, `.loaded(value)` — with `resource` and `match`", "Tell a refresh (`refreshing`, the value stays) from a first load (`.loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Ask on demand with `http` in an action, handle its result, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter is about getting data onto a WebFluent page and sending data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a request's loading, error and ready states with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- read a service's surface from an OpenAPI file;\n- ask on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
+        Markdown("This chapter is about getting data onto a WebFluent page and sending data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a read's `.loading`, `.failed(e)` and `.loaded(value)` cases with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- read a service's surface from an OpenAPI file;\n- ask on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
 
         Heading("Before you start", id: "before-you-start").h2
 
@@ -44,7 +44,7 @@ page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "D
 
         Heading("Show a request with resource", id: "show-a-request-with-resource").h2
 
-        Markdown("To fetch data while a page shows, declare a `resource` and show its states with `match`. A *resource* is a request the page makes, and a value that says where the request is: loading, failed or ready.\n\nThis page lists recent deploys, with a spinner while they load and an alert if the request fails:")
+        Markdown("To fetch data while a page shows, declare a `resource` and show its states with `match`. A *resource* is a request the page makes, and one value that says where it is: `.loading`, `.failed(e)` or `.loaded(value)`.\n\nThis page lists recent deploys, with a spinner while they load and an alert if the request fails:")
 
         CodeBlock(#"type Deploy { id: String, status: String, startedAt: String }
 
@@ -53,9 +53,9 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 
     Heading("Deploys").h1
     match deploys {
-        loading { Spinner }
-        error(e) { Alert("Could not load: {e.message}").danger }
-        ready(rows) {
+        .loading { Spinner }
+        .failed(e) { Alert("Could not load: {e.message}").danger }
+        .loaded(rows) {
             if rows.length == 0 { Text("No deploys yet.").muted }
             for d in rows by d.id {
                 Row(justify: .between) {
@@ -69,15 +69,15 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
     Button("Refresh") { on click { deploys.reload() } }
 }"#, title: "wf")
 
-        Callout("**Coming from React?** There, a fetch is a `useEffect` that sets `loading`, `error` and `data` states by hand, or a `useQuery`. A `resource` is the request and its state together: no effect, no flags to keep in step, and a `match` with one arm per state. See [Coming from React](/coming-from/react).", kind: .note)
+        Callout("**Coming from React?** There, a fetch is a `useEffect` that sets `loading`, `error` and `data` states by hand, or a `useQuery`. A `resource` is the request and its state together: no effect, no flags to keep in step, and a `match` with one arm per case. See [Coming from React](/coming-from/react).", kind: .note)
 
-        Markdown("How it works:\n\n- `resource name: T = http.get(url)` starts the request when the page renders.\n- The annotation (`: [Deploy]`) types the value. Without one, the value is `Any`.\n- A `match` over a resource has three arms — `loading`, `error(e)` and `ready(v)` — and may have an `else`. A resource `match` with no `error` arm and no `else` is `T21`.\n- The pre-rendered page — the HTML the build writes for a static site — shows the `loading` arm. The live page fetches and replaces it.\n- A failed response (one that is not `ok`) is an error whose `e.message` is `HTTP 500`, or whatever the status was.")
+        Markdown("How it works:\n\n- `resource name: T = http.get(url)` starts the request when the page renders.\n- The annotation (`: [Deploy]`) types the value. A read of `http.get` must have one (`N11`); a read of an endpoint takes the endpoint's.\n- A read is one value in one of three cases, and a `match` over it has an arm for each, or an `else`:\n\n  | Case | When | |---|---| | `.loading` | nothing to show yet | | `.failed(e)` | the first load failed; `e` is an `HttpError` — or the endpoint's error enum, for one declared `-> T ! E` | | `.loaded(value, refreshing, stale)` | something to show; `refreshing` while it is asked again; `stale` the failure of a refresh, else `null` |\n\n  An arm names as many of its case's places as it uses: `.loaded(rows)`. One with no `.failed` arm and no `else` is `T21`; one that leaves out another case is `T15`.\n- The pre-rendered page — the HTML the build writes for a static site — shows the `.loading` arm. The live page fetches and replaces it.\n- A failed response (one that is not `ok`) is `.status(code, problem)`, whose `e.message` is `HTTP 500`, or whatever the status was.")
 
-        Heading("Read a resource's state anywhere", id: "read-a-resource-s-state-anywhere").h3
+        Heading("Read one fact of a resource anywhere", id: "read-one-fact-of-a-resource-anywhere").h3
 
-        Markdown("A resource has these values. Each is live wherever you read it — a label, a splice, an attribute — with no `derived` in between:")
+        Markdown("Without a `match`, a resource has these, each worked out from its one value, so they cannot disagree. Each is live wherever you read it — a label, a splice, an attribute — with no `derived` in between:")
 
-        Table(caption: "Read a resource's state anywhere") {
+        Table(caption: "Read one fact of a resource anywhere") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Value").header
@@ -86,20 +86,20 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`name.state`") }
-                    Table.Cell { Markdown("`\"loading\"`, `\"ready\"` or `\"error\"`") }
+                    Table.Cell { Markdown("`name.value`") }
+                    Table.Cell { Markdown("The value, while it is `.loaded`; else `null` (`T?`)") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`name.data`") }
-                    Table.Cell { Markdown("The last value, or `null` before the first (`T?`)") }
+                    Table.Cell { Markdown("`name.isLoading` · `name.isLoaded` · `name.isFailed`") }
+                    Table.Cell("Which case it is in")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.isRefreshing`") }
+                    Table.Cell { Markdown("`true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`name.error`") }
-                    Table.Cell("The last error")
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`name.refreshing`") }
-                    Table.Cell { Markdown("`true` while a refresh runs ([Refresh without clearing the page](#refresh-without-clearing-the-page))") }
+                    Table.Cell { Markdown("What went wrong: the first load's failure, or the last refresh's (`E?`)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`name.pending`") }
@@ -120,34 +120,34 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
             }
         }
 
-        Markdown("So `Button(if plan.data != null \{ \"Request approval\" \} else \{ \"Deploy\" \})` changes its label when the plan arrives.")
+        Markdown("So `Button(if plan.isLoaded \{ \"Request approval\" \} else \{ \"Deploy\" \})` changes its label when the plan arrives, and `if let .failed(e) = plan \{ Alert(e.message).danger \}` shows one case without a `match`.")
 
         Heading("Refresh without clearing the page", id: "refresh-without-clearing-the-page").h3
 
-        Markdown("These ask for a resource again:\n\n- the `on:` option of `http.get(…)` or of an endpoint's call: `.focus` (when the reader comes back to the tab), `.reconnect` (when the network returns), or `.interval(30.seconds)`;\n- `name.reload()` and `name.invalidate()`.\n\nAsking again for the request already shown is a *refresh*. The page stays as it is while a refresh runs: `name.state` stays `\"ready\"`, the data stays, and the answer is drawn in place.\n\nThis page polls a list of servers every 30 seconds, and shows a small spinner during each refresh:")
+        Markdown("These ask for a resource again:\n\n- an argument, or a part of the address, a body or a header, that reads state and changes;\n- the `refresh:` option of `http.get(…)` or of an endpoint's call: `.onReconnect` (when the network returns — what a read does when it says nothing), `.onFocus` (when the reader comes back to the tab), `.every(30.seconds)`, `.never`, or a list of them;\n- `name.reload()` and `name.invalidate()`.\n\nAsking again for the request already shown is a *refresh*. The page stays as it is while a refresh runs: the read stays `.loaded`, with its value and `refreshing` true, and the answer is drawn in place.\n\nThis page polls a list of servers every 30 seconds, and shows a small spinner during each refresh:")
 
         CodeBlock(#"type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
-    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers?env={stage}", refresh: .every(30.seconds))
 
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
-        loading { Skeleton(height: "20px") }
-        error(e) { Alert(e.message).danger }
-        ready(list) {
-            if servers.error != null { Alert("Could not refresh; this is what was there.").warning }
-            if servers.refreshing { Spinner.sm }
+        .loading { Skeleton(height: "20px") }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list, refreshing, stale) {
+            if stale != null { Alert("Could not refresh; this is what was there.").warning }
+            if refreshing { Spinner.sm }
             for s in list by s.id { Text("{s.name}: {s.status}") }
         }
     }
 }"#, title: "wf")
 
-        Callout("**Coming from TanStack Query?** `isLoading` is `name.state == \"loading\"`, true only while there is nothing to show; `isFetching` is `name.pending`; and `name.refreshing` is a fetch while data is on screen. See [Coming from React](/coming-from/react).", kind: .note)
+        Callout("**Coming from TanStack Query?** `isLoading` is `name.isLoading`, true only while there is nothing to show; `isFetching` is `name.pending`; and `name.isRefreshing` is a fetch while data is on screen. The three cases are its `status`, made one value. See [Coming from React](/coming-from/react).", kind: .note)
 
-        Markdown("What a refresh keeps:\n\n- **The arm.** The `ready` arm's binding is live. Text, attributes, `if`, `if let`, a keyed `for … by` and component props inside the arm follow the new data. The arm is drawn again only when the arm changes — loading, ready, error.\n- **The rows.** A row whose key is still in the list keeps its nodes, its focus and its components' state. An input keeps what was typed.\n- **Unchanged data.** The parts of an answer equal to what was shown are kept as the same objects. An item is matched by its `id`, by its value, or by its place. An answer that changed nothing redraws nothing.\n\nWhat happens when a request fails, or changes:\n\n- A refresh that fails keeps the data and `\"ready\"`, and sets `name.error` until the next answer, so the arm can say the data is stale.\n- A first load that fails is `\"error\"`, and its `reload()` is a first load again.\n- A request that changed is a first load again, shown as `loading`. A request changes when an address or an argument that reads state now names something else — another environment, another page — because the data on screen would be the wrong data. What the last request brought goes with it: `name.data` is `null` (and a paged resource's `name.items` empty) until the answer arrives, and stays so if it fails, so a `derived` value over it never reads the other request's answer. With `paginate:`, the next page is a refresh instead.\n\nPressing **Production** above changes `stage`, so the list shows its `loading` arm and then the production servers.")
+        Markdown("What a refresh keeps:\n\n- **The arm.** The `.loaded` arm's bindings are live. Text, attributes, `if`, `if let`, a keyed `for … by` and component props inside the arm follow the new value. The arm is drawn again only when the case changes.\n- **The rows.** A row whose key is still in the list keeps its nodes, its focus and its components' state. An input keeps what was typed.\n- **Unchanged data.** The parts of an answer equal to what was shown are kept as the same objects. An item is matched by its `id`, by its value, or by its place. An answer that changed nothing redraws nothing.\n\nWhat happens when a request fails, or changes:\n\n- A refresh that fails stays `.loaded`, with the value, and its failure is `stale` until the next answer, so the arm can say the value is out of date.\n- A first load that fails is `.failed(e)`, and its `reload()` is a first load again.\n- A request that changed is a first load again, shown as `.loading`. A request changes when an argument that reads state now names something else — another environment, another page — because the value on screen would be the wrong one. What the last request brought goes with it: `name.value` is `null` (and a paged resource's `name.items` empty) until the answer arrives, and stays so if it fails, so a `derived` value over it never reads the other request's answer. With `paginate:`, the next page is a refresh instead.\n- `placeholder: .previous` keeps the last value shown instead, `.loaded` and refreshing, until the new answer arrives — a search whose results stay while the next ones load.\n\nPressing **Production** above changes `stage`, so the list shows its `.loading` arm and then the production servers.")
 
         Heading("Send options with a request", id: "send-options-with-a-request").h3
 
@@ -165,9 +165,9 @@ page Search(path: "/search", title: "Search", description: "Search the catalogue
     Heading("Search").h1
     Input(bind: q, label: "Search")
     match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text("{list.length} hits") }
+        .loading { Spinner.sm }
+        .failed(e) { Text(e.message).danger }
+        .loaded(list) { Text("{list.length} hits") }
     }
 }"#, title: "wf")
 
@@ -180,9 +180,9 @@ page Search(path: "/search", title: "Search", description: "Search the catalogue
 page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
     resource post: Post = http.get("/api/posts/{slug}")
     match post {
-        loading { Skeleton }
-        error(e) { Alert("Not found").warning }
-        ready(p) {
+        .loading { Skeleton }
+        .failed(e) { Alert("Not found").warning }
+        .loaded(p) {
             Heading(p.title).h1
             Markdown(p.body)
         }
@@ -201,9 +201,9 @@ page Lookup(path: "/lookup", title: "Lookup", description: "Search when you pres
     Heading("Lookup").h1
     Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
     match hits {
-        loading { Spinner.sm }
-        error(e) { Text(e.message).danger }
-        ready(list) { Text("{list.length} results for {submitted}") }
+        .loading { Spinner.sm }
+        .failed(e) { Text(e.message).danger }
+        .loaded(list) { Text("{list.length} results for {submitted}") }
     }
 }"#, title: "wf")
 
@@ -233,12 +233,12 @@ api Backend(base: "/api/v1") {
 
 page Users(path: "/users", title: "Users", description: "Everyone.") {
     state page: Number = 1
-    resource rows = Backend.users(page: page, cache: .swr(60.seconds), on: .focus)
+    resource rows = Backend.users(page: page, cache: .swr(60.seconds), refresh: .onFocus)
 
     Heading("Users").h1
     match rows {
-        loading { Skeleton(height: "20px") }
-        error(e) {
+        .loading { Skeleton(height: "20px") }
+        .failed(e) {
             match e {
                 .offline { Alert("You are offline.").warning }
                 .timeout { Alert("The server took too long.").warning }
@@ -246,7 +246,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
             }
             Button("Try again") { on click { rows.reload() } }
         }
-        ready(list) { for u in list by u.id { Text(u.name) } }
+        .loaded(list) { for u in list by u.id { Text(u.name) } }
     }
 }"#, title: "wf")
 
@@ -344,7 +344,7 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                 }
                 Table.Row {
                     Table.Cell("Refetch")
-                    Table.Cell { Markdown("`on: .focus`, `.reconnect`, `.interval(30.seconds)`") }
+                    Table.Cell { Markdown("`refresh: .onFocus`, `.reconnect`, `.interval(30.seconds)`") }
                 }
                 Table.Row {
                     Table.Cell("Pagination")
@@ -512,7 +512,7 @@ patch settings(body: Settings) -> Settings!
 delete removeUser(id: String) at "users/:id" -> !
 get report(id: String) at "reports/:id" -> Json! as: .blob"#, title: "text")
 
-        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **Path parameters.** A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.aborted`, and a resource over it stays `loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **What comes back.** `-> T!` is a success's `T`, or an `HttpError`; `-> T ! E` names the failures in an error enum `E`, each status a case with its typed body; `-> !` returns nothing, as `204 No Content` does, and may fail. Under `wf serve` the body that arrives is held to `T`, and a declared status's body to its case's type. What crosses is a type the program names: `Map` and `Any` there are `N11`.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and one with no default that may not be null must be given. Called in an action, it is a promise of a result: `await` it, then `match` it or pass its failure up with `try` ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`, `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
+        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **Path parameters.** A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.cancelled`, and a resource over it stays `.loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **What comes back.** `-> T!` is a success's `T`, or an `HttpError`; `-> T ! E` names the failures in an error enum `E`, each status a case with its typed body; `-> !` returns nothing, as `204 No Content` does, and may fail. Under `wf serve` the body that arrives is held to `T`, and a declared status's body to its case's type. What crosses is a type the program names: `Map` and `Any` there are `N11`.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and one with no default that may not be null must be given. Called in an action, it is a promise of a result: `await` it, then `match` it or pass its failure up with `try` ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`, `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
 
         Heading("Say how a call fails", id: "say-how-a-call-fails").h3
 
@@ -757,7 +757,7 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`resource`") }
-                    Table.Cell { Markdown("The `loading` arm; the live page fetches and replaces it") }
+                    Table.Cell { Markdown("The `.loading` arm; the live page fetches and replaces it") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`http` in an action") }
@@ -789,12 +789,12 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
                     Table.Cell { Markdown("Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`.") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("A resource stays `loading`") }
+                    Table.Cell { Markdown("A resource stays `.loading`") }
                     Table.Cell { Markdown("A path parameter is `null` or `\"\"`, so the call is not sent. It goes out when the value arrives.") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("The page goes back to `loading` when state changes") }
-                    Table.Cell("The address now names something else, so it is a first load. A refresh of the same address keeps the data.")
+                    Table.Cell { Markdown("The page goes back to `.loading` when state changes") }
+                    Table.Cell { Markdown("The address now names something else, so it is a first load. A refresh of the same address keeps the value; `placeholder: .previous` keeps it for a new address too.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T05` on a field of the data") }
@@ -813,27 +813,27 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
 
         Heading("Quiz", id: "quiz").h2
 
-        Quiz("A resource's `match` has a `loading` arm and a `ready` arm, and no other. What does the reader see when the request fails?", id: "Fetching data#10", choices: [
-            QuizChoice(text: "An error message the runtime draws for you", right: false, why: "The runtime draws only the arms you write; the build warns about the missing one with T21."),
-            QuizChoice(text: "Nothing where the `match` is, and the build warns with T21", right: true, why: "No arm matches `\"error\"`, so the place stays empty. Add `error(e) \{ … \}` or an `else`."),
-            QuizChoice(text: "The `loading` arm, until a retry succeeds", right: false, why: "A first load that fails is `\"error\"`, not `\"loading\"`.")
+        Quiz("A resource's `match` has a `.loading` arm and a `.loaded` arm, and no other. What happens?", id: "Fetching data#10", choices: [
+            QuizChoice(text: "The runtime draws an error message for you when the request fails", right: false, why: "The runtime draws only the arms you write."),
+            QuizChoice(text: "The build stops with T21", right: true, why: "A failed first load is `.failed(e)`, which no arm takes, so the place would stay empty. Add `.failed(e) \{ … \}` or an `else`."),
+            QuizChoice(text: "The `.loading` arm shows until a retry succeeds", right: false, why: "A first load that fails is `.failed(e)`, not `.loading`.")
         ])
 
         Quiz("A resource is making its very first request. Which is true?", id: "Fetching data#10", choices: [
-            QuizChoice(text: "`pending` is true and `refreshing` is false", right: true, why: "`pending` covers every request of it, the first load included; `refreshing` only a request made again while data is shown."),
-            QuizChoice(text: "`refreshing` is true and `pending` is false", right: false, why: "It is the other way round: there is no data yet to refresh."),
-            QuizChoice(text: "Both are true", right: false, why: "`refreshing` is true only while data is on screen, and on a first load there is none.")
+            QuizChoice(text: "`pending` is true and `isRefreshing` is false", right: true, why: "`pending` covers every request of it, the first load included; `isRefreshing` only a request made again while a value is shown."),
+            QuizChoice(text: "`isRefreshing` is true and `pending` is false", right: false, why: "It is the other way round: there is no value yet to refresh."),
+            QuizChoice(text: "Both are true", right: false, why: "`isRefreshing` is true only while the read is `.loaded`, and on a first load it is `.loading`.")
         ])
 
-        Quiz("A resource with `on: .interval(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#10", choices: [
-            QuizChoice(text: "The `loading` arm, then the new list", right: false, why: "Only a first load, or a request whose address changed, shows `loading`."),
-            QuizChoice(text: "An empty list until the answer arrives", right: false, why: "The data stays while a refresh runs; `name.data` is never cleared by one."),
-            QuizChoice(text: "The `ready` arm with the old list, then the answer drawn in place", right: true, why: "A refresh keeps `\"ready\"` and the data; rows whose key is still there keep their nodes.")
+        Quiz("A resource with `refresh: .every(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#10", choices: [
+            QuizChoice(text: "The `.loading` arm, then the new list", right: false, why: "Only a first load, or a request whose address changed, shows `.loading`."),
+            QuizChoice(text: "An empty list until the answer arrives", right: false, why: "The value stays while a refresh runs; `name.value` is never cleared by one."),
+            QuizChoice(text: "The `.loaded` arm with the old list, then the answer drawn in place", right: true, why: "A refresh stays `.loaded`, with `refreshing` true; rows whose key is still there keep their nodes.")
         ])
 
         Quiz("The address is `http.get(\"/api/servers?env=\{stage\}\")`, and a button sets `stage` from `\"test\"` to `\"prod\"`. What shows next?", id: "Fetching data#10", choices: [
-            QuizChoice(text: "The `loading` arm, then the production servers", right: true, why: "The request now names something else, so it is a first load; the test servers would be the wrong data."),
-            QuizChoice(text: "The test servers, with `refreshing` true, until the production servers arrive", right: false, why: "That is a refresh, which asks again for the same request; this one changed."),
+            QuizChoice(text: "The `.loading` arm, then the production servers", right: true, why: "The request now names something else, so it is a first load; the test servers would be the wrong data."),
+            QuizChoice(text: "The test servers, with `refreshing` true, until the production servers arrive", right: false, why: "That is a refresh, which asks again for the same request; this one changed. `placeholder: .previous` would ask for it."),
             QuizChoice(text: "Nothing changes until the reader reloads the page", right: false, why: "An address that reads state is fetched again whenever that state changes.")
         ])
 
@@ -845,8 +845,8 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
     resource users = http.get("/api/users")
     Heading("Users").h1
     match users {
-        loading { Spinner }
-        ready(list) { Text("{list.length} users") }
+        .loading { Spinner }
+        .loaded(list) { Text("{list.length} users") }
     }
 }"#, title: "wf · draws T21")
 
@@ -858,9 +858,9 @@ page P(path: "/", title: "Users", description: "Everyone.") {
     resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
-        loading { Spinner }
-        error(e) { Alert(e.message).danger }
-        ready(list) { for u in list by u.id { Text(u.fullName) } }
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for u in list by u.id { Text(u.fullName) } }
     }
 }"#, title: "wf · draws T05")
 
@@ -871,9 +871,9 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 page P(path: "/", title: "Users", description: "Everyone.") {
     resource users: [User] = http.get("/api/users")
     Heading("Users").h1
-    Text("{users.data.length} users")
+    Text("{users.value.length} users")
 }"#, title: "wf · draws T04")
 
-        Markdown("Read it through `?.` with a fallback, `\{users.data?.length ?? 0\}`, or show it inside the `ready` arm, where the binding is never null ([T04](/errors/T04)).\n\nGoing further: [Open a socket](/recipes/open-a-socket) keeps a connection open for data the server pushes.")
+        Markdown("Read it through `?.` with a fallback, `\{users.value?.length ?? 0\}`, or show it inside the `.loaded` arm, where the binding is never null ([T04](/errors/T04)).\n\nGoing further: [Open a socket](/recipes/open-a-socket) keeps a connection open for data the server pushes.")
     }
 }

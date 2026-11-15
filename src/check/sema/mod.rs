@@ -242,7 +242,7 @@ impl Checker<'_, '_> {
                         self.error(
                             stmt.span,
                             "T11",
-                            "A `match` is over a resource (`loading`, `error`, `ready`) or over an enum (`.case`), not both".into(),
+                            "6.x's arms (`loading`, `error`, `ready`) and cases (`.case`) cannot share a `match`: a read is matched by its cases, `.loading`, `.failed(e)`, `.loaded(v)`".into(),
                             "",
                         );
                     }

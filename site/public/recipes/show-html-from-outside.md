@@ -19,7 +19,7 @@ api Backend(base: "/api") {
 page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
     resource post = Backend.post(slug: slug)
     match post {
-        ready(p) {
+        .loaded(p) {
             Heading(p.title).h1
             Unsafe.Html(sanitize(p.body))
         }

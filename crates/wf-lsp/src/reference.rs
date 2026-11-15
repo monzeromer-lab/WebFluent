@@ -167,7 +167,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     KeywordDoc {
         name: "match",
         summary: "Renders one arm by the value: a resource's `loading`, `error(e)`, `ready(v)`, or an enum's `.case`, with `else` as the rest. As an expression, `match t { .a { 1 } else { 2 } }`.",
-        example: "match users {\n    loading { Spinner }\n    error(e) { Text(e.message) }\n    ready(list) { Text(\"{list.length} users\") }\n}",
+        example: "match users {\n    .loading { Spinner }\n    .failed(e) { Text(e.message) }\n    .loaded(list) { Text(\"{list.length} users\") }\n}",
         place: Place::Body,
     },
     KeywordDoc {

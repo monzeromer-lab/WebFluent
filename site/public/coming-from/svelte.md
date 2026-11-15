@@ -28,7 +28,7 @@ is checked at build time, and the components come designed.
 | A route | SvelteKit `src/routes/users/[id]/+page.svelte` | `page User(path: "/users/:id", id: String) { … }` |
 | `{#if}` | `{#if open}<Panel />{:else}<p>…</p>{/if}` | `if open { Panel } else { Text("…") }` |
 | `{#each}` | `{#each items as i (i.id)}<li>{i.name}</li>{/each}` | `for i in items by i.id { Text(i.name) }` |
-| `{#await}` | `{#await promise}…{:then data}…{:catch e}…{/await}` | `match users { loading { … } ready(list) { … } error(e) { … } }` |
+| `{#await}` | `{#await promise}…{:then data}…{:catch e}…{/await}` | `match users { .loading { … } .loaded(list) { … } .failed(e) { … } }` |
 | A class that follows state | `class:done={todo.done}` | `class: { "done": todo.done }` |
 | Transitions | `transition:fade` | `.fadeIn`, `exit: .fadeOut` |
 | A test | Vitest with Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |

@@ -1,13 +1,13 @@
 page Home(path: "/", title: "Feed", description: "A store's resource.") {
     Heading("Feed").h1
-    Text(Feed.rows.state, id: "state")
+    Text(match Feed.rows { .loading { "loading" } .failed(e) { "error" } .loaded(v) { "ready" } }, id: "state")
     Text("{Feed.count}", id: "count")
     Text("{Feed.loaded}", id: "loaded")
-    if Feed.rows.refreshing { Text("refreshing", id: "refreshing") }
+    if Feed.rows.isRefreshing { Text("refreshing", id: "refreshing") }
     match Feed.rows {
-        loading { Text("Loading", id: "rows") }
-        error(e) { Text("failed", id: "rows") }
-        ready(rows) {
+        .loading { Text("Loading", id: "rows") }
+        .failed(e) { Text("failed", id: "rows") }
+        .loaded(rows) {
             Stack(id: "rows") {
                 for r in rows { Text(r.name) }
             }

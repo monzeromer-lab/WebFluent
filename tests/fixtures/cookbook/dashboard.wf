@@ -105,9 +105,9 @@ page Overview(path: "/", title: "Overview", description: "Service health.", guar
     every(30000) { services.reload() }
     Heading("Overview").h1
     match services {
-        loading { Skeleton }
-        error(e) { Alert("Could not load services: {e.message}").danger { Button("Retry") { on click { services.reload() } } } }
-        ready(list) {
+        .loading { Skeleton }
+        .failed(e) { Alert("Could not load services: {e.message}").danger { Button("Retry") { on click { services.reload() } } } }
+        .loaded(list) {
             derived healthy = list.filter(s => s.healthy).length
             Row(gap: .md) {
                 Card { Text("Services").muted.sm  Heading("{list.length}").h2 }
@@ -153,9 +153,9 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.",
         }
     }
     match deploys {
-        loading { Spinner }
-        error(e) { Alert(e.message).danger }
-        ready(rows) {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(rows) {
             derived shown = rows.filter(d => d.service.toLowerCase().includes(q.toLowerCase()))
             derived sorted = match sort { .service { shown.sortBy(d => d.service) } .status { shown.sortBy(d => d.status) } else { shown.sortBy(d => d.startedAt).reverse() } }
             Table(caption: "Recent deploys") {
@@ -200,9 +200,9 @@ page DeployDetail(path: "/deploys/:id", id: String, title: "Deploy", description
         Breadcrumb.Item { Text(id) }
     }
     match deploy {
-        loading { Skeleton }
-        error(e) { Alert("Not found").warning }
-        ready(d) {
+        .loading { Skeleton }
+        .failed(e) { Alert("Not found").warning }
+        .loaded(d) {
             Heading("{d.service} — {d.status}").h1
             Text("Started {ago(d.startedAt)} by {d.by}")
         }

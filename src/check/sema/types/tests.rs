@@ -184,7 +184,7 @@ const TODOS: &str = "enum Tone { calm, loud }\ntype Todo { id: String, title: St
 #[test]
 fn declared_and_inferred_types_of_names() {
     let src = format!(
-        "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() -> Number {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = http.get(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ ready(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
+        "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() -> Number {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = http.get(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ .loaded(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
     );
     assert_eq!(type_of(&src, "items"), "[Todo]");
     assert_eq!(type_of(&src, "draft"), "String");
@@ -303,15 +303,15 @@ fn a_store_is_checked_without_use_and_from_another_store() {
 #[test]
 fn a_services_headers_and_hooks_are_checked() {
     has(
-        "store M { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { on response(r) { M.recrd(r.status) }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "store M { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { on response(r) { M.recrd(r.status) }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
         "[T06] `M` has no action `recrd`",
     );
     has(
-        "store S { state token = \"\" }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.tokn}\" }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "store S { state token = \"\" }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.tokn}\" }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
         "[T06] `S` has no member `tokn`",
     );
     clean(
-        "store S { state token = \"\"\n action refresh() { token = \"x\" } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.token}\" }\n on request(r) { r.headers[\"X-Id\"] = \"1\" }\n on error(e) { await S.refresh()  return \"retry\" }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "store S { state token = \"\"\n action refresh() { token = \"x\" } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.token}\" }\n on request(r) { r.headers[\"X-Id\"] = \"1\" }\n on error(e) { await S.refresh()  return \"retry\" }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
     );
 }
 
@@ -442,7 +442,7 @@ fn loops_conditions_and_matches_need_the_right_shapes() {
     );
     has(
         "page P(path: \"/\") { resource r: [String] = http.get(\"/x\")\n match r { .calm { } else { } } }",
-        "`r` is a resource; `.calm` is not one of its states",
+        "`r` is a read; `.calm` is not one of its cases",
     );
     clean(
         "page P(path: \"/\") { state items = [1]\n state n = 0\n state s = \"\"\n if items.length > 0 { Text(\"some\") }\n if n { Text(\"n\") }\n if s { Text(\"s\") }\n show n > 1 { Text(\"x\") } }",

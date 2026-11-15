@@ -390,7 +390,7 @@ document.addEventListener("wf:render", (e) => {
                 Table.Row {
                     Table.Cell { Markdown("`resource(url, options)`") }
                     Table.Cell { Markdown("`net`") }
-                    Table.Cell { Markdown("A resource: `\{ state, data, error, refreshing, pending, items, hasMore, reload, loadMore, invalidate, cancel \}`.") }
+                    Table.Cell { Markdown("A read: `\{ read, value, isLoading, isLoaded, isFailed, isRefreshing, error, pending, items, hasMore, reload, loadMore, invalidate, cancel \}`; `read()` is its one value — `\"loading\"`, `[\"failed\", e]` or `[\"loaded\", value, refreshing, stale]`. `readOf(v)` is what a `match` sees of `v`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`request(url, options)` ●") }

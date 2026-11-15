@@ -1480,12 +1480,7 @@ fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext<'_>) ->
             // `else`, is what a document can show. An enum's value is at
             // hand, so its arm is the case's, with the payload bound.
             StatementKind::Match(m) => {
-                let over_resource = m.arms.iter().any(|a| {
-                    matches!(
-                        a.pattern,
-                        ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
-                    )
-                });
+                let over_resource = crate::syntax::parser::ast::over_read(&m.arms);
                 let value = if over_resource {
                     Value::Null
                 } else {
@@ -1496,7 +1491,7 @@ fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext<'_>) ->
                     .arms
                     .iter()
                     .find(|a| matches!(&a.pattern, ArmPattern::Case(c) if Value::String(c.clone()) == case))
-                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Loading))
+                    .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Loading || a.pattern == ArmPattern::Case("loading".into()) && over_resource))
                     .or_else(|| m.arms.iter().find(|a| a.pattern == ArmPattern::Else));
                 if let Some(arm) = arm {
                     let mut saved = Vec::new();

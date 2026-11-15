@@ -147,7 +147,7 @@ What the control-flow statements and slots compile to.
 
 | Function | Module | What it does |
 |---|---|---|
-| `resource(url, options)` | `net` | A resource: `{ state, data, error, refreshing, pending, items, hasMore, reload, loadMore, invalidate, cancel }`. |
+| `resource(url, options)` | `net` | A read: `{ read, value, isLoading, isLoaded, isFailed, isRefreshing, error, pending, items, hasMore, reload, loadMore, invalidate, cancel }`; `read()` is its one value — `"loading"`, `["failed", e]` or `["loaded", value, refreshing, stale]`. `readOf(v)` is what a `match` sees of `v`. |
 | `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `http.get(…)` and the other verbs compile to `httpCall`, which wraps it in a result. |
 | `optimistic(holder, change)` | `net` | Shows a change at once, rolled back if the action throws. |
 | `attempt(fn)` | `net` | Runs an action so that a throw rolls back its optimistic changes. |

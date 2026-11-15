@@ -253,7 +253,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T18](https://webfluent.monzeromer.dev/errors/T18.md) — Arithmetic on something that is not a number
 - [T15](https://webfluent.monzeromer.dev/errors/T15.md) — A `match` that misses a case, or has one twice
 - [T22](https://webfluent.monzeromer.dev/errors/T22.md) — A handler that names more values than its event sends
-- [T21](https://webfluent.monzeromer.dev/errors/T21.md) — A resource `match` with no `error` arm
+- [T21](https://webfluent.monzeromer.dev/errors/T21.md) — A read's `match` with no `.failed` arm
 - [T26](https://webfluent.monzeromer.dev/errors/T26.md) — An action that returns a value and does not say what
 - [T30](https://webfluent.monzeromer.dev/errors/T30.md) — A part of the browser the language does not type
 

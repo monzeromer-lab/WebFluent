@@ -178,6 +178,51 @@ browser.
   column's `value: r => r.nmae` (`T05`), a `cell(r)`. `wf registry --json`
   and the docs show these types.
 
+## A read is one value
+
+A `resource` was a string, `state`, beside `data`, `error` and
+`refreshing`, which a page had to keep in step itself — and could read in
+combinations that never happen. It is now one value with three cases:
+
+```wf
+match users {
+    .loading { Skeleton(height: "20px") }
+    .failed(e) { Alert(e.message).danger }                 // e: HttpError, or the endpoint's error enum
+    .loaded(list, refreshing, stale) {
+        if refreshing { Spinner.sm }
+        if stale != null { Alert("Could not refresh").warning }
+        for u in list by u.id { Text(u.name) }
+    }
+}
+```
+
+- "Loaded, and the last refresh failed" is `.loaded(value, false, e)`;
+  "loading, with data" cannot be written. A `match` covers every case or
+  says `else`: one with no `.failed` arm is `T21`, now an error, and one
+  missing another case `T15`. `if let .failed(e) = users { … }` takes one
+  case, and a `match` expression reads one too.
+- A failure is what `.err` holds for the same request — an `HttpError`, or
+  the endpoint's error enum for one declared `-> T ! E` — not 6.x's loose
+  error object.
+- To read one fact, a read has members worked out from its value, which
+  cannot disagree with it: `value` (`T?`), `isLoading`, `isLoaded`,
+  `isFailed`, `isRefreshing`, `error` (`E?`) and `pending`.
+- `refresh:` says when a read asks again besides an argument changing:
+  `.onReconnect` — what a read now does when it says nothing — `.onFocus`,
+  `.every(30.seconds)`, `.never`, or a list.
+- `placeholder: .previous` keeps the last value shown, refreshing, while
+  another request of it loads — a search whose results stay while the next
+  ones arrive — where a changed request used to go back to loading.
+
+6.x's forms are `N08`, and `wf fix` rewrites them: the `loading`,
+`error(e)` and `ready(v)` arms become `.loading`, `.failed(e)` and
+`.loaded(v)`; `.data` becomes `.value` and `.refreshing` `.isRefreshing`;
+`on: .focus`, `.reconnect` and `.interval(d)` become `refresh: .onFocus`,
+`.onReconnect` and `.every(d)`. `.state` has no one rewrite: compare with
+`isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`
+arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
+`.status(code, problem)`.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

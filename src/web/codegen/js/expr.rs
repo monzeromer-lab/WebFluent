@@ -398,6 +398,11 @@ impl JsCodegen {
                         | "data"
                         | "error"
                         | "refreshing"
+                        | "value"
+                        | "isLoading"
+                        | "isLoaded"
+                        | "isFailed"
+                        | "isRefreshing"
                         | "pending"
                         | "items"
                         | "hasMore"
@@ -562,12 +567,13 @@ impl JsCodegen {
                     } else {
                         "caseOf"
                     };
-                    return format!("WF.{of}({})", self.emit_expr_in(obj, cx));
+                    let subject = self.as_seen(obj, self.emit_expr_in(obj, cx));
+                    return format!("WF.{of}({subject})");
                 }
                 // `match` over an enum as a value: the case, and the payload
                 // where the case is the one asked for.
                 if (method == "__is" || method == "__payload") && args.len() == 1 {
-                    let subject = self.emit_expr_in(obj, cx);
+                    let subject = self.as_seen(obj, self.emit_expr_in(obj, cx));
                     let case = self.emit_expr_in(&args[0], cx);
                     let json = self.is_json_subject(obj);
                     return match (method == "__is", json) {
@@ -586,6 +592,27 @@ impl JsCodegen {
                 }
                 // `if let x = e { a } else { b }`: the value is bound once,
                 // and read as a plain name in `a`.
+                // `.loaded(v) { … }` in a match expression over a read: the
+                // case decides, not whether the value is null — a read may
+                // have loaded nothing — and `v` is its first place.
+                if method == "__iflet"
+                    && args.len() == 2
+                    && let Expr::Lambda(name, then_expr) = &args[0]
+                    && let Expr::MethodCall(subject, payload, case) = obj.as_ref()
+                    && payload == "__payload"
+                    && self.is_read_subject(subject)
+                    && let [Expr::StringLiteral(case)] = case.as_slice()
+                {
+                    let seen = self.as_seen(subject, self.emit_expr_in(subject, cx));
+                    let then_val =
+                        self.with_locals(cx, [name.clone()], || self.emit_expr_in(then_expr, cx));
+                    let else_val = self.emit_expr_in(&args[1], cx);
+                    let name = bare(name);
+                    return format!(
+                        "(($r) => WF.caseOf($r) === {} ? (({name}) => {then_val})($r[1]) : {else_val})({seen})",
+                        js_str(case)
+                    );
+                }
                 if method == "__iflet"
                     && args.len() == 2
                     && let Expr::Lambda(name, then_expr) = &args[0]
@@ -950,5 +977,32 @@ impl JsCodegen {
     /// from what the value is, not from a tag.
     pub(super) fn is_json_subject(&self, subject: &Expr) -> bool {
         self.json_subjects.iter().any(|s| s == subject)
+    }
+
+    /// Whether `subject` names a read — a resource of this page or this
+    /// store, or another store's (`Feed.rows`) — which a `match` and an
+    /// `if let` see as its one value.
+    pub(super) fn is_read_subject(&self, subject: &Expr) -> bool {
+        match subject {
+            Expr::Identifier(n) => {
+                (self.body.resources.contains(n) || self.own_resources.contains(n))
+                    && !self.lambda_params.borrow().contains(n)
+                    && !self.loop_bindings.contains(n)
+            }
+            Expr::PropertyAccess(owner, name) => matches!(owner.as_ref(), Expr::Identifier(store)
+                if self.store_resources.iter().any(|(s, r)| s == store && r == name)),
+            _ => false,
+        }
+    }
+
+    /// `emitted`, the code of `subject`, as a `match` sees it: a read's one
+    /// value — `"loading"`, `["failed", e]`, `["loaded", v, refreshing,
+    /// stale]` — and anything else as it is.
+    pub(super) fn as_seen(&self, subject: &Expr, emitted: String) -> String {
+        if self.is_read_subject(subject) {
+            format!("WF.readOf({emitted})")
+        } else {
+            emitted
+        }
     }
 }

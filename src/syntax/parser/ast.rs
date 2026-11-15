@@ -652,7 +652,7 @@ pub enum StatementKind {
     Connection(ConnectionDecl),
     /// `validate email { required  email }`.
     Validate(ValidateDecl),
-    /// `match rows { loading { … } error(e) { … } ready(v) { … } }`.
+    /// `match rows { .loading { … } .failed(e) { … } .loaded(v) { … } }`.
     Match(MatchStmt),
     /// `emit toggle(id)`: fire a declared event.
     Emit(EmitStmt),
@@ -828,6 +828,29 @@ pub enum ArmPattern {
     Else,
     /// A state a connection is in: `connecting`, `open`, `closed(c)`.
     State(String),
+}
+
+/// Whether a `match`'s arms are a read's: 6.x's `loading`, `error(e)` and
+/// `ready(v)`, or only the cases `.loading`, `.failed` and `.loaded`. A page
+/// painted before the request answers draws the `loading` arm.
+pub fn over_read(arms: &[MatchArm]) -> bool {
+    let cases: Vec<&str> = arms
+        .iter()
+        .filter_map(|a| match &a.pattern {
+            ArmPattern::Case(c) => Some(c.as_str()),
+            _ => None,
+        })
+        .collect();
+    arms.iter().any(|a| {
+        matches!(
+            a.pattern,
+            ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
+        )
+    }) || (!cases.is_empty()
+        && cases.contains(&"loading")
+        && cases
+            .iter()
+            .all(|c| matches!(*c, "loading" | "failed" | "loaded")))
 }
 
 #[derive(Debug, Clone)]

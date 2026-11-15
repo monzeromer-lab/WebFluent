@@ -27,8 +27,12 @@ pub const RESOURCE_OPTIONS: &[ArgDoc] = &[
     arg("headers", "Map of request headers; quote hyphenated keys"),
     arg("body", "Request body, sent as JSON"),
     arg(
-        "on",
-        "When a resource asks again: `.focus`, `.reconnect` or `.interval(30.seconds)`. Asking again is a refresh — the data stays on the page while it runs",
+        "refresh",
+        "When a read asks again besides an argument changing: `.onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never`, or a list. Asking again is a refresh — the value stays on the page while it runs",
+    ),
+    arg(
+        "placeholder",
+        "`placeholder: .previous` — while another request of it loads, the last value stays shown, refreshing",
     ),
     arg(
         "cache",
@@ -48,8 +52,12 @@ pub const ENDPOINT_CALL_OPTIONS: &[ArgDoc] = &[
         "How long an answer stands: `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body",
     ),
     arg(
-        "on",
-        "When a resource over it asks again: `.focus`, `.reconnect` or `.interval(30.seconds)`",
+        "refresh",
+        "When a read of it asks again besides an argument changing: `.onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never`",
+    ),
+    arg(
+        "placeholder",
+        "`placeholder: .previous` — while another request of it loads, the last value stays shown, refreshing",
     ),
     arg(
         "paginate",
@@ -76,20 +84,29 @@ pub type OptionCase = (&'static str, &'static str, &'static str);
 /// text it inserts and what it does.
 pub const OPTION_CASES: &[(&str, &[OptionCase])] = &[
     (
-        "on",
+        "refresh",
         &[
-            ("focus", "focus", "Ask again when the window regains focus"),
+            ("onFocus", "onFocus", "Ask again when the window regains focus"),
             (
-                "reconnect",
-                "reconnect",
-                "Ask again when the network comes back",
+                "onReconnect",
+                "onReconnect",
+                "Ask again when the network comes back (what a read does unless it says otherwise)",
             ),
             (
-                "interval",
-                "interval(${1:30}.seconds)",
+                "every",
+                "every(${1:30}.seconds)",
                 "Ask again every so often",
             ),
+            ("never", "never", "Ask again only when an argument changes, or on `reload()`"),
         ],
+    ),
+    (
+        "placeholder",
+        &[(
+            "previous",
+            "previous",
+            "Keep the last value shown while another request loads",
+        )],
     ),
     (
         "cache",

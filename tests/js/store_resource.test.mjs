@@ -219,10 +219,10 @@ test("a dropped store's resource no longer follows its state", async () => {
   assert.equal(asked.length, 1, "the old store's address is not followed");
 });
 
-test("`on: .focus` stops listening with the store", async () => {
+test("`refresh: .onFocus` stops listening with the store", async () => {
   const { WF, asked, window } = load();
   const Feed = WF.store("Feed", () => ({
-    resources: { rows: () => WF.resource("/rows", { on: { focus: true } }) },
+    resources: { rows: () => WF.resource("/rows", { refresh: { focus: true } }) },
   }), { scope: "route" });
   Feed.rows.state();
   asked[0].answer([]);

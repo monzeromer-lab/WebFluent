@@ -119,7 +119,7 @@ fn a_services_hook_runs_what_it_says_with_its_parameter_bound() {
         "  on request(r) { r.headers[\"X-Id\"] = \"abc\"  L.note(r.url) }\n",
         "  get me() -> Map\n}\n",
         "page P(path: \"/\") { resource m = B.me()\n Text(L.last)\n",
-        "  match m { ready(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "  match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
     ));
     // The body is emitted at all, and `r` is the parameter, not a signal.
     assert!(out.contains("r.headers[\"X-Id\"] = \"abc\""), "{out}");
@@ -1497,9 +1497,10 @@ fn an_arm_binding_named_like_its_resource_is_the_data_not_the_handle() {
     // resource's handle — `_users.length`, a list of nothing — because a
     // resource's name was looked up before the arm's binding.
     let out = compile(
-        "page P(path: \"/\") {\n resource users: Json = http.get(\"/api/users\")\n match users {\n  loading { Text(\"…\") }\n  error(e) { Text(e.message) }\n  ready(users) { Text(\"{users.length} users\")  for user in users by user.id { Text(user.name) } }\n }\n}",
+        "page P(path: \"/\") {\n resource users: Json = http.get(\"/api/users\")\n match users {\n  .loading { Text(\"…\") }\n  .failed(e) { Text(e.message) }\n  .loaded(users) { Text(\"{users.length} users\")  for user in users by user.id { Text(user.name) } }\n }\n}",
     );
-    assert!(out.contains("ready: ($$value, $users) => {"), "{out}");
+    assert!(out.contains("loaded: ($$value, $$arm) => {"), "{out}");
+    assert!(out.contains("const $users = () => $$arm()[1];"), "{out}");
     assert!(out.contains("() => `${$users().length} users`"), "{out}");
     assert!(out.contains("() => $users(),"), "{out}");
     assert!(!out.contains("_users.length"), "{out}");
@@ -1517,18 +1518,22 @@ fn a_live_binding_never_stands_in_for_a_name_the_compiler_uses() {
 }
 
 #[test]
-fn an_address_resource_takes_on_and_cache_as_policies() {
-    // `on: .focus` was handed over as the word "focus", so a resource
-    // over an address never looked again.
+fn an_address_resource_takes_refresh_placeholder_and_cache_as_policies() {
+    // `on: .focus` was handed over as the word "focus", so a resource over
+    // an address never looked again; `refresh:` is read the same way.
     let out = compile(
-        "page P(path: \"/\") {\n resource rows: Json = http.get(\"/api/rows\", on: .focus, cache: .swr(60000))\n resource ticks: Json = http.get(\"/api/ticks\", on: [.focus, .interval(30000)])\n Text(\"{rows.state} {ticks.state}\")\n}",
+        "page P(path: \"/\") {\n resource rows: Json = http.get(\"/api/rows\", refresh: .onFocus, cache: .swr(60000))\n resource ticks: Json = http.get(\"/api/ticks\", refresh: [.onFocus, .every(30000)], placeholder: .previous)\n resource still: Json = http.get(\"/api/still\", refresh: .never)\n Text(\"{rows.isLoaded} {ticks.isLoaded} {still.isLoaded}\")\n}",
     );
     assert!(
-            out.contains("WF.resource(\"/api/rows\", { on: { focus: true }, cache: { kind: \"swr\", ttl: 60000 } })"),
+            out.contains("WF.resource(\"/api/rows\", { refresh: { focus: true }, cache: { kind: \"swr\", ttl: 60000 } })"),
             "{out}"
         );
     assert!(
-        out.contains("WF.resource(\"/api/ticks\", { on: { focus: true, interval: 30000 } })"),
+        out.contains("WF.resource(\"/api/ticks\", { refresh: { focus: true, interval: 30000 }, placeholder: \"previous\" })"),
+        "{out}"
+    );
+    assert!(
+        out.contains("WF.resource(\"/api/still\", { refresh: {  } })"),
         "{out}"
     );
 }
@@ -1536,9 +1541,9 @@ fn an_address_resource_takes_on_and_cache_as_policies() {
 #[test]
 fn whether_a_resource_is_refreshing_is_read_live() {
     let out = compile(
-        "page P(path: \"/\") {\n resource rows: Json = http.get(\"/api/rows\")\n if rows.refreshing { Text(\"Refreshing\") }\n Button(\"Reload\", disabled: rows.pending) { on click { rows.reload() } }\n}",
+        "page P(path: \"/\") {\n resource rows: Json = http.get(\"/api/rows\")\n if rows.isRefreshing { Text(\"Refreshing\") }\n Button(\"Reload\", disabled: rows.pending) { on click { rows.reload() } }\n}",
     );
-    assert!(out.contains("() => _rows.refreshing()"), "{out}");
+    assert!(out.contains("() => _rows.isRefreshing()"), "{out}");
     assert!(out.contains("disabled: () => _rows.pending()"), "{out}");
 }
 

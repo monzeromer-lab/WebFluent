@@ -2341,36 +2341,39 @@ fn match_arms(
         }
     } else if kind == Some(BindingKind::Resource)
         || written.is_empty()
-        || has(&|p| {
-            matches!(
-                p,
-                ArmPattern::Loading | ArmPattern::Error | ArmPattern::Ready
-            )
-        })
+        || has(
+            &|p| matches!(p, ArmPattern::Case(c) if matches!(c.as_str(), "loading" | "failed" | "loaded")),
+        )
     {
-        if !has(&|p| matches!(p, ArmPattern::Loading)) {
-            left = true;
-            items.push(snippet(
+        // A read: one value, in one of three cases.
+        let arms: [(&str, &str, &str, &str); 3] = [
+            (
                 "loading",
-                "While the request is in flight",
-                "loading {\n\t$0\n}",
-            ));
-        }
-        if !has(&|p| matches!(p, ArmPattern::Error)) {
-            left = true;
-            items.push(snippet(
-                "error",
-                "When the request fails",
-                "error(${1:e}) {\n\t$0\n}",
-            ));
-        }
-        if !has(&|p| matches!(p, ArmPattern::Ready)) {
-            left = true;
-            items.push(snippet(
-                "ready",
-                "Once the data arrived",
-                "ready(${1:value}) {\n\t$0\n}",
-            ));
+                ".loading",
+                "While the first answer is on its way",
+                ".loading {\n\t$0\n}",
+            ),
+            (
+                "failed",
+                ".failed",
+                "When the first request failed: what went wrong",
+                ".failed(${1:e}) {\n\t$0\n}",
+            ),
+            (
+                "loaded",
+                ".loaded",
+                "Once it answered: the value, whether it is being asked again, and a refresh's failure",
+                ".loaded(${1:value}) {\n\t$0\n}",
+            ),
+        ];
+        for (case, label, detail, body) in arms {
+            if !has(&|p| matches!(p, ArmPattern::Case(c) if c == case)) {
+                left = true;
+                items.push(CompletionItem {
+                    filter_text: Some(case.to_string()),
+                    ..snippet(label, detail, body)
+                });
+            }
         }
     } else {
         left = true;

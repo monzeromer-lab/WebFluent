@@ -141,13 +141,12 @@ pub fn members(ty: &Type) -> Vec<Member> {
             }
         }
         Type::Resource(inner, failed) => {
-            out.push(field("state", Type::String));
-            out.push(field("data", Type::optional((**inner).clone())));
-            out.push(field(
-                "error",
-                Type::optional(Type::NetError(failed.clone())),
-            ));
-            out.push(field("refreshing", Type::Bool));
+            out.push(field("value", Type::optional((**inner).clone())));
+            out.push(field("isLoading", Type::Bool));
+            out.push(field("isLoaded", Type::Bool));
+            out.push(field("isFailed", Type::Bool));
+            out.push(field("isRefreshing", Type::Bool));
+            out.push(field("error", Type::optional((**failed).clone())));
             out.push(field("pending", Type::Bool));
             out.push(field("items", Type::list(Type::Any)));
             out.push(field("hasMore", Type::Bool));
