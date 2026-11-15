@@ -141,11 +141,11 @@ api Backend(base: env.PUBLIC_API ?? "https://api.example.com/v1") {
 store Session(scope: .session) {
     state token = ""
 
-    /// A new token for the one that expired. Returns the outcome; never throws.
-    action refresh() -> Result<Void, HttpError<Problem>> {
+    /// A new token for the one that expired. It uses `try`, so it returns a
+    /// result: `.ok` when it ends, or the error `try` passed up. Never throws.
+    action refresh() {
         let fresh: TokenAnswer = try await http.post("/auth/refresh")   // http: not through Backend's middleware
         token = fresh.token
-        return .ok
     }
 }
 
@@ -160,12 +160,13 @@ type TokenAnswer { token: String }
 store Directory {
     state query = ""
 
-    /// Everyone matching the search, gathered a page at a time.
-    /// Remote<Pages<Person>, HttpError<Problem>>
+    /// Everyone matching the search, gathered a page at a time: a paged read
+    /// of Person, its type taken from the endpoint.
     resource people = Backend.people.listPeople(q: query, placeholder: .previous)
 
     /// Add someone. The list refreshes by itself: createPerson invalidates it.
-    /// The result's type is the endpoint's: Result<Person, Backend.people.createPerson.Error>.
+    /// It returns the call's result, a `Person!` whose error knows the
+    /// endpoint's statuses: `.status(422, body)` has a ValidationProblem body.
     action add(draft: NewPerson) {
         return await Backend.people.createPerson(body: draft)
     }
@@ -319,8 +320,8 @@ answer fails the test and names the endpoint.
 
 | | Today | Here |
 |---|---|---|
-| A request's state | `.state == "ready"` plus `.data`, `.error`, `.refreshing` | one `Remote` value: `.loading`, `.failed(e)`, `.loaded(page, refreshing, stale)` |
-| A failed call | an exception, `catch e` typed `Any` | a `Result`; `.status(422, problem)` with `problem` typed |
+| A request's state | `.state == "ready"` plus `.data`, `.error`, `.refreshing` | one value with three cases: `.loading`, `.failed(e)`, `.loaded(page, refreshing, stale)` |
+| A failed call | an exception, `catch e` typed `Any` | a result, `.ok` or `.err`; `.status(422, problem)` with `problem` typed |
 | Refreshing after a write | `people.reload()` by hand, or nothing | `invalidates`, declared once, checked |
 | Retrying | every method, a `POST` included | `GET`, `PUT`, `DELETE` only |
 | Auth and token refresh | `headers { }` and `on error { return "retry" }` | `middleware [bearer(…), refreshOn401(…)]` |
@@ -348,9 +349,9 @@ The redesign, in one line each:
 1. **Layers.** A *client* (where the service is and how it is reached), a
    *contract* (typed endpoints — an interface), a *data layer* (stores
    that hold reads and do writes) and *views* (pages that show them).
-2. **Types that cannot lie.** A read is one value, `Remote<T, E>` —
+2. **Types that cannot lie.** A read is one value with three cases —
    `.loading`, `.failed(e)`, `.loaded(value)` — not a string plus four
-   flags. A call returns `Result<T, HttpError<E>>`: `.ok(value)` or
+   flags. A call returns a *result*, written `T!` beside `T?`: `.ok(value)` or
    `.err(error)`.
 3. **Errors are values.** No exception for an expected failure; `match` to
    handle one, `try` to pass it up. The error says which of transport,
@@ -364,7 +365,7 @@ The redesign, in one line each:
    contract, checked by the compiler. Nothing is cached, shared, retried or
    refreshed because of a guess.
 6. **Composition for cross-cutting concerns.** Auth, logging and token
-   refresh are *middleware* — `(request, next) -> Result` — not hooks with a
+   refresh are *middleware* — `middleware name(req, next) { … }` — not hooks with a
    magic return string.
 7. **Every response is checked against its type**, in every build.
 8. **Tests substitute the contract.** A `fake` implements an `api` group;
@@ -740,7 +741,7 @@ page asked for `.swr`.
 | Remix / React Router loaders + actions | Reads run before render; after any action, every loader on the page revalidates. Forms work without JS. | The read/write split, yes. Refreshing *every* read after any write, no: it hides what depends on what. We have no server, so loaders stay out. |
 | Next.js `fetch(…, { next: { tags } })` + `revalidateTag` | Tags on reads, invalidated by name. | Same as RTK's tags. |
 | React Suspense / `use(promise)` | Reading a pending value suspends to the nearest boundary. | No: `match` is explicit and reads better in a page; Suspense's implicit boundaries are what people find hardest. |
-| openapi-typescript / **openapi-fetch** | Types only, generated from the spec; calls are `client.GET("/users/{id}", …)` and return `{ data, error }` with `error` typed per status. | Yes: a call returns `Result`, its error typed per status (`HttpError.status(code, body)`). |
+| openapi-typescript / **openapi-fetch** | Types only, generated from the spec; calls are `client.GET("/users/{id}", …)` and return `{ data, error }` with `error` typed per status. | Yes: a call returns a result, its error typed per status (`HttpError.status(code, body)`). |
 | **orval** | Generates a client from OpenAPI, `tags-split` mode writes one file per tag plus a schemas folder, and can generate MSW mocks from examples. | **Yes — the shape of `wf api`**; mocks become typed `fake`s, answered from the spec's `example`s on request. |
 
 ### Rust
@@ -748,7 +749,7 @@ page asked for `.swr`.
 | Design | The idea | Take it? |
 |---|---|---|
 | reqwest | A client with defaults (base, timeout, headers); a builder per request; a non-2xx is *not* an error until you call `.error_for_status()`; `.json::<T>()` decodes to a type. | The client-with-defaults is our `api`. A decode failure is its own error (`.decode`). |
-| `Result<T, E>` and `?` | Errors are values; `?` passes them up; `match` takes them apart. | Yes: every call returns `Result`; `try` is our `?`. |
+| `Result<T, E>` and `?` | Errors are values; `?` passes them up; `match` takes them apart. | Yes: every call returns a result (`T!`); `try` is our `?`. |
 | `async` / `.await`, cancellation by drop | Dropping a future cancels it. | Ours: leaving a scope cancels its reads. |
 | serde | The type *is* the decoder; a missing field is an error at the boundary. | Yes: the declared type checks every answer, in every build. |
 | progenitor | Generates a typed client from OpenAPI, with `ResponseValue<T>` and `Error<E>` typed per status. | Same lesson as openapi-fetch. |
@@ -804,7 +805,7 @@ credentials sent to the same origin only, no token in `persist`.
 ### 5.1 The layers
 
 ```text
- view        pages and components    show Remote values, call actions
+ view        pages and components    show reads, call actions
    │
  data        stores                  own the reads (resource) and the writes (actions)
    │
@@ -818,42 +819,56 @@ sites need no store — but it never builds a URL: an address written in a
 page or component is a warning (`N10`) that says to put it in a contract.
 Ad-hoc requests (5.10) are for scripts and prototypes.
 
-### 5.2 Two built-in types
+### 5.2 How the new types are written
 
-```wf
-/// The outcome of a call.
-enum Result<T, E> {
-    ok(value: T)
-    err(error: E)
-}
+WebFluent's types have no angle brackets and no declared results: a list
+is `[T]`, a value that may be missing is `T?`, an action is what it
+returns, and a `resource` is annotated with its value's type. The new types
+keep to that **[R8]**:
 
-/// A read, as a page sees it.
-enum Remote<T, E> {
-    loading                                         // nothing to show yet
-    failed(error: E)                                // the first load failed
-    loaded(value: T, refreshing: Bool, stale: E?)   // something to show; maybe being refreshed, maybe a refresh failed
-}
-```
+- **No generics in source.** There is no `Result<T, E>` or `Remote<T, E>`
+  to write; the names below are only how this plan talks about them.
+- **A result is `T!`** — "a `T`, or the error that stopped it" — the
+  counterpart of `T?`. Its error is the call's own and is never written:
+  the checker carries it with the value (5.3).
+- **An action still declares no result.** One that uses `try` returns a
+  result: what it `return`s is its `.ok`, what `try` passes up its `.err`.
+- **A read is annotated with its value**, as today: `resource stats: Stats
+  = http.get("/api/stats")`.
+
+`T!` is written only where a result is declared — a `state` or a prop that
+holds one — which is rare: an action's `.result` (5.6) already keeps the
+last one.
+
+The cases, each an ordinary enum case to `match`, `if let` and the
+runtime (an array whose first item is the case, as enums with payloads
+already are):
+
+| A… | Cases |
+|---|---|
+| result | `.ok(value)` — `.ok` alone when there is no value — and `.err(e)` |
+| read | `.loading` (nothing to show yet), `.failed(e)` (the first load failed), `.loaded(value, refreshing, stale)` (something to show; `refreshing` while it is asked again, `stale` the error of a refresh that failed, else `null`) |
+| error (`HttpError`) | `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, body, headers)` |
 
 **[R1]** Every state a read can be in is exactly one case. "Loaded, and the
-last refresh failed" is `.loaded(value, false, err)`; "loading, with data"
-cannot be written. `Remote` replaces `.state`, `.data`, `.error` and
-`.refreshing`; for reading one fact without a `match`, a read has members
+last refresh failed" is `.loaded(value, false, e)`; "loading, with data"
+cannot be written. The case replaces `.state`, `.data`, `.error` and
+`.refreshing`. To read one fact without a `match`, a read has members
 computed from the one value — `users.value` (`T?`), `users.isLoading`,
-`users.isRefreshing`, `users.error` (`E?`) — which can never disagree with
-it.
+`users.isRefreshing`, `users.error` (`HttpError?`) — which can never
+disagree with it.
 
-Both are ordinary enums to the checker and the runtime (an array whose
-first item is the case, as enums with payloads already are), so `match`,
-`if let` and literal patterns work on them with no special rules **[R8]**.
-An arm may bind fewer values than its case carries, and `_` binds nothing.
-`if let .err(e) = outcome { … }` takes a case pattern as `match` does. A
-`Result` whose value is `Void` is written `.ok` with no payload.
+Patterns, the same for every enum:
+
+- an arm may bind fewer values than its case carries, and `_` binds
+  nothing;
+- a case pattern may hold a literal and nest: `.err(.status(422, body))`;
+- `if let .err(e) = outcome { … }` takes a case pattern as `match` does.
 
 ```wf
 match users {
-    .loading          { Skeleton(height: "20px") }
-    .failed(e)        { ErrorPanel(e) { on retry { users.reload() } } }
+    .loading                  { Skeleton(height: "20px") }
+    .failed(e)                { ErrorPanel(e) { on retry { users.reload() } } }
     .loaded(list, refreshing) {
         if refreshing { Spinner.sm }
         for u in list by u.id { UserRow(u) }
@@ -863,38 +878,37 @@ match users {
 
 ### 5.3 Errors
 
-```wf
-enum HttpError<E> {
-    offline                                  // no network
-    timeout(after: Duration)
-    cancelled
-    transport(message: String)               // DNS, TLS, CORS, refused
-    decode(at: String, message: String)      // not the declared type: "$[1].name is missing"
-    status(code: Number, body: E, headers: Map)   // the server answered, not 2xx
-}
-```
+An `HttpError` says which of three different things failed **[R4, R5]**,
+as libcurl and reqwest keep them apart:
 
-Transport, status and decoding failures are different cases **[R4, R5]**, as
-libcurl and reqwest keep them. `E` is the endpoint's error body: each
-status its `errors { }` declares has its own type, and any other answer is
+| Case | When |
+|---|---|
+| `.offline` | no network |
+| `.timeout(after)` | no answer in time |
+| `.cancelled` | its scope left, or `.cancel()` |
+| `.transport(message)` | DNS, TLS, CORS, a refused connection |
+| `.decode(at, message)` | the answer is not the declared type: `$[1].name is missing` |
+| `.status(code, body, headers)` | the server answered, and not with a 2xx |
+
+Every `HttpError` also has `.message`, for showing.
+
+**The type of `body`** comes from where the error came from: each status
+the endpoint's `errors { }` names has its declared type; any other is
 `Problem` (RFC 9457: `type`, `title`, `status`, `detail`, `instance`) when
-it is `application/problem+json`, `Any` otherwise **[R4]**. The checker
-keeps the table of statuses to types; it is not a general union type. Where
-the error must be named — an action's declared result — it is the
-endpoint's: `Backend.people.createPerson.Error`; an action that returns a
-call's result without declaring one takes its type. Every `HttpError` has a
-`.message` for showing.
+the answer is `application/problem+json`, and `Any` otherwise **[R4]**.
+The checker carries that table with the error, through an action that
+returns the call's result and through `try`, so nothing has to name it. An
+`HttpError` kept in a `state` loses it: there `body` is `Problem` or `Any`.
 
-A case pattern may hold a literal and nest **[R1]**, so each declared
-status narrows its body:
+A literal in the pattern picks the status, and with it the body's type:
 
 ```wf
 match result {
-    .ok(user)                            { navigate("/users/{user.id}") }
-    .err(.status(422, problem))          { form.apply(problem.errors) }       // problem: ValidationProblem
-    .err(.status(409, conflict))         { Alert(conflict.detail).warning }   // conflict: Problem
-    .err(.offline)                       { toast("You are offline.") }
-    .err(e)                              { toast(e.message, tone: .danger) }
+    .ok(user)                    { navigate("/users/{user.id}") }
+    .err(.status(422, problem))  { form.apply(problem.errors) }       // problem: ValidationProblem
+    .err(.status(409, conflict)) { Alert(conflict.detail).warning }   // conflict: Problem
+    .err(.offline)               { toast("You are offline.") }
+    .err(e)                      { toast(e.message, tone: .danger) }
 }
 ```
 
@@ -913,16 +927,18 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
 of the chain, returning the result — the shape Koa, ky and Rust's tower
 share. The built-ins cover the common cases (`bearer(token)`,
 `header(name, value)`, `refreshOn401(action)`, `requestId`, `log`); a
-project writes its own as an action:
+project writes its own with `middleware`, whose two parameters are typed
+by what a middleware is — as a handler's are by its event — and which
+returns what `next` returns:
 
 ```wf
 store Session {
     state token = ""
-    action refresh() -> Result<Void, HttpError<Problem>> { … }
+    action refresh() { … }      // uses `try`, so it returns a result
 }
 
 /// Retry once with a fresh token when the server says the old one expired.
-middleware refreshOn401(req: Request, next: Next) -> Result<Response, HttpError<Any>> {
+middleware refreshOn401(req, next) {
     let first = await next(req)
     if let .err(.status(401, _)) = first {
         try await Session.refresh()
@@ -1012,9 +1028,8 @@ groups from a spec; `wf api` (section 6) writes them out as files.
 
 ### 5.6 Calling an endpoint
 
-`await Backend.users.create(body: draft)` is a
-`Result<User, Backend.users.create.Error>` — an `HttpError` whose
-`.status(422, body)` has a `ValidationProblem` body. Nothing throws
+`await Backend.users.create(body: draft)` is a `User!`: the user, or an
+`HttpError` whose `.status(422, body)` has a `ValidationProblem` body. Nothing throws
 **[R2]**. Three ways to use it:
 
 ```wf
@@ -1028,21 +1043,22 @@ action submit() {
 }
 
 // 2. Pass it up with `try`: on `.err`, the action stops and returns it.
-action invite(email: Email) -> Result<User, HttpError<Problem>> {
+//    The action then returns a result: what it returns is `.ok`.
+action invite(email: Email) {
     let user = try await Backend.users.create(body: NewUser(email: email))
     try await Backend.mail.welcome(id: user.id)
-    return .ok(user)
+    return user
 }
 
 // 3. Let the action hold it: every action already has `.pending`; it gains
-//    `.result` (`Result<T, E>?`, the last outcome) for a view to read.
+//    `.result` (the last outcome, `null` before the first) for a view to read.
 Button("Invite", loading: invite.pending) { on click { invite(email) } }
 if let .err(e) = invite.result { Alert(e.message).danger }
 ```
 
 `try expr` is Swift's and Zig's word for Rust's `?`: unwrap `.ok`, or return
-the `.err` from the enclosing action. It is allowed only in an action whose
-result is a `Result` with a compatible error, or in a handler, where an
+the `.err` from the enclosing action, which makes that action return a
+result. It is allowed in an action or a middleware, and in a handler, where an
 `.err` it passes up is shown by the page's error reporting (dev overlay
 under `wf serve`, `console.error` otherwise). `try { } catch` stays for
 exceptions a script throws.
@@ -1057,7 +1073,7 @@ navigating away never half-saves.
 store Directory {
     state page = 1
     state query = ""
-    resource users = Backend.users.list(page: page, q: query)   // Remote<[User], HttpError<Problem>>
+    resource users = Backend.users.list(page: page, q: query)   // a read of [User]
     action next() { page = page + 1 }
 }
 ```
@@ -1113,13 +1129,13 @@ api Social.posts {
         pages .link                                // the Link header's rel="next" (RFC 8288)
 }
 
-resource feed = Social.posts.feed()               // Remote<Pages<Post>, …>
+resource feed = Social.posts.feed()               // a paged read of Post
 ```
 
 For a generated contract, the same line goes in `service.wf`'s
 `pagination { }` (section 6, rule 6).
 
-`Pages<T>` has `items`, `hasMore` and `loadMore()`; the read writes no
+A paged read's value has `items`, `hasMore` and `loadMore()`; the read writes no
 state of the page's (P6). A numbered pager (`Pagination(bind: page)`)
 pages nothing: each page is its own read, and going back is a cache hit
 when the server allows caching.
@@ -1131,7 +1147,7 @@ For a script, a prototype or a one-off, the built-in service `http` has
 as any endpoint, and a type for the answer:
 
 ```wf
-resource stats: Stats = http.get("/api/stats")             // Remote<Stats, HttpError<Problem>>
+resource stats: Stats = http.get("/api/stats")             // a read of Stats
 let created: Todo = try await http.post("/api/todos", body: draft)
 ```
 
@@ -1140,8 +1156,10 @@ untouched, in every context **[R8]** (fixes P13).
 
 ### 5.11 Streaming
 
-An endpoint that answers line by line (NDJSON, a log tail) returns
-`Stream<T>`; a read over it is `Remote<[T], E>` that grows as lines arrive,
+An endpoint that answers line by line (NDJSON, a log tail) is marked
+`streamed`, and returns the list its lines make: `get tail(id: String) at
+"logs/{id}" -> [LogLine] streamed`. A read over it is `.loaded` from the
+first line, its list growing as lines arrive,
 and an action can walk it with `for await line in …`. Sockets and
 server-sent events stay as they are.
 
@@ -1330,13 +1348,14 @@ security schemes, `servers` and examples; and reads YAML as well as JSON.
 | Module | Change |
 |---|---|
 | `http.js` | Results instead of throws: `send` resolves `["ok", value]` / `["err", error]`. A middleware chain replaces the hooks. Retries only for idempotent requests, with `Idempotency-Key`. The cache becomes an RFC 9111 private cache (reads `Cache-Control`, `Vary`, `Expires`) and a store with subscribers, so `invalidate` refreshes what is shown. In-flight joining for every `GET`. Decoding against the declared type in every build, producing `.decode(at)`. Default timeout 30 s. |
-| `net.js` | `resource` exposes one `Remote` value (a signal) plus computed members; arguments are one thunk, all followed; `placeholder`, `refresh`, paged and streamed reads. `request` becomes `http`. `optimistic`/`attempt` deprecated for `update`. `wfFetch`, `fetchOptions` removed. |
+| `net.js` | `resource` exposes one value with three cases (a signal) plus computed members; arguments are one thunk, all followed; `placeholder`, `refresh`, paged and streamed reads. `request` becomes `http`. `optimistic`/`attempt` deprecated for `update`. `wfFetch`, `fetchOptions` removed. |
 | `api.js` | Services and groups; parameters placed by their declared location; `{name}` templates; each write carries its compiled invalidation list and calls `invalidate` on `.ok`; `endpoint.update`. |
 | `offline.js` | Queues only idempotent writes; reports refusals; applies invalidations on replay. |
 | new `fake.js` (tests only) | Routes a group's calls to a `fake`; never in a production build. |
 
-The checker gains generic built-in enums (`Result`, `Remote`, `HttpError`,
-`Pages`, `Stream`), literal and nested case patterns, `try` as an
+The checker gains the result type `T!` (its error kept inside the
+checker's type, never written), reads as a three-case value, `HttpError`,
+paged and `streamed` reads, literal and nested case patterns, `try` as an
 expression, `middleware` and `fake` declarations, groups, parameter
 locations, `invalidates` and `idempotent`. The decoder for each declared
 type is generated at build time (today's `shape_of`, made complete and
@@ -1379,8 +1398,8 @@ match its contract now fails where it used to pass.
 |---|---|---|
 | `N01` | error | A path template naming no parameter, or a parameter the call cannot place |
 | `N02` | error | A `resource` over a write |
-| `N03` | error | `try` outside an action returning a compatible `Result`, or a handler |
-| `N04` | warning | A `Result` that nothing reads (an `await` whose outcome is dropped) |
+| `N03` | error | `try` outside an action, a middleware or a handler |
+| `N04` | warning | A result that nothing reads (an `await` whose outcome is dropped) |
 | `N05` | error | `invalidates` naming an endpoint or argument the contract does not have |
 | `N06` | error | A `fake` that does not match its group's interface |
 | `N07` | warning | A spec changed since `wf api sync` |
@@ -1389,8 +1408,8 @@ match its contract now fails where it used to pass.
 | `N10` | warning | An address written in a page or component instead of a contract |
 | `N11` | warning | A request or endpoint typed `Any` or `Map` |
 
-`T11` and `T21` learn `Remote`; `T21` (no handling of the failure case)
-becomes an error for `Remote` and `Result` alike.
+`T11` and `T21` learn reads and results; `T21` (no handling of the
+failure case) becomes an error for both.
 
 ---
 
@@ -1411,14 +1430,14 @@ asserting a timed-out `POST` is sent once, an offline `POST` is not
 replayed, typing re-asks, two readers make one request, `invalidate()`
 refreshes the screen; codegen and checker unit tests for the rest.
 
-**Stage 2 — `Result`, `HttpError`, `try`, patterns.**
+**Stage 2 — Results (`T!`), `HttpError`, `try`, patterns.**
 Generic built-in enums, literal and nested patterns, `try` expressions,
 `.result` on actions; `http` beside the old `fetch` (deprecated, `N08`).
 *Tests*: checker tests per pattern and per `try` rule; parser and printer
 round trips; a browser test of a 422 handled three ways (5.6).
 
-**Stage 3 — `Remote` and reads.**
-`Remote` values, computed members, followed arguments, `refresh:`,
+**Stage 3 — Reads as one value.**
+The three cases, computed members, followed arguments, `refresh:`,
 `placeholder:`, the old arms and members deprecated with fixes.
 *Tests*: browser tests for each case transition (load, refresh, stale,
 first-load failure, argument change).
@@ -1437,12 +1456,12 @@ Groups, `{name}` templates, parameter locations, `invalidates`,
 rename → detail and list refresh, optimistic undo on a 500.
 
 **Stage 6 — Pages, streams, offline.**
-`pages`, `Pages<T>`, `Stream<T>`, the offline changes.
+`pages`, paged reads, `streamed` endpoints, the offline changes.
 *Tests*: browser suites for each paging style against the test server; the
 existing `offline.mjs` extended.
 
 **Stage 7 — Fakes.**
-`fake`, `expect called`, fakes in `wf verify`, `Remote` values in `wf
+`fake`, `expect called`, fakes in `wf verify`, reads' values in `wf
 render` data, `N06`.
 *Tests*: `wf test` over a fixture project; template tests.
 
@@ -1467,9 +1486,12 @@ can each run beside it once 2 is in.
 
 ## 10. Open questions, each with a recommendation
 
-1. **Are `Result` and `Remote` worth new built-in generics?** *Yes.* They
-   are the two types every request needs, and enums with payloads already
-   exist; user-declared generics can wait.
+1. **How is a result written?** *`T!`, beside `T?`*, with its error
+   carried by the checker and never written. Angle-bracket generics would
+   be the only ones in the language, and an action's result would be the
+   only declared one; neither is needed, so neither is added. `!` alone
+   for "nothing, or an error" is not needed either: such a result is only
+   ever matched, never declared.
 2. **`try` or Rust's postfix `?`?** *`try`.* `?` already means "may be
    null" in types and starts `?.` and `??` in expressions.
 3. **Required types on every endpoint, or a warning?** *A warning (`N11`)
