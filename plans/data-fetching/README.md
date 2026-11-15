@@ -752,7 +752,7 @@ Explicit, with an undo handle, no hidden rollback **[R3]**:
 ```wf
 action toggle(t: Todo) {
     let undo = Backend.todos.list.update(list => list.map(x => if x.id == t.id { { ...x, done: !x.done } } else { x }))
-    if let .err(e) = await Backend.todos.setDone(id: t.id, body: { done: !t.done }) {
+    if let .err(e) = await Backend.todos.setDone(id: t.id, body: SetDone(done: !t.done)) {
         undo()
         toast(e.message, tone: .danger)
     }
