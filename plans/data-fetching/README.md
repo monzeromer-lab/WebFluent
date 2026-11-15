@@ -412,8 +412,9 @@ The redesign, in one line each:
 10. **`wf api`** writes the contract from an OpenAPI file — one file per
     tag, shared types apart, marked `@generated`, never edited, rewritten
     whole, checked in CI.
-11. **Deprecate, then remove.** 7.0 accepts today's forms with a warning
-    and an automatic fix; 8.0 removes them.
+11. **One cut, automated.** 7.0 is the new design and nothing else:
+    today's forms are errors that carry their fix, `wf migrate` rewrites a
+    project in one step, and no setting brings the old behaviour back.
 
 Section 9 breaks it into stages. Stage 1 fixes the defects that lose or
 duplicate data, and is worth doing whatever else is decided.
@@ -829,7 +830,7 @@ Each is a rule the design keeps everywhere; section 5 cites them as
 | R9 | **Composition over configuration** for cross-cutting concerns. | Middleware in Koa, ky, tower (Rust), httpx transports | hooks whose return value is the string `"retry"` (P7) |
 | R10 | **Structured lifetimes.** Work belongs to a scope and ends with it, unless it must not (a write). | Structured concurrency (Trio, Kotlin), `AbortController` | reads that outlive their page; writes cut off by navigation |
 | R11 | **Generated code is never edited.** Marked, regenerated whole and deterministically, checked in CI; customisation lives beside it. | Go's `// Code generated … DO NOT EDIT.`, protobuf, orval, `linguist-generated` | hand-patched clients that drift; clever regeneration that merges edits |
-| R12 | **Deprecate before removing; automate the migration.** | Semantic versioning, Rust editions | a release that silently changes what working code does |
+| R12 | **Change in one release, never silently; automate the migration.** A breaking change lands whole in a major, every refused form says what to write and carries the fix, and `wf migrate` applies them all. No setting keeps the old behaviour and no release accepts both. | Semantic versioning, Rust editions, `go fix` | a release that silently changes what working code does; a mode in which the language is less strict |
 | R13 | **Strong, static typing.** Every value has one type the checker knows and the source can name; signatures are declared and bodies inferred; no value converts implicitly; data from outside is checked against its type when it arrives. | Rust, TypeScript's `strict`, Haskell, Elm | `Any`, `Map` and untyped `catch e` at the boundary; a call whose result type cannot be written; a response trusted without being checked |
 
 Beside these, secure defaults throughout: a timeout on every request,
@@ -1207,8 +1208,8 @@ action toggle(t: Todo) -> ! {
 returns the function that puts it back. On a paged read it changes the
 items gathered so far: `update(items => items.filter(…))`. On success the write's
 `invalidates` refreshes it from the server. Replaces `optimistic` and the
-implicit `attempt` rollback; the old form keeps working with a warning
-until 8.0 **[R12]**.
+implicit `attempt` rollback; the old form is an error in 7.0 whose fix
+writes the new one **[R12]**.
 
 ### 5.9 Pagination
 
@@ -1467,7 +1468,7 @@ security schemes, `servers` and examples; and reads YAML as well as JSON.
 | Module | Change |
 |---|---|
 | `http.js` | Results instead of throws: `send` resolves `["ok", value]` / `["err", error]`. A middleware chain replaces the hooks. Retries only for idempotent requests, with `Idempotency-Key`. The cache becomes an RFC 9111 private cache (reads `Cache-Control`, `Vary`, `Expires`) and a store with subscribers, so `invalidate` refreshes what is shown. In-flight joining for every `GET`. Decoding against the declared type in every build, producing `.decode(at)`. Default timeout 30 s. |
-| `net.js` | `resource` exposes one value with three cases (a signal) plus computed members; arguments are one thunk, all followed; `placeholder`, `refresh`, paged and streamed reads. `request` becomes `http`. `optimistic`/`attempt` deprecated for `update`. `wfFetch`, `fetchOptions` removed. |
+| `net.js` | `resource` exposes one value with three cases (a signal) plus computed members; arguments are one thunk, all followed; `placeholder`, `refresh`, paged and streamed reads. `request` becomes `http`. `optimistic`/`attempt` removed for `update`. `wfFetch`, `fetchOptions` removed. |
 | `api.js` | Services and groups; parameters placed by their declared location; `{name}` templates; each write carries its compiled invalidation list and calls `invalidate` on `.ok`; `endpoint.update`. |
 | `offline.js` | Queues only idempotent writes; reports refusals; applies invalidations on replay. |
 | new `fake.js` (tests only) | Routes a group's calls to a `fake`; never in a production build. |
@@ -1485,11 +1486,16 @@ always on).
 
 ## 8. Migration and diagnostics
 
-### Deprecate, then remove [R12]
+### One cut, in 7.0 [R12]
 
-7.0 accepts every form below with a warning that has an automatic fix
-(`wf fix`, the editor's quick fix); `wf migrate` applies them all; 8.0
-removes the old forms.
+Every form below is an error in 7.0 (`N08`), and every one carries its
+fix (`wf fix`, the editor's quick fix); `wf migrate` 6 → 7 applies them all
+at once. There is no warning period and no setting that keeps the old
+behaviour: a release that accepted both would be a language with a loose
+mode, which the strict-typing plan (`plans/strict-typing/README.md`, 3.1)
+rules out for the whole language. `lints` and `// wf-allow` cannot lower or
+accept any `N` code that is an error. 6.3 may ship `wf migrate --to 7
+--check`, which only reports what the step will rewrite.
 
 | Today | 7.0 |
 |---|---|
@@ -1526,12 +1532,12 @@ match its contract now fails where it used to pass.
 | `N05` | error | `invalidates` naming an endpoint or argument the contract does not have |
 | `N06` | error | A `fake` that does not match its group's interface |
 | `N07` | warning | A spec changed since `wf api sync` |
-| `N08` | warning | A deprecated form (each with its fix) |
+| `N08` | error | A form 7.0 removed (each with its fix) |
 | `N09` | warning | `retry` or offline replay asked of a non-idempotent write |
 | `N10` | warning | An address written in a page or component instead of a contract |
-| `N11` | error | `Any` or `Map` in a contract, an `http` call, a fake or a read's annotation (a warning, with a fix, for code written before 7.0) |
+| `N11` | error | `Any` or `Map` in a contract, an `http` call, a fake or a read's annotation — in 7.0 both are gone from the whole language (strict-typing `T23`, `T24`), and `N11` is the message they give at the boundary |
 | `N12` | error | An error enum without exactly one `http(HttpError)` case, a case with no status or two payloads, or a status twice |
-| `N13` | error | An action that returns a value without declaring its result (a warning, with a fix, for code written before 7.0) |
+| `N13` | — | Folded into the strict-typing plan's `T26` (an action that returns a value without declaring it), an error for every action, old or new |
 
 `T11` and `T21` learn reads and results; `T21` (no handling of the
 failure case) becomes an error for both.
@@ -1559,13 +1565,14 @@ refreshes the screen; codegen and checker unit tests for the rest.
 `T ! E`, `T!`, error enums with `on <status>`, `HttpError`, `Problem`,
 `Json`; declared action results; literal and nested patterns; `try`
 expressions and their conversion rule; `.result` on actions; `http` beside
-the old `fetch` (deprecated, `N08`); `N03`, `N11`–`N13`.
+the old `fetch` refused (`N08`, with its fix); `N03`, `N11`, `N12`; `T26`
+from the strict-typing plan.
 *Tests*: checker tests per pattern and per `try` rule; parser and printer
 round trips; a browser test of a 422 handled three ways (5.6).
 
 **Stage 3 — Reads as one value.**
 The three cases, computed members, followed arguments, `refresh:`,
-`placeholder:`, the old arms and members deprecated with fixes.
+`placeholder:`, the old arms and members refused with fixes.
 *Tests*: browser tests for each case transition (load, refresh, stale,
 first-load failure, argument change).
 
@@ -1619,19 +1626,20 @@ can each run beside it once 2 is in.
    angle brackets, which would be the only ones in the language.
 2. **`try` or Rust's postfix `?`?** *`try`.* `?` already means "may be
    null" in types and starts `?.` and `??` in expressions.
-3. **Required types: an error at once?** *Yes for everything new* —
-   `http`, groups, error enums, fakes — since nothing written before 7.0
-   uses them; *a warning with a fix for code written before*, an error in
-   8.0 (R12).
+3. **Required types: an error at once?** *Yes, for everything, old code
+   included.* A warning for code written before 7.0 would be a loose mode
+   for one major; the fixes and `wf migrate` carry old code across in one
+   step instead (R12, and the strict-typing plan's 3.1).
 4. **Decode every response in production?** *Yes, always, with no way to
    turn it off.* A value typed `Person` that is not one is the bug strong
    typing exists to prevent; the walk is linear in the answer and cheap
    beside the network.
-5. **Should the rest of the language be this strict?** *Yes, but as its
-   own plan.* `Any` agreeing with everything, untyped `state`, `Map`
-   props and inferred action results go well beyond data fetching; this
-   plan makes the data layer strict and leaves a language-wide strict mode
-   to a plan of its own, which this one does not depend on.
+5. **Should the rest of the language be this strict?** *Yes, with no
+   option.* `plans/strict-typing/README.md` does it: `Any` and `Map` leave
+   the language, signatures are declared, there is no implicit conversion,
+   and there is no setting that turns any of it off. The two plans share
+   `Json`, `-> T`, `T ! E` and `T.decode`; whichever starts first builds
+   them once, and both ship in 7.0.
 6. **Cache only what the server allows?** *Yes.* It is the standard, and a
    client that guesses gets private data wrong. `cache: .maxAge(…)` on an
    endpoint is the visible escape for servers that send no headers.
