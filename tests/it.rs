@@ -163,6 +163,7 @@ mod sourcemap;
 mod stale_version;
 #[path = "starter_fixes.rs"]
 mod starter_fixes;
+mod static_paint;
 #[path = "step_script.rs"]
 mod step_script;
 #[path = "store_method_parity.rs"]

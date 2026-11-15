@@ -589,6 +589,7 @@ fn on_this_page(el: &mut UIElement) {
     let label = take(el, "label").map_or_else(|| lit("On this page"), |e| src(&e));
     let levels = take(el, "levels").map_or_else(|| "1".to_string(), |e| src(&e));
     give(el, "aria-label", &label);
+    give(el, "data-levels", &format!("\"\" + ({levels})"));
     give(el, "mount", &format!("(n) => __wf.onThisPage(n, {levels})"));
     el.children = parse(&format!("OnThisPage.Title({label}, aria-hidden: \"true\")"));
 }
@@ -1351,6 +1352,7 @@ fn avatar_group(el: &mut UIElement) {
         give(el, "aria-label", &src(&label));
     }
     let max = take(el, "max").map_or_else(|| "0".to_string(), |e| src(&e));
+    give(el, "data-max", &format!("\"\" + ({max})"));
     give(el, "mount", &format!("(n) => __wf.avatarGroup(n, {max})"));
 }
 
@@ -1405,6 +1407,10 @@ fn masonry(el: &mut UIElement) {
 fn circular_progress(el: &mut UIElement) {
     let value = take(el, "value").map_or_else(|| "null".to_string(), |e| src(&e));
     let max = take(el, "max").map_or_else(|| "100".to_string(), |e| src(&e));
+    if value != "null" {
+        give(el, "data-value", &value);
+    }
+    give(el, "data-max", &max);
     give(el, "role", "\"progressbar\"");
     if let Some(label) = take(el, "label") {
         give(el, "aria-label", &src(&label));

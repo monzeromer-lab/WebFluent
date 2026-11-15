@@ -67,12 +67,13 @@ fn a_tree_a_table_and_a_combobox_are_drawn_from_their_data() {
         assert!(js.contains(call), "{call}: {js}");
     }
     let html = ssg_html(&src);
+    // Rows the build can read are painted, as the live page draws them.
     assert!(
-        html.contains("<ul class=\"wf-tree\"></ul>"),
-        "nothing painted to take back: {html}"
+        html.contains("<ul class=\"wf-tree\" role=\"tree\""),
+        "the tree's rows are painted: {html}"
     );
     assert!(
-        html.contains("<div class=\"wf-data-table\"></div>"),
+        html.contains("<table class=\"wf-table wf-data-table__table\">"),
         "{html}"
     );
     assert!(

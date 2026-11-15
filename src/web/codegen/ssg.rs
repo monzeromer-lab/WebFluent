@@ -343,6 +343,12 @@ pub fn render_page_html_studio(
             scope,
             in_thead: false,
             current_path: page.path.clone(),
+            locales: config
+                .i18n
+                .as_ref()
+                .map(|i| i.locales.clone())
+                .unwrap_or_default(),
+            locale: default_locale.to_string(),
         },
         components: components.clone(),
         depth: 0,
@@ -420,6 +426,9 @@ pub fn render_page_html_studio(
             ctx.indent_str()
         );
     }
+
+    // An `OnThisPage` lists the headings the page was painted with.
+    let body_html = fill_on_this_page(&body_html);
 
     // Description, canonical, sharing card, language alternates and JSON-LD, all
     // derived from what the page and the config already say.
@@ -609,6 +618,10 @@ pub(crate) struct PaintState {
     /// The route of the page being painted, so a link to it can be marked
     /// current in the static HTML as the runtime marks it after hydration.
     pub(crate) current_path: String,
+    /// The site's locales (`i18n.locales`) and the one this page is painted
+    /// in, for a `LocaleSwitch`.
+    pub(crate) locales: Vec<String>,
+    pub(crate) locale: String,
 }
 
 /// An engine that draws built-ins with this module's code: it holds a
@@ -1294,6 +1307,14 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
 
 fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     match &ui.component {
+        // A table or a tree of rows the build can read: painted whole, as
+        // the live page draws it, rather than an empty box until it runs.
+        ComponentRef::BuiltIn(name) if name == "DataTable" => {
+            paint_data_table(ui, ctx).unwrap_or_else(|| render_builtin(name, ui, ctx))
+        }
+        ComponentRef::BuiltIn(name) if name == "Tree" => {
+            paint_tree(ui, ctx).unwrap_or_else(|| render_builtin(name, ui, ctx))
+        }
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
         // A menu's entries, as the live page draws them: with their roles,
         // the list of a submenu hidden until it opens.
@@ -1486,6 +1507,25 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 own_attrs(name, ui, ctx, &["query", "text"]),
                 highlight_marks(&text, &query)
             );
+        }
+        // A button per locale, each in its own language, the page's own
+        // pressed — as the live page draws them.
+        "LocaleSwitch" => {
+            let own = own_attrs(name, ui, ctx, &[]);
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
+            if ctx.locales.len() > 1 {
+                for code in &ctx.locales {
+                    let pressed = if *code == ctx.locale { "true" } else { "false" };
+                    out.push_str(&format!(
+                        "{indent}    <button class=\"wf-btn wf-locale-switch__option\" type=\"button\" lang=\"{}\" aria-pressed=\"{pressed}\">{}</button>\n",
+                        html_escape(code),
+                        html_escape(&language_name(code))
+                    ));
+                }
+            }
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
         }
         // A moment, painted as the exact time its title says: `3 minutes
         // ago` depends on when it is read, which the live page knows and
@@ -1752,8 +1792,222 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         }
         // Drawn from data by the runtime once the page runs: the paint
         // holds their place, with nothing in it to show and then take back.
-        "Tree" | "DataTable" | "Combobox" | "Calendar" | "InputOTP" | "TagInput" | "Rating"
-        | "DateRangePicker" | "ColorPicker" | "TransferList" | "Editable" | "ClientOnly" => {
+        // Stars at the rating the build can read: an image of it, as a
+        // read-only rating is live, until the page makes it a choice.
+        "Rating" if rating_value(ui, &ctx.scope).is_some() => {
+            let value = rating_value(ui, &ctx.scope).unwrap_or(0.0);
+            let max = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Named(k, v) if k == "max" => match eval(v, &ctx.scope) {
+                        Some(Static::Num(n)) if n >= 1.0 => Some(n as usize),
+                        _ => None,
+                    },
+                    _ => None,
+                })
+                .unwrap_or(5);
+            let label = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Named(k, v) if k == "label" => static_attr(v, &ctx.scope),
+                    _ => None,
+                })
+                .unwrap_or_else(|| "Rating".to_string());
+            let own = own_attrs(name, ui, ctx, &[]);
+            let mut stars = String::new();
+            for i in 1..=max {
+                let fill = if value >= i as f64 {
+                    "full"
+                } else if value >= i as f64 - 0.5 {
+                    "half"
+                } else {
+                    "none"
+                };
+                stars.push_str(&format!(
+                    "<span class=\"wf-rating__star\" aria-hidden=\"true\" data-fill=\"{fill}\"></span>"
+                ));
+            }
+            return format!(
+                "{}<div class=\"{class_str}\" role=\"img\" aria-label=\"{}: {} out of {max}\"{own}{wf}{inline_style}>{stars}</div>\n",
+                ctx.indent_str(),
+                html_escape(&label),
+                crate::web::codegen::charts::trim_number(value)
+            );
+        }
+        // The text, a button that turns into a field once the page runs.
+        "Editable" => {
+            let read = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => static_attr(v, &ctx.scope),
+                    _ => None,
+                })
+            };
+            let value = read("bind").unwrap_or_default();
+            let label = read("label").unwrap_or_else(|| "Text".to_string());
+            let shown = if value.is_empty() {
+                read("placeholder")
+                    .filter(|p| !p.is_empty())
+                    .unwrap_or_else(|| "\u{2014}".to_string())
+            } else {
+                value.clone()
+            };
+            let empty = if value.is_empty() { " data-empty" } else { "" };
+            let said = if value.is_empty() {
+                "empty"
+            } else {
+                value.as_str()
+            };
+            let own = own_attrs(name, ui, ctx, &[]);
+            return format!(
+                "{}<span class=\"{class_str}\"{own}{wf}{inline_style}><button type=\"button\" class=\"wf-editable__text\"{empty} aria-label=\"{}: {}, edit\">{}</button></span>\n",
+                ctx.indent_str(),
+                html_escape(&label),
+                html_escape(said),
+                html_escape(&shown)
+            );
+        }
+        // A box a digit, holding the code the build can read.
+        "InputOTP" => {
+            let read = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => eval(v, &ctx.scope),
+                    _ => None,
+                })
+            };
+            let count = match read("length") {
+                Some(Static::Num(n)) if n >= 1.0 => n as usize,
+                _ => 6,
+            };
+            let code: Vec<char> = match read("bind") {
+                Some(Static::Str(s)) => s.chars().collect(),
+                _ => Vec::new(),
+            };
+            let label = match read("label") {
+                Some(v) => v.to_text(),
+                None => "Code".to_string(),
+            };
+            let own = own_attrs(name, ui, ctx, &[]);
+            let mut boxes = String::new();
+            for i in 0..count {
+                let value = code
+                    .get(i)
+                    .map(|c| format!(" value=\"{}\"", html_escape(&c.to_string())))
+                    .unwrap_or_default();
+                let auto = if i == 0 { "one-time-code" } else { "off" };
+                boxes.push_str(&format!(
+                    "<input class=\"wf-input wf-otp__box\" type=\"text\" inputmode=\"numeric\" maxlength=\"1\" autocomplete=\"{auto}\" aria-label=\"Digit {} of {count}\"{value}>",
+                    i + 1
+                ));
+            }
+            return format!(
+                "{}<div class=\"{class_str}\" role=\"group\" aria-label=\"{}\"{own}{wf}{inline_style}>{boxes}</div>\n",
+                ctx.indent_str(),
+                html_escape(&label)
+            );
+        }
+        // The words as chips, and the field after them.
+        "TagInput" => {
+            let read = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => eval(v, &ctx.scope),
+                    _ => None,
+                })
+            };
+            let words: Vec<String> = match read("bind") {
+                Some(Static::List(items)) => items.iter().map(Static::to_text).collect(),
+                _ => Vec::new(),
+            };
+            let label = read("label").map(|v| v.to_text()).unwrap_or_default();
+            let placeholder = read("placeholder")
+                .map(|v| format!(" placeholder=\"{}\"", html_escape(&v.to_text())))
+                .unwrap_or_default();
+            let own = own_attrs(name, ui, ctx, &[]);
+            let mut chips = String::new();
+            for w in &words {
+                let w = html_escape(w);
+                chips.push_str(&format!(
+                    "<span class=\"wf-chip\"><span class=\"wf-chip__label\">{w}</span><button type=\"button\" class=\"wf-chip__remove\" aria-label=\"Remove {w}\">\u{00d7}</button></span>"
+                ));
+            }
+            return format!(
+                "{}<div class=\"{class_str}\"{own}{wf}{inline_style}><span class=\"wf-tag-input__chips\">{chips}</span><input class=\"wf-input wf-tag-input__field\" type=\"text\" aria-label=\"{}\"{placeholder}></div>\n",
+                ctx.indent_str(),
+                html_escape(&label)
+            );
+        }
+        // A ring filled to the value the build can read, or turning.
+        "CircularProgress" => {
+            let num = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => match eval(v, &ctx.scope) {
+                        Some(Static::Num(n)) => Some(n),
+                        _ => None,
+                    },
+                    _ => None,
+                })
+            };
+            let own = own_attrs(name, ui, ctx, &[]);
+            let max = num("data-max").unwrap_or(100.0);
+            let (state, dash) = match num("data-value") {
+                Some(v) => (
+                    format!(
+                        " aria-valuemin=\"0\" aria-valuemax=\"{}\" aria-valuenow=\"{}\"",
+                        crate::web::codegen::charts::trim_number(max),
+                        crate::web::codegen::charts::trim_number(v)
+                    ),
+                    format!(
+                        "{} 100",
+                        crate::web::codegen::charts::trim_number(
+                            (v / if max > 0.0 { max } else { 100.0 }).clamp(0.0, 1.0) * 100.0
+                        )
+                    ),
+                ),
+                None => (" data-indeterminate".to_string(), "25 75".to_string()),
+            };
+            let indent = ctx.indent_str();
+            let mut out = format!(
+                "{indent}<div class=\"{class_str}\"{state}{own}{wf}{inline_style}><svg viewBox=\"0 0 36 36\" aria-hidden=\"true\" class=\"wf-circular-progress__ring\"><circle cx=\"18\" cy=\"18\" r=\"16\" pathLength=\"100\" class=\"wf-circular-progress__track\"/><circle cx=\"18\" cy=\"18\" r=\"16\" pathLength=\"100\" class=\"wf-circular-progress__bar\" stroke-dasharray=\"{dash}\"/></svg>\n"
+            );
+            ctx.indent += 1;
+            out.push_str(&ctx.statements(&ui.children));
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
+        // Its avatars, those past `max:` hidden by the stylesheet, and the
+        // count of them when the build knows how many there are.
+        "AvatarGroup" => {
+            let own = own_attrs(name, ui, ctx, &[]);
+            let max = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "data-max" => match eval(v, &ctx.scope) {
+                    Some(Static::Num(n)) => Some(n as usize),
+                    Some(Static::Str(s)) => s.parse().ok(),
+                    _ => None,
+                },
+                _ => None,
+            });
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
+            ctx.indent += 1;
+            out.push_str(&ctx.statements(&ui.children));
+            if let (Some(max), Some(count)) = (max, child_count(&ui.children, &ctx.scope))
+                && max > 0
+                && count > max
+            {
+                let rest = count - max;
+                out.push_str(&format!(
+                    "{}<span class=\"wf-avatar wf-avatar-group__more\" aria-label=\"{rest} more\">+{rest}</span>\n",
+                    ctx.indent_str()
+                ));
+            }
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
+        "Tree" | "DataTable" | "Combobox" | "Calendar" | "Rating" | "DateRangePicker"
+        | "ColorPicker" | "TransferList" | "ClientOnly" => {
             let own = own_attrs(name, ui, ctx, &[]);
             let (tag, _) = builtin_to_html(name);
             return format!(
@@ -4030,4 +4284,486 @@ fn paint_menu_sub<C: Paint>(ui: &UIElement, ctx: &mut C) -> String {
     ctx.indent -= 2;
     out.push_str(&format!("{indent}    </ul>\n{indent}</li>\n"));
     out
+}
+
+/// A language's name in itself — `العربية`, `Français` — as the browser's
+/// `Intl.DisplayNames` gives it for the languages most sites carry; the
+/// code itself for one this table lacks, which the live page then names.
+fn language_name(code: &str) -> String {
+    let base = code.split(['-', '_']).next().unwrap_or(code).to_lowercase();
+    let name = match base.as_str() {
+        "ar" => "العربية",
+        "bn" => "বাংলা",
+        "cs" => "Čeština",
+        "da" => "Dansk",
+        "de" => "Deutsch",
+        "el" => "Ελληνικά",
+        "en" => "English",
+        "es" => "Español",
+        "fa" => "فارسی",
+        "fi" => "Suomi",
+        "fr" => "Français",
+        "he" => "עברית",
+        "hi" => "हिन्दी",
+        "hu" => "Magyar",
+        "id" => "Indonesia",
+        "it" => "Italiano",
+        "ja" => "日本語",
+        "ko" => "한국어",
+        "ms" => "Melayu",
+        "nl" => "Nederlands",
+        "no" | "nb" => "Norsk bokmål",
+        "pl" => "Polski",
+        "pt" => "Português",
+        "ro" => "Română",
+        "ru" => "Русский",
+        "sv" => "Svenska",
+        "sw" => "Kiswahili",
+        "th" => "ไทย",
+        "tr" => "Türkçe",
+        "uk" => "Українська",
+        "ur" => "اردو",
+        "vi" => "Tiếng Việt",
+        "zh" => "中文",
+        _ => return code.to_string(),
+    };
+    name.to_string()
+}
+
+/// A heading's `id` as the live page gives one that has none: its words in
+/// lower case, every run of other characters one `-`.
+fn heading_slug(text: &str) -> String {
+    let mut out = String::new();
+    let mut gap = false;
+    for c in text.trim().chars().flat_map(char::to_lowercase) {
+        if c.is_alphanumeric() {
+            if gap && !out.is_empty() {
+                out.push('-');
+            }
+            gap = false;
+            out.push(c);
+        } else {
+            gap = true;
+        }
+    }
+    if out.is_empty() {
+        "section".to_string()
+    } else {
+        out
+    }
+}
+
+/// The text of painted HTML: its tags left out, the escapes it was painted
+/// with read back.
+fn html_text(html: &str) -> String {
+    let mut text = String::new();
+    let mut in_tag = false;
+    for c in html.chars() {
+        match c {
+            '<' => in_tag = true,
+            '>' => in_tag = false,
+            c if !in_tag => text.push(c),
+            _ => {}
+        }
+    }
+    text.replace("&lt;", "<")
+        .replace("&gt;", ">")
+        .replace("&quot;", "\"")
+        .replace("&#39;", "'")
+        .replace("&amp;", "&")
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Every `OnThisPage` in `body` given its list: the page's `h2` (and, to
+/// its `data-levels`, `h3` …) headings, each a link, a heading with no `id`
+/// given the one the live page would give it.
+fn fill_on_this_page(body: &str) -> String {
+    const NAV: &str = "<nav class=\"wf-on-this-page";
+    if !body.contains(NAV) {
+        return body.to_string();
+    }
+    let levels: usize = body
+        .split(NAV)
+        .nth(1)
+        .and_then(|rest| rest.split("data-levels=\"").nth(1))
+        .and_then(|rest| rest.split('"').next())
+        .and_then(|n| n.parse().ok())
+        .unwrap_or(1)
+        .clamp(1, 5);
+    // The headings of the page, outside every navigation of this kind.
+    let mut ids: std::collections::HashSet<String> = body
+        .split(" id=\"")
+        .skip(1)
+        .filter_map(|r| r.split('"').next())
+        .map(str::to_string)
+        .collect();
+    let mut out = String::with_capacity(body.len() + 512);
+    let mut items = String::new();
+    let mut rest = body;
+    let mut in_nav = 0usize;
+    while let Some(at) = rest.find('<') {
+        out.push_str(&rest[..at]);
+        rest = &rest[at..];
+        if rest.starts_with(NAV) {
+            in_nav += 1;
+        } else if rest.starts_with("</nav>") && in_nav > 0 {
+            in_nav -= 1;
+        }
+        let level = rest
+            .strip_prefix("<h")
+            .and_then(|r| r.chars().next())
+            .and_then(|c| c.to_digit(10))
+            .map(|d| d as usize)
+            .filter(|d| (2..2 + levels).contains(d))
+            .filter(|_| matches!(rest.as_bytes().get(3), Some(b' ' | b'>')));
+        let (Some(level), 0) = (level, in_nav) else {
+            out.push('<');
+            rest = &rest[1..];
+            continue;
+        };
+        let close = format!("</h{level}>");
+        let (Some(open_end), Some(end)) = (rest.find('>'), rest.find(&close)) else {
+            out.push('<');
+            rest = &rest[1..];
+            continue;
+        };
+        let open = &rest[..open_end];
+        let text = html_text(&rest[open_end + 1..end]);
+        let id = if let Some(id) = open
+            .split(" id=\"")
+            .nth(1)
+            .and_then(|r| r.split('"').next())
+        {
+            out.push_str(&rest[..=open_end]);
+            id.to_string()
+        } else {
+            let base = heading_slug(&text);
+            let mut id = base.clone();
+            let mut n = 2;
+            while ids.contains(&id) {
+                id = format!("{base}-{n}");
+                n += 1;
+            }
+            ids.insert(id.clone());
+            out.push_str(&format!("{open} id=\"{id}\">"));
+            id
+        };
+        items.push_str(&format!(
+            "<li class=\"wf-on-this-page__item\"><a href=\"#{}\" class=\"wf-on-this-page__link\" data-level=\"{level}\">{}</a></li>",
+            html_escape(&id),
+            html_escape(&text)
+        ));
+        rest = &rest[open_end + 1..];
+    }
+    out.push_str(rest);
+    if items.is_empty() {
+        return out;
+    }
+    // The list goes at the end of each navigation, after its title.
+    let list = format!("<ul class=\"wf-on-this-page__list\">{items}</ul>");
+    let mut filled = String::with_capacity(out.len() + list.len());
+    let mut rest = out.as_str();
+    while let Some(at) = rest.find(NAV) {
+        let Some(end) = rest[at..].find("</nav>") else {
+            break;
+        };
+        filled.push_str(&rest[..at + end]);
+        filled.push_str(&list);
+        rest = &rest[at + end..];
+    }
+    filled.push_str(rest);
+    filled
+}
+
+/// `f(row)`, for a lambda `f` the build can read: its parameter bound to
+/// `row` over the page's scope.
+fn apply_static(f: &Expr, row: &Static, scope: &Scope) -> Option<Static> {
+    let Expr::Lambda(params, body) = f else {
+        return None;
+    };
+    let param = params.split(',').next()?.trim();
+    eval(body, &scope.with(param, row.clone()))
+}
+
+/// Whether the `Bool` prop `key` holds: given as a flag, or by name with a
+/// value the build reads as true.
+fn flag_on(ui: &UIElement, key: &str, scope: &Scope) -> bool {
+    ui.modifiers.iter().any(|m| m == key)
+        || named_arg(ui, key).is_some_and(|v| matches!(eval(v, scope), Some(Static::Bool(true))))
+}
+
+/// A named argument of `ui`.
+fn named_arg<'a>(ui: &'a UIElement, key: &str) -> Option<&'a Expr> {
+    ui.args.iter().find_map(|a| match a {
+        Arg::Named(k, v) if k == key => Some(v),
+        _ => None,
+    })
+}
+
+/// A slot fill's body painted with its parameter bound to `value`.
+fn paint_fill(
+    fill: &crate::syntax::parser::ast::SlotFill,
+    value: &Static,
+    ctx: &mut SsgContext,
+) -> String {
+    let outer = ctx.scope.clone();
+    if let Some(param) = fill.params.first() {
+        ctx.scope = outer.with(param, value.clone());
+    }
+    let html = render_statements(&fill.body, ctx);
+    ctx.scope = outer;
+    html
+}
+
+/// A `DataTable` whose rows the build can read, as the live page draws it:
+/// its caption, its header row (a sortable column's title a button), each
+/// row's cells — a `cell(r)` block or `value:` as text — or its `empty`
+/// block. `None` leaves it to the page.
+fn paint_data_table(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
+    let Static::List(rows) = eval(named_arg(ui, "rows")?, &ctx.scope)? else {
+        return None;
+    };
+    let columns: Vec<&UIElement> = ui
+        .children
+        .iter()
+        .filter_map(|s| match &s.kind {
+            StatementKind::UIElement(c)
+                if matches!(&c.component, ComponentRef::SubComponent(p, s) if p == "DataTable" && s == "Column") =>
+            {
+                Some(c)
+            }
+            _ => None,
+        })
+        .collect();
+    let picking = named_arg(ui, "bind").is_some();
+    let multiple = flag_on(ui, "multiple", &ctx.scope);
+    let label = named_arg(ui, "label")
+        .and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
+        .unwrap_or_default();
+    let indent = ctx.indent_str();
+    let (_, base) = builtin_to_html("DataTable");
+    let class = std::iter::once(class_list(base, &ui.modifiers).join(" "))
+        .chain(extra_classes(ui, ctx))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let own = own_attrs("DataTable", ui, ctx, &[]);
+    let wf = ctx.wf_node_attr_inline(ui);
+    let mut out = format!(
+        "{indent}<div class=\"{class}\"{own}{wf}><table class=\"wf-table wf-data-table__table\"><caption class=\"wf-visually-hidden\">{}</caption><thead><tr>",
+        html_escape(&label)
+    );
+    if picking {
+        out.push_str(if multiple {
+            "<th scope=\"col\" class=\"wf-data-table__check\"><input type=\"checkbox\" class=\"wf-data-table__pick\" aria-label=\"Choose every row\"></th>"
+        } else {
+            "<th scope=\"col\" class=\"wf-data-table__check\"><span class=\"wf-visually-hidden\">Chosen</span></th>"
+        });
+    }
+    for col in &columns {
+        let title = col
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Positional(v) => resolve_text_scoped(v, &ctx.default_messages, &ctx.scope),
+                Arg::Named(..) => None,
+            })
+            .unwrap_or_default();
+        let title = html_escape(&title);
+        if flag_on(col, "sortable", &ctx.scope) && named_arg(col, "value").is_some() {
+            out.push_str(&format!(
+                "<th scope=\"col\" aria-sort=\"none\"><button type=\"button\" class=\"wf-data-table__sort\">{title}</button></th>"
+            ));
+        } else {
+            out.push_str(&format!("<th scope=\"col\">{title}</th>"));
+        }
+    }
+    out.push_str("</tr></thead><tbody>\n");
+    let inner = ctx.indent;
+    ctx.indent += 1;
+    for row in rows.iter() {
+        out.push_str(&format!("{}<tr>", ctx.indent_str()));
+        if picking {
+            let kind = if multiple { "checkbox" } else { "radio" };
+            out.push_str(&format!(
+                "<td class=\"wf-data-table__check\"><input type=\"{kind}\" class=\"wf-data-table__pick\" aria-label=\"Choose this row\"></td>"
+            ));
+        }
+        for col in &columns {
+            out.push_str("<td>");
+            if let Some(fill) = col.slot_fills.iter().find(|f| f.name == "cell") {
+                out.push_str(paint_fill(fill, row, ctx).trim());
+            } else if let Some(v) =
+                named_arg(col, "value").and_then(|f| apply_static(f, row, &ctx.scope))
+            {
+                out.push_str(&html_escape(&v.to_text()));
+            }
+            out.push_str("</td>");
+        }
+        out.push_str("</tr>\n");
+    }
+    if rows.is_empty()
+        && let Some(fill) = ui.slot_fills.iter().find(|f| f.name == "empty")
+    {
+        let span = columns.len() + usize::from(picking);
+        out.push_str(&format!(
+            "{}<tr class=\"wf-data-table__empty\"><td colspan=\"{span}\">{}</td></tr>\n",
+            ctx.indent_str(),
+            paint_fill(fill, &Static::Null, ctx).trim()
+        ));
+    }
+    ctx.indent = inner;
+    out.push_str(&format!("{indent}</tbody></table></div>\n"));
+    Some(out)
+}
+
+/// A `Tree` whose items the build can read, as the live page first draws
+/// it: each item a `treeitem` at its level, its children shown where
+/// `open:` names it, each row its `row(f)` block or its key.
+fn paint_tree(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
+    let Static::List(items) = eval(named_arg(ui, "items")?, &ctx.scope)? else {
+        return None;
+    };
+    let children = named_arg(ui, "children").cloned();
+    let key = named_arg(ui, "key").cloned();
+    let open: Vec<Static> = match named_arg(ui, "open").map(|o| eval(o, &ctx.scope)) {
+        Some(Some(Static::List(keys))) => keys.to_vec(),
+        Some(None) => return None,
+        _ => Vec::new(),
+    };
+    let label = named_arg(ui, "label")
+        .and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
+        .unwrap_or_else(|| "Tree".to_string());
+    let row_fill = ui.slot_fills.iter().find(|f| f.name == "row").cloned();
+    let indent = ctx.indent_str();
+    let (_, base) = builtin_to_html("Tree");
+    let class = std::iter::once(class_list(base, &ui.modifiers).join(" "))
+        .chain(extra_classes(ui, ctx))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let own = own_attrs("Tree", ui, ctx, &[]);
+    let wf = ctx.wf_node_attr_inline(ui);
+    let multiple = if flag_on(ui, "multiple", &ctx.scope) {
+        " aria-multiselectable=\"true\""
+    } else {
+        ""
+    };
+    let mut out = format!(
+        "{indent}<ul class=\"{class}\" role=\"tree\"{multiple} aria-label=\"{}\"{own}{wf}>\n",
+        html_escape(&label)
+    );
+    let mut first = true;
+    ctx.indent += 1;
+    let mut visit = |item: &Static,
+                     level: usize,
+                     size: usize,
+                     i: usize,
+                     ctx: &mut SsgContext,
+                     out: &mut String,
+                     first: &mut bool|
+     -> Option<Vec<Static>> {
+        let k = key
+            .as_ref()
+            .and_then(|f| apply_static(f, item, &ctx.scope))
+            .unwrap_or_else(|| item.clone());
+        let kids = match children
+            .as_ref()
+            .and_then(|f| apply_static(f, item, &ctx.scope))
+        {
+            Some(Static::List(k)) => k.to_vec(),
+            _ => Vec::new(),
+        };
+        let branch = !kids.is_empty();
+        let shown = branch && open.contains(&k);
+        let expanded = if branch {
+            format!(" aria-expanded=\"{shown}\"")
+        } else {
+            String::new()
+        };
+        let stop = if *first { "0" } else { "-1" };
+        *first = false;
+        let twist = if branch {
+            "<span class=\"wf-tree__twist\" aria-hidden=\"true\"></span>"
+        } else {
+            ""
+        };
+        let drawn = match &row_fill {
+            Some(fill) => paint_fill(fill, item, ctx).trim().to_string(),
+            None => html_escape(&k.to_text()),
+        };
+        out.push_str(&format!(
+            "{}<li class=\"wf-tree__item\" role=\"treeitem\" aria-level=\"{level}\" aria-setsize=\"{size}\" aria-posinset=\"{}\"{expanded} aria-selected=\"false\" tabindex=\"{stop}\" data-level=\"{level}\">{twist}<span class=\"wf-tree__content\">{drawn}</span></li>\n",
+            ctx.indent_str(),
+            i + 1
+        ));
+        shown.then_some(kids)
+    };
+    let mut body = String::new();
+    tree_rows(&items, 1, ctx, &mut body, &mut first, &mut visit);
+    out.push_str(&body);
+    ctx.indent -= 1;
+    out.push_str(&format!("{indent}</ul>\n"));
+    Some(out)
+}
+
+/// What a `Rating`'s `bind:` holds, when the build can read it.
+fn rating_value(ui: &UIElement, scope: &Scope) -> Option<f64> {
+    ui.args.iter().find_map(|a| match a {
+        Arg::Named(k, v) if k == "bind" => match eval(v, scope) {
+            Some(Static::Num(n)) => Some(n),
+            _ => None,
+        },
+        _ => None,
+    })
+}
+
+/// How many elements `stmts` draws, when the build can count them: each
+/// element one, a `for` over a list it can read that list's length times
+/// its own; `None` for an `if` or anything it cannot count.
+fn child_count(stmts: &[Statement], scope: &Scope) -> Option<usize> {
+    let mut n = 0;
+    for stmt in stmts {
+        match &stmt.kind {
+            StatementKind::UIElement(_) => n += 1,
+            StatementKind::For(f) => {
+                let Static::List(items) = eval(&f.iterable, scope)? else {
+                    return None;
+                };
+                n += items.len() * child_count(&f.body, scope)?;
+            }
+            _ => return None,
+        }
+    }
+    Some(n)
+}
+
+/// What a tree's walk does with one item — given it, its level, the size of
+/// its list and its place there — and the children to walk next, when it
+/// is open.
+type TreeVisit<'a> = dyn FnMut(
+        &Static,
+        usize,
+        usize,
+        usize,
+        &mut SsgContext,
+        &mut String,
+        &mut bool,
+    ) -> Option<Vec<Static>>
+    + 'a;
+
+/// A tree's rows, as deep as its open items reach.
+fn tree_rows(
+    list: &[Static],
+    level: usize,
+    ctx: &mut SsgContext,
+    out: &mut String,
+    first: &mut bool,
+    visit: &mut TreeVisit<'_>,
+) {
+    for (i, item) in list.iter().enumerate() {
+        if let Some(kids) = visit(item, level, list.len(), i, ctx, out, first) {
+            tree_rows(&kids, level + 1, ctx, out, first, visit);
+        }
+    }
 }

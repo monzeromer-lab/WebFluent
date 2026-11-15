@@ -545,6 +545,11 @@
       "after": ""
      },
      {
+      "text": "A static build paints what it can read of the built-ins the page used\nto draw alone: an `OnThisPage`'s list of the page's headings (each given\nthe `id` the live page would give it), a `LocaleSwitch`'s buttons, the\nrows of a `DataTable` and a `Tree`, a `Rating`'s stars, a\n`CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an\n`Editable`, an `InputOTP` and a `TagInput`.",
+      "points": [],
+      "after": ""
+     },
+     {
       "text": "`wf test` drew a built-in where the project had a component of its\nname in another file.",
       "points": [],
       "after": ""
@@ -692,7 +697,7 @@
     "after": ""
    }
   ],
-  "count": 110
+  "count": 111
  },
  {
   "version": "6.1.0",

@@ -307,6 +307,11 @@ fn short(v: f64) -> String {
     }
 }
 
+/// A number as text with no trailing zeros: `40`, `0.5`.
+pub fn trim_number(v: f64) -> String {
+    trim(v)
+}
+
 fn trim(v: f64) -> String {
     let s = format!("{v:.1}");
     s.trim_end_matches('0').trim_end_matches('.').to_string()

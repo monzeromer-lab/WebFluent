@@ -1227,6 +1227,10 @@ th[aria-sort="descending"] > .wf-data-table__sort::after { content: "↓" / ""; 
 .wf-rating__star[data-fill="full"]::before { --wf-fill: 100%; color: transparent; }
 .wf-rating__star[data-fill="half"]::before { --wf-fill: 50%; color: transparent; background-image: linear-gradient(90deg, #f5a623 50%, var(--color-border) 50%); }
 .wf-rating__star[data-fill="none"]::before { background: none; }
+/* On paper a star is its colour alone: a half star prints whole. */
+@media print {
+  .wf-rating__star[data-fill="full"]::before, .wf-rating__star[data-fill="half"]::before { color: #f5a623; background: none; }
+}
 .wf-rating__choices { position: absolute; inset: 0; display: flex; }
 .wf-rating__choice { flex: 1; min-width: 0; padding: 0; border: 0; background: none; cursor: pointer; }
 .wf-rating__choice:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
@@ -1398,6 +1402,15 @@ body:has(.wf-bottom-nav) { padding-bottom: calc(3.5rem + env(safe-area-inset-bot
 .wf-avatar-group > * + * { margin-inline-start: -0.6rem; }
 .wf-avatar-group > [hidden] { display: none; }
 .wf-avatar-group__more { display: inline-flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); }
+/* Before the page runs, those past `max:` are hidden by the sheet. */
+.wf-avatar-group[data-max="1"] > :nth-child(n+2):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="2"] > :nth-child(n+3):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="3"] > :nth-child(n+4):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="4"] > :nth-child(n+5):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="5"] > :nth-child(n+6):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="6"] > :nth-child(n+7):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="7"] > :nth-child(n+8):not(.wf-avatar-group__more),
+.wf-avatar-group[data-max="8"] > :nth-child(n+9):not(.wf-avatar-group__more) { display: none; }
 /*@full*/
 .wf-avatar-group > * { box-shadow: 0 0 0 2px var(--color-background); border-radius: 50%; }
 .wf-avatar-group__more { color: var(--color-text); background: var(--color-surface); }

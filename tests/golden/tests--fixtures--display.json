@@ -2,18 +2,18 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "681945c342c8a91352327578cfa3586cf186a5f7c848d52c7241f32c80c62332",
-    "app.js.gz": "369b5bd3d88f8cdd481867aaa2f5d8940db6ee013353f697c88d6f4343470173",
+    "app.js": "b9c044edf893bdd60d711a1b93d1024cf0109c0a03eeff34f2dd2dfcb2e20186",
+    "app.js.gz": "210031cb1edc0ff827f6aad8f4c6715c72a8ff345afd18f7c9c16c8b34373608",
     "harbour.png": "e1b3d357d15672a8b60c78c20eb9e4c5f762daa5f6a6156fc6dd99c556cde1d9",
     "hills.png": "80f529e0b9313365a0357de599128a9f2a2cd981919d88aa2cbcf1b40f90c63b",
     "img/harbour.f563a455.80.webp": "3cfaf2f7242019f1be4474428f3bced55d64c9d6c676b5b429e3eb3a5b370ea7",
     "img/harbour.f563a455.png": "e1b3d357d15672a8b60c78c20eb9e4c5f762daa5f6a6156fc6dd99c556cde1d9",
     "img/hills.5a675f3e.80.webp": "51ad52a3f922145712418284c7ae515aecc05e78acd6fe7b7820b4cd93a3c210",
     "img/hills.5a675f3e.png": "80f529e0b9313365a0357de599128a9f2a2cd981919d88aa2cbcf1b40f90c63b",
-    "index.html": "8e29460c6569b1812a51674bcc973b11d9a2713abcce94497670b83c9df7baa0",
-    "index.html.gz": "e4d0c23e5a7279fbef069d3d16baa73b2956ebf41b63a6955d7045ec111b6120",
+    "index.html": "be59ca33b309fe6105bd0767ba4bc5975e6b15b050ae55cc61a8405badf06f5e",
+    "index.html.gz": "c97a47cd1f359f6a1a51cbe1658e63e35cb52510bed9d16bfd38e01096973c39",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "3589db53a821a90da6207d2d734e3c98d58cc83487731d27a6d38848f130a5f2",
-    "styles.css.gz": "681ca9a6937b7dfdad2de721f23233f0ebcaf768062aeea3126f25a0f90626ef"
+    "styles.css": "9836f34f4cd860ef13057958660a6ae92973adc204ff47c1c6ef24f97c95edc9",
+    "styles.css.gz": "dddfc5499a6db0d4ab932cc3d235d2db7e9d2c8f8794d87c761e1d9238ec0cd8"
   }
 }

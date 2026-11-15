@@ -714,10 +714,10 @@ Sorted 2026-11-15, after stage 9:
    `++` or `--`; menus paint with their roles, under a `for` or an `if`
    too; a live `Radio` has its `value`; `D06` and `ConsentSettings`; a
    menu bar's shortcuts run.
-2. **The static paint.** What is drawn once the page runs and could be
-   painted: `OnThisPage`, `LocaleSwitch`, `DataTable`, `Tree`, a read-only
-   `Rating`, `AvatarGroup`'s count, `CircularProgress`'s ring, the rest
-   holding their place with something to show.
+2. **The static paint.** Done 2026-11-15: `OnThisPage`, `LocaleSwitch`,
+   `DataTable` and `Tree` of known rows, `Rating`, `AvatarGroup`'s count,
+   `CircularProgress`'s ring, `Editable`, `InputOTP` and `TagInput`. What
+   still waits for the page is said under its stage.
 3. **What the built-ins still lack.** `CodeBlock` tabs and highlighted
    lines, `Stat`'s sparkline, `Accordion` on `.expand`, `NumberInput`
    through `format`, the column props per breakpoint, `PanelGroup`
@@ -763,8 +763,6 @@ Sorted 2026-11-15, after stage 9:
 - `Stat` has no sparkline.
 - `Accordion` opens with the stylesheet's `::details-content` transition,
   not `.expand`.
-- `LocaleSwitch` and `OnThisPage` are drawn once the page runs, not in the
-  static paint.
 - The guide's example component `Chip` became `Pill`; two examples
   (`medium-field-notes`'s `ThemeToggle`, `hard-pocket`'s `EmptyState`)
   keep components named like a built-in, which draws a `V11` note.
@@ -793,9 +791,9 @@ Sorted 2026-11-15, after stage 9:
   choose in their own way (a listbox by its options' own presses).
 - `DataTable` has no filter, no pagination, no resizable columns, and is
   not drawn by `VirtualList` when long.
-- `Tree`, `DataTable` and `Combobox` are drawn once the page runs, not in
-  the static paint; a `row`, `cell` or `option` block's parameter is `Any`
-  to the checker.
+- `Combobox` is drawn once the page runs (a `Tree` or a `DataTable` of
+  rows the build cannot read too); a `row`, `cell` or `option` block's
+  parameter is `Any` to the checker.
 - `Combobox`'s offers are not drawn by `VirtualList`; its `search:` has no
   `.pending` of its own beyond `aria-busy`.
 - `AppShell.Sidebar` is not a part: the frame takes the project's own
@@ -805,8 +803,8 @@ Sorted 2026-11-15, after stage 9:
 
 - There is no `TimePicker` or `DateTimePicker`: `Input(…).time` and
   `.datetime` are the native pickers, holding a `Time` and a `DateTime`.
-- `InputOTP`, `TagInput`, `Rating` and `DateRangePicker` are drawn once the
-  page runs; a read-only `Rating` in a PDF draws nothing.
+- `DateRangePicker` is drawn once the page runs; a read-only `Rating` is
+  painted, but whether its stars print in a PDF is not checked.
 - `Slider.range` and `FileUpload.dropzone` paint as the plain control until
   the page runs.
 - The drop zone shows no upload progress (`Backend.x.progress` is the
@@ -832,10 +830,7 @@ Sorted 2026-11-15, after stage 9:
 
 ### From stage 8, group 4
 
-- `AvatarGroup` counts its avatars once the page runs: the static paint
-  shows them all.
-- `CircularProgress` draws its ring once the page runs; `RelativeTime`
-  paints the exact time until then.
+- `RelativeTime` paints the exact time until the page runs.
 - `Gallery` and `Masonry` take one `columns:` number, not a value per
   breakpoint.
 - `PanelGroup`'s handles are not in the static paint, and it has no
@@ -844,8 +839,8 @@ Sorted 2026-11-15, after stage 9:
 
 ### From stage 9
 
-- `ColorPicker`, `TransferList` and `Editable` are drawn once the page
-  runs; the static paint holds their place.
+- `ColorPicker` and `TransferList` are drawn once the page runs; the
+  static paint holds their place.
 - `TransferList` is two native multiple selects: no filter, no drag.
 - `ClientOnly` has no placeholder for the static paint to show.
 - `Popconfirm` asks for the first button in its block only.

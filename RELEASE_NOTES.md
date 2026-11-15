@@ -245,6 +245,12 @@ template engine and, where it can be, in a PDF.
   waits for consent and no `ConsentBanner` asks for it.
 - The build's read-back of its own JavaScript (`E901`) catches a number
   after `++` or `--`, which a browser refuses.
+- A static build paints what it can read of the built-ins the page used
+  to draw alone: an `OnThisPage`'s list of the page's headings (each given
+  the `id` the live page would give it), a `LocaleSwitch`'s buttons, the
+  rows of a `DataTable` and a `Tree`, a `Rating`'s stars, a
+  `CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an
+  `Editable`, an `InputOTP` and a `TagInput`.
 
 - `wf test` drew a built-in where the project had a component of its
   name in another file.
