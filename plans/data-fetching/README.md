@@ -1,50 +1,60 @@
 # Data fetching: a redesign
 
 Written 2026-11-15, against 6.2.0 (commit 39767cde). Nothing here is built
-yet: this is the plan to approve first.
+yet: this is the plan to approve first. Second version: the first was
+turned down as not following good engineering practice. This one starts
+from a list of named practices (section 4) and every decision in the design
+points back to one of them.
 
 ## In short
 
-Today a WebFluent page can get data four ways — `resource x = fetch(…)`,
+Today a WebFluent page gets data four ways — `resource x = fetch(…)`,
 `resource x = Backend.ep(…)`, `await fetch(…)` in an action, `await
-Backend.ep(…)` in an action — and each one behaves a little differently.
-Underneath, one good engine (`http.js`) does timeouts, retries, a cache,
-ETags and typed errors. On top of it, the language surface is uneven: the
-same word means two things, some options follow state and some do not, the
-cache is off unless you ask, invalidating a cache does not refresh what is
-on the screen, errors are typed in the docs but not in the checker, and a
-few calls quietly never send (section 2 lists nineteen defects).
+Backend.ep(…)` in an action — and each behaves a little differently. Under
+them is one good engine (`http.js`). Over it, the surface breaks basic
+rules: a request's state is five separate signals and a string, failures
+are exceptions with string kinds, `fetch` shadows the browser's function
+with a different one, `POST`s are retried, the server's `Cache-Control` is
+ignored, and nothing can be tested without a network. Section 2 lists 22
+defects, several of which lose or duplicate data.
 
-The plan keeps what works (the engine, the `match` over loading / error /
-ready, refreshes that keep the page, abort on leaving) and changes the
-shape around it:
+The redesign, in one line each:
 
-1. **Two kinds of request, named for what they do.** A *read* is declared
-   (`resource`), shared, cached and refreshed for you. A *write* is called
-   from an action, and says which reads it makes stale. That is the line
-   TanStack Query, RTK Query, Remix and tRPC all draw.
-2. **Writes refresh the reads they change, without being told.** After
-   `await Backend.createUser(…)`, every `resource` on screen that reads
-   `users` refreshes, in place. The rule is the REST path by default and a
-   `changes:` clause when the path is not enough.
-3. **One error type the checker knows.** `HttpError` is a real enum —
-   `.offline`, `.timeout`, `.aborted`, `.network`, `.parse(at)`,
-   `.status(code, body)` — and an endpoint's `errors { 422 -> FormErrors }`
-   types `body`. Actions get Rust's `let … else` so a failure is a value
-   when you want it to be.
-4. **One `fetch`, one meaning.** `fetch(…)` is the same request in a
-   `resource` and in an action, with the same options, and everything it
-   reads — address, body, headers — is followed. The browser's is
-   `window.fetch`, as today.
-5. **Requests you can test.** `wf test` gains `respond` steps (a fake
-   server, by endpoint or by address), and a template render or a test's
-   `data:` can hand a resource its answer.
-6. **A new command, `wf api`,** that writes a service's WebFluent from an
-   OpenAPI file, one file per tag plus a file of shared types, and writes
-   it again safely when the spec changes.
+1. **Layers.** A *client* (where the service is and how it is reached), a
+   *contract* (typed endpoints — an interface), a *data layer* (stores
+   that hold reads and do writes) and *views* (pages that show them).
+2. **Types that cannot lie.** A read is one value, `Remote<T, E>` —
+   `.loading`, `.failed(e)`, `.loaded(value)` — not a string plus four
+   flags. A call returns `Result<T, HttpError<E>>`: `.ok(value)` or
+   `.err(error)`.
+3. **Errors are values.** No exception for an expected failure; `match` to
+   handle one, `try` to pass it up. The error says which of transport,
+   status or decoding failed, and a status's body has the type the contract
+   gives it.
+4. **The standards decide the defaults.** HTTP's method semantics (only
+   idempotent requests are retried, or sent again from the offline queue),
+   HTTP caching (`Cache-Control`, `ETag`, `Vary`), problem details (RFC
+   9457) for error bodies, `{id}` path templates as OpenAPI writes them.
+5. **Explicit, not inferred.** A write says what it invalidates, in the
+   contract, checked by the compiler. Nothing is cached, shared, retried or
+   refreshed because of a guess.
+6. **Composition for cross-cutting concerns.** Auth, logging and token
+   refresh are *middleware* — `(request, next) -> Result` — not hooks with a
+   magic return string.
+7. **Every response is checked against its type**, in every build.
+8. **Tests substitute the contract.** A `fake` implements an `api` group;
+   the compiler checks it against the interface; a call nothing fakes fails
+   the test.
+9. **One name, one meaning.** `fetch` is the browser's. WebFluent's ad-hoc
+   request is `http.get(…)`, `http.post(…)`.
+10. **`wf api`** writes the contract from an OpenAPI file — one file per
+    tag, shared types apart, marked `@generated`, never edited, rewritten
+    whole, checked in CI.
+11. **Deprecate, then remove.** 7.0 accepts today's forms with a warning
+    and an automatic fix; 8.0 removes them.
 
-Section 8 breaks it into nine stages. Stage 1 is bug fixes that are worth
-doing whatever is decided about the rest.
+Section 9 breaks it into stages. Stage 1 fixes the defects that lose or
+duplicate data, and is worth doing whatever else is decided.
 
 ---
 
@@ -334,18 +344,58 @@ cannot read the endpoint list in the repository, review what a spec change
 did to it in a diff, split it by area, or fix one endpoint the spec gets
 wrong without forking the spec.
 
+**P11. A request's state is a string and four flags.** A resource is
+`.state` (`"loading"`, `"ready"` or `"error"`), `.data`, `.error`,
+`.refreshing` and `.pending`, each its own signal. What they mean is in
+their combinations — `"ready"` with an `error` is "stale"; `"loading"`
+with `data` is impossible but representable — and a typo in `users.state ==
+"redy"` is a comparison that is always false. The cure is the one every
+typed language uses: one sum type whose cases carry what they need.
+
+**P12. Two spellings for one idea.** A resource's arms are bare words
+(`loading`, `error(e)`, `ready(v)`); every enum's arms are dotted cases
+(`.idle`). An error's case is a string in `e.kind` and a dotted case in a
+`match`.
+
+**P13. `fetch` is not `fetch`.** In WebFluent `await fetch(url)` returns
+parsed JSON and throws on a `404`; the browser's returns a `Response` and
+does not. Anyone who knows the platform reads it wrong, and the docs have
+to explain `window.fetch`.
+
+**P14. The service mixes transport and contract.** One `api` block holds
+where the service is, its timeout and retry, its auth headers, its hooks
+*and* every endpoint. There is no way to describe the endpoints without the
+transport, and so nothing a test can substitute.
+
+### 2b′. Defects found against the standards
+
+**B20. Writes are retried.** `retriable` (`http.js:84`) looks at the error,
+never the method: with `retry: .backoff(times: 3)` on a service, a `POST`
+that times out after the server took it is sent three more times. HTTP
+(RFC 9110 §9.2.2) allows automatic retries only for idempotent methods.
+
+**B21. The offline queue resends writes blindly.** Any method but `GET` and
+`HEAD` that failed for want of a network is kept and sent again later
+(`http.js:319`) — including a `POST` whose request reached the server and
+whose answer was lost. With no idempotency key, that is a duplicate order.
+
+**B22. The server's caching headers are ignored.** The cache's lifetime is
+whatever the page says (`cache: .swr(60.seconds)`) or nothing; `Cache-Control:
+no-store`, `private`, `max-age` and `Vary` are not read (RFC 9111). A
+`no-store` answer about one user can be cached and shown to the next, if a
+page asked for `.swr`.
+
 ### 2c. What is good and stays
 
-- `match` over `loading` / `error(e)` / `ready(v)`, and `.state`, `.data`,
-  `.error`, `.refreshing`, `.pending` read anywhere.
-- First load vs refresh, reconciled answers, abort on leaving, a superseded
-  answer dropped.
-- The engine: timeout, backoff with jitter and `Retry-After`, ETags, cache
-  keyed by credentials, the offline queue, upload progress.
-- An `api` block as the one description of a service; `from
-  "openapi.json"`.
-- Connections (`socket`, `stream`, `channel`, `peer`, `worker`) — a
-  different job, out of scope except where noted.
+- The engine's mechanics: timeouts, backoff with jitter and `Retry-After`,
+  `ETag` revalidation, joining a request already in flight, upload
+  progress, the cache keyed by credentials.
+- A read's behaviour: a first load against a refresh that keeps the page,
+  answers reconciled so keyed rows keep their nodes, a superseded answer
+  dropped, the request aborted when its scope leaves.
+- One declaration per service, and reading it from OpenAPI.
+- Connections (`socket`, `stream`, `channel`, `peer`, `worker`): a
+  different job, out of scope.
 
 ---
 
@@ -357,772 +407,750 @@ wrong without forking the spec.
 |---|---|---|
 | `fetch` + `AbortController` | A request is a promise; cancellation is a signal you pass. Transport failure rejects, an HTTP error status does not. | Keep `window.fetch` raw. Our abort-by-scope is already better than a hand-passed signal. |
 | async / await | Sequential code over promises. | Already ours in actions. |
-| **TanStack Query** | *Queries* (reads, keyed, cached, deduped, refetched on focus/reconnect, stale-while-revalidate by default) vs *mutations* (writes, `onMutate` / `onError` / `onSettled`), and `invalidateQueries(key)` refetches the active queries under a key prefix. `isLoading` vs `isFetching`. Infinite queries take `getNextPageParam`. | **Yes — the core of the plan.** We already have the query half; we add mutations that invalidate, and stale-while-revalidate as the default. |
-| SWR | The key *is* the URL; `mutate(key)` revalidates everywhere it is read; dedupe within a window. | Yes: a read's key is its request, and a write names keys. |
-| **RTK Query** | Endpoints declared once as `query` or `mutation`; `providesTags` / `invalidatesTags` connect them, so a mutation refetches the right queries with no call-site code. | **Yes — closest to our `api` block.** `changes:` on a write is `invalidatesTags`; the path is the default tag. |
-| Apollo | A normalised cache by `id`: a mutation's returned object updates every query holding it. | Partly: `reconcile` already matches by `id`. A full normalised cache is too much; invalidate-and-refresh is enough (open question 4). |
+| **TanStack Query** | *Queries* (reads, keyed, cached, deduped, refetched on focus/reconnect, stale-while-revalidate by default) vs *mutations* (writes, `onMutate` / `onError` / `onSettled`), and `invalidateQueries(key)` refetches the active queries under a key prefix. `isLoading` vs `isFetching`. Infinite queries take `getNextPageParam`. | **Yes, the split.** Reads are `resource`, writes are actions; invalidation reaches the screen. Not its client-chosen `staleTime`: we cache what HTTP says (R4). |
+| SWR | The key *is* the URL; `mutate(key)` revalidates everywhere it is read; dedupe within a window. | Joining identical requests in flight, yes. A URL as the cache key, yes, with `Vary` (RFC 9111). |
+| **RTK Query** | Endpoints declared once as `query` or `mutation`; `providesTags` / `invalidatesTags` connect them, so a mutation refetches the right queries with no call-site code. | **Yes — closest to our `api` block.** `invalidates [...]` on a write endpoint, declared and checked; no inferred default. |
+| Apollo | A normalised cache by `id`: a mutation's returned object updates every query holding it. | No: `reconcile` already keeps rows by `id`; invalidate-and-refresh is enough. |
 | tRPC | End-to-end types: the client is the server's types. Query vs mutation is in the procedure. | The idea that a call site is typed from the contract — we have it through `api`/OpenAPI. |
-| Remix / React Router loaders + actions | Reads run before render; after any action, every loader on the page revalidates. Forms work without JS. | The "after a write, refresh what is shown" rule is the simple fallback (`changes: .all`). We have no server, so loaders stay out. |
+| Remix / React Router loaders + actions | Reads run before render; after any action, every loader on the page revalidates. Forms work without JS. | The read/write split, yes. Refreshing *every* read after any write, no: it hides what depends on what. We have no server, so loaders stay out. |
 | Next.js `fetch(…, { next: { tags } })` + `revalidateTag` | Tags on reads, invalidated by name. | Same as RTK's tags. |
 | React Suspense / `use(promise)` | Reading a pending value suspends to the nearest boundary. | No: `match` is explicit and reads better in a page; Suspense's implicit boundaries are what people find hardest. |
-| openapi-typescript / **openapi-fetch** | Types only, generated from the spec; calls are `client.GET("/users/{id}", …)` and return `{ data, error }` with `error` typed per status. | Yes: errors as values typed per status (`let … else`, `HttpError.status(code, body)`). |
-| **orval** | Generates a client from OpenAPI, `tags-split` mode writes one file per tag plus a schemas folder, and can generate MSW mocks from examples. | **Yes — the shape of `wf api`**, and mocks for `wf test` from the spec's `example`s. |
+| openapi-typescript / **openapi-fetch** | Types only, generated from the spec; calls are `client.GET("/users/{id}", …)` and return `{ data, error }` with `error` typed per status. | Yes: a call returns `Result`, its error typed per status (`HttpError.status(code, body)`). |
+| **orval** | Generates a client from OpenAPI, `tags-split` mode writes one file per tag plus a schemas folder, and can generate MSW mocks from examples. | **Yes — the shape of `wf api`**; mocks become typed `fake`s, answered from the spec's `example`s on request. |
 
 ### Rust
 
 | Design | The idea | Take it? |
 |---|---|---|
-| reqwest | A client with defaults (base, timeout, headers); a builder per request; a non-2xx is *not* an error until you call `.error_for_status()`; `.json::<T>()` decodes to a type. | The client-with-defaults is our `api`. A decode failure is its own error (`.parse`). |
-| `Result<T, E>` and `?` | Errors are values; `?` passes them up; `match` takes them apart. | Yes: `await call` keeps throwing (that is our `?`); `let x = await call else e { … }` gives the value form. |
+| reqwest | A client with defaults (base, timeout, headers); a builder per request; a non-2xx is *not* an error until you call `.error_for_status()`; `.json::<T>()` decodes to a type. | The client-with-defaults is our `api`. A decode failure is its own error (`.decode`). |
+| `Result<T, E>` and `?` | Errors are values; `?` passes them up; `match` takes them apart. | Yes: every call returns `Result`; `try` is our `?`. |
 | `async` / `.await`, cancellation by drop | Dropping a future cancels it. | Ours: leaving a scope cancels its reads. |
-| serde | The type *is* the decoder; a missing field is an error at the boundary. | Yes: the declared type checks the answer (dev builds today; a `strict` option for production). |
+| serde | The type *is* the decoder; a missing field is an error at the boundary. | Yes: the declared type checks every answer, in every build. |
 | progenitor | Generates a typed client from OpenAPI, with `ResponseValue<T>` and `Error<E>` typed per status. | Same lesson as openapi-fetch. |
 
 ### Python
 
 | Design | The idea | Take it? |
 |---|---|---|
-| requests / httpx | `Session`/`Client` with `base_url`, auth, hooks; `raise_for_status()`; httpx has a **default timeout** (5 s) because "no timeout" hangs. | Yes: a default timeout (30 s) when a service says none. Event hooks = our `on request`/`on response`. |
-| pydantic | Validate at the boundary; a bad payload is a typed error naming the field (`users.1.name: field required`). | Our dev-mode `.parse` message is already this. |
-| openapi-python-client | One module per tag (`api/users/get_user.py`), `models/`, sync and async variants, and a `_detailed` variant returning status + parsed body. Regenerates by overwriting the package. | Module-per-tag, yes. Overwrite-by-default, no: we detect hand edits. |
+| requests / httpx | `Session`/`Client` with `base_url`, auth, hooks; `raise_for_status()`; httpx has a **default timeout** (5 s) because "no timeout" hangs. | Yes: a default timeout (30 s) when a service says none. Hooks become middleware (httpx transports). |
+| pydantic | Validate at the boundary; a bad payload is a typed error naming the field (`users.1.name: field required`). | Yes, in every build, as `.decode(at)`. |
+| openapi-python-client | One module per tag (`api/users/get_user.py`), `models/`, sync and async variants, and a `_detailed` variant returning status + parsed body. Regenerates by overwriting the package. | Module-per-tag, and overwriting a generated package whole, yes. |
 
 ### C
 
 | Design | The idea | Take it? |
 |---|---|---|
-| libcurl | Everything explicit: an easy handle per transfer, a multi handle for many; `CURLcode` for *transport* errors kept apart from the HTTP *status* (`CURLOPT_FAILONERROR` merges them, on request). | The lesson: transport error, HTTP status and decoding are three different things. `HttpError` keeps them apart. Explicitness we do not copy: our defaults should be right. |
-
-### The principles, as they apply here
-
-1. **Reads and writes are different.** A read is declared where it is shown
-   and has a lifetime; a write is a step in an action. (TanStack, RTK,
-   Remix, tRPC.)
-2. **A read is known by its request.** Same method, address, body and
-   credentials → same read, one request, one cached answer. (SWR,
-   TanStack.)
-3. **Writes say what they change; the cache does the rest.** (RTK tags,
-   Next tags, Remix revalidation.)
-4. **Show what you have, then refresh it.** Stale-while-revalidate is the
-   default, not an option. (TanStack, SWR.)
-5. **Errors are values with kinds**: transport, status (with a typed body),
-   decoding. Throwing is a convenience on top. (Rust, libcurl,
-   openapi-fetch.)
-6. **The contract types every call**, and is checked at the boundary.
-   (serde, pydantic, tRPC.)
-7. **Generated code is reviewable code.** One file per area, shared types
-   apart, and regeneration never eats a hand edit. (orval,
-   openapi-python-client, progenitor.)
-8. **A fake server is part of testing**, keyed the way the real calls are.
-   (MSW, orval mocks.)
-9. **Sensible defaults**: a timeout, dedupe, refetch on reconnect.
+| libcurl | Everything explicit: an easy handle per transfer, a multi handle for many; `CURLcode` for *transport* errors kept apart from the HTTP *status* (`CURLOPT_FAILONERROR` merges them, on request). | The lesson: transport error, HTTP status and decoding are three different things. `HttpError` keeps them apart. Its explicitness, in the defaults: nothing happens to a request the code or the server did not ask for. |
 
 What does *not* fit: Suspense-style implicit loading (WebFluent is explicit
-by design and pre-renders the `loading` arm); a client-side normalised
-entity cache (too much machinery for the gain); loaders that run on a
-server (WebFluent builds static files).
+and pre-renders the loading case); a normalised entity cache (Apollo —
+too much machinery for the gain); loaders that run on a server (WebFluent
+builds static files).
 
 ---
 
-## 4. The design
+## 4. The practices this design follows
 
-### 4.1 The vocabulary, in one table
+Each is a rule the design keeps everywhere; section 5 cites them as
+**[R1]**…**[R12]**.
 
-| | Today | Proposed |
-|---|---|---|
-| A read shown on a page | `resource r = fetch(…)` / `= Backend.ep(…)` | the same, and `= any async call` |
-| A write | `await fetch(…)` / `await Backend.ep(…)` in an action | the same; it also refreshes the reads it changes |
-| The value of a failure | `try { } catch e { }` | that, or `let x = await call else e { … }` |
-| An error | `Any` at check time | `HttpError`, typed per endpoint |
-| Which reads a write changes | you call `reload()` by hand | the path, or `changes:` |
-| Pages of a list | `paginate: .page` + a `state page` | `paginate: .page(page)`, `.cursor(…)`, `.link` |
-| Fake answers in a test | — | `respond Backend.users with [...]` |
-| A service from OpenAPI | `api B from "x.json"` | that, or `wf api` writing the files |
+| | Practice | Where it comes from | What it rules out here |
+|---|---|---|---|
+| R1 | **Make impossible states unrepresentable.** A value that can be in one of several states is one sum type, each case carrying what it needs. | Elm's `RemoteData`, Rust enums, "parse, don't validate" | `.state` strings beside `.data`/`.error`/`.refreshing` flags (P11) |
+| R2 | **Errors are values.** An expected failure is returned, handled with `match` or passed up explicitly; exceptions are for bugs. | Rust `Result` and `?`, Go, openapi-fetch's `{ data, error }`, Swift `throws` with `try` | throwing on a `404`; `catch e` typed `Any` (P4, P5) |
+| R3 | **Explicit over implicit.** Behaviour that changes data — caching, sharing, retrying, invalidating — happens because code or the server said so. | The Zen of Python; RTK Query's declared tags | inferring invalidation from paths; a client-chosen cache lifetime by default |
+| R4 | **Follow the standards.** | RFC 9110 (method semantics), RFC 9111 (caching), RFC 9457 (problem details), the IETF Idempotency-Key draft, RFC 6570 / OpenAPI path templates | retrying `POST` (B20); resending it offline (B21); ignoring `Cache-Control` (B22); `:id` paths that differ from the spec's `{id}` |
+| R5 | **Validate at the boundary.** Data from outside is decoded into a declared type once, where it enters; a mismatch is an error value naming the place. | serde, pydantic, zod | dev-only shape checks; `Any` from `await fetch` |
+| R6 | **Separation of concerns, in layers.** Transport, contract, data, view; each knows only the one below it. | Clean / hexagonal architecture, the repository pattern | a page building `"/api/users/{id}"`; one block mixing timeouts and endpoints (P14) |
+| R7 | **Depend on interfaces; substitute in tests.** | Dependency inversion (SOLID), test doubles | tests that need the network or string-matched URL interception (P9) |
+| R8 | **One name, one meaning; do not shadow the platform.** | Principle of least surprise | WebFluent's `fetch` meaning something other than the browser's (P13); two spellings of a case (P12) |
+| R9 | **Composition over configuration** for cross-cutting concerns. | Middleware in Koa, ky, tower (Rust), httpx transports | hooks whose return value is the string `"retry"` (P7) |
+| R10 | **Structured lifetimes.** Work belongs to a scope and ends with it, unless it must not (a write). | Structured concurrency (Trio, Kotlin), `AbortController` | reads that outlive their page; writes cut off by navigation |
+| R11 | **Generated code is never edited.** Marked, regenerated whole and deterministically, checked in CI; customisation lives beside it. | Go's `// Code generated … DO NOT EDIT.`, protobuf, orval, `linguist-generated` | hand-patched clients that drift; clever regeneration that merges edits |
+| R12 | **Deprecate before removing; automate the migration.** | Semantic versioning, Rust editions | a release that silently changes what working code does |
 
-### 4.2 Reads: `resource`
+Beside these, secure defaults throughout: a timeout on every request,
+credentials sent to the same origin only, no token in `persist`.
 
-The syntax stays. Three things change.
+---
 
-**Any async value can be a resource.** The right side is any expression that
-makes a request or returns a promise: `fetch(…)`, an endpoint, an async
-store action, a project script's function. What the expression reads is
-followed, exactly as a `derived` follows what it reads.
+## 5. The design
 
-```wf
-resource hits  = fetch("/api/search", method: "POST", body: { query: q })   // q followed (fixes B2)
-resource user  = Backend.user(userId)                                       // the path's own name (fixes B1)
-resource stats = Metrics.summarise(range)                                   // an async store action
-resource tiles = loadTiles(viewport.width)                                  // a script function returning a Promise
+### 5.1 The layers
+
+```text
+ view        pages and components    show Remote values, call actions
+   │
+ data        stores                  own the reads (resource) and the writes (actions)
+   │
+ contract    api groups              typed endpoints: input, output, errors, what a write invalidates
+   │
+ transport   api service             base address, timeout, retry, cache, middleware
 ```
 
-A read over something that is not an HTTP request (the last two) has the
-states, the refresh and the abort-on-leave, but no cache key: it is not
-shared.
+**[R6]** A page may still declare a `resource` over an endpoint — small
+sites need no store — but it never builds a URL: an address written in a
+page or component is a warning (`N10`) that says to put it in a contract.
+Ad-hoc requests (5.10) are for scripts and prototypes.
 
-**Every HTTP read is shared and kept.** Its *key* is its request: method,
-address, body, and the credentials it sends. Two reads with one key make one
-request and hold one answer — on one page, or across a page and a component,
-or across pages. A read that comes back to a key already held (going back to
-a page, a tab switch) shows what is held at once, as `ready`, and refreshes
-behind it. That is TanStack's default and it is what makes going back
-instant.
-
-Defaults, each overridable per service, endpoint or call with the existing
-`cache:` option:
-
-| | Default | Meaning |
-|---|---|---|
-| fresh for | `0` | A new reader always refreshes (but shows what is held while it does). |
-| kept for | `5.minutes` after the last reader leaves | Then the answer is dropped. |
-| `cache: .swr(60.seconds)` | — | Fresh for 60 s: a new reader within that does not ask again. |
-| `cache: .none` | — | Not shared, not kept: every reader asks. |
-
-Writes (`POST`, `PUT`, `PATCH`, `DELETE`) are never cached or shared.
-
-**Refetch defaults.** A read refreshes when the network comes back
-(`.reconnect`) unless it says `on: .never`; focus stays opt-in (`on:
-.focus`) because it surprises people on pages with forms. Open question 3.
-
-Nothing else about `resource` changes: `match`, `.state`, `.data`,
-`.error`, `.refreshing`, `.pending`, `.reload()`, `.cancel()`.
-
-`resource.invalidate()` is renamed in meaning, not in name: it marks the
-read stale *for every reader of the key* and refreshes the ones on screen.
-
-### 4.3 Writes: calls in actions
-
-The syntax stays: a write is `await` of an endpoint or of `fetch(…, method:
-"POST")` in an action or a handler. What is new is what happens after it
-succeeds: **every read it changes is marked stale, and the ones on screen
-refresh in place** (a refresh, so the page keeps its data and its focus).
-
-Which reads a write changes:
-
-1. **By its path (the default).** A write to `users/:id` changes every read
-   whose path is `users` or starts with `users/` — the collection and
-   every member — on the same service. A write to `users` changes the same.
-   For `fetch`, the same rule on the address, without the query string.
-
-   | Write | Reads it refreshes |
-   |---|---|
-   | `POST users` | `GET users`, `GET users?page=2`, `GET users/7` |
-   | `PATCH users/7` | `GET users`, `GET users/7`, `GET users/7/keys` |
-   | `DELETE users/7/keys/3` | `GET users/7/keys…` and up: `users/7`, `users` |
-
-   (Up the path, because a parent usually embeds a count or a summary of its
-   children; across siblings, never.)
-
-2. **By `changes:`, when the path is not enough.** On the endpoint:
-
-   ```wf
-   api Backend(base: "/api") {
-       get  users(page: Number = 1) -> [User]
-       get  user(id: String) at "users/:id" -> User
-       get  stats() -> Stats
-       post invite(email: Email) at "invites" -> Invite
-           changes: [users, stats]          // endpoint names, every argument
-       post rename(id: String, name: String) at "users/:id/name"
-           changes: [user(id), users]       // one argument's read, and all of users
-       post ping() at "ping"
-           changes: .nothing                // a write that changes nothing we read
-   }
-   ```
-
-   `changes: .all` refreshes every read of the service — Remix's rule, for
-   a service whose paths say nothing.
-
-3. **By hand.** `Backend.users.invalidate()` and `Backend.invalidate()`
-   keep working and now refresh the screen (fixes B6).
-
-A write's result can also be put straight into the reads, when the server
-returns the new object and a refresh would be a wasted request:
+### 5.2 Two built-in types
 
 ```wf
-action rename(id: String, name: String) {
-    let u = await Backend.rename(id: id, name: name)
-    Backend.user.put(id: id, value: u)       // the read of user(id) now holds u; no request
+/// The outcome of a call.
+enum Result<T, E> {
+    ok(value: T)
+    err(error: E)
+}
+
+/// A read, as a page sees it.
+enum Remote<T, E> {
+    loading                                         // nothing to show yet
+    failed(error: E)                                // the first load failed
+    loaded(value: T, refreshing: Bool, stale: E?)   // something to show; maybe being refreshed, maybe a refresh failed
 }
 ```
 
-`.put(args, value)` is TanStack's `setQueryData`. Rarely needed; listed so
-the optimistic story (4.8) has a name to stand on.
+**[R1]** Every state a read can be in is exactly one case. "Loaded, and the
+last refresh failed" is `.loaded(value, false, err)`; "loading, with data"
+cannot be written. `Remote` replaces `.state`, `.data`, `.error` and
+`.refreshing`; for reading one fact without a `match`, a read has members
+computed from the one value — `users.value` (`T?`), `users.isLoading`,
+`users.isRefreshing`, `users.error` (`E?`) — which can never disagree with
+it.
 
-### 4.4 Errors: `HttpError`
-
-A built-in enum the checker knows, with the runtime's existing shape (an
-array whose first item is the case, so `match` already reads it):
-
-```wf
-enum HttpError {
-    offline                              // no network, or our own server unreachable
-    timeout
-    aborted
-    network(message: String)             // another origin refused, CORS, DNS
-    parse(at: String)                    // not JSON, or not the declared type: "$[1].name is missing"
-    status(code: Number, body: E)        // the server answered, and it was not 2xx
-}
-```
-
-and, on every `HttpError`, the fields `.message`, `.status` (0 when there is
-no status) and `.headers`.
-
-`E` — the type of `body` — comes from the endpoint: the union of its
-`errors { … }` types, or `Any` when it declares none. So:
+Both are ordinary enums to the checker and the runtime (an array whose
+first item is the case, as enums with payloads already are), so `match`,
+`if let` and literal patterns work on them with no special rules **[R8]**.
+An arm may bind fewer values than its case carries.
 
 ```wf
-api Backend(base: "/api") {
-    post signUp(body: SignUp) at "users" -> User
-        errors { 422 -> FieldErrors, 409 -> Conflict }
-}
-
-error(e) {
-    match e {
-        .offline           { Alert("You are offline.").warning }
-        .status(422, body) { Text("{body.fields.length} fields need a look") }   // body: FieldErrors
-        .status(409, body) { Text(body.existing) }                               // body: Conflict
-        .status(code, _)   { Alert("The server said {code}.").danger }
-        else               { Alert(e.message).danger }
+match users {
+    .loading          { Skeleton(height: "20px") }
+    .failed(e)        { ErrorPanel(e) { on retry { users.reload() } } }
+    .loaded(list, refreshing) {
+        if refreshing { Spinner.sm }
+        for u in list by u.id { UserRow(u) }
     }
 }
 ```
 
-That needs one small language addition: **a literal in a case pattern**
-(`.status(422, body)`), which narrows `body` to that status's type. Without
-it, `.status(code, body)` binds `body` as the union.
-
-`e` in a resource's `error(e)` arm and in `catch e` around a request is
-`HttpError` (a `catch` around other code stays `Any`). `e.mesage` is `T05`.
-
-### 4.5 A failure as a value: `let … else`
-
-`await call` still throws — that is WebFluent's `?`, and most actions want
-it. For the actions that want the failure in hand:
+### 5.3 Errors
 
 ```wf
+enum HttpError<E> {
+    offline                                  // no network
+    timeout(after: Duration)
+    cancelled
+    transport(message: String)               // DNS, TLS, CORS, refused
+    decode(at: String, message: String)      // not the declared type: "$[1].name is missing"
+    status(code: Number, body: E, headers: Map)   // the server answered, not 2xx
+}
+```
+
+Transport, status and decoding failures are different cases **[R4, R5]**, as
+libcurl and reqwest keep them. `E` is the endpoint's error body: the union
+of what its `errors { }` declares, and `Problem` (RFC 9457: `type`, `title`,
+`status`, `detail`, `instance`) for a `application/problem+json` answer it
+does not declare **[R4]**. Every `HttpError` has a `.message` for showing.
+
+A case pattern may hold a literal and nest **[R1]**, so each declared
+status narrows its body:
+
+```wf
+match result {
+    .ok(user)                            { navigate("/users/{user.id}") }
+    .err(.status(422, problem))          { form.apply(problem.errors) }       // problem: ValidationProblem
+    .err(.status(409, conflict))         { Alert(conflict.detail).warning }   // conflict: Problem
+    .err(.offline)                       { toast("You are offline.") }
+    .err(e)                              { toast(e.message, tone: .danger) }
+}
+```
+
+### 5.4 The transport: a service
+
+```wf
+api Backend(base: env.PUBLIC_API ?? "/api/v1") {
+    timeout: 10.seconds                       // default 30 s when unset
+    credentials: .sameOrigin
+    retry: .backoff(times: 3)                 // applied to idempotent requests only
+    middleware [bearer(Session.token), refreshOn401(Session.refresh), requestId]
+}
+```
+
+**Middleware [R9].** A middleware is a function of the request and the rest
+of the chain, returning the result — the shape Koa, ky and Rust's tower
+share. The built-ins cover the common cases (`bearer(token)`,
+`header(name, value)`, `refreshOn401(action)`, `requestId`, `log`); a
+project writes its own as an action:
+
+```wf
+store Session {
+    state token = ""
+    action refresh() -> Result<Void, HttpError<Problem>> { … }
+}
+
+/// Retry once with a fresh token when the server says the old one expired.
+middleware refreshOn401(req: Request, next: Next) -> Result<Response, HttpError<Any>> {
+    let first = await next(req)
+    if let .err(.status(401, _)) = first {
+        try await Session.refresh()
+        return await next(req)
+    }
+    return first
+}
+```
+
+The order is the order written; each runs around the next. This replaces
+`headers { }`, `on request`, `on response` and `on error` with one
+mechanism, and the `"retry"` string with a call **[R8, R9]**. Concurrent
+`401`s share one refresh because an async action called again with the
+same arguments joins the running call.
+
+**Retries [R4].** A retry policy applies to safe and idempotent methods
+(`GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`) and to nothing else, with
+exponential backoff, full jitter and `Retry-After`. A `POST` or `PATCH` is
+retried only when its endpoint is marked `idempotent`, which sends an
+`Idempotency-Key` made once per call and kept across its retries. Fixes B20.
+
+**Caching [R3, R4].** The client is an HTTP cache as RFC 9111 describes for a
+private cache: it stores a `GET` answer only when `Cache-Control` allows,
+for as long as `max-age` says, serves it stale only within
+`stale-while-revalidate`, revalidates with `ETag` / `Last-Modified`,
+honours `no-store`, `no-cache` and `Vary`, and keys by credentials too.
+With no caching headers nothing is stored. A contract may override the
+server for one endpoint (`cache: .maxAge(60.seconds)`), and the override is
+visible where the endpoint is declared. Identical `GET`s in flight are
+always joined: they are safe by definition. Fixes B5 and B22.
+
+### 5.5 The contract: groups of endpoints
+
+A service's endpoints are declared in *groups*, each in its own file if
+wanted, each an interface a test can substitute **[R6, R7]**:
+
+```wf
+api Backend.users {
+    /// Every user, a page at a time.
+    get list(page: Number = 1, q: String?) at "users" -> [User]
+
+    get byId(id: Uuid) at "users/{id}" -> User
+        errors { 404 -> Problem }
+
+    post create(body: NewUser) at "users" -> User
+        errors { 422 -> ValidationProblem }
+        invalidates [list]
+
+    patch rename(id: Uuid, body: Rename) at "users/{id}" -> User
+        idempotent
+        invalidates [list, byId(id)]
+
+    delete remove(id: Uuid) at "users/{id}"
+        invalidates [list, byId(id)]
+
+    get avatar(id: Uuid) at "users/{id}/avatar" -> Blob
+    get search(q: String, tenant: String in header "X-Tenant") at "users/search" -> [User]
+}
+```
+
+What each part says, and the rule behind it:
+
+- **`at` is required** and uses `{name}` as OpenAPI and RFC 6570 do **[R3,
+  R4]**. No path from the endpoint's name (B7). Every `{name}` must be a
+  parameter, and a path parameter may never be empty, `.` or `..` — checked
+  at the call when the value is known, else the call returns
+  `.err(.cancelled)` with a message, as today.
+- **Where a parameter goes is declared, not guessed.** In the path when the
+  path names it, in the body when it is `body`, `in header "X-…"` or `in
+  cookie` when it says so, otherwise in the query **[R3]**. A positional
+  argument is the *first* parameter, whatever its name (fixes B1).
+- **Types are required** on parameters and on what comes back; `Map` and
+  `Any` are allowed but warned about (`N11`) **[R5]**. The answer's media
+  type follows the type: a declared type is JSON, `String` is text, `Blob`
+  and `Bytes` are binary — no separate `as:` (fixes B11's media types).
+- **`errors { code -> Type }`** types `.status(code, body)`.
+- **`invalidates [...]`** names the reads a successful write makes stale,
+  by endpoint and, optionally, arguments; the compiler checks every name
+  and argument **[R3]**. With no `invalidates`, a write invalidates nothing.
+- **`idempotent`** allows retries and offline replay of a `POST`/`PATCH`,
+  with an `Idempotency-Key` **[R4]**.
+- A group has no transport settings of its own: it is reached through its
+  service.
+
+`api Backend from "openapi.json"` stays as a one-line way to get the same
+groups from a spec; `wf api` (section 6) writes them out as files.
+
+### 5.6 Calling an endpoint
+
+`await Backend.users.create(body: draft)` is a
+`Result<User, HttpError<ValidationProblem | Problem>>`. Nothing throws
+**[R2]**. Three ways to use it:
+
+```wf
+// 1. Handle it here.
 action submit() {
-    let user = await Backend.signUp(body: draft) else e {
-        match e {
-            .status(422, body) { form.apply(body) }
-            else { toast(e.message, tone: .danger) }
-        }
-        return
+    match await Backend.users.create(body: draft) {
+        .ok(u)                       { navigate("/users/{u.id}") }
+        .err(.status(422, problem))  { form.apply(problem.errors) }
+        .err(e)                      { toast(e.message, tone: .danger) }
     }
-    navigate("/users/{user.id}")
+}
+
+// 2. Pass it up with `try`: on `.err`, the action stops and returns it.
+action invite(email: Email) -> Result<User, HttpError<Problem>> {
+    let user = try await Backend.users.create(body: NewUser(email: email))
+    try await Backend.mail.welcome(id: user.id)
+    return .ok(user)
+}
+
+// 3. Let the action hold it: every action already has `.pending`; it gains
+//    `.result` (`Result<T, E>?`, the last outcome) for a view to read.
+Button("Invite", loading: invite.pending) { on click { invite(email) } }
+if let .err(e) = invite.result { Alert(e.message).danger }
+```
+
+`try expr` is Swift's and Zig's word for Rust's `?`: unwrap `.ok`, or return
+the `.err` from the enclosing action. It is allowed only in an action whose
+result is a `Result` with a compatible error, or in a handler, where an
+`.err` it passes up is shown by the page's error reporting (dev overlay
+under `wf serve`, `console.error` otherwise). `try { } catch` stays for
+exceptions a script throws.
+
+**Lifetimes [R10].** A call that only reads (a safe method) is cancelled
+when the scope that started it leaves; a write runs to its end, so
+navigating away never half-saves.
+
+### 5.7 Reads: `resource`
+
+```wf
+store Directory {
+    state page = 1
+    state query = ""
+    resource users = Backend.users.list(page: page, q: query)   // Remote<[User], HttpError<Problem>>
+    action next() { page = page + 1 }
 }
 ```
 
-`let x = await call else e { … }`: when the call fails, the block runs with
-`e: HttpError`, and the block must leave (`return`, or end the action) —
-the same rule as Rust's `let … else`, so `user` is never unset below it.
-The checker reports a block that can fall through (new `N03`).
+- The right side is a call of an endpoint (or `http.get`, 5.10). Every
+  argument is followed: when `page` or `query` changes, the read asks again
+  (fixes B2) **[R1]** — as a first load (`.loading`) because the answer
+  would be about something else, unless `placeholder: .previous` keeps the
+  last value shown while the new one loads.
+- `refresh:` says when to ask again besides that: `.onReconnect` (the
+  default), `.onFocus`, `.every(30.seconds)`, `.never`.
+- Members: `reload()`, `cancel()`, and the read-only views of 5.2.
+- **Invalidation reaches the screen.** When a write invalidates `list`, or
+  code calls `Backend.users.list.invalidate()`, every read of it that is
+  shown refreshes in place: `.loaded(value, refreshing: true)`, then the new
+  value, reconciled so rows keep their nodes (fixes B6).
+- A read's request is cancelled when its scope leaves **[R10]**.
+- A `resource` over a write endpoint is an error (`N02`): a write is an
+  action.
 
-### 4.6 One `fetch`
+### 5.8 Optimistic updates
 
-`fetch(url, options)` is the same thing in a `resource` and in an action:
-the engine's request, with the options below, every one of which follows
-state in a `resource`. It takes a type to check the answer by — `resource
-r: [Row] = fetch(…)` as today, and in an action `let r: [Row] = await
-fetch(…)`, which today is checked statically and, once this lands, held to
-the shape under `wf serve` too.
-
-| Option | Values |
-|---|---|
-| `method:` | `"GET"` … |
-| `headers:` | a map |
-| `body:` | a map (JSON), a string, a `File`, `FormData`, `Blob`, … |
-| `query:` | a map, appended to the address (new — today one writes `?a={a}`) |
-| `as:` | `.json` (default), `.text`, `.blob`, `.arrayBuffer`, `.none` |
-| `timeout:`, `retry:`, `cache:` | as on a service |
-| `on:` | in a `resource`: `.focus`, `.reconnect`, `.interval(d)`, `.never` |
-| `changes:` | on a write: the addresses it changes, when the path rule is not right |
-
-The browser's own stays `window.fetch`.
-
-### 4.7 Loading and refresh
-
-Unchanged, because it is the part that works. Two additions:
-
-- **`placeholder:`** on a read: what `ready` shows while a *new* request
-  loads, instead of `loading` — usually the previous page's rows
-  (`placeholder: .previous`), TanStack's `keepPreviousData`. For a search
-  box or a pager this removes the flash of the spinner between pages.
-- **The static paint.** A read whose answer is handed in (a template render,
-  a test's `data:`, see 4.12) paints its `ready` arm; every other read paints
-  `loading`, as today.
-
-### 4.8 Optimistic updates
-
-`optimistic(holder, change)` accepts a read as its holder, and its change is
-applied to the read's data for every reader of the key:
+Explicit, with an undo handle, no hidden rollback **[R3]**:
 
 ```wf
 action toggle(t: Todo) {
-    optimistic(Backend.todos, list => list.map(x => if x.id == t.id { { ...x, done: !x.done } } else { x }))
-    await Backend.updateTodo(id: t.id, body: { done: !t.done })
+    let undo = Backend.todos.list.update(list => list.map(x => if x.id == t.id { { ...x, done: !x.done } } else { x }))
+    if let .err(e) = await Backend.todos.setDone(id: t.id, body: { done: !t.done }) {
+        undo()
+        toast(e.message, tone: .danger)
+    }
 }
 ```
 
-If the write throws, the change is taken back (as today). If it succeeds,
-the path rule refreshes `todos` and the server's answer replaces the
-guess. No state is copied out of the cache, so P1 has no reason to exist.
+`endpoint.update(args?, change)` changes what every read of it shows and
+returns the function that puts it back. On success the write's
+`invalidates` refreshes it from the server. Replaces `optimistic` and the
+implicit `attempt` rollback; the old form keeps working with a warning
+until 8.0 **[R12]**.
 
-`optimistic(Backend.todos, …)` changes every argument's read of the
-endpoint; `optimistic(Backend.todo(id: t.id), …)` one.
+### 5.9 Pagination
 
-### 4.9 Pagination
-
-`paginate:` takes one of three cases, each naming how the next page is
-asked for, and the resource no longer writes to the page's state:
+How an endpoint pages is part of its contract, not of each call **[R6]**:
 
 ```wf
-resource list = Catalog.items(paginate: .page(by: "page"))                 // ?page=1, 2, 3 … until an empty page
-resource feed = Social.posts(paginate: .cursor(by: "after", next: r => r.nextCursor, items: r => r.posts))
-resource hits = GitHub.search(q: q, paginate: .link)                        // the Link header's rel="next"
-```
-
-`.items`, `.loadMore()` and `.hasMore` stay. `.hasMore` is false when
-`next:` gives `null` or the `Link` header has no `next` — no empty request
-at the end. For a numbered pager (`Pagination(bind: page)`) there is no
-`paginate:` at all: the page number is an argument and each page is its own
-read, which with 4.2's sharing makes going back a page instant.
-
-### 4.10 Streaming
-
-A response read as it arrives (NDJSON, a log tail, a model's tokens) is an
-endpoint returning `Stream<T>`:
-
-```wf
-api Logs(base: "/api") { get tail(id: String) at "deploys/:id/log" -> Stream<LogLine> }
-
-resource lines = Logs.tail(deployId)
-for l in lines.items by l.seq { Text(l.text) }
-```
-
-A stream read's `.items` grows as lines arrive, its state is `ready` from
-the first line, and leaving the page aborts it. (Today `streamLines` exists
-as `Backend.ep.lines(args)`, untyped and undocumented outside a comment.)
-`socket` and `stream … = sse(…)` stay as they are.
-
-### 4.11 Auth
-
-`headers { Authorization: "Bearer {Session.token}" }` stays (read at each
-call). Two changes:
-
-- `on error(e)` says `retry`, a statement, instead of `return "retry"`:
-
-  ```wf
-  on error(e) { if e.status == 401 { await Session.refresh()  retry } }
-  ```
-
-  `retry` outside an `on error` hook is a compile error. Concurrent `401`s
-  already share one refresh, since an async action called twice with the
-  same arguments is one call (`sameCall`) — the docs should say so.
-- Logging out calls `Backend.invalidate()`, which now drops what every
-  reader holds, so the next user never sees the last one's answers. (The
-  cache is already keyed by credential headers; a cookie cannot be read,
-  which is why this matters.)
-
-### 4.12 Static paint, templates and tests
-
-**Handing a read its answer.** In `wf render` and in a test's `data:`, a
-key named like a resource is that resource's answer, and its `match` paints
-`ready`:
-
-```wf
-test "lists the users"(data: { rows: [{ id: "1", name: "Ada" }] }) {
-    Users
-    expect "Ada"
+api Social.posts {
+    get feed(after: String?) at "feed" -> FeedPage
+        pages .cursor(param: after, next: p => p.nextCursor, items: p => p.posts)
+    get list(page: Number = 1) at "posts" -> [Post]
+        pages .number(param: page)                 // ends at the first empty page
+    get search(q: String) at "search" -> [Post]
+        pages .link                                // the Link header's rel="next" (RFC 8288)
 }
+
+resource feed = Social.posts.feed()               // Remote<Pages<Post>, …>
 ```
 
-**A fake server.** A new test step, `respond`, answers a request the page
-makes, by endpoint or by address, before the page loads:
+`Pages<T>` has `items`, `hasMore` and `loadMore()`; the read writes no
+state of the page's (P6). A numbered pager (`Pagination(bind: page)`)
+pages nothing: each page is its own read, and going back is a cache hit
+when the server allows caching.
+
+### 5.10 Ad-hoc requests: `http`
+
+For a script, a prototype or a one-off, the built-in service `http` has
+`get`, `post`, `put`, `patch` and `delete`, with the same results and rules
+as any endpoint, and a type for the answer:
 
 ```wf
-test "shows a 422 as field errors" {
-    respond Backend.users with [{ id: "1", name: "Ada" }]
-    respond Backend.signUp status 422 with { fields: ["email"] }
-    respond "GET /api/stats" with { count: 3 }
-    respond Backend.slow after 2.seconds with []
-    respond Backend.flaky offline
+resource stats: Stats = http.get("/api/stats")             // Remote<Stats, HttpError<Problem>>
+let created: Todo = try await http.post("/api/todos", body: draft)
+```
 
+A call with no declared type is `N11`. `fetch` is the browser's `fetch`,
+untouched, in every context **[R8]** (fixes P13).
+
+### 5.11 Streaming
+
+An endpoint that answers line by line (NDJSON, a log tail) returns
+`Stream<T>`; a read over it is `Remote<[T], E>` that grows as lines arrive,
+and an action can walk it with `for await line in …`. Sockets and
+server-sent events stay as they are.
+
+### 5.12 Offline
+
+Only a request that may safely be sent twice is kept and replayed: a `GET`
+is never queued (it has no effect to replay), and a write is queued only
+when it is idempotent — `PUT`, `DELETE`, or `idempotent` with its key
+**[R4]** (fixes B21). A queued write's call returns
+`.err(.offline(queued: true))`, so the page knows the answer did not come
+(fixes B17); when it is finally sent, its `invalidates` are applied; when
+the server then refuses it, `network.refused` lists it.
+
+### 5.13 Testing: fakes
+
+A `fake` implements a group, and the compiler checks it against the
+group's interface: every endpoint it answers, every argument and every
+result type **[R7]**.
+
+```wf
+fake UsersWithOne for Backend.users {
+    list(page, q) { .ok([User(id: "0b6c4c1e-7d3a-4f0e-9a51-2f1f6c0e9d11", name: "Ada")]) }
+    create(body) {
+        if body.email.domain() == "example.com" { .ok(User(id: uuid(), name: "New")) }
+        else { .err(.status(422, ValidationProblem(errors: [FieldError(field: "email")]))) }
+    }
+}
+
+test "rejects an outside address"(fakes: [UsersWithOne]) {
     SignUp
-    type "ada@" into "Email"
+    type "ada@elsewhere.org" into "Email"
     click "Join"
-    expect "1 fields need a look"
+    expect "email"
+    expect called Backend.users.create
 }
 ```
 
-A request the test does not answer fails the test, naming it (`GET
-/api/me was not answered`), so a test never reaches the real network.
-`expect requested "POST /api/users"` checks that a write went out. The
-answers are checked against the endpoint's declared type, so a fake
-cannot drift from the contract. With a spec (`wf api`), `respond
-Backend.users` with no `with` uses the spec's `example`.
+- A call to an endpoint no fake answers fails the test, naming it; no test
+  reaches the network.
+- `expect called` / `expect not called` check that a write went out.
+- With a spec, `fake … from examples` answers from the spec's `example`s.
+- The same fakes serve `wf verify --fakes tests/fakes.wf` for a site whose
+  API is elsewhere, and a `wf render` template is handed a read's value in
+  its data: `{ "users": { "loaded": [ … ] } }`, painting `.loaded`.
 
-The same table serves `wf verify --respond tests/responses.wf`, so a site
-whose API is elsewhere can still be verified.
-
-### 4.13 Offline
-
-`offline.sync` still queues failed writes and sends them when the network
-returns. Three changes (B17):
-
-- a queued write's `changes:` are applied when it is finally sent, so the
-  reads catch up;
-- the call's type says it may be queued: under `offline.sync` a write's
-  result is `T?`, `null` when kept for later, so a page cannot read a
-  field of an answer that never came;
-- a kept write the server refuses later is reported to the page —
-  `network.refused`, a list of what was refused and why — instead of
-  vanishing.
+The static page still paints `.loading` for a read it cannot know.
 
 ---
 
-## 5. The new command: `wf api`
+## 6. The new command: `wf api`
 
 ### What it is for
 
-`api Backend from "openapi.json"` is a good start and a poor team tool:
-the endpoints and types exist only inside the compiler (P10). `wf api`
-writes the same surface as WebFluent files you commit, read, review in a
-diff, and keep in step with the spec.
+`api Backend from "openapi.json"` builds the contract inside the compiler,
+where nobody can read, review or diff it (P10, B9). `wf api` writes the same
+contract as files, following the rules every mature generator follows
+**[R11]**: generated files are never edited, they are rewritten whole, the
+output is deterministic, and CI checks it is current.
 
-### The commands
+### Commands
 
 ```bash
-wf api add openapi.json --name Backend [--out src/api/backend] [--base env.PUBLIC_API]
-wf api sync [Backend]            # write the files again from the spec
-wf api check [Backend]           # fail when the files are behind the spec (for CI)
-wf api eject Backend             # turn `api Backend from "…"` into files
-wf api list [--json]             # services, their specs, endpoints by tag
+wf api add openapi.json --name Backend [--out src/api/backend]
+wf api sync [Backend]        # rewrite the generated files from the spec
+wf api check [Backend]       # exit 1 when sync would change anything (CI)
+wf api eject Backend         # turn `api Backend from "…"` into files
+wf api list [--json]         # services, their specs, groups and endpoints
 ```
 
 `add` records the service in `webfluent.app.json`:
 
 ```json
-{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "base": "env.PUBLIC_API" } } }
+{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend" } } }
 ```
+
+`wf api` reads a local file only: the compiler never fetches, and `curl -o
+openapi.json …` is one line.
 
 ### What it writes
 
-For a spec with tags `users` and `billing`:
+For a spec with the tags `users` and `billing`:
 
 ```text
 src/api/backend/
-├── service.wf        api Backend(base: …) { settings } — written once, then yours
-├── types.wf          every components.schemas type and enum
-├── users.wf          endpoints tagged users
-├── billing.wf        endpoints tagged billing
-└── untagged.wf       endpoints with no tag (only when there are some)
+├── service.wf          yours: written once by `add`, never by `sync`
+└── generated/          `sync` owns this folder entirely
+    ├── types.wf        every schema: types and enums
+    ├── users.wf        api Backend.users { … }
+    ├── billing.wf      api Backend.billing { … }
+    └── default.wf      endpoints with no tag, when there are any
 ```
 
-`types.wf`:
+Every generated file begins with the marker Go, protobuf and GitHub
+recognise:
 
 ```wf
-// Written by `wf api sync` from openapi.json (sha256 4be1…). Do not edit:
-// declare a type of the same name elsewhere to replace one.
+// Code generated by `wf api sync` from openapi.json. DO NOT EDIT.
+```
 
-/// A person with an account.
-type User {
-    id: Uuid
-    name: String
-    email: Email
-    createdAt: DateTime
+and `add` writes `src/api/backend/generated/** linguist-generated=true` to
+`.gitattributes`, so a review collapses the diff.
+
+`service.wf`, which the author owns:
+
+```wf
+// Written once by `wf api add`. Yours: `wf api sync` never changes it.
+api Backend(base: env.PUBLIC_API ?? "https://api.example.com/v1") {   // from servers[0]
+    timeout: 30.seconds
+    middleware [bearer(Session.token)]   // the spec's security scheme is `bearerAuth`
 }
-
-enum Plan { free, team, enterprise }
 ```
 
-`users.wf`:
+`generated/users.wf`:
 
 ```wf
-// Written by `wf api sync` from openapi.json (sha256 4be1…). Do not edit.
+// Code generated by `wf api sync` from openapi.json. DO NOT EDIT.
 
 api Backend.users {
     /// Every user, a page at a time.
-    get list(page: Number = 1, q: String?) at "users" -> [User]
-    get get(id: Uuid) at "users/:id" -> User
-    post create(body: NewUser) at "users" -> User
-        errors { 422 -> ValidationErrors }
-    delete remove(id: Uuid) at "users/:id"
+    get listUsers(page: Number = 1, q: String?) at "users" -> [User]
+    get getUser(id: Uuid) at "users/{id}" -> User
+        errors { 404 -> Problem }
+    post createUser(body: NewUser) at "users" -> User
+        errors { 422 -> ValidationProblem }
 }
 ```
 
-Called as `Backend.users.list(page: 2)`.
+### Rules it follows
 
-`service.wf`, written once and never again:
-
-```wf
-// Written by `wf api add`. Yours to edit: `wf api sync` never touches it.
-api Backend(base: env.PUBLIC_API ?? "https://api.example.com/v1") {
-    timeout: 30.seconds
-}
-```
-
-### The language change it needs: groups
-
-Today an `api` is one block. Splitting it by file needs **groups**: `api
-Backend.users { … }` declares endpoints in the group `users` of the service
-`Backend`, which is declared once elsewhere with its settings. A group has
-no settings of its own; it shares the service's base, headers, hooks and
-cache. A group without its service is an error (`E1xx`), and two groups of
-one name are `E102`. Hand-written services may use groups too.
-
-(The other way — one flat `Backend` spread over files — would make names
-from different tags collide; groups follow the spec's own structure and
-read well at the call site.)
-
-### Names
-
-- **Group**: the tag, camelCased (`User Accounts` → `userAccounts`).
-  An endpoint with several tags goes under its first.
-- **Endpoint**: the `operationId`, camelCased, with the tag's name taken off
-  the front or the back when what is left is still a word and unique in the
-  group (`listUsers` in `users` → `list`; `getUserById` → `getById`).
-  Without an `operationId`: the method and the path's last fixed segment
-  (`get users/{id}/keys` → `getKeys`).
-- **A name the language owns** (`get`, `delete`, `match`…) is allowed as an
-  endpoint name, since it is always called after a dot; one that is not a
-  WebFluent name at all gets a `_` and a comment.
-- **Types**: the schema's name, PascalCased. A name both the spec and the
-  program declare: the program's wins, as with `from` today.
-
-`--names operation-id|path|keep` changes the rule for a project that wants
-another; it is recorded in the config.
-
-### Regenerating safely
-
-1. Every file it writes starts with the header above, carrying the hash of
-   the spec it came from.
-2. `.wf-api.json` (beside `.wf-sizes.json`, committed) records, per file,
-   the hash of what was written.
-3. `wf api sync` writes a file only when it is unchanged since it was
-   written. A file someone edited is not overwritten: `sync` stops, names
-   it, and shows the difference; `--force` overwrites, `--keep` leaves it
-   and writes the rest.
-4. Changes belong outside the generated files: declare a `type` of the same
-   name to replace one, or a group of your own (`api Backend.extras { … }`)
-   for an endpoint the spec lacks. `wf api sync` never touches a file it did
-   not write.
-5. Output is deterministic — tags, endpoints and fields in the spec's
-   order, formatted by `wf fmt` — so a spec change shows as the smallest
+1. **Names are the spec's** **[R8]**: the `operationId` as written, made a
+   WebFluent name only where it must be (`list-users` → `listUsers`), and
+   no cleverer than that — no stripping of tag names. Without an
+   `operationId`, the method and the path (`get /users/{id}/keys` →
+   `getUsersIdKeys`), with a warning to add one. A name the spec gives twice
+   is an error naming both operations. Types keep their schema names.
+2. **Groups are the tags**, camelCased; an operation with several tags is
+   in its first.
+3. **Paths are the spec's**, `{id}` and all.
+4. **Nothing is dropped silently.** What the reader cannot express (a
+   `oneOf` of records, a cookie-only auth scheme, an XML body) is written as
+   `Any` with a comment saying what the spec said, and listed by `sync`.
+5. **Order is the spec's** (the reader keeps the file's order; B11),
+   and the output is formatted by `wf fmt`, so a spec change is the smallest
    diff.
-6. `wf api check` fails (exit 1) when `sync` would change a file, and `wf
-   check` reports `N07` (a warning) when a recorded spec's hash no longer
-   matches, so a spec bump without a sync is caught in CI.
+6. **Customise beside, never inside.** A `type` the project declares with a
+   generated type's name replaces it; an endpoint the spec lacks goes in a
+   group of the project's own (`api Backend.extras { … }`);
+   `invalidates` for a generated endpoint goes in `service.wf`:
+
+   ```wf
+   api Backend(base: …) {
+       invalidations {
+           users.createUser invalidates [users.listUsers]
+           users.deleteUser(id) invalidates [users.listUsers, users.getUser(id)]
+       }
+   }
+   ```
+
+   (OpenAPI has no standard for it; an `x-invalidates` extension in the
+   spec is read too, for teams that own the spec.)
+7. **Regeneration overwrites `generated/` whole**, removing files for tags
+   that are gone. A generated file that lacks the marker is refused rather
+   than overwritten — it was not written by `sync`.
+8. **`wf api check` in CI**, and `wf check` warns (`N07`) when a recorded
+   spec has changed since its files were written.
 
 ### How it relates to `from`
 
-Both use the one OpenAPI reader (`src/…/openapi.rs`), so a spec means the
-same thing either way: `wf api sync` prints the declarations the reader
-already builds for `from`. `from` stays — for a prototype it is one line —
-and `wf api eject Backend` turns it into files in one step. The docs teach
-`from` first and `wf api` for a project that will live.
-
-### What the reader needs for it
-
-First, B9–B11: the reader runs everywhere a project is read (the build, the
-language server, the WebAssembly compiler, the template engine), keeps the
-file's order, reads each parameter's `in` (a header parameter becomes a
-header, a cookie parameter is reported), keeps a body's and a response's
-media type (`as:`, multipart), resolves response `$ref`s and `default` /
-`4XX`, keeps inline objects as records named after their place
-(`CreateUserBody`), and reports a name it cannot use and two endpoints of
-one name. Then, new:
-
-- **Tags and operationIds** (for groups and names).
-- **YAML** specs (most are YAML). Open question 6.
-- **Security schemes**: an `apiKey` or `http bearer` scheme becomes a
-  commented `headers { }` line in `service.wf`, for the author to point at
-  their token.
-- **`servers[0].url`** as the default `base`.
-- **Examples**, kept for `respond` (4.12).
+One reader serves both, so a spec means the same thing either way: `sync`
+prints the declarations `from` builds. `from` stays for a prototype; `wf
+api eject` turns it into files in one step. The reader is fixed first
+(B9–B11): it runs in the build, the language server, the WebAssembly
+compiler and the template engine; keeps the file's order; reads `in`,
+media types, response `$ref`s, `default` / `4XX`, inline objects (as
+records named by their place, `CreateUserBody`), tags, `operationId`s,
+security schemes, `servers` and examples; and reads YAML as well as JSON.
 
 ---
 
-## 6. What changes in the runtime
+## 7. What changes in the runtime
 
 | Module | Change |
 |---|---|
-| `http.js` | The cache becomes the *read store*: an entry has readers (subscribers), a stale flag and a last-read time. `invalidate(match)` marks entries stale and notifies their readers. Entries without readers are dropped after `kept for`. Joining in flight works with any cache policy but `.none`. Default timeout 30 s. |
-| `net.js` `resource` | Subscribes to its key's entry: a `refresh` from the store reloads it as a refresh. Accepts any thunk returning a promise (the "any async value" form); options become one thunk, so body and headers are followed. `placeholder:`, the new `paginate:` cases, stream reads. `wfFetch` and `fetchOptions` removed. |
-| `api.js` | Endpoints carry their path's *changes* (computed at build time, emitted as data) and call `invalidate` after a successful write. Groups: `Backend.users` is an object of endpoints sharing the service's config. `.put(args, value)`. The `errors` table is emitted, so the dev-mode shape check covers failure bodies. |
-| `net.js` `optimistic` | A holder may be an endpoint or an endpoint call: the change goes to every matching entry. |
-| new `mock.js` (tests only) | The `respond` table, consulted by `send` before the network when `wf test` builds the page. Never in a production build. |
+| `http.js` | Results instead of throws: `send` resolves `["ok", value]` / `["err", error]`. A middleware chain replaces the hooks. Retries only for idempotent requests, with `Idempotency-Key`. The cache becomes an RFC 9111 private cache (reads `Cache-Control`, `Vary`, `Expires`) and a store with subscribers, so `invalidate` refreshes what is shown. In-flight joining for every `GET`. Decoding against the declared type in every build, producing `.decode(at)`. Default timeout 30 s. |
+| `net.js` | `resource` exposes one `Remote` value (a signal) plus computed members; arguments are one thunk, all followed; `placeholder`, `refresh`, paged and streamed reads. `request` becomes `http`. `optimistic`/`attempt` deprecated for `update`. `wfFetch`, `fetchOptions` removed. |
+| `api.js` | Services and groups; parameters placed by their declared location; `{name}` templates; each write carries its compiled invalidation list and calls `invalidate` on `.ok`; `endpoint.update`. |
+| `offline.js` | Queues only idempotent writes; reports refusals; applies invalidations on replay. |
+| new `fake.js` (tests only) | Routes a group's calls to a `fake`; never in a production build. |
 
-The checker learns `HttpError` (a built-in enum), literal case patterns,
-`let … else`, `Stream<T>`, groups, `changes:`, and types `.put`, `.items`.
-
-The compiler emits each write's change set: from `changes:`, else from the
-path rule, resolved at build time where the path is static.
+The checker gains generic built-in enums (`Result`, `Remote`, `HttpError`,
+`Pages`, `Stream`), literal and nested case patterns, `try` as an
+expression, `middleware` and `fake` declarations, groups, parameter
+locations, `invalidates` and `idempotent`. The decoder for each declared
+type is generated at build time (today's `shape_of`, made complete and
+always on).
 
 ---
 
-## 7. Migration and diagnostics
+## 8. Migration and diagnostics
 
-### `wf migrate` (6 → 7)
+### Deprecate, then remove [R12]
 
-Rewrites, file by file, printing each:
+7.0 accepts every form below with a warning that has an automatic fix
+(`wf fix`, the editor's quick fix); `wf migrate` applies them all; 8.0
+removes the old forms.
 
-| Before | After |
+| Today | 7.0 |
 |---|---|
-| `paginate: .page` | `paginate: .page(by: "page")`, and a note that the `state page` it wrote to is no longer written |
-| `on error(e) { … return "retry" }` | `… retry` |
-| `post createUser(…)` with no `at` | `post createUser(…) at "createUser"` — making today's silent default visible, with a note to check it |
-| `optimistic(state, …)` over a `state` filled by a load action | unchanged, with a note pointing at 4.8 |
+| `resource r = fetch(url, …)` | `resource r: T = http.get(url, …)` (the type from its annotation, else `Any` and `N11`) |
+| `await fetch(url, …)` in an action | `try await http.get/post(url, …)` |
+| `match r { loading … error(e) … ready(v) … }` | `match r { .loading … .failed(e) … .loaded(v) … }` |
+| `r.state == "ready"`, `r.data`, `r.refreshing` | `r.isLoaded`, `r.value`, `r.isRefreshing` |
+| `at "users/:id"` | `at "users/{id}"` |
+| an endpoint with no `at` | `at "<name>"`, with a note to check it (B7) |
+| `headers { }`, `on request/response/error` | `middleware [header(…), …]` and a written middleware |
+| `return "retry"` | `refreshOn401(…)` or a middleware calling `next` again |
+| `paginate: .page` on a call | `pages .number(param: page)` on the endpoint |
+| `on: .focus` | `refresh: .onFocus` |
+| `optimistic(holder, f)` | `let undo = endpoint.update(f)` and an explicit `undo()` |
+| `try { await … } catch e { … }` around a call | `match await … { .ok … .err(e) … }` |
 
-Behaviour that changes with no rewrite, which `migrate` states:
-
-- a `resource`'s `body:` and `headers:` are now followed (B2);
-- reads are shared and kept by default — a page that relied on two reads of
-  one address making two requests (rare) says `cache: .none`;
-- a successful write refreshes the reads its path covers — a write that must
-  not says `changes: .nothing`;
-- a request without a `timeout:` now gives up after 30 s.
+What changes with no rewrite, which `migrate` and the release notes state:
+`POST`/`PATCH` are no longer retried or replayed offline unless
+`idempotent`; nothing is cached unless the server or the contract says so;
+every response is checked against its type, so a server that does not
+match its contract now fails where it used to pass.
 
 ### New diagnostics, family `N` (network)
 
 | Code | Severity | What |
 |---|---|---|
-| `N01` | error | An endpoint call whose positional argument cannot be matched to a path parameter (B1's case, caught at build time) |
-| `N02` | warning | A `resource` over a write (`post`, `put`, `patch`, `delete`): it would send on every change of what it reads |
-| `N03` | error | A `let … else` block that can fall through |
-| `N04` | warning | An `await` of a read endpoint whose result nothing uses |
-| `N05` | error | `changes:` naming an endpoint the service does not have, or an argument it does not take |
-| `N06` | error | `retry` outside an `on error` hook |
-| `N07` | warning | A service written by `wf api` whose spec has changed since (`wf api sync`) |
-| `N08` | warning | An endpoint with no `at` whose name is not a plausible path (`createUser`) |
+| `N01` | error | A path template naming no parameter, or a parameter the call cannot place |
+| `N02` | error | A `resource` over a write |
+| `N03` | error | `try` outside an action returning a compatible `Result`, or a handler |
+| `N04` | warning | A `Result` that nothing reads (an `await` whose outcome is dropped) |
+| `N05` | error | `invalidates` naming an endpoint or argument the contract does not have |
+| `N06` | error | A `fake` that does not match its group's interface |
+| `N07` | warning | A spec changed since `wf api sync` |
+| `N08` | warning | A deprecated form (each with its fix) |
+| `N09` | warning | `retry` or offline replay asked of a non-idempotent write |
+| `N10` | warning | An address written in a page or component instead of a contract |
+| `N11` | warning | A request or endpoint typed `Any` or `Map` |
 
-`T21` stays; `T11` learns `HttpError`.
+`T11` and `T21` learn `Remote`; `T21` (no handling of the failure case)
+becomes an error for `Remote` and `Result` alike.
 
 ---
 
-## 8. Stages
+## 9. Stages
 
 Each stage builds, passes the full suite, and ships the docs for what it
-adds. "Rust tests" means unit tests beside the code and `tests/*.rs`;
-"browser" means a `tests/browser/*.mjs` suite run in headless Chrome.
+adds. Rust tests sit beside the code and in `tests/*.rs`; browser suites
+are `tests/browser/*.mjs` in headless Chrome against a small local test
+server that records every request.
 
-**Stage 1 — Fix what is broken (no new syntax).** In three commits:
+**Stage 1 — Stop losing and duplicating data (no new syntax).**
+B20 and B21 first (retry and replay only idempotent requests); then B1,
+B2, B12, B14, B15, B16, B18 (calls that never send or send the wrong
+thing); B3, B4, B13 (the checker); B5, B6 (joining and invalidation); B8,
+B19 (dead code).
+*Tests*: a browser suite `fetch.mjs` — the first to exercise `api` —
+asserting a timed-out `POST` is sent once, an offline `POST` is not
+replayed, typing re-asks, two readers make one request, `invalidate()`
+refreshes the screen; codegen and checker unit tests for the rest.
 
-- *Calls that never send or send the wrong thing*: B1 (match a positional
-  argument to the path's parameter; `N01` when there is none), B2 (a
-  `fetch` resource's options are one thunk), B12 (an endpoint is never a
-  list helper), B14 (per-call `headers:`/`retry:` reach the request), B15
-  (a `File` parameter of any name), B16 (a `File` argument is compared by
-  identity), B18.
-- *The checker*: B3 (`.status(code, body)` binds), B4 (emit and type
-  `errors`), B13 (an endpoint call is a promise, `T17`, missing required
-  parameters, an annotation held to the endpoint, a resource's methods
-  checked), the error type made one.
-- *The cache and the dead code*: B5 (join in flight for every read), B6
-  (an endpoint's `invalidate()` reloads the resources over it), B7 (`N08`),
-  B8 and B19 (remove `wfFetch`, `fetchOptions`, the name-table entry and the
-  WebFluent 1 arms outside `migrate`).
+**Stage 2 — `Result`, `HttpError`, `try`, patterns.**
+Generic built-in enums, literal and nested patterns, `try` expressions,
+`.result` on actions; `http` beside the old `fetch` (deprecated, `N08`).
+*Tests*: checker tests per pattern and per `try` rule; parser and printer
+round trips; a browser test of a 422 handled three ways (5.6).
 
-B9–B11 belong to stage 7, where the reader is rewritten; B17 to stage 4.
-*Tests*: codegen tests for B1, B2, B4, B12, B14, B15; checker tests for B3
-and B13; a new browser suite `tests/browser/fetch.mjs` against a small local
-server that counts and records requests (B2 asks again as you type, B5 one
-request for two readers, B6 the screen refreshes, B14 the header arrives,
-B15 the form arrives) — the first browser suite to exercise `api` at all.
-*Delivers*: the tutorial's examples do what they say.
+**Stage 3 — `Remote` and reads.**
+`Remote` values, computed members, followed arguments, `refresh:`,
+`placeholder:`, the old arms and members deprecated with fixes.
+*Tests*: browser tests for each case transition (load, refresh, stale,
+first-load failure, argument change).
 
-**Stage 2 — `HttpError` and `let … else`.**
-The built-in enum, typed `error(e)` and `catch e`, literal case patterns,
-`errors { }` typing `body`, `let … else` with `N03`.
-*Tests*: `check/sema/types/tests.rs` cases for each pattern; parser and
-printer round-trips; a browser test of a 422 shown through `let … else`.
+**Stage 4 — The transport.**
+Middleware, the RFC 9111 cache, decoding in every build, `Idempotency-Key`,
+default timeout.
+*Tests*: unit tests of the cache against the RFC's cases (max-age, no-store,
+Vary, revalidation); browser tests of middleware order and of a 401
+refreshed once for three concurrent calls.
 
-**Stage 3 — The read store.**
-Shared reads by key, `kept for`, stale-while-revalidate by default,
-reconnect refetch default, `placeholder:`, default timeout, any async value
-as a resource.
-*Tests*: `http.js` unit tests in the runtime's JS test harness for
-subscribe/notify/drop; browser: back-navigation shows held data with no
-spinner, two components one request, a script promise as a resource.
+**Stage 5 — Contracts and writes.**
+Groups, `{name}` templates, parameter locations, `invalidates`,
+`idempotent`, `endpoint.update`, `N01`–`N05`, `N09`–`N11`.
+*Tests*: checker tests for each rule; browser: create → list refreshes,
+rename → detail and list refresh, optimistic undo on a 500.
 
-**Stage 4 — Writes that refresh.**
-The path rule, `changes:`, `.put`, `optimistic` over a read, the change set
-emitted at build time, the offline queue applying changes.
-*Tests*: Rust tests for the path rule (a table of write/read pairs); browser:
-create → list refreshes, rename → detail and list refresh, optimistic
-rollback on a 500.
+**Stage 6 — Pages, streams, offline.**
+`pages`, `Pages<T>`, `Stream<T>`, the offline changes.
+*Tests*: browser suites for each paging style against the test server; the
+existing `offline.mjs` extended.
 
-**Stage 5 — Pagination and streams.**
-`.page(by:)`, `.cursor(…)`, `.link`, `Stream<T>` reads.
-*Tests*: browser suites against a local server serving each style.
+**Stage 7 — Fakes.**
+`fake`, `expect called`, fakes in `wf verify`, `Remote` values in `wf
+render` data, `N06`.
+*Tests*: `wf test` over a fixture project; template tests.
 
-**Stage 6 — Testing.**
-`respond`, `expect requested`, data-seeded reads in `wf test` and `wf
-render`, the unanswered-request failure.
-*Tests*: `wf test` runs over a fixture project; the template engine's tests
-for seeded reads.
+**Stage 8 — The reader and `wf api`.**
+The reader fixed and extended (B9–B11, YAML, tags, examples), and the five
+commands.
+*Tests*: unit tests for the reader; golden folders for three specs (a small
+one, Petstore, a large real one) in `tests/fixtures/openapi/`, each built;
+`from` and `sync` produce the same `wf types --json`; `check` fails on a
+stale folder; a hand-edited file without the marker is refused.
 
-**Stage 7 — Groups and `wf api`.**
-`api Backend.users { }`; the reader fixed (B9–B11: run by the language
-server, the WebAssembly compiler and the template engine too; parameters by
-`in`; media types; order kept) and taught tags, operationIds, YAML,
-security, servers, examples; `wf api add|sync|check|eject|list`;
-`.wf-api.json`; `N07`. The reader gets unit tests of its own.
-*Tests*: golden files — three real specs (a small one, Petstore, and a large
-one such as GitHub's or Stripe's subset) in `tests/fixtures/openapi/`, their
-generated folders checked in and compared; a test that the generated
-project builds and that `from` and generated produce the same `wf types
---json`; regeneration tests (hand edit detected, `--force`, `--keep`,
-deterministic output).
+**Stage 9 — Migration and docs.**
+`wf migrate` 6 → 7 and every `N08` fix; the data chapter rewritten around
+the layers; recipes (a form with server errors, a list that refreshes after
+a create, testing with a fake, a client from OpenAPI); `AGENTS.md`; the
+React/TanStack comparison; the Arabic pages.
 
-**Stage 8 — Migration.**
-The `wf migrate` 6 → 7 step, `N02`, `N04`, `N05`, `N06`.
-*Tests*: `tools/migrate` before/after fixtures; each diagnostic in
-`diagnostics` tests and an `md-docs/errors/N0x.md` entry.
-
-**Stage 9 — Docs and site.**
-Rewrite `md-docs/learn/15-data.md` around reads and writes; new recipes
-(a form with server errors, a list that updates after a create, testing a
-page that fetches, generating a client with `wf api`); update `AGENTS.md`'s
-Data Fetching and service sections, `coming-from/react.md`'s TanStack
-mapping, and the Arabic pages that mirror them.
-
-Stages 2–6 depend on 1; 7 is independent of 2–6 and can run beside them;
-8 and 9 come last.
+Stage 1 can start at once. Stages 2 → 3 → 5 are a chain; 4, 6, 7 and 8
+can each run beside it once 2 is in.
 
 ---
 
-## 9. Open questions, each with a recommendation
+## 10. Open questions, each with a recommendation
 
-1. **Keep the word `resource`, or rename it to `query`?** *Keep
-   `resource`.* It is taught everywhere, and `query` is already a browser
-   value (`query.tab`). The read/write split is in what you do, not in a new
-   keyword.
-2. **Should writes refresh by path with no opt-in?** *Yes.* It is right for
-   REST services and costs one GET when it is wrong; `changes: .nothing`
-   and `cache: .none` are the escapes, and `migrate` says it changed.
-3. **Refetch on focus by default?** *No — reconnect only.* Focus refetches
-   surprise people with half-filled forms over a list; it stays one word
-   away (`on: .focus`).
-4. **A normalised cache (Apollo)?** *No.* Invalidate-and-refresh plus
-   `reconcile` keeping rows by `id` gives the same screen for far less
-   machinery.
-5. **Should `await` of a read in an action be aborted when its page
-   leaves?** *Reads yes, writes no.* A save must finish; a lookup for a
-   page that is gone need not.
-6. **YAML specs: a dependency, or our own reader?** *Our own small YAML
-   reader for the subset OpenAPI uses*, matching the project's habit of
-   owning its formats (the compressor, the PDF engine); fall back to
-   telling the user to convert with a one-line command if a spec uses
-   anchors or tags we do not read.
-7. **May `wf api add` take a URL?** *No.* The compiler never fetches; the
-   docs show `curl -o openapi.json …` first.
-8. **Production response checking?** *Off by default, `strict: true` on a
-   service to turn it on* (pydantic-style `.parse` errors), since it costs
-   time on every answer.
-9. **Where is the default timeout set?** *30 s, in the engine, overridable
-   on the service.* Higher than httpx's 5 s because uploads go through the
-   same engine.
-10. **Literal patterns in `match` beyond errors?** *Yes, generally* — any
-    case payload may be matched against a literal — since it is the same
-    checker work and makes the feature unsurprising.
+1. **Are `Result` and `Remote` worth new built-in generics?** *Yes.* They
+   are the two types every request needs, and enums with payloads already
+   exist; user-declared generics can wait.
+2. **`try` or Rust's postfix `?`?** *`try`.* `?` already means "may be
+   null" in types and starts `?.` and `??` in expressions.
+3. **Required types on every endpoint, or a warning?** *A warning (`N11`)
+   in 7.0, an error in 8.0*, so existing code moves at its own pace.
+4. **Decode every response in production?** *Yes, by default*, with
+   `decode: .trust` on an endpoint whose answers are large and trusted. The
+   walk is linear in the answer and cheap beside the network.
+5. **Cache only what the server allows?** *Yes.* It is the standard, and a
+   client that guesses gets private data wrong. `cache: .maxAge(…)` on an
+   endpoint is the visible escape for servers that send no headers.
+6. **Should a page be allowed a `resource` at all, or only a store?**
+   *Allowed.* Small pages need no store; `N10` keeps URLs out of views,
+   which is the part of the rule that matters.
+7. **Keep `api … from "openapi.json"`?** *Yes, as the quick path*, sharing
+   the reader with `wf api`.
+8. **YAML: a dependency or our own reader?** *Our own reader for the
+   subset OpenAPI documents use*, in keeping with the project owning its
+   formats; a spec using anchors or tags we do not read gets a clear error
+   and the one-line conversion.
+9. **Where does `invalidates` go for a generated contract?** *In
+   `service.wf`'s `invalidations { }`*, plus the `x-invalidates`
+   extension for teams that own their spec.
 
 ---
 
