@@ -91,7 +91,7 @@ fn the_dev_server_answers_only_a_navigation_with_the_shell_and_builds_for_develo
     let dir = project(
         "serve",
         &format!(r#"{{ "name": "s", "dev": {{ "port": {port}, "hot_reload": true }} }}"#),
-        "app { Router }\ntype User { id: String, name: String }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    resource users: [User] = fetch(\"/api/users\")\n    Heading(\"Home\").h1\n    match users { ready(list) { Text(\"{list.length}\") } else { Text(\"…\") } }\n}\n",
+        "app { Router }\ntype User { id: String, name: String }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    resource users: [User] = http.get(\"/api/users\")\n    Heading(\"Home\").h1\n    match users { ready(list) { Text(\"{list.length}\") } else { Text(\"…\") } }\n}\n",
     );
     let child = Command::new(env!("CARGO_BIN_EXE_wf"))
         .arg("serve")
@@ -239,7 +239,7 @@ fn verify_fails_a_fetch_the_build_has_no_file_for() {
     let dir = project(
         "verify-fetch",
         r#"{ "name": "v" }"#,
-        "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    resource rows = fetch(\"/api/rows\")\n    Heading(\"Home\").h1\n    match rows { ready(r) { Text(\"rows\") } error(e) { Text(\"failed\") } else { Text(\"…\") } }\n}\n",
+        "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    resource rows: [String] = http.get(\"/api/rows\")\n    Heading(\"Home\").h1\n    match rows { ready(r) { Text(\"rows\") } error(e) { Text(\"failed\") } else { Text(\"…\") } }\n}\n",
     );
     let (code, _, err) = wf(&dir, &["build"]);
     assert_eq!(code, 0, "{err}");

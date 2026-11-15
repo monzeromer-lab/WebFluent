@@ -44,6 +44,9 @@ Errors stop the build; warnings don't. Treat warnings as work to do:
 | `T01` | A value of the wrong type for a prop, state, field or argument | Convert it, or fix the type you declared |
 | `T17` | An async result used before it's awaited, or `await` where it can't run | `await` it inside an action or handler |
 | `T21` | A resource `match` with no `error` arm | Add `error(e) { … }` |
+| `N08` | `fetch(…)`, an endpoint `-> T` with no `!`, or an `errors { }` block | `http.get(…)`; `-> T!`; an error enum (`wf fix` writes the first two) |
+| `N11` | `Map` or `Any` in an endpoint, or an `http.get` whose answer has no type | Declare a `type`, or name `Json` |
+| `N03` | `try` in an action that declares no error that can hold it | Declare `-> T ! E` (or `-> T!`) on the action |
 | `T15` | A `match` missing a case of the enum | Add the arm. Prefer that to adding an `else` |
 | `F01` | `bind:` to something that can't be written (derived, prop, const) | Bind a `state`, or have the component `emit` |
 | `F02` | `bind:` to a state the control can't hold (a text `Input` on a `Number`, a `DatePicker` on a `String`) | `.number` holds a number; a `DatePicker` binds a `Date?` |

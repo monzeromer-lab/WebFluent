@@ -499,7 +499,7 @@ one finding on one line, write `// wf-allow(CODE)`
 - A change inside a state's value — `form.name = v`, `items[i].done = v`,
   `items.sort()` — compiles to the state given an updated copy, so what
   reads it repaints and `persist` keeps it.
-- A value spliced into an address — `to:`, `navigate()`, `fetch()` — is
+- A value spliced into an address — `to:`, `navigate()`, a request's address — is
   encoded where it stands for a value.
 - A `match` expression that covers every case of an enum needs no `else`.
 

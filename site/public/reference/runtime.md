@@ -148,7 +148,7 @@ What the control-flow statements and slots compile to.
 | Function | Module | What it does |
 |---|---|---|
 | `resource(url, options)` | `net` | A resource: `{ state, data, error, refreshing, pending, items, hasMore, reload, loadMore, invalidate, cancel }`. |
-| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `await fetch(…)` in an action compiles to `request`. |
+| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `http.get(…)` and the other verbs compile to `httpCall`, which wraps it in a result. |
 | `optimistic(holder, change)` | `net` | Shows a change at once, rolled back if the action throws. |
 | `attempt(fn)` | `net` | Runs an action so that a throw rolls back its optimistic changes. |
 | `send(url, options)` | `http` | The engine's request itself. |

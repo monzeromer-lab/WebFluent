@@ -73,17 +73,12 @@
     "intro": "",
     "items": [
      {
-      "text": "`match e { .status(code, body) { … } }` on a request's error binds the\nstatus and the body. It was `T13`, nothing declares `code`.",
+      "text": "`match e { .status(code, body) { … } }` on a resource's error binds the\nstatus and the body. It was `T13`, nothing declares `code`.",
       "points": [],
       "after": ""
      },
      {
-      "text": "`errors { 422 -> T }` types that body, and `e.body`; under `wf serve` the\nbody that arrives is held to `T`, as a success is held to `-> T`.",
-      "points": [],
-      "after": ""
-     },
-     {
-      "text": "An endpoint call is a promise of what it returns until it is awaited\n(`T17`), and one that declares no `->` returns `Any` rather than nothing.",
+      "text": "An endpoint call is a promise of its result until it is awaited (`T17`).",
       "points": [],
       "after": ""
      },
@@ -182,6 +177,51 @@
       "text": "An action that returns a value says what with `-> T` (`T26`, an error;\n`wf fix --code T26` writes the type).",
       "points": [],
       "after": ""
+     },
+     {
+      "text": "Under `wf serve`, the body of each status an error enum names is held to\nthe type its case carries, as a success is held to `-> T`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An action that shows a change with `optimistic(…)` and declares `-> !`\ntakes the change back when a `try` in it passes a failure up, and is\n`.ok` when nothing did.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Asking with `http`",
+    "id": "7.0.0-asking-with-http",
+    "intro": "`http` is the built-in service for a request no `api` describes:\n`http.get(url)`, `http.post(url, body: value)`, `http.put`, `http.patch`\nand `http.delete`, through the same engine an `api` uses. Each is a promise\nof a result, `T!`, its error an `HttpError`, and `T` is named where the\nanswer goes:\n\n```wf\ntype Row { id: String }\ntype Me { name: String }\n\nstore Account {\n    state page = 1\n    state name = \"\"\n    resource rows: [Row] = http.get(\"/api/rows?page={page}\")\n    action load() -> ! {\n        let me: Me = try await http.get(\"/api/me\")\n        name = me.name\n    }\n}\n```\n\n`as: .text` answers with a `String`; `headers:`, `timeout:`, `retry:`,\n`cache:` and `credentials:` are the request's own.",
+    "items": [],
+    "after": ""
+   },
+   {
+    "title": "What 7.0 refuses",
+    "id": "7.0.0-what-7-0-refuses",
+    "intro": "Every one has a fix, and `wf fix` applies those that are mechanical.",
+    "items": [
+     {
+      "text": "`fetch(…)` is `N08`. It threw on a failure the page rarely caught, and\nits answer was `Any`. A resource or a call with no `method:` is rewritten\nto `http.get(…)`; a write becomes `http.post(…)` (or `put`, …) by hand.\n`window.fetch` is still the browser's own.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An endpoint that does not say how it fails, `-> T`, is `N08`: it is now\n`-> T!`, which the fix writes. An `errors { 422 -> T }` block is `N08`\ntoo: name the status in an error enum, `unprocessableContent(problem: T)\non 422`, and write `-> T ! ThatError`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Any` and `Map` where a service meets the program — an endpoint's\nparameter or answer, a resource's annotation — and an `http.get` whose\nanswer has no type are `N11`. Declare a `type`, or name `Json` for JSON\nwhose shape is open; the fix writes `Json`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An endpoint read from an OpenAPI file answers with a result, `T!`, and a\nfailure's body arrives in the `HttpError`'s `.status(code, problem)`.",
+      "points": [],
+      "after": ""
      }
     ],
     "after": ""
@@ -207,7 +247,7 @@
     "after": ""
    }
   ],
-  "count": 29
+  "count": 34
  },
  {
   "version": "6.2.0",

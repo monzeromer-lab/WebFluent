@@ -233,15 +233,24 @@ type (`Number(1..=30)`) validates itself.
 
 ## A form that sends to a server
 
-Describe the endpoint with `api`, type the error body, and hand the 422's
-messages back to the form. `join.pending` is true while the action runs.
+Describe the endpoint with `api`, name each status it answers with in an
+error enum, and hand the 422's messages back to the form. `invite.pending`
+is true while the action runs.
 
 ```wf
+type Invitation { email: String }
+type Invited { email: String }
+type InviteProblem = Problem { errors: [String: String] }
+
+enum InviteError {
+    unprocessableContent(problem: InviteProblem) on 422
+    http(error: HttpError)
+}
+
 api Accounts(base: "/api") {
     timeout: 10.seconds
     credentials: .sameOrigin
-    post invite(body: Map) -> Map
-        errors { 422 -> Map }
+    post invite(body: Invitation) -> Invited ! InviteError
 }
 
 page Invite(path: "/invite", title: "Invite", description: "Ask someone to join the board.", layout: BoardShell) {
@@ -250,17 +259,19 @@ page Invite(path: "/invite", title: "Invite", description: "Ask someone to join 
 
     validate email { required  email }
 
+    state failed = ""
+
     action invite() {
-        try {
-            await Accounts.invite(body: { email: email })
-            sent = true
-        } catch e {
-            form.apply(e.body.errors)
+        match await Accounts.invite(body: Invitation(email: email)) {
+            .ok(_) { sent = true }
+            .err(.unprocessableContent(p)) { form.apply(p.errors) }
+            .err(.http(e)) { failed = e.message }
         }
     }
 
     Heading("Invite someone").h1
     if sent { Alert("Invitation sent.").success }
+    if failed != "" { Alert(failed).danger }
     Form(bind: form) {
         on submit { invite() }
         Input(bind: email, name: "email", label: "Email").email
@@ -283,7 +294,7 @@ type Release { tag: String, title: String, published: DateTime }
 api Releases(base: "/api") {
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
-    get list(page: Number = 1) -> [Release]
+    get list(page: Number = 1) -> [Release]!
 }
 
 page Changelog(path: "/changelog", title: "Changelog", description: "What changed, newest first.", layout: BoardShell) {

@@ -687,7 +687,7 @@ fn child_bodies_names_every_body_the_ast_has() {
 fn a_service_may_be_invalidated_whole() {
     let with = |call: &str| {
         format!(
-            "api Backend(base: \"/api\") {{\n    get users() -> [Map]\n}}\npage P(path: \"/\", title: \"T\", description: \"D\") {{\n    Heading(\"H\").h1\n    Button(\"Log out\") {{ on click {{ {call} }} }}\n}}\n"
+            "api Backend(base: \"/api\") {{\n    get users() -> [Json]!\n}}\npage P(path: \"/\", title: \"T\", description: \"D\") {{\n    Heading(\"H\").h1\n    Button(\"Log out\") {{ on click {{ {call} }} }}\n}}\n"
         )
     };
     let errors = |call: &str| {

@@ -85,7 +85,7 @@ page LearnIndex(path: "/learn", title: "Learn WebFluent", description: "The WebF
                 }
                 Link(to: "/learn/15-data", class: "bp-card") {
                     Text("15. Fetching data") { style { font-weight: 650 } }
-                    Text("Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", class: "bp-small")
+                    Text("Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time.", class: "bp-small")
                 }
                 Link(to: "/learn/16-testing", class: "bp-card") {
                     Text("16. Testing") { style { font-weight: 650 } }

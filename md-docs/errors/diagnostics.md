@@ -306,6 +306,8 @@ Errors. The type checker's findings; a program that declares no types raises non
 ### Requests
 
 - [N03](N03.md) — A `try` with nowhere to pass its error
+- [N08](N08.md) — A form 7.0 removed
+- [N11](N11.md) — `Any` or `Map` where a service meets the program
 - [N12](N12.md) — An error enum that is not shaped as one
 
 ### Translations

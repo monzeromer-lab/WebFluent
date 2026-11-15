@@ -20,11 +20,13 @@ value](#set-a-value) shows. It claims `/`: paste it into a new project, or
 replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
+type Row { id: String }
+
 const API = env.PUBLIC_API ?? "/api"
 const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
 
 page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
-    resource rows = fetch("{API}/rows")
+    resource rows: [Row] = http.get("{API}/rows")
     Heading("Rows").h1
     if FEATURES.billing { Link("Billing", to: "/billing") }
     match rows {

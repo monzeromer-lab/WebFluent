@@ -123,7 +123,7 @@ fn t17_await_where_await_may_be_written() {
 #[test]
 fn t21_an_error_arm() {
     let src = page(
-        "    resource r = fetch(\"/x\")\n    match r {\n        loading { Spinner }\n        ready(v) { Text(\"{v}\") }\n    }",
+        "    resource r: Json = http.get(\"/x\")\n    match r {\n        loading { Spinner }\n        ready(v) { Text(\"{v}\") }\n    }",
     );
     let want = src.replace(
         "        ready(v) { Text(\"{v}\") }\n    }",

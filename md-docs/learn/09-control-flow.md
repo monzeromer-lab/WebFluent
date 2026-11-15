@@ -285,24 +285,27 @@ An `if` value with no `else` is `null` when its condition fails.
 ## In actions and handlers
 
 The same statements work in an imperative block — a handler or an action —
-on values rather than elements, plus `try`/`catch`. This action fetches rows
-and keeps the first hundred:
+on values rather than elements, plus `try`/`catch`. This action fetches rows,
+matches the answer, and keeps the first hundred:
 
 ```wf
+type Row { id: String, title: String }
+type Rows { items: [Row] }
+
 page Sync(path: "/", title: "Sync", description: "Control flow inside an action.") {
-    state rows: [Map] = []
+    state rows: [Row] = []
     state error = ""
     action pull() {
-        try {
-            let r = await fetch("/api/rows")
-            let { items } = r
-            rows = []
-            for item, i in items {
-                if i >= 100 { return }
-                rows.push(item)
+        let answer: Rows! = await http.get("/api/rows")
+        match answer {
+            .ok(r) {
+                rows = []
+                for item, i in r.items {
+                    if i >= 100 { return }
+                    rows.push(item)
+                }
             }
-        } catch e {
-            error = e.message
+            .err(e) { error = e.message }
         }
     }
     Heading("Sync").h1

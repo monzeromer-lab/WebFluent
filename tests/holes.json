@@ -72,11 +72,11 @@
       "builtin-prop": 2
     },
     "site": {
-      "any-accepted": 41,
-      "browser-global": 22,
-      "builtin-function": 3,
-      "builtin-prop": 7040,
-      "caught-error": 6,
+      "any-accepted": 40,
+      "browser-global": 23,
+      "builtin-function": 1,
+      "builtin-prop": 7043,
+      "caught-error": 5,
       "dom-event": 1,
       "empty-list": 330,
       "empty-map": 3,
@@ -89,11 +89,11 @@
     }
   },
   "total": {
-    "any-accepted": 45,
-    "browser-global": 32,
-    "builtin-function": 4,
-    "builtin-prop": 8008,
-    "caught-error": 6,
+    "any-accepted": 44,
+    "browser-global": 33,
+    "builtin-function": 2,
+    "builtin-prop": 8011,
+    "caught-error": 5,
     "connection": 3,
     "dom-event": 5,
     "empty-list": 330,

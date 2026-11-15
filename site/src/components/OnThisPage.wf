@@ -15,13 +15,17 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
     }
 
     action copyPage() {
-        try {
-            let text = await fetch(twin(), as: .text)
-            await navigator.clipboard.writeText(text)
-            copied = true
-            setTimeout(() => uncopy(), 1600)
-        } catch e {
-            window.open(twin(), "_blank", "noopener")
+        match await http.get(twin(), as: .text) {
+            .ok(text) {
+                try {
+                    await navigator.clipboard.writeText(text)
+                    copied = true
+                    setTimeout(() => uncopy(), 1600)
+                } catch e {
+                    window.open(twin(), "_blank", "noopener")
+                }
+            }
+            .err(_) { window.open(twin(), "_blank", "noopener") }
         }
     }
     action uncopy() { copied = false }

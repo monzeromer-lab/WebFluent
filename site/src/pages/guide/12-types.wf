@@ -479,7 +479,7 @@ page Infer(path: "/", title: "Infer", description: "Types the checker works out.
     Text("{joined} {kind} {firstScore}")
 }"#, title: "wf")
 
-        Markdown("The rules for operators and forms:\n\n- `a ?? b` is `a` without its `null`, joined with `b`.\n- `a?.b` is `b`'s type made optional, and the rest of the chain with it.\n- `if` and `match` used as values have the type both arms fit: the same type, `T?` when one arm is `null`, and `Any` otherwise.\n- `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either side is one; comparisons and `&&`, `||`, `!` give a `Bool`.\n- `await e` on a `fetch` is `Any` unless you annotate it: `let r: [Row] = await fetch(…)`.\n- `let \{ a, b \} = m` and `let [x, y] = l` bind the fields and the items.")
+        Markdown("The rules for operators and forms:\n\n- `a ?? b` is `a` without its `null`, joined with `b`.\n- `a?.b` is `b`'s type made optional, and the rest of the chain with it.\n- `if` and `match` used as values have the type both arms fit: the same type, `T?` when one arm is `null`, and `Any` otherwise.\n- `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either side is one; comparisons and `&&`, `||`, `!` give a `Bool`.\n- `await e` on a `fetch` is `Any` unless you annotate it: `let r: [Row] = try await http.get(…)`.\n- `let \{ a, b \} = m` and `let [x, y] = l` bind the fields and the items.")
 
         Heading("Narrowing optionals", id: "narrowing-optionals").h2
 
@@ -513,7 +513,7 @@ page Narrow(path: "/", title: "Narrow", description: "Values that may be null, n
         CodeBlock(#"type Deploy { id: String, status: String, startedAt: String }
 
 page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
-    resource deploys: [Deploy] = fetch("/api/deploys")
+    resource deploys: [Deploy] = http.get("/api/deploys")
     Heading("Deploys").h1
     match deploys {
         loading { Spinner }
@@ -702,7 +702,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
                     Table.Cell { Markdown("Narrow or read through `null`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`resource r: [T] = fetch(…)`") }
+                    Table.Cell { Markdown("`resource r: [T] = http.get(…)`") }
                     Table.Cell("Type data from the network")
                 }
             }

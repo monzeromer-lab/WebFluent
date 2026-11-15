@@ -578,7 +578,7 @@ page Restore(path: "/", title: "Restore", description: "Settings decoded from te
 ```wf
 const API = "/api/v1"
 const PAGE_SIZE: Number = 20
-resource rows = fetch("{API}/rows?limit={PAGE_SIZE}")
+resource rows: [Row] = http.get("{API}/rows?limit={PAGE_SIZE}")
 Text(env.PUBLIC_APP_NAME)
 ```
 
@@ -803,12 +803,6 @@ store CartStore {
         total = total + product.price
     }
 
-    action getHeaders() -> [String: String] {
-        let h = {}
-        h["Authorization"] = "Bearer " + accessToken
-        return h
-    }
-
     action clear() {
         items = []
         total = 0
@@ -833,7 +827,7 @@ abandoned with it. Its address reads the store's state; its `state`,
 ```wf
 store Feed {
     state page = 1
-    resource rows = fetch("/api/rows?page={page}")
+    resource rows: [Row] = http.get("/api/rows?page={page}")
     derived count = rows.data?.length ?? 0
     action next() { page = page + 1 }
 }
@@ -994,9 +988,11 @@ accessible plumbing (`role="alert"`, `aria-invalid`, `aria-describedby`)
 is the same one `error:` has always used.
 
 ```wf
+type SignUp { email: String, password: String }
+
 api Backend(base: "/api") {
-    get emailTaken(email: String) -> Bool
-    post signUp(body: Map)
+    get emailTaken(email: String) -> Bool!
+    post signUp(body: SignUp) -> !
 }
 
 page Signup(path: "/join", title: "Join", description: "Make an account.") {
@@ -1008,7 +1004,9 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     validate email {
         required
         email
-        async "That address is taken" { !(await Backend.emailTaken(email: email)) }
+        async "That address is taken" {
+            match await Backend.emailTaken(email: email) { .ok(taken) { !taken } else { false } }
+        }
     }
     validate password {
         required
@@ -1018,7 +1016,7 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     validate confirm { matches(password) "The two passwords differ" }
 
     Form(bind: form, show: .onBlur) {        // .onBlur (default) · .onSubmit · .live
-        on submit { Backend.signUp(body: { email: email, password: password }) }
+        on submit { Backend.signUp(body: SignUp(email: email, password: password)) }
         Input(bind: email, label: "Email").email
         Input(bind: password, label: "Password").password
         Input(bind: confirm, label: "Confirm").password
@@ -1049,6 +1047,8 @@ that has one and announces it, and does not run the handler.
 ### Actions, `let`, `return` and `await`
 
 ```wf
+type Me { token: String }
+
 store AuthStore {
     state accessToken = ""
 
@@ -1058,9 +1058,9 @@ store AuthStore {
         return h
     }
 
-    action load() {
-        let r = await fetch("/api/me")
-        accessToken = r.token
+    action load() -> ! {
+        let me: Me = try await http.get("/api/me")
+        accessToken = me.token
     }
 }
 ```
@@ -1074,13 +1074,14 @@ index, over a range), `try { } catch e { }` and destructuring `let` are
 imperative statements too:
 
 ```wf
-action sync() {
+action sync() -> ! {
+    let r: Sync = try await http.get("/api/sync")
+    let { items, total } = r
+    let [first, second] = items
+    for item, i in items { log("{i}: {item.title}") }
+    for n in 1..=total { count = n }
     try {
-        let r = await fetch("/api/sync")
-        let { items, total } = r
-        let [first, second] = items
-        for item, i in items { log("{i}: {item.title}") }
-        for n in 1..=total { count = n }
+        saveDraft(items)                  // a project script that may throw
     } catch e {
         error = e.message
     }
@@ -1226,7 +1227,7 @@ match tone {
 ### Data Fetching
 
 ```wf
-resource users = fetch("/api/users")
+resource users: [User] = http.get("/api/users")
 match users {
     loading { Spinner }
     error(err) { Alert("Failed: {err.message}").danger }
@@ -1238,9 +1239,11 @@ match users {
 }
 ```
 
-A resource declares its type — `resource users: [User] = fetch(…)` — and
-the `ready` arm's binding has it. Options: `fetch(url, method: "POST",
-body: { key: value }, headers: { "Authorization": token })`. The request
+A resource declares its type — `resource users: [User] = http.get(…)`, `N11`
+without one — and the `ready` arm's binding has it. The verb is the
+method — `http.get`, `http.post`, `http.put`, `http.patch`, `http.delete` —
+and options follow the address: `http.post(url, body: { key: value },
+headers: { "Authorization": token })`. The request
 repeats when a URL, a body or a header that reads state changes. `users.state`, `users.data`,
 `users.error`, `users.refreshing` and `users.pending` (and a connection's
 `.messages`) are live wherever they are read — `Button(if plan.data != null
@@ -1248,7 +1251,7 @@ repeats when a URL, a body or a header that reads state changes. `users.state`, 
 with no `derived` in between.
 
 **Asking again.** `on: .focus`, `.reconnect` or `.interval(30.seconds)` (an
-option of `fetch(…)`, or of an endpoint's call), `users.reload()` and
+option of `http.get(…)`, or of an endpoint's call), `users.reload()` and
 `users.invalidate()` ask again. Asking again for the request already shown
 is a **refresh**, and the page stays as it is while it runs: `users.state`
 stays `"ready"`, the data stays, and the answer is drawn in place. The
@@ -1274,7 +1277,7 @@ type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
-    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .interval(30.seconds))
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
     match servers {
@@ -1292,7 +1295,7 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
 Map literals support **quoted string keys** for headers and special field names:
 
 ```wf
-resource data = fetch("/api/users", method: "POST",
+resource data: Created = http.post("/api/users",
     headers: { "Content-Type": "application/json", "X-Api-Key": apiKey },
     body: { action: "create", token: sessionToken })
 match data {
@@ -1322,12 +1325,11 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     on request(r)  { r.headers["X-Request-Id"] = uuid() }
     on response(r) { log("{r.status} {r.url}") }
 
-    get    users(page: Number = 1, q: String?)   -> [User]
-    get    user(id: String) at "users/:id"       -> User
-    post   createUser(body: Map)                 -> User
-        errors { 422 -> Map }
-    delete removeUser(id: String) at "users/:id"
-    post   avatar(id: String, file: File) at "users/:id/avatar" -> Url
+    get    users(page: Number = 1, q: String?)   -> [User]!
+    get    user(id: String) at "users/:id"       -> User!
+    post   createUser(body: NewUser)             -> User!
+    delete removeUser(id: String) at "users/:id" -> !
+    post   avatar(id: String, file: File) at "users/:id/avatar" -> Url!
 }
 ```
 
@@ -1379,7 +1381,7 @@ What comes with it, at every call site:
 | | |
 |---|---|
 | Abort | on scope leave, on an argument that reads state changing, on `.cancel()`, on timeout |
-| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — `match e { .status(code, body) { … } }` binds both, the body typed by `errors { 422 -> T }` (and held to it under `wf serve`); `.message`, `.status`, `.body`, `.headers` to read |
+| Errors | a call's `.err` is an `HttpError` — `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a resource's `error(e)` arm keeps 6.x's `.offline`, `.timeout`, `.status(code, body)` and `.message` until reads change in a later release |
 | Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`); a `POST` or `PATCH` that timed out may have been taken, and is not sent again |
 | Cache | `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, with `ETag`/`If-None-Match` revalidation and `304` served from what is held |
 | Dedupe | two readers of one address make one request, cached or not; each keeps its own abort |
@@ -1391,10 +1393,12 @@ What comes with it, at every call site:
 | Elsewhere | `Backend.users.invalidate()` — every resource over it on the page asks again —, `.prefetch(args)`, `.key(args)`, `.url(args)` |
 | Empty path parameters | a call whose path parameter is `null`, `""`, `.` or `..` is not sent (`users/` would be the collection, not the user); it ends `.aborted`, and a resource over it stays `loading` until the value arrives |
 
-A call is a promise of what the endpoint returns (`Any` when it says
-nothing): `await` it in an action or a handler. A parameter with no default
+A call is a promise of a result: `await` it in an action or a handler, then
+`match` it or pass its failure up with `try`. A parameter with no default
 that may not be null must be given (`C01`), and a resource's annotation is
-held to what its endpoint returns.
+held to what its endpoint returns. An endpoint that does not say how it
+fails (`-> T` with no `!`), `errors { }` and `fetch(…)` are `N08`, each with
+its fix; `Any` and `Map` in a contract are `N11`.
 
 **Saying how a call fails.** An endpoint declared `-> T ! E` or `-> T!`
 returns a *result* — `.ok(value)` or `.err(error)` — and never throws. An
@@ -1447,8 +1451,14 @@ Patterns: `_`, a literal, a case inside a case (`.err(.http(.status(503,
 _)))`), in a `match` — which runs in an action or a handler too — and in
 `if let .case(…) = value`.
 
-`await fetch(url, options)` in an action goes through the same engine, and
-`window.fetch` is untouched for anything that wants the browser's own.
+`http` is the built-in service for a request no contract describes:
+`http.get(url)`, `http.post(url, body: value)`, `http.put`, `http.patch`,
+`http.delete`, each a promise of `T!`, `T` named where the answer goes —
+`let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await
+http.get(url)`, `resource rows: [Row] = http.get(url)` — and `N11` for a
+`get` with nowhere that says (a write whose answer nothing reads needs no
+type; `as: .text` is a `String`). `fetch` is gone (`N08`); `window.fetch` is
+the browser's own, untouched.
 
 ### A connection the page holds open
 
@@ -1625,12 +1635,13 @@ worker takes itself away, so an edit is never hidden behind its own cache.
 ### Showing a change before the server agrees
 
 `optimistic(holder, change)` shows it at once. If anything later in the
-action throws, what was shown is taken back — the action rolls itself back:
+action fails — a `try` passing its error up, or a throw — what was shown is
+taken back: the action rolls itself back.
 
 ```wf
-action rename(id: String, name: String) {
+action rename(id: String, name: String) -> ! {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id: id, body: { name: name })
+    try await Backend.updateUser(id: id, body: Rename(name: name))
     Backend.users.invalidate()
 }
 ```
@@ -2753,7 +2764,7 @@ may too. Its surface:
 | Bodies | `when(parent, cond, then, else, anim)`, and `held(read)` — what an `if let` binding reads: the value now, or the last one while the branch leaves; `each(parent, list, item, {key, index, live, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves, and with `live` across a new value too, handed to `item(value, index, itemOf, indexOf)` as accessors; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` — an arm is called with the value and an accessor of it, and drawn again when the arm changes |
 | Motion | `animate(target, name, duration)` → a handle with `play`/`cancel`/`finished`, playing when it is made; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay, easing)`; `expand(node, open, duration, easing)` to the measured height; `countTo(node, from, to, duration, format)` and `counted(node, valueFn, duration, format)`; `onEnterView(node, name, …)`; `shared(node, name)`; `mark(node, attrs)` puts `data-wf-exit`/`data-wf-delay`/`data-wf-duration`/`data-wf-animate` on a component's root — what `when`, `each`, `show` and `match` play before removing an element, and what times its enter animation |
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
-| Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
+| Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body; `httpCall(method, url, options)` → a promise of a result (what `http.get(…)` and the other verbs compile to); `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
 | Stores, seen | `watchStores(fn)` → every action with the state on each side of it, and the function that stops it; `storeSnapshot(name?)`; `restoreStore(name, values)`. Nothing is recorded while nothing is watching |
 | Widgets | `toast(message, { tone, duration, action, onAction, closable })` → `{ close, update }`; `toastPromise(promise, { loading, done, failed })`; `dialog(el, read, write, { dismiss, initial })`; `ask(message, { detail, yes, no, danger })` → a promise of the answer; `sheet(el, { side, snap })`; `popup`; `tabs`; `drawer`; `announce(text, "assertive")`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
@@ -3414,6 +3425,8 @@ And what the type checker finds:
 | `T26` | An action that returns a value without `-> T`; the fix writes the type it returns |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
+| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces |
+| `N11` | `Any` or `Map` where a service meets the program — an endpoint's parameter or answer, a resource's type — or an `http.get` with nowhere that names what it answers; the fix names `Json`, or declare a `type` |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
 | `C03` | A part outside its owner (`Select.Option` with no `Select` around it) |
@@ -3454,7 +3467,7 @@ reporting: a change inside a state's value — `form.name = v`,
 item in a handler — compiles to the state given a copy with that place
 changed (`WF.setIn`, `WF.mutated`), so what reads it repaints and `persist`
 writes it; reading `items.sort(…)` in an expression sorts a copy; a value
-spliced into a `to:`, `navigate()`, `fetch()` or resource address is
+spliced into a `to:`, `navigate()`, `http` or resource address is
 `encodeURIComponent`ed where it stands for a value (not when it opens the
 address, is a whole query, or follows `#`), in the live page and the static
 paint alike.
@@ -3882,16 +3895,17 @@ page Signup(path: "/signup", title: "Sign up") {
 A store action that waits for the network:
 
 ```wf
+type Account { name: String }
+
 store Profile {
     state name = ""
     state failed = false
 
     action load() {
-        try {
-            let me = await fetch("/api/me")
-            name = me.name
-        } catch e {
-            failed = true
+        let me: Account! = await http.get("/api/me")
+        match me {
+            .ok(m) { name = m.name }
+            .err(_) { failed = true }
         }
     }
 }

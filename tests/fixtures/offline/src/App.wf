@@ -19,8 +19,10 @@ page Home(path: "/", title: "Home", description: "The front page.") {
         }
         Button("Save", id: "save") {
             on click {
-                await fetch("/api/save", method: "PUT", body: { note: "written while offline" })
-                saved = "sent or kept"
+                match await http.put("/api/save", body: { note: "written while offline" }) {
+                    .ok { saved = "sent or kept" }
+                    .err(e) { saved = "failed: {e.message}" }
+                }
             }
         }
         Link("About", to: "/about")

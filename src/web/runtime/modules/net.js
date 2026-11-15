@@ -45,11 +45,21 @@
     }
   }
 
-  /// `await fetch(…)` in an action: one request, through the engine, so it
+  /// One request through the engine — what `http.get(…)` and the other verbs
+  /// send, wrapped in a result by `httpCall` — so it
   /// gets the timeout, the retries and the typed errors every other
   /// request gets.
   function request(url, options) {
     return send(url, requestOptions(options));
+  }
+
+  /// `http.post(url, body: draft)`: a request of the built-in service, its
+  /// answer `.ok(value)`, or `.err(error)` with an `HttpError`.
+  function httpCall(method, url, options) {
+    return send(url, requestOptions({ ...(options || {}), method })).then(
+      (value) => ["ok", value],
+      (error) => ["err", httpError(error)],
+    );
   }
 
   /// The options a hand-written `fetch(…)` passes, as the engine takes them.
@@ -131,7 +141,7 @@
     return plainJson(v) && !Array.isArray(v) && v.id != null;
   }
 
-  /// `resource rows = fetch("/api/rows")`, and `resource rows =
+  /// `resource rows: [Row] = http.get("/api/rows")`, and `resource rows =
   /// Backend.rows(page: n)`.
   ///
   /// `url` is an address — a string, or a function of one that follows

@@ -41,12 +41,12 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                     Table.Cell("Runs a block repeatedly")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("[`fetch(url, options)`](#fetch)") }
-                    Table.Cell { Markdown("Sends a request through the same engine as `api`") }
-                }
-                Table.Row {
                     Table.Cell { Markdown("[`format(value, .style, option)`](#format)") }
                     Table.Cell("A number, date or money as text, in the locale")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[`http.get(url, options)`](#http)") }
+                    Table.Cell { Markdown("Sends a request through the same engine as `api`; its answer is a result") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("[`keyIs(event, combination)`](#keyis)") }
@@ -283,36 +283,6 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         CodeBlock(#"every(1.seconds) { elapsed = elapsed + 1 }"#, title: "wf")
 
-        Heading("fetch", id: "fetch").h3
-
-        Markdown("Sends a request through the same engine an `api` uses: retries, caching and cancelling come with it.\n\nSignature: `fetch(url, options)` → the parsed response body")
-
-        Table(caption: "fetch") {
-            Table.Head {
-                Table.Row {
-                    Table.Cell("Parameter").header
-                    Table.Cell("Type").header
-                    Table.Cell("Meaning").header
-                }
-            }
-            Table.Body {
-                Table.Row {
-                    Table.Cell { Markdown("`url`") }
-                    Table.Cell { Markdown("`String`") }
-                    Table.Cell("The address; a value spliced into it is encoded")
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`options`") }
-                    Table.Cell { Markdown("`Map`, optional") }
-                    Table.Cell { Markdown("`method`, `headers`, `body`; a map given as `body` is sent as JSON") }
-                }
-            }
-        }
-
-        Markdown("Returns the parsed JSON body, and throws when the response fails. Where: `await fetch(…)` in an action or a handler, or `resource name = fetch(…)`, which adds `on:` and the other options of a resource. `window.fetch` is the browser's own, untouched. See [Fetch on demand with `await fetch`](/learn/15-data#fetch-on-demand-with-await-fetch).")
-
-        CodeBlock(#"let rows = await fetch("/api/rows?page={page}", { method: "GET" })"#, title: "wf")
-
         Heading("format", id: "format").h3
 
         Markdown("Writes a number, a date or money as text, in the reader's locale.\n\nSignature: `format(value)`, `format(value, .style)`, `format(value, .style, option)`, `format(value, \"pattern\")` → `String`")
@@ -352,6 +322,51 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
         Markdown("Returns the text. The locale is the i18n locale when the project has one, and the document's language otherwise; a change of locale redraws it. A `Money` value needs no style. In a string, `\{value:.style(option)\}` is the same call. Where: anywhere. See [`format` and `ago`](/reference/expressions#format-and-ago).")
 
         CodeBlock(#"Text(format(price, .currency, "EUR"))"#, title: "wf")
+
+        Heading("http", id: "http").h3
+
+        Markdown("The built-in service for a request no `api` describes: the same engine an `api` uses — retries, caching and cancelling come with it — and an answer that is a result, never a throw.\n\nSignature: `http.get(url, options)` → a promise of `T!`; `http.post`, `http.put`, `http.patch` and `http.delete` take the same")
+
+        Table(caption: "http") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Parameter").header
+                    Table.Cell("Type").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`url`") }
+                    Table.Cell { Markdown("`String`") }
+                    Table.Cell("The address; a value spliced into it is encoded")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`body:`") }
+                    Table.Cell { Markdown("`Json`, optional") }
+                    Table.Cell("What is sent; a record or a map is sent as JSON")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`headers:`") }
+                    Table.Cell { Markdown("`[String: String]`, optional") }
+                    Table.Cell("Headers of this request")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`as:`") }
+                    Table.Cell { Markdown("`.json` (default), `.text`, `.blob`") }
+                    Table.Cell { Markdown("How the answer is read; `.text` is a `String`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`timeout:`, `retry:`, `cache:`, `credentials:`") }
+                    Table.Cell { Markdown("as on an `api`") }
+                    Table.Cell("This request's own")
+                }
+            }
+        }
+
+        Markdown("`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `on:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).")
+
+        CodeBlock(#"let rows: [Row] = try await http.get("/api/rows?page={page}")"#, title: "wf")
 
         Heading("keyIs", id: "keyis").h3
 

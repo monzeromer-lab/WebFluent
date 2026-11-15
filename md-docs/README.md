@@ -44,7 +44,7 @@ suite, so what you read is what the compiler accepts.
 | | **Building with it** | |
 | 13 | [Styling](learn/13-styling.md) | Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive. |
 | 14 | [Forms and validation](learn/14-forms.md) | Bind controls to state, validate what the reader types, upload files, and show what the server said. |
-| 15 | [Fetching data](learn/15-data.md) | Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time. |
+| 15 | [Fetching data](learn/15-data.md) | Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time. |
 | 16 | [Testing](learn/16-testing.md) | Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one. |
 | 17 | [PDF and slides](learn/17-pdf-and-slides.md) | Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web. |
 | | **About** | |

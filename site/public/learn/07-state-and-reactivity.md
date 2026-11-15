@@ -131,6 +131,8 @@ imperative block: assignments, `let` locals, calls, `if`, `for`, `try`,
 three actions:
 
 ```wf
+type TodoList { todos: [String] }
+
 page Todos(path: "/", title: "To-dos", description: "Actions that change a list.") {
     state items: [String] = []
     state draft = ""
@@ -146,10 +148,9 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
         items = items.filter((_, i) => i != index)
     }
 
-    action load() {
-        let r = await fetch("/api/todos")
-        let { todos } = r
-        items = todos
+    action load() -> ! {
+        let list: TodoList = try await http.get("/api/todos")
+        items = list.todos
     }
 
     Heading("To-dos").h1
@@ -169,7 +170,11 @@ What an action's body can hold:
   `true` while a call of it runs ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#show-that-a-request-is-running)).
 - **Loops.** `for item in list { }`, `for item, i in list { }` and
   `for n in 1..=10 { }`.
-- **Errors.** `try { } catch e { }` guards a call that may fail.
+- **Errors.** A request's answer is a result: `try` gives its value or
+  passes the failure up, in an action that says what it fails with
+  (`-> !` here), and `match` handles each case where the call is made
+  ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#say-how-a-call-fails)). `try { } catch e { }`
+  guards a call into a script that may throw.
 - **`return`.** `return` leaves the action; `return x` leaves with a value.
 
 A `let` is the action's own. After `let list = items`, `list.push(x)` changes

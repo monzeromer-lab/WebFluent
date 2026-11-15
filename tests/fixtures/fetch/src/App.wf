@@ -1,14 +1,15 @@
 type User { id: String, name: String }
+type Found { query: String }
 
 api Backend(base: "/api") {
     timeout: 300.ms
     retry: .backoff(times: 2, on: [.network, .timeout, .status5xx])
 
-    get    users -> [User]
-    get    slowRead at "slow-read" -> Map
-    post   slowWrite(body: Map) at "slow-write" -> Map
-    post   order(body: Map) at "orders" -> Map
-    put    note(id: String, body: Map) at "notes/:id" -> Map
+    get    users -> [User]!
+    get    slowRead at "slow-read" -> Json!
+    post   slowWrite(body: Json) at "slow-write" -> Json!
+    post   order(body: Json) at "orders" -> Json!
+    put    note(id: String, body: Json) at "notes/:id" -> Json!
 }
 
 app { Router }
@@ -16,7 +17,7 @@ app { Router }
 page Home(path: "/", title: "Fetch", description: "A page that asks a service for things.") {
     state q = ""
     state said = ""
-    resource hits = fetch("/api/search", method: "POST", body: { query: q })
+    resource hits: Found = http.post("/api/search", body: { query: q })
     resource first = Backend.users()
     resource second = Backend.users()
 
@@ -43,38 +44,37 @@ page Home(path: "/", title: "Fetch", description: "A page that asks a service fo
     Button("Refresh", id: "refresh") { on click { Backend.users.invalidate() } }
     Button("Slow write", id: "slow-write") {
         on click {
-            try {
-                await Backend.slowWrite(body: { n: 1 })
-                said = "written"
-            } catch e {
-                said = "write:{e.kind}"
+            match await Backend.slowWrite(body: { n: 1 }) {
+                .ok(_) { said = "written" }
+                .err(.timeout(_)) { said = "write:timeout" }
+                .err(e) { said = "write:{e.message}" }
             }
         }
     }
     Button("Slow read", id: "slow-read") {
         on click {
-            try {
-                await Backend.slowRead()
-                said = "read"
-            } catch e {
-                said = "read:{e.kind}"
+            match await Backend.slowRead() {
+                .ok(_) { said = "read" }
+                .err(.timeout(_)) { said = "read:timeout" }
+                .err(e) { said = "read:{e.message}" }
             }
         }
     }
     Button("Order", id: "order") {
         on click {
-            try {
-                await Backend.order(body: { item: "tea" })
-                said = "ordered"
-            } catch e {
-                said = "order:{e.kind}"
+            match await Backend.order(body: { item: "tea" }) {
+                .ok(_) { said = "ordered" }
+                .err(.offline) { said = "order:offline" }
+                .err(e) { said = "order:{e.message}" }
             }
         }
     }
     Button("Note", id: "note") {
         on click {
-            await Backend.note(id: "n1", body: { text: "kept" })
-            said = "noted"
+            match await Backend.note(id: "n1", body: { text: "kept" }) {
+                .ok(_) { said = "noted" }
+                .err(e) { said = "note:{e.message}" }
+            }
         }
     }
 }

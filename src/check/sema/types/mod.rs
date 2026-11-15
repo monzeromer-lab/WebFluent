@@ -609,7 +609,20 @@ pub fn check_sources<'s>(
                     if let Some(returns) = &endpoint.returns {
                         let ty = cx.world.resolve(Type::from_ref(returns));
                         cx.result_error(&ty, endpoint.span, &format!("`{what}`"));
+                        cx.boundary_written(
+                            returns,
+                            endpoint.span,
+                            &format!("what `{what}` answers"),
+                        );
                     }
+                    for p in &endpoint.params {
+                        cx.boundary_written(
+                            &p.prop_type,
+                            endpoint.span,
+                            &format!("`{}` of `{what}`", p.name),
+                        );
+                    }
+                    cx.endpoint_form(a, endpoint);
                     for p in &endpoint.params {
                         cx.written_param(&p.prop_type, &format!("{what}({})", p.name));
                     }
@@ -1065,6 +1078,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.bind(&s.name, ty, stmt.span);
                 }
                 StatementKind::Resource(r) => {
+                    self.resource_source(r, stmt.span);
                     let inner = match &r.ty {
                         Some(t) => {
                             self.written(t, &r.name);

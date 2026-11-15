@@ -13,10 +13,13 @@ rows. It claims `/`: paste it into a new project, or replace the starter's
 `src/pages/Home.wf` with it.
 
 ```wf
+type Row { id: String, name: String }
+type RowPage { items: [Row], pages: Number }
+
 page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1
     state perPage = 20
-    resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    resource rows: RowPage = http.get("/api/rows?page={page}&per={perPage}")
     Heading("Rows").h1
     match rows {
         loading { Spinner }

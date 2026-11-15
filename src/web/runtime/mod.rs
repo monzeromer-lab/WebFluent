@@ -155,7 +155,7 @@ pub const MODULES: &[Module] = &[
         same("api"), same("ws"), same("sse"), same("broadcast"),
     ], deps: ["http"], triggers: []),
     module!("net", exports: [
-        same("resource"), same("request"), same("optimistic"), same("attempt"),
+        same("resource"), same("request"), same("httpCall"), same("optimistic"), same("attempt"),
     ],
         deps: ["http"], triggers: []),
     module!("toast", exports: [same("toast"), same("toastPromise")], deps: ["announce"], triggers: []),

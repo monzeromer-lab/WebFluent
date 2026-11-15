@@ -379,9 +379,9 @@ fn served(body: &str) -> String {
          api Backend(base: \"/api/v1\") {{\n\
          \x20   headers {{ Authorization: \"Bearer t\" }}\n\
          \x20   timeout: 10.seconds\n\
-         \x20   get users(page: Number = 1) -> [User]\n\
-         \x20   get user(id: String) at \"users/:id\" -> User\n\
-         \x20   post createUser(body: Map) -> User\n\
+         \x20   get users(page: Number = 1) -> [User]!\n\
+         \x20   get user(id: String) at \"users/:id\" -> User!\n\
+         \x20   post createUser(body: User) -> User!\n\
          }}\n{}",
         page(body)
     )
@@ -404,8 +404,14 @@ fn a_service_is_one_object_of_endpoints() {
     assert!(js.contains("timeout: 10000"), "a duration is milliseconds");
     // A header is read at the moment of the request, not at the start.
     assert!(js.contains("\"Authorization\": () =>"));
-    assert!(js.contains("users: { method: \"GET\", path: \"users\" }"));
-    assert!(js.contains("user: { method: \"GET\", path: \"users/:id\" }"));
+    assert!(
+        js.contains("users: { method: \"GET\", path: \"users\", result: {} }"),
+        "{js}"
+    );
+    assert!(
+        js.contains("user: { method: \"GET\", path: \"users/:id\", result: {} }"),
+        "{js}"
+    );
 }
 
 #[test]
@@ -516,7 +522,7 @@ fn an_action_that_shows_before_the_server_agrees_takes_it_back() {
         "state rows: [Map] = []\n\
          \x20   action rename(name: String) {\n\
          \x20       optimistic(rows, items => items)\n\
-         \x20       await fetch(\"/api/x\")\n\
+         \x20       await http.post(\"/api/x\")\n\
          \x20   }\n\
          \x20   Button(\"Go\") { on click { rename(\"x\") } }",
     ));
@@ -534,7 +540,7 @@ fn an_action_that_shows_before_the_server_agrees_takes_it_back() {
          \x20   state items: [Map] = []\n\
          \x20   action clear() {\n\
          \x20       optimistic(items, xs => [])\n\
-         \x20       await fetch(\"/api/x\")\n\
+         \x20       await http.post(\"/api/x\")\n\
          \x20   }\n\
          }\n";
     let src = format!(
@@ -2654,7 +2660,7 @@ fn a_resource_or_a_connection_read_in_text_or_an_attribute_follows_it() {
         let js = spa_generated(&format!(
             "{head}{}",
             page(&format!(
-                "resource r: Alarms = fetch(\"/api/alarms\")\n    stream ticks = sse(\"/events\")\n    {body}"
+                "resource r: Alarms = http.get(\"/api/alarms\")\n    stream ticks = sse(\"/events\")\n    {body}"
             ))
         ));
         assert!(js.contains(live), "`{body}` should follow the handle: {js}");
@@ -2762,7 +2768,7 @@ fn an_optimistic_action_that_awaits_nothing_is_still_a_plain_function() {
          \x20   state items: [String] = []\n\
          \x20   action fail() {\n\
          \x20       optimistic(items, xs => [\"x\"])\n\
-         \x20       await fetch(\"/api/x\")\n\
+         \x20       await http.post(\"/api/x\")\n\
          \x20   }\n\
          }\n";
     let js = spa_generated(&format!("{src}{}", page("Text(\"x\")")));
@@ -2770,9 +2776,27 @@ fn an_optimistic_action_that_awaits_nothing_is_still_a_plain_function() {
 }
 
 #[test]
+fn an_action_that_fails_with_nothing_to_return_rolls_back_and_is_ok_when_it_does_not() {
+    let js = spa_generated(&page(
+        "state rows: [String] = []\n\
+         \x20   action like(id: String) -> ! {\n\
+         \x20       optimistic(rows, xs => xs.concat([id]))\n\
+         \x20       try await http.post(\"/api/like/{id}\")\n\
+         \x20   }\n\
+         \x20   Button(\"Go\") { on click { like(\"x\") } }",
+    ));
+    // The wrapper that takes the change back is waited for, not returned:
+    // what follows it is the action's `.ok`.
+    assert!(js.contains("await WF.attempt(async () =>"), "{js}");
+    assert!(!js.contains("return await WF.attempt"), "{js}");
+    let after = &js[js.find("await WF.attempt").unwrap()..];
+    assert!(after.contains("return \"ok\";"), "{js}");
+}
+
+#[test]
 fn an_endpoint_called_with_positional_arguments_is_t10() {
     let src = "api Backend(base: \"/api\") {\n\
-         \x20   post signUp(body: Map)\n\
+         \x20   post signUp(body: Json) -> !\n\
          }\n";
     let text = errors_of(&format!(
         "{src}{}",

@@ -646,7 +646,7 @@ pub enum StatementKind {
     Animate(AnimateStmt),
     ExprStatement(Expr),
     Return(Option<Expr>),
-    /// `resource rows = fetch("/api")`: an async value, rendered with `match`.
+    /// `resource rows: [Row] = http.get("/api")`: an async value, rendered with `match`.
     Resource(ResourceDecl),
     /// `socket chat = ws(…)`, `stream ticks = sse(…)`, `channel c = broadcast(…)`.
     Connection(ConnectionDecl),
@@ -675,7 +675,24 @@ pub struct ResourceDecl {
     pub ty: Option<TypeRef>,
     pub url: Expr,
     pub options: Vec<FetchOption>,
+    /// How the request is written: `http.get(…)`, an endpoint's call, or
+    /// the `fetch(…)` 7.0 removed.
+    pub source: RequestSource,
 }
+
+/// How a resource's request is written.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum RequestSource {
+    /// `http.get(url, …)`, by its verb, lower case.
+    Http(String),
+    /// `Backend.users(page: n)`: an endpoint of a declared service.
+    Endpoint,
+    /// `fetch(url, …)`, which 7.0 refuses (`N08`).
+    Fetch,
+}
+
+/// The verbs the built-in `http` service has.
+pub const HTTP_VERBS: &[&str] = &["get", "post", "put", "patch", "delete", "head"];
 
 /// What a value must be for a form to accept it, declared beside the state
 /// it guards.

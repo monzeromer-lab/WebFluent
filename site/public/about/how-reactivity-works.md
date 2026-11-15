@@ -176,7 +176,7 @@ otherwise hand the list a fresh array of fresh rows every 30 seconds.
 type Server { id: String, name: String, status: String }
 
 page Servers(path: "/", title: "Servers", description: "Every server, kept current.") {
-    resource servers: [Server] = fetch("/api/servers", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers", on: .interval(30.seconds))
     Heading("Servers").h1
     match servers {
         loading { Text("Loading…") }

@@ -38,12 +38,9 @@ Requests stop losing and duplicating data.
 
 ## What the checker now says
 
-- `match e { .status(code, body) { … } }` on a request's error binds the
+- `match e { .status(code, body) { … } }` on a resource's error binds the
   status and the body. It was `T13`, nothing declares `code`.
-- `errors { 422 -> T }` types that body, and `e.body`; under `wf serve` the
-  body that arrives is held to `T`, as a success is held to `-> T`.
-- An endpoint call is a promise of what it returns until it is awaited
-  (`T17`), and one that declares no `->` returns `Any` rather than nothing.
+- An endpoint call is a promise of its result until it is awaited (`T17`).
 - A parameter with no default that may not be null must be given (`C01`).
 - `resource u: [User] = Backend.user(…)` is `T01` when the endpoint
   returns `User`.
@@ -98,6 +95,56 @@ Requests stop losing and duplicating data.
   action or a handler too, and in `if let .err(e) = outcome`.
 - An action that returns a value says what with `-> T` (`T26`, an error;
   `wf fix --code T26` writes the type).
+- Under `wf serve`, the body of each status an error enum names is held to
+  the type its case carries, as a success is held to `-> T`.
+- An action that shows a change with `optimistic(…)` and declares `-> !`
+  takes the change back when a `try` in it passes a failure up, and is
+  `.ok` when nothing did.
+
+## Asking with `http`
+
+`http` is the built-in service for a request no `api` describes:
+`http.get(url)`, `http.post(url, body: value)`, `http.put`, `http.patch`
+and `http.delete`, through the same engine an `api` uses. Each is a promise
+of a result, `T!`, its error an `HttpError`, and `T` is named where the
+answer goes:
+
+```wf
+type Row { id: String }
+type Me { name: String }
+
+store Account {
+    state page = 1
+    state name = ""
+    resource rows: [Row] = http.get("/api/rows?page={page}")
+    action load() -> ! {
+        let me: Me = try await http.get("/api/me")
+        name = me.name
+    }
+}
+```
+
+`as: .text` answers with a `String`; `headers:`, `timeout:`, `retry:`,
+`cache:` and `credentials:` are the request's own.
+
+## What 7.0 refuses
+
+Every one has a fix, and `wf fix` applies those that are mechanical.
+
+- `fetch(…)` is `N08`. It threw on a failure the page rarely caught, and
+  its answer was `Any`. A resource or a call with no `method:` is rewritten
+  to `http.get(…)`; a write becomes `http.post(…)` (or `put`, …) by hand.
+  `window.fetch` is still the browser's own.
+- An endpoint that does not say how it fails, `-> T`, is `N08`: it is now
+  `-> T!`, which the fix writes. An `errors { 422 -> T }` block is `N08`
+  too: name the status in an error enum, `unprocessableContent(problem: T)
+  on 422`, and write `-> T ! ThatError`.
+- `Any` and `Map` where a service meets the program — an endpoint's
+  parameter or answer, a resource's annotation — and an `http.get` whose
+  answer has no type are `N11`. Declare a `type`, or name `Json` for JSON
+  whose shape is open; the fix writes `Json`.
+- An endpoint read from an OpenAPI file answers with a result, `T!`, and a
+  failure's body arrives in the `HttpError`'s `.status(code, problem)`.
 
 ## Where a type is unknown
 

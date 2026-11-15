@@ -62,7 +62,7 @@ pub(super) fn api_setting(key: &str) -> &str {
 }
 
 impl JsCodegen {
-    /// `resource rows = fetch(url, opts)`: the request, made once here and
+    /// `resource rows: [Row] = http.get(url, opts)`: the request, made once here and
     /// again whenever a URL that reads state changes.
     pub(super) fn emit_resource(&mut self, r: &ResourceDecl) {
         let call = self.resource_call(r, None);
@@ -177,6 +177,12 @@ impl JsCodegen {
                 format!("{}: {value}", opt.key)
             })
             .collect();
+        // `http.post(…)`: the verb is the request's method.
+        if let crate::syntax::parser::ast::RequestSource::Http(verb) = &r.source
+            && verb != "get"
+        {
+            opts.push(format!("method: \"{}\"", verb.to_uppercase()));
+        }
         if self.dev
             && let Some(ty) = &r.ty
         {

@@ -23,7 +23,11 @@ component SearchPalette {
     action load() {
         if asked { return }
         asked = true
-        try { rows = await fetch(SEARCH_INDEX) } catch e { asked = false }
+        let found: [SearchRow]! = await http.get(SEARCH_INDEX)
+        match found {
+            .ok(list) { rows = list }
+            .err(_) { asked = false }
+        }
     }
 
     // A row the index wrote without synonyms has no `also` (the file is

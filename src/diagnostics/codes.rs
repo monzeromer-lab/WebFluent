@@ -552,6 +552,18 @@ pub static CODES: &[CodeInfo] = &[
         "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.",
     ),
     code(
+        "N08",
+        Error,
+        "A form 7.0 removed",
+        "`fetch(…)`, an endpoint that does not say how it fails, and `errors { }` were how 6.x asked a service for things. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result. Each form has its fix.",
+    ),
+    code(
+        "N11",
+        Error,
+        "`Any` or `Map` where a service meets the program",
+        "What crosses to a service — a parameter, a body, an answer, what a read holds — has a type the program names: a `type` with its fields, a dictionary, or `Json` for JSON whose shape is open. `Any` and `Map` say nothing of what arrives, so nothing about it can be checked.",
+    ),
+    code(
         "N12",
         Error,
         "An error enum that is not shaped as one",

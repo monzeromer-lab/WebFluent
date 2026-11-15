@@ -124,8 +124,14 @@ impl Checker<'_, '_> {
     /// `try e`: the value of the result `e`, or its error returned from the
     /// action — which must declare an error that one can become (`N03`).
     /// In a handler, the error is reported where the page reports errors.
-    pub(super) fn try_expr(&mut self, e: &crate::syntax::parser::ast::Expr) -> Type {
-        let ty = self.infer(e, None);
+    pub(super) fn try_expr(
+        &mut self,
+        e: &crate::syntax::parser::ast::Expr,
+        expected: Option<&Type>,
+    ) -> Type {
+        // What the value goes to is the value of the result.
+        let wanted = expected.map(|t| Type::Result(Box::new(t.clone()), Box::new(Type::Any)));
+        let ty = self.infer(e, wanted.as_ref());
         let text = super::expr_text(e);
         let (value, error) = match ty {
             Type::Result(value, error) => (*value, *error),
@@ -408,5 +414,256 @@ impl Checker<'_, '_> {
                 .collect();
             !rows.is_empty() && self.covers(&rows, payload)
         })
+    }
+}
+
+impl Checker<'_, '_> {
+    /// `http.post(url, body: draft)`: a request of the built-in service, a
+    /// promise of `T!`. `T` is what the answer goes to — a `let`'s type, a
+    /// declared `return`, a read's annotation — and a `get` that goes to
+    /// nothing that says is `N11`.
+    pub(super) fn http_call(&mut self, verb: &str, args: &[Expr], expected: Option<&Type>) -> Type {
+        let mut url = None;
+        for arg in args {
+            match arg {
+                Expr::MapLiteral(pairs) => {
+                    for (key, value) in pairs {
+                        let key = key.trim_matches('"');
+                        match key {
+                            // What is sent is JSON, or plain data that is.
+                            "body" => {
+                                let json = Type::Enum(super::ty::JSON.to_string());
+                                let given = self.infer(value, Some(&json));
+                                self.expect(
+                                    &given,
+                                    &json,
+                                    self.current_span,
+                                    &format!("the body of `http.{verb}`"),
+                                );
+                            }
+                            "headers" | "timeout" | "retry" | "cache" | "as" | "credentials"
+                            | "signal" => {
+                                self.infer(value, None);
+                            }
+                            other => {
+                                self.infer(value, None);
+                                self.error_at_current(
+                                    "T10",
+                                    format!("`http.{verb}` takes no `{other}`"),
+                                    "It takes the address, then `body:`, `headers:`, `timeout:`, `retry:` and `cache:`",
+                                );
+                            }
+                        }
+                    }
+                }
+                other if url.is_none() => {
+                    let given = self.infer(other, Some(&Type::String));
+                    self.expect(
+                        &given,
+                        &Type::String,
+                        self.current_span,
+                        &format!("the address of `http.{verb}`"),
+                    );
+                    url = Some(());
+                }
+                other => {
+                    self.infer(other, None);
+                    self.error_at_current(
+                        "T10",
+                        format!("`http.{verb}` takes one address, then what it sends by name"),
+                        &format!("Write `http.{verb}(url, body: value)`"),
+                    );
+                }
+            }
+        }
+        if url.is_none() {
+            self.error_at_current("C01", format!("`http.{verb}` needs the address to ask"), "");
+        }
+        // `as: .text` reads the answer as text.
+        let as_text = args.iter().any(|a| {
+            matches!(a, Expr::MapLiteral(p) if p.iter().any(|(k, v)| k == "as" && matches!(v, Expr::EnumCase(c) if c == "text")))
+        });
+        let answer = match expected.map(Type::unwrapped) {
+            None if as_text => Some(Type::String),
+            Some(Type::Promise(inner)) => match *inner {
+                Type::Result(value, _) => Some(*value),
+                other => Some(other),
+            },
+            Some(Type::Result(value, _)) => Some(*value),
+            other => other,
+        };
+        let answer = match answer {
+            Some(t) if !t.is_any() => {
+                self.boundary_type(&t, &format!("what `http.{verb}` answers"));
+                t
+            }
+            Some(t) if t == Type::Error => t,
+            // A write whose answer nothing reads needs no type for it.
+            _ if verb != "get" => Type::Null,
+            _ => {
+                self.error_at_current(
+                    "N11",
+                    format!("`http.{verb}` says nothing of what comes back"),
+                    "Name its type where the answer goes: `let rows: [Row] = try await http.get(…)`, or `resource rows: [Row] = http.get(…)`",
+                );
+                Type::Error
+            }
+        };
+        Type::Promise(Box::new(Type::Result(
+            Box::new(answer),
+            Box::new(Type::Enum(super::ty::HTTP_ERROR.to_string())),
+        )))
+    }
+
+    /// `N11`: what crosses to a service is a type a program names, never
+    /// `Any` or `Map`.
+    pub(super) fn boundary_type(&mut self, ty: &Type, what: &str) {
+        if open_type(ty) {
+            self.error_at_current(
+                "N11",
+                format!("{what} is `{ty}`, which says nothing of what it holds"),
+                "Name it: a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open",
+            );
+        }
+    }
+
+    /// `N11` for a type as written: `Map` and `Any` in a service's contract
+    /// or a read's annotation, each with the fix that writes `Json`.
+    pub(super) fn boundary_written(&mut self, ty: &TypeRef, span: Span, what: &str) {
+        let found = match ty {
+            TypeRef::Map => Some("Map"),
+            TypeRef::Any => Some("Any"),
+            TypeRef::List(inner) | TypeRef::Optional(inner) | TypeRef::Refined(inner, _) => {
+                return self.boundary_written(inner, span, what);
+            }
+            TypeRef::Dict(k, v) => {
+                self.boundary_written(k, span, what);
+                return self.boundary_written(v, span, what);
+            }
+            TypeRef::Result(v, e) => {
+                self.boundary_written(v, span, what);
+                if let Some(e) = e {
+                    self.boundary_written(e, span, what);
+                }
+                return;
+            }
+            _ => None,
+        };
+        if let Some(word) = found {
+            self.error(
+                span,
+                "N11",
+                format!("{what} is `{word}`, which says nothing of what it holds"),
+                "Name it: a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open",
+            );
+            self.plan_last(
+                "Write `Json`".to_string(),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: word.to_string(),
+                    to: "Json".to_string(),
+                },
+            );
+        }
+    }
+}
+
+/// Whether `ty` holds an `Any` or a `Map` anywhere.
+fn open_type(ty: &Type) -> bool {
+    match ty {
+        Type::Any | Type::Map => true,
+        Type::List(t) | Type::Optional(t) | Type::Promise(t) => open_type(t),
+        Type::Dict(k, v) | Type::Result(k, v) => open_type(k) || open_type(v),
+        _ => false,
+    }
+}
+
+impl Checker<'_, '_> {
+    /// `N08` and `N11` for a resource: `fetch(…)` is gone, and a read of
+    /// `http` says what it holds.
+    pub(super) fn resource_source(
+        &mut self,
+        r: &crate::syntax::parser::ast::ResourceDecl,
+        span: Span,
+    ) {
+        use crate::syntax::parser::ast::RequestSource;
+        if let Some(ty) = &r.ty {
+            self.boundary_written(ty, span, &format!("`{}`", r.name));
+        }
+        match &r.source {
+            RequestSource::Fetch => {
+                let method = r.options.iter().find(|o| o.key == "method");
+                self.error(
+                    span,
+                    "N08",
+                    format!("`resource {} = fetch(…)`: `fetch` is the browser's, and a read is `http.get(…)`", r.name),
+                    "Write `http.get(url, …)` — or `http.post`, `http.put` for another method — with the type it holds: `resource rows: [Row] = http.get(…)`",
+                );
+                if method.is_none() {
+                    self.plan_last(
+                        "Write `http.get`".to_string(),
+                        crate::diagnostics::fixes::Plan::Rename {
+                            from: "fetch".to_string(),
+                            to: "http.get".to_string(),
+                        },
+                    );
+                }
+            }
+            RequestSource::Http(verb) if r.ty.is_none() => self.error(
+                span,
+                "N11",
+                format!(
+                    "`resource {}` says nothing of what `http.{verb}` holds",
+                    r.name
+                ),
+                &format!(
+                    "Name its type: `resource {}: [Row] = http.{verb}(…)`",
+                    r.name
+                ),
+            ),
+            _ => {}
+        }
+    }
+
+    /// `N08` for an endpoint written as 6.x wrote one: one that does not
+    /// say how it fails (`-> T`, no result), or types its failures with
+    /// `errors { }` rather than an error enum.
+    pub(super) fn endpoint_form(
+        &mut self,
+        api: &crate::syntax::parser::ast::ApiDecl,
+        e: &crate::syntax::parser::ast::Endpoint,
+    ) {
+        let what = format!("{}.{}", api.name, e.name);
+        if !e.errors.is_empty() {
+            self.error(
+                e.span,
+                "N08",
+                format!("`{what}` types its failures with `errors {{ }}`, which 7.0 replaced with an error enum"),
+                "Declare `enum NameError { unprocessableContent(problem: T) on 422  http(error: HttpError) }` and write `-> T ! NameError`",
+            );
+            return;
+        }
+        if matches!(e.returns, Some(TypeRef::Result(..))) {
+            return;
+        }
+        let mut fixed = e.clone();
+        fixed.returns = Some(TypeRef::Result(
+            Box::new(e.returns.clone().unwrap_or(TypeRef::Unit)),
+            None,
+        ));
+        let written = crate::syntax::print::endpoint(&fixed);
+        self.error(
+            e.span,
+            "N08",
+            format!("`{what}` does not say how it fails: a call of it answers with a result"),
+            &format!("Write `{}`", crate::syntax::print::endpoint(&fixed)),
+        );
+        self.plan_last(
+            format!("Write `{written}`"),
+            crate::diagnostics::fixes::Plan::Replace {
+                start: e.span.start as usize,
+                end: e.span.end as usize,
+                text: written,
+            },
+        );
     }
 }

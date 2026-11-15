@@ -70,7 +70,9 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Markdown("An action is a named function of a page, component or store. Its body is an imperative block: assignments, `let` locals, calls, `if`, `for`, `try`, `return` and `await`. This to-do list adds, removes and loads items with three actions:")
 
-        CodeBlock(#"page Todos(path: "/", title: "To-dos", description: "Actions that change a list.") {
+        CodeBlock(#"type TodoList { todos: [String] }
+
+page Todos(path: "/", title: "To-dos", description: "Actions that change a list.") {
     state items: [String] = []
     state draft = ""
 
@@ -85,10 +87,9 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
         items = items.filter((_, i) => i != index)
     }
 
-    action load() {
-        let r = await fetch("/api/todos")
-        let { todos } = r
-        items = todos
+    action load() -> ! {
+        let list: TodoList = try await http.get("/api/todos")
+        items = list.todos
     }
 
     Heading("To-dos").h1
@@ -99,7 +100,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
     }
 }"#, title: "wf")
 
-        Markdown("What an action's body can hold:\n\n- **Locals.** `let x = …` declares a local of the action or handler. `let \{ a, b \} = m` and `let [x, y] = l` destructure a map and a list.\n- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](/learn/14-forms#show-that-a-request-is-running)).\n- **Loops.** `for item in list \{ \}`, `for item, i in list \{ \}` and `for n in 1..=10 \{ \}`.\n- **Errors.** `try \{ \} catch e \{ \}` guards a call that may fail.\n- **`return`.** `return` leaves the action; `return x` leaves with a value.\n\nA `let` is the action's own. After `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was; assign it back with `items = list`, or write `items.push(x)`, which gives the state a new list.\n\nYou call a page's action by name, `add()`, and a store's through the store, `Todos.add()`.")
+        Markdown("What an action's body can hold:\n\n- **Locals.** `let x = …` declares a local of the action or handler. `let \{ a, b \} = m` and `let [x, y] = l` destructure a map and a list.\n- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](/learn/14-forms#show-that-a-request-is-running)).\n- **Loops.** `for item in list \{ \}`, `for item, i in list \{ \}` and `for n in 1..=10 \{ \}`.\n- **Errors.** A request's answer is a result: `try` gives its value or passes the failure up, in an action that says what it fails with (`-> !` here), and `match` handles each case where the call is made ([Fetching data](/learn/15-data#say-how-a-call-fails)). `try \{ \} catch e \{ \}` guards a call into a script that may throw.\n- **`return`.** `return` leaves the action; `return x` leaves with a value.\n\nA `let` is the action's own. After `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was; assign it back with `items = list`, or write `items.push(x)`, which gives the state a new list.\n\nYou call a page's action by name, `add()`, and a store's through the store, `Todos.add()`.")
 
         Heading("persist", id: "persist").h2
 

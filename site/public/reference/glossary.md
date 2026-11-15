@@ -208,7 +208,7 @@ describes what to show and the state behind it
 ### Resource
 
 A request a page makes, whose loading, error and ready states
-a `match` shows: `resource rows = fetch(…)`
+a `match` shows: `resource rows: [Row] = http.get(…)`
 ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource)).
 
 ### Route parameter

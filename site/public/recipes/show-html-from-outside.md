@@ -13,7 +13,7 @@ post and shows its HTML body as markup:
 type Post { title: String, body: String }
 
 api Backend(base: "/api") {
-    get post(slug: String) at "posts/:slug" -> Post
+    get post(slug: String) at "posts/:slug" -> Post!
 }
 
 page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {

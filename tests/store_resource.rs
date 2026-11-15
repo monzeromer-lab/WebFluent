@@ -29,9 +29,10 @@ fn diagnostics(src: &str, code: &str) -> Vec<String> {
     .collect()
 }
 
-const FEED: &str = "store Feed {
+const FEED: &str = "type Row { name: String }
+store Feed {
     state page = 1
-    resource rows = fetch(\"/api/rows?page={page}\", on: .focus)
+    resource rows: [Row] = http.get(\"/api/rows?page={page}\", on: .focus)
     derived count = rows.data?.length ?? 0
     derived loaded = rows.state == \"ready\"
     action next() { page = page + 1 }
@@ -106,7 +107,7 @@ fn a_page_reads_a_store_s_resource_as_signals() {
 
 #[test]
 fn only_the_store_that_declares_it_has_the_resource() {
-    let src = "store Feed {\n    resource rows = fetch(\"/api/rows\")\n}\nstore Other {\n    state rows = { state: \"x\" }\n}\npage P(path: \"/\", title: \"T\") {\n    Text(\"{Feed.rows.state} {Other.rows.state}\")\n}\n";
+    let src = "store Feed {\n    resource rows: Json = http.get(\"/api/rows\")\n}\nstore Other {\n    state rows = { state: \"x\" }\n}\npage P(path: \"/\", title: \"T\") {\n    Text(\"{Feed.rows.state} {Other.rows.state}\")\n}\n";
     let js = spa_generated(src);
     assert!(js.contains("Feed.rows.state()"), "{js}");
     assert!(
@@ -137,7 +138,7 @@ fn a_store_s_endpoint_resource_takes_its_arguments_from_the_store() {
 #[test]
 fn a_page_s_own_resource_is_as_it_was() {
     let js = spa_generated(&page(
-        "resource rows = fetch(\"/api/rows\")\n    Text(rows.state)",
+        "resource rows: Json = http.get(\"/api/rows\")\n    Text(rows.state)",
     ));
     assert!(
         js.contains("const _rows = WF.resource(\"/api/rows\", null);"),
@@ -158,7 +159,7 @@ fn the_checker_accepts_a_store_s_resource() {
 
 #[test]
 fn the_checker_reads_a_store_s_resource_as_one() {
-    let src = "type Row { name: String }\nstore Feed {\n    resource rows: [Row] = fetch(\"/api/rows\")\n    resource one: Row = fetch(\"/api/one\")\n}\npage P(path: \"/\", title: \"T\") {\n    Heading(\"Feed\").h1\n    Text(Feed.one.data?.nam ?? \"\")\n    Text(Feed.rowz.state)\n    Button(\"Wipe\") { on click { Feed.rows = null } }\n}\n";
+    let src = "type Row { name: String }\nstore Feed {\n    resource rows: [Row] = http.get(\"/api/rows\")\n    resource one: Row = http.get(\"/api/one\")\n}\npage P(path: \"/\", title: \"T\") {\n    Heading(\"Feed\").h1\n    Text(Feed.one.data?.nam ?? \"\")\n    Text(Feed.rowz.state)\n    Button(\"Wipe\") { on click { Feed.rows = null } }\n}\n";
     let found = diagnostics(src, "");
     assert!(
         found.iter().any(|d| d == "[T05] `Row` has no field `nam`"),

@@ -50,7 +50,7 @@ function load() {
 
 const settle = () => new Promise((done) => globalThis.setTimeout(done, 0));
 
-/// `store Feed { state page = 1  resource rows = fetch("/rows/{page}")
+/// `store Feed { state page = 1  resource rows: Json = http.get("/rows/{page}")
 /// derived count = rows.data?.length ?? 0  action next() { page = page + 1 } }`,
 /// as the compiler emits it.
 function feed(WF, options) {

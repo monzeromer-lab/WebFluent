@@ -38,7 +38,7 @@ theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
-api Backend(base: "/api/v1") { get todos() -> [Todo] }
+api Backend(base: "/api/v1") { get todos() -> [Todo]! }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"

@@ -17,7 +17,7 @@ next page below it. To build one, call an endpoint with `paginate: .page`:
 type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]
+    get items(page: Number = 1) -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {

@@ -2,7 +2,7 @@ type Board { count: Number, lead: Row?, rows: [Row] }
 
 page Board(path: "/", title: "Board", description: "What is open, kept current.") {
     state note = ""
-    resource board: Board = fetch("/api/board", on: .focus)
+    resource board: Board = http.get("/api/board", on: .focus)
     Heading("Board").h1
     match board {
         loading { Text("Loading the board", class: "loading") }

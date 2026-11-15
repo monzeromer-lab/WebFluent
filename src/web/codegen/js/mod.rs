@@ -1580,6 +1580,19 @@ impl JsCodegen {
         }
     }
 
+    /// How an action that shows a change before the server agrees opens
+    /// the wrapper that takes it back. An action whose result holds no
+    /// value goes on past it to its `.ok`, so it does not return there.
+    pub(super) fn attempt_opener(&self, is_async: bool) -> &'static str {
+        let unit = matches!(self.action_results.last(), Some(Some((_, false))));
+        match (unit, is_async) {
+            (true, true) => "await WF.attempt(async () => {",
+            (true, false) => "WF.attempt(async () => {",
+            (false, true) => "return await WF.attempt(async () => {",
+            (false, false) => "return WF.attempt(async () => {",
+        }
+    }
+
     /// Whether an action declares a result, and so keeps `.result`.
     pub(super) fn declares_result(a: &crate::syntax::parser::ast::ActionDecl) -> bool {
         matches!(a.returns, Some(TypeRef::Result(..)))

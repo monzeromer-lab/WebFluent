@@ -1,7 +1,7 @@
 test "a resource read only in a label follows the resource" {
     // The page's own script: a request the test's server answers, whose
     // body is not JSON, so the resource leaves `loading` for `error`.
-    resource script = fetch("/app.js")
+    resource script: Json = http.get("/app.js")
     Button(if script.state == "loading" { "Loading" } else { "Arrived" })
     Text("Script{if script.state != "loading" { " · done" } else { "" }}")
     Text("state is {script.state}")

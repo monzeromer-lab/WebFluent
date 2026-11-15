@@ -646,7 +646,7 @@ mod tests {
         let w = lint(
             r#"
             page Home(path: "/") {
-                resource posts = fetch("https://example.com/posts")
+                resource posts: [String] = http.get("https://example.com/posts")
                 match posts {
                     loading { Text("...") }
                     error (e) { Text(e) }

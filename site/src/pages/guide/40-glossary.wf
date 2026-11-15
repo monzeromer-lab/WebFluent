@@ -148,7 +148,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Resource", id: "resource").h3
 
-        Markdown("A request a page makes, whose loading, error and ready states a `match` shows: `resource rows = fetch(…)` ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
+        Markdown("A request a page makes, whose loading, error and ready states a `match` shows: `resource rows: [Row] = http.get(…)` ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
 
         Heading("Route parameter", id: "route-parameter").h3
 

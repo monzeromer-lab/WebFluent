@@ -395,7 +395,7 @@ document.addEventListener("wf:render", (e) => {
                 Table.Row {
                     Table.Cell { Markdown("`request(url, options)` ●") }
                     Table.Cell { Markdown("`net`") }
-                    Table.Cell { Markdown("A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `await fetch(…)` in an action compiles to `request`.") }
+                    Table.Cell { Markdown("A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `http.get(…)` and the other verbs compile to `httpCall`, which wraps it in a result.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`optimistic(holder, change)`") }

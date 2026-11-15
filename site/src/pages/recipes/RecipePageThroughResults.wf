@@ -1,10 +1,13 @@
 // A recipe, written from md-docs/recipes/page-through-results.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipePageThroughResults(path: "/recipes/page-through-results", title: "Page through results — Recipes", description: "Show a long list one page at a time: keep the page number in state, splice it into the request's address, and step it with buttons.") {
-    RecipeShell("Page through results", summary: "A list of thousands of rows is too long to ask for at once. To show it a page at a time with **Previous** and **Next** buttons, keep the page number in state and splice it into the address:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates"), RelatedLink(kind: "Recipe", title: "Show what the network is doing", to: "/recipes/show-the-network")], source: "md-docs/recipes/page-through-results.md", how: true, hasVariations: false, project: { "src/pages/PageThroughResults.wf": #"page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
+    RecipeShell("Page through results", summary: "A list of thousands of rows is too long to ask for at once. To show it a page at a time with **Previous** and **Next** buttons, keep the page number in state and splice it into the address:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates"), RelatedLink(kind: "Recipe", title: "Show what the network is doing", to: "/recipes/show-the-network")], source: "md-docs/recipes/page-through-results.md", how: true, hasVariations: false, project: { "src/pages/PageThroughResults.wf": #"type Row { id: String, name: String }
+type RowPage { items: [Row], pages: Number }
+
+page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1
     state perPage = 20
-    resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    resource rows: RowPage = http.get("/api/rows?page={page}&per={perPage}")
     Heading("Rows").h1
     match rows {
         loading { Spinner }
@@ -25,10 +28,13 @@ page RecipePageThroughResults(path: "/recipes/page-through-results", title: "Pag
 "# }) {
         code {
             Markdown("**Needs:** a server that answers `/api/rows?page=…&per=…` with a list of rows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
+            CodeBlock(#"type Row { id: String, name: String }
+type RowPage { items: [Row], pages: Number }
+
+page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1
     state perPage = 20
-    resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    resource rows: RowPage = http.get("/api/rows?page={page}&per={perPage}")
     Heading("Rows").h1
     match rows {
         loading { Spinner }

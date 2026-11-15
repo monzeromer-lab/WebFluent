@@ -67,7 +67,7 @@ page A(path: "/", title: "A", description: "A page.") {
     state rows: [Item] = [Item(id: "1", name: "x"), Item(id: "2", name: "y")]
     every(100) { tick = tick + 1 }
     on key("Escape") { open = false }
-    resource items: [Item] = fetch("/api/items.json", on: .interval(60.seconds))
+    resource items: [Item] = http.get("/api/items.json", on: .interval(60.seconds))
     Heading("Page A").h1
     Text("tick {tick} n {Counter.n} w {viewport.width} {now(every: 1.seconds)}")
     Button("Toggle", ref: trigger) { on click { open = !open } }

@@ -111,11 +111,7 @@ impl JsCodegen {
                     // `await` only where the function is async: an action
                     // that awaits nothing is a plain function, and `await`
                     // in one is a SyntaxError that stopped the whole page.
-                    self.emit_line(if is_async {
-                        "return await WF.attempt(async () => {"
-                    } else {
-                        "return WF.attempt(async () => {"
-                    });
+                    self.emit_line(self.attempt_opener(is_async));
                     self.indent += 1;
                 }
                 // The parameters are the function's own locals. They were read

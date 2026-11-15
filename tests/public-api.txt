@@ -2331,6 +2331,25 @@ impl core::marker::Unpin for webfluent::syntax::parser::Pattern
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pattern
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pattern
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pattern
+pub enum webfluent::syntax::parser::ast::RequestSource
+pub webfluent::syntax::parser::ast::RequestSource::Endpoint
+pub webfluent::syntax::parser::ast::RequestSource::Fetch
+pub webfluent::syntax::parser::ast::RequestSource::Http(alloc::string::String)
+impl core::clone::Clone for webfluent::syntax::parser::RequestSource
+pub fn webfluent::syntax::parser::RequestSource::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::RequestSource
+impl core::cmp::PartialEq for webfluent::syntax::parser::RequestSource
+pub fn webfluent::syntax::parser::RequestSource::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::parser::RequestSource
+pub fn webfluent::syntax::parser::RequestSource::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::RequestSource
+impl core::marker::Freeze for webfluent::syntax::parser::RequestSource
+impl core::marker::Send for webfluent::syntax::parser::RequestSource
+impl core::marker::Sync for webfluent::syntax::parser::RequestSource
+impl core::marker::Unpin for webfluent::syntax::parser::RequestSource
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::RequestSource
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::RequestSource
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::RequestSource
 #[non_exhaustive] pub enum webfluent::syntax::parser::ast::StatementKind
 pub webfluent::syntax::parser::ast::StatementKind::Action(webfluent::syntax::parser::ActionDecl)
 pub webfluent::syntax::parser::ast::StatementKind::Animate(webfluent::syntax::parser::AnimateStmt)
@@ -3153,6 +3172,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::PseudoB
 pub struct webfluent::syntax::parser::ast::ResourceDecl
 pub webfluent::syntax::parser::ast::ResourceDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::ResourceDecl::options: alloc::vec::Vec<webfluent::syntax::parser::FetchOption>
+pub webfluent::syntax::parser::ast::ResourceDecl::source: webfluent::syntax::parser::RequestSource
 pub webfluent::syntax::parser::ast::ResourceDecl::ty: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ast::ResourceDecl::url: webfluent::syntax::parser::Expr
 impl core::clone::Clone for webfluent::syntax::parser::ResourceDecl
@@ -3547,6 +3567,7 @@ impl core::marker::Unpin for webfluent::syntax::parser::ValidateDecl
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ValidateDecl
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ValidateDecl
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ValidateDecl
+pub const webfluent::syntax::parser::ast::HTTP_VERBS: &[&str]
 pub fn webfluent::syntax::parser::ast::awaits(&[webfluent::syntax::parser::Statement]) -> bool
 pub fn webfluent::syntax::parser::ast::lambda_names(&str) -> alloc::vec::Vec<&str>
 pub fn webfluent::syntax::parser::ast::lambda_params(&str) -> alloc::vec::Vec<(&str, core::option::Option<&str>)>
@@ -3764,6 +3785,25 @@ impl core::marker::Unpin for webfluent::syntax::parser::Pattern
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pattern
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pattern
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pattern
+pub enum webfluent::syntax::parser::RequestSource
+pub webfluent::syntax::parser::RequestSource::Endpoint
+pub webfluent::syntax::parser::RequestSource::Fetch
+pub webfluent::syntax::parser::RequestSource::Http(alloc::string::String)
+impl core::clone::Clone for webfluent::syntax::parser::RequestSource
+pub fn webfluent::syntax::parser::RequestSource::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::RequestSource
+impl core::cmp::PartialEq for webfluent::syntax::parser::RequestSource
+pub fn webfluent::syntax::parser::RequestSource::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::parser::RequestSource
+pub fn webfluent::syntax::parser::RequestSource::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::RequestSource
+impl core::marker::Freeze for webfluent::syntax::parser::RequestSource
+impl core::marker::Send for webfluent::syntax::parser::RequestSource
+impl core::marker::Sync for webfluent::syntax::parser::RequestSource
+impl core::marker::Unpin for webfluent::syntax::parser::RequestSource
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::RequestSource
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::RequestSource
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::RequestSource
 #[non_exhaustive] pub enum webfluent::syntax::parser::StatementKind
 pub webfluent::syntax::parser::StatementKind::Action(webfluent::syntax::parser::ActionDecl)
 pub webfluent::syntax::parser::StatementKind::Animate(webfluent::syntax::parser::AnimateStmt)
@@ -4586,6 +4626,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::PseudoB
 pub struct webfluent::syntax::parser::ResourceDecl
 pub webfluent::syntax::parser::ResourceDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ResourceDecl::options: alloc::vec::Vec<webfluent::syntax::parser::FetchOption>
+pub webfluent::syntax::parser::ResourceDecl::source: webfluent::syntax::parser::RequestSource
 pub webfluent::syntax::parser::ResourceDecl::ty: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ResourceDecl::url: webfluent::syntax::parser::Expr
 impl core::clone::Clone for webfluent::syntax::parser::ResourceDecl
@@ -4980,6 +5021,7 @@ impl core::marker::Unpin for webfluent::syntax::parser::ValidateDecl
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ValidateDecl
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ValidateDecl
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ValidateDecl
+pub const webfluent::syntax::parser::HTTP_VERBS: &[&str]
 pub const webfluent::syntax::parser::MAX_NESTING: usize
 pub const webfluent::syntax::parser::NESTING_MESSAGE: &str
 pub fn webfluent::syntax::parser::awaits(&[webfluent::syntax::parser::Statement]) -> bool

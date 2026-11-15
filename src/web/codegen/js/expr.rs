@@ -502,6 +502,23 @@ impl JsCodegen {
                     UnaryOp::Neg => format!("-{e}"),
                 }
             }
+            // `http.post(url, body: draft)`: a request of the built-in
+            // service, answered with a result.
+            (Expr::MethodCall(obj, verb, args), _)
+                if crate::syntax::parser::ast::HTTP_VERBS.contains(&verb.as_str())
+                    && matches!(obj.as_ref(), Expr::Identifier(n) if n == "http")
+                    && !self.programs_own("http", cx) =>
+            {
+                let url = args
+                    .iter()
+                    .find(|a| !matches!(a, Expr::MapLiteral(_)))
+                    .map_or_else(|| "\"\"".to_string(), |a| self.emit_expr_in(a, cx));
+                let options = args
+                    .iter()
+                    .find(|a| matches!(a, Expr::MapLiteral(_)))
+                    .map_or_else(|| "{}".to_string(), |a| self.emit_expr_in(a, cx));
+                format!("WF.httpCall(\"{}\", {url}, {options})", verb.to_uppercase())
+            }
             // `Json.string("x")`: the value itself, which is the JSON.
             (Expr::MethodCall(obj, _, args), _)
                 if args.len() == 1 && self.is_json_name(obj, cx) =>

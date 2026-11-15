@@ -114,18 +114,21 @@ store Filters(scope: .route) { state search = "" }            // this route's"#,
 
         Markdown("A store's actions are its interface: pages change the store by calling them. An action may be asynchronous — it uses `await` — and an async action exposes `pending`, which is `true` while a call of it runs:")
 
-        CodeBlock(#"store Session {
-    state user: Map? = null
+        CodeBlock(#"type Account { name: String }
+type SignedIn { user: Account }
+type SignIn { email: String, password: String }
+
+store Session {
+    state user: Account? = null
     state error = ""
     derived loggedIn = user != null
 
     action login(email: String, password: String) {
         error = ""
-        try {
-            let r = await fetch("/api/login", { method: "POST", body: { email: email, password: password } })
-            user = r.user
-        } catch e {
-            error = "Could not sign in: {e.message}"
+        let answer: SignedIn! = await http.post("/api/login", body: SignIn(email: email, password: password))
+        match answer {
+            .ok(r) { user = r.user }
+            .err(e) { error = "Could not sign in: {e.message}" }
         }
     }
 
@@ -290,7 +293,7 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 
 store Deploys {
     state page = 1
-    resource rows: [Deploy] = fetch("/api/deploys?page={page}")
+    resource rows: [Deploy] = http.get("/api/deploys?page={page}")
     derived failing = (rows.data ?? []).filter(d => d.status == "failed").length
     action next() { page = page + 1 }
     action refresh() { rows.reload() }
@@ -310,13 +313,16 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
     Button("Next page") { on click { Deploys.next() } }
 }"#, title: "wf")
 
-        Markdown("A resource over a service's endpoint is owned the same way — `resource list = Catalog.items(page: page, paginate: .page)` — and its `loadMore()` moves the store's `page`. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.\n\nWhen an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a `fetch` instead, and call the action where the data is first wanted:")
+        Markdown("A resource over a service's endpoint is owned the same way — `resource list = Catalog.items(page: page, paginate: .page)` — and its `loadMore()` moves the store's `page`. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.\n\nWhen an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a request instead, and call the action where the data is first wanted:")
 
-        CodeBlock(#"store Feed {
-    state items: [Map] = []
-    action more() {
-        let r = await fetch("/api/feed?after={items.length}")
-        items = [...items, ...r.items]
+        CodeBlock(#"type Post { id: String, title: String }
+type Page { items: [Post] }
+
+store Feed {
+    state items: [Post] = []
+    action more() -> ! {
+        let next: Page = try await http.get("/api/feed?after={items.length}")
+        items = [...items, ...next.items]
     }
 }"#, title: "wf")
 

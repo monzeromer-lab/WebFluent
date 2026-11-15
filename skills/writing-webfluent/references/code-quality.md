@@ -267,7 +267,8 @@ know the query, so draw every item and hide the ones that don't match.
     holder.
 - **Return early on bad input**: `let text = title.trim()` then
   `if text == "" { return }`.
-- **`await` what fetches**, and wrap it in `try { } catch e { failure = e.message }`.
+- **`await` what fetches**, then `match` its result (`.ok(v)`, `.err(e)`) or
+  pass the failure up with `try` from an action that declares `-> T ! E`.
   An async action's result read without `await` is `T17`. `save.pending` is
   true while a call of `save` runs, so use it for a spinner or a disabled
   button instead of a hand-kept flag.
@@ -285,7 +286,12 @@ know the query, so draw every item and hide the ones that don't match.
   credentials, endpoints with types), or read it from an OpenAPI file with
   `api Backend from "openapi.json" (base: …)`.
   - Every call is then typed, cached, deduplicated and cancellable.
-  - Raw `fetch` in a page is for the odd one-off.
+  - An endpoint says how it fails: `-> [User]!`, or `-> User ! CreateUserError`
+    with an error enum naming each status (`N08` for a bare `-> T`).
+  - `http.get(url)` (and `post`, `put`, `patch`, `delete`) is for the odd
+    one-off, with its answer's type named: `resource rows: [Row] = http.get(url)`,
+    `let me: Me = try await http.get(url)`. `fetch` is gone (`N08`); `Map` and
+    `Any` in a contract are `N11`.
 - **A `resource` is matched with every arm**: `loading`, `error(e)` (`T21` if
   it's missing) and `ready(x)`.
 - **Inside `ready`:**

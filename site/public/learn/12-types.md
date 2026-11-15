@@ -535,7 +535,7 @@ The rules for operators and forms:
 - `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
   side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
 - `await e` on a `fetch` is `Any` unless you annotate it:
-  `let r: [Row] = await fetch(…)`.
+  `let r: [Row] = try await http.get(…)`.
 - `let { a, b } = m` and `let [x, y] = l` bind the fields and the items.
 
 ## Narrowing optionals
@@ -592,7 +592,7 @@ return. Annotate the resource or the local variable to type its value:
 type Deploy { id: String, status: String, startedAt: String }
 
 page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
-    resource deploys: [Deploy] = fetch("/api/deploys")
+    resource deploys: [Deploy] = http.get("/api/deploys")
     Heading("Deploys").h1
     match deploys {
         loading { Spinner }
@@ -683,7 +683,7 @@ diagnostic on the argument it belongs to. To set up the editor, see
 | `.case` · `.case(v)` | Write a case |
 | `Number(1..=30)` · `String(minLength: 8)` | A type with a condition |
 | `if let x = v { … }` · `v ?? d` · `v?.f` | Narrow or read through `null` |
-| `resource r: [T] = fetch(…)` | Type data from the network |
+| `resource r: [T] = http.get(…)` | Type data from the network |
 
 ## Common mistakes
 

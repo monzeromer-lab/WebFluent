@@ -128,9 +128,13 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
     state sent = false
 
     action send() {
-        let r = await fetch("/api/contact", { method: "POST", body: { name: name, email: email, message: message } })
-        sent = true
-        form.reset()
+        match await http.post("/api/contact", body: { name: name, email: email, message: message }) {
+            .ok {
+                sent = true
+                form.reset()
+            }
+            .err(e) { log(e.message) }
+        }
     }
 
     Heading("Contact us").h1
@@ -286,7 +290,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
         Markdown("How the rules behave:\n\n- **Messages.** Each rule takes an optional message after it: a string, or `t(\"key\")`, which is read in the reader's language. Without one, the rule uses its own message. A project with translations replaces those by naming the keys `form.required`, `form.email`, `form.minLength` and so on ([Translate a site](/recipes/translate-a-site), [Show validation messages](/recipes/validation-messages)).\n- **Arguments that read state.** An argument such as `max(Ledger.today)` is read again each time the rule is checked.\n- **Types.** A rule is checked against the type of what it guards: `minLength` on a `Number` is `T01`.\n- **Empty values.** Every rule but `required` passes an empty value, so a blank optional field shows one message rather than two.\n- **Async rules.** An `async` rule is asked only once the other rules pass, and once per value. A server is not asked about every keystroke of an address that is not valid yet. While it waits, `form.pending` is `true`.\n\nThis rule asks the server whether an address is free. The rule passes when the check's answer is `true`, so ask the question whose answer you want to be yes:")
 
         CodeBlock(#"api Backend(base: "/api") {
-    get emailFree(email: String) -> Bool
+    get emailFree(email: String) -> Bool!
 }
 
 page Register(path: "/register", title: "Register", description: "Check an address is free.") {
@@ -295,7 +299,9 @@ page Register(path: "/register", title: "Register", description: "Check an addre
     validate email {
         required
         email
-        async "That address is taken" { await Backend.emailFree(email: email) }
+        async "That address is taken" {
+            match await Backend.emailFree(email: email) { .ok(free) { free } else { false } }
+        }
     }
 
     Heading("Register").h1
@@ -360,16 +366,20 @@ validate nights { required }"#, title: "wf")
 
         Markdown("When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to `form.apply`:")
 
-        CodeBlock(#"api Backend(base: "/api") {
-    post signUp(body: Map) -> Map
-        errors { 422 -> Map }
+        CodeBlock(#"enum SignUpError {
+    unprocessableContent(problem: FieldErrors) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post signUp(body: SignUp) -> ! SignUpError
 }
 
 action join() {
-    try {
-        await Backend.signUp(body: { email: email, password: password })
-    } catch e {
-        form.apply(e.body.errors)     // { email: "That address is taken" }
+    match await Backend.signUp(body: SignUp(email: email, password: password)) {
+        .ok { joined = true }
+        .err(.unprocessableContent(p)) { form.apply(p.errors) }   // { email: "That address is taken" }
+        .err(.http(e)) { log(e.message) }
     }
 }"#, title: "wf")
 
@@ -380,7 +390,7 @@ action join() {
         Markdown("To let the reader pick a file, place a `FileUpload`. The files arrive in its `change` event. Each is a `File`, with:\n\n- `.name`, `.size` (in bytes) and `.type`;\n- `.preview()`, an object URL that shows an image before it is uploaded. It is revoked when the page leaves.\n\nThis page shows the picture the reader picks, then uploads it with a progress bar:")
 
         CodeBlock(#"api Backend(base: "/api") {
-    post avatar(id: String, file: File) at "users/:id/avatar"
+    post avatar(id: String, file: File) at "users/:id/avatar" -> !
 }
 
 page Avatar(path: "/avatar", title: "Your picture", description: "Change your picture.") {
@@ -415,9 +425,17 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 
         Markdown("To send a form, describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form.")
 
-        CodeBlock(#"api Backend(base: "/api") {
-    post signUp(body: Map) -> Map
-        errors { 422 -> Map }
+        CodeBlock(#"type SignUp { email: String, password: String }
+type FieldErrors = Problem { errors: [String: String] }
+
+/// Why an account can be refused.
+enum SignUpError {
+    unprocessableContent(problem: FieldErrors) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post signUp(body: SignUp) -> ! SignUpError
 }
 
 page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
@@ -429,11 +447,10 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     validate password { required  minLength(8) }
 
     action join() {
-        try {
-            await Backend.signUp(body: { email: email, password: password })
-            joined = true
-        } catch e {
-            form.apply(e.body.errors)
+        match await Backend.signUp(body: SignUp(email: email, password: password)) {
+            .ok { joined = true }
+            .err(.unprocessableContent(p)) { form.apply(p.errors) }
+            .err(.http(e)) { log(e.message) }
         }
     }
 
@@ -447,7 +464,7 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     }
 }"#, title: "wf")
 
-        Markdown("`errors \{ 422 -> Map \}` types the body of a `422` response, so `e.body.errors` is what the server sent. If the server answers `\{ \"errors\": \{ \"email\": \"That address is taken\" \} \}`, the message appears under **Email**.\n\n[Data and APIs](/learn/15-data) covers the service in full: retries, timeouts and typed errors.")
+        Markdown("`unprocessableContent(problem: FieldErrors) on 422` is the case a `422` answer arrives in, its body typed `FieldErrors`, so `p.errors` is what the server sent. If the server answers `\{ \"errors\": \{ \"email\": \"That address is taken\" \} \}`, the message appears under **Email**.\n\n[Data and APIs](/learn/15-data) covers the service in full: retries, timeouts and typed errors.")
 
         Heading("Show that a request is running", id: "show-that-a-request-is-running").h2
 
@@ -455,8 +472,8 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 
         CodeBlock(#"store Api {
     state saved = 0
-    action save(payload: Map) {
-        let r = await fetch("/api/save", { method: "POST", body: payload })
+    action save(payload: Json) -> ! {
+        try await http.post("/api/save", body: payload)
         saved = saved + 1
     }
 }

@@ -25,6 +25,28 @@
     return e;
   }
 
+  /// A request's failure as an `HttpError`: `.offline`, `.timeout(after)`,
+  /// `.cancelled`, `.transport(message)`, `.decode(at, message)` or
+  /// `.status(code, problem)`, each with `.message` for showing.
+  function httpError(error) {
+    const kind = error && error.kind;
+    const message = (error && error.message) || String(error);
+    let parts;
+    if (kind === "offline") parts = ["offline"];
+    else if (kind === "timeout") parts = ["timeout", error.after != null ? error.after : null];
+    else if (kind === "aborted") parts = ["cancelled"];
+    else if (kind === "parse") parts = ["decode", error.at || "$", error.detail || message];
+    else if (kind === "status") {
+      // A problem is the body when the server says it is one (RFC 9457).
+      const type = String((error.headers && error.headers["content-type"]) || "");
+      const problem = /problem\+json/i.test(type) && error.body && typeof error.body === "object" ? error.body : null;
+      parts = ["status", error.status, problem];
+    } else parts = ["transport", message];
+    Object.defineProperty(parts, "message", { value: message, enumerable: false });
+    Object.defineProperty(parts, "httpError", { value: true, enumerable: false });
+    return parts;
+  }
+
   /// A response's headers as a plain map, lower-cased, so `r.headers.link`
   /// reads whatever the server sent however it capitalised it.
   function headerMap(headers) {

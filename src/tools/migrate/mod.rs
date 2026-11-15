@@ -795,31 +795,59 @@ impl<'a> Rewriter<'a> {
     }
 
     /// `fetch x from url (opts) { loading { } error(e) { } success { } }`
-    /// → `resource x = fetch(url, opts)` and `match x { … ready(x) { } }`.
+    /// → `resource x = http.get(url, opts)` and `match x { … ready(x) { } }`,
+    /// the verb taken from a `method:` among the options. What `x` holds is
+    /// the author's to name, so a note asks for it.
     fn spell_fetch(&mut self, span: Span, f: &FetchDecl, imperative: bool) {
         if imperative {
             self.note(
                 span,
                 format!(
-                    "a `fetch` inside an action or handler has no mechanical rewrite; write `let {} = await fetch(…)` and move the blocks' statements after it",
+                    "a `fetch` inside an action or handler has no mechanical rewrite; write `let {}: T = try await http.get(…)` and move the blocks' statements after it",
                     f.variable
                 ),
             );
             return;
         }
         let url = self.slice(f.url_span);
+        let mut verb = "get".to_string();
         let opts = match f.options_span {
             Some(span) => {
                 let inner = self.slice(span);
                 let inner = inner.trim_start_matches('(').trim_end_matches(')').trim();
-                if inner.is_empty() {
+                // `method: "POST"` is the verb, not an option.
+                let kept: Vec<&str> = inner
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|part| {
+                        let Some(value) = part.strip_prefix("method:") else {
+                            return true;
+                        };
+                        let value = value.trim().trim_matches('"').to_lowercase();
+                        if crate::syntax::parser::ast::HTTP_VERBS.contains(&value.as_str()) {
+                            verb = value;
+                            false
+                        } else {
+                            true
+                        }
+                    })
+                    .filter(|part| !part.is_empty())
+                    .collect();
+                if kept.is_empty() {
                     String::new()
                 } else {
-                    format!(", {inner}")
+                    format!(", {}", kept.join(", "))
                 }
             }
             None => String::new(),
         };
+        self.note(
+            span,
+            format!(
+                "`{name}` reads a service: name what it holds, `resource {name}: [Row] = http.{verb}(…)` (`N11` until it does)",
+                name = f.variable
+            ),
+        );
         // The head runs from the statement's start to the `{` of the block.
         let head_end = f.options_span.map_or(f.url_span.end, |s| s.end) as usize;
         let brace = self.source[head_end..]
@@ -830,7 +858,7 @@ impl<'a> Rewriter<'a> {
             span.start as usize,
             brace,
             format!(
-                "resource {name} = fetch({url}{opts})\n{indent}match {name} ",
+                "resource {name} = http.{verb}({url}{opts})\n{indent}match {name} ",
                 name = f.variable
             ),
         );

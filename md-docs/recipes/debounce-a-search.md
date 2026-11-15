@@ -17,10 +17,12 @@ It claims `/`: paste it into a new project, or replace the starter's
 `src/pages/Home.wf` with it.
 
 ```wf
+type Hit { id: String, title: String }
+
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""
     state q = ""
-    resource hits = fetch("/api/search?q={q}")
+    resource hits: [Hit] = http.get("/api/search?q={q}")
     Heading("Search").h1
     Input(bind: typed, placeholder: "Search", aria-label: "Search") {
         on input(debounce: 300.ms) { q = typed }

@@ -189,9 +189,13 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
     state sent = false
 
     action send() {
-        let r = await fetch("/api/contact", { method: "POST", body: { name: name, email: email, message: message } })
-        sent = true
-        form.reset()
+        match await http.post("/api/contact", body: { name: name, email: email, message: message }) {
+            .ok {
+                sent = true
+                form.reset()
+            }
+            .err(e) { log(e.message) }
+        }
     }
 
     Heading("Contact us").h1
@@ -319,7 +323,7 @@ This rule asks the server whether an address is free. The rule passes when the c
 
 ```wf
 api Backend(base: "/api") {
-    get emailFree(email: String) -> Bool
+    get emailFree(email: String) -> Bool!
 }
 
 page Register(path: "/register", title: "Register", description: "Check an address is free.") {
@@ -328,7 +332,9 @@ page Register(path: "/register", title: "Register", description: "Check an addre
     validate email {
         required
         email
-        async "That address is taken" { await Backend.emailFree(email: email) }
+        async "That address is taken" {
+            match await Backend.emailFree(email: email) { .ok(free) { free } else { false } }
+        }
     }
 
     Heading("Register").h1
@@ -408,16 +414,20 @@ When the server rejects a value — an address already taken, a code that
 expired — pass its messages, by field name, to `form.apply`:
 
 ```wf
+enum SignUpError {
+    unprocessableContent(problem: FieldErrors) on 422
+    http(error: HttpError)
+}
+
 api Backend(base: "/api") {
-    post signUp(body: Map) -> Map
-        errors { 422 -> Map }
+    post signUp(body: SignUp) -> ! SignUpError
 }
 
 action join() {
-    try {
-        await Backend.signUp(body: { email: email, password: password })
-    } catch e {
-        form.apply(e.body.errors)     // { email: "That address is taken" }
+    match await Backend.signUp(body: SignUp(email: email, password: password)) {
+        .ok { joined = true }
+        .err(.unprocessableContent(p)) { form.apply(p.errors) }   // { email: "That address is taken" }
+        .err(.http(e)) { log(e.message) }
     }
 }
 ```
@@ -441,7 +451,7 @@ progress bar:
 
 ```wf
 api Backend(base: "/api") {
-    post avatar(id: String, file: File) at "users/:id/avatar"
+    post avatar(id: String, file: File) at "users/:id/avatar" -> !
 }
 
 page Avatar(path: "/avatar", title: "Your picture", description: "Change your picture.") {
@@ -484,9 +494,17 @@ To send a form, describe the service once with `api`, call it from the
 submit handler, and hand what a `422` said back to the form.
 
 ```wf
+type SignUp { email: String, password: String }
+type FieldErrors = Problem { errors: [String: String] }
+
+/// Why an account can be refused.
+enum SignUpError {
+    unprocessableContent(problem: FieldErrors) on 422
+    http(error: HttpError)
+}
+
 api Backend(base: "/api") {
-    post signUp(body: Map) -> Map
-        errors { 422 -> Map }
+    post signUp(body: SignUp) -> ! SignUpError
 }
 
 page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
@@ -498,11 +516,10 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     validate password { required  minLength(8) }
 
     action join() {
-        try {
-            await Backend.signUp(body: { email: email, password: password })
-            joined = true
-        } catch e {
-            form.apply(e.body.errors)
+        match await Backend.signUp(body: SignUp(email: email, password: password)) {
+            .ok { joined = true }
+            .err(.unprocessableContent(p)) { form.apply(p.errors) }
+            .err(.http(e)) { log(e.message) }
         }
     }
 
@@ -517,10 +534,10 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 }
 ```
 
-`errors { 422 -> Map }` types the body of a `422` response, so
-`e.body.errors` is what the server sent. If the server answers
-`{ "errors": { "email": "That address is taken" } }`, the message appears
-under **Email**.
+`unprocessableContent(problem: FieldErrors) on 422` is the case a `422`
+answer arrives in, its body typed `FieldErrors`, so `p.errors` is what the
+server sent. If the server answers `{ "errors": { "email": "That address is
+taken" } }`, the message appears under **Email**.
 
 [Data and APIs](15-data.md) covers the service in full: retries, timeouts
 and typed errors.
@@ -534,8 +551,8 @@ On a store's action, read it as `Store.action.pending`:
 ```wf
 store Api {
     state saved = 0
-    action save(payload: Map) {
-        let r = await fetch("/api/save", { method: "POST", body: payload })
+    action save(payload: Json) -> ! {
+        try await http.post("/api/save", body: payload)
         saved = saved + 1
     }
 }

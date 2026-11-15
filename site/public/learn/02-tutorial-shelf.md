@@ -409,7 +409,7 @@ file of its own,
 ```wf
 // … in src/api.wf, beside the pages
 api Suggestions(base: env.PUBLIC_API ?? "/api") {
-    post suggest(body: Map)
+    post suggest(body: Json) -> !
 }
 ```
 

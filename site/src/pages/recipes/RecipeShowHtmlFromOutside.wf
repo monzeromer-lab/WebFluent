@@ -4,7 +4,7 @@ page RecipeShowHtmlFromOutside(path: "/recipes/show-html-from-outside", title: "
     RecipeShell("Show HTML from outside the project", summary: "Every string an element shows goes in as text, so `\"<p>\"` in your data is shown as `<p>`. Sometimes the content really is HTML: a CMS body, the output of a Markdown renderer of your own, an email. This page fetches a post and shows its HTML body as markup:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown")], source: "md-docs/recipes/show-html-from-outside.md", how: true, hasVariations: true, project: { "src/pages/ShowHtmlFromOutside.wf": #"type Post { title: String, body: String }
 
 api Backend(base: "/api") {
-    get post(slug: String) at "posts/:slug" -> Post
+    get post(slug: String) at "posts/:slug" -> Post!
 }
 
 page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
@@ -25,7 +25,7 @@ page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: S
             CodeBlock(#"type Post { title: String, body: String }
 
 api Backend(base: "/api") {
-    get post(slug: String) at "posts/:slug" -> Post
+    get post(slug: String) at "posts/:slug" -> Post!
 }
 
 page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {

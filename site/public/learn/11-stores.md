@@ -165,18 +165,21 @@ them. An action may be asynchronous — it uses `await` — and an async action
 exposes `pending`, which is `true` while a call of it runs:
 
 ```wf
+type Account { name: String }
+type SignedIn { user: Account }
+type SignIn { email: String, password: String }
+
 store Session {
-    state user: Map? = null
+    state user: Account? = null
     state error = ""
     derived loggedIn = user != null
 
     action login(email: String, password: String) {
         error = ""
-        try {
-            let r = await fetch("/api/login", { method: "POST", body: { email: email, password: password } })
-            user = r.user
-        } catch e {
-            error = "Could not sign in: {e.message}"
+        let answer: SignedIn! = await http.post("/api/login", body: SignIn(email: email, password: password))
+        match answer {
+            .ok(r) { user = r.user }
+            .err(e) { error = "Could not sign in: {e.message}" }
         }
     }
 
@@ -412,7 +415,7 @@ type Deploy { id: String, status: String }
 
 store Deploys {
     state page = 1
-    resource rows: [Deploy] = fetch("/api/deploys?page={page}")
+    resource rows: [Deploy] = http.get("/api/deploys?page={page}")
     derived failing = (rows.data ?? []).filter(d => d.status == "failed").length
     action next() { page = page + 1 }
     action refresh() { rows.reload() }
@@ -440,14 +443,17 @@ replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
 
 When an action decides what is kept — a reply merged into rows already
 held, a list built from several calls — fill the store's state from a
-`fetch` instead, and call the action where the data is first wanted:
+request instead, and call the action where the data is first wanted:
 
 ```wf
+type Post { id: String, title: String }
+type Page { items: [Post] }
+
 store Feed {
-    state items: [Map] = []
-    action more() {
-        let r = await fetch("/api/feed?after={items.length}")
-        items = [...items, ...r.items]
+    state items: [Post] = []
+    action more() -> ! {
+        let next: Page = try await http.get("/api/feed?after={items.length}")
+        items = [...items, ...next.items]
     }
 }
 ```

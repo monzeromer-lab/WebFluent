@@ -55,7 +55,7 @@ component Counter(start: Number = 0) {
         CheatRow("A route", theirs: "<Route path=\"/users/:id\" element=\{<User />\} />", ours: "page User(path: \"/users/:id\", id: String) \{ … \}", language: "jsx")
         CheatRow("Showing something conditionally", theirs: "\{open && <Panel />\}", ours: "if open \{ Panel \}", language: "jsx")
         CheatRow("A list", theirs: "\{items.map((i) => <li key=\{i.id\}>\{i.name\}</li>)\}", ours: "for i in items by i.id \{ Text(i.name) \}", language: "jsx")
-        CheatRow("Fetching", theirs: "TanStack Query's useQuery(\{ queryKey: [\"users\"], queryFn \}), or useEffect + fetch", ours: "resource users = fetch(\"/api/users\"), read with match users \{ … \}", language: "jsx")
+        CheatRow("Fetching", theirs: "TanStack Query's useQuery(\{ queryKey: [\"users\"], queryFn \}), or useEffect + fetch", ours: "resource users: [User] = http.get(\"/api/users\"), read with match users \{ … \}", language: "jsx")
         CheatRow("Styling", theirs: "className, CSS modules, Tailwind", ours: "flags (Button(\"Save\").primary), style \{ \} on the element, design tokens", language: "jsx")
         CheatRow("A test", theirs: "Testing Library: render, fireEvent.click, getByText", ours: "test \"…\" \{ click \"Save\"  expect \"Saved\" \}", language: "jsx")
     }

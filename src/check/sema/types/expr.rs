@@ -33,6 +33,17 @@ impl Checker<'_, '_> {
     }
 
     pub(super) fn infer_nested(&mut self, expr: &Expr, expected: Option<&Type>) -> Type {
+        // `http.post(url, body: draft)`: the built-in service.
+        if let Expr::MethodCall(obj, verb, args) = expr
+            && let Expr::Identifier(name) = &**obj
+            && name == "http"
+            && crate::syntax::parser::ast::HTTP_VERBS.contains(&verb.as_str())
+            && self.lookup(name).is_none()
+            && !self.world.consts.contains_key(name.as_str())
+            && !self.world.scripts.contains_key(name.as_str())
+        {
+            return self.http_call(verb, args, expected);
+        }
         // `Json.null`: a case of the language's JSON, by its name.
         if let Expr::PropertyAccess(base, case) = expr
             && let Expr::Identifier(name) = &**base
@@ -679,7 +690,7 @@ impl Checker<'_, '_> {
                 self.pop_scope();
                 Type::Func(param_types, Box::new(ret))
             }
-            Expr::Try(e) => self.try_expr(e),
+            Expr::Try(e) => self.try_expr(e, expected),
             Expr::Await(e) => {
                 if !self.async_ok {
                     let (message, hint) = if self.in_derived {
@@ -695,7 +706,9 @@ impl Checker<'_, '_> {
                     };
                     self.error_at_current("T17", message.to_string(), hint);
                 }
-                let ty = self.infer(e, None);
+                // What the awaited value goes to is what the promise holds.
+                let wanted = expected.map(|t| Type::Promise(Box::new(t.clone())));
+                let ty = self.infer(e, wanted.as_ref());
                 match ty {
                     Type::Resource(inner, _) | Type::Promise(inner) => *inner,
                     other => other,

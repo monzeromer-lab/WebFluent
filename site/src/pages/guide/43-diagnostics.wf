@@ -183,7 +183,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
 
         Heading("Requests", id: "requests").h3
 
-        Markdown("- [N03](/errors/N03) — A `try` with nowhere to pass its error\n- [N12](/errors/N12) — An error enum that is not shaped as one")
+        Markdown("- [N03](/errors/N03) — A `try` with nowhere to pass its error\n- [N08](/errors/N08) — A form 7.0 removed\n- [N11](/errors/N11) — `Any` or `Map` where a service meets the program\n- [N12](/errors/N12) — An error enum that is not shaped as one")
 
         Heading("Translations", id: "translations").h3
 

@@ -71,7 +71,7 @@ fn a_program_carries_what_it_reaches_for() {
            page Home(path: "/", title: "H", description: "A page.") {
                use S
                state q = ""
-               resource rows = fetch("/api/rows")
+               resource rows: Json = http.get("/api/rows")
                Form { on submit { S.bump() }  Input(bind: q, label: "Query").search }
                Icon("search")
                match rows { loading { Spinner } error(e) { Alert("{e.message}").danger } ready(r) { Text("{r.length}") } }

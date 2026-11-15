@@ -31,7 +31,7 @@ WebFluent مُصرِّف (compiler) بترميز ذي أنواع، وليس مك
 | مسار | `<Route path="/users/:id" element={<User />} />` | `page User(path: "/users/:id", id: String) { … }` |
 | إظهار شيء بشرط | `{open && <Panel />}` | `if open { Panel }` |
 | قائمة | `{items.map((i) => <li key={i.id}>{i.name}</li>)}` | `for i in items by i.id { Text(i.name) }` |
-| الجلب | `useQuery({ queryKey: ["users"], queryFn })` | `resource users = fetch("/api/users")`، تُقرأ بـ`match users { … }` |
+| الجلب | `useQuery({ queryKey: ["users"], queryFn })` | `resource users: [User] = http.get("/api/users")`، تُقرأ بـ`match users { … }` |
 | التنسيق | `className`, CSS modules, Tailwind | أعلام (`Button("Save").primary`)، و`style { }` على العنصر، ورموز التصميم |
 | اختبار | Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 

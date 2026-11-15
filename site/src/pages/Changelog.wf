@@ -105,12 +105,9 @@ every `File` looked the same."#),
                     Change(text: #"A store's `await fetch("/x/{id}")` encodes `id` as a page's does."#)
                 ]),
                 NotesSection(title: #"What the checker now says"#, id: "7.0.0-what-the-checker-now-says", items: [
-                    Change(text: #"`match e { .status(code, body) { … } }` on a request's error binds the
+                    Change(text: #"`match e { .status(code, body) { … } }` on a resource's error binds the
 status and the body. It was `T13`, nothing declares `code`."#),
-                    Change(text: #"`errors { 422 -> T }` types that body, and `e.body`; under `wf serve` the
-body that arrives is held to `T`, as a success is held to `-> T`."#),
-                    Change(text: #"An endpoint call is a promise of what it returns until it is awaited
-(`T17`), and one that declares no `->` returns `Any` rather than nothing."#),
+                    Change(text: #"An endpoint call is a promise of its result until it is awaited (`T17`)."#),
                     Change(text: #"A parameter with no default that may not be null must be given (`C01`)."#),
                     Change(text: #"`resource u: [User] = Backend.user(…)` is `T01` when the endpoint
 returns `User`."#),
@@ -162,7 +159,51 @@ or `return .err(e)`; `-> ! E` and `-> !` return nothing and may fail. Its
 `.err(.http(.status(503, _)))` — in a `match`, which now runs inside an
 action or a handler too, and in `if let .err(e) = outcome`."#),
                     Change(text: #"An action that returns a value says what with `-> T` (`T26`, an error;
-`wf fix --code T26` writes the type)."#)
+`wf fix --code T26` writes the type)."#),
+                    Change(text: #"Under `wf serve`, the body of each status an error enum names is held to
+the type its case carries, as a success is held to `-> T`."#),
+                    Change(text: #"An action that shows a change with `optimistic(…)` and declares `-> !`
+takes the change back when a `try` in it passes a failure up, and is
+`.ok` when nothing did."#)
+                ]),
+                NotesSection(title: #"Asking with `http`"#, id: "7.0.0-asking-with-http", intro: #"`http` is the built-in service for a request no `api` describes:
+`http.get(url)`, `http.post(url, body: value)`, `http.put`, `http.patch`
+and `http.delete`, through the same engine an `api` uses. Each is a promise
+of a result, `T!`, its error an `HttpError`, and `T` is named where the
+answer goes:
+
+```wf
+type Row { id: String }
+type Me { name: String }
+
+store Account {
+    state page = 1
+    state name = ""
+    resource rows: [Row] = http.get("/api/rows?page={page}")
+    action load() -> ! {
+        let me: Me = try await http.get("/api/me")
+        name = me.name
+    }
+}
+```
+
+`as: .text` answers with a `String`; `headers:`, `timeout:`, `retry:`,
+`cache:` and `credentials:` are the request's own."#),
+                NotesSection(title: #"What 7.0 refuses"#, id: "7.0.0-what-7-0-refuses", intro: #"Every one has a fix, and `wf fix` applies those that are mechanical."#, items: [
+                    Change(text: #"`fetch(…)` is `N08`. It threw on a failure the page rarely caught, and
+its answer was `Any`. A resource or a call with no `method:` is rewritten
+to `http.get(…)`; a write becomes `http.post(…)` (or `put`, …) by hand.
+`window.fetch` is still the browser's own."#),
+                    Change(text: #"An endpoint that does not say how it fails, `-> T`, is `N08`: it is now
+`-> T!`, which the fix writes. An `errors { 422 -> T }` block is `N08`
+too: name the status in an error enum, `unprocessableContent(problem: T)
+on 422`, and write `-> T ! ThatError`."#),
+                    Change(text: #"`Any` and `Map` where a service meets the program — an endpoint's
+parameter or answer, a resource's annotation — and an `http.get` whose
+answer has no type are `N11`. Declare a `type`, or name `Json` for JSON
+whose shape is open; the fix writes `Json`."#),
+                    Change(text: #"An endpoint read from an OpenAPI file answers with a result, `T!`, and a
+failure's body arrives in the `HttpError`'s `.status(code, problem)`."#)
                 ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
@@ -177,7 +218,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 29), latest: true)
+            ], count: 34), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -3963,6 +4004,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

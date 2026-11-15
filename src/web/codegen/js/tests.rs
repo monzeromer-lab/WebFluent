@@ -247,6 +247,7 @@ fn a_resource_is_declared_once_and_a_match_renders_its_states() {
                 ty: None,
                 url: Expr::StringLiteral("/api/rows".to_string()),
                 options: Vec::new(),
+                source: crate::syntax::parser::ast::RequestSource::Http("get".to_string()),
             })),
             stmt(StatementKind::Match(MatchStmt {
                 scrutinee: ident("rows"),
@@ -1496,7 +1497,7 @@ fn an_arm_binding_named_like_its_resource_is_the_data_not_the_handle() {
     // resource's handle — `_users.length`, a list of nothing — because a
     // resource's name was looked up before the arm's binding.
     let out = compile(
-        "page P(path: \"/\") {\n resource users = fetch(\"/api/users\")\n match users {\n  loading { Text(\"…\") }\n  error(e) { Text(e.message) }\n  ready(users) { Text(\"{users.length} users\")  for user in users by user.id { Text(user.name) } }\n }\n}",
+        "page P(path: \"/\") {\n resource users: Json = http.get(\"/api/users\")\n match users {\n  loading { Text(\"…\") }\n  error(e) { Text(e.message) }\n  ready(users) { Text(\"{users.length} users\")  for user in users by user.id { Text(user.name) } }\n }\n}",
     );
     assert!(out.contains("ready: ($$value, $users) => {"), "{out}");
     assert!(out.contains("() => `${$users().length} users`"), "{out}");
@@ -1520,7 +1521,7 @@ fn an_address_resource_takes_on_and_cache_as_policies() {
     // `on: .focus` was handed over as the word "focus", so a resource
     // over an address never looked again.
     let out = compile(
-        "page P(path: \"/\") {\n resource rows = fetch(\"/api/rows\", on: .focus, cache: .swr(60000))\n resource ticks = fetch(\"/api/ticks\", on: [.focus, .interval(30000)])\n Text(\"{rows.state} {ticks.state}\")\n}",
+        "page P(path: \"/\") {\n resource rows: Json = http.get(\"/api/rows\", on: .focus, cache: .swr(60000))\n resource ticks: Json = http.get(\"/api/ticks\", on: [.focus, .interval(30000)])\n Text(\"{rows.state} {ticks.state}\")\n}",
     );
     assert!(
             out.contains("WF.resource(\"/api/rows\", { on: { focus: true }, cache: { kind: \"swr\", ttl: 60000 } })"),
@@ -1535,7 +1536,7 @@ fn an_address_resource_takes_on_and_cache_as_policies() {
 #[test]
 fn whether_a_resource_is_refreshing_is_read_live() {
     let out = compile(
-        "page P(path: \"/\") {\n resource rows = fetch(\"/api/rows\")\n if rows.refreshing { Text(\"Refreshing\") }\n Button(\"Reload\", disabled: rows.pending) { on click { rows.reload() } }\n}",
+        "page P(path: \"/\") {\n resource rows: Json = http.get(\"/api/rows\")\n if rows.refreshing { Text(\"Refreshing\") }\n Button(\"Reload\", disabled: rows.pending) { on click { rows.reload() } }\n}",
     );
     assert!(out.contains("() => _rows.refreshing()"), "{out}");
     assert!(out.contains("disabled: () => _rows.pending()"), "{out}");
@@ -1557,7 +1558,7 @@ fn a_resources_body_and_headers_are_read_on_every_load() {
     // They were read once, as the page drew: typing into the field the body
     // reads never asked again.
     let out = compile(
-        "page P(path: \"/\") {\n state q = \"\"\n resource hits = fetch(\"/api/search\", method: \"POST\", body: { query: q }, headers: { \"X-Q\": q })\n Text(\"{hits.state}\")\n}",
+        "page P(path: \"/\") {\n state q = \"\"\n resource hits: Json = http.get(\"/api/search\", method: \"POST\", body: { query: q }, headers: { \"X-Q\": q })\n Text(\"{hits.state}\")\n}",
     );
     assert!(out.contains("body: () => ("), "{out}");
     assert!(out.contains("headers: () => ("), "{out}");

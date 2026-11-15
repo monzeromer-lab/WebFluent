@@ -270,18 +270,18 @@ fn t18_arithmetic_takes_numbers() {
 
 #[test]
 fn t17_await_belongs_in_an_async_body_and_a_promise_is_awaited() {
-    let derived = page("    derived d = await fetch(\"/x\")\n    Text(\"{d}\")");
+    let derived = page("    derived d = await http.post(\"/x\")\n    Text(\"{d}\")");
     assert!(with(&derived, "T17")[0].contains("a `derived` value cannot `await`"));
     let effect = page(
-        "    state n = 0\n    effect { let r = await fetch(\"/x\")  n = r.n }\n    Text(\"{n}\")",
+        "    state n = 0\n    effect { let r: Number = try await http.get(\"/x\")  n = r }\n    Text(\"{n}\")",
     );
     assert_eq!(with(&effect, "T17").len(), 1);
     let promise = page(
-        "    state n = 0\n    action load() -> Number { let r = await fetch(\"/x\")  return r.n }\n    Button(\"x\") { on click { n = load() } }",
+        "    state n = 0\n    action load() -> Number! { let r: Number = try await http.get(\"/x\")  return r }\n    Button(\"x\") { on click { n = load() } }",
     );
     assert!(with(&promise, "T17")[0].contains("an async action's result"));
     clean(&page(
-        "    state n = 0\n    action load() -> Number { let r = await fetch(\"/x\")  return r.n }\n    Button(\"x\", disabled: load.pending) { on click { n = await load() } }",
+        "    state n = 0\n    action load() -> Number! { let r: Number = try await http.get(\"/x\")  return r }\n    Button(\"x\", disabled: load.pending) { on click { n = try await load() } }",
     ));
 }
 
@@ -430,7 +430,7 @@ fn u10_an_else_no_value_reaches_and_t21_a_resource_with_no_error_arm() {
     let src = format!(
         "{STATUS}{}",
         page(
-            "    state s: Status = .draft\n    match s {\n        .draft { Text(\"d\") }\n        .review { Text(\"r\") }\n        .live { Text(\"l\") }\n        else { Text(\"?\") }\n    }\n    resource users = fetch(\"/u\")\n    match users {\n        loading { Spinner }\n        ready(list) { Text(\"{list.length}\") }\n    }"
+            "    state s: Status = .draft\n    match s {\n        .draft { Text(\"d\") }\n        .review { Text(\"r\") }\n        .live { Text(\"l\") }\n        else { Text(\"?\") }\n    }\n    resource users: [String] = http.get(\"/u\")\n    match users {\n        loading { Spinner }\n        ready(list) { Text(\"{list.length}\") }\n    }"
         )
     );
     assert_eq!(with(&src, "U10").len(), 1);
@@ -753,7 +753,7 @@ fn t12_a_secret_does_not_escape_through_joins_the_browser_or_its_members() {
     );
     // Handed to a request's headers, it is where it belongs.
     clean(&page(
-        "    state token: Secret = \"\"\n    resource me = fetch(\"/me\", headers: { \"Authorization\": token })\n    Text(\"{me.state}\")",
+        "    state token: Secret = \"\"\n    resource me: String = http.get(\"/me\", headers: { \"Authorization\": token })\n    Text(\"{me.state}\")",
     ));
 }
 
@@ -878,7 +878,7 @@ fn an_if_let_binding_is_a_name_in_the_whole_of_its_branch() {
              }}\n\
          }}\n{}",
         page(
-            "    resource r: E = fetch(\"/e\")\n    \
+            "    resource r: E = http.get(\"/e\")\n    \
              Tile(e: E(reason: null))\n    \
              match r {\n        \
                  ready(e) {\n            \
@@ -956,7 +956,7 @@ fn e118_nothing_at_the_top_level_takes_a_name_the_language_has() {
         "data env = \"posts.json\"",
         "image env = \"hero.png\"",
         "store env { state a = 1 }",
-        "api env(base: \"/api\") { get users() -> Map }",
+        "api env(base: \"/api\") { get users() -> Json! }",
     ] {
         let found = with(&format!("{decl}\n{}", page("    Text(\"x\")")), "E118");
         assert_eq!(found.len(), 1, "{decl}: {found:?}");
@@ -1060,7 +1060,7 @@ fn e118_no_name_a_body_declares_takes_one_the_language_has() {
     // parameter. A name that only begins like one is a name like any other.
     clean(&format!(
         "enum Stage {{ env, query, t }}\ntype Box {{ env: String, t: Number }}\n\
-         api Backend(base: \"/api\") {{ get users(page: Number = 1, query: String?) -> [Map] }}\n\
+         api Backend(base: \"/api\") {{ get users(page: Number = 1, query: String?) -> [Box]! }}\n\
          const envy = 1\n{}",
         page(concat!(
             "    state value = 1\n",
@@ -1230,7 +1230,7 @@ fn pages_that_share_a_name_are_a_duplicate_and_not_a_translation() {
 
 // ─── Requests to a service ────────────────────────────────────────────
 
-const SERVICE: &str = "type User { id: String, name: String }\ntype Problem { field: String }\napi Backend(base: \"/api\") {\n    get user(userId: String) at \"users/:userId\" -> User\n    get users(q: String?) -> [User]\n    post createUser(body: Map) at \"users\" -> User\n        errors { 422 -> Problem }\n    post ping at \"ping\"\n}\n";
+const SERVICE: &str = "type User { id: String, name: String }\ntype NewUser { name: String }\ntype Invalid = Problem { field: String }\nenum CreateUserError {\n    unprocessableContent(problem: Invalid) on 422\n    http(error: HttpError)\n}\napi Backend(base: \"/api\") {\n    get user(userId: String) at \"users/:userId\" -> User!\n    get users(q: String?) -> [User]!\n    post createUser(body: NewUser) at \"users\" -> User ! CreateUserError\n    post ping at \"ping\" -> !\n}\n";
 
 fn with_service(body: &str) -> String {
     format!("{SERVICE}{}", page(body))
@@ -1239,17 +1239,8 @@ fn with_service(body: &str) -> String {
 #[test]
 fn a_failed_requests_status_and_body_are_bound_by_its_match() {
     clean(&with_service(
-        "    resource made = Backend.createUser(body: {})\n    match made {\n        loading { Text(\"…\") }\n        error(e) {\n            match e {\n                .status(code, body) { Text(\"{code}: {body.field}\") }\n                else { Text(e.message) }\n            }\n        }\n        ready(u) { Text(u.name) }\n    }",
+        "    resource made = Backend.createUser(body: NewUser(name: \"Ada\"))\n    match made {\n        loading { Text(\"…\") }\n        error(e) {\n            match e {\n                .status(code, body) { Text(\"{code}: {body.field}\") }\n                else { Text(e.message) }\n            }\n        }\n        ready(u) { Text(u.name) }\n    }",
     ));
-    // The body is what `errors { 422 -> Problem }` says it is.
-    let src = with_service(
-        "    resource made = Backend.createUser(body: {})\n    match made {\n        loading { Text(\"…\") }\n        error(e) { match e { .status(code, body) { Text(body.feild) } else { Text(\"\") } } }\n        ready(u) { Text(u.name) }\n    }",
-    );
-    assert!(
-        with(&src, "T05")[0].contains("`Problem` has no field `feild`"),
-        "{:?}",
-        with(&src, "T05")
-    );
     // Only `.status` carries anything.
     let src = with_service(
         "    resource one = Backend.user(userId: \"1\")\n    match one {\n        loading { Text(\"…\") }\n        error(e) { match e { .timeout(t) { Text(\"slow\") } else { Text(\"\") } } }\n        ready(u) { Text(u.name) }\n    }",
@@ -1264,11 +1255,7 @@ fn an_endpoint_call_is_a_promise_until_it_is_awaited() {
     );
     assert_eq!(with(&src, "T17").len(), 1, "{:?}", findings(&src));
     clean(&with_service(
-        "    state name = \"\"\n    Text(name)\n    Button(\"x\") { on click { let u = await Backend.user(userId: \"2\")  name = u.name } }",
-    ));
-    // An endpoint that declares nothing returns whatever comes, not null.
-    clean(&with_service(
-        "    state got = \"\"\n    Text(got)\n    Button(\"x\") { on click { let r = await Backend.ping()  got = r.anything } }",
+        "    state name = \"\"\n    Text(name)\n    Button(\"x\") { on click { let u = try await Backend.user(userId: \"2\")  name = u.name } }",
     ));
 }
 

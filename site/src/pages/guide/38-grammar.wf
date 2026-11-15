@@ -244,7 +244,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("resource")
-                    Table.Cell { Markdown("`resource name: Type = fetch(url, options)` or `= Api.endpoint(args)`") }
+                    Table.Cell { Markdown("`resource name: Type = http.get(url, options)` or `= Api.endpoint(args)`") }
                 }
                 Table.Row {
                     Table.Cell("validation")

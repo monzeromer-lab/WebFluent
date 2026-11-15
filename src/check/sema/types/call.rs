@@ -53,6 +53,29 @@ impl Checker<'_, '_> {
                 _ => {}
             }
         }
+        // `fetch(…)` was 6.x's request; 7.0's is the built-in `http`
+        // service, whose answer is a result. The browser's own is
+        // `window.fetch`.
+        if name == "fetch" && self.lookup(name).is_none() && !self.world.scripts.contains_key(name)
+        {
+            self.error_at_current(
+                "N08",
+                "`fetch(…)` is gone: a request is `http.get(…)`, `http.post(…)`, whose answer is a result".to_string(),
+                "Write `let rows: [Row] = try await http.get(url)` in an action that says what it fails with, or `window.fetch` for the browser's own",
+            );
+            if !args
+                .iter()
+                .any(|a| matches!(a, Expr::MapLiteral(p) if p.iter().any(|(k, _)| k == "method")))
+            {
+                self.plan_last(
+                    "Write `http.get`".to_string(),
+                    crate::diagnostics::fixes::Plan::Rename {
+                        from: "fetch".to_string(),
+                        to: "http.get".to_string(),
+                    },
+                );
+            }
+        }
         if self.lookup(name).is_none()
             && let Some((file, script)) = self.world.scripts.get(name).copied()
         {

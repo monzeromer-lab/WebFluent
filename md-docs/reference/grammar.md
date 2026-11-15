@@ -124,7 +124,7 @@ these statements:
 | effect | `effect { imperative  cleanup { imperative } }` |
 | action | `action name(param: Type, …) { imperative }` |
 | store | `use Store` |
-| resource | `resource name: Type = fetch(url, options)` or `= Api.endpoint(args)` |
+| resource | `resource name: Type = http.get(url, options)` or `= Api.endpoint(args)` |
 | validation | `validate name { rule(args) "message"  custom "message" { expr }  async "message" { expr } }` |
 | connection | `socket name = ws(url, …) { send T  receive T  on message(m) { … }  on open { … } }`, `stream name = sse(…)`, `channel name = broadcast(…)`, `peer name = rtc(signal: …, …)`, `worker name = spawn(path, …) { on message(m) { … } }` |
 | timer | `every(interval) { imperative }`, `after(interval) { imperative }` |

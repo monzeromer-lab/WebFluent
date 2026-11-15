@@ -26,11 +26,12 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
         error = ""
         let before = items
         items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
-        try {
-            await fetch("/api/like/{id}", { method: "POST" })
-        } catch e {
-            items = before
-            error = "Could not save. Try again."
+        match await http.post("/api/like/{id}") {
+            .ok { }
+            .err(_) {
+                items = before
+                error = "Could not save. Try again."
+            }
         }
     }
     Heading("Likes").h1
@@ -48,9 +49,9 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
   to the action.
 - The next line gives `items` a new list with the one item flipped. The
   button repaints at once, before any request leaves.
-- The request is [awaited](../learn/15-data.md#fetch-on-demand-with-await-fetch)
-  inside `try`. If it fails, the `catch` puts `before` back and sets
-  `error`, and the `Toast` tells the reader.
+- The request is [awaited](../learn/15-data.md#ask-on-demand-with-http)
+  and its result matched. If it failed, the `.err` arm puts `before` back
+  and sets `error`, and the `Toast` tells the reader.
 - The action clears `error` first. A `Toast` shows once, when its branch is
   drawn, so without the reset a second failure would leave `error` as it
   was and show nothing.
@@ -63,8 +64,8 @@ throws, the change is taken back
 ([Fetching data](../learn/15-data.md#show-a-change-before-the-server-agrees)):
 
 ```wf
-action like(id: String) {
+action like(id: String) -> ! {
     optimistic(items, list => list.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i }))
-    await fetch("/api/like/{id}", { method: "POST" })
+    try await http.post("/api/like/{id}")
 }
 ```

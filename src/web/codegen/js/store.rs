@@ -101,7 +101,11 @@ impl JsCodegen {
                         result.push("enum: true".to_string());
                         result.push(format!("cases: {{ {} }}", mapped.join(", ")));
                     }
-                    parts.push(format!("result: {{ {} }}", result.join(", ")));
+                    parts.push(if result.is_empty() {
+                        "result: {}".to_string()
+                    } else {
+                        format!("result: {{ {} }}", result.join(", "))
+                    });
                     (**value != TypeRef::Unit).then(|| (**value).clone())
                 }
                 other => other.clone(),
@@ -313,11 +317,9 @@ impl JsCodegen {
                 // anything in it throws, as a page's action does.
                 let optimistic = super::shows_optimistically(&a.body);
                 if optimistic {
-                    self.emit_line(if crate::syntax::parser::ast::awaits(&a.body) {
-                        "return await WF.attempt(async () => {"
-                    } else {
-                        "return WF.attempt(async () => {"
-                    });
+                    self.emit_line(
+                        self.attempt_opener(crate::syntax::parser::ast::awaits(&a.body)),
+                    );
                     self.indent += 1;
                 }
                 for stmt in &a.body {

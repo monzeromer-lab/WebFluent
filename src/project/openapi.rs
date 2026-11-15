@@ -7,8 +7,8 @@
 //!
 //! What is read: `paths`, each operation's `operationId` (or a name made
 //! from the method and the path), its path and query parameters with their
-//! types, the request body when it has one, the success response's schema,
-//! and the failure responses, which become the endpoint's `errors`.
+//! types, the request body when it has one, and the success response's
+//! schema, as what the endpoint's result holds when the call succeeds.
 //! `$ref`s into `components/schemas` are followed, and each named schema
 //! becomes a declaration the program can name: an object a `type`, a string
 //! with cases an `enum` (or `String`, when a case cannot be written as a
@@ -277,7 +277,6 @@ impl<'a> Spec<'a> {
         }
 
         let mut returns = None;
-        let mut errors = Vec::new();
         for (code, response) in operation
             .get("responses")
             .and_then(|v| v.as_object())
@@ -294,14 +293,15 @@ impl<'a> Spec<'a> {
                 200..=299 if returns.is_none() => {
                     returns = schema.map(|s| self.type_of(s, Way::Received));
                 }
-                400..=599 => {
-                    if let Some(schema) = schema {
-                        errors.push((status, self.type_of(schema, Way::Received)));
-                    }
-                }
                 _ => {}
             }
         }
+        // A call answers with a result. What a failure carries reaches the
+        // program as an `HttpError`'s `.status(code, problem)`.
+        let returns = Some(TypeRef::Result(
+            Box::new(returns.unwrap_or(TypeRef::Unit)),
+            None,
+        ));
         Endpoint {
             method: method.to_uppercase(),
             name,
@@ -310,7 +310,7 @@ impl<'a> Spec<'a> {
             path: to_path(path),
             params,
             returns,
-            errors,
+            errors: Vec::new(),
             settings: Vec::new(),
             doc: operation
                 .get("summary")

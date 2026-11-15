@@ -891,7 +891,7 @@ file of its own,
 ```wf
 // … in src/api.wf, beside the pages
 api Suggestions(base: env.PUBLIC_API ?? "/api") {
-    post suggest(body: Map)
+    post suggest(body: Json) -> !
 }
 ```
 
@@ -1943,7 +1943,7 @@ theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
-api Backend(base: "/api/v1") { get todos() -> [Todo] }
+api Backend(base: "/api/v1") { get todos() -> [Todo]! }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
@@ -3335,6 +3335,8 @@ imperative block: assignments, `let` locals, calls, `if`, `for`, `try`,
 three actions:
 
 ```wf
+type TodoList { todos: [String] }
+
 page Todos(path: "/", title: "To-dos", description: "Actions that change a list.") {
     state items: [String] = []
     state draft = ""
@@ -3350,10 +3352,9 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
         items = items.filter((_, i) => i != index)
     }
 
-    action load() {
-        let r = await fetch("/api/todos")
-        let { todos } = r
-        items = todos
+    action load() -> ! {
+        let list: TodoList = try await http.get("/api/todos")
+        items = list.todos
     }
 
     Heading("To-dos").h1
@@ -3373,7 +3374,11 @@ What an action's body can hold:
   `true` while a call of it runs ([Forms](/learn/14-forms#show-that-a-request-is-running)).
 - **Loops.** `for item in list { }`, `for item, i in list { }` and
   `for n in 1..=10 { }`.
-- **Errors.** `try { } catch e { }` guards a call that may fail.
+- **Errors.** A request's answer is a result: `try` gives its value or
+  passes the failure up, in an action that says what it fails with
+  (`-> !` here), and `match` handles each case where the call is made
+  ([Fetching data](/learn/15-data#say-how-a-call-fails)). `try { } catch e { }`
+  guards a call into a script that may throw.
 - **`return`.** `return` leaves the action; `return x` leaves with a value.
 
 A `let` is the action's own. After `let list = items`, `list.push(x)` changes
@@ -4612,24 +4617,27 @@ An `if` value with no `else` is `null` when its condition fails.
 ## In actions and handlers
 
 The same statements work in an imperative block — a handler or an action —
-on values rather than elements, plus `try`/`catch`. This action fetches rows
-and keeps the first hundred:
+on values rather than elements, plus `try`/`catch`. This action fetches rows,
+matches the answer, and keeps the first hundred:
 
 ```wf
+type Row { id: String, title: String }
+type Rows { items: [Row] }
+
 page Sync(path: "/", title: "Sync", description: "Control flow inside an action.") {
-    state rows: [Map] = []
+    state rows: [Row] = []
     state error = ""
     action pull() {
-        try {
-            let r = await fetch("/api/rows")
-            let { items } = r
-            rows = []
-            for item, i in items {
-                if i >= 100 { return }
-                rows.push(item)
+        let answer: Rows! = await http.get("/api/rows")
+        match answer {
+            .ok(r) {
+                rows = []
+                for item, i in r.items {
+                    if i >= 100 { return }
+                    rows.push(item)
+                }
             }
-        } catch e {
-            error = e.message
+            .err(e) { error = e.message }
         }
     }
     Heading("Sync").h1
@@ -5482,18 +5490,21 @@ them. An action may be asynchronous — it uses `await` — and an async action
 exposes `pending`, which is `true` while a call of it runs:
 
 ```wf
+type Account { name: String }
+type SignedIn { user: Account }
+type SignIn { email: String, password: String }
+
 store Session {
-    state user: Map? = null
+    state user: Account? = null
     state error = ""
     derived loggedIn = user != null
 
     action login(email: String, password: String) {
         error = ""
-        try {
-            let r = await fetch("/api/login", { method: "POST", body: { email: email, password: password } })
-            user = r.user
-        } catch e {
-            error = "Could not sign in: {e.message}"
+        let answer: SignedIn! = await http.post("/api/login", body: SignIn(email: email, password: password))
+        match answer {
+            .ok(r) { user = r.user }
+            .err(e) { error = "Could not sign in: {e.message}" }
         }
     }
 
@@ -5729,7 +5740,7 @@ type Deploy { id: String, status: String }
 
 store Deploys {
     state page = 1
-    resource rows: [Deploy] = fetch("/api/deploys?page={page}")
+    resource rows: [Deploy] = http.get("/api/deploys?page={page}")
     derived failing = (rows.data ?? []).filter(d => d.status == "failed").length
     action next() { page = page + 1 }
     action refresh() { rows.reload() }
@@ -5757,14 +5768,17 @@ replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
 
 When an action decides what is kept — a reply merged into rows already
 held, a list built from several calls — fill the store's state from a
-`fetch` instead, and call the action where the data is first wanted:
+request instead, and call the action where the data is first wanted:
 
 ```wf
+type Post { id: String, title: String }
+type Page { items: [Post] }
+
 store Feed {
-    state items: [Map] = []
-    action more() {
-        let r = await fetch("/api/feed?after={items.length}")
-        items = [...items, ...r.items]
+    state items: [Post] = []
+    action more() -> ! {
+        let next: Page = try await http.get("/api/feed?after={items.length}")
+        items = [...items, ...next.items]
     }
 }
 ```
@@ -6473,7 +6487,7 @@ The rules for operators and forms:
 - `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
   side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
 - `await e` on a `fetch` is `Any` unless you annotate it:
-  `let r: [Row] = await fetch(…)`.
+  `let r: [Row] = try await http.get(…)`.
 - `let { a, b } = m` and `let [x, y] = l` bind the fields and the items.
 
 ## Narrowing optionals
@@ -6530,7 +6544,7 @@ return. Annotate the resource or the local variable to type its value:
 type Deploy { id: String, status: String, startedAt: String }
 
 page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
-    resource deploys: [Deploy] = fetch("/api/deploys")
+    resource deploys: [Deploy] = http.get("/api/deploys")
     Heading("Deploys").h1
     match deploys {
         loading { Spinner }
@@ -6621,7 +6635,7 @@ diagnostic on the argument it belongs to. To set up the editor, see
 | `.case` · `.case(v)` | Write a case |
 | `Number(1..=30)` · `String(minLength: 8)` | A type with a condition |
 | `if let x = v { … }` · `v ?? d` · `v?.f` | Narrow or read through `null` |
-| `resource r: [T] = fetch(…)` | Type data from the network |
+| `resource r: [T] = http.get(…)` | Type data from the network |
 
 ## Common mistakes
 
@@ -7528,9 +7542,13 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
     state sent = false
 
     action send() {
-        let r = await fetch("/api/contact", { method: "POST", body: { name: name, email: email, message: message } })
-        sent = true
-        form.reset()
+        match await http.post("/api/contact", body: { name: name, email: email, message: message }) {
+            .ok {
+                sent = true
+                form.reset()
+            }
+            .err(e) { log(e.message) }
+        }
     }
 
     Heading("Contact us").h1
@@ -7658,7 +7676,7 @@ This rule asks the server whether an address is free. The rule passes when the c
 
 ```wf
 api Backend(base: "/api") {
-    get emailFree(email: String) -> Bool
+    get emailFree(email: String) -> Bool!
 }
 
 page Register(path: "/register", title: "Register", description: "Check an address is free.") {
@@ -7667,7 +7685,9 @@ page Register(path: "/register", title: "Register", description: "Check an addre
     validate email {
         required
         email
-        async "That address is taken" { await Backend.emailFree(email: email) }
+        async "That address is taken" {
+            match await Backend.emailFree(email: email) { .ok(free) { free } else { false } }
+        }
     }
 
     Heading("Register").h1
@@ -7747,16 +7767,20 @@ When the server rejects a value — an address already taken, a code that
 expired — pass its messages, by field name, to `form.apply`:
 
 ```wf
+enum SignUpError {
+    unprocessableContent(problem: FieldErrors) on 422
+    http(error: HttpError)
+}
+
 api Backend(base: "/api") {
-    post signUp(body: Map) -> Map
-        errors { 422 -> Map }
+    post signUp(body: SignUp) -> ! SignUpError
 }
 
 action join() {
-    try {
-        await Backend.signUp(body: { email: email, password: password })
-    } catch e {
-        form.apply(e.body.errors)     // { email: "That address is taken" }
+    match await Backend.signUp(body: SignUp(email: email, password: password)) {
+        .ok { joined = true }
+        .err(.unprocessableContent(p)) { form.apply(p.errors) }   // { email: "That address is taken" }
+        .err(.http(e)) { log(e.message) }
     }
 }
 ```
@@ -7780,7 +7804,7 @@ progress bar:
 
 ```wf
 api Backend(base: "/api") {
-    post avatar(id: String, file: File) at "users/:id/avatar"
+    post avatar(id: String, file: File) at "users/:id/avatar" -> !
 }
 
 page Avatar(path: "/avatar", title: "Your picture", description: "Change your picture.") {
@@ -7823,9 +7847,17 @@ To send a form, describe the service once with `api`, call it from the
 submit handler, and hand what a `422` said back to the form.
 
 ```wf
+type SignUp { email: String, password: String }
+type FieldErrors = Problem { errors: [String: String] }
+
+/// Why an account can be refused.
+enum SignUpError {
+    unprocessableContent(problem: FieldErrors) on 422
+    http(error: HttpError)
+}
+
 api Backend(base: "/api") {
-    post signUp(body: Map) -> Map
-        errors { 422 -> Map }
+    post signUp(body: SignUp) -> ! SignUpError
 }
 
 page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
@@ -7837,11 +7869,10 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
     validate password { required  minLength(8) }
 
     action join() {
-        try {
-            await Backend.signUp(body: { email: email, password: password })
-            joined = true
-        } catch e {
-            form.apply(e.body.errors)
+        match await Backend.signUp(body: SignUp(email: email, password: password)) {
+            .ok { joined = true }
+            .err(.unprocessableContent(p)) { form.apply(p.errors) }
+            .err(.http(e)) { log(e.message) }
         }
     }
 
@@ -7856,10 +7887,10 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 }
 ```
 
-`errors { 422 -> Map }` types the body of a `422` response, so
-`e.body.errors` is what the server sent. If the server answers
-`{ "errors": { "email": "That address is taken" } }`, the message appears
-under **Email**.
+`unprocessableContent(problem: FieldErrors) on 422` is the case a `422`
+answer arrives in, its body typed `FieldErrors`, so `p.errors` is what the
+server sent. If the server answers `{ "errors": { "email": "That address is
+taken" } }`, the message appears under **Email**.
 
 [Data and APIs](/learn/15-data) covers the service in full: retries, timeouts
 and typed errors.
@@ -7873,8 +7904,8 @@ On a store's action, read it as `Store.action.pending`:
 ```wf
 store Api {
     state saved = 0
-    action save(payload: Map) {
-        let r = await fetch("/api/save", { method: "POST", body: payload })
+    action save(payload: Json) -> ! {
+        try await http.post("/api/save", body: payload)
         saved = saved + 1
     }
 }
@@ -8056,7 +8087,7 @@ You will be able to:
 - describe a service once with `api`, so every call is typed, retried,
   cached and cancelled for you;
 - read a service's surface from an OpenAPI file;
-- fetch on demand from an action, and show a change before the server
+- ask on demand from an action, and show a change before the server
   agrees;
 - read a JSON file at build time and render one page per item in it.
 
@@ -8081,7 +8112,7 @@ This chapter does not cover:
 |---|---|---|
 | Data the page shows as soon as it opens | `resource` | [Show a request with resource](#show-a-request-with-resource) |
 | One place that describes a service and its endpoints | `api` | [Describe a service with api](#describe-a-service-with-api) |
-| A request made when something happens: a save, a delete, a step in a flow | `await fetch` in an action | [Fetch on demand with await fetch](#fetch-on-demand-with-await-fetch) |
+| A request made when something happens: a save, a delete, a step in a flow | `http.post(…)` in an action | [Ask on demand with http](#ask-on-demand-with-http) |
 | Content that is known at build time | `data` | [Read a file at build time with data](#read-a-file-at-build-time-with-data) |
 
 ## Show a request with `resource`
@@ -8097,7 +8128,7 @@ if the request fails:
 type Deploy { id: String, status: String, startedAt: String }
 
 page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.") {
-    resource deploys: [Deploy] = fetch("/api/deploys")
+    resource deploys: [Deploy] = http.get("/api/deploys")
 
     Heading("Deploys").h1
     match deploys {
@@ -8127,7 +8158,7 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 
 How it works:
 
-- `resource name = fetch(url)` starts the request when the page renders.
+- `resource name: T = http.get(url)` starts the request when the page renders.
 - The annotation (`: [Deploy]`) types the value. Without one, the value is
   `Any`.
 - A `match` over a resource has three arms — `loading`, `error(e)` and
@@ -8161,7 +8192,7 @@ changes its label when the plan arrives.
 
 These ask for a resource again:
 
-- the `on:` option of `fetch(…)` or of an endpoint's call: `.focus` (when
+- the `on:` option of `http.get(…)` or of an endpoint's call: `.focus` (when
   the reader comes back to the tab), `.reconnect` (when the network
   returns), or `.interval(30.seconds)`;
 - `name.reload()` and `name.invalidate()`.
@@ -8178,7 +8209,7 @@ type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
-    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .interval(30.seconds))
 
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
@@ -8232,21 +8263,23 @@ Pressing **Production** above changes `stage`, so the list shows its
 
 ### Send options with a request
 
-Options follow the URL, by name:
+The verb is the method — `http.get`, `http.post`, `http.put`,
+`http.patch`, `http.delete` — and options follow the URL, by name:
 
-- `method:` — `"GET"` unless you say otherwise;
 - `headers:` — a map;
-- `body:` — a map, sent as JSON with the content type set.
+- `body:` — what is sent, as JSON with the content type set.
 
-The response body is parsed as JSON.
+The answer is read as JSON and is the type the resource declares.
 
 This page searches with a `POST` and an authorization header:
 
 ```wf
+type Hit { id: String, title: String }
+
 page Search(path: "/search", title: "Search", description: "Search the catalogue.") {
     state q = ""
     state token = "demo-token"
-    resource hits = fetch("/api/search", method: "POST",
+    resource hits: [Hit] = http.post("/api/search",
         headers: { Authorization: "Bearer {token}" },
         body: { query: q, limit: 20 })
 
@@ -8270,7 +8303,7 @@ follows its route parameter:
 type Post { slug: String, title: String, body: String }
 
 page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
-    resource post: Post = fetch("/api/posts/{slug}")
+    resource post: Post = http.get("/api/posts/{slug}")
     match post {
         loading { Skeleton }
         error(e) { Alert("Not found").warning }
@@ -8290,10 +8323,12 @@ value. This page keeps what the reader types in `draft`, and searches only
 when they press Enter:
 
 ```wf
+type Hit { id: String, title: String }
+
 page Lookup(path: "/lookup", title: "Lookup", description: "Search when you press Enter.") {
     state draft = ""
     state submitted = ""
-    resource hits = fetch("/api/search?q={submitted}")
+    resource hits: [Hit] = http.get("/api/search?q={submitted}")
 
     Heading("Lookup").h1
     Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
@@ -8316,17 +8351,23 @@ different alert for each kind of failure:
 
 ```wf
 type User { id: String, name: String }
+type NewUser { name: String }
+
+/// Why adding someone can be refused.
+enum CreateUserError {
+    unprocessableContent(problem: Problem) on 422
+    http(error: HttpError)
+}
 
 api Backend(base: "/api/v1") {
     credentials: .sameOrigin      // the session cookie goes with every call
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
 
-    get    users(page: Number = 1, q: String?) -> [User]
-    get    user(id: String) at "users/:id"     -> User
-    post   createUser(body: Map)               -> User
-        errors { 422 -> Map }
-    delete removeUser(id: String) at "users/:id"
+    get    users(page: Number = 1, q: String?)  -> [User]!
+    get    user(id: String) at "users/:id"      -> User!
+    post   createUser(body: NewUser)            -> User ! CreateUserError
+    delete removeUser(id: String) at "users/:id" -> !
 }
 
 page Users(path: "/users", title: "Users", description: "Everyone.") {
@@ -8351,8 +8392,11 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
 - A parameter the path names goes in the path. Every other parameter goes in
   the query string.
-- `->` says what a success returns. A `resource` over the endpoint is typed
-  by it, so `u.nam` is `T05` before the page ever runs.
+- `->` says what a success returns and how a call fails: `-> [User]!` is a
+  list of users or an `HttpError`, `-> User ! CreateUserError` a user or a
+  case of that error enum, `-> !` nothing but may fail ([Say how a call
+  fails](#say-how-a-call-fails)). A `resource` over the endpoint holds what
+  a success returns, so `u.nam` is `T05` before the page ever runs.
 - An endpoint the service does not have is `T06`, and an argument it does
   not take is `T10`.
 
@@ -8371,7 +8415,7 @@ type User { id: String, name: String }
 store Session {
     state token = ""
     state language = "en"
-    action refresh() { token = await fetch("/api/token") }
+    action refresh() -> ! { token = try await http.get("/api/token", as: .text) }
 }
 
 api Backend(base: env.PUBLIC_API ?? "/api/v1") {
@@ -8384,7 +8428,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     on response(r) { log("{r.status} {r.url}") }
     on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
 
-    get me() -> User
+    get me -> User!
 }
 ```
 
@@ -8509,14 +8553,13 @@ How `retry` works:
 Each line of a service, after its settings, is an endpoint:
 
 ```text
-get users(page: Number = 1, q: String?) -> [User]
-get user(id: String) at "users/:id" -> User
-post createUser(body: Map) -> User
-    errors { 422 -> Map }
-put rename(id: String, body: Map) at "users/:id" -> User
-patch settings(body: Map) -> Map
-delete removeUser(id: String) at "users/:id"
-get report(id: String) at "reports/:id" as: .blob
+get users(page: Number = 1, q: String?) -> [User]!
+get user(id: String) at "users/:id" -> User ! LookupError
+post createUser(body: NewUser) -> User ! CreateUserError
+put rename(id: String, body: Rename) at "users/:id" -> User!
+patch settings(body: Settings) -> Settings!
+delete removeUser(id: String) at "users/:id" -> !
+get report(id: String) at "reports/:id" -> Json! as: .blob
 ```
 
 - **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or
@@ -8531,19 +8574,20 @@ get report(id: String) at "reports/:id" as: .blob
   sent as JSON. A `File` parameter makes the call a multipart upload.
 - **Query parameters.** Every other parameter goes in the query string, and
   one that is `null` is left out.
-- **What comes back.** `-> T` is what a success returns. Without it the call
-  returns `Any`, and `204 No Content` returns nothing.
-- **Typed failures.** `errors { 422 -> T }` types the body of a failure with
-  that status: `match e { .status(code, body) { … } }` binds the status and
-  the body, typed `T`, and so is `e.body`. Under `wf serve` the body that
-  arrives is held to `T`, as a success is held to `-> T`.
+- **What comes back.** `-> T!` is a success's `T`, or an `HttpError`;
+  `-> T ! E` names the failures in an error enum `E`, each status a case
+  with its typed body; `-> !` returns nothing, as `204 No Content` does, and
+  may fail. Under `wf serve` the body that arrives is held to `T`, and a
+  declared status's body to its case's type. What crosses is a type the
+  program names: `Map` and `Any` there are `N11`.
 - **Other responses.** `as:` says how to read a response that is not JSON:
   `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for
   a failure's body. `cache:` sets a cache policy for that endpoint alone.
 
 A call passes the endpoint's parameters by name, and one with no default
 that may not be null must be given. Called in an action, it is a promise of
-what the endpoint returns: `await` it to read the value. It may add `cache:`,
+a result: `await` it, then `match` it or pass its failure up with `try`
+([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`,
 `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
 `.interval(30.seconds)`) and `paginate:`.
 
@@ -8645,7 +8689,7 @@ This page shows items and a **Load more** button while there are more:
 type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]
+    get items(page: Number = 1) -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
@@ -8701,43 +8745,48 @@ action rename(id: String, name: String) {
 The new title shows at once. If `updateUser` fails, the old title comes
 back.
 
-## Fetch on demand with `await fetch`
+## Ask on demand with `http`
 
 For a request made when something happens — a save, a delete, a step in a
-flow — call `await fetch` in an action. It returns the parsed body, and
-throws on a failed response, so you catch the failure with `try`.
+flow — call the built-in service `http` in an action: `http.get(url)`,
+`http.post(url, body: …)`, `http.put`, `http.patch`, `http.delete`. Its
+answer is a *result*, `.ok(value)` or `.err(e)` with an `HttpError`, so a
+failure is a value you handle rather than an exception you catch: pass it
+up with `try`, or `match` it where the call is made.
 
 This page loads a list of todos, adds one, and toggles one, each with a
 request:
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
+type NewTodo { title: String }
+type Change { done: Bool }
 
 page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server.") {
     state todos: [Todo] = []
     state draft = ""
     state error = ""
 
-    action load() {
-        let r: [Todo] = await fetch("/api/todos")
-        todos = r
+    action load() -> ! {
+        todos = try await http.get("/api/todos")
     }
 
     action add() {
         if draft.trim() == "" { return }
-        try {
-            let created: Todo = await fetch("/api/todos", { method: "POST", body: { title: draft } })
-            todos.push(created)
-            draft = ""
-        } catch e {
-            error = "Could not save: {e.message}"
+        let saved: Todo! = await http.post("/api/todos", body: NewTodo(title: draft))
+        match saved {
+            .ok(created) {
+                todos.push(created)
+                draft = ""
+            }
+            .err(e) { error = "Could not save: {e.message}" }
         }
     }
 
-    action toggle(id: String) {
+    action toggle(id: String) -> ! {
         let found = todos.find(x => x.id == id)
         if let todo = found {
-            let updated: Todo = await fetch("/api/todos/{id}", { method: "PATCH", body: { done: !todo.done } })
+            let updated: Todo = try await http.patch("/api/todos/{id}", body: Change(done: !todo.done))
             todos = todos.map(x => if x.id == id { updated } else { x })
         }
     }
@@ -8753,15 +8802,25 @@ page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server
 }
 ```
 
-- The second argument is a map of `method`, `headers` and `body`.
+- **What comes back is named where it goes**: `todos = try await
+  http.get(…)` is a `[Todo]` because `todos` is, `let updated: Todo` names
+  it, and `let saved: Todo!` names a whole result. A `get` whose answer goes
+  nowhere that says what it is is `N11`; a write whose answer nothing reads
+  needs no type.
+- **`try`** in `load` and `toggle` gives the answer, or ends the action with
+  its failure as the action's own: each says what it fails with, `-> !` —
+  nothing, or an `HttpError`. `add` instead matches the result and shows
+  the failure.
+- `body:` is what is sent, as JSON; `headers:`, `timeout:`, `retry:` and
+  `cache:` go beside it, and `as: .text` reads the answer as text.
 - `load()` at the top of the page is set-up code: it runs once, when the
   page renders.
 - `todos.push(created)` changes the state in place. The compiler turns it
   into a new list, so everything that reads `todos` repaints.
 - `name.pending` is `true` while the action runs, so **Add** is disabled
   during a save.
-- `await fetch` goes through the same engine as an `api` call. For the
-  browser's own `fetch`, with the raw response, call `window.fetch`.
+- `http` goes through the same engine as an `api` call. `fetch` is the
+  browser's own, `window.fetch`, with the raw response.
 
 ## Read a file at build time with `data`
 
@@ -8887,14 +8946,14 @@ source of data puts in that HTML:
 | `data`, `const`, `env` | Fully painted |
 | `state` initial values, and `derived` values over them | Painted |
 | `resource` | The `loading` arm; the live page fetches and replaces it |
-| `await fetch` | Nothing until the action runs |
+| `http` in an action | Nothing until the action runs |
 
 ## Troubleshooting
 
 | What you see | Why, and what to do |
 |---|---|
 | The browser console says a response was blocked by CORS | The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)). |
-| A `fetch` gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
+| A request gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
 | A `.parse` error naming a place, such as `$[1].name is missing` | Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
 | A resource stays `loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
 | The page goes back to `loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the data. |
@@ -8926,7 +8985,7 @@ A resource with `on: .interval(30.seconds)` asks again while its list is on scre
 ```
 
 ```quiz
-The address is `fetch("/api/servers?env={stage}")`, and a button sets `stage` from `"test"` to `"prod"`. What shows next?
+The address is `http.get("/api/servers?env={stage}")`, and a button sets `stage` from `"test"` to `"prod"`. What shows next?
 + The `loading` arm, then the production servers -- The request now names something else, so it is a first load; the test servers would be the wrong data.
 - The test servers, with `refreshing` true, until the production servers arrive -- That is a refresh, which asks again for the same request; this one changed.
 - Nothing changes until the reader reloads the page -- An address that reads state is fetched again whenever that state changes.
@@ -8939,7 +8998,7 @@ the reader is not told:
 
 ```wf expect=T21
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users = fetch("/api/users")
+    resource users = http.get("/api/users")
     Heading("Users").h1
     match users {
         loading { Spinner }
@@ -8958,7 +9017,7 @@ field read from it is checked against the `type`:
 type User { id: String, name: String }
 
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users: [User] = fetch("/api/users")
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
         loading { Spinner }
@@ -8978,7 +9037,7 @@ if the server sends it ([T05](/errors/T05)).
 type User { id: String, name: String }
 
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users: [User] = fetch("/api/users")
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     Text("{users.data.length} users")
 }
@@ -12506,10 +12565,12 @@ It claims `/`: paste it into a new project, or replace the starter's
 `src/pages/Home.wf` with it.
 
 ```wf
+type Hit { id: String, title: String }
+
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""
     state q = ""
-    resource hits = fetch("/api/search?q={q}")
+    resource hits: [Hit] = http.get("/api/search?q={q}")
     Heading("Search").h1
     Input(bind: typed, placeholder: "Search", aria-label: "Search") {
         on input(debounce: 300.ms) { q = typed }
@@ -13223,11 +13284,13 @@ value](#set-a-value) shows. It claims `/`: paste it into a new project, or
 replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
+type Row { id: String }
+
 const API = env.PUBLIC_API ?? "/api"
 const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
 
 page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
-    resource rows = fetch("{API}/rows")
+    resource rows: [Row] = http.get("{API}/rows")
     Heading("Rows").h1
     if FEATURES.billing { Link("Billing", to: "/billing") }
     match rows {
@@ -14214,7 +14277,7 @@ next page below it. To build one, call an endpoint with `paginate: .page`:
 type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]
+    get items(page: Number = 1) -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
@@ -14853,11 +14916,12 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
         error = ""
         let before = items
         items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
-        try {
-            await fetch("/api/like/{id}", { method: "POST" })
-        } catch e {
-            items = before
-            error = "Could not save. Try again."
+        match await http.post("/api/like/{id}") {
+            .ok { }
+            .err(_) {
+                items = before
+                error = "Could not save. Try again."
+            }
         }
     }
     Heading("Likes").h1
@@ -14875,9 +14939,9 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
   to the action.
 - The next line gives `items` a new list with the one item flipped. The
   button repaints at once, before any request leaves.
-- The request is [awaited](/learn/15-data#fetch-on-demand-with-await-fetch)
-  inside `try`. If it fails, the `catch` puts `before` back and sets
-  `error`, and the `Toast` tells the reader.
+- The request is [awaited](/learn/15-data#ask-on-demand-with-http)
+  and its result matched. If it failed, the `.err` arm puts `before` back
+  and sets `error`, and the `Toast` tells the reader.
 - The action clears `error` first. A `Toast` shows once, when its branch is
   drawn, so without the reset a second failure would leave `error` as it
   was and show nothing.
@@ -14890,9 +14954,9 @@ throws, the change is taken back
 ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)):
 
 ```wf
-action like(id: String) {
+action like(id: String) -> ! {
     optimistic(items, list => list.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i }))
-    await fetch("/api/like/{id}", { method: "POST" })
+    try await http.post("/api/like/{id}")
 }
 ```
 
@@ -14913,10 +14977,13 @@ rows. It claims `/`: paste it into a new project, or replace the starter's
 `src/pages/Home.wf` with it.
 
 ```wf
+type Row { id: String, name: String }
+type RowPage { items: [Row], pages: Number }
+
 page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1
     state perPage = 20
-    resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    resource rows: RowPage = http.get("/api/rows?page={page}&per={perPage}")
     Heading("Rows").h1
     match rows {
         loading { Spinner }
@@ -17451,7 +17518,7 @@ post and shows its HTML body as markup:
 type Post { title: String, body: String }
 
 api Backend(base: "/api") {
-    get post(slug: String) at "posts/:slug" -> Post
+    get post(slug: String) at "posts/:slug" -> Post!
 }
 
 page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: String) {
@@ -17549,13 +17616,19 @@ names and sets the session cookie. The code declares `type User` and an
 
 ```wf
 type User { id: String, name: String }
+type Credentials { email: String, password: String }
+
+/// Why signing in can be refused.
+enum SignInError {
+    unauthorized(problem: Problem) on 401
+    http(error: HttpError)
+}
 
 api Auth(base: "/api") {
     credentials: .sameOrigin
-    get me() -> User
-    post signIn(body: Map) -> User
-        errors { 401 -> Map }
-    post signOut()
+    get me -> User!
+    post signIn(body: Credentials) -> User ! SignInError
+    post signOut -> !
 }
 
 store Session {
@@ -17563,15 +17636,18 @@ store Session {
     state checked = false
     derived signedIn = user != null
     action load() {
-        try { user = await Auth.me() } catch e { user = null }
+        match await Auth.me() {
+            .ok(u) { user = u }
+            .err(_) { user = null }
+        }
         checked = true
     }
-    action signIn(email: String, password: String) {
-        user = await Auth.signIn(body: { email: email, password: password })
+    action signIn(email: String, password: String) -> ! SignInError {
+        user = try await Auth.signIn(body: Credentials(email: email, password: password))
         navigate("/account")
     }
-    action signOut() {
-        await Auth.signOut()
+    action signOut() -> ! {
+        try await Auth.signOut()
         user = null
         Auth.me.invalidate()
         navigate("/")
@@ -17586,7 +17662,11 @@ page SignIn(path: "/sign-in", title: "Sign in", description: "Sign in to your ac
     validate password { required }
     action send() {
         problem = ""
-        try { await Session.signIn(email, password) } catch e { problem = "That email and password do not match." }
+        match await Session.signIn(email, password) {
+            .ok { }
+            .err(.unauthorized(_)) { problem = "That email and password do not match." }
+            .err(.http(e)) { problem = e.message }
+        }
     }
     Heading("Sign in").h1
     if problem != "" { Alert(problem).danger }
@@ -17627,8 +17707,8 @@ app {
 
 - `Auth` [describes the service](/learn/15-data#describe-a-service-with-api).
   `credentials: .sameOrigin` sends the session cookie with every call, so
-  the page holds no token. `errors { 401 -> Map }` types what a refused
-  sign-in answers.
+  the page holds no token. `SignInError` names what a refused sign-in
+  answers, `on 401`, and keeps `http` for every other failure.
 - The `Session` [store](/learn/11-stores#a-first-store) holds the
   user, or `null`, and `signedIn` is derived from it. `load` asks the
   server who is signed in, `signIn` and `signOut` call the service and
@@ -19272,7 +19352,7 @@ updates. There are no hooks, no dependency arrays and no setters.
 | A route | `<Route path="/users/:id" element={<User />} />` | `page User(path: "/users/:id", id: String) { … }` |
 | Showing something conditionally | `{open && <Panel />}` | `if open { Panel }` |
 | A list | `{items.map((i) => <li key={i.id}>{i.name}</li>)}` | `for i in items by i.id { Text(i.name) }` |
-| Fetching | TanStack Query's `useQuery({ queryKey: ["users"], queryFn })`, or `useEffect` + `fetch` | `resource users = fetch("/api/users")`, read with `match users { … }` |
+| Fetching | TanStack Query's `useQuery({ queryKey: ["users"], queryFn })`, or `useEffect` + `fetch` | `resource users: [User] = http.get("/api/users")`, read with `match users { … }` |
 | Styling | `className`, CSS modules, Tailwind | flags (`Button("Save").primary`), `style { }` on the element, design tokens |
 | A test | Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 
@@ -19505,7 +19585,7 @@ checked at build time.
 | `v-for` | `<li v-for="i in items" :key="i.id">{{ i.name }}</li>` | `for i in items by i.id { Text(i.name) }` |
 | Class bindings | `:class="{ done: todo.done }"` | `class: { "done": todo.done }` |
 | Transitions | `<Transition name="fade">` | `.fadeIn`, `exit: .fadeOut` |
-| Fetching | `<Suspense>` with an async `setup`, or VueUse's `useFetch("/api/users")` | `resource users = fetch("/api/users")`, read with `match users { … }` |
+| Fetching | `<Suspense>` with an async `setup`, or VueUse's `useFetch("/api/users")` | `resource users: [User] = http.get("/api/users")`, read with `match users { … }` |
 | A test | Vitest with Vue Test Utils: `mount`, `trigger("click")`, `text()` | `test "…" { click "Save"  expect "Saved" }` |
 
 ## Things that work differently
@@ -20132,7 +20212,7 @@ otherwise hand the list a fresh array of fresh rows every 30 seconds.
 type Server { id: String, name: String, status: String }
 
 page Servers(path: "/", title: "Servers", description: "Every server, kept current.") {
-    resource servers: [Server] = fetch("/api/servers", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers", on: .interval(30.seconds))
     Heading("Servers").h1
     match servers {
         loading { Text("Loading…") }
@@ -21392,13 +21472,16 @@ radius and a shadow) is written in full: `$spacing-md`.
 action asynchronous. While a call of it runs, `name.pending` is `true`:
 
 ```wf
+type Row { id: String }
+type Note { text: String }
+
 page Report(path: "/report", title: "Report", description: "Rows loaded on request.") {
-    state rows: [Map] = []
+    state rows: [Row] = []
     state note = ""
-    action load() {
-        rows = await fetch("/api/rows")
-        let answer = await fetch("/api/note", { method: "GET" })
-        note = answer.text ?? ""
+    action load() -> ! {
+        rows = try await http.get("/api/rows")
+        let answer: Note = try await http.get("/api/note")
+        note = answer.text
     }
     Heading("Report").h1
     Button("Load", disabled: load.pending) { on click { load() } }
@@ -21406,9 +21489,10 @@ page Report(path: "/report", title: "Report", description: "Rows loaded on reque
 }
 ```
 
-`fetch(url, options)` returns the parsed JSON body, or throws when the
-response fails. `options` is a map with `method`, `headers` and `body`; a
-map given as `body` is sent as JSON. `await` outside an action, a handler,
+`http.get(url)`, `http.post(url, body: value)` and the other verbs are a
+promise of a result: the answer, typed where it goes, or an `HttpError`.
+`try` gives the answer or passes the failure up from the action, which
+says what it fails with (`-> !`). `await` outside an action, a handler,
 a timer or a hook is a `T17`. [Fetching data](/learn/15-data) has `resource`, the
 declarative way to load data.
 
@@ -21455,7 +21539,7 @@ has an entry for each.
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](/recipes/send-on-unload)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](/about/security#one-door-for-markup)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it)) |
-| `fetch(url, options)` | Sends a request, through the same engine as `api` ([Fetching data](/learn/15-data#fetch-on-demand-with-await-fetch)) |
+| `http.get(url, options)` | Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#ask-on-demand-with-http)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](/recipes/open-a-socket)) |
 
 The browser's own globals need no prefix and compile to themselves:
@@ -21617,7 +21701,7 @@ these statements:
 | effect | `effect { imperative  cleanup { imperative } }` |
 | action | `action name(param: Type, …) { imperative }` |
 | store | `use Store` |
-| resource | `resource name: Type = fetch(url, options)` or `= Api.endpoint(args)` |
+| resource | `resource name: Type = http.get(url, options)` or `= Api.endpoint(args)` |
 | validation | `validate name { rule(args) "message"  custom "message" { expr }  async "message" { expr } }` |
 | connection | `socket name = ws(url, …) { send T  receive T  on message(m) { … }  on open { … } }`, `stream name = sse(…)`, `channel name = broadcast(…)`, `peer name = rtc(signal: …, …)`, `worker name = spawn(path, …) { on message(m) { … } }` |
 | timer | `every(interval) { imperative }`, `after(interval) { imperative }` |
@@ -22011,8 +22095,8 @@ The functions, in alphabetical order:
 | [`beacon(url, data)`](#beacon) | Sends a small post that survives the page unloading |
 | [`broadcast(name)`](#broadcast) | Opens a channel the site's other tabs hear |
 | [`every(interval) { }`](#every) | Runs a block repeatedly |
-| [`fetch(url, options)`](#fetch) | Sends a request through the same engine as `api` |
 | [`format(value, .style, option)`](#format) | A number, date or money as text, in the locale |
+| [`http.get(url, options)`](#http) | Sends a request through the same engine as `api`; its answer is a result |
 | [`keyIs(event, combination)`](#keyis) | Whether a key event is a shortcut |
 | [`keyLabel(combination)`](#keylabel) | A shortcut as this system writes it |
 | [`log(x)`](#log) | Prints a value to the console |
@@ -22147,28 +22231,6 @@ branch or list item leaves. See
 every(1.seconds) { elapsed = elapsed + 1 }
 ```
 
-### `fetch`
-
-Sends a request through the same engine an `api` uses: retries, caching
-and cancelling come with it.
-
-Signature: `fetch(url, options)` → the parsed response body
-
-| Parameter | Type | Meaning |
-|---|---|---|
-| `url` | `String` | The address; a value spliced into it is encoded |
-| `options` | `Map`, optional | `method`, `headers`, `body`; a map given as `body` is sent as JSON |
-
-Returns the parsed JSON body, and throws when the response fails. Where:
-`await fetch(…)` in an action or a handler, or `resource name = fetch(…)`,
-which adds `on:` and the other options of a resource. `window.fetch` is the
-browser's own, untouched. See
-[Fetch on demand with `await fetch`](/learn/15-data#fetch-on-demand-with-await-fetch).
-
-```wf
-let rows = await fetch("/api/rows?page={page}", { method: "GET" })
-```
-
 ### `format`
 
 Writes a number, a date or money as text, in the reader's locale.
@@ -22190,6 +22252,35 @@ same call. Where: anywhere. See
 
 ```wf
 Text(format(price, .currency, "EUR"))
+```
+
+### `http`
+
+The built-in service for a request no `api` describes: the same engine an
+`api` uses — retries, caching and cancelling come with it — and an answer
+that is a result, never a throw.
+
+Signature: `http.get(url, options)` → a promise of `T!`; `http.post`,
+`http.put`, `http.patch` and `http.delete` take the same
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `url` | `String` | The address; a value spliced into it is encoded |
+| `body:` | `Json`, optional | What is sent; a record or a map is sent as JSON |
+| `headers:` | `[String: String]`, optional | Headers of this request |
+| `as:` | `.json` (default), `.text`, `.blob` | How the answer is read; `.text` is a `String` |
+| `timeout:`, `retry:`, `cache:`, `credentials:` | as on an `api` | This request's own |
+
+`T` is named where the answer goes — `let rows: [Row] = try await
+http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows:
+[Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is
+an `HttpError`. Where: `await` in an action or a handler, or as a
+`resource`, which adds `on:` and the other options of a resource. `fetch` is
+gone (`N08`); `window.fetch` is the browser's own, untouched. See
+[Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).
+
+```wf
+let rows: [Row] = try await http.get("/api/rows?page={page}")
 ```
 
 ### `keyIs`
@@ -22900,7 +22991,7 @@ What the control-flow statements and slots compile to.
 | Function | Module | What it does |
 |---|---|---|
 | `resource(url, options)` | `net` | A resource: `{ state, data, error, refreshing, pending, items, hasMore, reload, loadMore, invalidate, cancel }`. |
-| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `await fetch(…)` in an action compiles to `request`. |
+| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `http.get(…)` and the other verbs compile to `httpCall`, which wraps it in a result. |
 | `optimistic(holder, change)` | `net` | Shows a change at once, rolled back if the action throws. |
 | `attempt(fn)` | `net` | Runs an action so that a throw rolls back its optimistic changes. |
 | `send(url, options)` | `http` | The engine's request itself. |
@@ -25049,6 +25140,8 @@ Errors. The type checker's findings; a program that declares no types raises non
 ### Requests
 
 - [N03](/errors/N03) — A `try` with nowhere to pass its error
+- [N08](/errors/N08) — A form 7.0 removed
+- [N11](/errors/N11) — `Any` or `Map` where a service meets the program
 - [N12](/errors/N12) — An error enum that is not shaped as one
 
 ### Translations

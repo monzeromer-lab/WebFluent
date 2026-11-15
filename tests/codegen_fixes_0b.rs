@@ -150,7 +150,7 @@ fn the_app_does_not_read_the_last_pages_refs_or_resources() {
     let out = js(&format!(
         "{}app {{\n    state box = 1\n    Text(\"{{box}}\")\n    Router\n}}\n",
         page(
-            "    resource box = fetch(\"/api/box\")\n    Input(placeholder: \"x\", ref: field)\n    Button(\"Focus\") { on click { field.focus() } }"
+            "    resource box: Json = http.get(\"/api/box\")\n    Input(placeholder: \"x\", ref: field)\n    Button(\"Focus\") { on click { field.focus() } }"
         )
     ));
     let app = &out[out.rfind("const _app").expect("the app")..];

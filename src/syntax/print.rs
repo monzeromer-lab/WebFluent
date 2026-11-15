@@ -1102,9 +1102,7 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
         StatementKind::Return(None) => "return".to_string(),
         StatementKind::Return(Some(e)) => format!("return {}", expr(e)),
         StatementKind::Resource(r) => {
-            let value = if r.options.is_empty()
-                && !matches!(r.url, Expr::StringLiteral(_) | Expr::InterpolatedString(_))
-            {
+            let value = if r.source == crate::syntax::parser::ast::RequestSource::Endpoint {
                 expr(&r.url)
             } else {
                 let mut args = vec![expr(&r.url)];
@@ -1113,7 +1111,12 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                         .iter()
                         .map(|o| format!("{}: {}", o.key, expr(&o.value))),
                 );
-                format!("fetch({})", args.join(", "))
+                match &r.source {
+                    crate::syntax::parser::ast::RequestSource::Http(verb) => {
+                        format!("http.{verb}({})", args.join(", "))
+                    }
+                    _ => format!("fetch({})", args.join(", ")),
+                }
             };
             format!("resource {} = {value}", typed_name(&r.name, r.ty.as_ref()))
         }
@@ -1135,7 +1138,17 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                         out.push_str(&expr(m));
                     }
                     if let Some(b) = &r.body {
-                        out.push_str(&format!(" {{ {} }}", expr(b)));
+                        let check = expr(b);
+                        // A check too long for one line goes on its own.
+                        if (indent + 1) * 4 + out.len() + check.len() + 6 > 100 {
+                            out.push_str(&format!(
+                                " {{\n{}{check}\n{}}}",
+                                pad(indent + 2),
+                                pad(indent + 1)
+                            ));
+                        } else {
+                            out.push_str(&format!(" {{ {check} }}"));
+                        }
                     }
                     out
                 })
@@ -2413,7 +2426,7 @@ page Home(path: "/", title: "Home", description: "Home.") {
         minLength(3) t("form.min")
         custom "Not that" { stage != "x" }
     }
-    resource users: [Any] = fetch("/api/users", method: "GET")
+    resource users: [Any] = http.post("/api/users")
     resource rows = Backend.rows(page: 1)
     socket chat = ws("wss://x", reconnect: true) {
         receive Any

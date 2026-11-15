@@ -16,13 +16,19 @@ names and sets the session cookie. The code declares `type User` and an
 
 ```wf
 type User { id: String, name: String }
+type Credentials { email: String, password: String }
+
+/// Why signing in can be refused.
+enum SignInError {
+    unauthorized(problem: Problem) on 401
+    http(error: HttpError)
+}
 
 api Auth(base: "/api") {
     credentials: .sameOrigin
-    get me() -> User
-    post signIn(body: Map) -> User
-        errors { 401 -> Map }
-    post signOut()
+    get me -> User!
+    post signIn(body: Credentials) -> User ! SignInError
+    post signOut -> !
 }
 
 store Session {
@@ -30,15 +36,18 @@ store Session {
     state checked = false
     derived signedIn = user != null
     action load() {
-        try { user = await Auth.me() } catch e { user = null }
+        match await Auth.me() {
+            .ok(u) { user = u }
+            .err(_) { user = null }
+        }
         checked = true
     }
-    action signIn(email: String, password: String) {
-        user = await Auth.signIn(body: { email: email, password: password })
+    action signIn(email: String, password: String) -> ! SignInError {
+        user = try await Auth.signIn(body: Credentials(email: email, password: password))
         navigate("/account")
     }
-    action signOut() {
-        await Auth.signOut()
+    action signOut() -> ! {
+        try await Auth.signOut()
         user = null
         Auth.me.invalidate()
         navigate("/")
@@ -53,7 +62,11 @@ page SignIn(path: "/sign-in", title: "Sign in", description: "Sign in to your ac
     validate password { required }
     action send() {
         problem = ""
-        try { await Session.signIn(email, password) } catch e { problem = "That email and password do not match." }
+        match await Session.signIn(email, password) {
+            .ok { }
+            .err(.unauthorized(_)) { problem = "That email and password do not match." }
+            .err(.http(e)) { problem = e.message }
+        }
     }
     Heading("Sign in").h1
     if problem != "" { Alert(problem).danger }
@@ -94,8 +107,8 @@ app {
 
 - `Auth` [describes the service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api).
   `credentials: .sameOrigin` sends the session cookie with every call, so
-  the page holds no token. `errors { 401 -> Map }` types what a refused
-  sign-in answers.
+  the page holds no token. `SignInError` names what a refused sign-in
+  answers, `on 401`, and keeps `http` for every other failure.
 - The `Session` [store](https://webfluent.monzeromer.dev/learn/11-stores.md#a-first-store) holds the
   user, or `null`, and `signedIn` is derived from it. `load` asks the
   server who is signed in, `signIn` and `signOut` call the service and

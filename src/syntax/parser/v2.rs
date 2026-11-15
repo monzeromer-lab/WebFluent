@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -2376,7 +2376,7 @@ impl ParserV2 {
         Ok(params)
     }
 
-    /// `resource name[: Type] = fetch(url, key: value, …)`.
+    /// `resource name[: Type] = http.get(url, key: value, …)` (or another verb; `fetch(…)` is read so the checker can say what replaced it).
     /// `api Backend(base: "/api/v1") { … }` — one place a service is
     /// described, so every call site is typed, cached and cancellable.
     fn parse_api(&mut self, doc: Option<String>) -> Result<Declaration> {
@@ -2719,7 +2719,16 @@ impl ParserV2 {
         self.expect(&TokenType::Equals, "`=`")?;
         // `resource rows = Backend.rows(page: n)`: an endpoint of a
         // declared service, which carries its own address and settings.
-        if !self.is_word("fetch") {
+        // `http.get(url, …)` is the built-in service, by its verb.
+        let http_verb = match (self.kind(), self.kind_at(1), self.kind_at(2)) {
+            (TokenType::Identifier(w), TokenType::Dot, TokenType::Identifier(v))
+                if w == "http" && crate::syntax::parser::ast::HTTP_VERBS.contains(&v.as_str()) =>
+            {
+                Some(v.clone())
+            }
+            _ => None,
+        };
+        if !self.is_word("fetch") && http_verb.is_none() {
             if self.is_capitalized() {
                 let call = self.parse_expression()?;
                 return Ok(StatementKind::Resource(ResourceDecl {
@@ -2727,6 +2736,7 @@ impl ParserV2 {
                     ty,
                     url: call,
                     options: Vec::new(),
+                    source: RequestSource::Endpoint,
                 }));
             }
             return Err(self.error_with_hint(
@@ -2734,11 +2744,19 @@ impl ParserV2 {
                     "A resource is a `fetch(…)` or an endpoint, got {}",
                     self.describe()
                 ),
-                "Write `resource rows = fetch(\"/api/rows\")`, or `resource rows = Backend.rows()`",
+                "Write `resource rows: [Row] = http.get(\"/api/rows\")`, or `resource rows = Backend.rows()`",
             ));
         }
-        self.advance();
-        self.expect(&TokenType::OpenParen, "`(` after `fetch`")?;
+        let source = if let Some(verb) = http_verb {
+            self.advance();
+            self.advance();
+            self.advance();
+            RequestSource::Http(verb)
+        } else {
+            self.advance();
+            RequestSource::Fetch
+        };
+        self.expect(&TokenType::OpenParen, "`(` and the address")?;
         let url = self.parse_expression()?;
         let mut options = Vec::new();
         while self.eat(&TokenType::Comma) {
@@ -2756,6 +2774,7 @@ impl ParserV2 {
             ty,
             url,
             options,
+            source,
         }))
     }
 
@@ -5025,7 +5044,7 @@ mod tests {
                 "effect" => "effect { log(1) }".to_string(),
                 "action" => "action a() { log(1) }".to_string(),
                 "use" => "use S".to_string(),
-                "resource" => "resource r = fetch(\"/x\")".to_string(),
+                "resource" => "resource r: [String] = http.get(\"/x\")".to_string(),
                 "validate" => "state e = \"\"\n    validate e { required }".to_string(),
                 "socket" => "socket s = ws(\"wss://x\")".to_string(),
                 "stream" => "stream s = sse(\"/e\")".to_string(),

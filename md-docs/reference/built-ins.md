@@ -31,8 +31,8 @@ The functions, in alphabetical order:
 | [`beacon(url, data)`](#beacon) | Sends a small post that survives the page unloading |
 | [`broadcast(name)`](#broadcast) | Opens a channel the site's other tabs hear |
 | [`every(interval) { }`](#every) | Runs a block repeatedly |
-| [`fetch(url, options)`](#fetch) | Sends a request through the same engine as `api` |
 | [`format(value, .style, option)`](#format) | A number, date or money as text, in the locale |
+| [`http.get(url, options)`](#http) | Sends a request through the same engine as `api`; its answer is a result |
 | [`keyIs(event, combination)`](#keyis) | Whether a key event is a shortcut |
 | [`keyLabel(combination)`](#keylabel) | A shortcut as this system writes it |
 | [`log(x)`](#log) | Prints a value to the console |
@@ -167,28 +167,6 @@ branch or list item leaves. See
 every(1.seconds) { elapsed = elapsed + 1 }
 ```
 
-### `fetch`
-
-Sends a request through the same engine an `api` uses: retries, caching
-and cancelling come with it.
-
-Signature: `fetch(url, options)` → the parsed response body
-
-| Parameter | Type | Meaning |
-|---|---|---|
-| `url` | `String` | The address; a value spliced into it is encoded |
-| `options` | `Map`, optional | `method`, `headers`, `body`; a map given as `body` is sent as JSON |
-
-Returns the parsed JSON body, and throws when the response fails. Where:
-`await fetch(…)` in an action or a handler, or `resource name = fetch(…)`,
-which adds `on:` and the other options of a resource. `window.fetch` is the
-browser's own, untouched. See
-[Fetch on demand with `await fetch`](../learn/15-data.md#fetch-on-demand-with-await-fetch).
-
-```wf
-let rows = await fetch("/api/rows?page={page}", { method: "GET" })
-```
-
 ### `format`
 
 Writes a number, a date or money as text, in the reader's locale.
@@ -210,6 +188,35 @@ same call. Where: anywhere. See
 
 ```wf
 Text(format(price, .currency, "EUR"))
+```
+
+### `http`
+
+The built-in service for a request no `api` describes: the same engine an
+`api` uses — retries, caching and cancelling come with it — and an answer
+that is a result, never a throw.
+
+Signature: `http.get(url, options)` → a promise of `T!`; `http.post`,
+`http.put`, `http.patch` and `http.delete` take the same
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `url` | `String` | The address; a value spliced into it is encoded |
+| `body:` | `Json`, optional | What is sent; a record or a map is sent as JSON |
+| `headers:` | `[String: String]`, optional | Headers of this request |
+| `as:` | `.json` (default), `.text`, `.blob` | How the answer is read; `.text` is a `String` |
+| `timeout:`, `retry:`, `cache:`, `credentials:` | as on an `api` | This request's own |
+
+`T` is named where the answer goes — `let rows: [Row] = try await
+http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows:
+[Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is
+an `HttpError`. Where: `await` in an action or a handler, or as a
+`resource`, which adds `on:` and the other options of a resource. `fetch` is
+gone (`N08`); `window.fetch` is the browser's own, untouched. See
+[Ask on demand with `http`](../learn/15-data.md#ask-on-demand-with-http).
+
+```wf
+let rows: [Row] = try await http.get("/api/rows?page={page}")
 ```
 
 ### `keyIs`

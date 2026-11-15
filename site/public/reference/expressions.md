@@ -419,13 +419,16 @@ radius and a shadow) is written in full: `$spacing-md`.
 action asynchronous. While a call of it runs, `name.pending` is `true`:
 
 ```wf
+type Row { id: String }
+type Note { text: String }
+
 page Report(path: "/report", title: "Report", description: "Rows loaded on request.") {
-    state rows: [Map] = []
+    state rows: [Row] = []
     state note = ""
-    action load() {
-        rows = await fetch("/api/rows")
-        let answer = await fetch("/api/note", { method: "GET" })
-        note = answer.text ?? ""
+    action load() -> ! {
+        rows = try await http.get("/api/rows")
+        let answer: Note = try await http.get("/api/note")
+        note = answer.text
     }
     Heading("Report").h1
     Button("Load", disabled: load.pending) { on click { load() } }
@@ -433,9 +436,10 @@ page Report(path: "/report", title: "Report", description: "Rows loaded on reque
 }
 ```
 
-`fetch(url, options)` returns the parsed JSON body, or throws when the
-response fails. `options` is a map with `method`, `headers` and `body`; a
-map given as `body` is sent as JSON. `await` outside an action, a handler,
+`http.get(url)`, `http.post(url, body: value)` and the other verbs are a
+promise of a result: the answer, typed where it goes, or an `HttpError`.
+`try` gives the answer or passes the failure up from the action, which
+says what it fails with (`-> !`). `await` outside an action, a handler,
 a timer or a hook is a `T17`. [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md) has `resource`, the
 declarative way to load data.
 
@@ -482,7 +486,7 @@ has an entry for each.
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](https://webfluent.monzeromer.dev/recipes/send-on-unload.md)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it)) |
-| `fetch(url, options)` | Sends a request, through the same engine as `api` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#fetch-on-demand-with-await-fetch)) |
+| `http.get(url, options)` | Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) |
 
 The browser's own globals need no prefix and compile to themselves:

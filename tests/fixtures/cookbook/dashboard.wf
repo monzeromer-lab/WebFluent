@@ -3,21 +3,25 @@
 // clicks through the bundle.
 type Deploy { id: String, service: String, status: String, startedAt: String, by: String }
 type Service { name: String, healthy: Bool, region: String }
+type Credentials { email: String, password: String }
+type Member { email: String }
+type SignedIn { user: Member }
 
 enum Sort { newest, service, status }
 
 store Session {
-    persist user: Map? = null
+    persist user: Member? = null
     state error = ""
     derived loggedIn = user != null
     action login(email: String, password: String) {
         error = ""
-        try {
-            let r = await fetch("/api/login", { method: "POST", body: { email: email, password: password } })
-            user = r.user
-            navigate("/")
-        } catch e {
-            error = "Sign-in failed: {e.message}"
+        let r: SignedIn! = await http.post("/api/login", body: Credentials(email: email, password: password))
+        match r {
+            .ok(signed) {
+                user = signed.user
+                navigate("/")
+            }
+            .err(e) { error = "Sign-in failed: {e.message}" }
         }
     }
     action logout() { user = null  navigate("/login") }
@@ -97,7 +101,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in to the consol
 }
 
 page Overview(path: "/", title: "Overview", description: "Service health.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {
-    resource services: [Service] = fetch("/api/services")
+    resource services: [Service] = http.get("/api/services")
     every(30000) { services.reload() }
     Heading("Overview").h1
     match services {
@@ -130,9 +134,9 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.",
     state sort: Sort = .newest
     state q = ""
     state rolledBack = ""
-    resource deploys: [Deploy] = fetch("/api/deploys")
+    resource deploys: [Deploy] = http.get("/api/deploys")
     action rollback(id: String) {
-        await fetch("/api/deploys/{id}/rollback", { method: "POST" })
+        await http.post("/api/deploys/{id}/rollback")
         rolledBack = id
         Ui.close()
         deploys.reload()
@@ -190,7 +194,7 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.",
 }
 
 page DeployDetail(path: "/deploys/:id", id: String, title: "Deploy", description: "One deploy.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {
-    resource deploy: Deploy = fetch("/api/deploys/{id}")
+    resource deploy: Deploy = http.get("/api/deploys/{id}")
     Breadcrumb {
         Breadcrumb.Item(to: "/deploys") { Text("Deploys") }
         Breadcrumb.Item { Text(id) }

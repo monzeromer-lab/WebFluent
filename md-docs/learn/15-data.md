@@ -4,9 +4,9 @@ kind: "tutorial"
 route: "/learn/15-data"
 from: ["/docs/guide/data"]
 group: "build"
-blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time."
-description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files."
-learned: ["Show a request's loading, error and ready states with `resource` and `match`", "Tell a refresh (`refreshing`, the data stays) from a first load (`loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Fetch on demand with `await fetch` in an action, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"]
+blurb: "Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time."
+description: "Describe an API once with retries, caching and typed errors; show a resource with match; ask with http in an action; update optimistically; read data files."
+learned: ["Show a request's loading, error and ready states with `resource` and `match`", "Tell a refresh (`refreshing`, the data stays) from a first load (`loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Ask on demand with `http` in an action, handle its result, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"]
 ---
 # 15. Fetching data
 
@@ -22,7 +22,7 @@ You will be able to:
 - describe a service once with `api`, so every call is typed, retried,
   cached and cancelled for you;
 - read a service's surface from an OpenAPI file;
-- fetch on demand from an action, and show a change before the server
+- ask on demand from an action, and show a change before the server
   agrees;
 - read a JSON file at build time and render one page per item in it.
 
@@ -47,7 +47,7 @@ This chapter does not cover:
 |---|---|---|
 | Data the page shows as soon as it opens | `resource` | [Show a request with resource](#show-a-request-with-resource) |
 | One place that describes a service and its endpoints | `api` | [Describe a service with api](#describe-a-service-with-api) |
-| A request made when something happens: a save, a delete, a step in a flow | `await fetch` in an action | [Fetch on demand with await fetch](#fetch-on-demand-with-await-fetch) |
+| A request made when something happens: a save, a delete, a step in a flow | `http.post(…)` in an action | [Ask on demand with http](#ask-on-demand-with-http) |
 | Content that is known at build time | `data` | [Read a file at build time with data](#read-a-file-at-build-time-with-data) |
 
 ## Show a request with `resource`
@@ -63,7 +63,7 @@ if the request fails:
 type Deploy { id: String, status: String, startedAt: String }
 
 page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.") {
-    resource deploys: [Deploy] = fetch("/api/deploys")
+    resource deploys: [Deploy] = http.get("/api/deploys")
 
     Heading("Deploys").h1
     match deploys {
@@ -93,7 +93,7 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 
 How it works:
 
-- `resource name = fetch(url)` starts the request when the page renders.
+- `resource name: T = http.get(url)` starts the request when the page renders.
 - The annotation (`: [Deploy]`) types the value. Without one, the value is
   `Any`.
 - A `match` over a resource has three arms — `loading`, `error(e)` and
@@ -127,7 +127,7 @@ changes its label when the plan arrives.
 
 These ask for a resource again:
 
-- the `on:` option of `fetch(…)` or of an endpoint's call: `.focus` (when
+- the `on:` option of `http.get(…)` or of an endpoint's call: `.focus` (when
   the reader comes back to the tab), `.reconnect` (when the network
   returns), or `.interval(30.seconds)`;
 - `name.reload()` and `name.invalidate()`.
@@ -144,7 +144,7 @@ type Server { id: String, name: String, status: String }
 
 page Servers(path: "/servers", title: "Servers", description: "Every server, kept current.") {
     state stage = "test"
-    resource servers: [Server] = fetch("/api/servers?env={stage}", on: .interval(30.seconds))
+    resource servers: [Server] = http.get("/api/servers?env={stage}", on: .interval(30.seconds))
 
     Heading("Servers").h1
     Button("Production") { on click { stage = "prod" } }
@@ -198,21 +198,23 @@ Pressing **Production** above changes `stage`, so the list shows its
 
 ### Send options with a request
 
-Options follow the URL, by name:
+The verb is the method — `http.get`, `http.post`, `http.put`,
+`http.patch`, `http.delete` — and options follow the URL, by name:
 
-- `method:` — `"GET"` unless you say otherwise;
 - `headers:` — a map;
-- `body:` — a map, sent as JSON with the content type set.
+- `body:` — what is sent, as JSON with the content type set.
 
-The response body is parsed as JSON.
+The answer is read as JSON and is the type the resource declares.
 
 This page searches with a `POST` and an authorization header:
 
 ```wf
+type Hit { id: String, title: String }
+
 page Search(path: "/search", title: "Search", description: "Search the catalogue.") {
     state q = ""
     state token = "demo-token"
-    resource hits = fetch("/api/search", method: "POST",
+    resource hits: [Hit] = http.post("/api/search",
         headers: { Authorization: "Bearer {token}" },
         body: { query: q, limit: 20 })
 
@@ -236,7 +238,7 @@ follows its route parameter:
 type Post { slug: String, title: String, body: String }
 
 page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slug: String) {
-    resource post: Post = fetch("/api/posts/{slug}")
+    resource post: Post = http.get("/api/posts/{slug}")
     match post {
         loading { Skeleton }
         error(e) { Alert("Not found").warning }
@@ -256,10 +258,12 @@ value. This page keeps what the reader types in `draft`, and searches only
 when they press Enter:
 
 ```wf
+type Hit { id: String, title: String }
+
 page Lookup(path: "/lookup", title: "Lookup", description: "Search when you press Enter.") {
     state draft = ""
     state submitted = ""
-    resource hits = fetch("/api/search?q={submitted}")
+    resource hits: [Hit] = http.get("/api/search?q={submitted}")
 
     Heading("Lookup").h1
     Input(bind: draft, label: "Search") { on key("Enter") { submitted = draft } }
@@ -282,17 +286,23 @@ different alert for each kind of failure:
 
 ```wf
 type User { id: String, name: String }
+type NewUser { name: String }
+
+/// Why adding someone can be refused.
+enum CreateUserError {
+    unprocessableContent(problem: Problem) on 422
+    http(error: HttpError)
+}
 
 api Backend(base: "/api/v1") {
     credentials: .sameOrigin      // the session cookie goes with every call
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
 
-    get    users(page: Number = 1, q: String?) -> [User]
-    get    user(id: String) at "users/:id"     -> User
-    post   createUser(body: Map)               -> User
-        errors { 422 -> Map }
-    delete removeUser(id: String) at "users/:id"
+    get    users(page: Number = 1, q: String?)  -> [User]!
+    get    user(id: String) at "users/:id"      -> User!
+    post   createUser(body: NewUser)            -> User ! CreateUserError
+    delete removeUser(id: String) at "users/:id" -> !
 }
 
 page Users(path: "/users", title: "Users", description: "Everyone.") {
@@ -317,8 +327,11 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
 - A parameter the path names goes in the path. Every other parameter goes in
   the query string.
-- `->` says what a success returns. A `resource` over the endpoint is typed
-  by it, so `u.nam` is `T05` before the page ever runs.
+- `->` says what a success returns and how a call fails: `-> [User]!` is a
+  list of users or an `HttpError`, `-> User ! CreateUserError` a user or a
+  case of that error enum, `-> !` nothing but may fail ([Say how a call
+  fails](#say-how-a-call-fails)). A `resource` over the endpoint holds what
+  a success returns, so `u.nam` is `T05` before the page ever runs.
 - An endpoint the service does not have is `T06`, and an argument it does
   not take is `T10`.
 
@@ -337,7 +350,7 @@ type User { id: String, name: String }
 store Session {
     state token = ""
     state language = "en"
-    action refresh() { token = await fetch("/api/token") }
+    action refresh() -> ! { token = try await http.get("/api/token", as: .text) }
 }
 
 api Backend(base: env.PUBLIC_API ?? "/api/v1") {
@@ -350,7 +363,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
     on response(r) { log("{r.status} {r.url}") }
     on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
 
-    get me() -> User
+    get me -> User!
 }
 ```
 
@@ -475,14 +488,13 @@ How `retry` works:
 Each line of a service, after its settings, is an endpoint:
 
 ```text
-get users(page: Number = 1, q: String?) -> [User]
-get user(id: String) at "users/:id" -> User
-post createUser(body: Map) -> User
-    errors { 422 -> Map }
-put rename(id: String, body: Map) at "users/:id" -> User
-patch settings(body: Map) -> Map
-delete removeUser(id: String) at "users/:id"
-get report(id: String) at "reports/:id" as: .blob
+get users(page: Number = 1, q: String?) -> [User]!
+get user(id: String) at "users/:id" -> User ! LookupError
+post createUser(body: NewUser) -> User ! CreateUserError
+put rename(id: String, body: Rename) at "users/:id" -> User!
+patch settings(body: Settings) -> Settings!
+delete removeUser(id: String) at "users/:id" -> !
+get report(id: String) at "reports/:id" -> Json! as: .blob
 ```
 
 - **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or
@@ -497,19 +509,20 @@ get report(id: String) at "reports/:id" as: .blob
   sent as JSON. A `File` parameter makes the call a multipart upload.
 - **Query parameters.** Every other parameter goes in the query string, and
   one that is `null` is left out.
-- **What comes back.** `-> T` is what a success returns. Without it the call
-  returns `Any`, and `204 No Content` returns nothing.
-- **Typed failures.** `errors { 422 -> T }` types the body of a failure with
-  that status: `match e { .status(code, body) { … } }` binds the status and
-  the body, typed `T`, and so is `e.body`. Under `wf serve` the body that
-  arrives is held to `T`, as a success is held to `-> T`.
+- **What comes back.** `-> T!` is a success's `T`, or an `HttpError`;
+  `-> T ! E` names the failures in an error enum `E`, each status a case
+  with its typed body; `-> !` returns nothing, as `204 No Content` does, and
+  may fail. Under `wf serve` the body that arrives is held to `T`, and a
+  declared status's body to its case's type. What crosses is a type the
+  program names: `Map` and `Any` there are `N11`.
 - **Other responses.** `as:` says how to read a response that is not JSON:
   `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for
   a failure's body. `cache:` sets a cache policy for that endpoint alone.
 
 A call passes the endpoint's parameters by name, and one with no default
 that may not be null must be given. Called in an action, it is a promise of
-what the endpoint returns: `await` it to read the value. It may add `cache:`,
+a result: `await` it, then `match` it or pass its failure up with `try`
+([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`,
 `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
 `.interval(30.seconds)`) and `paginate:`.
 
@@ -611,7 +624,7 @@ This page shows items and a **Load more** button while there are more:
 type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]
+    get items(page: Number = 1) -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
@@ -667,43 +680,48 @@ action rename(id: String, name: String) {
 The new title shows at once. If `updateUser` fails, the old title comes
 back.
 
-## Fetch on demand with `await fetch`
+## Ask on demand with `http`
 
 For a request made when something happens — a save, a delete, a step in a
-flow — call `await fetch` in an action. It returns the parsed body, and
-throws on a failed response, so you catch the failure with `try`.
+flow — call the built-in service `http` in an action: `http.get(url)`,
+`http.post(url, body: …)`, `http.put`, `http.patch`, `http.delete`. Its
+answer is a *result*, `.ok(value)` or `.err(e)` with an `HttpError`, so a
+failure is a value you handle rather than an exception you catch: pass it
+up with `try`, or `match` it where the call is made.
 
 This page loads a list of todos, adds one, and toggles one, each with a
 request:
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
+type NewTodo { title: String }
+type Change { done: Bool }
 
 page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server.") {
     state todos: [Todo] = []
     state draft = ""
     state error = ""
 
-    action load() {
-        let r: [Todo] = await fetch("/api/todos")
-        todos = r
+    action load() -> ! {
+        todos = try await http.get("/api/todos")
     }
 
     action add() {
         if draft.trim() == "" { return }
-        try {
-            let created: Todo = await fetch("/api/todos", { method: "POST", body: { title: draft } })
-            todos.push(created)
-            draft = ""
-        } catch e {
-            error = "Could not save: {e.message}"
+        let saved: Todo! = await http.post("/api/todos", body: NewTodo(title: draft))
+        match saved {
+            .ok(created) {
+                todos.push(created)
+                draft = ""
+            }
+            .err(e) { error = "Could not save: {e.message}" }
         }
     }
 
-    action toggle(id: String) {
+    action toggle(id: String) -> ! {
         let found = todos.find(x => x.id == id)
         if let todo = found {
-            let updated: Todo = await fetch("/api/todos/{id}", { method: "PATCH", body: { done: !todo.done } })
+            let updated: Todo = try await http.patch("/api/todos/{id}", body: Change(done: !todo.done))
             todos = todos.map(x => if x.id == id { updated } else { x })
         }
     }
@@ -719,15 +737,25 @@ page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server
 }
 ```
 
-- The second argument is a map of `method`, `headers` and `body`.
+- **What comes back is named where it goes**: `todos = try await
+  http.get(…)` is a `[Todo]` because `todos` is, `let updated: Todo` names
+  it, and `let saved: Todo!` names a whole result. A `get` whose answer goes
+  nowhere that says what it is is `N11`; a write whose answer nothing reads
+  needs no type.
+- **`try`** in `load` and `toggle` gives the answer, or ends the action with
+  its failure as the action's own: each says what it fails with, `-> !` —
+  nothing, or an `HttpError`. `add` instead matches the result and shows
+  the failure.
+- `body:` is what is sent, as JSON; `headers:`, `timeout:`, `retry:` and
+  `cache:` go beside it, and `as: .text` reads the answer as text.
 - `load()` at the top of the page is set-up code: it runs once, when the
   page renders.
 - `todos.push(created)` changes the state in place. The compiler turns it
   into a new list, so everything that reads `todos` repaints.
 - `name.pending` is `true` while the action runs, so **Add** is disabled
   during a save.
-- `await fetch` goes through the same engine as an `api` call. For the
-  browser's own `fetch`, with the raw response, call `window.fetch`.
+- `http` goes through the same engine as an `api` call. `fetch` is the
+  browser's own, `window.fetch`, with the raw response.
 
 ## Read a file at build time with `data`
 
@@ -853,14 +881,14 @@ source of data puts in that HTML:
 | `data`, `const`, `env` | Fully painted |
 | `state` initial values, and `derived` values over them | Painted |
 | `resource` | The `loading` arm; the live page fetches and replaces it |
-| `await fetch` | Nothing until the action runs |
+| `http` in an action | Nothing until the action runs |
 
 ## Troubleshooting
 
 | What you see | Why, and what to do |
 |---|---|
 | The browser console says a response was blocked by CORS | The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)). |
-| A `fetch` gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
+| A request gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
 | A `.parse` error naming a place, such as `$[1].name is missing` | Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
 | A resource stays `loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
 | The page goes back to `loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the data. |
@@ -892,7 +920,7 @@ A resource with `on: .interval(30.seconds)` asks again while its list is on scre
 ```
 
 ```quiz
-The address is `fetch("/api/servers?env={stage}")`, and a button sets `stage` from `"test"` to `"prod"`. What shows next?
+The address is `http.get("/api/servers?env={stage}")`, and a button sets `stage` from `"test"` to `"prod"`. What shows next?
 + The `loading` arm, then the production servers -- The request now names something else, so it is a first load; the test servers would be the wrong data.
 - The test servers, with `refreshing` true, until the production servers arrive -- That is a refresh, which asks again for the same request; this one changed.
 - Nothing changes until the reader reloads the page -- An address that reads state is fetched again whenever that state changes.
@@ -905,7 +933,7 @@ the reader is not told:
 
 ```wf expect=T21
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users = fetch("/api/users")
+    resource users = http.get("/api/users")
     Heading("Users").h1
     match users {
         loading { Spinner }
@@ -924,7 +952,7 @@ field read from it is checked against the `type`:
 type User { id: String, name: String }
 
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users: [User] = fetch("/api/users")
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
         loading { Spinner }
@@ -944,7 +972,7 @@ if the server sends it ([T05](../errors/T05.md)).
 type User { id: String, name: String }
 
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users: [User] = fetch("/api/users")
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     Text("{users.data.length} users")
 }

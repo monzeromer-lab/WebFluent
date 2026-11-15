@@ -314,20 +314,23 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 
         Markdown("`await` waits for a promise inside an action or a handler, and makes the action asynchronous. While a call of it runs, `name.pending` is `true`:")
 
-        CodeBlock(#"page Report(path: "/report", title: "Report", description: "Rows loaded on request.") {
-    state rows: [Map] = []
+        CodeBlock(#"type Row { id: String }
+type Note { text: String }
+
+page Report(path: "/report", title: "Report", description: "Rows loaded on request.") {
+    state rows: [Row] = []
     state note = ""
-    action load() {
-        rows = await fetch("/api/rows")
-        let answer = await fetch("/api/note", { method: "GET" })
-        note = answer.text ?? ""
+    action load() -> ! {
+        rows = try await http.get("/api/rows")
+        let answer: Note = try await http.get("/api/note")
+        note = answer.text
     }
     Heading("Report").h1
     Button("Load", disabled: load.pending) { on click { load() } }
     Text("{rows.length} rows, note: {note}")
 }"#, title: "wf")
 
-        Markdown("`fetch(url, options)` returns the parsed JSON body, or throws when the response fails. `options` is a map with `method`, `headers` and `body`; a map given as `body` is sent as JSON. `await` outside an action, a handler, a timer or a hook is a `T17`. [Fetching data](/learn/15-data) has `resource`, the declarative way to load data.")
+        Markdown("`http.get(url)`, `http.post(url, body: value)` and the other verbs are a promise of a result: the answer, typed where it goes, or an `HttpError`. `try` gives the answer or passes the failure up from the action, which says what it fails with (`-> !`). `await` outside an action, a handler, a timer or a hook is a `T17`. [Fetching data](/learn/15-data) has `resource`, the declarative way to load data.")
 
         Heading("Constants", id: "constants").h2
 
@@ -405,8 +408,8 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                     Table.Cell { Markdown("Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it))") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`fetch(url, options)`") }
-                    Table.Cell { Markdown("Sends a request, through the same engine as `api` ([Fetching data](/learn/15-data#fetch-on-demand-with-await-fetch))") }
+                    Table.Cell { Markdown("`http.get(url, options)`") }
+                    Table.Cell { Markdown("Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#ask-on-demand-with-http))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)`") }

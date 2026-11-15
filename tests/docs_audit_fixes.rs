@@ -53,7 +53,7 @@ fn an_action_named_as_a_value_is_the_function() {
 fn a_resource_or_a_connection_is_read_as_what_it_holds() {
     let js = spa_generated(
         "page P(path: \"/\", title: \"T\", description: \"D\") {\n\
-         \x20   resource rows = fetch(\"/api/rows\")\n\
+         \x20   resource rows: [String] = http.get(\"/api/rows\")\n\
          \x20   socket chat = ws(\"wss://example.com/chat\")\n\
          \x20   Text(\"{rows.state}\")\n\
          \x20   for m in chat.messages { Text(m.text) }\n\
@@ -68,7 +68,7 @@ fn a_resource_or_a_connection_is_read_as_what_it_holds() {
 #[test]
 fn a_call_may_ask_for_pages() {
     let src = "type Item { id: String, name: String }\n\
-               api Catalog(base: \"/api\") { get items(page: Number = 1) -> [Item] }\n\
+               api Catalog(base: \"/api\") { get items(page: Number = 1) -> [Item]! }\n\
                page P(path: \"/\", title: \"T\", description: \"D\") {\n\
                \x20   state page = 1\n\
                \x20   resource list = Catalog.items(page: page, paginate: .page)\n\
