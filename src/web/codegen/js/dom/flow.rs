@@ -102,6 +102,8 @@ impl JsCodegen {
                     self.emit_line("try {");
                     self.indent += 1;
                 }
+                // What `try` passes up comes back as the action's `.err`.
+                self.open_result_action(a.returns.as_ref(), is_async);
                 // An action that shows something before the server has
                 // agreed takes it back if anything in it throws.
                 let optimistic = shows_optimistically(&a.body);
@@ -134,6 +136,8 @@ impl JsCodegen {
                     self.indent -= 1;
                     self.emit_line("});");
                 }
+                let setter = format!("{}_result", sig(&a.name));
+                self.close_result_action(Some(&setter));
                 if is_async {
                     self.indent -= 1;
                     let p = format!("{}_pending", sig(&a.name));
@@ -201,11 +205,17 @@ impl JsCodegen {
 
     pub(in super::super) fn emit_if_dom(&mut self, if_stmt: &IfStmt, parent: &str) {
         let value = self.emit_expr(&if_stmt.condition);
+        let json = self.is_json_subject(&if_stmt.condition);
         // `if let x = e`: the branch shows while the value is not null, and
-        // reads it as a plain name.
-        let cond = match &if_stmt.binding {
-            Some(_) => format!("{value} != null"),
-            None => value.clone(),
+        // reads it as a plain name. `if let .err(e) = outcome`: while the
+        // value matches the case.
+        let cond = match (&if_stmt.pattern, &if_stmt.binding) {
+            (Some(p), _) => match self.pattern_test(p, "$v", json) {
+                Some(test) => format!("(($v) => {test})({value})"),
+                None => "true".to_string(),
+            },
+            (None, Some(_)) => format!("{value} != null"),
+            (None, None) => value.clone(),
         };
 
         self.emit_line(&format!("WF.when({parent},"));
@@ -227,6 +237,17 @@ impl JsCodegen {
             self.emit_line(&format!("const ${name} = WF.held(() => {value});"));
             self.bind_live(name);
         }
+        // Each name a pattern binds reads its place in the value as it is.
+        if let Some(p) = &if_stmt.pattern {
+            let held = self.fresh_var();
+            self.emit_line(&format!("const {held} = WF.held(() => {value});"));
+            let mut binds = Vec::new();
+            Self::pattern_binds(p, &format!("{held}()"), json, &mut binds);
+            for (name, path) in binds {
+                self.emit_line(&format!("const ${name} = () => {path};"));
+                self.bind_live(&name);
+            }
+        }
         for stmt in &if_stmt.then_body {
             self.emit_statement_dom(stmt, &then_var);
         }
@@ -247,6 +268,7 @@ impl JsCodegen {
                 "const {elif_var} = document.createDocumentFragment();"
             ));
             let elif = IfStmt {
+                pattern: None,
                 condition: if_stmt.else_if_branches[0].0.clone(),
                 binding: None,
                 animate: if_stmt.animate.clone(),
@@ -445,6 +467,10 @@ impl JsCodegen {
     /// `match x { … }`: one arm shown at a time, chosen by a resource's
     /// state or an enum's case, and re-chosen when it changes.
     pub(in super::super) fn emit_match_dom(&mut self, m: &MatchStmt, parent: &str) {
+        if Self::has_refutable_arm(&m.arms) {
+            self.emit_match_by_patterns(m, parent);
+            return;
+        }
         let over_resource = m.arms.iter().any(|a| {
             matches!(
                 a.pattern,
@@ -514,6 +540,61 @@ impl JsCodegen {
             for (i, bound_name) in arm.bindings.iter().enumerate() {
                 self.emit_line(&format!("const ${bound_name} = () => {live}()[{}];", i + 1));
                 self.bind_live(bound_name);
+            }
+            let var = self.fresh_var();
+            self.emit_line(&format!("const {var} = document.createDocumentFragment();"));
+            for stmt in &arm.body {
+                self.emit_statement_dom(stmt, &var);
+            }
+            self.emit_line(&format!("return {var};"));
+            self.unbind(bound);
+            self.indent -= 1;
+            self.emit_line("},");
+        }
+        self.indent -= 1;
+        self.emit_line("});");
+    }
+
+    /// A `match` whose arms take only some of a case's values —
+    /// `.err(.status(503, _))` — chosen by testing each arm in turn: the
+    /// first that matches is shown, and drawn again when another does.
+    fn emit_match_by_patterns(&mut self, m: &MatchStmt, parent: &str) {
+        let subject = self.emit_expr(&m.scrutinee);
+        let json = self.is_json_subject(&m.scrutinee);
+        let mut choose = Vec::new();
+        for (i, arm) in m.arms.iter().enumerate() {
+            match Self::arm_pattern(arm) {
+                Some(p) => {
+                    let test = self
+                        .pattern_test(&p, "$v", json)
+                        .unwrap_or_else(|| "true".to_string());
+                    choose.push(format!("{test} ? \"{i}\""));
+                }
+                None => choose.push("true ? \"else\"".to_string()),
+            }
+        }
+        choose.push("null".to_string());
+        self.emit_line(&format!(
+            "WF.match({parent}, () => (($v) => {})({subject}), () => {subject}, {{",
+            choose.join(" : ")
+        ));
+        self.indent += 1;
+        for (i, arm) in m.arms.iter().enumerate() {
+            let key = match Self::arm_pattern(arm) {
+                Some(_) => format!("\"{i}\""),
+                None => "else".to_string(),
+            };
+            self.emit_line(&format!("{key}: ($$value, $$arm) => {{"));
+            self.indent += 1;
+            // Each name reads its place in the value as it is now.
+            let bound = self.loop_bindings.len();
+            let mut binds = Vec::new();
+            if let Some(p) = Self::arm_pattern(arm) {
+                Self::pattern_binds(&p, "$$arm()", json, &mut binds);
+            }
+            for (name, path) in binds {
+                self.emit_line(&format!("const ${name} = () => {path};"));
+                self.bind_live(&name);
             }
             let var = self.fresh_var();
             self.emit_line(&format!("const {var} = document.createDocumentFragment();"));

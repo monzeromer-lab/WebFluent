@@ -184,6 +184,9 @@ pub struct EnumDecl {
 pub struct EnumCase {
     pub name: String,
     pub fields: Vec<FieldDecl>,
+    /// `unprocessableContent(problem: ValidationProblem) on 422`: the HTTP
+    /// status this case of an error enum stands for.
+    pub status: Option<u16>,
 }
 
 impl EnumDecl {
@@ -748,10 +751,52 @@ pub struct MatchArm {
     /// The name the arm binds: the error in `error(e)`, the value in
     /// `ready(v)`.
     pub binding: Option<String>,
-    /// The names a `.case(a, b)` arm binds to the case's payload, in order.
+    /// The names a `.case(a, b)` arm binds to the case's payload, in order;
+    /// `_` where the place holds a pattern rather than a name.
     pub bindings: Vec<String>,
+    /// What each place of the case's payload must match, in order: a name,
+    /// `_`, a literal, or a case of its own — `.err(.status(503, _))`.
+    pub patterns: Vec<Pattern>,
     pub body: Vec<Statement>,
     pub span: Span,
+}
+
+/// What a value must be for an arm to take it, and the names it binds.
+#[derive(Debug, Clone, PartialEq)]
+pub enum Pattern {
+    /// `name`: any value, bound to the name.
+    Bind(String),
+    /// `_`: any value, bound to nothing.
+    Wildcard,
+    /// `503`, `"x"`, `true`, `null`: a value equal to it.
+    Literal(Expr),
+    /// `.http(e)`, `.offline`: a case, and what each place of its payload
+    /// must match.
+    Case(String, Vec<Pattern>),
+}
+
+impl Pattern {
+    /// Whether every value matches it.
+    pub fn is_irrefutable(&self) -> bool {
+        matches!(self, Pattern::Bind(_) | Pattern::Wildcard)
+    }
+
+    /// The name it binds at its own place, `_` for any other.
+    pub fn name(&self) -> &str {
+        match self {
+            Pattern::Bind(name) => name,
+            _ => "_",
+        }
+    }
+
+    /// Every name it binds, at any depth.
+    pub fn names(&self) -> Vec<&str> {
+        match self {
+            Pattern::Bind(name) => vec![name],
+            Pattern::Case(_, inner) => inner.iter().flat_map(Pattern::names).collect(),
+            Pattern::Wildcard | Pattern::Literal(_) => Vec::new(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -1113,6 +1158,9 @@ pub struct IfStmt {
     /// `if let name = condition { … }`: the name bound to the condition's
     /// value inside the branch, which runs when the value is not null.
     pub binding: Option<String>,
+    /// `if let .err(e) = outcome { … }`: the case the value must be, and
+    /// the names it binds inside the branch, which runs when it matches.
+    pub pattern: Option<Pattern>,
     pub animate: Option<AnimateConfig>,
     /// The `, animate(…)` clause as written, when there is one.
     pub animate_span: Option<Span>,
@@ -1243,6 +1291,9 @@ pub enum Expr {
     Token(String),
     /// `await expr`, inside an action or a handler.
     Await(Box<Expr>),
+    /// `try expr`: a result's value, or its error returned from the action
+    /// it is in.
+    Try(Box<Expr>),
     /// A literal of one of the language's own types: `@2026-03-14` is a
     /// `Date` carried by `"2026-03-14"`, `3.days` a `Duration` carried by
     /// `259200000`, `€12.99` a `Money` carried by a small map.
@@ -1272,6 +1323,7 @@ impl Expr {
             Expr::UnaryOp(_, e)
             | Expr::Lambda(_, e)
             | Expr::Await(e)
+            | Expr::Try(e)
             | Expr::Spread(e)
             | Expr::Typed(_, e) => vec![e],
             Expr::Range(a, b, _) => vec![a, b],
@@ -1313,6 +1365,7 @@ impl Expr {
             Expr::UnaryOp(_, e)
             | Expr::Lambda(_, e)
             | Expr::Await(e)
+            | Expr::Try(e)
             | Expr::Spread(e)
             | Expr::Typed(_, e) => vec![e],
             Expr::Range(a, b, _) => vec![a, b],

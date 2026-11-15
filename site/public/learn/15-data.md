@@ -507,6 +507,95 @@ what the endpoint returns: `await` it to read the value. It may add `cache:`,
 `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
 `.interval(30.seconds)`) and `paginate:`.
 
+### Say how a call fails
+
+An endpoint that says how it fails returns a *result* rather than throwing:
+`-> T ! E` is a `T`, or an error of the *error enum* `E`, and `-> T!` is a
+`T` or an `HttpError`. An error enum names each status the service answers
+with as a case of its own, carrying the body that status sends, and keeps
+one case, `http(error: HttpError)`, for everything else:
+
+```wf
+type User { id: String, name: String }
+type NewUser { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+/// Why adding someone can be refused.
+enum CreateUserError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    conflict(problem: Problem) on 409
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post createUser(body: NewUser) at "users" -> User ! CreateUserError
+    get ping() at "ping" -> !
+}
+
+store People {
+    state said = ""
+
+    /// 1. Every case handled where the call is made.
+    action submit(name: String) {
+        match await Backend.createUser(body: NewUser(name: name)) {
+            .ok(u) { said = "Added {u.name}" }
+            .err(.unprocessableContent(p)) { said = p.errors.map(e => e.message).join(", ") }
+            .err(.conflict(_)) { said = "Already there" }
+            .err(.http(.status(503, _))) { said = "The service is busy" }
+            .err(.http(e)) { said = e.message }
+        }
+    }
+
+    /// 2. The failure passed up, as the action's own.
+    action invite(name: String) -> User ! CreateUserError {
+        let user = try await Backend.createUser(body: NewUser(name: name))
+        return user
+    }
+}
+
+page Team(path: "/people", title: "People", description: "Adding someone, and why it can fail.") {
+    use People
+    state name = ""
+    Heading("People").h1
+    Input(bind: name, label: "Name")
+    Button("Add") { on click { People.submit(name) } }
+    Button("Invite") { on click { People.invite(name) } }
+    Text(People.said)
+    // 3. The last outcome of an action, read where it is shown.
+    if let .err(.unprocessableContent(p)) = People.invite.result {
+        Alert(p.title ?? "Check the form").danger
+    }
+}
+```
+
+- **An error enum.** Each case but `http` names its status, `on 422`, and
+  carries one value, the body of that status. An enum that names a status
+  is held to that shape (`N12`).
+- **`HttpError`** is what goes wrong between the page and the server:
+  `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`,
+  `.decode(at, message)` and `.status(code, problem)`. Every one has
+  `.message`, for showing.
+- **`Problem`** is a server's account of a failure as RFC 9457 has it —
+  `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a
+  project extends it like any record. A status the enum does not name
+  carries it as its `problem` when the server sends
+  `application/problem+json`.
+- **A result** is `.ok(value)` (`.ok` when there is none) or `.err(error)`.
+  A `match` on one gives every case an arm, or an `else`; an arm may look
+  inside a case, `.err(.http(.status(503, _)))`, where `_` takes anything
+  and a literal takes that value. `match` runs in an action or a handler
+  too, and `if let .err(e) = outcome { … }` takes one case.
+- **`try`** gives a result's value, or returns its error from the action as
+  the action's own, which must say what it fails with (`N03`). The same
+  error passes up as it is, an `HttpError` becomes an error enum's `.http`,
+  and another error enum passes up through its `http` case once its other
+  cases are handled. In a handler, `try` reports a failure instead.
+- **An action that may fail** returns its value, which is `.ok` of it;
+  `return .err(e)` hands back a failure of its own. Its `.result` is its
+  last outcome, or `null` before it has run.
+- **A `resource`** over such an endpoint holds its value, as it always has.
+
 ### Load results a page at a time
 
 To show a long list in pages, call the endpoint with `paginate: .page`.

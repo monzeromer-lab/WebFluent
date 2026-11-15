@@ -803,7 +803,7 @@ store CartStore {
         total = total + product.price
     }
 
-    action getHeaders() {
+    action getHeaders() -> [String: String] {
         let h = {}
         h["Authorization"] = "Bearer " + accessToken
         return h
@@ -1052,7 +1052,7 @@ that has one and announces it, and does not run the handler.
 store AuthStore {
     state accessToken = ""
 
-    action getHeaders() {
+    action getHeaders() -> [String: String] {
         let h = {}
         h["Authorization"] = "Bearer " + accessToken
         return h
@@ -1396,6 +1396,57 @@ nothing): `await` it in an action or a handler. A parameter with no default
 that may not be null must be given (`C01`), and a resource's annotation is
 held to what its endpoint returns.
 
+**Saying how a call fails.** An endpoint declared `-> T ! E` or `-> T!`
+returns a *result* — `.ok(value)` or `.err(error)` — and never throws. An
+*error enum* names each status the service answers with, carrying its
+body, and keeps `http(error: HttpError)` for the rest (`N12` otherwise):
+
+```wf
+type User { id: String, name: String }
+type NewUser { name: String }
+type ValidationProblem = Problem { errors: [Map] }
+
+enum CreateUserError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post createUser(body: NewUser) at "users" -> User ! CreateUserError
+}
+
+store People {
+    state said = ""
+    action submit(name: String) {                    // every case, here
+        match await Backend.createUser(body: NewUser(name: name)) {
+            .ok(u) { said = "Added {u.name}" }
+            .err(.unprocessableContent(p)) { said = p.title ?? "Check the form" }
+            .err(.http(.status(503, _))) { said = "Busy" }
+            .err(.http(e)) { said = e.message }
+        }
+    }
+    action invite(name: String) -> User ! CreateUserError {   // passed up
+        let user = try await Backend.createUser(body: NewUser(name: name))
+        return user                                  // `.ok(user)`
+    }
+}
+// `if let .err(.unprocessableContent(p)) = People.invite.result { … }`
+```
+
+`HttpError` is `.offline`, `.timeout(after)`, `.cancelled`,
+`.transport(message)`, `.decode(at, message)` or `.status(code, problem)`,
+each with `.message`; `Problem` is RFC 9457's (`type`, `title`, `status`,
+`detail`, `instance`, `extensions`). `try` gives a result's value or returns
+its error from the action, which must declare one that can hold it
+(`N03`): the same error as it is, an `HttpError` into an error enum's
+`.http`, another error enum through its `http` case. In a handler `try`
+reports the failure. An action declaring `-> T ! E` returns its value
+(`.ok` of it) or `return .err(e)`; `-> ! E` and `-> !` return nothing but
+may fail. Its `.result` is its last outcome, `null` before it has run.
+Patterns: `_`, a literal, a case inside a case (`.err(.http(.status(503,
+_)))`), in a `match` — which runs in an action or a handler too — and in
+`if let .case(…) = value`.
+
 `await fetch(url, options)` in an action goes through the same engine, and
 `window.fetch` is untouched for anything that wants the browser's own.
 
@@ -1451,7 +1502,7 @@ store Lang {
         on message(m) { if m.type == "diagnostics" { problems = m.items } }
         on restart(e) { log("css restarted: {e.message}") }
     }
-    action complete(text: String, at: Number) {
+    action complete(text: String, at: Number) -> Json {
         return await css.request("complete", { text: text, at: at }, { supersede: true })
     }
 }
@@ -3304,6 +3355,7 @@ the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 | `F` | forms and bindings |
 | `I` | translations |
 | `D` | data, assets and what is kept in the browser |
+| `N` | requests: results, error enums and `try` |
 | `A` `S` `P` `U` `V` | accessibility, search, persisted values, unused, vocabulary |
 
 **Errors — the program cannot mean what it says.**
@@ -3359,6 +3411,9 @@ And what the type checker finds:
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
 | `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
 | `T22` | A handler that names more values than its event sends — `on click(e, x)`, or `on menu(a, b, c, d)` for an event of three |
+| `T26` | An action that returns a value without `-> T`; the fix writes the type it returns |
+| `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
+| `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
 | `C03` | A part outside its owner (`Select.Option` with no `Select` around it) |

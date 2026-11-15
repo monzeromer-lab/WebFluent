@@ -64,16 +64,16 @@ store Ledger {
     // ── Helpers the values above share ────────────────────────────
 
     // The money in a list of entries, added up.
-    action sum(list: [Entry]) {
+    action sum(list: [Entry]) -> Money {
         return list.reduce((total, e) => total.plus(e.amount), ZERO)
     }
 
-    action budgetLine(c: Category) {
+    action budgetLine(c: Category) -> BudgetLine {
         let used = sum(thisMonth.filter(e => e.kind == .expense && e.category == c.id))
         return BudgetLine(category: c, spent: used, left: c.budget.minus(used), share: used.amount / c.budget.amount)
     }
 
-    action monthTotal(month: Date) {
+    action monthTotal(month: Date) -> MonthTotal {
         let inMonth = entries.filter(e => e.date.startOfMonth().isSame(month))
         return MonthTotal(
             month: month,
@@ -98,7 +98,7 @@ store Ledger {
 
     // Adds what a CSV file held, skipping any entry already in the ledger.
     // Returns how many were new.
-    action merge(incoming: [Entry]) {
+    action merge(incoming: [Entry]) -> Number {
         let known = entries.map(e => e.id)
         let fresh = incoming.filter(e => !known.includes(e.id))
         entries = [...entries, ...fresh]

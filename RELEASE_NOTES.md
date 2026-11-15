@@ -70,6 +70,31 @@ Requests stop losing and duplicating data.
 - **Results**, `T ! E` and `T!`, matched by `.ok` and `.err`; an action may
   declare `-> T ! E`, `-> ! E` or `-> !`.
 
+## A call that fails says how
+
+- An endpoint declared `-> T ! E` or `-> T!` returns a result, `.ok(value)`
+  or `.err(error)`, and never throws. `E` is an *error enum*: a case for
+  each status the service answers with, `unprocessableContent(problem:
+  ValidationProblem) on 422`, carrying that status's body, and one
+  `http(error: HttpError)` case for everything else (`N12` holds an enum
+  that names a status to that shape).
+- `HttpError` and `Problem` are built in: what goes wrong between the page
+  and the server — `.offline`, `.timeout(after)`, `.cancelled`,
+  `.transport(message)`, `.decode(at, message)`, `.status(code, problem)`,
+  each with `.message` — and a server's account of a failure as RFC 9457
+  has it.
+- `try` gives a result's value, or returns its error from the action as the
+  action's own (`N03` where the action cannot hold it). In a handler it
+  reports the failure.
+- An action declaring `-> T ! E` returns its value, which is `.ok` of it,
+  or `return .err(e)`; `-> ! E` and `-> !` return nothing and may fail. Its
+  `.result` is its last outcome.
+- Patterns: `_`, a literal, and a case inside a case —
+  `.err(.http(.status(503, _)))` — in a `match`, which now runs inside an
+  action or a handler too, and in `if let .err(e) = outcome`.
+- An action that returns a value says what with `-> T` (`T26`, an error;
+  `wf fix --code T26` writes the type).
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

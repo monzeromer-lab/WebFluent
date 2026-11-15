@@ -24,7 +24,7 @@
 //! is why an editor prints only the node it changed — [`crate::syntax::reprint`]
 //! keeps every other byte, comments and all.
 
-use crate::syntax::parser::ast::{BinOp, Expr, UnaryOp, StringPart, TypeRef, ComponentRef, Arg, UIElement, StatementKind, SlotFill, StyleBlock, StyleProperty, TransitionBlock, EventHandler, Statement, ArmPattern, PersistPolicy, ConnectionDecl, ConnectionKind, PropDecl, ParamDecl, ComponentDecl, EventDecl, SlotDecl, PageDecl, StoreDecl, StoreScope, FieldDecl, TypeDecl, ThemeToken, Endpoint, Declaration, Program, Step, Span};
+use crate::syntax::parser::ast::{BinOp, Expr, UnaryOp, StringPart, TypeRef, ComponentRef, Arg, UIElement, StatementKind, SlotFill, StyleBlock, StyleProperty, TransitionBlock, EventHandler, Statement, ArmPattern, Pattern, PersistPolicy, ConnectionDecl, ConnectionKind, PropDecl, ParamDecl, ComponentDecl, EventDecl, SlotDecl, PageDecl, StoreDecl, StoreScope, FieldDecl, TypeDecl, ThemeToken, Endpoint, Declaration, Program, Step, Span};
 
 const INDENT: &str = "    ";
 
@@ -82,7 +82,7 @@ fn prec_of(e: &Expr) -> Prec {
         Expr::Lambda(..) => Prec::Lambda,
         Expr::Range(..) => Prec::Range,
         Expr::BinaryOp(_, op, _) => binop(op).1,
-        Expr::UnaryOp(..) | Expr::Await(_) => Prec::Unary,
+        Expr::UnaryOp(..) | Expr::Await(_) | Expr::Try(_) => Prec::Unary,
         Expr::PropertyAccess(..)
         | Expr::IndexAccess(..)
         | Expr::OptionalProperty(..)
@@ -159,6 +159,7 @@ pub fn expr(e: &Expr) -> String {
             }
         }
         Expr::Await(inner) => format!("await {}", wrapped(inner, Prec::Unary)),
+        Expr::Try(inner) => format!("try {}", wrapped(inner, Prec::Unary)),
         Expr::MethodCall(o, m, args) => match lowered(e) {
             Some(text) => text,
             None => format!("{}.{m}({})", base(o), call_args(args, false)),
@@ -1037,9 +1038,10 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
             )
         }
         StatementKind::If(i) => {
-            let head = match &i.binding {
-                Some(name) => format!("if let {name} = {}", expr(&i.condition)),
-                None => format!("if {}", expr(&i.condition)),
+            let head = match (&i.pattern, &i.binding) {
+                (Some(p), _) => format!("if let {} = {}", pattern(p), expr(&i.condition)),
+                (None, Some(name)) => format!("if let {name} = {}", expr(&i.condition)),
+                (None, None) => format!("if {}", expr(&i.condition)),
             };
             let mut out = format!("{head}{}", body(&i.then_body, block, indent));
             for (cond, b) in &i.else_if_branches {
@@ -1153,15 +1155,17 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                         ArmPattern::State(s) => s.clone(),
                         ArmPattern::Case(c) => format!(".{c}"),
                     };
-                    let binds = match (&arm.binding, arm.bindings.is_empty()) {
-                        (Some(b), _) => format!("({b})"),
-                        (None, false) => format!("({})", arm.bindings.join(", ")),
-                        (None, true) => String::new(),
+                    let binds = match (&arm.binding, arm.patterns.is_empty(), arm.bindings.is_empty()) {
+                        (Some(b), _, _) => format!("({b})"),
+                        (None, false, _) => format!(
+                            "({})",
+                            arm.patterns.iter().map(pattern).collect::<Vec<_>>().join(", ")
+                        ),
+                        (None, true, false) => format!("({})", arm.bindings.join(", ")),
+                        (None, true, true) => String::new(),
                     };
-                    format!(
-                        "{head}{binds}{}",
-                        body(&arm.body, Block::Render, indent + 1)
-                    )
+                    // In an action or a handler, an arm holds statements.
+                    format!("{head}{binds}{}", body(&arm.body, block, indent + 1))
                 })
                 .collect();
             block_of(&format!("match {}", expr(&m.scrutinee)), lines, indent)
@@ -1670,11 +1674,12 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                 .cases
                 .iter()
                 .map(|c| {
+                    let status = c.status.map(|s| format!(" on {s}")).unwrap_or_default();
                     if c.fields.is_empty() {
-                        c.name.clone()
+                        format!("{}{status}", c.name)
                     } else {
                         format!(
-                            "{}({})",
+                            "{}({}){status}",
                             c.name,
                             c.fields.iter().map(field).collect::<Vec<_>>().join(", ")
                         )
@@ -2200,6 +2205,20 @@ pub fn prove_declarations(source: &str, file: &str) -> Result<usize, Vec<Mismatc
         Ok(proven)
     } else {
         Err(wrong)
+    }
+}
+
+/// A pattern as it is written: `e`, `_`, `503`, `.err(.status(503, _))`.
+pub fn pattern(p: &Pattern) -> String {
+    match p {
+        Pattern::Bind(name) => name.clone(),
+        Pattern::Wildcard => "_".to_string(),
+        Pattern::Literal(e) => expr(e),
+        Pattern::Case(case, inner) if inner.is_empty() => format!(".{case}"),
+        Pattern::Case(case, inner) => format!(
+            ".{case}({})",
+            inner.iter().map(pattern).collect::<Vec<_>>().join(", ")
+        ),
     }
 }
 

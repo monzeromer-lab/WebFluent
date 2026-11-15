@@ -349,6 +349,12 @@ impl JsCodegen {
     /// before anything reads it.
     pub(super) fn emit_pending_signals(&mut self, body: &[Statement]) {
         for stmt in body {
+            // An action that declares a result keeps its last outcome.
+            if let StatementKind::Action(a) = &stmt.kind
+                && Self::declares_result(a)
+            {
+                self.emit_line(&format!("const {}_result = WF.signal(null);", sig(&a.name)));
+            }
             if let StatementKind::Action(a) = &stmt.kind
                 && crate::syntax::parser::ast::awaits(&a.body)
             {

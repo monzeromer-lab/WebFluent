@@ -129,7 +129,11 @@
     // is created, and a derived value that calls one of the store's own
     // actions used to find it missing.
     if (definition.actions) {
+      const results = definition.results || [];
       for (const [key, fn] of Object.entries(definition.actions)) {
+        // An action that declares a result keeps its last outcome.
+        const result = results.includes(key) ? signal(null) : null;
+        const kept = (out) => { if (result) result.set(out); return out; };
         const report = (args, before) => {
           if (storeWatcher) {
             storeWatcher({ store: name, action: key, args, before, after: snap(states) });
@@ -147,7 +151,7 @@
             const before = storeWatcher ? snap(states) : null;
             runs += 1;
             pending.set(true);
-            try { return await fn(store, ...args); } finally {
+            try { return kept(await fn(store, ...args)); } finally {
               runs -= 1;
               if (!runs) pending.set(false);
               report(args, before);
@@ -155,11 +159,13 @@
           };
           store[key] = (...args) => sameCall(pending, args, () => run(args), concurrent);
           store[key].pending = pending;
+          if (result) store[key].result = result;
         } else {
           store[key] = (...args) => {
             const before = storeWatcher ? snap(states) : null;
-            try { return fn(store, ...args); } finally { report(args, before); }
+            try { return kept(fn(store, ...args)); } finally { report(args, before); }
           };
+          if (result) store[key].result = result;
         }
       }
     }

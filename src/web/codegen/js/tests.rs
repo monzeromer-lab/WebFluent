@@ -235,6 +235,7 @@ fn a_resource_is_declared_once_and_a_match_renders_its_states() {
         pattern,
         binding: binding.map(str::to_string),
         bindings: Vec::new(),
+        patterns: Vec::new(),
         body,
         span: Span::dummy(),
     };
@@ -325,6 +326,7 @@ fn a_match_over_an_enum_picks_the_arm_by_case() {
                         pattern: ArmPattern::Case("danger".to_string()),
                         binding: None,
                         bindings: Vec::new(),
+                        patterns: Vec::new(),
                         body: vec![text(Expr::StringLiteral("red".into()))],
                         span: Span::dummy(),
                     },
@@ -332,6 +334,7 @@ fn a_match_over_an_enum_picks_the_arm_by_case() {
                         pattern: ArmPattern::Else,
                         binding: None,
                         bindings: Vec::new(),
+                        patterns: Vec::new(),
                         body: vec![text(Expr::StringLiteral("calm".into()))],
                         span: Span::dummy(),
                     },
@@ -549,6 +552,7 @@ fn if_let_binds_the_value_and_for_by_passes_the_key() {
             stmt(StatementKind::If(IfStmt {
                 condition: Expr::Identifier("hint".to_string()),
                 binding: Some("h".to_string()),
+                pattern: None,
                 animate: None,
                 animate_span: None,
                 then_body: vec![text(Expr::Identifier("h".to_string()))],

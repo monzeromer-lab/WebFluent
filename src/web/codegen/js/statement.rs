@@ -220,13 +220,110 @@ impl JsCodegen {
                 let val = self.emit_expr_in(expr, ecx);
                 self.emit_line(&format!("console.log({val});"));
             }
-            (StatementKind::Return(expr), _) => match expr {
-                Some(e) => {
-                    let val = self.emit_expr_in(e, ecx);
-                    self.emit_line(&format!("return {val};"));
+            // In an action that declares a result, a value is `.ok` of it,
+            // unless the result is written out: `.ok(v)`, `.err(e)`.
+            (StatementKind::Return(expr), _) => {
+                let in_result = matches!(self.action_results.last(), Some(Some(_)));
+                match expr {
+                    Some(e @ (Expr::EnumCase(c) | Expr::CaseValue(c, _)))
+                        if in_result && (c == "ok" || c == "err") =>
+                    {
+                        let val = self.emit_expr_in(e, ecx);
+                        self.emit_line(&format!("return {val};"));
+                    }
+                    Some(e) if in_result => {
+                        let val = self.emit_expr_in(e, ecx);
+                        self.emit_line(&format!("return [\"ok\", {val}];"));
+                    }
+                    Some(e) => {
+                        let val = self.emit_expr_in(e, ecx);
+                        self.emit_line(&format!("return {val};"));
+                    }
+                    None if in_result => self.emit_line("return \"ok\";"),
+                    None => self.emit_line("return;"),
                 }
-                None => self.emit_line("return;"),
-            },
+            }
+            // `match` in an action: the first arm whose pattern the value
+            // matches runs, its names bound to their places in the value.
+            (StatementKind::Match(m), _) => {
+                let subject = self.emit_expr_in(&m.scrutinee, ecx);
+                let json = self.is_json_subject(&m.scrutinee);
+                let var = self.fresh_var();
+                self.emit_line("{");
+                self.indent += 1;
+                self.emit_line(&format!("const {var} = {subject};"));
+                let mut first = true;
+                for arm in &m.arms {
+                    let mark = self.scope_mark(cx);
+                    let pattern = Self::arm_pattern(arm);
+                    let test = match &pattern {
+                        Some(p) => self
+                            .pattern_test(p, &var, json)
+                            .unwrap_or_else(|| "true".to_string()),
+                        None => "true".to_string(),
+                    };
+                    let head = if first { "if" } else { "} else if" };
+                    first = false;
+                    self.emit_line(&format!("{head} ({test}) {{"));
+                    if let Some(p) = &pattern {
+                        let mut binds = Vec::new();
+                        Self::pattern_binds(p, &var, json, &mut binds);
+                        self.indent += 1;
+                        for (name, path) in binds {
+                            self.emit_line(&format!("const {} = {path};", bare(&name)));
+                            self.bind(cx, name);
+                        }
+                        self.indent -= 1;
+                    }
+                    self.emit_block_in(&arm.body, cx);
+                    self.scope_reset(cx, mark);
+                }
+                if !first {
+                    self.emit_line("}");
+                }
+                self.indent -= 1;
+                self.emit_line("}");
+            }
+            // `if let .err(e) = outcome`: the branch runs when the value
+            // matches the case, its names bound to their places.
+            (StatementKind::If(if_stmt), _) if if_stmt.pattern.is_some() => {
+                let pattern = if_stmt.pattern.as_ref().expect("checked");
+                let mark = self.scope_mark(cx);
+                let value = self.emit_expr_in(&if_stmt.condition, ecx);
+                let json = self.is_json_subject(&if_stmt.condition);
+                let var = self.fresh_var();
+                self.emit_line("{");
+                self.indent += 1;
+                self.emit_line(&format!("const {var} = {value};"));
+                let test = self
+                    .pattern_test(pattern, &var, json)
+                    .unwrap_or_else(|| "true".to_string());
+                self.emit_line(&format!("if ({test}) {{"));
+                let mut binds = Vec::new();
+                Self::pattern_binds(pattern, &var, json, &mut binds);
+                self.indent += 1;
+                for (name, path) in binds {
+                    self.emit_line(&format!("const {} = {path};", bare(&name)));
+                    self.bind(cx, name);
+                }
+                self.indent -= 1;
+                self.emit_block_in(&if_stmt.then_body, cx);
+                self.scope_reset(cx, mark);
+                for (cond, body) in &if_stmt.else_if_branches {
+                    let cond = self.emit_expr_in(cond, ecx);
+                    self.emit_line(&format!("}} else if ({cond}) {{"));
+                    self.emit_block_in(body, cx);
+                    self.scope_reset(cx, mark);
+                }
+                if let Some(else_body) = &if_stmt.else_body {
+                    self.emit_line("} else {");
+                    self.emit_block_in(else_body, cx);
+                    self.scope_reset(cx, mark);
+                }
+                self.emit_line("}");
+                self.indent -= 1;
+                self.emit_line("}");
+            }
             (StatementKind::If(if_stmt), _) => {
                 // `if let x = e` binds the value for the branch, which runs
                 // when it is not null.

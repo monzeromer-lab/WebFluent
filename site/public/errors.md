@@ -164,6 +164,7 @@ A code's letter is its family:
 | `I` | translations |
 | `F` | forms and bindings |
 | `D` | data and assets |
+| `N` | requests: results, error enums and `try` |
 | `A` | accessibility |
 | `S` | search and sharing |
 | `P` | what is kept in the browser |
@@ -253,6 +254,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T15](https://webfluent.monzeromer.dev/errors/T15.md) — A `match` that misses a case, or has one twice
 - [T22](https://webfluent.monzeromer.dev/errors/T22.md) — A handler that names more values than its event sends
 - [T21](https://webfluent.monzeromer.dev/errors/T21.md) — A resource `match` with no `error` arm
+- [T26](https://webfluent.monzeromer.dev/errors/T26.md) — An action that returns a value and does not say what
 
 ### Components
 
@@ -296,6 +298,11 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [D04](https://webfluent.monzeromer.dev/errors/D04.md) — A persisted shape changed with no new version
 - [D05](https://webfluent.monzeromer.dev/errors/D05.md) — An asset from another origin with no integrity hash
 - [D06](https://webfluent.monzeromer.dev/errors/D06.md) — A script loaded on consent, with nothing to ask for it
+
+### Requests
+
+- [N03](https://webfluent.monzeromer.dev/errors/N03.md) — A `try` with nowhere to pass its error
+- [N12](https://webfluent.monzeromer.dev/errors/N12.md) — An error enum that is not shaped as one
 
 ### Translations
 

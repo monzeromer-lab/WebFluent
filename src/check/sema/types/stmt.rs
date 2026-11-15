@@ -334,7 +334,7 @@ impl Checker<'_, '_> {
                 // every way out of it was held to it as it was read.
                 if let Some(declared) = &declared
                     && *declared != Type::Null
-                    && !matches!(declared, Type::Result(..))
+                    && !matches!(declared, Type::Result(value, _) if **value == Type::Null)
                     && !returned.iter().any(|t| *t != Type::Null)
                 {
                     self.error(
@@ -346,6 +346,40 @@ impl Checker<'_, '_> {
                         ),
                         "Return a value, or take the `-> …` off",
                     );
+                }
+                // `T26`: what an action returns is part of what it is, so a
+                // caller in another file sees it without reading its body.
+                if declared.is_none()
+                    && let Some(given) = returned
+                        .iter()
+                        .filter(|t| **t != Type::Null)
+                        .cloned()
+                        .reduce(Type::join)
+                {
+                    let written = writable(&given);
+                    let hint = match &written {
+                        Some(t) => format!("Say so: `action {}(…) -> {t}`", a.name),
+                        None => format!(
+                            "Say what it returns: `action {}(…) -> T`, with a type that names it",
+                            a.name
+                        ),
+                    };
+                    self.error(
+                        span,
+                        "T26",
+                        format!("`{}` returns a value and does not say what", a.name),
+                        &hint,
+                    );
+                    if let Some(t) = written {
+                        let anchor = if a.concurrent { "concurrent" } else { "{" };
+                        self.plan_last(
+                            format!("Declare `-> {t}`"),
+                            crate::diagnostics::fixes::Plan::InsertBefore {
+                                anchor: anchor.to_string(),
+                                text: format!(" -> {t}"),
+                            },
+                        );
+                    }
                 }
                 let returned = match declared {
                     Some(d) => vec![d],
@@ -536,22 +570,33 @@ impl Checker<'_, '_> {
             }
             StatementKind::Return(e) => {
                 let declared = self.declared_returns.last().cloned().flatten();
+                // An action that may fail returns its value — which is
+                // `.ok` of it — or a result written out: `.ok(v)`, `.err(e)`.
+                let written_out = matches!(e, Some(Expr::EnumCase(c) | Expr::CaseValue(c, _)) if c == "ok" || c == "err");
+                let wanted = match &declared {
+                    Some(Type::Result(value, _)) if !written_out => Some((**value).clone()),
+                    other => other.clone(),
+                };
                 let ty = match e {
-                    Some(e) => self.infer(e, declared.as_ref()),
+                    Some(e) => self.infer(e, wanted.as_ref()),
                     None => Type::Null,
                 };
-                if let Some(declared) = &declared {
-                    if e.is_none() && *declared != Type::Null {
-                        if !matches!(declared, Type::Result(value, _) if **value == Type::Null) {
-                            self.error(
-                                span,
-                                "T01",
-                                format!("this returns nothing, but `{declared}` is declared"),
-                                "Return a value of the declared type",
-                            );
-                        }
-                    } else if e.is_some() {
-                        self.expect(&ty, declared, span, "what this returns");
+                if let (Some(declared), Some(wanted)) = (&declared, &wanted) {
+                    match e {
+                        None if *wanted != Type::Null => self.error(
+                            span,
+                            "T01",
+                            format!("this returns nothing, but `{declared}` is declared"),
+                            "Return a value of the declared type",
+                        ),
+                        None => {}
+                        Some(e) if matches!(ty, Type::Result(..)) && wanted != declared => self.error(
+                            span,
+                            "T01",
+                            format!("`{}` is a result; this action returns its value, or passes its error with `try`", expr_text(e)),
+                            &format!("Write `return try {}`", expr_text(e)),
+                        ),
+                        Some(_) => self.expect(&ty, wanted, span, "what this returns"),
                     }
                 }
                 if let Some(returns) = self.returns.last_mut() {
@@ -602,10 +647,15 @@ impl Checker<'_, '_> {
     pub(super) fn if_statement(&mut self, i: &IfStmt, span: Span, body: Body) {
         self.push_scope();
         let facts = self.non_empty.len();
-        if i.binding.is_none() {
+        if i.binding.is_none() && i.pattern.is_none() {
             self.non_empty.extend(non_empty_lists(&i.condition));
         }
-        if let Some(name) = &i.binding {
+        if let Some(pattern) = &i.pattern {
+            // `if let .err(e) = outcome`: the case's names, in the branch.
+            let ty = self.infer(&i.condition, None);
+            self.note_json_subject(&i.condition, &ty);
+            self.bind_pattern(pattern, &ty, span);
+        } else if let Some(name) = &i.binding {
             let ty = self.infer(&i.condition, None);
             self.bind_fixed(name, ty.unwrapped(), span, "a value `if let` binds");
         } else {
@@ -624,7 +674,7 @@ impl Checker<'_, '_> {
         self.pop_scope();
         // A branch after `if x == null { … }` runs only when `x` is not
         // null: `else { x.title }` needs no unwrapping.
-        let mut ruled_out: Vec<String> = if i.binding.is_none() {
+        let mut ruled_out: Vec<String> = if i.binding.is_none() && i.pattern.is_none() {
             null_names(&i.condition)
         } else {
             Vec::new()
@@ -675,10 +725,34 @@ impl Checker<'_, '_> {
                 ArmPattern::State(s) => s.clone(),
                 ArmPattern::Else => continue,
             };
+            // An arm that matches only some of its case's values — a
+            // case or a literal inside — covers the case only together
+            // with the others, below.
+            if arm.patterns.iter().any(|p| !p.is_irrefutable()) {
+                continue;
+            }
             if cases.contains(&key) {
                 dupes.push(key);
             } else {
                 cases.push(key);
+            }
+        }
+        // `.err(.unprocessableContent(p))` and `.err(.http(e))` between
+        // them cover `.err` when `E` has those two cases.
+        if let Some(all) = self.cases_of(&scrutinee) {
+            for (case, payload) in all {
+                if cases.contains(&case) {
+                    continue;
+                }
+                let rows: Vec<Vec<&crate::syntax::parser::ast::Pattern>> = m
+                    .arms
+                    .iter()
+                    .filter(|a| matches!(&a.pattern, ArmPattern::Case(c) if *c == case))
+                    .map(|a| a.patterns.iter().collect())
+                    .collect();
+                if !rows.is_empty() && self.covers(&rows, &payload) {
+                    cases.push(case);
+                }
             }
         }
         self.current_span = span;
@@ -821,9 +895,9 @@ impl Checker<'_, '_> {
                     }
                     if let ArmPattern::Case(case) = &arm.pattern {
                         let fields = self.payload_of(name, case).unwrap_or_default();
-                        for (i, bound) in arm.bindings.iter().enumerate() {
+                        for (i, p) in arm_patterns(arm).iter().enumerate() {
                             let ty = fields.get(i).map_or(Type::Error, |(_, t)| t.clone());
-                            self.bind_fixed(bound, ty, arm.span, ARM);
+                            self.bind_pattern(p, &ty, arm.span);
                         }
                     }
                     self.statements(&arm.body, body);
@@ -851,9 +925,9 @@ impl Checker<'_, '_> {
                                     &format!("Write `.{case}{}`", if fields.is_empty() { "" } else { "(value)" }),
                                 );
                             }
-                            for (i, bound) in arm.bindings.iter().enumerate() {
+                            for (i, p) in arm_patterns(arm).iter().enumerate() {
                                 let ty = fields.get(i).cloned().unwrap_or(Type::Error);
-                                self.bind_fixed(bound, ty, arm.span, ARM);
+                                self.bind_pattern(p, &ty, arm.span);
                             }
                         }
                         ArmPattern::Case(case) => {
@@ -1199,5 +1273,39 @@ impl Checker<'_, '_> {
         {
             self.info.json_subjects.push(subject.clone());
         }
+    }
+}
+
+/// What each place of an arm's payload must match: its patterns, or for an
+/// arm built without them, its names.
+fn arm_patterns(
+    arm: &crate::syntax::parser::ast::MatchArm,
+) -> Vec<crate::syntax::parser::ast::Pattern> {
+    if arm.patterns.is_empty() {
+        arm.bindings
+            .iter()
+            .map(|b| crate::syntax::parser::ast::Pattern::Bind(b.clone()))
+            .collect()
+    } else {
+        arm.patterns.clone()
+    }
+}
+
+/// How `ty` is written, when every part of it can be: no unknown, no map
+/// literal's shape, nothing the language holds that a program cannot name.
+pub(super) fn writable(ty: &Type) -> Option<String> {
+    let ok = |t: &Type| writable(t).is_some();
+    match ty {
+        Type::String
+        | Type::Number
+        | Type::Bool
+        | Type::Record(_)
+        | Type::Enum(_)
+        | Type::Scalar(_) => Some(ty.to_string()),
+        Type::List(t) | Type::Optional(t) if ok(t) => Some(ty.to_string()),
+        Type::Dict(k, v) if ok(k) && ok(v) => Some(ty.to_string()),
+        Type::Result(v, e) if (ok(v) || **v == Type::Null) && ok(e) => Some(ty.to_string()),
+        Type::Promise(inner) => writable(inner),
+        _ => None,
     }
 }

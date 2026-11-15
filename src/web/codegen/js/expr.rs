@@ -341,6 +341,21 @@ impl JsCodegen {
             {
                 "null".to_string()
             }
+            // `invite.result` and `Store.invite.result`: the last outcome,
+            // a signal.
+            (Expr::PropertyAccess(base, prop), Cx::Page)
+                if prop == "result" && self.is_action_ref(base) =>
+            {
+                match base.as_ref() {
+                    Expr::Identifier(name) => format!("{}_result()", sig(name)),
+                    other => format!("{}.result()", self.emit_expr(other)),
+                }
+            }
+            (Expr::PropertyAccess(base, prop), Cx::Store(store_states))
+                if prop == "result" && self.is_action_ref(base) =>
+            {
+                format!("{}.result()", self.emit_store_expr(base, store_states))
+            }
             // `save.pending` and `Store.save.pending`: whether a call of an
             // async action is under way, a signal.
             (Expr::PropertyAccess(base, prop), Cx::Page)
@@ -862,6 +877,15 @@ impl JsCodegen {
             }
             // A design token is its custom property.
             (Expr::Token(name), _) => format!("\"var(--{name})\""),
+            // `try r`: the value, or the error passed up to the action —
+            // reported, outside one.
+            (Expr::Try(inner), _) => {
+                let target = match self.action_results.last() {
+                    Some(Some((target, _))) => target,
+                    _ => "report",
+                };
+                format!("WF.tryOk({}, \"{target}\")", self.emit_expr_in(inner, cx))
+            }
             (Expr::Await(inner), _) => format!("(await {})", self.emit_expr_in(inner, cx)),
         }
     }

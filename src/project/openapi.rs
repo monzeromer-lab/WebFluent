@@ -595,6 +595,7 @@ fn enum_of(name: &str, schema: &serde_json::Value, cases: &[String], span: Span)
             .map(|name| EnumCase {
                 name: name.clone(),
                 fields: Vec::new(),
+                status: None,
             })
             .collect(),
         doc: schema

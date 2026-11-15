@@ -40,6 +40,33 @@ impl Checker<'_, '_> {
         {
             return self.json_case(case, None);
         }
+        // `.ok(value)`, `.err(e)`: a result's cases, where one is wanted.
+        if let Expr::EnumCase(case) | Expr::CaseValue(case, _) = expr
+            && let Some(Type::Result(value, error)) = expected.map(Type::unwrapped)
+        {
+            let args: &[Expr] = match expr {
+                Expr::CaseValue(_, args) => args,
+                _ => &[],
+            };
+            let wanted = match case.as_str() {
+                "ok" if *value == Type::Null => Vec::new(),
+                "ok" => vec![(*value).clone()],
+                "err" => vec![(*error).clone()],
+                _ => {
+                    for a in args {
+                        self.infer(a, None);
+                    }
+                    self.error_at_current(
+                        "T02",
+                        format!("a result has no case `.{case}`"),
+                        "A result is `.ok(value)` or `.err(error)`",
+                    );
+                    return Type::Error;
+                }
+            };
+            self.call_args(&wanted, args, &format!("`.{case}`"));
+            return Type::Result(value, error);
+        }
         // `.null` where `Json` is wanted: a JSON value is a plain value at
         // run time, so its case is written by the type's name.
         if let Expr::EnumCase(case) | Expr::CaseValue(case, _) = expr
@@ -652,6 +679,7 @@ impl Checker<'_, '_> {
                 self.pop_scope();
                 Type::Func(param_types, Box::new(ret))
             }
+            Expr::Try(e) => self.try_expr(e),
             Expr::Await(e) => {
                 if !self.async_ok {
                     let (message, hint) = if self.in_derived {
@@ -870,6 +898,8 @@ impl Checker<'_, '_> {
                 "length" => Type::Number,
                 _ => self.hole(HoleKind::ListField, format!("{}.{field}", expr_text(base))),
             },
+            // Every way a request goes wrong says so in words.
+            Type::Enum(name) if name == super::ty::HTTP_ERROR && field == "message" => Type::String,
             // `scores.ada` is `scores["ada"]`: a key may be missing.
             Type::Dict(_, value) => Type::optional((**value).clone()),
             Type::Resource(inner, _) => match field {
@@ -906,6 +936,22 @@ impl Checker<'_, '_> {
             // `save.pending`: whether a call of the action is under way —
             // which is only ever for an action that awaits something.
             Type::Func(_, ret) => match field {
+                // `invite.result`: the last outcome of an action that says
+                // what it fails with, or nothing before it has run.
+                "result" => match &**ret {
+                    Type::Result(..) => Type::optional((**ret).clone()),
+                    Type::Promise(inner) if matches!(**inner, Type::Result(..)) => {
+                        Type::optional((**inner).clone())
+                    }
+                    _ => {
+                        self.error_at_current(
+                            "T05",
+                            format!("`{}` declares no result, so it has no `.result`", expr_text(base)),
+                            "Say what it returns and fails with: `action save() -> ! SaveError { … }`",
+                        );
+                        Type::Error
+                    }
+                },
                 "pending" => {
                     let is_action = match base {
                         Expr::Identifier(n) => self.fixed_kind(n) == Some("an action"),

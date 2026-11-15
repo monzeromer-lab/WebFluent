@@ -23,6 +23,7 @@ mod expr;
 mod externals;
 mod names;
 mod net;
+mod patterns;
 mod reactive;
 mod statement;
 mod store;
@@ -129,6 +130,13 @@ pub struct JsCodegen {
     /// checker finds them: a JSON value is plain at run time, so such a
     /// match reads the value's kind rather than a tag.
     json_subjects: Vec<Expr>,
+    /// Each error enum's statuses: the status, the case it goes to, and
+    /// the type of the body it carries.
+    error_enums: HashMap<String, Vec<(u16, String, TypeRef)>>,
+    /// For each action being written, innermost last, how a `try` in it
+    /// passes an error up — `"enum"`, `"http"`, `"same"` — when it declares
+    /// a result, and whether that result holds a value.
+    action_results: Vec<Option<(&'static str, bool)>>,
     /// `Some(sync)` when the config names `offline`: the service worker is
     /// registered at boot, and `sync` keeps writes made offline.
     offline: Option<bool>,
@@ -403,6 +411,8 @@ impl JsCodegen {
             dev: false,
             shapes: Default::default(),
             json_subjects: Vec::new(),
+            error_enums: HashMap::new(),
+            action_results: Vec::new(),
             offline: None,
             later: Vec::new(),
             consented: Vec::new(),
@@ -940,6 +950,16 @@ impl JsCodegen {
                         self.shapes.0.insert(t.name.clone(), t.clone());
                     }
                     Declaration::Enum(e) => {
+                        let statuses: Vec<(u16, String, TypeRef)> = e
+                            .cases
+                            .iter()
+                            .filter_map(|c| {
+                                Some((c.status?, c.name.clone(), c.fields.first()?.ty.clone()))
+                            })
+                            .collect();
+                        if !statuses.is_empty() {
+                            self.error_enums.insert(e.name.clone(), statuses);
+                        }
                         self.shapes.1.insert(
                             e.name.clone(),
                             e.cases.iter().map(|c| c.name.clone()).collect(),
@@ -1493,5 +1513,75 @@ impl JsCodegen {
             Arg::Named(k, v) if k == "aria-current" => Some(self.emit_expr(v)),
             _ => None,
         })
+    }
+}
+
+impl JsCodegen {
+    /// How a `try` passes an error up in an action that returns `returns`,
+    /// and whether its result holds a value; `None` when it declares no
+    /// result.
+    pub(super) fn result_target(&self, returns: Option<&TypeRef>) -> Option<(&'static str, bool)> {
+        let TypeRef::Result(value, error) = returns? else {
+            return None;
+        };
+        let target = match error.as_deref() {
+            None => "http",
+            Some(TypeRef::Named(n)) if n == "HttpError" => "http",
+            Some(TypeRef::Named(n))
+                if self
+                    .shapes
+                    .1
+                    .get(n)
+                    .is_some_and(|cases| cases.iter().any(|c| c == "http")) =>
+            {
+                "enum"
+            }
+            Some(_) => "same",
+        };
+        Some((target, **value != TypeRef::Unit))
+    }
+
+    /// Open the body of an action that declares a result: what `try` throws
+    /// up in it comes back as its `.err`, and the outcome is kept as the
+    /// action's `.result` — by `setter`, a page's signal, when there is one.
+    pub(super) fn open_result_action(&mut self, returns: Option<&TypeRef>, is_async: bool) {
+        let target = self.result_target(returns);
+        self.action_results.push(target);
+        if target.is_some() {
+            self.emit_line(if is_async {
+                "const $out = await (async () => {"
+            } else {
+                "const $out = (() => {"
+            });
+            self.indent += 1;
+            self.emit_line("try {");
+            self.indent += 1;
+        }
+    }
+
+    /// Close what [`Self::open_result_action`] opened: an action whose
+    /// result holds no value is `.ok` when it ends.
+    pub(super) fn close_result_action(&mut self, setter: Option<&str>) {
+        if let Some(Some((_, has_value))) = self.action_results.pop() {
+            if !has_value {
+                self.emit_line("return \"ok\";");
+            }
+            self.indent -= 1;
+            self.emit_line("} catch ($tried) {");
+            self.emit_line("  if ($tried && $tried.wfTried) return [\"err\", $tried.error];");
+            self.emit_line("  throw $tried;");
+            self.emit_line("}");
+            self.indent -= 1;
+            self.emit_line("})();");
+            if let Some(setter) = setter {
+                self.emit_line(&format!("{setter}.set($out);"));
+            }
+            self.emit_line("return $out;");
+        }
+    }
+
+    /// Whether an action declares a result, and so keeps `.result`.
+    pub(super) fn declares_result(a: &crate::syntax::parser::ast::ActionDecl) -> bool {
+        matches!(a.returns, Some(TypeRef::Result(..)))
     }
 }

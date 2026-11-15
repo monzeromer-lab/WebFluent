@@ -41,6 +41,7 @@ mod names;
 mod reactivity;
 mod refine;
 mod report;
+mod results;
 mod stmt;
 mod tables;
 #[cfg(test)]
@@ -192,9 +193,10 @@ impl<'p> World<'p> {
 }
 
 /// The types every program has without declaring them: `Json`, the open
-/// JSON a value is matched or decoded out of, and `DecodeError`, what a
-/// value that does not fit its type is refused with. A program's own type
-/// of either name wins.
+/// JSON a value is matched or decoded out of; `DecodeError`, what a value
+/// that does not fit its type is refused with; `HttpError`, what goes wrong
+/// between the page and the server; and `Problem`, a server's account of a
+/// failure. A program's own type of any of these names wins.
 static BUILT_IN_TYPES: std::sync::LazyLock<Program> = std::sync::LazyLock::new(|| {
     crate::syntax::parse_source(
         "/// Open JSON: a value matched, or decoded into a declared type, before it is read.
@@ -208,6 +210,25 @@ enum Json {
 }
 /// Why a value is not the type it was decoded to: where, and what is wrong.
 type DecodeError { at: String, message: String }
+/// What went wrong between the page and the server. Every one has
+/// `.message`, for showing.
+enum HttpError {
+    offline
+    timeout(after: Duration)
+    cancelled
+    transport(message: String)
+    decode(at: String, message: String)
+    status(code: Number, problem: Problem?)
+}
+/// A server's account of a failure, as RFC 9457 has it.
+type Problem {
+    type: Url? = null
+    title: String? = null
+    status: Number? = null
+    detail: String? = null
+    instance: Url? = null
+    extensions: Json = Json.null
+}
 ",
         "<built-in>",
     )
@@ -585,6 +606,10 @@ pub fn check_sources<'s>(
                 for endpoint in &a.endpoints {
                     cx.current_span = endpoint.span;
                     let what = format!("{}.{}", a.name, endpoint.name);
+                    if let Some(returns) = &endpoint.returns {
+                        let ty = cx.world.resolve(Type::from_ref(returns));
+                        cx.result_error(&ty, endpoint.span, &format!("`{what}`"));
+                    }
                     for p in &endpoint.params {
                         cx.written_param(&p.prop_type, &format!("{what}({})", p.name));
                     }
@@ -658,9 +683,9 @@ pub fn check_sources<'s>(
                     cx.pop_scope();
                 }
             }
+            Declaration::Enum(e) => cx.error_enum_shape(e),
             Declaration::Store(_)
             | Declaration::Theme(_)
-            | Declaration::Enum(_)
             | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
@@ -1056,7 +1081,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                                             .endpoint(api, method)
                                             .and_then(|e| e.returns.as_ref())
                                         {
-                                            Some(t) => self.world.resolve(Type::from_ref(t)),
+                                            // A read of `-> T ! E` holds the `T`.
+                                            Some(t) => {
+                                                answer_of(self.world.resolve(Type::from_ref(t)))
+                                            }
                                             None => self.hole(HoleKind::UntypedResource, &r.name),
                                         }
                                     }
@@ -1076,7 +1104,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                             .endpoint(api, method)
                             .and_then(|e| e.returns.as_ref())
                     {
-                        let returns = self.world.resolve(Type::from_ref(returns));
+                        let returns = answer_of(self.world.resolve(Type::from_ref(returns)));
                         if !returns.assignable_to(&inner) {
                             self.error(
                                 stmt.span,
@@ -1228,6 +1256,15 @@ impl<'a, 'p> Checker<'a, 'p> {
             }
         }
         span
+    }
+}
+
+/// What a read of an endpoint holds: its answer, a result's value apart
+/// from what it fails with.
+fn answer_of(ty: Type) -> Type {
+    match ty {
+        Type::Result(value, _) => *value,
+        other => other,
     }
 }
 

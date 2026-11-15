@@ -1292,6 +1292,7 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
             *inclusive,
         ),
         Expr::Await(inner) => Expr::Await(Box::new(substitute_expr(inner, bindings))),
+        Expr::Try(inner) => Expr::Try(Box::new(substitute_expr(inner, bindings))),
         // A lambda's own parameters (`a, b` for several) shadow the props.
         Expr::Lambda(param, body) => {
             let mut inner = bindings.clone();

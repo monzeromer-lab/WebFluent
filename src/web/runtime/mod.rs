@@ -146,6 +146,8 @@ pub const MODULES: &[Module] = &[
         same("dictKeys"), same("dictValues"), same("dictEntries"), same("dictHas"),
         same("dictWithout"),
     ], deps: [], triggers: []),
+    // `try`: a result's value, or its error passed up to the action.
+    module!("result", exports: [same("tryOk")], deps: [], triggers: []),
     module!("http", exports: [
         same("send"), same("beacon"), same("invalidate"),
     ], deps: ["json"], triggers: []),

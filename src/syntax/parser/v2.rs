@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -1446,9 +1446,27 @@ impl ParserV2 {
             if cases.iter().any(|c| c.name == case_name) {
                 return Err(self.error(format!("`enum {name}` has `{case_name}` twice")));
             }
+            // `on 422`: the status a case of an error enum stands for.
+            let status = if self.is_word("on")
+                && let TokenType::NumberLiteral(n) = self.kind_at(1).clone()
+            {
+                self.advance();
+                self.advance();
+                if !(100.0..=599.0).contains(&n) || n.fract() != 0.0 {
+                    return Err(self.error_with_hint(
+                        format!("`{n}` is not an HTTP status"),
+                        "A status is a whole number from 100 to 599: `on 422`",
+                    ));
+                }
+                #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss, reason = "checked to be 100–599")]
+                Some(n as u16)
+            } else {
+                None
+            };
             cases.push(EnumCase {
                 name: case_name,
                 fields,
+                status,
             });
             if !self.check(&TokenType::CloseBrace) {
                 self.eat(&TokenType::Comma);
@@ -1921,7 +1939,7 @@ impl ParserV2 {
                     body: stmts,
                 }))
             }
-            "match" => self.parse_match_stmt(),
+            "match" => self.parse_match_stmt(false),
             "children" => {
                 self.advance();
                 Ok(StatementKind::UIElement(self.slot_use("children")))
@@ -2745,13 +2763,21 @@ impl ParserV2 {
     /// block the bodies hold elements, in an imperative one statements.
     fn parse_if(&mut self, imperative: bool) -> Result<StatementKind> {
         self.expect_word("if")?;
+        let mut pattern = None;
         let (binding, condition) = if self.eat_word("let") {
-            let name = self.expect_ident("the name to bind")?;
-            if self.eat(&TokenType::Equals) {
-                (Some(name), self.parse_expression()?)
+            if self.check(&TokenType::Dot) {
+                // `if let .err(e) = outcome`: the case the value must be.
+                pattern = Some(self.parse_pattern()?);
+                self.expect(&TokenType::Equals, "`=` and the value to match")?;
+                (None, self.parse_expression()?)
             } else {
-                // `if let hint {` binds the name to itself.
-                (Some(name.clone()), Expr::Identifier(name))
+                let name = self.expect_ident("the name to bind")?;
+                if self.eat(&TokenType::Equals) {
+                    (Some(name), self.parse_expression()?)
+                } else {
+                    // `if let hint {` binds the name to itself.
+                    (Some(name.clone()), Expr::Identifier(name))
+                }
             }
         } else {
             (None, self.parse_expression()?)
@@ -2772,6 +2798,7 @@ impl ParserV2 {
         Ok(StatementKind::If(IfStmt {
             condition,
             binding,
+            pattern,
             animate: None,
             animate_span: None,
             then_body,
@@ -2822,19 +2849,24 @@ impl ParserV2 {
     }
 
     /// `match x { loading { } error(e) { } ready(v) { } .case { } else { } }`.
-    fn parse_match_stmt(&mut self) -> Result<StatementKind> {
+    fn parse_match_stmt(&mut self, imperative: bool) -> Result<StatementKind> {
         self.expect_word("match")?;
         let scrutinee = self.parse_expression()?;
         self.expect(&TokenType::OpenBrace, "`{` and the match arms")?;
         let mut arms = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let mark = self.mark();
-            let (pattern, binding, bindings) = self.parse_arm_head()?;
-            let (body, _) = self.parse_render_block(Body::Nested)?;
+            let (pattern, binding, patterns) = self.parse_arm_head()?;
+            let body = if imperative {
+                self.parse_imperative_block()?.0
+            } else {
+                self.parse_render_block(Body::Nested)?.0
+            };
             arms.push(MatchArm {
                 pattern,
                 binding,
-                bindings,
+                bindings: patterns.iter().map(|p| p.name().to_string()).collect(),
+                patterns,
                 body,
                 span: self.span_since(mark),
             });
@@ -2847,24 +2879,70 @@ impl ParserV2 {
     }
 
     /// `(a, b)` after a `.case` arm: the names its payload is bound to.
+    /// The names a match expression's arm binds: one per place of the
+    /// payload, each a plain name.
     fn parse_arm_bindings(&mut self) -> Result<Vec<String>> {
-        let mut names = Vec::new();
+        let patterns = self.parse_payload_patterns()?;
+        patterns
+            .iter()
+            .map(|p| match p {
+                Pattern::Bind(name) => Ok(name.clone()),
+                _ => Err(self.error_with_hint(
+                    "a match expression's arm binds names".to_string(),
+                    "A case inside a case, `_` or a literal is written in a `match` statement",
+                )),
+            })
+            .collect()
+    }
+
+    /// `(a, .http(e), 503, _)`: what each place of a case's payload must
+    /// match, when the case is written with parentheses.
+    fn parse_payload_patterns(&mut self) -> Result<Vec<Pattern>> {
+        let mut patterns = Vec::new();
         if self.eat(&TokenType::OpenParen) {
             loop {
-                names.push(self.expect_ident("a name for the case's payload")?);
+                patterns.push(self.nested(Self::parse_pattern)?);
                 if !self.eat(&TokenType::Comma) {
                     break;
                 }
             }
             self.expect(&TokenType::CloseParen, "`)`")?;
         }
-        Ok(names)
+        Ok(patterns)
     }
 
-    fn parse_arm_head(&mut self) -> Result<(ArmPattern, Option<String>, Vec<String>)> {
+    /// A name, `_`, a literal, or a case with patterns of its own.
+    fn parse_pattern(&mut self) -> Result<Pattern> {
+        match self.kind().clone() {
+            TokenType::Dot => {
+                self.advance();
+                let case = self.expect_case_name("a case name after `.`")?;
+                Ok(Pattern::Case(case, self.parse_payload_patterns()?))
+            }
+            TokenType::Identifier(w) if w == "_" => {
+                self.advance();
+                Ok(Pattern::Wildcard)
+            }
+            TokenType::Identifier(w) => {
+                self.advance();
+                Ok(Pattern::Bind(w))
+            }
+            TokenType::NumberLiteral(_)
+            | TokenType::StringLiteral(_)
+            | TokenType::BoolLiteral(_)
+            | TokenType::Null
+            | TokenType::Minus => Ok(Pattern::Literal(self.parse_unary()?)),
+            _ => Err(self.error_with_hint(
+                format!("Expected a pattern, got {}", self.describe()),
+                "A place of a payload is matched by a name, `_`, a literal, or a case: `.err(.status(503, _))`",
+            )),
+        }
+    }
+
+    fn parse_arm_head(&mut self) -> Result<(ArmPattern, Option<String>, Vec<Pattern>)> {
         if self.eat(&TokenType::Dot) {
             let case = self.expect_case_name("a case name after `.`")?;
-            return Ok((ArmPattern::Case(case), None, self.parse_arm_bindings()?));
+            return Ok((ArmPattern::Case(case), None, self.parse_payload_patterns()?));
         }
         let word = self.expect_ident(
             "a match arm: `loading`, `error(e)`, `ready(v)`, `.case`, a connection's state, or `else`",
@@ -3410,6 +3488,16 @@ impl ParserV2 {
                 }
                 Ok(StatementKind::Emit(EmitStmt { event, args }))
             }
+            // `match` in an action or a handler chooses what to do by a
+            // value's case: `match await save() { .ok(u) { … } .err(e) { … } }`.
+            "match"
+                if matches!(
+                    self.kind_at(1),
+                    TokenType::Identifier(_) | TokenType::OpenParen
+                ) =>
+            {
+                self.parse_match_stmt(true)
+            }
             // A keyword that renders — unless it is a name being assigned
             // or read: `on = !on`, `show.x`.
             "show" | "match" | "on" | "style"
@@ -3851,6 +3939,12 @@ impl ParserV2 {
         if self.is_word("await") {
             self.advance();
             return Ok(Expr::Await(Box::new(self.nested(Self::parse_unary)?)));
+        }
+        // `try await save()`: the value of a result, or its error returned
+        // from the action. `try { … }` is the statement that catches.
+        if self.is_word("try") && !matches!(self.kind_at(1), TokenType::OpenBrace) {
+            self.advance();
+            return Ok(Expr::Try(Box::new(self.nested(Self::parse_unary)?)));
         }
         self.parse_postfix()
     }

@@ -58,7 +58,7 @@ page Home(path: "/", title: "Overlays", description: "Every overlay, held to the
 }
 
 store Saver {
-    action save() {
+    action save() -> Bool {
         await wait(150)
         return true
     }

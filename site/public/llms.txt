@@ -501,6 +501,8 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [I03 — A message one locale has and another does not](https://webfluent.monzeromer.dev/errors/I03.md): A reader in the locale that lacks it sees the default locale's words instead of their own — or, where the default locale is the one that lacks it, the key.
 - [I04 — A locale the project does not have](https://webfluent.monzeromer.dev/errors/I04.md): `setLocale("xx")` names a locale `i18n.locales` does not list.
 - [I05 — Words a reader sees that are not translated](https://webfluent.monzeromer.dev/errors/I05.md): Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…
+- [N03 — A `try` with nowhere to pass its error](https://webfluent.monzeromer.dev/errors/N03.md): `try` returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.
+- [N12 — An error enum that is not shaped as one](https://webfluent.monzeromer.dev/errors/N12.md): An error enum names the statuses a service answers with, each a case with one value, and keeps one `http(error: HttpError)` case for the rest.
 - [P01 — A persisted value with no way forward](https://webfluent.monzeromer.dev/errors/P01.md): A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded.
 - [P02 — A migration that never runs](https://webfluent.monzeromer.dev/errors/P02.md): A `migrate` step above the declared `version:`.
 - [P03 — A persisted value in a route-scoped store](https://webfluent.monzeromer.dev/errors/P03.md): The route change drops the store, and the next read builds it again from storage, so the value comes straight back.
@@ -534,6 +536,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [T20 — A list or a record shown as text](https://webfluent.monzeromer.dev/errors/T20.md): A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.
 - [T21 — A resource `match` with no `error` arm](https://webfluent.monzeromer.dev/errors/T21.md): When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.
 - [T22 — A handler that names more values than its event sends](https://webfluent.monzeromer.dev/errors/T22.md): A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM…
+- [T26 — An action that returns a value and does not say what](https://webfluent.monzeromer.dev/errors/T26.md): An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.
 - [U01 — A state nothing reads](https://webfluent.monzeromer.dev/errors/U01.md): A `state` nothing in its page or component reads; an assignment alone does not read it.
 - [U02 — A derived value nothing reads](https://webfluent.monzeromer.dev/errors/U02.md): A `derived` nothing reads.
 - [U03 — A component nothing places](https://webfluent.monzeromer.dev/errors/U03.md): A component nothing places, names as a layout, or reaches as a part.

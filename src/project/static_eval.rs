@@ -1034,7 +1034,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             Some(Static::List(Arc::new(items)))
         }
         Expr::Token(name) => Some(Static::Str(format!("var(--{name})"))),
-        Expr::Await(_) => None,
+        Expr::Await(_) | Expr::Try(_) => None,
     }
 }
 

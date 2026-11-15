@@ -54,6 +54,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T15 A match that misses a case, or has one twice", to: "/errors/T15", group: "Types"),
     IndexEntry(label: "T22 A handler that names more values than its event sends", to: "/errors/T22", group: "Types"),
     IndexEntry(label: "T21 A resource match with no error arm", to: "/errors/T21", group: "Types"),
+    IndexEntry(label: "T26 An action that returns a value and does not say what", to: "/errors/T26", group: "Types"),
     IndexEntry(label: "C01 A required prop or field left out", to: "/errors/C01", group: "Components"),
     IndexEntry(label: "C02 A prop the component does not declare", to: "/errors/C02", group: "Components"),
     IndexEntry(label: "C03 A part outside the component it belongs to", to: "/errors/C03", group: "Components"),
@@ -82,6 +83,8 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "D04 A persisted shape changed with no new version", to: "/errors/D04", group: "Data and assets"),
     IndexEntry(label: "D05 An asset from another origin with no integrity hash", to: "/errors/D05", group: "Data and assets"),
     IndexEntry(label: "D06 A script loaded on consent, with nothing to ask for it", to: "/errors/D06", group: "Data and assets"),
+    IndexEntry(label: "N03 A try with nowhere to pass its error", to: "/errors/N03", group: "Requests"),
+    IndexEntry(label: "N12 An error enum that is not shaped as one", to: "/errors/N12", group: "Requests"),
     IndexEntry(label: "I01 A message no translation has", to: "/errors/I01", group: "Translations"),
     IndexEntry(label: "I02 A message and its call that disagree", to: "/errors/I02", group: "Translations"),
     IndexEntry(label: "I03 A message one locale has and another does not", to: "/errors/I03", group: "Translations"),
@@ -1218,6 +1221,46 @@ page ErrorT21(path: "/errors/T21", title: "T21 — A resource match with no erro
     }
 }
 
+page ErrorT26(path: "/errors/T26", title: "T26 — An action that returns a value and does not say what", description: "An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.") {
+    ErrorShell("T26", title: "An action that returns a value and does not say what", severity: "error", family: "Types", summary: "What an action returns is part of what it is: a caller in another file reads it without reading the action's body. An action that returns a value declares it, `-> T`, and every `return` is held to it.", printed: #"error[T26]: `total` returns a value and does not say what
+ --> src/App.wf:3:5
+  |
+3 |     action total() {
+  |     ^^^^^^^^^^^^^^^^
+  = help: Say so: `action total(…) -> Number`
+  = docs: https://webfluent.monzeromer.dev/errors/T26"#, quickfix: "Declare `-> Number`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T26.md") {
+        broken { CodeBlock(#"store Cart {
+    state items: [Number] = [3, 4]
+    action total() {
+        return items.sum()
+    }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("Cart").h1
+    Text("{Cart.total()}")
+}"#, title: "wf") }
+        fixed { CodeBlock(#"store Cart {
+    state items: [Number] = [3, 4]
+    action total() -> Number {
+        return items.sum()
+    }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("Cart").h1
+    Text("{Cart.total()}")
+}"#, title: "wf") }
+        note {
+            Markdown("Say what it returns after its parameters: `action total() ->\nNumber \{ … \}`. The editor's quick fix and `wf fix --code T26` write the\ntype the checker works out from the body, when it can be written.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nWhat an action returns is part of what it is. A page in another file\ncalls `Cart.total()` and reads what comes back; with the type declared\nbeside the action's name it knows what that is without reading the body,\nand every `return` in the body is held to it. An action that returns\nnothing declares nothing.")
+    }
+}
+
 page ErrorC01(path: "/errors/C01", title: "C01 — A required prop or field left out", description: "A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.") {
     ErrorShell("C01", title: "A required prop or field left out", severity: "error", family: "Components", summary: "A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.", printed: #"error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
  --> src/App.wf:3:18
@@ -1588,7 +1631,7 @@ page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes 
   = docs: https://webfluent.monzeromer.dev/errors/X04"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
-    action next() {
+    action next() -> Number {
         count = count + 1
         return count
     }
@@ -1597,7 +1640,7 @@ page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes 
 }"#, title: "wf") }
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state count = 0
-    action next() {
+    action next() -> Number {
         count = count + 1
         return count
     }
@@ -1902,6 +1945,101 @@ page ErrorD06(path: "/errors/D06", title: "D06 — A script loaded on consent, w
             }
         }
         Markdown("Warning. A `meta.scripts` entry is marked `\"load\": \"consent\"`, so it loads\nonly once the reader accepts in a `ConsentBanner` — and the program has no\n`ConsentBanner`, so nobody is asked and the script never loads.")
+    }
+}
+
+page ErrorN03(path: "/errors/N03", title: "N03 — A try with nowhere to pass its error", description: "`try` returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.") {
+    ErrorShell("N03", title: "A try with nowhere to pass its error", severity: "error", family: "Requests", summary: "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.", printed: #"error[N03]: `try` returns `await Backend.user(…)`'s error from the action, and the action declares nothing it returns
+  --> src/App.wf:10:20
+   |
+10 |         let user = try await Backend.user(id: id)
+   |                    ^^^
+   = help: Say what it fails with: `-> User!`, or `match` the result here
+   = docs: https://webfluent.monzeromer.dev/errors/N03"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N03.md") {
+        broken { CodeBlock(#"type User { id: String, name: String }
+
+api Backend(base: "/api") {
+    get user(id: String) at "users/:id" -> User!
+}
+
+store People {
+    state name = ""
+    action load(id: String) {
+        let user = try await Backend.user(id: id)
+        name = user.name
+    }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use People
+    Heading("People").h1
+    Button("Load") { on click { People.load("1") } }
+    Text(People.name)
+}"#, title: "wf") }
+        fixed { CodeBlock(#"type User { id: String, name: String }
+
+api Backend(base: "/api") {
+    get user(id: String) at "users/:id" -> User!
+}
+
+store People {
+    state name = ""
+    action load(id: String) -> ! {
+        let user = try await Backend.user(id: id)
+        name = user.name
+    }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use People
+    Heading("People").h1
+    Button("Load") { on click { People.load("1") } }
+    Text(People.name)
+}"#, title: "wf") }
+        note {
+            Markdown("Declare what the action fails with, or `match` the result where\nthe call is made and handle each case there.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\n`try r` gives the value of the result `r` when it is `.ok`, and when it is\n`.err` it returns the error from the action at once, as the action's own.\nSo the action says what it fails with — `-> T ! E`, `-> T!`, `-> ! E` or\n`-> !` — and that has to be able to hold the error:\n\n- the same error type is passed up as it is;\n- an `HttpError` (from a call declared `-> T!`) becomes an error enum's\n  `.http(e)`;\n- another error enum passes up only through its `http` case: any other\n  case of it must be handled first, with `match`, since the action's enum\n  has no case to put it in.\n\nIn a handler, outside any action, `try` reports a failure where the page\nreports errors instead.")
+    }
+}
+
+page ErrorN12(path: "/errors/N12", title: "N12 — An error enum that is not shaped as one", description: "An error enum names the statuses a service answers with, each a case with one value, and keeps one `http(error: HttpError)` case for the rest.") {
+    ErrorShell("N12", title: "An error enum that is not shaped as one", severity: "error", family: "Requests", summary: "An error enum names the statuses a service answers with, each a case carrying the body of its status, and keeps one `http(error: HttpError)` case for everything else — no network, a timeout, a status it does not name. A case with no status or more than one value, a status named twice, or no `http` case leaves a failure with nowhere to go.", printed: #"error[N12]: `SaveError` names a status, so it is an error enum, and keeps no `http` case
+ --> src/App.wf:3:1
+  |
+3 | enum SaveError {
+  | ^^^^^^^^^^^^^^^^
+  = help: Add `http(error: HttpError)`: what goes wrong that no case names — no network, a timeout, another status — arrives there
+  = docs: https://webfluent.monzeromer.dev/errors/N12"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N12.md") {
+        broken { CodeBlock(#"type Problem2 { title: String }
+
+enum SaveError {
+    conflict(problem: Problem2) on 409
+}
+
+page P(path: "/", title: "T", description: "D") {
+    state last: SaveError? = null
+    Heading("Save").h1
+    Text("{last == null}")
+}"#, title: "wf") }
+        fixed { CodeBlock(#"type Problem2 { title: String }
+
+enum SaveError {
+    conflict(problem: Problem2) on 409
+    http(error: HttpError)
+}
+
+page P(path: "/", title: "T", description: "D") {
+    state last: SaveError? = null
+    Heading("Save").h1
+    Text("{last == null}")
+}"#, title: "wf") }
+        note {
+            Markdown("Add the `http(error: HttpError)` case, give each other case one\nvalue and its status, and keep each status to one case.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nAn error enum is what an endpoint declared `-> T ! E` fails with. Each\nstatus the service answers with is a case of its own, `on` its status,\ncarrying the body that status sends; and one case, `http(error:\nHttpError)`, takes everything else — no network, a timeout, a status no\ncase names. An enum that names a status is an error enum, and is held to\nthat shape:\n\n- exactly one `http(error: HttpError)` case, which names no status;\n- every other case names its status and carries one value;\n- no status named twice.\n\nAn endpoint may also be declared `-> T!`, when the service declares no\nstatuses of its own: it fails with an `HttpError`.")
     }
 }
 
@@ -2712,7 +2850,7 @@ page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", descripti
   = docs: https://webfluent.monzeromer.dev/errors/U06"#, quickfix: "Remove what never runs", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U06.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 0
-    action reset() {
+    action reset() -> Number {
         n = 0
         return n
         log("reset")
@@ -2722,7 +2860,7 @@ page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", descripti
 }"#, title: "wf") }
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state n = 0
-    action reset() {
+    action reset() -> Number {
         n = 0
         log("reset")
         return n

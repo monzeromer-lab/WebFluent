@@ -68,6 +68,9 @@ pub enum Type {
 /// kinds, a plain JSON value at run time.
 pub(super) const JSON: &str = "Json";
 
+/// The name of what goes wrong between the page and the server.
+pub(super) const HTTP_ERROR: &str = "HttpError";
+
 /// The types the language brings with it.
 ///
 /// Each is carried by a plain JSON value — a string, a number, a small map
@@ -190,11 +193,12 @@ impl Type {
             ),
             // Nothing is what a function that returns no value gives.
             TypeRef::Unit => Type::Null,
-            // `T!` names no error of its own: a request's failure.
+            // `T!` names no error of its own: what goes wrong between the
+            // page and the server.
             TypeRef::Result(value, error) => Type::Result(
                 Box::new(Type::from_ref(value)),
                 Box::new(error.as_ref().map_or_else(
-                    || Type::NetError(Box::new(Type::Any)),
+                    || Type::Record(HTTP_ERROR.to_string()),
                     |e| Type::from_ref(e),
                 )),
             ),
@@ -369,7 +373,7 @@ impl std::fmt::Display for Type {
             Type::Dict(k, v) => write!(f, "[{k}: {v}]"),
             Type::Result(value, error) => {
                 let error = match &**error {
-                    Type::NetError(_) => String::new(),
+                    Type::Enum(n) if n == HTTP_ERROR => String::new(),
                     other => format!(" {other}"),
                 };
                 match &**value {

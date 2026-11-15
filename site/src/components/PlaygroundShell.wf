@@ -20,7 +20,7 @@ component PlaygroundShell(examples: [Project] = PLAYGROUND_EXAMPLES, other: Stri
     derived findings: [Map] = result?.findings ?? []
     derived fixable = findings.find(f => f.fixed != "" && f.file == current)
 
-    action project() {
+    action project() -> [String: String] {
         let m = {}
         for f in files { m[f.name] = f.code }
         return m

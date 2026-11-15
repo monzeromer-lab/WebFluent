@@ -1913,6 +1913,7 @@ mod tests {
                 StatementKind::If(IfStmt {
                     condition: Expr::Identifier("open".into()),
                     binding: None,
+                    pattern: None,
                     animate: None,
                     animate_span: None,
                     then_body: vec![card],

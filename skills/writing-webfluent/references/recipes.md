@@ -114,7 +114,7 @@ store Board {
     }
 
     /// The task with this id, or null when it is gone.
-    action find(id: String) {
+    action find(id: String) -> Task? {
         return tasks.find(task => task.id == id)
     }
 }

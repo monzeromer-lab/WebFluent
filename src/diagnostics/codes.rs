@@ -17,6 +17,7 @@
 //! | `X` | state and reactivity |
 //! | `I` | translations |
 //! | `D` | data, assets and what is kept in the browser |
+//! | `N` | requests: results, error enums and `try` |
 //! | `A` | accessibility |
 //! | `S` | search and sharing |
 //! | `P` | persisted values |
@@ -364,6 +365,12 @@ pub static CODES: &[CodeInfo] = &[
         "A resource `match` with no `error` arm",
         "When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.",
     ),
+    code(
+        "T26",
+        Error,
+        "An action that returns a value and does not say what",
+        "What an action returns is part of what it is: a caller in another file reads it without reading the action's body. An action that returns a value declares it, `-> T`, and every `return` is held to it.",
+    ),
     // ── C: components ────────────────────────────────────────────────
     code(
         "C01",
@@ -536,6 +543,19 @@ pub static CODES: &[CodeInfo] = &[
         Warning,
         "A script loaded on consent, with nothing to ask for it",
         "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is asked, and it never loads.",
+    ),
+    // ── N: requests ──────────────────────────────────────────────────
+    code(
+        "N03",
+        Error,
+        "A `try` with nowhere to pass its error",
+        "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.",
+    ),
+    code(
+        "N12",
+        Error,
+        "An error enum that is not shaped as one",
+        "An error enum names the statuses a service answers with, each a case carrying the body of its status, and keeps one `http(error: HttpError)` case for everything else — no network, a timeout, a status it does not name. A case with no status or more than one value, a status named twice, or no `http` case leaves a failure with nowhere to go.",
     ),
     // ── I: translations ──────────────────────────────────────────────
     code(
@@ -928,7 +948,7 @@ mod tests {
             assert!(seen.insert(c.code), "{} is listed twice", c.code);
             assert!((3..=4).contains(&c.code.len()), "{}", c.code);
             assert!(
-                "ETCRFXIDASPUV".contains(family(c.code)),
+                "ETCRFXIDNASPUV".contains(family(c.code)),
                 "{} is in no family",
                 c.code
             );

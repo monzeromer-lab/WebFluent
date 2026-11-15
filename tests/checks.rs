@@ -277,11 +277,11 @@ fn t17_await_belongs_in_an_async_body_and_a_promise_is_awaited() {
     );
     assert_eq!(with(&effect, "T17").len(), 1);
     let promise = page(
-        "    state n = 0\n    action load() { let r = await fetch(\"/x\")  return r.n }\n    Button(\"x\") { on click { n = load() } }",
+        "    state n = 0\n    action load() -> Number { let r = await fetch(\"/x\")  return r.n }\n    Button(\"x\") { on click { n = load() } }",
     );
     assert!(with(&promise, "T17")[0].contains("an async action's result"));
     clean(&page(
-        "    state n = 0\n    action load() { let r = await fetch(\"/x\")  return r.n }\n    Button(\"x\", disabled: load.pending) { on click { n = await load() } }",
+        "    state n = 0\n    action load() -> Number { let r = await fetch(\"/x\")  return r.n }\n    Button(\"x\", disabled: load.pending) { on click { n = await load() } }",
     ));
 }
 

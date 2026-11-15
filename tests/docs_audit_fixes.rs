@@ -823,7 +823,7 @@ fn an_if_let_value_that_awaits_parses() {
          \x20       let one = if let p = picked { await ask(p) } else { \"none\" }\n\
          \x20       found = one\n\
          \x20   }\n\
-         \x20   action ask(p: String) {\n\
+         \x20   action ask(p: String) -> String {\n\
          \x20       return \"{p}!\"\n\
          \x20   }\n\
          }\n\

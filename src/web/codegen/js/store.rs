@@ -77,10 +77,42 @@ impl JsCodegen {
             for (key, value) in &endpoint.settings {
                 parts.push(format!("{}: {}", api_setting(key), self.emit_expr(value)));
             }
+            // `-> User ! CreateUserError`: the call answers with a result,
+            // each status the error enum names going to its case.
+            let mut error_shapes: Vec<String> = Vec::new();
+            let answer = match &endpoint.returns {
+                Some(TypeRef::Result(value, error)) => {
+                    let mut result = Vec::new();
+                    if **value == TypeRef::Unit {
+                        result.push("unit: true".to_string());
+                    }
+                    if let Some(error) = error
+                        && let TypeRef::Named(name) = &**error
+                        && name != "HttpError"
+                    {
+                        let cases = self.error_enums.get(name).cloned().unwrap_or_default();
+                        let mapped: Vec<String> = cases
+                            .iter()
+                            .map(|(status, case, _)| format!("{status}: \"{case}\""))
+                            .collect();
+                        for (status, _, body) in &cases {
+                            error_shapes.push(format!("{status}: {}", self.shape_of(body, 0)));
+                        }
+                        result.push("enum: true".to_string());
+                        result.push(format!("cases: {{ {} }}", mapped.join(", ")));
+                    }
+                    parts.push(format!("result: {{ {} }}", result.join(", ")));
+                    (**value != TypeRef::Unit).then(|| (**value).clone())
+                }
+                other => other.clone(),
+            };
             if self.dev
-                && let Some(ty) = &endpoint.returns
+                && let Some(ty) = &answer
             {
                 parts.push(format!("shape: {}", self.shape_of(ty, 0)));
+            }
+            if self.dev && !error_shapes.is_empty() {
+                parts.push(format!("errorShapes: {{ {} }}", error_shapes.join(", ")));
             }
             // `errors { 422 -> T }`: under `wf serve`, the body of a failure
             // is held to what it declares, as an answer is.
@@ -272,6 +304,11 @@ impl JsCodegen {
                     .filter(|n| !params.contains(n))
                     .cloned()
                     .collect();
+                // What `try` passes up comes back as the action's `.err`.
+                self.open_result_action(
+                    a.returns.as_ref(),
+                    crate::syntax::parser::ast::awaits(&a.body),
+                );
                 // What it showed before the server agreed is taken back if
                 // anything in it throws, as a page's action does.
                 let optimistic = super::shows_optimistically(&a.body);
@@ -290,6 +327,7 @@ impl JsCodegen {
                     self.indent -= 1;
                     self.emit_line("});");
                 }
+                self.close_result_action(None);
                 self.store_locals.borrow_mut().clear();
                 self.indent -= 1;
                 self.emit_line("},");
@@ -304,6 +342,15 @@ impl JsCodegen {
                 .collect();
             if !concurrent.is_empty() {
                 self.emit_line(&format!("concurrent: [{}],", concurrent.join(", ")));
+            }
+            // The actions that keep their last outcome, `.result`.
+            let results: Vec<String> = actions
+                .iter()
+                .filter(|a| Self::declares_result(a))
+                .map(|a| format!("\"{}\"", a.name))
+                .collect();
+            if !results.is_empty() {
+                self.emit_line(&format!("results: [{}],", results.join(", ")));
             }
         }
 

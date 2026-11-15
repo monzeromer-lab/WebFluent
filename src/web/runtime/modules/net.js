@@ -177,6 +177,9 @@
   }
 
   function resource(url, options) {
+    // An endpoint that answers with a result is read here as it was: its
+    // value, or its failure thrown.
+    if (options && options.call && url && url.raw) url = Object.assign(url.raw, url);
     const real = signal("loading");
     const data = signal(null);
     const failed = signal(null);

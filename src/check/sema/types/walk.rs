@@ -159,7 +159,7 @@ pub(super) fn written_names(stmts: &[Statement]) -> HashSet<String> {
     }
     fn call(e: &Expr, out: &mut HashSet<String>) {
         match e {
-            Expr::Await(inner) => call(inner, out),
+            Expr::Await(inner) | Expr::Try(inner) => call(inner, out),
             Expr::MethodCall(obj, _, _) | Expr::OptionalMethod(obj, _, _) => target(obj, out),
             Expr::FunctionCall(name, args) if name == "optimistic" => {
                 if let Some(holder) = args.first() {
@@ -354,5 +354,6 @@ pub fn expr_text(expr: &Expr) -> String {
         ),
         Expr::Token(t) => format!("${t}"),
         Expr::Await(e) => format!("await {}", expr_text(e)),
+        Expr::Try(e) => format!("try {}", expr_text(e)),
     }
 }

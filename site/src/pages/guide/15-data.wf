@@ -505,6 +505,64 @@ get report(id: String) at "reports/:id" as: .blob"#, title: "text")
 
         Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **Path parameters.** A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.aborted`, and a resource over it stays `loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **What comes back.** `-> T` is what a success returns. Without it the call returns `Any`, and `204 No Content` returns nothing.\n- **Typed failures.** `errors \{ 422 -> T \}` types the body of a failure with that status: `match e \{ .status(code, body) \{ … \} \}` binds the status and the body, typed `T`, and so is `e.body`. Under `wf serve` the body that arrives is held to `T`, as a success is held to `-> T`.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and one with no default that may not be null must be given. Called in an action, it is a promise of what the endpoint returns: `await` it to read the value. It may add `cache:`, `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
 
+        Heading("Say how a call fails", id: "say-how-a-call-fails").h3
+
+        Markdown("An endpoint that says how it fails returns a *result* rather than throwing: `-> T ! E` is a `T`, or an error of the *error enum* `E`, and `-> T!` is a `T` or an `HttpError`. An error enum names each status the service answers with as a case of its own, carrying the body that status sends, and keeps one case, `http(error: HttpError)`, for everything else:")
+
+        CodeBlock(#"type User { id: String, name: String }
+type NewUser { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+/// Why adding someone can be refused.
+enum CreateUserError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    conflict(problem: Problem) on 409
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post createUser(body: NewUser) at "users" -> User ! CreateUserError
+    get ping() at "ping" -> !
+}
+
+store People {
+    state said = ""
+
+    /// 1. Every case handled where the call is made.
+    action submit(name: String) {
+        match await Backend.createUser(body: NewUser(name: name)) {
+            .ok(u) { said = "Added {u.name}" }
+            .err(.unprocessableContent(p)) { said = p.errors.map(e => e.message).join(", ") }
+            .err(.conflict(_)) { said = "Already there" }
+            .err(.http(.status(503, _))) { said = "The service is busy" }
+            .err(.http(e)) { said = e.message }
+        }
+    }
+
+    /// 2. The failure passed up, as the action's own.
+    action invite(name: String) -> User ! CreateUserError {
+        let user = try await Backend.createUser(body: NewUser(name: name))
+        return user
+    }
+}
+
+page Team(path: "/people", title: "People", description: "Adding someone, and why it can fail.") {
+    use People
+    state name = ""
+    Heading("People").h1
+    Input(bind: name, label: "Name")
+    Button("Add") { on click { People.submit(name) } }
+    Button("Invite") { on click { People.invite(name) } }
+    Text(People.said)
+    // 3. The last outcome of an action, read where it is shown.
+    if let .err(.unprocessableContent(p)) = People.invite.result {
+        Alert(p.title ?? "Check the form").danger
+    }
+}"#, title: "wf")
+
+        Markdown("- **An error enum.** Each case but `http` names its status, `on 422`, and carries one value, the body of that status. An enum that names a status is held to that shape (`N12`).\n- **`HttpError`** is what goes wrong between the page and the server: `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)` and `.status(code, problem)`. Every one has `.message`, for showing.\n- **`Problem`** is a server's account of a failure as RFC 9457 has it — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record. A status the enum does not name carries it as its `problem` when the server sends `application/problem+json`.\n- **A result** is `.ok(value)` (`.ok` when there is none) or `.err(error)`. A `match` on one gives every case an arm, or an `else`; an arm may look inside a case, `.err(.http(.status(503, _)))`, where `_` takes anything and a literal takes that value. `match` runs in an action or a handler too, and `if let .err(e) = outcome \{ … \}` takes one case.\n- **`try`** gives a result's value, or returns its error from the action as the action's own, which must say what it fails with (`N03`). The same error passes up as it is, an `HttpError` becomes an error enum's `.http`, and another error enum passes up through its `http` case once its other cases are handled. In a handler, `try` reports a failure instead.\n- **An action that may fail** returns its value, which is `.ok` of it; `return .err(e)` hands back a failure of its own. Its `.result` is its last outcome, or `null` before it has run.\n- **A `resource`** over such an endpoint holds its value, as it always has.")
+
         Heading("Load results a page at a time", id: "load-results-a-page-at-a-time").h3
 
         Markdown("To show a long list in pages, call the endpoint with `paginate: .page`. This page shows items and a **Load more** button while there are more:")

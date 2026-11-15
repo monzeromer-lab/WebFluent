@@ -152,6 +152,8 @@ mod reprint_corpus;
 mod resource_limits;
 #[path = "responsive_and_surfaces.rs"]
 mod responsive_and_surfaces;
+#[path = "results.rs"]
+mod results;
 #[path = "runtime_fixes.rs"]
 mod runtime_fixes;
 #[path = "scope.rs"]

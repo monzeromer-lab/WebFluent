@@ -149,6 +149,44 @@
     "after": ""
    },
    {
+    "title": "A call that fails says how",
+    "id": "7.0.0-a-call-that-fails-says-how",
+    "intro": "",
+    "items": [
+     {
+      "text": "An endpoint declared `-> T ! E` or `-> T!` returns a result, `.ok(value)`\nor `.err(error)`, and never throws. `E` is an *error enum*: a case for\neach status the service answers with, `unprocessableContent(problem:\nValidationProblem) on 422`, carrying that status's body, and one\n`http(error: HttpError)` case for everything else (`N12` holds an enum\nthat names a status to that shape).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`HttpError` and `Problem` are built in: what goes wrong between the page\nand the server — `.offline`, `.timeout(after)`, `.cancelled`,\n`.transport(message)`, `.decode(at, message)`, `.status(code, problem)`,\neach with `.message` — and a server's account of a failure as RFC 9457\nhas it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`try` gives a result's value, or returns its error from the action as the\naction's own (`N03` where the action cannot hold it). In a handler it\nreports the failure.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An action declaring `-> T ! E` returns its value, which is `.ok` of it,\nor `return .err(e)`; `-> ! E` and `-> !` return nothing and may fail. Its\n`.result` is its last outcome.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "Patterns: `_`, a literal, and a case inside a case —\n`.err(.http(.status(503, _)))` — in a `match`, which now runs inside an\naction or a handler too, and in `if let .err(e) = outcome`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An action that returns a value says what with `-> T` (`T26`, an error;\n`wf fix --code T26` writes the type).",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -169,7 +207,7 @@
     "after": ""
    }
   ],
-  "count": 23
+  "count": 29
  },
  {
   "version": "6.2.0",

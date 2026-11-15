@@ -146,7 +146,7 @@ fn a_derived_value_may_call_an_action_declared_below_it() {
             store S {
                 state n = 2
                 derived doubled = twice(n)
-                action twice(v: Number) { return v * 2 }
+                action twice(v: Number) -> Number { return v * 2 }
             }
             page P(path: "/") { use S  Text("{S.doubled}") }
         "#;
@@ -184,7 +184,7 @@ const TODOS: &str = "enum Tone { calm, loud }\ntype Todo { id: String, title: St
 #[test]
 fn declared_and_inferred_types_of_names() {
     let src = format!(
-        "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = fetch(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ ready(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
+        "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() -> Number {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = fetch(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ ready(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
     );
     assert_eq!(type_of(&src, "items"), "[Todo]");
     assert_eq!(type_of(&src, "draft"), "String");

@@ -2272,6 +2272,7 @@ pub webfluent::syntax::parser::ast::Expr::Regex(alloc::string::String, alloc::st
 pub webfluent::syntax::parser::ast::Expr::Spread(alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 pub webfluent::syntax::parser::ast::Expr::StringLiteral(alloc::string::String)
 pub webfluent::syntax::parser::ast::Expr::Token(alloc::string::String)
+pub webfluent::syntax::parser::ast::Expr::Try(alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 pub webfluent::syntax::parser::ast::Expr::Typed(alloc::string::String, alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 pub webfluent::syntax::parser::ast::Expr::UnaryOp(webfluent::syntax::parser::UnaryOp, alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 impl webfluent::syntax::parser::Expr
@@ -2307,6 +2308,29 @@ impl core::marker::Unpin for webfluent::syntax::parser::Pace
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
+pub enum webfluent::syntax::parser::ast::Pattern
+pub webfluent::syntax::parser::ast::Pattern::Bind(alloc::string::String)
+pub webfluent::syntax::parser::ast::Pattern::Case(alloc::string::String, alloc::vec::Vec<webfluent::syntax::parser::Pattern>)
+pub webfluent::syntax::parser::ast::Pattern::Literal(webfluent::syntax::parser::Expr)
+pub webfluent::syntax::parser::ast::Pattern::Wildcard
+impl webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::is_irrefutable(&self) -> bool
+pub fn webfluent::syntax::parser::Pattern::name(&self) -> &str
+pub fn webfluent::syntax::parser::Pattern::names(&self) -> alloc::vec::Vec<&str>
+impl core::clone::Clone for webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::Pattern
+impl core::marker::Freeze for webfluent::syntax::parser::Pattern
+impl core::marker::Send for webfluent::syntax::parser::Pattern
+impl core::marker::Sync for webfluent::syntax::parser::Pattern
+impl core::marker::Unpin for webfluent::syntax::parser::Pattern
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pattern
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pattern
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pattern
 #[non_exhaustive] pub enum webfluent::syntax::parser::ast::StatementKind
 pub webfluent::syntax::parser::ast::StatementKind::Action(webfluent::syntax::parser::ActionDecl)
 pub webfluent::syntax::parser::ast::StatementKind::Animate(webfluent::syntax::parser::AnimateStmt)
@@ -2727,6 +2751,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Endpoin
 pub struct webfluent::syntax::parser::ast::EnumCase
 pub webfluent::syntax::parser::ast::EnumCase::fields: alloc::vec::Vec<webfluent::syntax::parser::FieldDecl>
 pub webfluent::syntax::parser::ast::EnumCase::name: alloc::string::String
+pub webfluent::syntax::parser::ast::EnumCase::status: core::option::Option<u16>
 impl core::clone::Clone for webfluent::syntax::parser::EnumCase
 pub fn webfluent::syntax::parser::EnumCase::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::EnumCase
@@ -2889,6 +2914,7 @@ pub webfluent::syntax::parser::ast::IfStmt::binding: core::option::Option<alloc:
 pub webfluent::syntax::parser::ast::IfStmt::condition: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::IfStmt::else_body: core::option::Option<alloc::vec::Vec<webfluent::syntax::parser::Statement>>
 pub webfluent::syntax::parser::ast::IfStmt::else_if_branches: alloc::vec::Vec<(webfluent::syntax::parser::Expr, alloc::vec::Vec<webfluent::syntax::parser::Statement>)>
+pub webfluent::syntax::parser::ast::IfStmt::pattern: core::option::Option<webfluent::syntax::parser::Pattern>
 pub webfluent::syntax::parser::ast::IfStmt::then_body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 impl core::clone::Clone for webfluent::syntax::parser::IfStmt
 pub fn webfluent::syntax::parser::IfStmt::clone(&self) -> Self
@@ -2935,6 +2961,7 @@ pub webfluent::syntax::parser::ast::MatchArm::binding: core::option::Option<allo
 pub webfluent::syntax::parser::ast::MatchArm::bindings: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::ast::MatchArm::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 pub webfluent::syntax::parser::ast::MatchArm::pattern: webfluent::syntax::parser::ArmPattern
+pub webfluent::syntax::parser::ast::MatchArm::patterns: alloc::vec::Vec<webfluent::syntax::parser::Pattern>
 pub webfluent::syntax::parser::ast::MatchArm::span: webfluent::syntax::parser::Span
 impl core::clone::Clone for webfluent::syntax::parser::MatchArm
 pub fn webfluent::syntax::parser::MatchArm::clone(&self) -> Self
@@ -3678,6 +3705,7 @@ pub webfluent::syntax::parser::Expr::Regex(alloc::string::String, alloc::string:
 pub webfluent::syntax::parser::Expr::Spread(alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 pub webfluent::syntax::parser::Expr::StringLiteral(alloc::string::String)
 pub webfluent::syntax::parser::Expr::Token(alloc::string::String)
+pub webfluent::syntax::parser::Expr::Try(alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 pub webfluent::syntax::parser::Expr::Typed(alloc::string::String, alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 pub webfluent::syntax::parser::Expr::UnaryOp(webfluent::syntax::parser::UnaryOp, alloc::boxed::Box<webfluent::syntax::parser::Expr>)
 impl webfluent::syntax::parser::Expr
@@ -3713,6 +3741,29 @@ impl core::marker::Unpin for webfluent::syntax::parser::Pace
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
+pub enum webfluent::syntax::parser::Pattern
+pub webfluent::syntax::parser::Pattern::Bind(alloc::string::String)
+pub webfluent::syntax::parser::Pattern::Case(alloc::string::String, alloc::vec::Vec<webfluent::syntax::parser::Pattern>)
+pub webfluent::syntax::parser::Pattern::Literal(webfluent::syntax::parser::Expr)
+pub webfluent::syntax::parser::Pattern::Wildcard
+impl webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::is_irrefutable(&self) -> bool
+pub fn webfluent::syntax::parser::Pattern::name(&self) -> &str
+pub fn webfluent::syntax::parser::Pattern::names(&self) -> alloc::vec::Vec<&str>
+impl core::clone::Clone for webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::parser::Pattern
+pub fn webfluent::syntax::parser::Pattern::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::Pattern
+impl core::marker::Freeze for webfluent::syntax::parser::Pattern
+impl core::marker::Send for webfluent::syntax::parser::Pattern
+impl core::marker::Sync for webfluent::syntax::parser::Pattern
+impl core::marker::Unpin for webfluent::syntax::parser::Pattern
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pattern
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pattern
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pattern
 #[non_exhaustive] pub enum webfluent::syntax::parser::StatementKind
 pub webfluent::syntax::parser::StatementKind::Action(webfluent::syntax::parser::ActionDecl)
 pub webfluent::syntax::parser::StatementKind::Animate(webfluent::syntax::parser::AnimateStmt)
@@ -4133,6 +4184,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Endpoin
 pub struct webfluent::syntax::parser::EnumCase
 pub webfluent::syntax::parser::EnumCase::fields: alloc::vec::Vec<webfluent::syntax::parser::FieldDecl>
 pub webfluent::syntax::parser::EnumCase::name: alloc::string::String
+pub webfluent::syntax::parser::EnumCase::status: core::option::Option<u16>
 impl core::clone::Clone for webfluent::syntax::parser::EnumCase
 pub fn webfluent::syntax::parser::EnumCase::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::EnumCase
@@ -4295,6 +4347,7 @@ pub webfluent::syntax::parser::IfStmt::binding: core::option::Option<alloc::stri
 pub webfluent::syntax::parser::IfStmt::condition: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::IfStmt::else_body: core::option::Option<alloc::vec::Vec<webfluent::syntax::parser::Statement>>
 pub webfluent::syntax::parser::IfStmt::else_if_branches: alloc::vec::Vec<(webfluent::syntax::parser::Expr, alloc::vec::Vec<webfluent::syntax::parser::Statement>)>
+pub webfluent::syntax::parser::IfStmt::pattern: core::option::Option<webfluent::syntax::parser::Pattern>
 pub webfluent::syntax::parser::IfStmt::then_body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 impl core::clone::Clone for webfluent::syntax::parser::IfStmt
 pub fn webfluent::syntax::parser::IfStmt::clone(&self) -> Self
@@ -4341,6 +4394,7 @@ pub webfluent::syntax::parser::MatchArm::binding: core::option::Option<alloc::st
 pub webfluent::syntax::parser::MatchArm::bindings: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::MatchArm::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 pub webfluent::syntax::parser::MatchArm::pattern: webfluent::syntax::parser::ArmPattern
+pub webfluent::syntax::parser::MatchArm::patterns: alloc::vec::Vec<webfluent::syntax::parser::Pattern>
 pub webfluent::syntax::parser::MatchArm::span: webfluent::syntax::parser::Span
 impl core::clone::Clone for webfluent::syntax::parser::MatchArm
 pub fn webfluent::syntax::parser::MatchArm::clone(&self) -> Self

@@ -9,7 +9,7 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
     action reading(id: String) { current = id }
 
     /// Where this page's twin is: the address with `.md` on the end.
-    action twin() {
+    action twin() -> String {
         let path = location.pathname.replace(/\/(index\.html)?$/, "").replace(/\.html$/, "")
         return if path == "" { "/index.md" } else { "{path}.md" }
     }

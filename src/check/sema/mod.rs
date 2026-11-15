@@ -1471,6 +1471,7 @@ fn lower_key_handler(handler: &mut EventHandler) {
     handler.params = vec![param.clone()];
     handler.body = vec![Statement {
         kind: StatementKind::If(IfStmt {
+            pattern: None,
             condition: Expr::FunctionCall(
                 "WF.keyIs".to_string(),
                 vec![Expr::Identifier(param), Expr::StringLiteral(key)],

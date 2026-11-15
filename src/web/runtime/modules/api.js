@@ -116,13 +116,24 @@
       }
       return null;
     };
-    const call = (args) => {
+    const raw = (args) => {
       const empty = unfilled(args);
       if (empty) {
         return Promise.reject(netError("aborted", "`" + empty[0] + "` " + empty[1] + ", so " + endpoint.path + " was not requested"));
       }
       return send(addressOf(args), optionsOf(args));
     };
+    // An endpoint that declares a result (`-> User ! CreateUserError`,
+    // `-> User!`) never throws: what comes back is `.ok(value)` or
+    // `.err(error)`. A resource reads it through `raw`, as it always has.
+    const result = endpoint.result;
+    const call = result
+      ? (args) => raw(args).then(
+          (value) => (result.unit ? "ok" : ["ok", value]),
+          (error) => ["err", failureOf(error, result)],
+        )
+      : raw;
+    call.raw = raw;
     call.progress = progress;
     call.key = (args) => optionsOf(args).key;
     call.url = addressOf;
@@ -134,6 +145,41 @@
     /// Every line of a streamed response, as it arrives.
     call.lines = (args) => streamLines(addressOf(args), optionsOf(args));
     return call;
+  }
+
+  /// What a request that failed is, as its endpoint declares it: the case
+  /// of its error enum for a status the enum names, with the body; its
+  /// `http` case for anything else; or the `HttpError` itself, for an
+  /// endpoint that declares no enum (`-> User!`).
+  function failureOf(error, result) {
+    const cases = result.cases || {};
+    if (error && error.kind === "status" && cases[error.status] != null) {
+      return [cases[error.status], error.body];
+    }
+    const http = httpError(error);
+    return result.enum ? ["http", http] : http;
+  }
+
+  /// A request's failure as an `HttpError`: `.offline`, `.timeout(after)`,
+  /// `.cancelled`, `.transport(message)`, `.decode(at, message)` or
+  /// `.status(code, problem)`, each with `.message` for showing.
+  function httpError(error) {
+    const kind = error && error.kind;
+    const message = (error && error.message) || String(error);
+    let parts;
+    if (kind === "offline") parts = ["offline"];
+    else if (kind === "timeout") parts = ["timeout", error.after != null ? error.after : null];
+    else if (kind === "aborted") parts = ["cancelled"];
+    else if (kind === "parse") parts = ["decode", error.at || "$", error.detail || message];
+    else if (kind === "status") {
+      // A problem is the body when the server says it is one (RFC 9457).
+      const type = String((error.headers && error.headers["content-type"]) || "");
+      const problem = /problem\+json/i.test(type) && error.body && typeof error.body === "object" ? error.body : null;
+      parts = ["status", error.status, problem];
+    } else parts = ["transport", message];
+    Object.defineProperty(parts, "message", { value: message, enumerable: false });
+    Object.defineProperty(parts, "httpError", { value: true, enumerable: false });
+    return parts;
   }
 
   // ─── A socket ────────────────────────────────────────

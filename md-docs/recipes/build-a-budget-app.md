@@ -159,7 +159,7 @@ value, which a derived value may call:
 ```wf
 // src/stores/Ledger.wf
     // The money in a list of entries, added up.
-    action sum(list: [Entry]) {
+    action sum(list: [Entry]) -> Money {
         return list.reduce((total, e) => total.plus(e.amount), ZERO)
     }
 ```

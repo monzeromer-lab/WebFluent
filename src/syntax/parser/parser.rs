@@ -633,6 +633,7 @@ impl Parser {
         }
 
         Ok(StatementKind::If(IfStmt {
+            pattern: None,
             condition,
             binding: None,
             animate,

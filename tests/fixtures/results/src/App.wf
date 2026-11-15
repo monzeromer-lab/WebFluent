@@ -1,0 +1,64 @@
+type User { id: String, name: String }
+type NewUser { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+/// Why adding someone can be refused.
+enum CreateUserError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    conflict(problem: Problem) on 409
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post createUser(body: NewUser) at "users" -> User ! CreateUserError
+    get broken() at "broken" -> User!
+}
+
+store People {
+    state said = ""
+
+    /// Every case handled where the call is made.
+    action submit(name: String) {
+        match await Backend.createUser(body: NewUser(name: name)) {
+            .ok(u) { said = "created {u.name}" }
+            .err(.unprocessableContent(p)) { said = "invalid: {p.title ?? \"\"}" }
+            .err(.conflict(_)) { said = "already there" }
+            .err(.http(e)) { said = "failed: {e.message}" }
+        }
+    }
+
+    /// The failure passed up, as the action's own.
+    action invite(name: String) -> User ! CreateUserError {
+        let user = try await Backend.createUser(body: NewUser(name: name))
+        return user
+    }
+
+    /// A request's failure passed up into an error enum's `http` case.
+    action probe() -> ! CreateUserError {
+        try await Backend.broken()
+    }
+}
+
+page Home(path: "/", title: "Results", description: "A service's failures, handled as values.") {
+    use People
+    Heading("Results").h1
+    Button("Submit taken") { on click { People.submit("taken") } }
+    Button("Submit dup") { on click { People.submit("dup") } }
+    Button("Submit ada") { on click { People.submit("ada") } }
+    Text(People.said, id: "said")
+    Button("Invite taken") { on click { People.invite("taken") } }
+    Button("Invite bo") { on click { People.invite("bo") } }
+    if let .err(.unprocessableContent(p)) = People.invite.result {
+        Text("refused: {p.errors.length} problem", id: "invite")
+    }
+    if let .ok(u) = People.invite.result {
+        Text("invited {u.name}", id: "invite")
+    }
+    Button("Probe") { on click { People.probe() } }
+    if let .err(.http(.status(503, _))) = People.probe.result {
+        Text("503 passed up", id: "probe")
+    }
+}
+
+app { Router }

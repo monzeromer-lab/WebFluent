@@ -19,6 +19,9 @@
     e.status = extra && extra.status != null ? extra.status : 0;
     e.body = extra ? extra.body : null;
     e.headers = (extra && extra.headers) || {};
+    // A timeout's length, and where a response stopped fitting its type.
+    if (extra && extra.after != null) e.after = extra.after;
+    if (extra && extra.at != null) { e.at = extra.at; e.detail = extra.detail; }
     return e;
   }
 
@@ -307,8 +310,8 @@
         // What the program declared it would get, held to what came, where
         // a developer is looking. A deployed page trusts the server.
         if (opts.shape && devMode()) {
-          const wrong = shapeProblem(value, opts.shape, "$");
-          if (wrong) throw netError("parse", "The response of " + url + " is not the type the program declares: " + wrong, { body: value });
+          const fault = shapeFault(value, opts.shape, "$");
+          if (fault) throw netError("parse", "The response of " + url + " is not the type the program declares: " + fault.at + " " + fault.message, { body: value, at: fault.at, detail: fault.message });
         }
         if (entry) {
           entry.value = value;
@@ -459,7 +462,7 @@
           });
     } catch (e) {
       if (timer) clearTimeout(timer);
-      if (timedOut) throw netError("timeout", "The server took too long");
+      if (timedOut) throw netError("timeout", "The server took too long", { after: opts.timeout });
       if (e && (e.name === "AbortError" || e.kind === "aborted")) {
         throw netError("aborted", "The request was cancelled");
       }

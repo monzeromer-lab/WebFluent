@@ -43,7 +43,7 @@ store Prefs {
     }
 
     action restore(text: String) -> Settings ! DecodeError {
-        return Settings.decode(JSON.parse(text))
+        return try Settings.decode(JSON.parse(text))
     }
 
     action forget() -> ! DecodeError {

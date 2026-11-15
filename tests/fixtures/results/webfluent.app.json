@@ -1,0 +1,12 @@
+{
+  "name": "results",
+  "build": {
+    "output": "build",
+    "output_type": "spa",
+    "ssg": false
+  },
+  "meta": {
+    "title": "Results",
+    "description": "A service's failures, handled as values."
+  }
+}

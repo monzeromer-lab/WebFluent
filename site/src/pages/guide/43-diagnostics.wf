@@ -119,6 +119,10 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
                     Table.Cell("data and assets")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`N`") }
+                    Table.Cell { Markdown("requests: results, error enums and `try`") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`A`") }
                     Table.Cell("accessibility")
                 }
@@ -155,7 +159,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
 
         Heading("Types", id: "types").h3
 
-        Markdown("Errors. The type checker's findings; a program that declares no types raises none of them, since what it cannot resolve is `Any`.\n\n- [T01](/errors/T01) — A value of the wrong type\n- [T02](/errors/T02) — A case the enum does not have\n- [T04](/errors/T04) — A value that may be null, read as if it were not\n- [T05](/errors/T05) — A field or method that does not exist\n- [T06](/errors/T06) — A member a store or service does not have\n- [T07](/errors/T07) — A condition that is always true\n- [T08](/errors/T08) — A loop over something that is not a list\n- [T09](/errors/T09) — An `emit` that does not match its event\n- [T10](/errors/T10) — A call with the wrong arguments\n- [T11](/errors/T11) — A `match` on something that cannot be matched\n- [T12](/errors/T12) — A secret where it would escape\n- [T13](/errors/T13) — A name nothing declares\n- [T16](/errors/T16) — A method a number, a string or a list does not have\n- [T14](/errors/T14) — A comparison that is always the same\n- [T17](/errors/T17) — An async result used before it is awaited\n- [T19](/errors/T19) — A value that may be null, shown as text\n- [T20](/errors/T20) — A list or a record shown as text\n- [T18](/errors/T18) — Arithmetic on something that is not a number\n- [T15](/errors/T15) — A `match` that misses a case, or has one twice\n- [T22](/errors/T22) — A handler that names more values than its event sends\n- [T21](/errors/T21) — A resource `match` with no `error` arm")
+        Markdown("Errors. The type checker's findings; a program that declares no types raises none of them, since what it cannot resolve is `Any`.\n\n- [T01](/errors/T01) — A value of the wrong type\n- [T02](/errors/T02) — A case the enum does not have\n- [T04](/errors/T04) — A value that may be null, read as if it were not\n- [T05](/errors/T05) — A field or method that does not exist\n- [T06](/errors/T06) — A member a store or service does not have\n- [T07](/errors/T07) — A condition that is always true\n- [T08](/errors/T08) — A loop over something that is not a list\n- [T09](/errors/T09) — An `emit` that does not match its event\n- [T10](/errors/T10) — A call with the wrong arguments\n- [T11](/errors/T11) — A `match` on something that cannot be matched\n- [T12](/errors/T12) — A secret where it would escape\n- [T13](/errors/T13) — A name nothing declares\n- [T16](/errors/T16) — A method a number, a string or a list does not have\n- [T14](/errors/T14) — A comparison that is always the same\n- [T17](/errors/T17) — An async result used before it is awaited\n- [T19](/errors/T19) — A value that may be null, shown as text\n- [T20](/errors/T20) — A list or a record shown as text\n- [T18](/errors/T18) — Arithmetic on something that is not a number\n- [T15](/errors/T15) — A `match` that misses a case, or has one twice\n- [T22](/errors/T22) — A handler that names more values than its event sends\n- [T21](/errors/T21) — A resource `match` with no `error` arm\n- [T26](/errors/T26) — An action that returns a value and does not say what")
 
         Heading("Components", id: "components").h3
 
@@ -176,6 +180,10 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
         Heading("Data and assets", id: "data-and-assets").h3
 
         Markdown("- [D01](/errors/D01) — A file the project does not have\n- [D02](/errors/D02) — A persisted value storage cannot keep\n- [D03](/errors/D03) — A persisted value every instance shares\n- [D04](/errors/D04) — A persisted shape changed with no new version\n- [D05](/errors/D05) — An asset from another origin with no integrity hash\n- [D06](/errors/D06) — A script loaded on consent, with nothing to ask for it")
+
+        Heading("Requests", id: "requests").h3
+
+        Markdown("- [N03](/errors/N03) — A `try` with nowhere to pass its error\n- [N12](/errors/N12) — An error enum that is not shaped as one")
 
         Heading("Translations", id: "translations").h3
 
