@@ -92,10 +92,6 @@ impl JsCodegen {
                 Expr::MapLiteral(pairs) => Some(pairs),
                 _ => None,
             });
-            let positional: Vec<&Expr> = args
-                .iter()
-                .filter(|a| !matches!(a, Expr::MapLiteral(_)))
-                .collect();
             let mut parts: Vec<String> = Vec::new();
             // `on:` is the resource's — when to look again — and every
             // other argument is the request's.
@@ -137,10 +133,6 @@ impl JsCodegen {
                 };
                 parts.push(format!("{key}: {emitted}"));
             }
-            // A single positional argument is the one the path names.
-            if let Some(first) = positional.first() {
-                parts.insert(0, format!("id: {}", self.term(first, store)));
-            }
             let on = match refetch {
                 Some(policy) => format!(", on: {policy}"),
                 None => String::new(),
@@ -177,6 +169,9 @@ impl JsCodegen {
                 let value = match opt.key.trim_matches('"') {
                     "on" => self.refetch_policy_in(&opt.value, store),
                     "cache" => self.cache_policy_in(&opt.value, store),
+                    // What is sent is read on every load, so a body or a
+                    // header that reads state asks again when it changes.
+                    "body" | "headers" => format!("() => ({})", self.term(&opt.value, store)),
                     _ => self.term(&opt.value, store),
                 };
                 format!("{}: {value}", opt.key)

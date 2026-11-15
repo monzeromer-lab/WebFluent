@@ -184,7 +184,7 @@ pub(super) fn not_serialisable(ty: &Type) -> Option<&'static str> {
         Type::Func(..) => Some("a function"),
         Type::Scalar(Scalar::File) => Some("a `File`"),
         Type::Promise(_) => Some("a promise"),
-        Type::Resource(_) => Some("a resource"),
+        Type::Resource(..) => Some("a resource"),
         Type::Optional(inner) | Type::List(inner) => not_serialisable(inner),
         Type::Shape(fields) => fields.iter().find_map(|(_, t)| not_serialisable(t)),
         _ => None,

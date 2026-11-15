@@ -152,11 +152,11 @@ What the control-flow statements and slots compile to.
 | Function | Module | What it does |
 |---|---|---|
 | `resource(url, options)` | `net` | A resource: `{ state, data, error, refreshing, pending, items, hasMore, reload, loadMore, invalidate, cancel }`. |
-| `request(url, options)`, `fetch(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `await fetch(…)` in an action compiles to `request`. |
+| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `await fetch(…)` in an action compiles to `request`. |
 | `optimistic(holder, change)` | `net` | Shows a change at once, rolled back if the action throws. |
 | `attempt(fn)` | `net` | Runs an action so that a throw rolls back its optimistic changes. |
 | `send(url, options)` | `http` | The engine's request itself. |
-| `invalidate(prefix)` | `http` | Drops cached answers: every one with no argument, or each key equal to or starting with `prefix`. |
+| `invalidate(prefix)` | `http` | Drops cached answers — every one with no argument, or each key equal to or starting with `prefix` — and every resource whose request it names asks again. |
 | `beacon(url, data)` ● | `http` | A post that survives the page unloading. |
 | `api(definition)` | `api` | The service an `api` declaration compiles to. |
 | `ws(url, options)`, `sse(url, options)`, `broadcast(name, options)` | `api` | A socket, a stream of events, a channel between tabs. |

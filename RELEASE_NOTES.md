@@ -1,3 +1,57 @@
+# WebFluent v7.0.0 Release Notes
+
+Requests stop losing and duplicating data.
+
+## A write is sent again only when that is safe
+
+- A retry policy now retries only a request that may be sent twice: `GET`,
+  `HEAD`, `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have
+  reached the server, and three more of them could be three more orders;
+  it now fails as `.timeout`.
+- With `offline.sync`, only a `PUT` or a `DELETE` made with no network is
+  kept and sent later. A `POST` or a `PATCH` fails as `.offline`, and the
+  page decides what to do.
+
+## Requests that never went, or went wrong
+
+- A resource's `body:` and `headers:` are read on every load: typing into
+  the field a search body reads asks again. They were read once, as the
+  page drew.
+- Two readers of one address make one request whether or not a cache
+  policy is set. Each keeps its own abort, and the request stops when the
+  last of them leaves.
+- `Backend.users.invalidate()` refreshes every resource on the page over
+  that endpoint, and `Backend.invalidate()` every one over the service. It
+  used to drop the cache and leave the screen as it was.
+- A call's own `headers:` and `retry:` were sent in the query string
+  (`?headers=[object Object]`); they are the request's again.
+- A `File` parameter is sent under its own name: `post avatar(image: File)`
+  sends `image`, where it used to need the name `file`.
+- Two uploads of different files at once are two calls. An async action
+  called again with the same arguments joins the call already running, and
+  every `File` looked the same.
+- A store's `await fetch("/x/{id}")` encodes `id` as a page's does.
+
+## What the checker now says
+
+- `match e { .status(code, body) { … } }` on a request's error binds the
+  status and the body. It was `T13`, nothing declares `code`.
+- `errors { 422 -> T }` types that body, and `e.body`; under `wf serve` the
+  body that arrives is held to `T`, as a success is held to `-> T`.
+- An endpoint call is a promise of what it returns until it is awaited
+  (`T17`), and one that declares no `->` returns `Any` rather than nothing.
+- A parameter with no default that may not be null must be given (`C01`).
+- `resource u: [User] = Backend.user(…)` is `T01` when the endpoint
+  returns `User`.
+- A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`;
+  `rows.relaod()` is `T16`.
+
+## Removed
+
+- `WF.fetch`, the runtime of WebFluent 2's `fetch x from url { … }`, which
+  nothing the compiler writes has called since 3.0. `wf migrate` still
+  rewrites that grammar.
+
 # WebFluent v6.2.0 Release Notes
 
 The built-ins work for keyboards, screen readers, touch screens and

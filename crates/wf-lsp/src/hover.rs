@@ -1003,8 +1003,6 @@ fn binding_doc(
         BindingKind::Param => "A parameter of this action or handler.",
         BindingKind::LoopItem => "The current item of the enclosing `for`.",
         BindingKind::LoopIndex => "The index of the current item of the enclosing `for`.",
-        BindingKind::FetchResult => "The data the enclosing `fetch` loaded.",
-        BindingKind::FetchError => "The error the enclosing `fetch` failed with.",
         BindingKind::Store => "A store brought into scope with `use`.",
         BindingKind::Resource => "An async value; render its states with `match`.",
         BindingKind::ArmBinding => "The value the enclosing arm, `if let` or slot fill binds.",

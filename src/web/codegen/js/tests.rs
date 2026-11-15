@@ -1546,3 +1546,40 @@ fn a_bound_field_of_a_live_item_spelled_like_the_placeholder_is_written() {
         "{out}"
     );
 }
+
+#[test]
+fn a_resources_body_and_headers_are_read_on_every_load() {
+    // They were read once, as the page drew: typing into the field the body
+    // reads never asked again.
+    let out = compile(
+        "page P(path: \"/\") {\n state q = \"\"\n resource hits = fetch(\"/api/search\", method: \"POST\", body: { query: q }, headers: { \"X-Q\": q })\n Text(\"{hits.state}\")\n}",
+    );
+    assert!(out.contains("body: () => ("), "{out}");
+    assert!(out.contains("headers: () => ("), "{out}");
+}
+
+#[test]
+fn a_stores_fetch_address_is_encoded_as_a_pages_is() {
+    let out = compile(
+        "store S {\n state id = \"a b\"\n state got = \"\"\n action load() { let r = await fetch(\"/x/{id}\")  got = r.n }\n}\npage P(path: \"/\") {\n use S\n Text(S.got)\n Button(\"x\") { on click { S.load() } }\n}",
+    );
+    assert!(out.contains("encodeURIComponent"), "{out}");
+}
+
+#[test]
+fn an_endpoints_declared_failures_are_held_to_their_types_in_development() {
+    let program = crate::syntax::parse_source(
+        "type Problem { field: String }\napi B(base: \"/api\") {\n post make(body: Map) at \"make\"\n  errors { 422 -> Problem }\n}\npage P(path: \"/\") { Text(\"x\") }",
+        "<t>",
+    )
+    .expect("parse");
+    let mut codegen = JsCodegen::new();
+    codegen.set_dev(true);
+    let out = codegen.generate(&crate::check::sema::lower(program));
+    assert!(out.contains("errorShapes: { 422: "), "{out}");
+    // A deployed page trusts the server.
+    let out = compile(
+        "type Problem { field: String }\napi B(base: \"/api\") {\n post make(body: Map) at \"make\"\n  errors { 422 -> Problem }\n}\npage P(path: \"/\") { Text(\"x\") }",
+    );
+    assert!(!out.contains("errorShapes: {"), "{out}");
+}

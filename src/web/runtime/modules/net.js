@@ -1,84 +1,3 @@
-  // ─── Fetch ───────────────────────────────────────────
-  function wfFetch(url, options, callbacks) {
-    const container = document.createDocumentFragment();
-    const wrapper = document.createElement("div");
-    wrapper.style.display = "contents";
-
-    const loading = signal(true);
-    const error = signal(null);
-    const data = signal(null);
-
-    // A screen reader is told the region is still filling, and then told once —
-    // politely — when it has. Without this a fetch completes in silence and the
-    // user has no way to know the content arrived.
-    wrapper.setAttribute("aria-live", "polite");
-    wrapper.setAttribute("aria-busy", "true");
-    effect(() => { wrapper.setAttribute("aria-busy", loading() ? "true" : "false"); });
-
-    // Show loading
-    if (callbacks.loading) {
-      const loadingEl = document.createElement("div");
-      loadingEl.style.display = "contents";
-      const nodes = [].concat(callbacks.loading()).flat();
-      for (const n of nodes) { if (n instanceof Node) loadingEl.appendChild(n); }
-      wrapper.appendChild(loadingEl);
-      effect(() => { loadingEl.style.display = loading() ? "contents" : "none"; });
-    }
-
-    // Success container
-    const successEl = document.createElement("div");
-    successEl.style.display = "contents";
-    wrapper.appendChild(successEl);
-
-    // Error container
-    const errorEl = document.createElement("div");
-    errorEl.style.display = "contents";
-    wrapper.appendChild(errorEl);
-
-    const resolvedUrl = typeof url === "function" ? url() : url;
-
-    const doFetch = () => {
-      const fetchUrl = typeof url === "function" ? url() : url;
-      loading.set(true);
-      error.set(null);
-
-      const fetchOpts = {};
-      if (options) {
-        if (options.method) fetchOpts.method = options.method;
-        if (options.headers) fetchOpts.headers = options.headers;
-        if (options.body) {
-          fetchOpts.body = JSON.stringify(typeof options.body === "function" ? options.body() : options.body);
-          fetchOpts.headers = { "Content-Type": "application/json", ...(fetchOpts.headers || {}) };
-        }
-      }
-
-      fetch(fetchUrl, fetchOpts)
-        .then(r => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json(); })
-        .then(d => {
-          data.set(d);
-          loading.set(false);
-          if (callbacks.success) {
-            successEl.innerHTML = "";
-            const nodes = [].concat(callbacks.success(d)).flat();
-            for (const n of nodes) { if (n instanceof Node) successEl.appendChild(n); }
-          }
-        })
-        .catch(e => {
-          error.set(e);
-          loading.set(false);
-          if (callbacks.error) {
-            errorEl.innerHTML = "";
-            const nodes = [].concat(callbacks.error(e)).flat();
-            for (const n of nodes) { if (n instanceof Node) errorEl.appendChild(n); }
-          }
-        });
-    };
-
-    doFetch();
-
-    return wrapper;
-  }
-
   // ─── Resource ────────────────────────────────────────
   //
   // A request declared once and read anywhere. `state()` is "loading",
@@ -151,19 +70,6 @@
       signal: given.signal,
       shape: given.shape,
     };
-  }
-
-  function fetchOptions(options) {
-    const opts = {};
-    if (options) {
-      if (options.method) opts.method = options.method;
-      if (options.headers) opts.headers = options.headers;
-      if (options.body) {
-        opts.body = JSON.stringify(typeof options.body === "function" ? options.body() : options.body);
-        opts.headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
-      }
-    }
-    return opts;
   }
 
   /// What arrived, sharing what it has in common with what was there.
@@ -284,6 +190,10 @@
     const refreshing = signal(false);
     const pending = signal(false);
     const opts = requestOptions(options);
+    // A body and headers are read on every load: one that reads state
+    // makes another request when it changes.
+    const bodyNow = () => typeof opts.body === "function" ? opts.body() : opts.body;
+    const headersOf = () => headersNow(typeof opts.headers === "function" ? opts.headers() : opts.headers);
     const argsOf =
       options && typeof options.args === "function"
         ? options.args
@@ -317,7 +227,7 @@
         try { return JSON.stringify(args); } catch (e) { return String(Math.random()); }
       }
       const address = typeof url === "function" ? url() : url;
-      return (opts.method || "GET").toUpperCase() + " " + address;
+      return cacheKey(address, { method: opts.method, body: bodyNow() }) + " " + JSON.stringify(headersOf());
     };
     // The request whose answer `data` holds, once one has arrived.
     let shown;
@@ -356,7 +266,7 @@
       const args = options && options.call ? pageArgs() : null;
       const made = options && options.call
         ? url({ ...args, signal: signalOf })
-        : send(typeof url === "function" ? url() : url, { ...opts, signal: signalOf });
+        : send(typeof url === "function" ? url() : url, { ...opts, body: bodyNow(), headers: headersOf(), signal: signalOf });
       made.then(
         (value) => {
           if (gen !== generation) return;
@@ -395,13 +305,33 @@
     // An address or an argument that reads state asks again when it changes.
     if (options && options.call) {
       effect(() => { argsOf(); load(); });
-    } else if (typeof url === "function") {
-      effect(() => { url(); load(); });
+    } else if (typeof url === "function" || typeof opts.body === "function" || typeof opts.headers === "function") {
+      effect(() => { requestOf(); load(); });
     } else {
       load();
     }
     // Leaving takes the request with it.
     onCleanup(() => { generation += 1; if (controller) controller.abort(); });
+
+    // What the cache knows this request by; an `invalidate` that names it —
+    // the endpoint's, the service's, everything — asks again.
+    const keyNow = () => options && options.call && url.key
+      ? url.key(argsOf())
+      : cacheKey(typeof url === "function" ? url() : url, { method: opts.method, body: bodyNow() });
+    let invalidating = false;
+    onCleanup(onInvalidate((prefix) => {
+      if (invalidating) return;
+      // Heard inside whatever called `invalidate`, which may be an effect:
+      // what this reads is not that effect's to follow.
+      const outer = currentEffect;
+      currentEffect = null;
+      try {
+        const key = keyNow();
+        if (prefix == null || key === prefix || key.startsWith(prefix)) load();
+      } finally {
+        currentEffect = outer;
+      }
+    }));
 
     // What the page asked for: another look when it comes back into focus,
     // when the connection returns, or every so often.
@@ -431,8 +361,8 @@
       reload: load,
       /// Drop what was cached for it, and ask again.
       invalidate() {
-        if (options && options.call && url.invalidate) url.invalidate(argsOf());
-        else invalidate(cacheKey(typeof url === "function" ? url() : url, opts));
+        invalidating = true;
+        try { invalidate(keyNow()); } finally { invalidating = false; }
         load();
       },
       cancel() {

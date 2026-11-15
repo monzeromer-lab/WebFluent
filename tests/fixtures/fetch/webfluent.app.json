@@ -1,0 +1,15 @@
+{
+  "name": "fetch",
+  "build": {
+    "output": "build",
+    "output_type": "spa",
+    "ssg": false
+  },
+  "meta": {
+    "title": "Fetch",
+    "description": "A page that asks a service for things."
+  },
+  "offline": {
+    "sync": true
+  }
+}

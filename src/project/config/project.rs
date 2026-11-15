@@ -94,8 +94,9 @@ pub struct OfflineConfig {
     /// `network-only`. A path none of these name passes through untouched.
     #[serde(default)]
     pub cache: std::collections::BTreeMap<String, String>,
-    /// Queue a write made while offline — any method but `GET` and `HEAD`,
-    /// through the request engine — and send it when the connection returns.
+    /// Queue a write made while offline — a `PUT` or a `DELETE`, which may
+    /// be sent twice, through the request engine — and send it when the
+    /// connection returns.
     #[serde(default)]
     pub sync: bool,
 }

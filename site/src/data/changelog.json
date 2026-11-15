@@ -1,9 +1,131 @@
 [
  {
-  "version": "6.2.0",
-  "id": "6.2.0",
+  "version": "7.0.0",
+  "id": "7.0.0",
   "date": "",
   "when": "",
+  "summary": "Requests stop losing and duplicating data.",
+  "sections": [
+   {
+    "title": "A write is sent again only when that is safe",
+    "id": "7.0.0-a-write-is-sent-again-only-when-that-is-safe",
+    "intro": "",
+    "items": [
+     {
+      "text": "A retry policy now retries only a request that may be sent twice: `GET`,\n`HEAD`, `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have\nreached the server, and three more of them could be three more orders;\nit now fails as `.timeout`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "With `offline.sync`, only a `PUT` or a `DELETE` made with no network is\nkept and sent later. A `POST` or a `PATCH` fails as `.offline`, and the\npage decides what to do.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Requests that never went, or went wrong",
+    "id": "7.0.0-requests-that-never-went-or-went-wrong",
+    "intro": "",
+    "items": [
+     {
+      "text": "A resource's `body:` and `headers:` are read on every load: typing into\nthe field a search body reads asks again. They were read once, as the\npage drew.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "Two readers of one address make one request whether or not a cache\npolicy is set. Each keeps its own abort, and the request stops when the\nlast of them leaves.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Backend.users.invalidate()` refreshes every resource on the page over\nthat endpoint, and `Backend.invalidate()` every one over the service. It\nused to drop the cache and leave the screen as it was.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A call's own `headers:` and `retry:` were sent in the query string\n(`?headers=[object Object]`); they are the request's again.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `File` parameter is sent under its own name: `post avatar(image: File)`\nsends `image`, where it used to need the name `file`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "Two uploads of different files at once are two calls. An async action\ncalled again with the same arguments joins the call already running, and\nevery `File` looked the same.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A store's `await fetch(\"/x/{id}\")` encodes `id` as a page's does.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "What the checker now says",
+    "id": "7.0.0-what-the-checker-now-says",
+    "intro": "",
+    "items": [
+     {
+      "text": "`match e { .status(code, body) { … } }` on a request's error binds the\nstatus and the body. It was `T13`, nothing declares `code`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`errors { 422 -> T }` types that body, and `e.body`; under `wf serve` the\nbody that arrives is held to `T`, as a success is held to `-> T`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An endpoint call is a promise of what it returns until it is awaited\n(`T17`), and one that declares no `->` returns `Any` rather than nothing.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A parameter with no default that may not be null must be given (`C01`).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`resource u: [User] = Backend.user(…)` is `T01` when the endpoint\nreturns `User`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`;\n`rows.relaod()` is `T16`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Removed",
+    "id": "7.0.0-removed",
+    "intro": "",
+    "items": [
+     {
+      "text": "`WF.fetch`, the runtime of WebFluent 2's `fetch x from url { … }`, which\nnothing the compiler writes has called since 3.0. `wf migrate` still\nrewrites that grammar.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   }
+  ],
+  "count": 16
+ },
+ {
+  "version": "6.2.0",
+  "id": "6.2.0",
+  "date": "2026-11-15",
+  "when": "15 November 2026",
   "summary": "The built-ins work for keyboards, screen readers, touch screens and\nright-to-left pages, and a built-in a later WebFluent adds never changes\nwhat a project draws. Some sixty join them — a data table, a tree, a\ncommand palette, a menu bar, a tour, a lightbox, a consent banner and the\nrest — and `wf generate block` writes a whole page to start from.",
   "sections": [
    {

@@ -1038,41 +1038,14 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                 body(&f.body, block, indent)
             )
         }
+        // Only the WebFluent 2 parser makes one, for `wf migrate`, which
+        // spells it itself; the current grammar has no way to write it.
+        StatementKind::Fetch(_) => String::new(),
         StatementKind::Show(sh) => format!(
             "show {}{}",
             expr(&sh.condition),
             body(&sh.body, Block::Render, indent)
         ),
-        StatementKind::Fetch(f) => {
-            let mut out = format!("fetch {} from {}", f.variable, expr(&f.url));
-            if !f.options.is_empty() {
-                out.push_str(&format!(
-                    " ({})",
-                    f.options
-                        .iter()
-                        .map(|o| format!("{}: {}", o.key, expr(&o.value)))
-                        .collect::<Vec<_>>()
-                        .join(", ")
-                ));
-            }
-            let mut lines = Vec::new();
-            if let Some(b) = &f.loading_block {
-                lines.push(format!("loading{}", body(b, Block::Render, indent + 1)));
-            }
-            if let Some((name, b)) = &f.error_block {
-                lines.push(format!(
-                    "error({name}){}",
-                    body(b, Block::Render, indent + 1)
-                ));
-            }
-            if let Some(b) = &f.success_block {
-                lines.push(format!("success{}", body(b, Block::Render, indent + 1)));
-            }
-            if !lines.is_empty() {
-                out.push_str(&block_of("", lines, indent));
-            }
-            out
-        }
         StatementKind::Assignment(a) => format!("{} = {}", expr(&a.target), expr(&a.value)),
         StatementKind::MethodCall(m) => format!(
             "{}.{}({})",
@@ -1863,14 +1836,6 @@ pub fn walk_body<'a>(body: &'a [Statement], f: &mut dyn FnMut(&'a [Statement], u
                 StatementKind::Connection(c) => {
                     for h in &c.handlers {
                         walk(&h.body, Block::Imperative, f);
-                    }
-                }
-                StatementKind::Fetch(x) => {
-                    for b in [&x.loading_block, &x.success_block].into_iter().flatten() {
-                        walk(b, Block::Render, f);
-                    }
-                    if let Some((_, b)) = &x.error_block {
-                        walk(b, Block::Render, f);
                     }
                 }
                 _ => {}

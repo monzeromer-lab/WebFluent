@@ -1227,3 +1227,90 @@ fn pages_that_share_a_name_are_a_duplicate_and_not_a_translation() {
     let r05 = with(src, "R05");
     assert!(r05.is_empty(), "{r05:?}");
 }
+
+// ─── Requests to a service ────────────────────────────────────────────
+
+const SERVICE: &str = "type User { id: String, name: String }\ntype Problem { field: String }\napi Backend(base: \"/api\") {\n    get user(userId: String) at \"users/:userId\" -> User\n    get users(q: String?) -> [User]\n    post createUser(body: Map) at \"users\" -> User\n        errors { 422 -> Problem }\n    post ping at \"ping\"\n}\n";
+
+fn with_service(body: &str) -> String {
+    format!("{SERVICE}{}", page(body))
+}
+
+#[test]
+fn a_failed_requests_status_and_body_are_bound_by_its_match() {
+    clean(&with_service(
+        "    resource made = Backend.createUser(body: {})\n    match made {\n        loading { Text(\"…\") }\n        error(e) {\n            match e {\n                .status(code, body) { Text(\"{code}: {body.field}\") }\n                else { Text(e.message) }\n            }\n        }\n        ready(u) { Text(u.name) }\n    }",
+    ));
+    // The body is what `errors { 422 -> Problem }` says it is.
+    let src = with_service(
+        "    resource made = Backend.createUser(body: {})\n    match made {\n        loading { Text(\"…\") }\n        error(e) { match e { .status(code, body) { Text(body.feild) } else { Text(\"\") } } }\n        ready(u) { Text(u.name) }\n    }",
+    );
+    assert!(
+        with(&src, "T05")[0].contains("`Problem` has no field `feild`"),
+        "{:?}",
+        with(&src, "T05")
+    );
+    // Only `.status` carries anything.
+    let src = with_service(
+        "    resource one = Backend.user(userId: \"1\")\n    match one {\n        loading { Text(\"…\") }\n        error(e) { match e { .timeout(t) { Text(\"slow\") } else { Text(\"\") } } }\n        ready(u) { Text(u.name) }\n    }",
+    );
+    assert_eq!(with(&src, "T10").len(), 1, "{:?}", with(&src, "T10"));
+}
+
+#[test]
+fn an_endpoint_call_is_a_promise_until_it_is_awaited() {
+    let src = with_service(
+        "    state name = \"\"\n    Text(name)\n    Button(\"x\") { on click { let u = Backend.user(userId: \"2\")  name = u.name } }",
+    );
+    assert_eq!(with(&src, "T17").len(), 1, "{:?}", findings(&src));
+    clean(&with_service(
+        "    state name = \"\"\n    Text(name)\n    Button(\"x\") { on click { let u = await Backend.user(userId: \"2\")  name = u.name } }",
+    ));
+    // An endpoint that declares nothing returns whatever comes, not null.
+    clean(&with_service(
+        "    state got = \"\"\n    Text(got)\n    Button(\"x\") { on click { let r = await Backend.ping()  got = r.anything } }",
+    ));
+}
+
+#[test]
+fn an_endpoint_call_needs_the_parameters_that_have_no_default() {
+    let src = with_service("    resource one = Backend.user()\n    Text(one.state)");
+    assert!(
+        with(&src, "C01")[0].contains("`Backend.user` needs `userId:`"),
+        "{:?}",
+        with(&src, "C01")
+    );
+    // One that may be null need not be given.
+    clean(&with_service(
+        "    resource all = Backend.users()\n    Text(all.state)",
+    ));
+}
+
+#[test]
+fn a_resources_annotation_is_held_to_what_its_endpoint_returns() {
+    let src =
+        with_service("    resource one: [User] = Backend.user(userId: \"1\")\n    Text(one.state)");
+    assert!(
+        with(&src, "T01")[0].contains("`Backend.user` returns `User`"),
+        "{:?}",
+        with(&src, "T01")
+    );
+    clean(&with_service(
+        "    resource one: User = Backend.user(userId: \"1\")\n    Text(one.state)",
+    ));
+}
+
+#[test]
+fn a_resource_has_the_methods_it_has() {
+    let src = with_service(
+        "    resource all = Backend.users()\n    Text(all.state)\n    Button(\"x\") { on click { all.relaod() } }",
+    );
+    assert!(
+        with(&src, "T16")[0].contains("no method `relaod`"),
+        "{:?}",
+        with(&src, "T16")
+    );
+    clean(&with_service(
+        "    resource all = Backend.users()\n    Text(all.state)\n    Button(\"x\") { on click { all.reload()  all.invalidate()  all.cancel() } }",
+    ));
+}

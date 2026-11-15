@@ -322,7 +322,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                 }
                 Table.Row {
                     Table.Cell("Retry")
-                    Table.Cell { Markdown("Exponential backoff with jitter, per error kind, honouring `Retry-After`") }
+                    Table.Cell { Markdown("Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice") }
                 }
                 Table.Row {
                     Table.Cell("Cache")
@@ -330,7 +330,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
                 }
                 Table.Row {
                     Table.Cell("Dedupe")
-                    Table.Cell("Two readers of one address make one request")
+                    Table.Cell("Two readers of one address make one request, cached or not")
                 }
                 Table.Row {
                     Table.Cell("Refetch")
@@ -347,7 +347,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
             }
         }
 
-        Markdown("Beside each endpoint you also get `Backend.users.invalidate()`, `.prefetch(args)`, `.url(args)` and `.key(args)`.")
+        Markdown("Beside each endpoint you also get `Backend.users.invalidate()`, `.prefetch(args)`, `.url(args)` and `.key(args)`. `invalidate()` drops what the cache holds, and every resource over the endpoint on the page asks again, so a list redraws after the write that changed it.")
 
         Heading("Read the service from an OpenAPI file", id: "read-the-service-from-an-openapi-file").h3
 
@@ -488,7 +488,7 @@ api Backend(base: env.PUBLIC_API ?? "/api/v1") {
             }
         }
 
-        Markdown("How `retry` works:\n\n- Its `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, and single codes in the form `.status429` or `.status503`.\n- Without `on:`, it retries network failures, timeouts, 5xx responses and 429.\n- The wait doubles from `delay` (in milliseconds) up to `max`, with jitter. A `Retry-After` from the server wins.\n- An aborted call is never retried.")
+        Markdown("How `retry` works:\n\n- Its `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, and single codes in the form `.status429` or `.status503`.\n- Without `on:`, it retries network failures, timeouts, 5xx responses and 429.\n- The wait doubles from `delay` (in milliseconds) up to `max`, with jitter. A `Retry-After` from the server wins.\n- An aborted call is never retried.\n- Only a request that is safe to send twice is retried: `GET`, `HEAD`, `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have reached the server, and a second one could be a second order, so it fails instead.")
 
         Heading("Declare endpoints", id: "declare-endpoints").h3
 
@@ -503,7 +503,7 @@ patch settings(body: Map) -> Map
 delete removeUser(id: String) at "users/:id"
 get report(id: String) at "reports/:id" as: .blob"#, title: "text")
 
-        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **Path parameters.** A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.aborted`, and a resource over it stays `loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **What comes back.** `-> T` is what a success returns. Without it the call returns `Any`, and `204 No Content` returns nothing.\n- **Typed failures.** `errors \{ 422 -> T \}` types the body of a failure with that status: the `.status(code, body)` error carries it decoded.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name. It may add `cache:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
+        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **Path parameters.** A parameter the path names (`:id`) goes in the path. One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.aborted`, and a resource over it stays `loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **What comes back.** `-> T` is what a success returns. Without it the call returns `Any`, and `204 No Content` returns nothing.\n- **Typed failures.** `errors \{ 422 -> T \}` types the body of a failure with that status: `match e \{ .status(code, body) \{ … \} \}` binds the status and the body, typed `T`, and so is `e.body`. Under `wf serve` the body that arrives is held to `T`, as a success is held to `-> T`.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and one with no default that may not be null must be given. Called in an action, it is a promise of what the endpoint returns: `await` it to read the value. It may add `cache:`, `headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`, `.interval(30.seconds)`) and `paginate:`.")
 
         Heading("Load results a page at a time", id: "load-results-a-page-at-a-time").h3
 

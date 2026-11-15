@@ -28,7 +28,7 @@ page RecipeKeepWritesMadeOffline(path: "/recipes/keep-writes-made-offline", titl
     }
 }"#, title: "wf")
         }
-        Markdown("With `sync` on, a write — any method but `GET` and `HEAD`, made through `fetch` or an `api` — that fails because the network is gone is kept instead of thrown. The call resolves with nothing, so what the page showed stays shown.\n\n`network.queued` is how many writes are waiting. Show it, as the page above does, so the reader knows their changes are safe.")
+        Markdown("With `sync` on, a write that is safe to send twice — a `PUT` or a `DELETE`, made through `fetch` or an `api` — that fails because the network is gone is kept instead of thrown. A `POST` or a `PATCH` is not kept: one whose answer was lost may already have reached the server, so it fails as `.offline` and the page decides. The call resolves with nothing, so what the page showed stays shown.\n\n`network.queued` is how many writes are waiting. Show it, as the page above does, so the reader knows their changes are safe.")
 
         Heading("What is kept", id: "what-is-kept").h3
 

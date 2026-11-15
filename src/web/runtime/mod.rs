@@ -147,7 +147,6 @@ pub const MODULES: &[Module] = &[
     ], deps: ["http"], triggers: []),
     module!("net", exports: [
         same("resource"), same("request"), same("optimistic"), same("attempt"),
-        ("fetch", "wfFetch"),
     ],
         deps: ["http"], triggers: []),
     module!("toast", exports: [same("toast"), same("toastPromise")], deps: ["announce"], triggers: []),

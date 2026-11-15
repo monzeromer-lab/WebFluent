@@ -676,6 +676,29 @@ impl<'a, 'p> Checker<'a, 'p> {
     }
 
     /// Bind a name nothing may assign to, saying what it is.
+    /// The body a failure of this request is declared to carry: what the
+    /// endpoint's `errors { 422 -> T }` names, when every status it lists
+    /// carries the one type; `Any` otherwise, and for a plain `fetch`.
+    fn declared_failure(&self, url: &Expr) -> Type {
+        let Expr::MethodCall(obj, method, _) = url else {
+            return Type::Any;
+        };
+        let Expr::Identifier(api) = &**obj else {
+            return Type::Any;
+        };
+        let Some(endpoint) = self.world.endpoint(api, method) else {
+            return Type::Any;
+        };
+        let mut bodies = endpoint
+            .errors
+            .iter()
+            .map(|(_, t)| self.world.resolve(Type::from_ref(t)));
+        match bodies.next() {
+            Some(first) if bodies.all(|b| b == first) => first,
+            _ => Type::Any,
+        }
+    }
+
     fn bind_fixed(&mut self, name: &str, ty: Type, span: Span, what: &'static str) {
         self.bind(name, ty, span);
         if let Some(fixed) = self.fixed.last_mut() {
@@ -885,9 +908,33 @@ impl<'a, 'p> Checker<'a, 'p> {
                             _ => Type::Any,
                         },
                     };
+                    // An annotation says what the endpoint returns, or it
+                    // is wrong: `resource u: [User] = Backend.user(…)`.
+                    if r.ty.is_some()
+                        && let Expr::MethodCall(obj, method, _) = &r.url
+                        && let Expr::Identifier(api) = &**obj
+                        && let Some(returns) = self
+                            .world
+                            .endpoint(api, method)
+                            .and_then(|e| e.returns.as_ref())
+                    {
+                        let returns = self.world.resolve(Type::from_ref(returns));
+                        if !returns.assignable_to(&inner) {
+                            self.error(
+                                stmt.span,
+                                "T01",
+                                format!(
+                                    "`{}` is declared `{inner}`, but `{api}.{method}` returns `{returns}`",
+                                    r.name
+                                ),
+                                &format!("Declare it `{returns}`, or leave the type out: the endpoint says it"),
+                            );
+                        }
+                    }
+                    let failed = self.declared_failure(&r.url);
                     self.bind_fixed(
                         &r.name,
-                        Type::Resource(Box::new(inner)),
+                        Type::Resource(Box::new(inner), Box::new(failed)),
                         stmt.span,
                         "a `resource`",
                     );

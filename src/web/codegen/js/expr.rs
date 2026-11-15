@@ -758,6 +758,12 @@ impl JsCodegen {
                     }
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
+                    // Encoded as a page's address is: a value spliced in is
+                    // one value of the address, never a part of its shape.
+                    let mut args_str = args_str;
+                    if let Some(first) = args.first() {
+                        args_str[0] = self.encoded_address_in(first, Some(store_states));
+                    }
                     format!("WF.request({})", args_str.join(", "))
                 } else if matches!(name.as_str(), "toast" | "ask" | "announce")
                     && !self.programs_own(name, cx)

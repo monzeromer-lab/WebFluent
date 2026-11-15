@@ -1184,7 +1184,7 @@ match users {
 A resource declares its type — `resource users: [User] = fetch(…)` — and
 the `ready` arm's binding has it. Options: `fetch(url, method: "POST",
 body: { key: value }, headers: { "Authorization": token })`. The request
-repeats when a URL that reads state changes. `users.state`, `users.data`,
+repeats when a URL, a body or a header that reads state changes. `users.state`, `users.data`,
 `users.error`, `users.refreshing` and `users.pending` (and a connection's
 `.messages`) are live wherever they are read — `Button(if plan.data != null
 { "Request approval" } else { "Deploy" })` changes when the plan arrives,
@@ -1322,17 +1322,22 @@ What comes with it, at every call site:
 | | |
 |---|---|
 | Abort | on scope leave, on an argument that reads state changing, on `.cancel()`, on timeout |
-| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — the body decoded to the declared type, and `.message`, `.status`, `.headers` to read |
-| Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` |
+| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — `match e { .status(code, body) { … } }` binds both, the body typed by `errors { 422 -> T }` (and held to it under `wf serve`); `.message`, `.status`, `.body`, `.headers` to read |
+| Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`); a `POST` or `PATCH` that timed out may have been taken, and is not sent again |
 | Cache | `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, with `ETag`/`If-None-Match` revalidation and `304` served from what is held |
-| Dedupe | two readers of one address make one request |
+| Dedupe | two readers of one address make one request, cached or not; each keeps its own abort |
 | Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` — a refresh: the data stays on the page while it runs, and the answer is drawn in place (see Data Fetching) |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()`, `.hasMore` |
 | Progress | a `File` parameter makes `Backend.avatar.progress` a `Number` signal |
 | Bodies | JSON, text, a `File` (sent as a form), `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` |
 | Responses | JSON, `as: .text`, `.blob`, `.arrayBuffer`, `204` as no value, and `.lines()` for a streamed response |
-| Elsewhere | `Backend.users.invalidate()`, `.prefetch(args)`, `.key(args)`, `.url(args)` |
+| Elsewhere | `Backend.users.invalidate()` — every resource over it on the page asks again —, `.prefetch(args)`, `.key(args)`, `.url(args)` |
 | Empty path parameters | a call whose path parameter is `null`, `""`, `.` or `..` is not sent (`users/` would be the collection, not the user); it ends `.aborted`, and a resource over it stays `loading` until the value arrives |
+
+A call is a promise of what the endpoint returns (`Any` when it says
+nothing): `await` it in an action or a handler. A parameter with no default
+that may not be null must be given (`C01`), and a resource's annotation is
+held to what its endpoint returns.
 
 `await fetch(url, options)` in an action goes through the same engine, and
 `window.fetch` is untouched for anything that wants the browser's own.
@@ -1475,10 +1480,12 @@ that stores the site for when the network is gone:
 - `cache` — how a path the build did not write is fetched: `network-first`,
   `cache-first`, `stale-while-revalidate` or `network-only`. Anything not
   named passes through untouched.
-- `sync` — a write (any method but `GET` and `HEAD`, through `fetch` or an
-  `api`) that fails for want of a network is kept and sent, in order, when
-  the connection returns — by Background Sync where the browser has it, so a
-  closed page still sends it. The call resolves with nothing, so what it
+- `sync` — a write safe to send twice (a `PUT` or a `DELETE`, through
+  `fetch` or an `api`) that fails for want of a network is kept and sent, in
+  order, when the connection returns — by Background Sync where the browser
+  has it, so a closed page still sends it. A `POST` or a `PATCH` is not kept:
+  one whose answer was lost may have been taken, and sent again would be a
+  second order; it fails as `.offline`. The call resolves with nothing, so what it
   showed stays shown. A server that answers has the write, even to refuse
   it; one that is down or asks to wait keeps it for later. A `File` body is
   not kept. Only a write the network failed is kept — the browser offline,
@@ -2638,7 +2645,7 @@ may too. Its surface:
 | Bodies | `when(parent, cond, then, else, anim)`, and `held(read)` — what an `if let` binding reads: the value now, or the last one while the branch leaves; `each(parent, list, item, {key, index, live, enter, exit, …})` — keyed items keep their nodes across inserts, removals and moves, and with `live` across a new value too, handed to `item(value, index, itemOf, indexOf)` as accessors; `show(parent, cond, body, anim)`; `match(parent, key, arg, arms)` — an arm is called with the value and an accessor of it, and drawn again when the arm changes |
 | Motion | `animate(target, name, duration)` → a handle with `play`/`cancel`/`finished`, playing when it is made; `replay(node, name)`; `animateIn`/`animateOut(node, name, duration, delay, easing)`; `expand(node, open, duration, easing)` to the measured height; `countTo(node, from, to, duration, format)` and `counted(node, valueFn, duration, format)`; `onEnterView(node, name, …)`; `shared(node, name)`; `mark(node, attrs)` puts `data-wf-exit`/`data-wf-delay`/`data-wf-duration`/`data-wf-animate` on a component's root — what `when`, `each`, `show` and `match` play before removing an element, and what times its enter animation |
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
-| Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `fetch(url, options)`; `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
+| Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
 | Stores, seen | `watchStores(fn)` → every action with the state on each side of it, and the function that stops it; `storeSnapshot(name?)`; `restoreStore(name, values)`. Nothing is recorded while nothing is watching |
 | Widgets | `toast(message, { tone, duration, action, onAction, closable })` → `{ close, update }`; `toastPromise(promise, { loading, done, failed })`; `dialog(el, read, write, { dismiss, initial })`; `ask(message, { detail, yes, no, danger })` → a promise of the answer; `sheet(el, { side, snap })`; `popup`; `tabs`; `drawer`; `announce(text, "assertive")`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |

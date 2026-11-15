@@ -96,7 +96,7 @@ test("a write made offline is kept, without the credentials its hook added", asy
   const B = WF.api({
     name: "B", base: "/api",
     onRequest: (r) => { r.headers.Authorization = "Bearer " + token; return r; },
-    endpoints: { save: { method: "POST", path: "items" } },
+    endpoints: { save: { method: "PUT", path: "items" } },
   });
   const result = await B.save({ body: { a: 1 } });
   assert.equal(result, undefined, "the call resolves with nothing: it is kept");
@@ -122,7 +122,7 @@ test("a kept write is sent with the hook's credentials of the moment it goes", a
   const B = WF.api({
     name: "B", base: "/api",
     onRequest: (r) => { r.headers.Authorization = "Bearer " + token; return r; },
-    endpoints: { save: { method: "POST", path: "items" } },
+    endpoints: { save: { method: "PUT", path: "items" } },
   });
   await B.save({ body: { a: 1 } });
   await settle();
@@ -138,11 +138,11 @@ test("a kept write is sent with the hook's credentials of the moment it goes", a
 test("a write whose call itself carries a credential is not kept: the caller hears the failure", async () => {
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: false });
   await assert.rejects(
-    WF.send("/api/items", { method: "POST", body: { a: 1 }, headers: { Authorization: "Bearer alice" } }),
+    WF.send("/api/items", { method: "PUT", body: { a: 1 }, headers: { Authorization: "Bearer alice" } }),
     (e) => e.kind === "offline",
   );
   await assert.rejects(
-    WF.send("/api/items", { method: "POST", body: { a: 1 }, headers: { "X-Api-Key": "k" } }),
+    WF.send("/api/items", { method: "PUT", body: { a: 1 }, headers: { "X-Api-Key": "k" } }),
     (e) => e.kind === "offline",
   );
   await settle();
@@ -152,28 +152,44 @@ test("a write whose call itself carries a credential is not kept: the caller hea
 test("a write another origin refused while the browser is online is not kept and does not succeed", async () => {
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: true });
   await assert.rejects(
-    WF.send("https://elsewhere.example/api", { method: "POST", body: { a: 1 } }),
+    WF.send("https://elsewhere.example/api", { method: "PUT", body: { a: 1 } }),
     (e) => e.kind === "offline",
   );
   await assert.rejects(
-    WF.send("//elsewhere.example/api", { method: "POST", body: { a: 1 } }),
+    WF.send("//elsewhere.example/api", { method: "PUT", body: { a: 1 } }),
     (e) => e.kind === "offline",
   );
   await settle();
   assert.equal(stored(indexedDB).length, 0);
 });
 
-test("a write to this site's own server that could not be reached is kept", async () => {
+test("a write to this site's own server that could not be reached is kept, when sending it twice is safe", async () => {
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: true });
-  assert.equal(await WF.send("/api/items", { method: "POST", body: { a: 1 } }), undefined);
-  assert.equal(await WF.send("https://site.example/api/more", { method: "POST", body: "x" }), undefined);
+  assert.equal(await WF.send("/api/items/1", { method: "PUT", body: { a: 1 } }), undefined);
+  assert.equal(await WF.send("https://site.example/api/more", { method: "DELETE" }), undefined);
   await settle();
   assert.equal(stored(indexedDB).length, 2);
 });
 
+test("a POST that may have reached the server is not kept to be sent again", async () => {
+  // The browser was online: the request may have arrived and its answer
+  // been lost, and a second POST would be a second order.
+  const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: true });
+  await assert.rejects(WF.send("/api/orders", { method: "POST", body: { a: 1 } }), (e) => e.kind === "offline" || e.kind === "network");
+  await settle();
+  assert.equal(stored(indexedDB).length, 0);
+});
+
+test("a POST made offline fails rather than being kept", async () => {
+  const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: false });
+  await assert.rejects(WF.send("/api/orders", { method: "POST", body: { a: 1 } }), (e) => e.kind === "offline");
+  await settle();
+  assert.equal(stored(indexedDB).length, 0);
+});
+
 test("a site under a base path keeps its writes in a database of its own, and can clear them", async () => {
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: false, base: "/shop" });
-  await WF.send("/shop/api/items", { method: "POST", body: "x" });
+  await WF.send("/shop/api/items", { method: "PUT", body: "x" });
   await settle();
   assert.equal(stored(indexedDB).length, 0, "nothing in the shared database");
   assert.equal(stored(indexedDB, "wf-offline:/shop").length, 1);
@@ -193,7 +209,7 @@ test("a write kept by an older build with a credential is sent without it", asyn
   };
   const { WF, indexedDB, navigator, window } = load({ fetchImpl, online: false });
   // What the old code stored.
-  await WF.send("/api/items", { method: "POST", body: "x", headers: { "X-Trace": "1" } });
+  await WF.send("/api/items", { method: "PUT", body: "x", headers: { "X-Trace": "1" } });
   await settle();
   const db = indexedDB.dbs.get("wf-offline");
   const writes = db.stores.get("writes");

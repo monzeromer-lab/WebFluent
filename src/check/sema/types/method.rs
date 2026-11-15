@@ -134,10 +134,48 @@ impl Checker<'_, '_> {
                             )
                         })
                         .collect();
-                    let returns = match &endpoint.returns {
+                    // A call is a request on its way: a promise of what it
+                    // returns, read once it is awaited. An endpoint that
+                    // declares nothing returns whatever comes.
+                    let returns = Type::Promise(Box::new(match &endpoint.returns {
                         Some(ty) => self.world.resolve(Type::from_ref(ty)),
-                        None => Type::Null,
-                    };
+                        None => Type::Any,
+                    }));
+                    // A parameter with no default that may not be null must
+                    // be given: the path, or the server, needs it.
+                    let given: Vec<&str> = args
+                        .iter()
+                        .filter_map(|a| match a {
+                            Expr::MapLiteral(pairs) => Some(pairs),
+                            _ => None,
+                        })
+                        .flatten()
+                        .map(|(k, _)| k.trim_matches('"'))
+                        .collect();
+                    let positional = args.iter().any(|a| !matches!(a, Expr::MapLiteral(_)));
+                    if !positional {
+                        let missing: Vec<String> = endpoint
+                            .params
+                            .iter()
+                            .filter(|p| {
+                                p.default.is_none()
+                                    && !p.optional
+                                    && !matches!(
+                                        p.prop_type,
+                                        crate::syntax::parser::ast::TypeRef::Optional(_)
+                                    )
+                                    && !given.contains(&p.name.as_str())
+                            })
+                            .map(|p| format!("`{}:`", p.name))
+                            .collect();
+                        if !missing.is_empty() {
+                            self.error_at_current(
+                                "C01",
+                                format!("`{api}.{method}` needs {}", missing.join(", ")),
+                                "Pass every parameter that has no default and may not be null",
+                            );
+                        }
+                    }
                     for arg in args {
                         // The arguments arrive as one map of names.
                         if let Expr::MapLiteral(pairs) = arg {
@@ -282,6 +320,41 @@ impl Checker<'_, '_> {
             );
             self.plan_await(obj);
             return Type::Any;
+        }
+        // A resource does what it says it does, and nothing else.
+        if let Type::Resource(..) = &obj_ty {
+            for a in args {
+                self.infer(a, None);
+            }
+            let known = ["reload", "invalidate", "loadMore", "cancel"];
+            if !known.contains(&method) {
+                self.error_at_current(
+                    "T16",
+                    format!(
+                        "`{}` is a resource; it has no method `{method}`",
+                        expr_text(obj)
+                    ),
+                    "A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`",
+                );
+                if let Some(near) =
+                    crate::diagnostics::fixes::nearest(method, known.iter().copied())
+                {
+                    self.plan_last(
+                        format!("Change to `{near}`"),
+                        crate::diagnostics::fixes::Plan::Rename {
+                            from: method.to_string(),
+                            to: near.to_string(),
+                        },
+                    );
+                }
+            } else if !args.is_empty() {
+                self.error_at_current(
+                    "T10",
+                    format!("`{}.{method}()` takes no arguments", expr_text(obj)),
+                    "",
+                );
+            }
+            return Type::Null;
         }
         match &obj_ty {
             // A shape's field that is a function: `form.reset()`.

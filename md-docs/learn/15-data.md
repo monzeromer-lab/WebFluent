@@ -370,15 +370,17 @@ A hook may `await`. A hook that throws fails the call it was watching.
 |---|---|
 | Abort | A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout |
 | Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — each with `.message`, `.status`, `.body` and `.headers` to read |
-| Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` |
+| Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice |
 | Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address, body and credentials, revalidated with `ETag`, and holding the 256 answers read most recently |
-| Dedupe | Two readers of one address make one request |
+| Dedupe | Two readers of one address make one request, cached or not |
 | Refetch | `on: .focus`, `.reconnect`, `.interval(30.seconds)` |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
 | Progress | A `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
 
 Beside each endpoint you also get `Backend.users.invalidate()`,
-`.prefetch(args)`, `.url(args)` and `.key(args)`.
+`.prefetch(args)`, `.url(args)` and `.key(args)`. `invalidate()` drops what
+the cache holds, and every resource over the endpoint on the page asks again,
+so a list redraws after the write that changed it.
 
 ### Read the service from an OpenAPI file
 
@@ -464,6 +466,9 @@ How `retry` works:
 - The wait doubles from `delay` (in milliseconds) up to `max`, with jitter.
   A `Retry-After` from the server wins.
 - An aborted call is never retried.
+- Only a request that is safe to send twice is retried: `GET`, `HEAD`,
+  `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have reached
+  the server, and a second one could be a second order, so it fails instead.
 
 ### Declare endpoints
 
@@ -495,13 +500,17 @@ get report(id: String) at "reports/:id" as: .blob
 - **What comes back.** `-> T` is what a success returns. Without it the call
   returns `Any`, and `204 No Content` returns nothing.
 - **Typed failures.** `errors { 422 -> T }` types the body of a failure with
-  that status: the `.status(code, body)` error carries it decoded.
+  that status: `match e { .status(code, body) { … } }` binds the status and
+  the body, typed `T`, and so is `e.body`. Under `wf serve` the body that
+  arrives is held to `T`, as a success is held to `-> T`.
 - **Other responses.** `as:` says how to read a response that is not JSON:
   `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for
   a failure's body. `cache:` sets a cache policy for that endpoint alone.
 
-A call passes the endpoint's parameters by name. It may add `cache:` and
-`retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
+A call passes the endpoint's parameters by name, and one with no default
+that may not be null must be given. Called in an action, it is a promise of
+what the endpoint returns: `await` it to read the value. It may add `cache:`,
+`headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
 `.interval(30.seconds)`) and `paginate:`.
 
 ### Load results a page at a time

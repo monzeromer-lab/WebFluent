@@ -32,7 +32,9 @@ pub enum Type {
     /// An action, a lambda or a store's action.
     Func(Vec<Type>, Box<Type>),
     /// A `resource`, matched with `loading`, `error`, `ready`.
-    Resource(Box<Type>),
+    /// A `resource`: what it holds, and the body of a failure the server
+    /// declared (`errors { 422 -> T }`), `Any` when it declared none.
+    Resource(Box<Type>, Box<Type>),
     /// A store brought into scope with `use`.
     Store(String),
     /// A type the language knows and the program did not declare: a date,
@@ -42,8 +44,9 @@ pub enum Type {
     Api(String),
     /// What a request can fail with: `.offline`, `.timeout`, `.aborted`,
     /// `.parse`, `.network`, `.status(code, body)` — matched like an enum,
-    /// and read like a record.
-    NetError,
+    /// and read like a record. It holds the body the server's failure is
+    /// declared to carry, `Any` when it is not.
+    NetError(Box<Type>),
     /// What an async action hands back before it is awaited: a promise of
     /// its result.
     Promise(Box<Type>),
@@ -223,7 +226,8 @@ impl Type {
             (Type::Scalar(s), Type::String) => s.is_text() && *s != Scalar::Secret,
             (Type::Scalar(Scalar::Duration), Type::Number) => true,
             (Type::Number, Type::Scalar(Scalar::Duration)) => true,
-            (Type::Resource(a), Type::Resource(b)) => a.assignable_to(b),
+            (Type::Resource(a, _), Type::Resource(b, _)) => a.assignable_to(b),
+            (Type::NetError(_), Type::NetError(_)) => true,
             (Type::Promise(a), Type::Promise(b)) => a.assignable_to(b),
             (a, b) => a == b,
         }
@@ -295,12 +299,12 @@ impl std::fmt::Display for Type {
                     write!(f, "action({}) -> {ret}", params.join(", "))
                 }
             }
-            Type::Resource(inner) => write!(f, "resource<{inner}>"),
+            Type::Resource(inner, _) => write!(f, "resource<{inner}>"),
             Type::Promise(inner) => write!(f, "Promise<{inner}>"),
             Type::Never => write!(f, "never"),
             Type::Scalar(s) => write!(f, "{}", s.name()),
             Type::Api(name) => write!(f, "{name}"),
-            Type::NetError => write!(f, "NetworkError"),
+            Type::NetError(_) => write!(f, "NetworkError"),
         }
     }
 }

@@ -140,10 +140,13 @@ pub fn members(ty: &Type) -> Vec<Member> {
                 });
             }
         }
-        Type::Resource(inner) => {
+        Type::Resource(inner, failed) => {
             out.push(field("state", Type::String));
             out.push(field("data", Type::optional((**inner).clone())));
-            out.push(field("error", Type::optional(Type::NetError)));
+            out.push(field(
+                "error",
+                Type::optional(Type::NetError(failed.clone())),
+            ));
             out.push(field("refreshing", Type::Bool));
             out.push(field("pending", Type::Bool));
             out.push(field("items", Type::list(Type::Any)));
@@ -153,11 +156,11 @@ pub fn members(ty: &Type) -> Vec<Member> {
             out.push(method("invalidate", None));
             out.push(method("cancel", None));
         }
-        Type::NetError => {
+        Type::NetError(failed) => {
             out.push(field("message", Type::String));
             out.push(field("status", Type::Number));
             out.push(field("kind", Type::String));
-            out.push(field("body", Type::Any));
+            out.push(field("body", (**failed).clone()));
             out.push(field("headers", Type::Map));
         }
         _ => {}

@@ -542,19 +542,6 @@ fn lint_statements(
             StatementKind::Show(show_stmt) => {
                 lint_statements(&show_stmt.body, file, warnings, heading_tracker);
             }
-            StatementKind::Fetch(fetch) => {
-                let mut bodies: Vec<&[Statement]> = Vec::new();
-                if let Some(loading) = &fetch.loading_block {
-                    bodies.push(loading);
-                }
-                if let Some((_, error_body)) = &fetch.error_block {
-                    bodies.push(error_body);
-                }
-                if let Some(success) = &fetch.success_block {
-                    bodies.push(success);
-                }
-                lint_alternatives(&bodies, file, warnings, heading_tracker);
-            }
             StatementKind::Match(m) => {
                 let bodies: Vec<&[Statement]> = m.arms.iter().map(|a| a.body.as_slice()).collect();
                 lint_alternatives(&bodies, file, warnings, heading_tracker);

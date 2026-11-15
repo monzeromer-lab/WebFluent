@@ -427,6 +427,8 @@ impl Checker<'_, '_> {
                 self.statements(&f.body, body);
                 self.pop_scope();
             }
+            // Only the WebFluent 2 parser makes one, for `wf migrate`.
+            StatementKind::Fetch(_) => {}
             StatementKind::Show(s) => {
                 let cond = self.infer(&s.condition, Some(&Type::Bool));
                 self.condition(&cond, &s.condition, span, "show");
@@ -507,24 +509,6 @@ impl Checker<'_, '_> {
             }
             StatementKind::Emit(e) => self.emit(e, span),
             StatementKind::Animate(_) => {}
-            StatementKind::Fetch(f) => {
-                self.infer(&f.url, Some(&Type::String));
-                if let Some(b) = &f.loading_block {
-                    self.statements(b, body);
-                }
-                if let Some((name, b)) = &f.error_block {
-                    self.push_scope();
-                    self.bind(name, Type::Any, span);
-                    self.statements(b, body);
-                    self.pop_scope();
-                }
-                if let Some(b) = &f.success_block {
-                    self.push_scope();
-                    self.bind(&f.variable, Type::Any, span);
-                    self.statements(b, body);
-                    self.pop_scope();
-                }
-            }
         }
     }
 
@@ -658,7 +642,7 @@ impl Checker<'_, '_> {
                     true,
                 );
             }
-            Type::Resource(_) => {
+            Type::Resource(..) => {
                 for state in &dupes {
                     self.error_at_current(
                         "T15",
@@ -688,7 +672,7 @@ impl Checker<'_, '_> {
             _ => {}
         }
         match &scrutinee {
-            Type::Resource(inner) => {
+            Type::Resource(inner, failed) => {
                 for arm in &m.arms {
                     self.push_scope();
                     match (&arm.pattern, &arm.binding) {
@@ -696,7 +680,7 @@ impl Checker<'_, '_> {
                             self.bind_fixed(name, (**inner).clone(), arm.span, ARM);
                         }
                         (ArmPattern::Error, Some(name)) => {
-                            self.bind_fixed(name, Type::NetError, arm.span, ARM);
+                            self.bind_fixed(name, Type::NetError(failed.clone()), arm.span, ARM);
                         }
                         (ArmPattern::Case(case), _) => self.error(
                             arm.span,
@@ -797,7 +781,7 @@ impl Checker<'_, '_> {
                 }
             }
             // What a request can fail with, matched by its case.
-            Type::NetError => {
+            Type::NetError(failed) => {
                 for arm in &m.arms {
                     self.push_scope();
                     if let ArmPattern::Case(case) = &arm.pattern
@@ -821,11 +805,39 @@ impl Checker<'_, '_> {
                         self.plan_nearest_case(case, &ways);
                     }
                     if let Some(name) = &arm.binding {
-                        let bound = match &arm.pattern {
-                            ArmPattern::Case(case) if case == "status" => Type::Any,
-                            _ => Type::Any,
+                        self.bind_fixed(name, Type::Any, arm.span, ARM);
+                    }
+                    // `.status(code, body)` carries the status and the body
+                    // the server sent; every other way it fails, nothing.
+                    if let ArmPattern::Case(case) = &arm.pattern {
+                        let fields: Vec<Type> = if case == "status" {
+                            vec![Type::Number, (**failed).clone()]
+                        } else {
+                            Vec::new()
                         };
-                        self.bind_fixed(name, bound, arm.span, ARM);
+                        if !arm.bindings.is_empty() && arm.bindings.len() > fields.len() {
+                            let hint = if fields.is_empty() {
+                                format!("`.{case}` carries nothing: write `.{case} {{ … }}`")
+                            } else {
+                                "Bind its parts: `.status(code, body)`".to_string()
+                            };
+                            self.error(
+                                arm.span,
+                                "T10",
+                                format!(
+                                    "`.{case}` carries {} value{}, but {} {} bound",
+                                    fields.len(),
+                                    if fields.len() == 1 { "" } else { "s" },
+                                    arm.bindings.len(),
+                                    if arm.bindings.len() == 1 { "is" } else { "are" }
+                                ),
+                                &hint,
+                            );
+                        }
+                        for (i, bound) in arm.bindings.iter().enumerate() {
+                            let ty = fields.get(i).cloned().unwrap_or(Type::Any);
+                            self.bind_fixed(bound, ty, arm.span, ARM);
+                        }
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();

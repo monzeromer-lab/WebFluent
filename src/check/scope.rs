@@ -59,8 +59,6 @@ pub enum BindingKind {
     Param,
     LoopItem,
     LoopIndex,
-    FetchResult,
-    FetchError,
     Store,
     /// A `resource`, rendered with `match`.
     Resource,
@@ -95,8 +93,6 @@ impl BindingKind {
             BindingKind::Param => "parameter",
             BindingKind::LoopItem => "loop item",
             BindingKind::LoopIndex => "loop index",
-            BindingKind::FetchResult => "fetch result",
-            BindingKind::FetchError => "fetch error",
             BindingKind::Store => "store",
             BindingKind::Resource => "resource",
             BindingKind::ArmBinding => "binding",
@@ -141,20 +137,6 @@ pub fn scope_at(decl: &Declaration, offset: usize) -> Vec<Binding> {
                     scope.push(Binding {
                         name: index.clone(),
                         kind: BindingKind::LoopIndex,
-                        span: stmt.span,
-                    });
-                }
-            }
-            StatementKind::Fetch(f) => {
-                scope.push(Binding {
-                    name: f.variable.clone(),
-                    kind: BindingKind::FetchResult,
-                    span: stmt.span,
-                });
-                if let Some((err, _)) = &f.error_block {
-                    scope.push(Binding {
-                        name: err.clone(),
-                        kind: BindingKind::FetchError,
                         span: stmt.span,
                     });
                 }
@@ -627,7 +609,7 @@ pub mod paths {
                     (Shape::Record, false, None)
                 }
                 Type::Enum(_) | Type::Case(_) => (Shape::Enum, false, None),
-                Type::Resource(_) => (Shape::Resource, false, None),
+                Type::Resource(..) => (Shape::Resource, false, None),
                 Type::Any => (Shape::Any, false, None),
                 _ => (Shape::Other, false, None),
             }
@@ -646,7 +628,7 @@ pub mod paths {
                 return Vec::new();
             }
             match ty {
-                Type::Optional(inner) | Type::Resource(inner) => {
+                Type::Optional(inner) | Type::Resource(inner, _) => {
                     self.members(path, inner, group, from, depth)
                 }
                 Type::Record(name) => {
@@ -839,7 +821,6 @@ pub mod paths {
                 Some(StatementKind::Match(_)) => "a match arm".to_string(),
                 _ => "a slot's fill".to_string(),
             },
-            BindingKind::FetchResult | BindingKind::FetchError => "the fetch around it".to_string(),
             BindingKind::Param => "a parameter".to_string(),
             BindingKind::PageNumber => "the page being drawn".to_string(),
             other => other.label().to_string(),
@@ -890,8 +871,6 @@ pub mod paths {
                 BindingKind::LoopItem
                 | BindingKind::LoopIndex
                 | BindingKind::ArmBinding
-                | BindingKind::FetchResult
-                | BindingKind::FetchError
                 | BindingKind::Param
                 | BindingKind::PageNumber => Group::Bindings,
                 // Actions are called, not read; a store is read through its

@@ -80,6 +80,14 @@
     return policy.jitter === false ? wait : wait * (0.5 + Math.random() / 2);
   }
 
+  /// Whether a request may be sent again without changing anything beyond
+  /// what sending it once does: the idempotent methods (RFC 9110 §9.2.2),
+  /// or one the engine knows never left — the browser said it was offline
+  /// before it was sent. A `POST` that timed out may have been taken.
+  function resendable(method, error) {
+    return /^(GET|HEAD|OPTIONS|TRACE|PUT|DELETE)$/.test(method) || !!(error && error.notSent);
+  }
+
   /// Whether this error is one the policy retries.
   function retriable(policy, error) {
     const on = policy.on || ["network", "timeout", "status5xx", "status429"];
@@ -159,14 +167,25 @@
 
   /// Forget what was cached: everything, one key, or every key that starts
   /// with a prefix — which is how one endpoint's cache is dropped.
+  ///
+  /// What is on a page hears it too: a resource whose request the prefix
+  /// names asks again, so `Backend.users.invalidate()` after a write
+  /// redraws the list.
   function invalidate(prefix) {
     if (prefix == null) {
       _httpCache.clear();
-      return;
+    } else {
+      for (const key of [..._httpCache.keys()]) {
+        if (key === prefix || key.startsWith(prefix)) _httpCache.delete(key);
+      }
     }
-    for (const key of [..._httpCache.keys()]) {
-      if (key === prefix || key.startsWith(prefix)) _httpCache.delete(key);
-    }
+    for (const hear of [..._invalidated]) hear(prefix);
+  }
+  const _invalidated = new Set();
+  /// Hear every `invalidate`, until the function it returns is called.
+  function onInvalidate(hear) {
+    _invalidated.add(hear);
+    return () => _invalidated.delete(hear);
   }
 
   /// One request, with everything the options ask for.
@@ -210,6 +229,12 @@
         return Promise.resolve(entry.value);
       }
     }
+    // A read with no cache: two readers of one address still make one
+    // request. Each keeps its own abort; the request stops when the last
+    // reader of it has gone.
+    if (!entry && !opts.progress && /^(GET|HEAD)$/.test((opts.method || "GET").toUpperCase())) {
+      return joinRead(key + " \u0001" + (opts.as || "") + " " + JSON.stringify(headersNow(opts.headers)), url, opts);
+    }
     const running = run(url, opts, entry);
     if (entry) {
       // `finally` makes a second promise, which rejects when the request
@@ -225,6 +250,42 @@
       entry.inflight = joined;
     }
     return running;
+  }
+
+  const _readsInFlight = new Map();
+  function joinRead(key, url, opts) {
+    let shared = _readsInFlight.get(key);
+    if (!shared) {
+      const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+      shared = { readers: 0, controller };
+      shared.promise = run(url, { ...opts, signal: controller ? controller.signal : undefined }, null);
+      shared.promise.catch(() => {});
+      const gone = () => { if (_readsInFlight.get(key) === shared) _readsInFlight.delete(key); };
+      shared.promise.then(gone, gone);
+      _readsInFlight.set(key, shared);
+    }
+    shared.readers += 1;
+    const mine = opts.signal;
+    if (!mine) return shared.promise;
+    return new Promise((resolve, reject) => {
+      let left = false;
+      const leave = () => {
+        if (left) return;
+        left = true;
+        shared.readers -= 1;
+        if (shared.readers === 0) {
+          if (_readsInFlight.get(key) === shared) _readsInFlight.delete(key);
+          if (shared.controller) shared.controller.abort();
+        }
+        reject(netError("aborted", "The request was cancelled"));
+      };
+      if (mine.aborted) { leave(); return; }
+      mine.addEventListener("abort", leave, { once: true });
+      shared.promise.then(
+        (v) => { left = true; mine.removeEventListener("abort", leave); resolve(v); },
+        (e) => { left = true; mine.removeEventListener("abort", leave); reject(e); },
+      );
+    });
   }
 
   /// What a request is known by: the method, the URL and the body.
@@ -298,7 +359,14 @@
         return value;
       } catch (error) {
         const wrapped = error && error.kind ? error : netError("network", String(error && error.message || error));
-        if (attempt < times && retriable(policy, wrapped)) {
+        // A failure's body, held to the type its status declares.
+        if (wrapped.kind === "status" && opts.errorShapes && devMode()) {
+          const shape = opts.errorShapes[wrapped.status];
+          const wrong = shape && shapeProblem(wrapped.body, shape, "$");
+          if (wrong) throw netError("parse", "The " + wrapped.status + " body of " + url + " is not the type the program declares: " + wrong, { body: wrapped.body });
+        }
+        const method = (opts.method || "GET").toUpperCase();
+        if (attempt < times && retriable(policy, wrapped) && resendable(method, wrapped)) {
           const wait = backoffDelay(policy, attempt, wrapped.headers);
           attempt += 1;
           await new Promise((done) => setTimeout(done, wait));
@@ -314,9 +382,12 @@
           }
         }
         // A write made with no network, where the config asks for `sync`: it
-        // is kept and sent later, and this call resolves with nothing.
+        // is kept and sent later, and this call resolves with nothing. Only
+        // one that is safe to send twice: a `PUT` or a `DELETE`. A `POST`
+        // whose answer was lost may have been taken, and sent again would be
+        // a second order.
         if (wrapped.kind === "offline" && offlineWrites && wrapped.request
-            && !/^(GET|HEAD)$/.test(wrapped.request.method)) {
+            && /^(PUT|DELETE)$/.test(wrapped.request.method)) {
           const kept = offlineWrites(wrapped.request);
           if (kept) return kept;
         }
@@ -406,7 +477,10 @@
       return error;
     };
     if (typeof navigator !== "undefined" && navigator.onLine === false) {
-      throw offlineError("You are offline", true);
+      const never = offlineError("You are offline", true);
+      // Nothing was sent: safe to send again, whatever the method.
+      never.notSent = true;
+      throw never;
     }
 
     let response;

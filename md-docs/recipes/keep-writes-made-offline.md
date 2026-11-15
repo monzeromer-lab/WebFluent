@@ -34,9 +34,11 @@ page Notes(path: "/notes", title: "Notes", description: "Notes that save offline
 
 ## How it works
 
-With `sync` on, a write — any method but `GET` and `HEAD`, made through
-`fetch` or an `api` — that fails because the network is gone is kept
-instead of thrown. The call resolves with nothing, so what the page showed
+With `sync` on, a write that is safe to send twice — a `PUT` or a
+`DELETE`, made through `fetch` or an `api` — that fails because the network
+is gone is kept instead of thrown. A `POST` or a `PATCH` is not kept: one
+whose answer was lost may already have reached the server, so it fails as
+`.offline` and the page decides. The call resolves with nothing, so what the page showed
 stays shown.
 
 `network.queued` is how many writes are waiting. Show it, as the page

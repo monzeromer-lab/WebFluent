@@ -211,9 +211,7 @@ pub fn classify(project: &Project, file_ix: usize) -> Vec<Classified> {
                         | BindingKind::RouteParam
                         | BindingKind::LoopItem
                         | BindingKind::LoopIndex
-                        | BindingKind::ArmBinding
-                        | BindingKind::FetchResult
-                        | BindingKind::FetchError,
+                        | BindingKind::ArmBinding,
                     ) => Some((PARAMETER, READONLY)),
                     Some(_) => Some((VARIABLE, 0)),
                     None if functions.contains(&word.as_str()) => Some((FUNCTION, LIBRARY)),

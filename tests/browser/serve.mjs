@@ -1,6 +1,7 @@
 // A build served as a static host would, for the browser suites: a
 // directory is its `index.html`, a single-page build answers every route with
-// its shell, and a `POST` is recorded rather than refused.
+// its shell, and a write (`POST`, `PUT`, `PATCH`, `DELETE`) is recorded rather
+// than refused.
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
@@ -10,11 +11,11 @@ const TYPES = {
   ".png": "image/png", ".jpg": "image/jpeg", ".webp": "image/webp", ".svg": "image/svg+xml",
 };
 
-/// The build served as a static host would, and `POST /api/save` recorded.
+/// The build served as a static host would, and every write recorded.
 export function host(root, port) {
   const received = [];
   const server = http.createServer((req, res) => {
-    if (req.method === "POST") {
+    if (/^(POST|PUT|PATCH|DELETE)$/.test(req.method)) {
       let body = "";
       req.on("data", (c) => { body += c; });
       req.on("end", () => {

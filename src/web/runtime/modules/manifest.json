@@ -833,10 +833,6 @@
         [
           "attempt",
           "attempt"
-        ],
-        [
-          "fetch",
-          "wfFetch"
         ]
       ],
       "name": "net",

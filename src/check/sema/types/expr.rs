@@ -554,7 +554,7 @@ impl Checker<'_, '_> {
                 }
                 let ty = self.infer(e, None);
                 match ty {
-                    Type::Resource(inner) | Type::Promise(inner) => *inner,
+                    Type::Resource(inner, _) | Type::Promise(inner) => *inner,
                     other => other,
                 }
             }
@@ -576,11 +576,11 @@ impl Checker<'_, '_> {
         }
         match base_ty {
             // What a failed request says about itself.
-            Type::NetError => match field {
+            Type::NetError(failed) => match field {
                 "message" => Type::String,
                 "status" => Type::Number,
                 "kind" => Type::String,
-                "body" => Type::Any,
+                "body" => (**failed).clone(),
                 "headers" => Type::Map,
                 _ => {
                     self.error_at_current(
@@ -750,7 +750,7 @@ impl Checker<'_, '_> {
                 "length" => Type::Number,
                 _ => Type::Any,
             },
-            Type::Resource(inner) => match field {
+            Type::Resource(inner, _) => match field {
                 "data" => Type::optional((**inner).clone()),
                 "state" => Type::String,
                 "error" => Type::optional(Type::Any),

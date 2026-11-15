@@ -1,0 +1,80 @@
+type User { id: String, name: String }
+
+api Backend(base: "/api") {
+    timeout: 300.ms
+    retry: .backoff(times: 2, on: [.network, .timeout, .status5xx])
+
+    get    users -> [User]
+    get    slowRead at "slow-read" -> Map
+    post   slowWrite(body: Map) at "slow-write" -> Map
+    post   order(body: Map) at "orders" -> Map
+    put    note(id: String, body: Map) at "notes/:id" -> Map
+}
+
+app { Router }
+
+page Home(path: "/", title: "Fetch", description: "A page that asks a service for things.") {
+    state q = ""
+    state said = ""
+    resource hits = fetch("/api/search", method: "POST", body: { query: q })
+    resource first = Backend.users()
+    resource second = Backend.users()
+
+    Heading("Fetch").h1
+    Input(bind: q, label: "Search")
+    match hits {
+        loading { Text("searching") }
+        error(e) { Text("search failed") }
+        ready(h) { Text("found:{h.query}", id: "found") }
+    }
+    match first {
+        loading { Text("…") }
+        error(e) { Text("first failed") }
+        ready(list) { Text("first:{list.length}", id: "first") }
+    }
+    match second {
+        loading { Text("…") }
+        error(e) { Text("second failed") }
+        ready(list) { Text("second:{list.length}", id: "second") }
+    }
+    Text("said:{said}", id: "said")
+    Text("queued:{network.queued}", id: "queued")
+
+    Button("Refresh", id: "refresh") { on click { Backend.users.invalidate() } }
+    Button("Slow write", id: "slow-write") {
+        on click {
+            try {
+                await Backend.slowWrite(body: { n: 1 })
+                said = "written"
+            } catch e {
+                said = "write:{e.kind}"
+            }
+        }
+    }
+    Button("Slow read", id: "slow-read") {
+        on click {
+            try {
+                await Backend.slowRead()
+                said = "read"
+            } catch e {
+                said = "read:{e.kind}"
+            }
+        }
+    }
+    Button("Order", id: "order") {
+        on click {
+            try {
+                await Backend.order(body: { item: "tea" })
+                said = "ordered"
+            } catch e {
+                said = "order:{e.kind}"
+            }
+        }
+    }
+    Button("Note", id: "note") {
+        on click {
+            await Backend.note(id: "n1", body: { text: "kept" })
+            said = "noted"
+        }
+    }
+}

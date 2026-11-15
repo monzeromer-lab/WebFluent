@@ -15,11 +15,29 @@
   // The calls the handler running now has started, when one is listening.
   let _started = null;
 
+  // Which call this is, by its arguments. A value that is not plain data —
+  // a `File`, a `Blob`, a class's instance — is that value and no other:
+  // every `File` writes as `{}`, so two uploads would otherwise be one.
+  const _callIds = new WeakMap();
+  let _callNext = 0;
+  function callKey(args) {
+    return JSON.stringify(args, (k, v) => {
+      if (v && typeof v === "object" && !Array.isArray(v)) {
+        const proto = Object.getPrototypeOf(v);
+        if (proto !== Object.prototype && proto !== null) {
+          if (!_callIds.has(v)) _callIds.set(v, ++_callNext);
+          return "\u0001" + _callIds.get(v);
+        }
+      }
+      return v;
+    });
+  }
+
   function sameCall(pending, args, run, concurrent) {
     let key = null;
     if (!concurrent) {
       try {
-        key = JSON.stringify(args);
+        key = callKey(args);
       } catch (e) {
         key = null;
       }

@@ -580,20 +580,6 @@ fn walk_stmt<'a>(
                 );
             }
         }
-        StatementKind::Fetch(f) => {
-            let inner = within(ctx, "match", format!("fetch {}", f.variable), stmt, &[]);
-            if let Some(b) = &f.loading_block {
-                walk_body(b, component, Some(&format!("{seg}.l")), &inner, visit);
-            }
-            if let Some((name, b)) = &f.error_block {
-                let mut e = inner.clone();
-                e.scope.insert(name.clone(), "loop");
-                walk_body(b, component, Some(&format!("{seg}.err")), &e, visit);
-            }
-            if let Some(b) = &f.success_block {
-                walk_body(b, component, Some(&format!("{seg}.s")), &inner, visit);
-            }
-        }
         StatementKind::Match(m) => {
             for (k, arm) in m.arms.iter().enumerate() {
                 let mut names: Vec<&str> = arm.binding.as_deref().into_iter().collect();

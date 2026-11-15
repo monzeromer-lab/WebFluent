@@ -82,6 +82,16 @@ impl JsCodegen {
             {
                 parts.push(format!("shape: {}", self.shape_of(ty, 0)));
             }
+            // `errors { 422 -> T }`: under `wf serve`, the body of a failure
+            // is held to what it declares, as an answer is.
+            if self.dev && !endpoint.errors.is_empty() {
+                let shapes: Vec<String> = endpoint
+                    .errors
+                    .iter()
+                    .map(|(status, ty)| format!("{status}: {}", self.shape_of(ty, 0)))
+                    .collect();
+                parts.push(format!("errorShapes: {{ {} }}", shapes.join(", ")));
+            }
             // A file parameter is sent as a form, under its own name.
             if let Some(file) = endpoint
                 .params

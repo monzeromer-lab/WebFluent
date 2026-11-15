@@ -49,7 +49,12 @@
     const progress = signal(0);
     const method = (endpoint.method || "GET").toUpperCase();
     // What is a parameter of the call rather than of the request.
-    const perCall = new Set(["body", "file", "cache", "on", "timeout", "signal", "as"]);
+    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "timeout", "signal", "as"]);
+    // The parameter a file arrives in is the one the endpoint names — `post
+    // avatar(image: File)` sends `image` — and never part of the query.
+    const fileField = endpoint.fileField || "file";
+    perCall.add(fileField);
+    const fileOf = (given) => given[fileField] != null ? given[fileField] : given.file;
 
     const addressOf = (args) => {
       const given = args || {};
@@ -62,9 +67,10 @@
       const given = args || {};
       let body = given.body;
       // A file is sent as a form, which is what a server expects of one.
-      if (given.file != null && typeof FormData !== "undefined") {
+      const file = fileOf(given);
+      if (file != null && typeof FormData !== "undefined") {
         const form = new FormData();
-        form.append(endpoint.fileField || "file", given.file);
+        form.append(fileField, file);
         for (const [k, v] of Object.entries(body || {})) form.append(k, v);
         body = form;
       }
@@ -83,12 +89,13 @@
         referrerPolicy: config.referrerPolicy,
         signal: given.signal,
         withHeaders: endpoint.withHeaders,
-        progress: given.file != null || endpoint.progress ? progress : null,
+        progress: fileOf(given) != null || endpoint.progress ? progress : null,
         onRequest: config.onRequest,
         api: config.name || null,
         onResponse: config.onResponse,
         onError: config.onError,
         shape: endpoint.shape,
+        errorShapes: endpoint.errorShapes,
         key: (config.name || "") + " " + name + " " + addressOf(given),
       };
     };

@@ -817,7 +817,6 @@ fn render_statements(stmts: &[Statement], ctx: &mut SsgContext) -> String {
             }
             // The `fetch` block of the original grammar reaches only the
             // migrator, which rewrites it as a resource and a match.
-            StatementKind::Fetch(_) => {}
             // A resource is still loading when the static page is painted;
             // a match over one paints its `loading` arm. A match over an
             // enum paints the arm of the case the value has at build time,
