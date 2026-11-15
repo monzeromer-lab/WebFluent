@@ -408,9 +408,9 @@ the same type.
 
 ### 3.1 No switch, one cut
 
-The data plan's R12 says deprecate before removing. That holds for
-*spellings* the language drops, but a typing rule that can be turned off
-is not a rule: a program would be typed or not depending on a config file,
+The data plan's R12 now reads "change in one release, never silently;
+automate the migration", for this reason: a typing rule that can be turned
+off is not a rule: a program would be typed or not depending on a config file,
 a library would have to work both ways, and "reliable" would mean "reliable
 if you asked". So strictness ships whole, once, and is never optional.
 
@@ -423,11 +423,10 @@ The cost lands once, on upgrade, and `wf migrate` carries most of it: in
 the site and the examples, everything in 1e but a handful of `Map`s that
 need a record drafted is rewritten mechanically.
 
-**One rule across both plans.** The data plan lets old code keep `Any`
-and `Map` in a contract with a warning through 7.x (its `N11`, `N13`).
-Under this plan those are errors in 7.0 like everywhere else; the data
-plan's table in its section 8 should be changed to match, so there is no
-corner of the language where `Any` survives (open question 6).
+**One rule across both plans.** The data plan follows the same cut: every
+old form of its section 8 is an error with a fix in 7.0, `N11` is the
+boundary's message for `T23`/`T24`, and its `N13` is folded into `T26`, so
+there is no corner of the language where `Any` survives.
 
 ### 3.2 What `wf migrate` writes (6 → 7)
 
@@ -469,7 +468,7 @@ editor write.
 | `T23` | error | `Any` written as a type. Fix: the inferred type, else `Json` |
 | `T24` | error | `Map` written as a type. Fix: a drafted record, `[String: T]`, or `Json` |
 | `T25` | error | A `state`, `persist` or `data` whose type its value does not say (`[]`, `{}`, `null`, a call returning `Json`). Fix: the type assigned to it later |
-| `T26` | error | An action that returns a value without declaring `-> T`. Fix: the inferred result. (The data plan's `N13`; see open question 6) |
+| `T26` | error | An action that returns a value without declaring `-> T`. Fix: the inferred result. (the data plan's `N13` is folded into it) |
 | `T27` | error | Branches, list items or `??` sides with no common type |
 | `T28` | error | A `Json` value read as if it were something else — `raw.name`, `raw + 1` — rather than matched or decoded |
 | `T29` | error | A condition, `!`, `&&` or `\|\|` on something that is not a `Bool`. Fix: the comparison it meant, or `??` |
@@ -598,9 +597,9 @@ them.
 6. **Where does "an action that returns a value must declare it" live —
    the data plan's `N13`, or this plan's `T26`?** *`T26`, and an error in
    7.0 for old code too.* It is about all actions, not requests. The data
-   plan's `N13` and the "warning for code written before 7.0" in its `N11`
-   should both go: with no switch in the language, there is no older code
-   that is allowed to be less typed.
+   plan now folds its `N13` into `T26` and drops the warning for old code
+   from `N11`: with no switch in the language, there is no older code that
+   is allowed to be less typed.
 7. **How does an unknown browser member get used?** *Through a project
    script with JSDoc (`T30`'s fix), not an escape hatch in `.wf`.* A
    `Json`-typed `window.anything` would bring `Any` back under another
