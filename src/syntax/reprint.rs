@@ -425,9 +425,10 @@ fn diff_if(
         return false;
     }
     let depth = depth_at(source, start) + 1;
-    let head = |i: &IfStmt| match &i.binding {
-        Some(name) => format!("if let {name} = {}", print::expr(&i.condition)),
-        None => format!("if {}", print::expr(&i.condition)),
+    let head = |i: &IfStmt| match (&i.pattern, &i.binding) {
+        (Some(p), _) => format!("if let {} = {}", print::pattern(p), print::expr(&i.condition)),
+        (None, Some(name)) => format!("if let {name} = {}", print::expr(&i.condition)),
+        (None, None) => format!("if {}", print::expr(&i.condition)),
     };
     if head(a) != head(b) {
         out.push(Patch::new(start, blocks[0].0, format!("{} ", head(b))));
