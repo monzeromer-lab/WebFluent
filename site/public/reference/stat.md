@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/stat
 A figure with its label — revenue, sign-ups — and how it moved: Stat("Revenue", value: total, format: .currency, change: 0.124). count: counts to a new value.
 
 ```wf
-Stat(_ label: String, value: Any, format: Enum, change: Number) { … }
+Stat(_ label: String, value: Any, format: Enum, change: Number, …) { … }
 ```
 
 ## Props
@@ -18,6 +18,7 @@ Stat(_ label: String, value: Any, format: Enum, change: Number) { … }
 | `value:` | `Any  (required)` | The figure |
 | `format:` | `.number .integer .currency .percent .compact` | How the figure is written, as `format` writes it |
 | `change:` | `Number` | How it moved, as a fraction: `0.124` is up 12.4% |
+| `trend:` | `Any` | Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]` |
 
 ## Flags
 

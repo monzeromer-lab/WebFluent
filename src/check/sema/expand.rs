@@ -363,6 +363,12 @@ fn stat(el: &mut UIElement) {
             "Stat.Change(format(if ({c}) < 0 {{ -({c}) }} else {{ {c} }}, .percent, 1), data-trend: if ({c}) < 0 {{ \"down\" }} else {{ \"up\" }}) {{ VisuallyHidden(if ({c}) < 0 {{ \"Down \" }} else {{ \"Up \" }}) }}\n"
         ));
     }
+    if let Some(trend) = take(el, "trend") {
+        out.push_str(&format!(
+            "Sparkline({}, label: \"Recent values\", width: 120, height: 28)\n",
+            src(&trend)
+        ));
+    }
     let mut children = parse(&out);
     children.append(&mut el.children);
     el.children = children;
@@ -370,6 +376,9 @@ fn stat(el: &mut UIElement) {
 
 /// `CodeBlock(code, language: "wf", title: "App.wf").copy.lines`.
 fn code_block(el: &mut UIElement) {
+    if let Some(files) = take(el, "files") {
+        return code_tabs(el, &files);
+    }
     let Some(code) = take_positional(el) else {
         return;
     };
@@ -397,11 +406,57 @@ fn code_block(el: &mut UIElement) {
         "Code({code}{}, tabindex: \"0\").block\n",
         language.unwrap_or_default()
     ));
+    // Lines it marks: a layer of one mark a line over the code, those it
+    // names drawn.
+    if let Some(marked) = take(el, "highlight") {
+        out.push_str(&format!(
+            "CodeBlock.Marks(aria-hidden: \"true\") {{ for wfLine, wfAt in {code}.lines() {{ CodeBlock.Mark(data-on: if ({}).includes(wfAt + 1) {{ \"true\" }} else {{ \"false\" }}) }} }}\n",
+            src(&marked)
+        ));
+    }
     // Its copy button is one of these built-ins too.
     let mut children = parse(&out);
     let mut seq = 0;
     expand(&mut children, &mut seq);
     el.children = children;
+}
+
+/// `CodeBlock(files: [{ name: "App.wf", code: app, language: "wf" }, …]).copy`:
+/// a tab for each file, each its own code block.
+fn code_tabs(el: &mut UIElement, files: &Expr) {
+    let label = take(el, "title").map_or_else(|| lit("Files"), |e| src(&e));
+    let mut flags = String::new();
+    for flag in ["copy", "lines"] {
+        if take_flag(el, flag).is_some() {
+            flags.push('.');
+            flags.push_str(flag);
+        }
+    }
+    let page = |f: &str| {
+        format!(
+            "Tabs.Page({f}.name) {{ CodeBlock({f}.code, language: {f}.language ?? \"\"){flags} }}\n"
+        )
+    };
+    // A list written out is a page for each file; any other is a `for`.
+    let pages = match files {
+        Expr::ListLiteral(items) => items
+            .iter()
+            .map(|item| page(&format!("({})", src(item))))
+            .collect::<String>(),
+        other => format!("for wfFile in {} {{\n{}}}\n", src(other), page("wfFile")),
+    };
+    let mut made = parse(&format!("Tabs(label: {label}) {{\n{pages}}}"));
+    let mut seq = 0;
+    expand(&mut made, &mut seq);
+    if let Some(tabs) = element_of(&mut made) {
+        let mut tabs = tabs.clone();
+        tabs.span = el.span;
+        tabs.args.extend(std::mem::take(&mut el.args));
+        tabs.arg_spans = vec![Span::default(); tabs.args.len()];
+        tabs.events.append(&mut el.events);
+        tabs.style_block = el.style_block.take();
+        *el = tabs;
+    }
 }
 
 /// `Chip("Rust", icon: "code", selected: on).removable { on click { … }  on remove { … } }`.
@@ -990,17 +1045,23 @@ fn checkbox_group(el: &mut UIElement) {
     let b = src(&bind);
     let all = take(el, "all");
     let legend = take(el, "label").map(|l| format!("CheckboxGroup.Legend({})\n", src(&l)));
+    // Its options wherever they are drawn — a `for`, an `if` — each a box
+    // ticked while the list holds its value; the box for all needs them
+    // written out, so it knows them all.
     let mut values = Vec::new();
-    for stmt in &mut el.children {
-        let StatementKind::UIElement(option) = &mut stmt.kind else {
-            continue;
-        };
-        if !matches!(&option.component, ComponentRef::SubComponent(p, s) if p == "CheckboxGroup" && s == "Option")
+    let mut nested = false;
+    for stmt in &el.children {
+        if !matches!(&stmt.kind, StatementKind::UIElement(o) if matches!(&o.component, ComponentRef::SubComponent(p, s) if p == "CheckboxGroup" && s == "Option"))
         {
-            continue;
+            nested = true;
+        }
+    }
+    each_part(&mut el.children, "CheckboxGroup", &mut |name, option| {
+        if name != "Option" {
+            return;
         }
         let Some(label) = take_positional(option) else {
-            continue;
+            return;
         };
         let l = src(&label);
         let v = take(option, "value").map_or_else(|| l.clone(), |e| src(&e));
@@ -1010,9 +1071,9 @@ fn checkbox_group(el: &mut UIElement) {
         ));
         boxed.append(&mut option.children);
         option.children = boxed;
-    }
+    });
     let mut head = legend.unwrap_or_default();
-    if let Some(words) = all {
+    if let Some(words) = all.filter(|_| !nested) {
         let list = format!("[{}]", values.join(", "));
         head.push_str(&format!(
             "Checkbox(checked: {list}.every(wfOne => {b}.includes(wfOne)), label: {w}, data-all: \"true\") {{ on change {{ {b} = if {list}.every(wfOne => {b}.includes(wfOne)) {{ [] }} else {{ {list} }} }} }}\n",
@@ -1208,7 +1269,22 @@ fn loading_overlay(el: &mut UIElement) {
 /// `Lightbox { Image(…) … }`: its pictures open full screen.
 fn lightbox(el: &mut UIElement) {
     let label = take(el, "label").map_or_else(|| lit("Pictures"), |e| src(&e));
-    give(el, "mount", &format!("(n) => __wf.lightbox(n, {label})"));
+    let words = words_of(el, &["previous", "next", "close", "zoom", "of"]);
+    give(
+        el,
+        "mount",
+        &format!("(n) => __wf.lightbox(n, {label}, {words})"),
+    );
+}
+
+/// The words a built-in says, given as props (`next: "Weiter"`), as a map
+/// for its runtime; the runtime has its own for any not given.
+fn words_of(el: &mut UIElement, keys: &[&str]) -> String {
+    let given: Vec<String> = keys
+        .iter()
+        .filter_map(|k| take(el, k).map(|e| format!("{k}: {}", src(&e))))
+        .collect();
+    format!("{{ {} }}", given.join(", "))
 }
 
 /// `Tour(open: touring) { Tour.Step(target: newBtn, title: "New") { … } }`:
@@ -1233,10 +1309,14 @@ fn tour(el: &mut UIElement) {
         }
         give(part, "hidden", "true");
     });
+    let words = words_of(el, &["back", "next", "done", "close", "of"]);
     give(
         el,
         "mount",
-        &format!("(n) => __wf.tour(n, () => {o}, [{}])", targets.join(", ")),
+        &format!(
+            "(n) => __wf.tour(n, () => {o}, [{}], {words})",
+            targets.join(", ")
+        ),
     );
     first_handlers(el, &format!("on close {{ {o} = false }}"));
 }
@@ -1274,6 +1354,9 @@ fn add_style(el: &mut UIElement, css: &str) {
             let mut props = made.properties;
             props.append(&mut own.properties);
             own.properties = props;
+            let mut queries = made.media_queries;
+            queries.append(&mut own.media_queries);
+            own.media_queries = queries;
         }
         None => el.style_block = Some(made),
     }
@@ -1381,11 +1464,29 @@ fn item(el: &mut UIElement) {
     el.children.extend(actions);
 }
 
+/// `name: value` as CSS: a value per breakpoint (`{ base: 1, md: 3 }`)
+/// one declaration and an `@md { … }` rule a step.
+fn responsive_css(name: &str, e: &Expr) -> String {
+    let Expr::MapLiteral(steps) = e else {
+        return format!("{name}: {}\n", css_value(e));
+    };
+    let mut css = String::new();
+    for (step, value) in steps {
+        let value = css_value(value);
+        if step == "base" {
+            css.push_str(&format!("{name}: {value}\n"));
+        } else {
+            css.push_str(&format!("@{step} {{ {name}: {value} }}\n"));
+        }
+    }
+    css
+}
+
 /// `Gallery(columns: 3, ratio: 4 / 3) { Image(…) … }`.
 fn gallery(el: &mut UIElement) {
     let mut css = String::new();
     if let Some(c) = take(el, "columns") {
-        css.push_str(&format!("--wf-columns: {}\n", css_value(&c)));
+        css.push_str(&responsive_css("--wf-columns", &c));
     }
     if let Some(r) = take(el, "ratio") {
         css.push_str(&format!("--wf-ratio: {}\n", css_value(&r)));
@@ -1398,7 +1499,7 @@ fn gallery(el: &mut UIElement) {
 /// `Masonry(columns: 3) { … }`.
 fn masonry(el: &mut UIElement) {
     if let Some(c) = take(el, "columns") {
-        add_style(el, &format!("--wf-columns: {}", css_value(&c)));
+        add_style(el, &responsive_css("--wf-columns", &c));
     }
 }
 
@@ -1489,10 +1590,14 @@ fn sticky(el: &mut UIElement) {
 /// runtime puts a handle between each two panels.
 fn panel_group(el: &mut UIElement) {
     each_part(&mut el.children, "PanelGroup", &mut |name, part| {
-        if name == "Panel"
-            && let Some(m) = take(part, "min")
-        {
+        if name != "Panel" {
+            return;
+        }
+        if let Some(m) = take(part, "min") {
             give(part, "data-min", &format!("\"\" + ({})", src(&m)));
+        }
+        if take_flag(part, "collapsible").is_some() {
+            give(part, "data-collapsible", "\"true\"");
         }
     });
     let label = take(el, "label").map_or_else(|| lit("Resize"), |e| src(&e));

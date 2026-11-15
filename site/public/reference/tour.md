@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/tour
 A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.
 
 ```wf
-Tour(open: State) { … }
+Tour(open: State, back: String, next: String, …) { … }
 ```
 
 ## Props
@@ -15,6 +15,11 @@ Tour(open: State) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `open:` | `State  (required)` | Whether the tour is showing; written `false` when it ends |
+| `back:` | `String` | The back button's words (unset, `Back`) |
+| `next:` | `String` | The next button's words (unset, `Next`) |
+| `done:` | `String` | The last step's button's words (unset, `Done`) |
+| `close:` | `String` | The close button's name (unset, `End the tour`) |
+| `of:` | `String` | The word in `2 of 5` (unset, `of`) |
 
 ## Events
 

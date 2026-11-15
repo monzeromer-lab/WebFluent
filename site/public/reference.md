@@ -296,7 +296,7 @@ Renders with the class `wf-masonry`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Number` | How many columns (unset, 3) |
+| `columns:` | `Any` | How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }` |
 
 Takes a block of children.
 
@@ -431,8 +431,10 @@ Renders with the class `wf-panel-group`.
 
 **Parts:**
 
-- `PanelGroup.Panel(min: …) { … }` — One panel.
+- `PanelGroup.Panel(min: …, collapsible: …) { … }` — One panel.
   - `min:` `Number` — The least it may be, in percent (unset, 10)
+  - `collapsible:` `Bool` — Enter or a double press on the handle after it folds it away, and again brings it back
+  - flags: `.collapsible`
 
 Takes a block of children.
 
@@ -440,7 +442,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### ClientOnly
 
-Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.
+Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A `placeholder { … }` block is what those show in its place.
 
 ```
 ClientOnly { … }
@@ -1158,7 +1160,7 @@ Attribute families: `global`, `aria`, `data`.
 A tour of the page while `open:` holds: each step in a card at its `target:` (a `ref:`), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes `false` back. `on finish` hears Done, `on close` any end.
 
 ```
-Tour(open: …) { … }
+Tour(open: …, back: …, next: …) { … }
 ```
 
 ```wf
@@ -1175,6 +1177,11 @@ Renders with the class `wf-tour`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `open:` (required) | `State` | Whether the tour is showing; written `false` when it ends |
+| `back:` | `String` | The back button's words (unset, `Back`) |
+| `next:` | `String` | The next button's words (unset, `Next`) |
+| `done:` | `String` | The last step's button's words (unset, `Done`) |
+| `close:` | `String` | The close button's name (unset, `End the tour`) |
+| `of:` | `String` | The word in `2 of 5` (unset, `of`) |
 
 **Events of its own:** `on close`, `on finish`
 
@@ -1656,7 +1663,7 @@ Attribute families: `global`, `aria`, `data`.
 Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or `+` zooms, Escape closes and the focus goes back. A picture's `data-full:` is the file it opens, else its largest size.
 
 ```
-Lightbox(label: …) { … }
+Lightbox(label: …, previous: …, next: …) { … }
 ```
 
 ```wf
@@ -1670,6 +1677,11 @@ Renders with the class `wf-lightbox`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `label:` | `String` | What the pictures are, for a screen reader (unset, `Pictures`) |
+| `previous:` | `String` | The previous button's name (unset, `Previous picture`) |
+| `next:` | `String` | The next button's name (unset, `Next picture`) |
+| `close:` | `String` | The close button's name (unset, `Close`) |
+| `zoom:` | `String` | The zoom button's name (unset, `Zoom`) |
+| `of:` | `String` | The word in `2 of 5` (unset, `of`) |
 
 Takes a block of children.
 
@@ -1694,7 +1706,7 @@ Renders with the class `wf-gallery`.
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Number` | How many across; unset, as many as fit |
+| `columns:` | `Any` | How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit |
 | `ratio:` | `Any` | Each picture's shape, `4 / 3` (unset, `1`) |
 
 Takes a block of children.
@@ -2323,6 +2335,8 @@ Renders with the class `wf-data-table`.
 | `bind:` | `State` | The chosen row's key, or a list of them with `.multiple` |
 | `multiple:` | `Bool` | Several rows at once |
 | `label:` (required) | `String` | What the table is: its caption, read by a screen reader |
+| `filter:` | `String` | Only the rows whose columns hold this text, its case ignored |
+| `pageSize:` | `Number` | Rows a page: the rest are on pages behind Previous and Next |
 
 **Flags:** `.multiple`
 
@@ -3773,6 +3787,7 @@ Renders with the class `wf-stat`.
 | `value:` (required) | `Any` | The figure |
 | `format:` | `.number` `.integer` `.currency` `.percent` `.compact` | How the figure is written, as `format` writes it |
 | `change:` | `Number` | How it moved, as a fraction: `0.124` is up 12.4% |
+| `trend:` | `Any` | Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]` |
 
 **Flags:** `.number` `.integer` `.currency` `.percent` `.compact`
 
@@ -3791,10 +3806,10 @@ Attribute families: `global`, `aria`, `data`.
 
 ### CodeBlock
 
-A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`.
+A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`; `highlight:` marks lines; `files:` makes it a tab for each file.
 
 ```
-CodeBlock(code, language: …, title: …, copy: …)
+CodeBlock(code, highlight: …, files: …, language: …)
 ```
 
 ```wf
@@ -3806,6 +3821,8 @@ Renders with the class `wf-code-block`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `code` (positional) | `String` | The code |
+| `highlight:` | `Any` | The lines to mark, counted from 1: `[3, 4]` |
+| `files:` | `Any` | A tab for each file: `[{ name: "App.wf", code: app, language: "wf" }, …]` |
 | `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
 | `title:` | `String` | The file name or the language, in the bar |
 | `copy:` | `Bool` | A button in the bar that copies the code |
@@ -3818,6 +3835,8 @@ Renders with the class `wf-code-block`.
 - `CodeBlock.Bar { … }` — The bar above the code.
 - `CodeBlock.Lines(text)` — The line numbers.
   - `text:` `String` — The numbers, a line each
+- `CodeBlock.Marks { … }` — The marks over the lines `highlight:` names. Drawn for it.
+- `CodeBlock.Mark` — One line's mark. Drawn for it.
 
 Attribute families: `global`, `aria`, `data`.
 

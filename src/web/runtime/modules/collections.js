@@ -273,8 +273,19 @@
     table.appendChild(body);
     box.appendChild(table);
 
-    const sorted = () => {
+    // What `filter:` lets through: a row any of whose columns' values
+    // holds the text, its case ignored.
+    const filtered = () => {
       const rows = (opts.rows() || []).slice();
+      const want = String((opts.filter && opts.filter()) || "").trim().toLowerCase();
+      if (!want) return rows;
+      return rows.filter((row) => opts.columns.some((col) => {
+        const v = col.value ? col.value(row) : null;
+        return v != null && String(v).toLowerCase().includes(want);
+      }));
+    };
+    const sorted = () => {
+      const rows = filtered();
       const s = sort();
       const col = opts.columns[s.at];
       if (!col || !col.value) return rows;
@@ -287,7 +298,36 @@
         return (typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), undefined, { numeric: true })) * sign;
       });
     };
-    each(body, sorted, (row) => {
+    // `pageSize:` a page of rows at a time, Previous and Next below; a new
+    // filter goes back to the first page.
+    const page = signal(0);
+    const size = () => Math.max(0, Number((opts.pageSize && opts.pageSize()) || 0));
+    const pages = () => (size() ? Math.max(1, Math.ceil(filtered().length / size())) : 1);
+    effect(() => {
+      if (opts.filter) opts.filter();
+      page.set(0);
+    });
+    const shown = () => {
+      const rows = sorted();
+      const n = size();
+      if (!n) return rows;
+      const at = Math.min(page(), pages() - 1);
+      return rows.slice(at * n, at * n + n);
+    };
+    if (opts.pageSize && size()) {
+      const prev = el("button", { type: "button", className: "wf-btn wf-btn--sm", disabled: () => page() === 0 }, "Previous");
+      const next = el("button", { type: "button", className: "wf-btn wf-btn--sm", disabled: () => page() >= pages() - 1 }, "Next");
+      const where = el("span", { className: "wf-data-table__where", "aria-live": "polite" }, () => {
+        const total = filtered().length;
+        if (!total) return "0 rows";
+        const from = page() * size() + 1;
+        return `${from}\u2013${Math.min(total, from + size() - 1)} of ${total}`;
+      });
+      prev.addEventListener("click", () => page.set(Math.max(0, page() - 1)));
+      next.addEventListener("click", () => page.set(Math.min(pages() - 1, page() + 1)));
+      box.appendChild(el("nav", { className: "wf-data-table__pages", "aria-label": () => `${opts.label ? opts.label() : "Table"}, pages` }, prev, where, next));
+    }
+    each(body, shown, (row) => {
       const key = keyOf(row);
       const tr = el("tr", { "aria-selected": picking ? () => (isChosen(key) ? "true" : "false") : null });
       if (picking) {
@@ -320,7 +360,7 @@
       const span = opts.columns.length + (picking ? 1 : 0);
       const emptyRow = el("tr", { className: "wf-data-table__empty" }, el("td", { colspan: String(span) }, opts.empty()));
       effect(() => {
-        const none = (opts.rows() || []).length === 0;
+        const none = filtered().length === 0;
         if (none && !emptyRow.parentNode) body.appendChild(emptyRow);
         else if (!none && emptyRow.parentNode) emptyRow.remove();
       });

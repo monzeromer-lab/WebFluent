@@ -191,8 +191,10 @@ impl JsCodegen {
         let rows = self.named_js(ui, "rows").unwrap_or_else(|| "[]".into());
         let key = self.named_js(ui, "key").unwrap_or_else(|| "null".into());
         let label = self.named_js(ui, "label").unwrap_or_else(|| "\"\"".into());
+        let filter = self.named_js(ui, "filter").unwrap_or_else(|| "\"\"".into());
+        let size = self.named_js(ui, "pageSize").unwrap_or_else(|| "0".into());
         self.emit_line(&format!(
-            "WF.dataTable({var}, {{ rows: () => {rows}, key: {key}, read: {read}, write: {write}, multiple: {}, label: () => {label}, columns: [{}], empty: {empty} }});",
+            "WF.dataTable({var}, {{ rows: () => {rows}, key: {key}, read: {read}, write: {write}, multiple: {}, label: () => {label}, columns: [{}], empty: {empty}, filter: () => {filter}, pageSize: () => {size} }});",
             Self::flag_given(ui, "multiple"),
             columns.join(", ")
         ));

@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/lightbox
 Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.
 
 ```wf
-Lightbox(label: String) { … }
+Lightbox(label: String, previous: String, next: String, …) { … }
 ```
 
 ## Props
@@ -15,6 +15,11 @@ Lightbox(label: String) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `label:` | `String` | What the pictures are, for a screen reader (unset, `Pictures`) |
+| `previous:` | `String` | The previous button's name (unset, `Previous picture`) |
+| `next:` | `String` | The next button's name (unset, `Next picture`) |
+| `close:` | `String` | The close button's name (unset, `Close`) |
+| `zoom:` | `String` | The zoom button's name (unset, `Zoom`) |
+| `of:` | `String` | The word in `2 of 5` (unset, `of`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

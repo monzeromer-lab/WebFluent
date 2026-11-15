@@ -252,6 +252,20 @@ template engine and, where it can be, in a PDF.
   `CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an
   `Editable`, an `InputOTP` and a `TagInput`.
 
+## What the built-ins lacked
+
+- `CodeBlock(code, highlight: [3, 4])` marks lines; `CodeBlock(files: […])`
+  is a tab a file.
+- `Stat(…, trend: [31, 40, 28])` draws a sparkline under the figure.
+- `ClientOnly { placeholder { … } … }` paints its placeholder.
+- `Gallery` and `Masonry` take `columns:` per breakpoint.
+- `Tour` and `Lightbox` take their words as props (`next:`, `of:` …).
+- `DataTable(filter: q, pageSize: 20)` filters its rows and shows them a
+  page at a time.
+- `PanelGroup.Panel(collapsible: true)` folds away and comes back.
+- A `CheckboxGroup`'s options may be drawn by a `for` or an `if`.
+- The keyboard checks of tabs and toolbars run again right to left.
+
 - `wf test` drew a built-in where the project had a component of its
   name in another file.
 - `x ?? y` where `x` could only be `null` (a field written `null` in a map)

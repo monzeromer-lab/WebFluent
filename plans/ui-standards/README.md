@@ -608,8 +608,6 @@ Chrome, with `wf test`) and `tests/content.rs`. What differs:
 
 - `CodeBlock` has no tabs (`files:`) and no highlighted lines yet; `Stat`
   no sparkline.
-- `Accordion` opens with the stylesheet's `::details-content` transition,
-  not `.expand`.
 - `LocaleSwitch` and `OnThisPage` are drawn once the page runs: the
   locales and the page's headings are the page's to read.
 - The site keeps its own `Callout`, `CodeBlock`, `OnThisPage`,
@@ -718,17 +716,24 @@ Sorted 2026-11-15, after stage 9:
    `DataTable` and `Tree` of known rows, `Rating`, `AvatarGroup`'s count,
    `CircularProgress`'s ring, `Editable`, `InputOTP` and `TagInput`. What
    still waits for the page is said under its stage.
-3. **What the built-ins still lack.** `CodeBlock` tabs and highlighted
-   lines, `Stat`'s sparkline, `Accordion` on `.expand`, `NumberInput`
-   through `format`, the column props per breakpoint, `PanelGroup`
-   collapsing, the overlays' words as props, `Popconfirm` on any button,
-   parts read through a `for` or an `if`, the `DataTable` filter and
-   pages, and the keyboard tests run again right to left.
+3. **What the built-ins still lack.** Done 2026-11-15: `CodeBlock` tabs
+   and highlighted lines, `Stat`'s trend, `ClientOnly`'s placeholder,
+   columns per breakpoint, `PanelGroup` folding, the overlays' words as
+   props, a `CheckboxGroup`'s options through a `for` or an `if`, the
+   `DataTable` filter and pages, and the keyboard checks run again right
+   to left. Moved to "as designed": `Accordion` on its stylesheet
+   transition, `NumberInput` unformatted, `Popconfirm` on its first button,
+   a `Stepper`'s steps as its own children.
 4. **The site and the examples on the built-ins.** Its hand-made
    callouts, code tabs, search kinds, shells, search palette, file tree and
    props tables; the examples' components named like a built-in; the
    targets under 24×24.
-5. **As designed, kept as they are.** No `InView`, `SegmentedControl`,
+5. **As designed, kept as they are.** An `Accordion` opens on its
+   stylesheet's `::details-content` transition, which reduced motion turns
+   off, rather than `.expand`; a `NumberInput` is the native number field,
+   which cannot show a formatted value; a `Popconfirm` asks for the first
+   button in its block, the one it guards; a `Stepper`'s steps are its own
+   children, each numbered by its place. No `InView`, `SegmentedControl`,
    `Wizard`, `TimePicker` or `DateTimePicker` by those names; the exit
    animation on `allow-discrete`; the Sidebar's drawer and `AppShell`
    taking the project's own `Sidebar`; no shared `WF.selection`; a
@@ -737,8 +742,6 @@ Sorted 2026-11-15, after stage 9:
 
 ### From stage 2
 
-- Keyboard tests do not run a second time with `dir="rtl"`, as the
-  definition of done asks; the right-to-left cases are separate checks.
 - The site's hand-made tab strips (`CodeTabs`, `OutputTabs`, `Example`, the
   search's kinds) keep their own markup with `roving: .x` rather than
   built-in `Tabs`; the search's kinds want stage 6's `ToggleGroup`.
@@ -759,8 +762,6 @@ Sorted 2026-11-15, after stage 9:
 
 ### From stage 5
 
-- `CodeBlock` has no tabs (`files:`) and no highlighted lines.
-- `Stat` has no sparkline.
 - `Accordion` opens with the stylesheet's `::details-content` transition,
   not `.expand`.
 - The guide's example component `Chip` became `Pill`; two examples
@@ -775,9 +776,6 @@ Sorted 2026-11-15, after stage 9:
 - There is no `SegmentedControl` or `Wizard` by those names:
   `ToggleGroup` is the segmented control, and `Stepper` has no form of its
   own over it.
-- A `Stepper.Step` must be a direct child of its `Stepper`, not drawn by
-  a `for` or an `if`.
-- `NumberInput` does not write its value through `format`.
 - `Calendar` is drawn once the page runs, not in the static paint, and
   has no month or year picker beyond the previous and next buttons.
 - The site's search kinds are still hand-made buttons, not `ToggleGroup`.
@@ -789,8 +787,8 @@ Sorted 2026-11-15, after stage 9:
   `PropsTable`, `EventsTable`): stage 7's "done when" is not met.
 - There is no shared `WF.selection`: `Listbox`, `Tree` and `DataTable` each
   choose in their own way (a listbox by its options' own presses).
-- `DataTable` has no filter, no pagination, no resizable columns, and is
-  not drawn by `VirtualList` when long.
+- `DataTable` has no resizable columns, and is not drawn by `VirtualList`
+  when long.
 - `Combobox` is drawn once the page runs (a `Tree` or a `DataTable` of
   rows the build cannot read too); a `row`, `cell` or `option` block's
   parameter is `Any` to the checker.
@@ -809,8 +807,8 @@ Sorted 2026-11-15, after stage 9:
   the page runs.
 - The drop zone shows no upload progress (`Backend.x.progress` is the
   page's to show).
-- `CheckboxGroup.Option`s are read from the group's own block, not from a
-  `for` or an `if`.
+- A `CheckboxGroup`'s box for `all:` needs its options written out; drawn
+  by a `for` or an `if`, they have no such box.
 
 ### From stage 8, group 2
 
@@ -821,8 +819,6 @@ Sorted 2026-11-15, after stage 9:
 
 - A page cannot read the reader's consent as a value (`ConsentSettings`
   asks again, but nothing says `granted` to a page's own code).
-- `Tour` and the lightbox say Back, Next, Done, Close and `1 of 3` in
-  English; their words are not yet props or translations.
 - A `Lightbox` zooms to the picture's own size, one step; there is no
   pinch, and no pan but scrolling.
 - `LoadingOverlay` keeps its content `inert` only on the live page; the
@@ -831,10 +827,7 @@ Sorted 2026-11-15, after stage 9:
 ### From stage 8, group 4
 
 - `RelativeTime` paints the exact time until the page runs.
-- `Gallery` and `Masonry` take one `columns:` number, not a value per
-  breakpoint.
-- `PanelGroup`'s handles are not in the static paint, and it has no
-  collapsing a panel to nothing.
+- `PanelGroup`'s handles are not in the static paint.
 - `Sparkline` takes numbers it can read at build time, as `Chart` does.
 
 ### From stage 9
@@ -842,7 +835,5 @@ Sorted 2026-11-15, after stage 9:
 - `ColorPicker` and `TransferList` are drawn once the page runs; the
   static paint holds their place.
 - `TransferList` is two native multiple selects: no filter, no drag.
-- `ClientOnly` has no placeholder for the static paint to show.
-- `Popconfirm` asks for the first button in its block only.
 - The `spa` starter has a Settings page of its own, so
   `wf generate block settings` stops there rather than overwrite it.

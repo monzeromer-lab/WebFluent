@@ -139,6 +139,8 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "CodeBlock", to: "/reference/codeblock", group: "Content"),
     IndexEntry(label: "CodeBlock.Bar", to: "/reference/codeblock-bar", group: "Content"),
     IndexEntry(label: "CodeBlock.Lines", to: "/reference/codeblock-lines", group: "Content"),
+    IndexEntry(label: "CodeBlock.Marks", to: "/reference/codeblock-marks", group: "Content"),
+    IndexEntry(label: "CodeBlock.Mark", to: "/reference/codeblock-mark", group: "Content"),
     IndexEntry(label: "Chip", to: "/reference/chip", group: "Content"),
     IndexEntry(label: "Chip.Action", to: "/reference/chip-action", group: "Content"),
     IndexEntry(label: "Chip.Label", to: "/reference/chip-label", group: "Content"),
@@ -276,7 +278,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 253 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 255 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -360,7 +362,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/clientonly", class: "bp-card") {
                 Text("ClientOnly", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder \{ … \} block is what those show in its place.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/appshell", class: "bp-card") {
                 Text("AppShell", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -772,7 +774,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/codeblock", class: "bp-card") {
                 Text("CodeBlock", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/codeblock-bar", class: "bp-card") {
                 Text("CodeBlock.Bar", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -781,6 +783,14 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/codeblock-lines", class: "bp-card") {
                 Text("CodeBlock.Lines", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("The line numbers.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/codeblock-marks", class: "bp-card") {
+                Text("CodeBlock.Marks", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The marks over the lines highlight: names. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/codeblock-mark", class: "bp-card") {
+                Text("CodeBlock.Mark", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One line's mark. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/chip", class: "bp-card") {
                 Text("Chip", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -1787,7 +1797,7 @@ Text("Section two")"#, title: "wf")
 }
 
 page BuiltinMasonry(path: "/reference/masonry", title: "Masonry — Reference", description: "Masonry: Its children in columns: columns, each placed under the last in its column, keeping its own height.") {
-    ReferenceItemShell("Masonry", summary: "Its children in columns: columns, each placed under the last in its column, keeping its own height.", signature: "Masonry(columns: Number) \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Masonry", summary: "Its children in columns: columns, each placed under the last in its column, keeping its own height.", signature: "Masonry(columns: Any) \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Masonry") {
                 controls {
@@ -1798,7 +1808,7 @@ page BuiltinMasonry(path: "/reference/masonry", title: "Masonry — Reference", 
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "columns:", type: "Number", meaning: "How many columns (unset, 3)" }], caption: "Props of Masonry")
+        PropsTable(rows: [{ name: "columns:", type: "Any", meaning: "How many columns (unset, 3) — or one per breakpoint, `\{ base: 1, md: 3 \}`" }], caption: "Props of Masonry")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -1983,11 +1993,11 @@ PanelGroup(bind: sizes, label: "Resize the panels") {
 }
 
 page BuiltinPanelgroupPanel(path: "/reference/panelgroup-panel", title: "PanelGroup.Panel — Reference", description: "PanelGroup.Panel: One panel.") {
-    ReferenceItemShell("PanelGroup.Panel", summary: "One panel.", signature: "PanelGroup.Panel(min: Number) \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("PanelGroup.Panel", summary: "One panel.", signature: "PanelGroup.Panel(min: Number, collapsible: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "PanelGroup.Panel") {
                 controls {
-                    Text(t("stage.nocontrols"), class: "bp-small")
+                    StageControl({ name: "collapsible", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -1995,11 +2005,14 @@ page BuiltinPanelgroupPanel(path: "/reference/panelgroup-panel", title: "PanelGr
         notes { Text(t("stage.static"), class: "bp-small") }
         Markdown(t("ref.partof", { owner: "PanelGroup", to: "/reference/panelgroup" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "min:", type: "Number", meaning: "The least it may be, in percent (unset, 10)" }], caption: "Props of PanelGroup.Panel")
+        PropsTable(rows: [{ name: "min:", type: "Number", meaning: "The least it may be, in percent (unset, 10)" }, { name: "collapsible:", type: "Bool", meaning: "Enter or a double press on the handle after it folds it away, and again brings it back" }], caption: "Props of PanelGroup.Panel")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
-        Text(t("ref.noflags"), class: "bp-small")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".collapsible", class: "bp-label bp-mono")
+        }
         Heading(t("ref.tab.events"), id: "events").h2
         Markdown(t("ref.universal.link"), class: "bp-prose")
         Heading(t("ref.slotsparts"), id: "slots").h2
@@ -2014,8 +2027,8 @@ PanelGroup(bind: sizes, label: "Resize the panels") {
     }
 }
 
-page BuiltinClientonly(path: "/reference/clientonly", title: "ClientOnly — Reference", description: "ClientOnly: Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.") {
-    ReferenceItemShell("ClientOnly", summary: "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.", signature: "ClientOnly \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+page BuiltinClientonly(path: "/reference/clientonly", title: "ClientOnly — Reference", description: "ClientOnly: Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder \{ … \}…") {
+    ReferenceItemShell("ClientOnly", summary: "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder \{ … \} block is what those show in its place.", signature: "ClientOnly \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "ClientOnly") {
                 controls {
@@ -4924,13 +4937,14 @@ page BuiltinDatatable(path: "/reference/datatable", title: "DataTable — Refere
                 controls {
                     StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "special" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "filter", kind: "string", options: [], value: "" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "rows:", type: "Any  (required)", meaning: "The records" }, { name: "key:", type: "Any  (required)", meaning: "What tells two rows apart: `r => r.id`" }, { name: "bind:", type: "State", meaning: "The chosen row's key, or a list of them with `.multiple`" }, { name: "multiple:", type: "Bool", meaning: "Several rows at once" }, { name: "label:", type: "String  (required)", meaning: "What the table is: its caption, read by a screen reader" }], caption: "Props of DataTable")
+        PropsTable(rows: [{ name: "rows:", type: "Any  (required)", meaning: "The records" }, { name: "key:", type: "Any  (required)", meaning: "What tells two rows apart: `r => r.id`" }, { name: "bind:", type: "State", meaning: "The chosen row's key, or a list of them with `.multiple`" }, { name: "multiple:", type: "Bool", meaning: "Several rows at once" }, { name: "label:", type: "String  (required)", meaning: "What the table is: its caption, read by a screen reader" }, { name: "filter:", type: "String", meaning: "Only the rows whose columns hold this text, its case ignored" }, { name: "pageSize:", type: "Number", meaning: "Rows a page: the rest are on pages behind Previous and Next" }], caption: "Props of DataTable")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -5287,7 +5301,7 @@ page BuiltinEmptystateActions(path: "/reference/emptystate-actions", title: "Emp
 }
 
 page BuiltinStat(path: "/reference/stat", title: "Stat — Reference", description: "Stat: A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to…") {
-    ReferenceItemShell("Stat", summary: "A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to a new value.", signature: "Stat(_ label: String, value: Any, format: Enum, change: Number) \{ … \}", since: "6.2.0", outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Stat", summary: "A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to a new value.", signature: "Stat(_ label: String, value: Any, format: Enum, change: Number, …) \{ … \}", since: "6.2.0", outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Stat") {
                 controls {
@@ -5299,7 +5313,7 @@ page BuiltinStat(path: "/reference/stat", title: "Stat — Reference", descripti
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "What the figure is" }, { name: "value:", type: "Any  (required)", meaning: "The figure" }, { name: "format:", type: ".number .integer .currency .percent .compact", meaning: "How the figure is written, as `format` writes it" }, { name: "change:", type: "Number", meaning: "How it moved, as a fraction: `0.124` is up 12.4%" }], caption: "Props of Stat")
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "What the figure is" }, { name: "value:", type: "Any  (required)", meaning: "The figure" }, { name: "format:", type: ".number .integer .currency .percent .compact", meaning: "How the figure is written, as `format` writes it" }, { name: "change:", type: "Number", meaning: "How it moved, as a fraction: `0.124` is up 12.4%" }, { name: "trend:", type: "Any", meaning: "Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]`" }], caption: "Props of Stat")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -5412,8 +5426,8 @@ Stat("Churn", value: 0.031, format: .percent, change: -0.02)"#, title: "wf")
     }
 }
 
-page BuiltinCodeblock(path: "/reference/codeblock", title: "CodeBlock — Reference", description: "CodeBlock: A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code.") {
-    ReferenceItemShell("CodeBlock", summary: "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code.", signature: "CodeBlock(_ code: String, language: String, title: String, copy: Bool, …)", older: true, outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+page BuiltinCodeblock(path: "/reference/codeblock", title: "CodeBlock — Reference", description: "CodeBlock: A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code…") {
+    ReferenceItemShell("CodeBlock", summary: "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.", signature: "CodeBlock(_ code: String, highlight: Any, files: Any, language: String, …)", older: true, outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "CodeBlock") {
                 controls {
@@ -5428,7 +5442,7 @@ page BuiltinCodeblock(path: "/reference/codeblock", title: "CodeBlock — Refere
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "code", type: "String  (positional)", meaning: "The code" }, { name: "language:", type: "String", meaning: "Colours the code as this language: `wf`, `json`, `bash` or `css`" }, { name: "title:", type: "String", meaning: "The file name or the language, in the bar" }, { name: "copy:", type: "Bool", meaning: "A button in the bar that copies the code" }, { name: "lines:", type: "Bool", meaning: "Line numbers beside it" }], caption: "Props of CodeBlock")
+        PropsTable(rows: [{ name: "code", type: "String  (positional)", meaning: "The code" }, { name: "highlight:", type: "Any", meaning: "The lines to mark, counted from 1: `[3, 4]`" }, { name: "files:", type: "Any", meaning: "A tab for each file: `[\{ name: \"App.wf\", code: app, language: \"wf\" \}, …]`" }, { name: "language:", type: "String", meaning: "Colours the code as this language: `wf`, `json`, `bash` or `css`" }, { name: "title:", type: "String", meaning: "The file name or the language, in the bar" }, { name: "copy:", type: "Bool", meaning: "A button in the bar that copies the code" }, { name: "lines:", type: "Bool", meaning: "Line numbers beside it" }], caption: "Props of CodeBlock")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -5440,11 +5454,13 @@ page BuiltinCodeblock(path: "/reference/codeblock", title: "CodeBlock — Refere
         Heading(t("ref.tab.events"), id: "events").h2
         Markdown(t("ref.universal.link"), class: "bp-prose")
         Heading(t("ref.slotsparts"), id: "slots").h2
-        SlotsAndParts(slots: [], parts: [PropRow(name: "CodeBlock.Bar", kind: "codeblock-bar", detail: "The bar above the code."), PropRow(name: "CodeBlock.Lines", kind: "codeblock-lines", detail: "The line numbers.")])
+        SlotsAndParts(slots: [], parts: [PropRow(name: "CodeBlock.Bar", kind: "codeblock-bar", detail: "The bar above the code."), PropRow(name: "CodeBlock.Lines", kind: "codeblock-lines", detail: "The line numbers."), PropRow(name: "CodeBlock.Marks", kind: "codeblock-marks", detail: "The marks over the lines highlight: names. Drawn for it."), PropRow(name: "CodeBlock.Mark", kind: "codeblock-mark", detail: "One line's mark. Drawn for it.")])
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
             Link("CodeBlock.Bar", to: "/reference/codeblock-bar", class: "bp-button")
             Link("CodeBlock.Lines", to: "/reference/codeblock-lines", class: "bp-button")
+            Link("CodeBlock.Marks", to: "/reference/codeblock-marks", class: "bp-button")
+            Link("CodeBlock.Mark", to: "/reference/codeblock-mark", class: "bp-button")
         }
         Heading(t("ref.example"), id: "example").h2
         CodeBlock(#"CodeBlock("page Home(path: \"/\") {\n    Text(\"Hello\")\n}", language: "wf", title: "Home.wf").copy.lines"#, title: "wf")
@@ -5493,6 +5509,60 @@ page BuiltinCodeblockLines(path: "/reference/codeblock-lines", title: "CodeBlock
         Markdown(t("ref.partof", { owner: "CodeBlock", to: "/reference/codeblock" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The numbers, a line each" }], caption: "Props of CodeBlock.Lines")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"CodeBlock("page Home(path: \"/\") {\n    Text(\"Hello\")\n}", language: "wf", title: "Home.wf").copy.lines"#, title: "wf")
+    }
+}
+
+page BuiltinCodeblockMarks(path: "/reference/codeblock-marks", title: "CodeBlock.Marks — Reference", description: "CodeBlock.Marks: The marks over the lines highlight: names. Drawn for it.") {
+    ReferenceItemShell("CodeBlock.Marks", summary: "The marks over the lines highlight: names. Drawn for it.", signature: "CodeBlock.Marks \{ … \}", older: true, outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CodeBlock.Marks") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CodeBlock", to: "/reference/codeblock" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"CodeBlock("page Home(path: \"/\") {\n    Text(\"Hello\")\n}", language: "wf", title: "Home.wf").copy.lines"#, title: "wf")
+    }
+}
+
+page BuiltinCodeblockMark(path: "/reference/codeblock-mark", title: "CodeBlock.Mark — Reference", description: "CodeBlock.Mark: One line's mark. Drawn for it.") {
+    ReferenceItemShell("CodeBlock.Mark", summary: "One line's mark. Drawn for it.", signature: "CodeBlock.Mark", older: true, outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CodeBlock.Mark") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CodeBlock", to: "/reference/codeblock" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -7393,18 +7463,22 @@ LoadingOverlay(visible: saving, label: "Saving") {
 }
 
 page BuiltinTour(path: "/reference/tour", title: "Tour — Reference", description: "Tour: A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and…") {
-    ReferenceItemShell("Tour", summary: "A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.", signature: "Tour(open: State) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Tour", summary: "A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.", signature: "Tour(open: State, back: String, next: String, …) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Tour") {
                 controls {
-                    Text(t("stage.nocontrols"), class: "bp-small")
+                    StageControl({ name: "back", kind: "string", options: [], value: "" })
+                    StageControl({ name: "next", kind: "string", options: [], value: "" })
+                    StageControl({ name: "done", kind: "string", options: [], value: "" })
+                    StageControl({ name: "close", kind: "string", options: [], value: "" })
+                    StageControl({ name: "of", kind: "string", options: [], value: "" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "open:", type: "State  (required)", meaning: "Whether the tour is showing; written `false` when it ends" }], caption: "Props of Tour")
+        PropsTable(rows: [{ name: "open:", type: "State  (required)", meaning: "Whether the tour is showing; written `false` when it ends" }, { name: "back:", type: "String", meaning: "The back button's words (unset, `Back`)" }, { name: "next:", type: "String", meaning: "The next button's words (unset, `Next`)" }, { name: "done:", type: "String", meaning: "The last step's button's words (unset, `Done`)" }, { name: "close:", type: "String", meaning: "The close button's name (unset, `End the tour`)" }, { name: "of:", type: "String", meaning: "The word in `2 of 5` (unset, `of`)" }], caption: "Props of Tour")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -8832,18 +8906,23 @@ page BuiltinDropdownDivider(path: "/reference/dropdown-divider", title: "Dropdow
 }
 
 page BuiltinLightbox(path: "/reference/lightbox", title: "Lightbox — Reference", description: "Lightbox: Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms…") {
-    ReferenceItemShell("Lightbox", summary: "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.", signature: "Lightbox(label: String) \{ … \}", since: "6.2.0", outputs: [], group: "Media", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Lightbox", summary: "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.", signature: "Lightbox(label: String, previous: String, next: String, …) \{ … \}", since: "6.2.0", outputs: [], group: "Media", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Lightbox") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "previous", kind: "string", options: [], value: "" })
+                    StageControl({ name: "next", kind: "string", options: [], value: "" })
+                    StageControl({ name: "close", kind: "string", options: [], value: "" })
+                    StageControl({ name: "zoom", kind: "string", options: [], value: "" })
+                    StageControl({ name: "of", kind: "string", options: [], value: "" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "label:", type: "String", meaning: "What the pictures are, for a screen reader (unset, `Pictures`)" }], caption: "Props of Lightbox")
+        PropsTable(rows: [{ name: "label:", type: "String", meaning: "What the pictures are, for a screen reader (unset, `Pictures`)" }, { name: "previous:", type: "String", meaning: "The previous button's name (unset, `Previous picture`)" }, { name: "next:", type: "String", meaning: "The next button's name (unset, `Next picture`)" }, { name: "close:", type: "String", meaning: "The close button's name (unset, `Close`)" }, { name: "zoom:", type: "String", meaning: "The zoom button's name (unset, `Zoom`)" }, { name: "of:", type: "String", meaning: "The word in `2 of 5` (unset, `of`)" }], caption: "Props of Lightbox")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -8861,7 +8940,7 @@ page BuiltinLightbox(path: "/reference/lightbox", title: "Lightbox — Reference
 }
 
 page BuiltinGallery(path: "/reference/gallery", title: "Gallery — Reference", description: "Gallery: Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.") {
-    ReferenceItemShell("Gallery", summary: "Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.", signature: "Gallery(columns: Number, ratio: Any) \{ … \}", since: "6.2.0", outputs: [], group: "Media", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Gallery", summary: "Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.", signature: "Gallery(columns: Any, ratio: Any) \{ … \}", since: "6.2.0", outputs: [], group: "Media", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Gallery") {
                 controls {
@@ -8872,7 +8951,7 @@ page BuiltinGallery(path: "/reference/gallery", title: "Gallery — Reference", 
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "columns:", type: "Number", meaning: "How many across; unset, as many as fit" }, { name: "ratio:", type: "Any", meaning: "Each picture's shape, `4 / 3` (unset, `1`)" }], caption: "Props of Gallery")
+        PropsTable(rows: [{ name: "columns:", type: "Any", meaning: "How many across — or one per breakpoint, `\{ base: 2, md: 4 \}`; unset, as many as fit" }, { name: "ratio:", type: "Any", meaning: "Each picture's shape, `4 / 3` (unset, `1`)" }], caption: "Props of Gallery")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")

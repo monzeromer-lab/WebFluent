@@ -1,10 +1,10 @@
 # ClientOnly
 
-> Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.
+> Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder { … } block is what those show in its place.
 
 The page: https://webfluent.monzeromer.dev/reference/clientonly
 
-Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.
+Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder { … } block is what those show in its place.
 
 ```wf
 ClientOnly { … }

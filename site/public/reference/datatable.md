@@ -19,6 +19,8 @@ DataTable(rows: Any, key: Any, bind: State, …) { … }
 | `bind:` | `State` | The chosen row's key, or a list of them with `.multiple` |
 | `multiple:` | `Bool` | Several rows at once |
 | `label:` | `String  (required)` | What the table is: its caption, read by a screen reader |
+| `filter:` | `String` | Only the rows whose columns hold this text, its case ignored |
+| `pageSize:` | `Number` | Rows a page: the rest are on pages behind Previous and Next |
 
 ## Flags
 

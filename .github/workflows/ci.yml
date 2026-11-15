@@ -289,6 +289,10 @@ jobs:
         working-directory: tests/browser
         run: node tier3.mjs
 
+      - name: What the built-ins lacked
+        working-directory: tests/browser
+        run: node leftovers.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour

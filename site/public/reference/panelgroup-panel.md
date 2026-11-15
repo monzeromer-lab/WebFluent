@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/panelgroup-panel
 One panel.
 
 ```wf
-PanelGroup.Panel(min: Number) { … }
+PanelGroup.Panel(min: Number, collapsible: Bool) { … }
 ```
 
 ## Props
@@ -15,6 +15,11 @@ PanelGroup.Panel(min: Number) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `min:` | `Number` | The least it may be, in percent (unset, 10) |
+| `collapsible:` | `Bool` | Enter or a double press on the handle after it folds it away, and again brings it back |
+
+## Flags
+
+`.collapsible`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

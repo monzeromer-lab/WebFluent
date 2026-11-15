@@ -210,6 +210,20 @@ try {
   check("the arrow keys move inside it, and Tab leaves and comes back to where it was",
     onItalic === "Italic" && returned === "Italic", `${onItalic} ${returned}`);
 
+  console.log("\nThe same keys, right to left");
+  await page.evaluate(() => document.documentElement.setAttribute("dir", "rtl"));
+  await page.focus("#nums [role=tab][aria-selected=true]");
+  await page.keyboard.press("ArrowLeft");
+  await pause(50);
+  check("ArrowLeft goes on to the next tab, past the disabled one", (await text(page, "tabsaid")) === "tab two", await text(page, "tabsaid"));
+  await page.keyboard.press("ArrowRight");
+  await pause(50);
+  check("…and ArrowRight comes back", (await text(page, "tabsaid")) === "tab one", await text(page, "tabsaid"));
+  await page.focus("#tools button");
+  await page.keyboard.press("ArrowLeft");
+  check("in a toolbar ArrowLeft moves on", (await page.evaluate(() => document.activeElement.textContent.trim())) === "Italic");
+  await page.evaluate(() => document.documentElement.setAttribute("dir", "ltr"));
+
   check("no errors on the page", problems.length === 0, problems.join("; "));
 } finally {
   // The fixture's own tests, through `wf test`: a key with its modifier,

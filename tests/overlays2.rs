@@ -57,7 +57,7 @@ fn a_lightbox_and_a_consent_banner_are_handed_to_the_runtime() {
         "{html}"
     );
     let js = spa_generated(&src);
-    assert!(js.contains("WF.lightbox(n, \"Trip\")"), "{js}");
+    assert!(js.contains("WF.lightbox(n, \"Trip\", ("), "{js}");
     assert!(js.contains("WF.consentBanner(n)"), "{js}");
 }
 

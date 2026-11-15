@@ -893,6 +893,15 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-code-block { display: grid; grid-template-columns: auto minmax(0, 1fr); min-width: 0; }
 .wf-code-block > .wf-code { grid-column: 2; margin: 0; min-width: 0; }
 .wf-code-block:not(:has(> .wf-code-block__lines)) > .wf-code { grid-column: 1 / -1; }
+/* Marked lines: a layer of one mark a line in the code's own cell, the
+   code's size and spacing, so each mark stands at its line. */
+.wf-code-block:has(> .wf-code-block__bar) > :is(.wf-code, .wf-code-block__lines, .wf-code-block__marks) { grid-row: 2; }
+.wf-code-block:not(:has(> .wf-code-block__bar)) > :is(.wf-code, .wf-code-block__lines, .wf-code-block__marks) { grid-row: 1; }
+.wf-code-block > .wf-code, .wf-code-block__marks { font-size: var(--font-size-sm); line-height: 1.7; }
+.wf-code-block__marks { grid-column: 2; padding: var(--spacing-md) 0; pointer-events: none; font-family: var(--font-family-mono); }
+.wf-code-block:not(:has(> .wf-code-block__lines)) > .wf-code-block__marks { grid-column: 1 / -1; }
+.wf-code-block__mark { display: block; height: 1lh; }
+.wf-code-block__mark[data-on="true"] { background: rgb(255 255 255 / 0.08); box-shadow: inset 3px 0 0 var(--color-primary); }
 .wf-code-block__bar { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--spacing-sm); min-height: var(--target-min); padding: var(--spacing-xs) var(--spacing-sm); font-family: var(--font-family-mono); font-size: var(--font-size-sm); }
 .wf-code-block__bar > .wf-copy-button { order: 1; margin-inline-start: auto; }
 .wf-code-block__lines { margin: 0; padding: var(--spacing-md) var(--spacing-sm); text-align: end; font-family: var(--font-family-mono); font-size: var(--font-size-sm); line-height: 1.7; user-select: none; }
@@ -1147,6 +1156,8 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 
 /* ─── Data Table ────────────────────────────────────── */
 .wf-data-table { overflow: auto; max-width: 100%; }
+.wf-data-table__pages { display: flex; align-items: center; justify-content: flex-end; gap: var(--spacing-sm); padding: var(--spacing-sm) 0; }
+.wf-data-table__where { font-variant-numeric: tabular-nums; }
 .wf-data-table__table { width: 100%; }
 .wf-data-table__table thead th { position: sticky; top: 0; z-index: 1; }
 .wf-data-table__sort { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: inherit; cursor: pointer; min-height: var(--target-min); }
@@ -1559,6 +1570,9 @@ body:has(.wf-bottom-nav) { padding-bottom: calc(3.5rem + env(safe-area-inset-bot
 
 /* ─── Highlight Marks ───────────────────────────────── */
 .wf-highlight mark { padding: 0 1px; border-radius: 2px; color: inherit; background: color-mix(in srgb, #facc15 55%, transparent); }
+
+/* ─── Stat's trend ──────────────────────────────────── */
+.wf-stat > .wf-sparkline { margin-top: var(--spacing-xs); }
 
 /* ─── Client Only ───────────────────────────────────── */
 .wf-client-only { display: contents; }

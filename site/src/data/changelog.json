@@ -548,6 +548,59 @@
       "text": "A static build paints what it can read of the built-ins the page used\nto draw alone: an `OnThisPage`'s list of the page's headings (each given\nthe `id` the live page would give it), a `LocaleSwitch`'s buttons, the\nrows of a `DataTable` and a `Tree`, a `Rating`'s stars, a\n`CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an\n`Editable`, an `InputOTP` and a `TagInput`.",
       "points": [],
       "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "What the built-ins lacked",
+    "id": "6.2.0-what-the-built-ins-lacked",
+    "intro": "",
+    "items": [
+     {
+      "text": "`CodeBlock(code, highlight: [3, 4])` marks lines; `CodeBlock(files: […])`\nis a tab a file.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Stat(…, trend: [31, 40, 28])` draws a sparkline under the figure.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ClientOnly { placeholder { … } … }` paints its placeholder.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Gallery` and `Masonry` take `columns:` per breakpoint.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Tour` and `Lightbox` take their words as props (`next:`, `of:` …).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`DataTable(filter: q, pageSize: 20)` filters its rows and shows them a\npage at a time.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`PanelGroup.Panel(collapsible: true)` folds away and comes back.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `CheckboxGroup`'s options may be drawn by a `for` or an `if`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The keyboard checks of tabs and toolbars run again right to left.",
+      "points": [],
+      "after": ""
      },
      {
       "text": "`wf test` drew a built-in where the project had a component of its\nname in another file.",
@@ -697,7 +750,7 @@
     "after": ""
    }
   ],
-  "count": 111
+  "count": 120
  },
  {
   "version": "6.1.0",

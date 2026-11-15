@@ -1,0 +1,69 @@
+// What the built-ins lacked at the end of the plan, each on the one page
+// `tests/browser/leftovers.mjs` drives.
+const APP = #"page Home(path: "/") {
+    state n = 0
+    Text("{n}")
+}"#
+
+page Home(path: "/", title: "Leftovers", description: "What the built-ins lacked.") {
+    state q = ""
+    state touring = false
+    state sizes: [Number] = [30, 70]
+    state toppings: [String] = []
+    state rows = [
+        { id: "1", name: "web", status: "live" },
+        { id: "2", name: "api", status: "failed" },
+        { id: "3", name: "cron", status: "live" },
+        { id: "4", name: "mail", status: "live" },
+        { id: "5", name: "search", status: "failed" },
+    ]
+
+    Heading("Leftovers").h1
+
+    CodeBlock(APP, language: "wf", title: "App.wf", highlight: [2], id: "marked").lines
+    CodeBlock(files: [{ name: "App.wf", code: APP, language: "wf" }, { name: "notes.txt", code: "hello" }], id: "files").copy
+
+    Stat("Sign-ups", value: 342, trend: [3, 5, 2, 8], id: "stat")
+
+    ClientOnly(id: "client") {
+        placeholder { Text("Waiting for the page", id: "waiting") }
+        Text("The page is running", id: "running")
+    }
+
+    Gallery(columns: { base: 1, md: 3 }, id: "gallery") {
+        Image(src: "/harbour.png", alt: "The harbour")
+        Image(src: "/hills.png", alt: "The hills")
+        Image(src: "/harbour.png", alt: "The harbour again")
+    }
+
+    Lightbox(label: "Bilder", previous: "Zurück", next: "Weiter", close: "Schließen", of: "von", id: "box") {
+        Image(src: "/hills.png", alt: "Hügel")
+        Image(src: "/harbour.png", alt: "Hafen")
+    }
+
+    Button("Start", ref: start, id: "start") { on click { touring = true } }
+    Tour(open: touring, back: "Zurück", next: "Weiter", done: "Fertig", of: "von") {
+        Tour.Step(target: start, title: "Los") { Text("Hier geht es los.") }
+        Tour.Step(target: start, title: "Noch einmal") { Text("Und hier.") }
+    }
+
+    Input(bind: q, label: "Filter")
+    DataTable(rows: rows, key: r => r.id, label: "Services", filter: q, pageSize: 2, id: "table") {
+        DataTable.Column("Name", value: r => r.name)
+        DataTable.Column("Status", value: r => r.status)
+    }
+
+    PanelGroup(bind: sizes, label: "Resize", id: "panels") {
+        style { height: 100px }
+        PanelGroup.Panel(min: 20, collapsible: true) { Text("Files") }
+        PanelGroup.Panel { Text("Editor") }
+    }
+    Text("sizes {sizes.map(s => Math.round(s)).join(\",\")}", id: "sizes")
+
+    CheckboxGroup(bind: toppings, label: "Toppings", id: "toppings") {
+        for topping in ["Olives", "Onions"] by topping {
+            CheckboxGroup.Option(topping, value: topping.toLowerCase())
+        }
+    }
+    Text("toppings {toppings.join(\",\")}", id: "picked")
+}

@@ -1413,7 +1413,14 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Media",
         "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or `+` zooms, Escape closes and the focus goes back. A picture's `data-full:` is the file it opens, else its largest size.",
         None,
-        &[special("label", PropType::Str, "What the pictures are, for a screen reader (unset, `Pictures`)")],
+        &[
+            special("label", PropType::Str, "What the pictures are, for a screen reader (unset, `Pictures`)"),
+            special("previous", PropType::Str, "The previous button's name (unset, `Previous picture`)"),
+            special("next", PropType::Str, "The next button's name (unset, `Next picture`)"),
+            special("close", PropType::Str, "The close button's name (unset, `Close`)"),
+            special("zoom", PropType::Str, "The zoom button's name (unset, `Zoom`)"),
+            special("of", PropType::Str, "The word in `2 of 5` (unset, `of`)"),
+        ],
         &[],
         G,
         Children::Elements,
@@ -1428,7 +1435,14 @@ pub const COMPONENTS: &[ComponentSig] = &[
             "Feedback",
             "A tour of the page while `open:` holds: each step in a card at its `target:` (a `ref:`), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes `false` back. `on finish` hears Done, `on close` any end.",
             None,
-            &[required(special("open", PropType::State, "Whether the tour is showing; written `false` when it ends"))],
+            &[
+                required(special("open", PropType::State, "Whether the tour is showing; written `false` when it ends")),
+                special("back", PropType::Str, "The back button's words (unset, `Back`)"),
+                special("next", PropType::Str, "The next button's words (unset, `Next`)"),
+                special("done", PropType::Str, "The last step's button's words (unset, `Done`)"),
+                special("close", PropType::Str, "The close button's name (unset, `End the tour`)"),
+                special("of", PropType::Str, "The word in `2 of 5` (unset, `of`)"),
+            ],
             &["Step"],
             G,
             Children::Elements,
@@ -1589,7 +1603,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.",
         None,
         &[
-            special("columns", PropType::Num, "How many across; unset, as many as fit"),
+            special("columns", PropType::Any, "How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit"),
             special("ratio", PropType::Any, "Each picture's shape, `4 / 3` (unset, `1`)"),
         ],
         &[],
@@ -1604,7 +1618,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Layout",
         "Its children in `columns:` columns, each placed under the last in its column, keeping its own height.",
         None,
-        &[special("columns", PropType::Num, "How many columns (unset, 3)")],
+        &[special("columns", PropType::Any, "How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }`")],
         &[],
         G,
         Children::Elements,
@@ -1767,7 +1781,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Ir::Sub("PanelGroup", "Panel"),
         "One panel.",
         None,
-        &[special("min", PropType::Num, "The least it may be, in percent (unset, 10)")],
+        &[
+            special("min", PropType::Num, "The least it may be, in percent (unset, 10)"),
+            special("collapsible", PropType::Bool, "Enter or a double press on the handle after it folds it away, and again brings it back"),
+        ],
         G,
         Children::Elements,
     )
@@ -1910,7 +1927,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "ClientOnly",
         "Layout",
-        "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.",
+        "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A `placeholder { … }` block is what those show in its place.",
         None,
         &[],
         &[],
@@ -1919,7 +1936,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
     )
     .html("div", "wf-client-only")
     .css(&["Client Only"])
-    .on_paper(),
+    .on_paper()
+    .slots(&["placeholder"]),
     // ─── Data display ─────────────────────────────────────────────────────
     comp(
         "Card",
@@ -2837,6 +2855,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 "How the figure is written, as `format` writes it",
             ),
             special("change", PropType::Num, "How it moved, as a fraction: `0.124` is up 12.4%"),
+            special("trend", PropType::Any, "Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]`"),
         ],
         &["Label", "Value", "Change"],
         G,
@@ -2854,15 +2873,17 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "CodeBlock",
         "Content",
-        "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`.",
-        Some(required(special("code", PropType::Str, "The code"))),
+        "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`; `highlight:` marks lines; `files:` makes it a tab for each file.",
+        Some(special("code", PropType::Str, "The code")),
         &[
+            special("highlight", PropType::Any, "The lines to mark, counted from 1: `[3, 4]`"),
+            special("files", PropType::Any, "A tab for each file: `[{ name: \"App.wf\", code: app, language: \"wf\" }, …]`"),
             special("language", PropType::Str, "Colours the code as this language: `wf`, `json`, `bash` or `css`"),
             special("title", PropType::Str, "The file name or the language, in the bar"),
             special("copy", PropType::Bool, "A button in the bar that copies the code"),
             special("lines", PropType::Bool, "Line numbers beside it"),
         ],
-        &["Bar", "Lines"],
+        &["Bar", "Lines", "Marks", "Mark"],
         G,
         Children::None,
     )
@@ -2873,6 +2894,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         .html("div", "wf-code-block__bar"),
     part("CodeBlock", "Lines", Ir::Sub("CodeBlock", "Lines"), "The line numbers.", Some(special("text", PropType::Str, "The numbers, a line each")), &[], G, Children::None)
         .html("pre", "wf-code-block__lines"),
+    part("CodeBlock", "Marks", Ir::Sub("CodeBlock", "Marks"), "The marks over the lines `highlight:` names. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-code-block__marks"),
+    part("CodeBlock", "Mark", Ir::Sub("CodeBlock", "Mark"), "One line's mark. Drawn for it.", None, &[], G, Children::None)
+        .html("span", "wf-code-block__mark"),
     ComponentSig {
         events: &["remove"],
         ..comp(
@@ -3315,6 +3340,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special("bind", PropType::State, "The chosen row's key, or a list of them with `.multiple`"),
             special("multiple", PropType::Bool, "Several rows at once"),
             required(special("label", PropType::Str, "What the table is: its caption, read by a screen reader")),
+            special("filter", PropType::Str, "Only the rows whose columns hold this text, its case ignored"),
+            special("pageSize", PropType::Num, "Rows a page: the rest are on pages behind Previous and Next"),
         ],
         &["Column"],
         G,

@@ -157,7 +157,9 @@
       paint();
     };
     // Move the line between panel `i` and `i + 1` by `by` percent.
+    const folded = new Map();
     const move = (i, by) => {
+      if (folded.has(i)) return;
       const list = panels();
       const pair = sizes[i] + sizes[i + 1];
       const left = Math.max(min(list[i]), Math.min(pair - min(list[i + 1]), sizes[i] + by));
@@ -167,10 +169,40 @@
       paint();
       say();
     };
+    // A collapsible panel folds away behind the handle after it, and its
+    // share goes to its neighbour; again, and it comes back as it was.
+    const fold = (i) => {
+      const list = panels();
+      const panel = list[i];
+      if (!panel || panel.getAttribute("data-collapsible") !== "true") return false;
+      if (folded.has(i)) {
+        const was = folded.get(i);
+        folded.delete(i);
+        sizes[i + 1] = Math.max(min(list[i + 1]), sizes[i + 1] - was);
+        sizes[i] = was;
+        panel.hidden = false;
+      } else {
+        folded.set(i, sizes[i]);
+        sizes[i + 1] += sizes[i];
+        sizes[i] = 0;
+        panel.hidden = true;
+      }
+      paint();
+      say();
+      return true;
+    };
+    root.addEventListener("dblclick", (e) => {
+      const h = e.target;
+      if (h.classList && h.classList.contains("wf-panel-group__handle")) fold(Number(h.dataset.at));
+    });
     root.addEventListener("keydown", (e) => {
       const h = e.target;
       if (!h.classList || !h.classList.contains("wf-panel-group__handle")) return;
       const i = Number(h.dataset.at);
+      if (e.key === "Enter" && fold(i)) {
+        e.preventDefault();
+        return;
+      }
       const step = e.shiftKey ? 10 : 2;
       const flip = !vertical && _isRtl(root) ? -1 : 1;
       const less = vertical ? "ArrowUp" : "ArrowLeft";

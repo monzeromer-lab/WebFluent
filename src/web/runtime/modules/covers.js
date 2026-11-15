@@ -80,7 +80,8 @@
   /// modal at full size: the arrow keys (and a swipe) go between them,
   /// Home and End to the ends, a double press or `+`/`-` zooms, Escape or
   /// the close button shuts it and the focus goes back to the picture.
-  function lightbox(root, label) {
+  function lightbox(root, label, words) {
+    const say = Object.assign({ previous: "Previous picture", next: "Next picture", close: "Close", zoom: "Zoom", of: "of" }, words || {});
     live(root);
     const pictures = () => [...root.querySelectorAll("img")].filter((i) => !i.closest(".wf-lightbox__dialog"));
     const open = signal(false);
@@ -101,10 +102,10 @@
       if (n) at.set((at() + step + n) % n);
       zoomed.set(false);
     };
-    const prev = button("prev", "Previous picture", "\u2039", () => go(-1));
-    const next = button("next", "Next picture", "\u203a", () => go(1));
-    const zoom = button("zoom", "Zoom", "+", () => zoomed.set(!zoomed()));
-    const close = button("close", "Close", "\u00d7", () => open.set(false));
+    const prev = button("prev", say.previous, "\u2039", () => go(-1));
+    const next = button("next", say.next, "\u203a", () => go(1));
+    const zoom = button("zoom", say.zoom, "+", () => zoomed.set(!zoomed()));
+    const close = button("close", say.close, "\u00d7", () => open.set(false));
     const stage = el("div", { className: "wf-lightbox__stage" }, shown);
     const dlg = el("dialog", { className: "wf-lightbox__dialog", "aria-label": label || "Pictures" },
       el("div", { className: "wf-lightbox__bar" }, count, zoom, close), stage, prev, next, caption);
@@ -117,7 +118,7 @@
       shown.src = _largest(img);
       shown.alt = img.alt || "";
       caption.textContent = img.alt || "";
-      count.textContent = `${at() + 1} of ${list.length}`;
+      count.textContent = `${at() + 1} ${say.of} ${list.length}`;
       const one = list.length < 2;
       prev.hidden = one;
       next.hidden = one;
@@ -180,7 +181,8 @@
   /// at its target, the target lit through a cut-out in a dimmed page;
   /// Back, Next and Done below it, Escape ends it. `root` fires `close`
   /// when it ends, and `finish` when Done ends it.
-  function tour(root, read, targets) {
+  function tour(root, read, targets, words) {
+    const say = Object.assign({ back: "Back", next: "Next", done: "Done", close: "End the tour", of: "of" }, words || {});
     live(root);
     const steps = () => [...root.querySelectorAll(".wf-tour__step")];
     const at = signal(0);
@@ -188,18 +190,18 @@
     const spot = el("div", { className: "wf-tour__spot", "aria-hidden": "true" });
     const card = el("div", { className: "wf-tour__card", role: "dialog" });
     const count = el("span", { className: "wf-tour__count" });
-    const back = el("button", { type: "button", className: "wf-btn wf-btn--sm wf-tour__back" }, "Back");
-    const next = el("button", { type: "button", className: "wf-btn wf-btn--primary wf-btn--sm wf-tour__next" }, "Next");
-    const skip = el("button", { type: "button", className: "wf-tour__skip", "aria-label": "End the tour" }, el("span", { "aria-hidden": "true" }, "\u00d7"));
+    const back = el("button", { type: "button", className: "wf-btn wf-btn--sm wf-tour__back" }, say.back);
+    const next = el("button", { type: "button", className: "wf-btn wf-btn--primary wf-btn--sm wf-tour__next" }, say.next);
+    const skip = el("button", { type: "button", className: "wf-tour__skip", "aria-label": say.close }, el("span", { "aria-hidden": "true" }, "\u00d7"));
     const body = el("div", { className: "wf-tour__body" });
     card.append(skip, body, el("div", { className: "wf-tour__nav" }, count, back, next));
     root.append(spot, card);
     for (const s of steps()) body.appendChild(s);
-    const say = (name) => root.dispatchEvent(new CustomEvent(name));
+    const fire = (name) => root.dispatchEvent(new CustomEvent(name));
     const end = (done) => {
       open.set(false);
-      if (done) say("finish");
-      say("close");
+      if (done) fire("finish");
+      fire("close");
     };
     const target = () => {
       const t = (targets[at()] || (() => null))();
@@ -231,9 +233,9 @@
         if (!heading.id) heading.id = uid("wf-tour-title");
         card.setAttribute("aria-labelledby", heading.id);
       }
-      count.textContent = `${i + 1} of ${list.length}`;
+      count.textContent = `${i + 1} ${say.of} ${list.length}`;
       back.hidden = i === 0;
-      next.textContent = i === list.length - 1 ? "Done" : "Next";
+      next.textContent = i === list.length - 1 ? say.done : say.next;
       if (open()) {
         const t = target();
         if (t && t.scrollIntoView) t.scrollIntoView({ block: "center", inline: "nearest" });

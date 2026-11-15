@@ -2006,8 +2006,21 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             out.push_str(&format!("{indent}</div>\n"));
             return out;
         }
+        // Drawn in the browser alone: the paint shows its `placeholder`.
+        "ClientOnly" => {
+            let own = own_attrs(name, ui, ctx, &[]);
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
+            if let Some(fill) = ui.slot_fills.iter().find(|f| f.name == "placeholder") {
+                ctx.indent += 1;
+                out.push_str(&ctx.statements(&fill.body));
+                ctx.indent -= 1;
+            }
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
         "Tree" | "DataTable" | "Combobox" | "Calendar" | "Rating" | "DateRangePicker"
-        | "ColorPicker" | "TransferList" | "ClientOnly" => {
+        | "ColorPicker" | "TransferList" => {
             let own = own_attrs(name, ui, ctx, &[]);
             let (tag, _) = builtin_to_html(name);
             return format!(
@@ -4537,6 +4550,34 @@ fn paint_data_table(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
             _ => None,
         })
         .collect();
+    // What `filter:` lets through, and the first page of `pageSize:`.
+    let want = match named_arg(ui, "filter").map(|f| eval(f, &ctx.scope)) {
+        Some(Some(v)) => v.to_text().trim().to_lowercase(),
+        Some(None) => return None,
+        None => String::new(),
+    };
+    let all: Vec<Static> = rows
+        .iter()
+        .filter(|row| {
+            want.is_empty()
+                || columns.iter().any(|col| {
+                    named_arg(col, "value")
+                        .and_then(|f| apply_static(f, row, &ctx.scope))
+                        .is_some_and(|v| v.to_text().to_lowercase().contains(&want))
+                })
+        })
+        .cloned()
+        .collect();
+    let size = match named_arg(ui, "pageSize").map(|n| eval(n, &ctx.scope)) {
+        Some(Some(Static::Num(n))) if n >= 1.0 => n as usize,
+        Some(_) => 0,
+        None => 0,
+    };
+    let rows: Vec<Static> = if size > 0 {
+        all.iter().take(size).cloned().collect()
+    } else {
+        all.clone()
+    };
     let picking = named_arg(ui, "bind").is_some();
     let multiple = flag_on(ui, "multiple", &ctx.scope);
     let label = named_arg(ui, "label")
@@ -4582,7 +4623,7 @@ fn paint_data_table(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
     out.push_str("</tr></thead><tbody>\n");
     let inner = ctx.indent;
     ctx.indent += 1;
-    for row in rows.iter() {
+    for row in &rows {
         out.push_str(&format!("{}<tr>", ctx.indent_str()));
         if picking {
             let kind = if multiple { "checkbox" } else { "radio" };
@@ -4614,7 +4655,21 @@ fn paint_data_table(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
         ));
     }
     ctx.indent = inner;
-    out.push_str(&format!("{indent}</tbody></table></div>\n"));
+    out.push_str(&format!("{indent}</tbody></table>"));
+    if size > 0 {
+        let total = all.len();
+        let where_ = if total == 0 {
+            "0 rows".to_string()
+        } else {
+            format!("1\u{2013}{} of {total}", total.min(size))
+        };
+        let last = if total <= size { " disabled" } else { "" };
+        out.push_str(&format!(
+            "<nav class=\"wf-data-table__pages\" aria-label=\"{}, pages\"><button type=\"button\" class=\"wf-btn wf-btn--sm\" disabled>Previous</button><span class=\"wf-data-table__where\" aria-live=\"polite\">{where_}</span><button type=\"button\" class=\"wf-btn wf-btn--sm\"{last}>Next</button></nav>",
+            html_escape(&label)
+        ));
+    }
+    out.push_str("</div>\n");
     Some(out)
 }
 

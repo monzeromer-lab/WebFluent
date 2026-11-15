@@ -1,5 +1,5 @@
 {
- "count": 253,
+ "count": 255,
  "families": [
   "Layout",
   "Navigation",
@@ -926,7 +926,7 @@
    "ownerSlug": "",
    "summary": "Its children in `columns:` columns, each placed under the last in its column, keeping its own height.",
    "plain": "Its children in columns: columns, each placed under the last in its column, keeping its own height.",
-   "signature": "Masonry(columns: Number) { … }",
+   "signature": "Masonry(columns: Any) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -936,8 +936,8 @@
    "props": [
     {
      "name": "columns:",
-     "type": "Number",
-     "meaning": "How many columns (unset, 3)"
+     "type": "Any",
+     "meaning": "How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }`"
     }
    ],
    "controls": [],
@@ -1391,7 +1391,7 @@
    "ownerSlug": "panelgroup",
    "summary": "One panel.",
    "plain": "One panel.",
-   "signature": "PanelGroup.Panel(min: Number) { … }",
+   "signature": "PanelGroup.Panel(min: Number, collapsible: Bool) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -1403,10 +1403,25 @@
      "name": "min:",
      "type": "Number",
      "meaning": "The least it may be, in percent (unset, 10)"
+    },
+    {
+     "name": "collapsible:",
+     "type": "Bool",
+     "meaning": "Enter or a double press on the handle after it folds it away, and again brings it back"
     }
    ],
-   "controls": [],
-   "flags": [],
+   "controls": [
+    {
+     "name": "collapsible",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".collapsible"
+   ],
    "events": [],
    "domEvents": [],
    "slots": [
@@ -1457,8 +1472,8 @@
    "family": "Layout",
    "owner": "",
    "ownerSlug": "",
-   "summary": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.",
-   "plain": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.",
+   "summary": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A `placeholder { … }` block is what those show in its place.",
+   "plain": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder { … } block is what those show in its place.",
    "signature": "ClientOnly { … }",
    "block": true,
    "legacy": false,
@@ -8195,6 +8210,16 @@
      "name": "label:",
      "type": "String  (required)",
      "meaning": "What the table is: its caption, read by a screen reader"
+    },
+    {
+     "name": "filter:",
+     "type": "String",
+     "meaning": "Only the rows whose columns hold this text, its case ignored"
+    },
+    {
+     "name": "pageSize:",
+     "type": "Number",
+     "meaning": "Rows a page: the rest are on pages behind Previous and Next"
     }
    ],
    "controls": [
@@ -8207,6 +8232,12 @@
     },
     {
      "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "filter",
      "kind": "string",
      "options": [],
      "value": ""
@@ -9128,7 +9159,7 @@
    "ownerSlug": "",
    "summary": "A figure with its label — revenue, sign-ups — and how it moved: `Stat(\"Revenue\", value: total, format: .currency, change: 0.124)`. `count:` counts to a new value.",
    "plain": "A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to a new value.",
-   "signature": "Stat(_ label: String, value: Any, format: Enum, change: Number) { … }",
+   "signature": "Stat(_ label: String, value: Any, format: Enum, change: Number, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -9155,6 +9186,11 @@
      "name": "change:",
      "type": "Number",
      "meaning": "How it moved, as a fraction: `0.124` is up 12.4%"
+    },
+    {
+     "name": "trend:",
+     "type": "Any",
+     "meaning": "Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]`"
     }
    ],
    "controls": [
@@ -9426,9 +9462,9 @@
    "family": "Content",
    "owner": "",
    "ownerSlug": "",
-   "summary": "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`.",
-   "plain": "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code.",
-   "signature": "CodeBlock(_ code: String, language: String, title: String, copy: Bool, …)",
+   "summary": "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`; `highlight:` marks lines; `files:` makes it a tab for each file.",
+   "plain": "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.",
+   "signature": "CodeBlock(_ code: String, highlight: Any, files: Any, language: String, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -9440,6 +9476,16 @@
      "name": "code",
      "type": "String  (positional)",
      "meaning": "The code"
+    },
+    {
+     "name": "highlight:",
+     "type": "Any",
+     "meaning": "The lines to mark, counted from 1: `[3, 4]`"
+    },
+    {
+     "name": "files:",
+     "type": "Any",
+     "meaning": "A tab for each file: `[{ name: \"App.wf\", code: app, language: \"wf\" }, …]`"
     },
     {
      "name": "language:",
@@ -9514,6 +9560,18 @@
      "name": "CodeBlock.Lines",
      "kind": "codeblock-lines",
      "detail": "The line numbers.",
+     "fallback": ""
+    },
+    {
+     "name": "CodeBlock.Marks",
+     "kind": "codeblock-marks",
+     "detail": "The marks over the lines highlight: names. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "CodeBlock.Mark",
+     "kind": "codeblock-mark",
+     "detail": "One line's mark. Drawn for it.",
      "fallback": ""
     }
    ],
@@ -9662,6 +9720,123 @@
      "kind": "C04",
      "title": "An attribute a built-in does not declare",
      "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "CodeBlock.Marks",
+   "slug": "codeblock-marks",
+   "family": "Content",
+   "owner": "CodeBlock",
+   "ownerSlug": "codeblock",
+   "summary": "The marks over the lines `highlight:` names. Drawn for it.",
+   "plain": "The marks over the lines highlight: names. Drawn for it.",
+   "signature": "CodeBlock.Marks { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "CodeBlock(\"page Home(path: \\\"/\\\") {\\n    Text(\\\"Hello\\\")\\n}\", language: \"wf\", title: \"Home.wf\").copy.lines",
+   "preview": false,
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "CodeBlock.Mark",
+   "slug": "codeblock-mark",
+   "family": "Content",
+   "owner": "CodeBlock",
+   "ownerSlug": "codeblock",
+   "summary": "One line's mark. Drawn for it.",
+   "plain": "One line's mark. Drawn for it.",
+   "signature": "CodeBlock.Mark",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "CodeBlock(\"page Home(path: \\\"/\\\") {\\n    Text(\\\"Hello\\\")\\n}\", language: \"wf\", title: \"Home.wf\").copy.lines",
+   "preview": false,
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
     }
    ]
   },
@@ -14752,7 +14927,7 @@
    "ownerSlug": "",
    "summary": "A tour of the page while `open:` holds: each step in a card at its `target:` (a `ref:`), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes `false` back. `on finish` hears Done, `on close` any end.",
    "plain": "A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.",
-   "signature": "Tour(open: State) { … }",
+   "signature": "Tour(open: State, back: String, next: String, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -14764,9 +14939,65 @@
      "name": "open:",
      "type": "State  (required)",
      "meaning": "Whether the tour is showing; written `false` when it ends"
+    },
+    {
+     "name": "back:",
+     "type": "String",
+     "meaning": "The back button's words (unset, `Back`)"
+    },
+    {
+     "name": "next:",
+     "type": "String",
+     "meaning": "The next button's words (unset, `Next`)"
+    },
+    {
+     "name": "done:",
+     "type": "String",
+     "meaning": "The last step's button's words (unset, `Done`)"
+    },
+    {
+     "name": "close:",
+     "type": "String",
+     "meaning": "The close button's name (unset, `End the tour`)"
+    },
+    {
+     "name": "of:",
+     "type": "String",
+     "meaning": "The word in `2 of 5` (unset, `of`)"
     }
    ],
-   "controls": [],
+   "controls": [
+    {
+     "name": "back",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "next",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "done",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "close",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "of",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
    "flags": [],
    "events": [
     {
@@ -18331,7 +18562,7 @@
    "ownerSlug": "",
    "summary": "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or `+` zooms, Escape closes and the focus goes back. A picture's `data-full:` is the file it opens, else its largest size.",
    "plain": "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.",
-   "signature": "Lightbox(label: String) { … }",
+   "signature": "Lightbox(label: String, previous: String, next: String, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -18343,11 +18574,66 @@
      "name": "label:",
      "type": "String",
      "meaning": "What the pictures are, for a screen reader (unset, `Pictures`)"
+    },
+    {
+     "name": "previous:",
+     "type": "String",
+     "meaning": "The previous button's name (unset, `Previous picture`)"
+    },
+    {
+     "name": "next:",
+     "type": "String",
+     "meaning": "The next button's name (unset, `Next picture`)"
+    },
+    {
+     "name": "close:",
+     "type": "String",
+     "meaning": "The close button's name (unset, `Close`)"
+    },
+    {
+     "name": "zoom:",
+     "type": "String",
+     "meaning": "The zoom button's name (unset, `Zoom`)"
+    },
+    {
+     "name": "of:",
+     "type": "String",
+     "meaning": "The word in `2 of 5` (unset, `of`)"
     }
    ],
    "controls": [
     {
      "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "previous",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "next",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "close",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "zoom",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "of",
      "kind": "string",
      "options": [],
      "value": ""
@@ -18401,7 +18687,7 @@
    "ownerSlug": "",
    "summary": "Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.",
    "plain": "Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.",
-   "signature": "Gallery(columns: Number, ratio: Any) { … }",
+   "signature": "Gallery(columns: Any, ratio: Any) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -18411,8 +18697,8 @@
    "props": [
     {
      "name": "columns:",
-     "type": "Number",
-     "meaning": "How many across; unset, as many as fit"
+     "type": "Any",
+     "meaning": "How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit"
     },
     {
      "name": "ratio:",
