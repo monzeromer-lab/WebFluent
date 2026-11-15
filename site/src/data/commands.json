@@ -725,6 +725,11 @@
      "name": "--json",
      "type": "flag",
      "meaning": "Print JSON, for tools"
+    },
+    {
+     "name": "--holes",
+     "type": "flag",
+     "meaning": "List every place a value's type is unknown, and why"
     }
    ],
    "subcommands": []

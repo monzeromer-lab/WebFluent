@@ -1912,7 +1912,7 @@ page CliRegistry(path: "/reference/cli/registry", title: "wf registry — Refere
 page CliTypes(path: "/reference/cli/types", title: "wf types — Reference", description: "wf types: Describe what a project declares: enums, types, components, stores, pages. What it writes, and every option it takes.") {
     ReferenceItemShell("wf types", summary: "Describe what a project declares: enums, types, components, stores, pages", signature: "wf types [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
-        PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf types", nameLabel: t("cli.option"))
+        PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }, { name: "--holes", type: "flag", meaning: "List every place a value's type is unknown, and why" }], caption: "Options of wf types", nameLabel: t("cli.option"))
         Markdown(t("cli.full", { name: "types" }), class: "bp-prose")
         Link(t("cli.all"), to: "/reference/cli")
     }
