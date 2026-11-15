@@ -76,7 +76,9 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
-what a project draws."#, sections: [
+what a project draws. Some sixty join them — a data table, a tree, a
+command palette, a menu bar, a tour, a lightbox, a consent banner and the
+rest — and `wf generate block` writes a whole page to start from."#, sections: [
                 NotesSection(title: #"A project's own component wins"#, id: "6.2.0-a-project-s-own-component-wins", intro: #"A component a project declares is what a call of its name draws, even
 where a built-in has that name. It used to be the other way: the built-in
 was drawn and the project's component never was, so every built-in the
@@ -288,25 +290,6 @@ things between two lists, and edit text in place."#),
                     Change(text: #"`wf generate block sign-in` — or `pricing`, `dashboard`, `settings` —
 writes a whole page into `src/pages/` for the project to own."#)
                 ]),
-                NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
-                    Change(text: #"A static build paints a menu's items with their roles — `menuitem`,
-`menuitemcheckbox` with its state, a submenu's entry and its hidden
-list — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an
-`if` as the menu it is."#),
-                    Change(text: #"A live `Radio` carries its `value`, as its static paint did: a form
-posted before the script runs no longer sends `on`."#),
-                    Change(text: #"A `Menubar` item's `shortcut:` runs it from anywhere on the page."#),
-                    Change(text: #"`ConsentSettings` asks the reader again; `D06` says when a script
-waits for consent and no `ConsentBanner` asks for it."#),
-                    Change(text: #"The build's read-back of its own JavaScript (`E901`) catches a number
-after `++` or `--`, which a browser refuses."#),
-                    Change(text: #"A static build paints what it can read of the built-ins the page used
-to draw alone: an `OnThisPage`'s list of the page's headings (each given
-the `id` the live page would give it), a `LocaleSwitch`'s buttons, the
-rows of a `DataTable` and a `Tree`, a `Rating`'s stars, a
-`CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an
-`Editable`, an `InputOTP` and a `TagInput`."#)
-                ]),
                 NotesSection(title: #"What the built-ins lacked"#, id: "6.2.0-what-the-built-ins-lacked", items: [
                     Change(text: #"`CodeBlock(code, highlight: [3, 4])` marks lines; `CodeBlock(files: […])`
 is a tab a file."#),
@@ -388,6 +371,25 @@ layer placed `.bottomStart` lines up with its anchor's right edge."#),
 thumb slides the right way, and toasts come in from the page's end."#),
                     Change(text: #"Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so
 Alt+ArrowLeft goes back from a tab strip or a menu."#)
+                ]),
+                NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
+                    Change(text: #"A static build paints a menu's items with their roles — `menuitem`,
+`menuitemcheckbox` with its state, a submenu's entry and its hidden
+list — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an
+`if` as the menu it is."#),
+                    Change(text: #"A live `Radio` carries its `value`, as its static paint did: a form
+posted before the script runs no longer sends `on`."#),
+                    Change(text: #"A `Menubar` item's `shortcut:` runs it from anywhere on the page."#),
+                    Change(text: #"`ConsentSettings` asks the reader again; `D06` says when a script
+waits for consent and no `ConsentBanner` asks for it."#),
+                    Change(text: #"The build's read-back of its own JavaScript (`E901`) catches a number
+after `++` or `--`, which a browser refuses."#),
+                    Change(text: #"A static build paints what it can read of the built-ins the page used
+to draw alone: an `OnThisPage`'s list of the page's headings (each given
+the `id` the live page would give it), a `LocaleSwitch`'s buttons, the
+rows of a `DataTable` and a `Tree`, a `Rating`'s stars, a
+`CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an
+`Editable`, an `InputOTP` and a `TagInput`."#)
                 ]),
                 NotesSection(title: #"Smaller fixes"#, id: "6.2.0-smaller-fixes", items: [
                     Change(text: #"An async action's `pending` stays true until every call of it has ended;
@@ -3856,6 +3858,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-more-navigation", label: #"More navigation"#), Anchor(id: "6.2.0-more-overlays", label: #"More overlays"#), Anchor(id: "6.2.0-more-for-showing-and-laying-out", label: #"More for showing and laying out"#), Anchor(id: "6.2.0-the-last-of-the-built-ins-and-blocks", label: #"The last of the built-ins, and blocks"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-what-the-built-ins-lacked", label: #"What the built-ins lacked"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-more-navigation", label: #"More navigation"#), Anchor(id: "6.2.0-more-overlays", label: #"More overlays"#), Anchor(id: "6.2.0-more-for-showing-and-laying-out", label: #"More for showing and laying out"#), Anchor(id: "6.2.0-the-last-of-the-built-ins-and-blocks", label: #"The last of the built-ins, and blocks"#), Anchor(id: "6.2.0-what-the-built-ins-lacked", label: #"What the built-ins lacked"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

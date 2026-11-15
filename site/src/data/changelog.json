@@ -4,7 +4,7 @@
   "id": "6.2.0",
   "date": "",
   "when": "",
-  "summary": "The built-ins work for keyboards, screen readers, touch screens and\nright-to-left pages, and a built-in a later WebFluent adds never changes\nwhat a project draws.",
+  "summary": "The built-ins work for keyboards, screen readers, touch screens and\nright-to-left pages, and a built-in a later WebFluent adds never changes\nwhat a project draws. Some sixty join them — a data table, a tree, a\ncommand palette, a menu bar, a tour, a lightbox, a consent banner and the\nrest — and `wf generate block` writes a whole page to start from.",
   "sections": [
    {
     "title": "A project's own component wins",
@@ -515,44 +515,6 @@
     "after": ""
    },
    {
-    "title": "Fixes",
-    "id": "6.2.0-fixes",
-    "intro": "",
-    "items": [
-     {
-      "text": "A static build paints a menu's items with their roles — `menuitem`,\n`menuitemcheckbox` with its state, a submenu's entry and its hidden\nlist — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an\n`if` as the menu it is.",
-      "points": [],
-      "after": ""
-     },
-     {
-      "text": "A live `Radio` carries its `value`, as its static paint did: a form\nposted before the script runs no longer sends `on`.",
-      "points": [],
-      "after": ""
-     },
-     {
-      "text": "A `Menubar` item's `shortcut:` runs it from anywhere on the page.",
-      "points": [],
-      "after": ""
-     },
-     {
-      "text": "`ConsentSettings` asks the reader again; `D06` says when a script\nwaits for consent and no `ConsentBanner` asks for it.",
-      "points": [],
-      "after": ""
-     },
-     {
-      "text": "The build's read-back of its own JavaScript (`E901`) catches a number\nafter `++` or `--`, which a browser refuses.",
-      "points": [],
-      "after": ""
-     },
-     {
-      "text": "A static build paints what it can read of the built-ins the page used\nto draw alone: an `OnThisPage`'s list of the page's headings (each given\nthe `id` the live page would give it), a `LocaleSwitch`'s buttons, the\nrows of a `DataTable` and a `Tree`, a `Rating`'s stars, a\n`CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an\n`Editable`, an `InputOTP` and a `TagInput`.",
-      "points": [],
-      "after": ""
-     }
-    ],
-    "after": ""
-   },
-   {
     "title": "What the built-ins lacked",
     "id": "6.2.0-what-the-built-ins-lacked",
     "intro": "",
@@ -740,6 +702,44 @@
      },
      {
       "text": "Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so\nAlt+ArrowLeft goes back from a tab strip or a menu.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Fixes",
+    "id": "6.2.0-fixes",
+    "intro": "",
+    "items": [
+     {
+      "text": "A static build paints a menu's items with their roles — `menuitem`,\n`menuitemcheckbox` with its state, a submenu's entry and its hidden\nlist — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an\n`if` as the menu it is.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A live `Radio` carries its `value`, as its static paint did: a form\nposted before the script runs no longer sends `on`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `Menubar` item's `shortcut:` runs it from anywhere on the page.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ConsentSettings` asks the reader again; `D06` says when a script\nwaits for consent and no `ConsentBanner` asks for it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The build's read-back of its own JavaScript (`E901`) catches a number\nafter `++` or `--`, which a browser refuses.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A static build paints what it can read of the built-ins the page used\nto draw alone: an `OnThisPage`'s list of the page's headings (each given\nthe `id` the live page would give it), a `LocaleSwitch`'s buttons, the\nrows of a `DataTable` and a `Tree`, a `Rating`'s stars, a\n`CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an\n`Editable`, an `InputOTP` and a `TagInput`.",
       "points": [],
       "after": ""
      }

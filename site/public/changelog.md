@@ -6,7 +6,9 @@ The page: https://webfluent.monzeromer.dev/changelog
 
 The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
-what a project draws.
+what a project draws. Some sixty join them — a data table, a tree, a
+command palette, a menu bar, a tour, a lightbox, a consent banner and the
+rest — and `wf generate block` writes a whole page to start from.
 
 ## A project's own component wins
 
@@ -236,26 +238,6 @@ template engine and, where it can be, in a PDF.
 - `wf generate block sign-in` — or `pricing`, `dashboard`, `settings` —
   writes a whole page into `src/pages/` for the project to own.
 
-## Fixes
-
-- A static build paints a menu's items with their roles — `menuitem`,
-  `menuitemcheckbox` with its state, a submenu's entry and its hidden
-  list — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an
-  `if` as the menu it is.
-- A live `Radio` carries its `value`, as its static paint did: a form
-  posted before the script runs no longer sends `on`.
-- A `Menubar` item's `shortcut:` runs it from anywhere on the page.
-- `ConsentSettings` asks the reader again; `D06` says when a script
-  waits for consent and no `ConsentBanner` asks for it.
-- The build's read-back of its own JavaScript (`E901`) catches a number
-  after `++` or `--`, which a browser refuses.
-- A static build paints what it can read of the built-ins the page used
-  to draw alone: an `OnThisPage`'s list of the page's headings (each given
-  the `id` the live page would give it), a `LocaleSwitch`'s buttons, the
-  rows of a `DataTable` and a `Tree`, a `Rating`'s stars, a
-  `CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an
-  `Editable`, an `InputOTP` and a `TagInput`.
-
 ## What the built-ins lacked
 
 - `CodeBlock(code, highlight: [3, 4])` marks lines; `CodeBlock(files: […])`
@@ -341,6 +323,26 @@ template engine and, where it can be, in a PDF.
   thumb slides the right way, and toasts come in from the page's end.
 - Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so
   Alt+ArrowLeft goes back from a tab strip or a menu.
+
+## Fixes
+
+- A static build paints a menu's items with their roles — `menuitem`,
+  `menuitemcheckbox` with its state, a submenu's entry and its hidden
+  list — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an
+  `if` as the menu it is.
+- A live `Radio` carries its `value`, as its static paint did: a form
+  posted before the script runs no longer sends `on`.
+- A `Menubar` item's `shortcut:` runs it from anywhere on the page.
+- `ConsentSettings` asks the reader again; `D06` says when a script
+  waits for consent and no `ConsentBanner` asks for it.
+- The build's read-back of its own JavaScript (`E901`) catches a number
+  after `++` or `--`, which a browser refuses.
+- A static build paints what it can read of the built-ins the page used
+  to draw alone: an `OnThisPage`'s list of the page's headings (each given
+  the `id` the live page would give it), a `LocaleSwitch`'s buttons, the
+  rows of a `DataTable` and a `Tree`, a `Rating`'s stars, a
+  `CircularProgress`'s ring, an `AvatarGroup`'s `+2`, and the value of an
+  `Editable`, an `InputOTP` and a `TagInput`.
 
 ## Smaller fixes
 
