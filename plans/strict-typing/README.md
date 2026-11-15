@@ -27,12 +27,15 @@ everywhere else, with the same spellings, so the two read as one design.
   a `String`, a `Number` is not a condition.
 - **Data from outside is checked when it arrives**: a `data` file at build
   time, a template's JSON at render time, a `Json` value when it is decoded,
-  a script's return value in development builds.
-- **Migration**: 6.3 adds the new spellings and an opt-in
-  `"types": "strict"`; 7.0 warns with an automatic fix for every hole and
-  `wf migrate` writes the inferred types in; 8.0 makes them errors and
-  removes `Any` and `Map` from the grammar. These are the same majors the
-  data-fetching plan uses.
+  a script's return value on every call.
+- **Strict is the language, not a setting.** There is no `"types"` switch,
+  no loose mode, and no way to lower or silence a typing error: `lints`
+  and `// wf-allow` refuse every code this plan adds. A program either
+  types or does not build.
+- **Migration**: 7.0 is strict from its first release. Every hole is an
+  error carrying an automatic fix, and `wf migrate` (6 → 7) writes the
+  inferred types in before the first 7.0 build. `Any` and `Map` leave the
+  grammar in 7.0. Nothing changes in 6.x.
 
 ---
 
@@ -213,8 +216,8 @@ action restore(text: String) -> ! DecodeError {
 }
 ```
 
-**What goes away.** `Any` and `Map` as written types (deprecated in 7.0,
-removed in 8.0), and `Int`/`Float` stay the aliases of `Number` they are.
+**What goes away.** `Any` and `Map` as written types, removed in 7.0.
+`Int`/`Float` stay the aliases of `Number` they are.
 
 ### 2.3 Declared signatures, inferred bodies
 
@@ -337,10 +340,11 @@ as today. What changes is what happens without one (X6):
 | `@returns` missing | `Any` | `()` — returns nothing; reading the result is `T10` |
 | `@typedef {{ id: string, n: number }} Row` | not read | a record `Row` the program may name |
 
-In development builds (`wf serve`, `wf test`) a call into a script checks
-what comes back against its `@returns`, and a mismatch throws a
-`DecodeError` naming the function: a script is code the checker cannot see,
-so its promise is held where it is kept.
+Every call into a script, in every build, checks what comes back against
+its `@returns`, and a mismatch throws a `DecodeError` naming the function:
+a script is code the checker cannot see, so its promise is held where it
+is kept. There is no build in which a value typed `Row` may not be a
+`Row`.
 
 ### 2.7 Data that arrives
 
@@ -402,18 +406,34 @@ the same type.
 
 ## 3. Migration and diagnostics
 
-### 3.1 Deprecate, then remove
+### 3.1 No switch, one cut
+
+The data plan's R12 says deprecate before removing. That holds for
+*spellings* the language drops, but a typing rule that can be turned off
+is not a rule: a program would be typed or not depending on a config file,
+a library would have to work both ways, and "reliable" would mean "reliable
+if you asked". So strictness ships whole, once, and is never optional.
 
 | Release | What happens |
 |---|---|
-| **6.3** | The new spellings (`[K: V]`, function types, aliases, `Json`, `-> T`, lambda parameter types, `T.decode`) and the typed browser table land. Nothing old changes. `"types": "strict"` in the config turns every rule of section 2 on as errors, for a project that wants them now. `wf types --holes` lists every place a program is still `Any`. |
-| **7.0** | Every hole is a warning with an automatic fix (`wf fix`, the editor's quick fix). `wf migrate` applies them all (3.2). New code written with the new features — `Json`, dictionaries, the data plan's `http` — is strict at once. `"types": "loose"` keeps 6.x behaviour for one major, with a warning that it goes in 8.0. |
-| **8.0** | The warnings are errors. `Any` and `Map` are no longer types (`E004`-style message: "`Map` is gone; write a record, `[String: T]` or `Json`"). `"types"` is no longer read. |
+| **6.x** | Nothing changes. 6.3 may ship `wf migrate --to 7 --check`, a report of what the 6 → 7 step will rewrite and what it cannot, so a team can see the size of the move before it upgrades. It changes no build. |
+| **7.0** | Every rule of section 2 is in force, as errors. `Any` and `Map` are no longer types ("`Map` is gone; write a record, `[String: T]` or `Json`"). Every error that has a known fix carries it (`wf fix`, the editor's quick fix), and `wf migrate` applies them all at once (3.2). `lints` and `// wf-allow` cannot lower or accept `T23`–`T35`, nor the errors they extend (`T01`, `T05`, `T13`, `T20`). There is no `"types"` key; writing one is `E112`. |
+
+The cost lands once, on upgrade, and `wf migrate` carries most of it: in
+the site and the examples, everything in 1e but a handful of `Map`s that
+need a record drafted is rewritten mechanically.
+
+**One rule across both plans.** The data plan lets old code keep `Any`
+and `Map` in a contract with a warning through 7.x (its `N11`, `N13`).
+Under this plan those are errors in 7.0 like everywhere else; the data
+plan's table in its section 8 should be changed to match, so there is no
+corner of the language where `Any` survives (open question 6).
 
 ### 3.2 What `wf migrate` writes (6 → 7)
 
-It runs the checker in loose mode, then writes back what it inferred,
-wherever the inferred type is complete:
+It runs the 6.x checker over the project — the one place the old rules
+still run, and only to read what they inferred — then writes back each
+type wherever it is complete:
 
 | Before | After |
 |---|---|
@@ -440,23 +460,24 @@ step runs after the data plan's 6 → 7 step, which owns `fetch`, `resource`,
 
 ### 3.3 New diagnostics
 
-`T23`–`T35`, after `T22`. "warn → error" means a warning with a fix in 7.0
-(an error at once under `"types": "strict"`) and an error in 8.0.
+`T23`–`T35`, after `T22`. All are errors from 7.0, none can be lowered by
+`lints` or accepted by `// wf-allow`, and "fix" says what `wf fix` and the
+editor write.
 
 | Code | Severity | What |
 |---|---|---|
-| `T23` | warn → error | `Any` written as a type. Fix: the inferred type, else `Json` |
-| `T24` | warn → error | `Map` written as a type. Fix: a drafted record, `[String: T]`, or `Json` |
-| `T25` | warn → error | A `state`, `persist` or `data` whose type its value does not say (`[]`, `{}`, `null`, a call returning `Json`). Fix: the type assigned to it later |
-| `T26` | warn → error | An action that returns a value without declaring `-> T`. Fix: the inferred result. (The data plan's `N13`; see open question 6) |
+| `T23` | error | `Any` written as a type. Fix: the inferred type, else `Json` |
+| `T24` | error | `Map` written as a type. Fix: a drafted record, `[String: T]`, or `Json` |
+| `T25` | error | A `state`, `persist` or `data` whose type its value does not say (`[]`, `{}`, `null`, a call returning `Json`). Fix: the type assigned to it later |
+| `T26` | error | An action that returns a value without declaring `-> T`. Fix: the inferred result. (The data plan's `N13`; see open question 6) |
 | `T27` | error | Branches, list items or `??` sides with no common type |
 | `T28` | error | A `Json` value read as if it were something else — `raw.name`, `raw + 1` — rather than matched or decoded |
-| `T29` | warn → error | A condition, `!`, `&&` or `\|\|` on something that is not a `Bool`. Fix: the comparison it meant, or `??` |
-| `T30` | warn → error | A browser member, or an `Element` member, the language does not type |
-| `T31` | warn → error | A project-script function called from `.wf` with no JSDoc, or with a type the language cannot say. Fix: JSDoc from the call sites |
-| `T32` | warn → error | A parameter, or a lambda parameter nothing gives a type to, written without one. Fix: the type its callers pass |
+| `T29` | error | A condition, `!`, `&&` or `\|\|` on something that is not a `Bool`. Fix: the comparison it meant, or `??` |
+| `T30` | error | A browser member, or an `Element` member, the language does not type |
+| `T31` | error | A project-script function called from `.wf` with no JSDoc, or with a type the language cannot say. Fix: JSDoc from the call sites |
+| `T32` | error | A parameter, or a lambda parameter nothing gives a type to, written without one. Fix: the type its callers pass |
 | `T33` | error | Data that does not match its declared type: a `data` file at build time, a test's `data:`, a template's data at render time |
-| `T34` | warn → error | An implicit conversion: a scalar where `String` is wanted, `Duration` and `Number` mixed. Fix: a splice, `.ms` |
+| `T34` | error | An implicit conversion: a scalar where `String` is wanted, `Duration` and `Number` mixed. Fix: a splice, `.ms` |
 | `T35` | error | Two store members whose types depend on each other with neither declared |
 
 Changed: `T01`, `T05`, `C01` now apply to a map literal given where a record
@@ -501,17 +522,16 @@ The hole count drops by every X entry.
 members resolved in dependency order, `T35` on a cycle (fixes D2); `state`
 inference limited to self-evident values (`T25`); `T32` for untyped
 parameters; JSDoc rules (`T31`), `@typedef`, classes as types, the
-development-build return check. *Tested by* a test that declares stores
+return check on every call. *Tested by* a test that declares stores
 in both orders and gets the same types; one test per row of the table in
-2.3; a browser test that a script returning the wrong shape throws in a
-`wf serve` build and not in a production one.
+2.3; a browser test that a script returning the wrong shape throws, in a
+`wf serve` build and in a production one alike.
 
 **Stage 4 — Closing the agreement rules.** H1–H3 and H6–H7: exact
 agreement, `T27`, `T29`, `T34`, `T28`, map literals checked field by field
-against records. Off by default, on under `"types": "strict"`. *Tested
-by* the checker suite twice — loose and strict — and a test that every
-fixture under `tests/fixtures/` either checks strictly or carries the
-expected new codes.
+against records. *Tested by* the checker suite, and a test that every
+fixture under `tests/fixtures/` either checks or carries the expected new
+codes.
 
 **Stage 5 — Boundaries.** `data` files checked at build time (`T33`);
 template parameters and render-time decoding; `test` declarations checked,
@@ -521,23 +541,25 @@ Rust and Node template tests that a missing field fails the render with
 its path; a `wf test` fixture whose seed has the wrong type; a browser test
 that a stored value of the old shape falls back to the default.
 
-**Stage 6 — Migration.** The 7.0 warnings with fixes; `wf migrate`'s
-6 → 7 step (3.2); `wf fix --code T25` and the rest. Run it over `site/` and
-`examples/` and commit the result. *Tested by* migrate fixtures (before,
-after, and the notes it prints); a test that a migrated project builds to
-the same JavaScript as before, decode points aside; `wf migrate --check`
-reporting nothing on a second run; the site and examples checking clean
-under `"types": "strict"`.
+**Stage 6 — Migration.** The fixes for every new error; `wf migrate`'s
+6 → 7 step (3.2); `wf fix --code T25` and the rest; `lints` and
+`wf-allow` refusing the typing codes. *Tested by* migrate fixtures
+(before, after, and the notes it prints); a test that a migrated project
+builds to the same JavaScript as before, decode points aside; `wf migrate
+--check` reporting nothing on a second run; a test that `"lints": { "T23":
+"warn" }` and `// wf-allow(T29)` are refused.
 
-**Stage 7 — 7.0.** Release with the warnings on. *Tested by* the stage 0
-snapshot reading zero holes for `site/` and every example, now asserted
-rather than recorded: no `Any` and no `Error` in any binding of a program
-that checks.
+**Stage 7 — 7.0.** `Any` and `Map` leave the grammar; release. *Tested
+by* the parser's refusal tests, and the stage 0 snapshot reading zero
+holes for `site/` and every example, now asserted rather than recorded:
+no `Any` and no `Error` in any binding of a program that checks.
 
-**Stage 8 — 8.0.** The warnings become errors; `Any`, `Map` and
-`"types"` leave the grammar and the config, with messages that say what
-to write instead. *Tested by* the parser's refusal tests and the codes
-registry's test that every code has a guide entry.
+**How the work lands without a switch.** Stages 1–6 land on `master` one
+after another, and each one that adds an error migrates `site/`, the
+examples and the test fixtures in the same commit, so the suite stays
+green and `master` is always strict as far as it has got. Nothing is
+released between stage 1 and 7.0: the 6.x line takes only fixes, from a
+`6.x` branch. A user never sees a half-strict release.
 
 The data plan's stages and these share stage 1 (`Json`, `-> T`, `T ! E`,
 `decode`). Whichever plan starts first builds them once; the other uses
@@ -563,28 +585,32 @@ them.
    `Grid(columns: 3)` into `Grid(columns: { base: 3 })` in every program
    for no safety gained. Unions in general stay out: an enum with payloads
    says the same thing with names.
-4. **Check script return values in production too?** *No — in development
-   and test builds only.* A script is the project's own code, not data from
-   outside; the check is there to catch a JSDoc that lies while the author
-   is looking. Requests, `data`, templates and `Json` are checked in every
-   build.
+4. **Check script return values in production too?** *Yes, always.*
+   A check that only runs while the author is looking leaves the reader
+   with a value typed `Row` that is not one, which is the bug this plan
+   exists to remove. The check is a walk of what came back, cheap beside
+   the call; a hot loop that cannot afford it belongs inside the script.
 5. **Keep `JSON.parse` returning `Json`, or add a language `Json.parse`
    that returns a result?** *Keep the browser's name and type it.*
    `JSON.parse(text) -> Json`, throwing as the browser does; `T.decode`
    then turns `Json` into a type. A second parser spelt `Json.parse` beside
    `JSON.parse` would be two names for one thing, against R8.
 6. **Where does "an action that returns a value must declare it" live —
-   the data plan's `N13`, or this plan's `T26`?** *`T26`.* It is about all
-   actions, not requests. The data plan's `N13` becomes an alias that
-   points at `T26`, so whichever plan lands first owns the check.
+   the data plan's `N13`, or this plan's `T26`?** *`T26`, and an error in
+   7.0 for old code too.* It is about all actions, not requests. The data
+   plan's `N13` and the "warning for code written before 7.0" in its `N11`
+   should both go: with no switch in the language, there is no older code
+   that is allowed to be less typed.
 7. **How does an unknown browser member get used?** *Through a project
    script with JSDoc (`T30`'s fix), not an escape hatch in `.wf`.* A
    `Json`-typed `window.anything` would bring `Any` back under another
    name. The table grows by what real projects ask for.
-8. **Is `"types": "strict"` in 6.3 worth carrying?** *Yes, for one major.*
-   It lets the site, the examples and early adopters move before 7.0, and
-   it is how stages 2–5 are tested without breaking anyone; 8.0 removes the
-   switch.
+8. **A release of warnings before the errors?** *No.* A warning period is
+   a switch by another name: for a whole major the language would accept
+   both typed and untyped programs, libraries would be written to the
+   looser one, and the errors would break them later anyway. One cut, with
+   `wf migrate` doing the work and `--check` in 6.3 showing its size first,
+   is less total pain and leaves no mode behind.
 9. **Should `persist` drop a value that no longer fits, or fail?**
    *Drop it and use the default, with a `console.warn` in development.* A
    reader's stored settings must never stop a page from loading; `version`
