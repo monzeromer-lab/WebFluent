@@ -214,7 +214,8 @@ type DecodeError { at: String, message: String }
     .expect("the built-in types parse")
 });
 
-/// The declarations [`BUILT_IN_TYPES`] makes, for a tool to list.
+/// The types every program has without declaring them, `Json` and
+/// `DecodeError`, for a tool to list.
 pub fn built_in_types() -> &'static Program {
     &BUILT_IN_TYPES
 }

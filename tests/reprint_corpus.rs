@@ -456,7 +456,8 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
                         (p.header_span.start as usize, p.header_span.end as usize),
                     );
                 }
-                Declaration::Type(ty) => {
+                // An alias has no fields to add to: it names another type.
+                Declaration::Type(ty) if ty.alias.is_none() => {
                     let r = webfluent::edit::rewrite_declaration(&source, &name, &dname, |d| {
                         if let Declaration::Type(t) = d {
                             t.fields.push(FieldDecl {
