@@ -64,7 +64,7 @@ pub enum Type {
     Result(Box<Type>, Box<Type>),
     /// An object the browser hands a program — an element, an event,
     /// `localStorage` — by its name in the browser table
-    /// ([`crate::registry::browser::BROWSER_TYPES`]).
+    /// (`registry::browser::BROWSER_TYPES`).
     Host(String),
     /// A connection the page holds open — a socket, a stream, a channel, a
     /// peer, a worker — with what it sends and what it receives (`Json`

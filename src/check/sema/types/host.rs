@@ -1,6 +1,6 @@
 //! The browser, typed: its globals, its functions and the members of the
 //! objects it hands a program, read from the browser table
-//! ([`crate::registry::browser::BROWSER_TYPES`]). Anything the table does
+//! (`registry::browser::BROWSER_TYPES`). Anything the table does
 //! not list is `T30`, and reached from a project script whose JSDoc says
 //! its types.
 
