@@ -106,6 +106,13 @@
     "after": ""
    },
    {
+    "title": "Where a type is unknown",
+    "id": "7.0.0-where-a-type-is-unknown",
+    "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
+    "items": [],
+    "after": ""
+   },
+   {
     "title": "Removed",
     "id": "7.0.0-removed",
     "intro": "",

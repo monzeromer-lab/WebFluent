@@ -7,6 +7,11 @@ use super::TypeRef;
 pub enum Type {
     /// Unknown, or anything: agrees with every type.
     Any,
+    /// What a value is after an error about it has been reported: agrees
+    /// with every type, as `Any` does, so one mistake is reported once
+    /// rather than at every place the value goes. Never written, and never
+    /// a gap in what the program says ([`super::Hole`]).
+    Error,
     String,
     Number,
     Bool,
@@ -189,14 +194,16 @@ impl Type {
         }
     }
 
+    /// Whether the checker cannot say what the value is: `Any`, or a value
+    /// an error has already been reported about.
     pub fn is_any(&self) -> bool {
-        matches!(self, Type::Any)
+        matches!(self, Type::Any | Type::Error)
     }
 
     /// Whether a value of `self` may be given where `to` is expected.
     pub(super) fn assignable_to(&self, to: &Type) -> bool {
         match (self, to) {
-            (Type::Any | Type::Never, _) | (_, Type::Any) => true,
+            (Type::Any | Type::Error | Type::Never, _) | (_, Type::Any | Type::Error) => true,
             (Type::Case(_), Type::Enum(_)) => true,
             (Type::Null, Type::Optional(_)) => true,
             (Type::Null, Type::Null) => true,
@@ -238,6 +245,7 @@ impl Type {
         match (a, b) {
             (a, b) if a == b => a,
             (Type::Never, other) | (other, Type::Never) => other,
+            (Type::Error, _) | (_, Type::Error) => Type::Error,
             (Type::Any, _) | (_, Type::Any) => Type::Any,
             (Type::Null, other) | (other, Type::Null) => Type::optional(other),
             (Type::Optional(a), b) | (b, Type::Optional(a)) => Type::optional(Type::join(*a, b)),
@@ -273,6 +281,7 @@ impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Type::Any => write!(f, "Any"),
+            Type::Error => write!(f, "unknown"),
             Type::String => write!(f, "String"),
             Type::Number => write!(f, "Number"),
             Type::Bool => write!(f, "Bool"),
@@ -314,7 +323,7 @@ impl std::fmt::Display for Type {
 pub(super) fn counts(ty: &Type) -> bool {
     matches!(
         ty.unwrapped(),
-        Type::Number | Type::Any | Type::Scalar(Scalar::Duration) | Type::Null
+        Type::Number | Type::Any | Type::Error | Type::Scalar(Scalar::Duration) | Type::Null
     )
 }
 

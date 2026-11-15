@@ -1,8 +1,8 @@
 //! Method calls on lists, strings, numbers, records, stores and the language's own types.
 
 use super::{
-    Checker, Expr, LIST_METHODS, NUMBER_METHODS, SECRET_SINKS, STRING_METHODS, Scalar, Type,
-    expr_text, keeps_present, match_arm, narrowed_names, scalar_method, scalar_methods_hint,
+    Checker, Expr, HoleKind, LIST_METHODS, NUMBER_METHODS, SECRET_SINKS, STRING_METHODS, Scalar,
+    Type, expr_text, keeps_present, match_arm, narrowed_names, scalar_method, scalar_methods_hint,
 };
 
 impl Checker<'_, '_> {
@@ -42,7 +42,7 @@ impl Checker<'_, '_> {
             self.in_chain = match_arm(&args[1]).is_some();
             let else_ty = self.infer(&args[1], None);
             self.in_chain = was;
-            return Type::join(then_ty, else_ty);
+            return self.join(then_ty, else_ty, obj);
         }
         // `match` over an enum as a value: `__is` asks for a case, `__payload`
         // for the payload where the case is the one asked for.
@@ -86,7 +86,10 @@ impl Checker<'_, '_> {
                 match fields {
                     Some(fields) if fields.len() == 1 => Type::optional(fields[0].1.clone()),
                     Some(fields) if fields.len() > 1 => Type::optional(Type::Map),
-                    _ => Type::Any,
+                    _ => match subject.unwrapped() {
+                        Type::Enum(_) => Type::Error,
+                        other => self.loose(&other, HoleKind::LooseArm, format!(".{case}")),
+                    },
                 }
             };
         }
@@ -107,7 +110,7 @@ impl Checker<'_, '_> {
             self.in_chain = match_arm(&args[1]).is_some();
             let else_ty = self.infer(&args[1], None);
             self.in_chain = was;
-            return Type::join(then_ty, else_ty);
+            return self.join(then_ty, else_ty, obj);
         }
         // A secret handed to the browser itself — logged, stored, written
         // into the document — is a secret anyone at the keyboard can read.
@@ -139,7 +142,7 @@ impl Checker<'_, '_> {
                     // declares nothing returns whatever comes.
                     let returns = Type::Promise(Box::new(match &endpoint.returns {
                         Some(ty) => self.world.resolve(Type::from_ref(ty)),
-                        None => Type::Any,
+                        None => self.hole(HoleKind::UntypedResource, format!("{api}.{method}")),
                     }));
                     // A parameter with no default that may not be null must
                     // be given: the path, or the server, needs it.
@@ -288,7 +291,7 @@ impl Checker<'_, '_> {
                         &known,
                         true,
                     );
-                    Type::Any
+                    Type::Error
                 }
             };
         }
@@ -319,7 +322,7 @@ impl Checker<'_, '_> {
                 "`await` it inside an action or a handler",
             );
             self.plan_await(obj);
-            return Type::Any;
+            return Type::Error;
         }
         // A resource does what it says it does, and nothing else.
         if let Type::Resource(..) = &obj_ty {
@@ -387,7 +390,7 @@ impl Checker<'_, '_> {
                         for a in args {
                             self.infer(a, None);
                         }
-                        Type::Any
+                        self.hole(HoleKind::MapField, format!("{name}.{method}()"))
                     }
                     None => {
                         if let Some(members) = self.world.stores.get(name.as_str()) {
@@ -406,7 +409,11 @@ impl Checker<'_, '_> {
                         for a in args {
                             self.infer(a, None);
                         }
-                        Type::Any
+                        if self.world.stores.contains_key(name.as_str()) {
+                            Type::Error
+                        } else {
+                            self.hole(HoleKind::StoreOrder, format!("{name}.{method}()"))
+                        }
                     }
                 }
             }
@@ -424,7 +431,8 @@ impl Checker<'_, '_> {
                         let f = self.infer_arg(args, 0, Some(&lambda(Type::Any)));
                         let ret = match f {
                             Type::Func(_, ret) => *ret,
-                            _ => Type::Any,
+                            _ => self
+                                .hole(HoleKind::ListMethod, format!("{}.map(…)", expr_text(obj))),
                         };
                         Type::list(ret)
                     }
@@ -521,19 +529,30 @@ impl Checker<'_, '_> {
                         match f {
                             Type::Func(_, ret) => match *ret {
                                 Type::List(inner) => Type::list(*inner),
-                                _ => Type::list(Type::Any),
+                                _ => Type::list(self.hole(
+                                    HoleKind::ListMethod,
+                                    format!("{}.flatMap(…)", expr_text(obj)),
+                                )),
                             },
-                            _ => Type::list(Type::Any),
+                            _ => Type::list(self.hole(
+                                HoleKind::ListMethod,
+                                format!("{}.flatMap(…)", expr_text(obj)),
+                            )),
                         }
                     }
                     _ => {
                         for a in args {
                             self.infer(a, None);
                         }
-                        if !LIST_METHODS.contains(&method) {
+                        if LIST_METHODS.contains(&method) {
+                            self.hole(
+                                HoleKind::ListMethod,
+                                format!("{}.{method}(…)", expr_text(obj)),
+                            )
+                        } else {
                             self.unknown_method(&obj_ty, method, LIST_METHODS);
+                            Type::Error
                         }
-                        Type::Any
                     }
                 }
             }
@@ -552,10 +571,12 @@ impl Checker<'_, '_> {
                     "split" | "lines" | "words" => Type::list(Type::String),
                     // `"x".match(/…/)`: the matches, or null.
                     "match" => Type::optional(Type::list(Type::String)),
-                    m if STRING_METHODS.contains(&m) => Type::Any,
+                    m if STRING_METHODS.contains(&m) => {
+                        self.hole(HoleKind::StringMethod, format!("{}.{m}(…)", expr_text(obj)))
+                    }
                     _ => {
                         self.unknown_method(&obj_ty, method, STRING_METHODS);
-                        Type::Any
+                        Type::Error
                     }
                 }
             }
@@ -573,7 +594,7 @@ impl Checker<'_, '_> {
                     ),
                     "Hand it on whole — to `api` headers, or a request body",
                 );
-                Type::Any
+                Type::Error
             }
             Type::Scalar(scalar) => {
                 for a in args {
@@ -581,14 +602,18 @@ impl Checker<'_, '_> {
                 }
                 let scalar = *scalar;
                 if let Some(ty) = scalar_method(scalar, method) {
-                    ty
+                    if ty.is_any() {
+                        self.hole(HoleKind::Native, format!("{}.{method}()", expr_text(obj)))
+                    } else {
+                        ty
+                    }
                 } else {
                     self.error_at_current(
                         "T05",
                         format!("`{}` has no method `{method}`", scalar.name()),
                         &scalar_methods_hint(scalar),
                     );
-                    Type::Any
+                    Type::Error
                 }
             }
             Type::Regex => {
@@ -604,7 +629,7 @@ impl Checker<'_, '_> {
                             format!("a regular expression has no method `{method}`"),
                             "It has `test(text)` and `exec(text)`; a string has `match`, `replace`, `split` and `search`",
                         );
-                        Type::Any
+                        Type::Error
                     }
                 }
             }
@@ -619,7 +644,7 @@ impl Checker<'_, '_> {
                     "valueOf" => Type::Number,
                     _ => {
                         self.unknown_method(&obj_ty, method, NUMBER_METHODS);
-                        Type::Any
+                        Type::Error
                     }
                 }
             }
@@ -632,7 +657,7 @@ impl Checker<'_, '_> {
                     "valueOf" => Type::Bool,
                     _ => {
                         self.unknown_method(&obj_ty, method, &["toString", "valueOf"]);
-                        Type::Any
+                        Type::Error
                     }
                 }
             }
@@ -645,13 +670,17 @@ impl Checker<'_, '_> {
                     format!("`{name}` has no method `{method}`; a record holds fields"),
                     "",
                 );
-                Type::Any
+                Type::Error
             }
             _ => {
                 for a in args {
                     self.infer(a, None);
                 }
-                Type::Any
+                self.loose(
+                    &obj_ty,
+                    HoleKind::ListMethod,
+                    format!("{}.{method}(…)", expr_text(obj)),
+                )
             }
         }
     }

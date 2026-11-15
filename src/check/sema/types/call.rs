@@ -1,6 +1,6 @@
 //! Function calls: built-ins, project scripts, `format`, and the arguments each takes.
 
-use super::{BUILT_IN_FUNCTIONS, Checker, Expr, Scalar, Type, expr_text, jsdoc_type};
+use super::{BUILT_IN_FUNCTIONS, Checker, Expr, HoleKind, Scalar, Type, expr_text, jsdoc_type};
 
 impl Checker<'_, '_> {
     pub(super) fn infer_arg(&mut self, args: &[Expr], i: usize, expected: Option<&Type>) -> Type {
@@ -26,7 +26,7 @@ impl Checker<'_, '_> {
                 }
                 ty
             }
-            None => Type::Any,
+            None => self.hole(HoleKind::ListMethod, format!("argument {}", i + 1)),
         }
     }
 
@@ -63,11 +63,11 @@ impl Checker<'_, '_> {
                 self.call_args(&params, args, &format!("`{name}`"));
                 *ret
             }
-            Some(_) => {
+            Some(other) => {
                 for a in args {
                     self.infer(a, None);
                 }
-                Type::Any
+                self.loose(&other, HoleKind::MapField, format!("{name}(…)"))
             }
             None if name == "format" => self.format_call(args),
             None if name == "setTheme" => {
@@ -110,7 +110,8 @@ impl Checker<'_, '_> {
                 for a in args {
                     self.infer(a, None);
                 }
-                if !self.is_known_name(name) && !BUILT_IN_FUNCTIONS.contains(&name) {
+                let unresolved = !self.is_known_name(name) && !BUILT_IN_FUNCTIONS.contains(&name);
+                if unresolved {
                     self.unresolved(name, true);
                 }
                 match name {
@@ -126,7 +127,11 @@ impl Checker<'_, '_> {
                     "keyLabel" => Type::String,
                     // `await ask(…)`: the answer, yes or no.
                     "ask" => Type::Bool,
-                    _ => Type::Any,
+                    _ if unresolved => Type::Error,
+                    _ if BUILT_IN_FUNCTIONS.contains(&name) => {
+                        self.hole(HoleKind::BuiltinFunction, format!("{name}(…)"))
+                    }
+                    _ => self.hole(HoleKind::BrowserGlobal, format!("{name}(…)")),
                 }
             }
         }
@@ -151,7 +156,7 @@ impl Checker<'_, '_> {
                 for a in args {
                     self.infer(a, None);
                 }
-                return Type::Any;
+                return self.hole(HoleKind::Script, format!("{name}(…)"));
             }
         };
         let documented = script
@@ -216,6 +221,10 @@ impl Checker<'_, '_> {
                 .and_then(|p| doc.param(&p.name))
                 .and_then(|d| d.ty.as_deref())
                 .map_or(Type::Any, jsdoc_type);
+            if wanted.is_any() {
+                let param = param.map_or("…", |p| p.name.as_str());
+                self.hole(HoleKind::Script, format!("{name}({param})"));
+            }
             let given = self.infer(arg, Some(&wanted));
             if !given.assignable_to(&wanted) {
                 self.error_at_current(
@@ -232,11 +241,16 @@ impl Checker<'_, '_> {
                 );
             }
         }
-        match &script.kind {
+        let result = match &script.kind {
             // A class's call is the instance, which the checker takes as
             // given.
             NameKind::Class { .. } => Type::Any,
             _ => doc.returns.as_deref().map_or(Type::Any, jsdoc_type),
+        };
+        if result.is_any() {
+            self.hole(HoleKind::Script, format!("{name}(…)"))
+        } else {
+            result
         }
     }
 
@@ -308,7 +322,7 @@ impl Checker<'_, '_> {
             );
         }
         for (i, arg) in args.iter().enumerate() {
-            let wanted = params.get(i).cloned().unwrap_or(Type::Any);
+            let wanted = params.get(i).cloned().unwrap_or(Type::Error);
             let given = self.infer(arg, Some(&wanted));
             if !given.assignable_to(&wanted) {
                 self.error_at_current(

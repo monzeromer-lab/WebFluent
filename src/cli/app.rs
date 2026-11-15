@@ -366,6 +366,9 @@ enum Commands {
         /// Print JSON, for tools
         #[arg(long)]
         json: bool,
+        /// List every place a value's type is unknown, and why
+        #[arg(long)]
+        holes: bool,
     },
     /// Format a project's source files; with `--to`, rewrite them in the
     /// other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)
@@ -603,7 +606,13 @@ pub fn main() {
             allow_output_outside,
         ),
         Commands::Registry { json } => super::describe::run_registry(json),
-        Commands::Types { path, json } => super::describe::run_types(&path, json),
+        Commands::Types { path, json, holes } => {
+            if holes {
+                super::describe::run_holes(&path, json)
+            } else {
+                super::describe::run_types(&path, json)
+            }
+        }
     };
 
     if let Err(e) = result {

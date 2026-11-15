@@ -54,6 +54,59 @@ pub(crate) fn run_registry(json: bool) -> Result<()> {
     Ok(())
 }
 
+/// `wf types --holes [--json] [path]`: every place a value's type is
+/// unknown, with why, and the count of each kind.
+pub(crate) fn run_holes(project_dir: &Path, json: bool) -> Result<()> {
+    use crate::check::sema::types::{HoleKind, holes_of};
+    let holes = holes_of(project_dir)?;
+    let count = |kind: HoleKind| holes.iter().filter(|h| h.kind == kind).count();
+    if json {
+        let kinds: serde_json::Map<String, serde_json::Value> = HoleKind::ALL
+            .iter()
+            .map(|k| (k.name().to_string(), serde_json::json!(count(*k))))
+            .collect();
+        let list: Vec<serde_json::Value> = holes
+            .iter()
+            .map(|h| {
+                serde_json::json!({
+                    "file": h.file,
+                    "line": h.line,
+                    "column": h.column,
+                    "kind": h.kind.name(),
+                    "what": h.what,
+                })
+            })
+            .collect();
+        let value = serde_json::json!({ "total": holes.len(), "kinds": kinds, "holes": list });
+        println!(
+            "{}",
+            serde_json::to_string_pretty(&value).expect("a JSON value always serialises")
+        );
+        return Ok(());
+    }
+    for h in &holes {
+        println!(
+            "  {:<44} {:<18} {}",
+            format!("{}:{}:{}", h.file, h.line, h.column),
+            h.kind.name(),
+            h.what
+        );
+    }
+    let files: std::collections::BTreeSet<&str> = holes.iter().map(|h| h.file.as_str()).collect();
+    println!(
+        "\n  {} place(s) where a type is unknown, in {} file(s)",
+        holes.len(),
+        files.len()
+    );
+    for kind in HoleKind::ALL {
+        let n = count(kind);
+        if n > 0 {
+            println!("    {:<18} {n:>5}  {}", kind.name(), kind.describe());
+        }
+    }
+    Ok(())
+}
+
 /// `wf types --json [path]`: what a project declares, as a tool reads it.
 pub(crate) fn run_types(project_dir: &Path, json: bool) -> Result<()> {
     let (program, files) = super::build::read_project(project_dir)?;

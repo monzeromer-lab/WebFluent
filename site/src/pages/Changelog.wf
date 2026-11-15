@@ -117,6 +117,14 @@ returns `User`."#),
                     Change(text: #"A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`;
 `rows.relaod()` is `T16`."#)
                 ]),
+                NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
+is — a parameter with no type, a field of a `Map`, a browser global,
+`catch e`, a built-in's prop of no declared type — with its file, line and
+kind, and the count of each kind (`--json` for a tool). A value is counted
+where it becomes unknown, not at every place it goes afterwards. Inside the
+checker, a value an error has already been reported about is no longer
+`Any` but a type of its own, which agrees with everything as `Any` did, so
+the count holds only what the program leaves untyped."#),
                 NotesSection(title: #"Removed"#, id: "7.0.0-removed", items: [
                     Change(text: #"`WF.fetch`, the runtime of WebFluent 2's `fetch x from url { … }`, which
 nothing the compiler writes has called since 3.0. `wf migrate` still
@@ -3908,6 +3916,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

@@ -1442,6 +1442,20 @@
           "takes": "nothing",
           "value_name": "JSON",
           "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "List every place a value's type is unknown, and why",
+          "long": "holes",
+          "name": "holes",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "HOLES",
+          "values": []
         }
       ],
       "preview": null,

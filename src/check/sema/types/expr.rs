@@ -1,8 +1,8 @@
 //! Expressions: what each one is, the property it reads, chains, matches and comparisons.
 
 use super::{
-    BinOp, Checker, Expr, Scalar, StringPart, Type, UnaryOp, adds, case_signature, counts,
-    disjoint, expr_text, global_type, ill_formed, in_optional_chain, match_arm,
+    BinOp, Checker, Expr, HoleKind, Scalar, StringPart, Type, UnaryOp, adds, case_signature,
+    counts, disjoint, expr_text, global_type, ill_formed, in_optional_chain, match_arm,
     scalar_methods_hint,
 };
 
@@ -24,7 +24,7 @@ impl Checker<'_, '_> {
                     "Name a part of it with `let` or `derived`",
                 );
             }
-            return Type::Any;
+            return Type::Error;
         }
         self.depth += 1;
         let ty = self.infer_nested(expr, expected);
@@ -240,8 +240,16 @@ impl Checker<'_, '_> {
                 .unwrap_or_else(|| {
                     if !self.is_known_name(name) {
                         self.unresolved(name, false);
+                        return Type::Error;
                     }
-                    global_type(name)
+                    match global_type(name) {
+                        Type::Map => self.hole(HoleKind::EnvQuery, name.clone()),
+                        Type::Any if matches!(name.as_str(), "event" | "e" | "value" | "key") => {
+                            self.hole(HoleKind::DomEvent, name.clone())
+                        }
+                        Type::Any => self.hole(HoleKind::BrowserGlobal, name.clone()),
+                        other => other,
+                    }
                 }),
             // A plain access after a `?.` in the same chain is short-circuited
             // with it: `a?.b.c` is null when `a` is, never a fault.
@@ -284,7 +292,7 @@ impl Checker<'_, '_> {
                     }
                     Type::List(inner) => *inner,
                     Type::String => Type::String,
-                    _ => Type::Any,
+                    _ => self.loose(&base_ty, HoleKind::LooseIndex, expr_text(expr)),
                 };
                 if optional { Type::optional(ty) } else { ty }
             }
@@ -299,7 +307,7 @@ impl Checker<'_, '_> {
                 Type::optional(match base_ty {
                     Type::List(inner) => *inner,
                     Type::String => Type::String,
-                    _ => Type::Any,
+                    other => self.loose(&other, HoleKind::LooseIndex, expr_text(expr)),
                 })
             }
             Expr::OptionalMethod(obj, method, args) => {
@@ -342,7 +350,14 @@ impl Checker<'_, '_> {
                                     self.arithmetic_fault("+", side, ty);
                                 }
                             }
-                            Type::Any
+                            if [&lt, &rt]
+                                .iter()
+                                .any(|t| !adds(t) || t.unwrapped() == Type::Error)
+                            {
+                                Type::Error
+                            } else {
+                                self.hole(HoleKind::LooseArithmetic, expr_text(expr))
+                            }
                         }
                     }
                     BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod => {
@@ -357,6 +372,9 @@ impl Checker<'_, '_> {
                                 self.arithmetic_fault(sign, side, ty);
                             }
                         }
+                        if [&lt, &rt].iter().any(|t| t.unwrapped() == Type::Any) {
+                            self.hole(HoleKind::LooseArithmetic, expr_text(expr));
+                        }
                         Type::Number
                     }
                     BinOp::Eq | BinOp::Neq => {
@@ -368,7 +386,7 @@ impl Checker<'_, '_> {
                     // A left side that is only ever null (a field written
                     // `null` in a map literal) gives way to the right.
                     BinOp::NullCoalesce if matches!(lt, Type::Null) => rt,
-                    BinOp::NullCoalesce => Type::join(lt.unwrapped(), rt),
+                    BinOp::NullCoalesce => self.join(lt.unwrapped(), rt, expr),
                 }
             }
             Expr::UnaryOp(op, e) => {
@@ -404,10 +422,16 @@ impl Checker<'_, '_> {
                     let ty = self.infer(e, expected_item.as_ref());
                     item = Some(match item {
                         None => ty,
-                        Some(prev) => Type::join(prev, ty),
+                        Some(prev) => self.join(prev, ty, expr),
                     });
                 }
-                Type::list(item.unwrap_or(Type::Any))
+                Type::list(match item {
+                    Some(item) => item,
+                    None if matches!(expected.map(Type::unwrapped), Some(Type::List(_))) => {
+                        Type::Any
+                    }
+                    None => self.hole(HoleKind::EmptyList, "[]"),
+                })
             }
             // A map literal has the shape it was written with; a spread inside
             // it makes the keys unknown.
@@ -460,7 +484,13 @@ impl Checker<'_, '_> {
                     self.record_keys_given(&record, &keys, "the map");
                 }
                 // An empty literal says nothing about its keys.
-                if spread || shape.is_empty() {
+                if spread {
+                    self.hole(HoleKind::SpreadMap, expr_text(expr));
+                    Type::Map
+                } else if shape.is_empty() {
+                    if expected.is_none_or(Type::is_any) {
+                        self.hole(HoleKind::EmptyMap, "{}");
+                    }
                     Type::Map
                 } else {
                     Type::Shape(shape)
@@ -469,7 +499,7 @@ impl Checker<'_, '_> {
             // `...items` in a list: its items; the list's own type is theirs.
             Expr::Spread(inner) => match self.infer(inner, None).unwrapped() {
                 Type::List(item) => *item,
-                Type::Any => Type::Any,
+                t @ (Type::Any | Type::Error) => t,
                 other => {
                     self.error_at_current(
                         "T08",
@@ -479,7 +509,7 @@ impl Checker<'_, '_> {
                         ),
                         "",
                     );
-                    Type::Any
+                    Type::Error
                 }
             },
             Expr::Range(a, b, _) => {
@@ -510,7 +540,7 @@ impl Checker<'_, '_> {
                     for (_, v) in fields {
                         self.infer(v, None);
                     }
-                    Type::Any
+                    self.hole(HoleKind::UnknownRecord, format!("{name}(…)"))
                 }
             }
             Expr::Lambda(params, body) => {
@@ -524,9 +554,12 @@ impl Checker<'_, '_> {
                     Some(Type::Func(types, _)) => names
                         .iter()
                         .enumerate()
-                        .map(|(i, _)| types.get(i).cloned().unwrap_or(Type::Any))
+                        .map(|(i, _)| types.get(i).cloned().unwrap_or(Type::Error))
                         .collect(),
-                    _ => names.iter().map(|_| Type::Any).collect(),
+                    _ => names
+                        .iter()
+                        .map(|n| self.hole(HoleKind::UntypedLambda, *n))
+                        .collect(),
                 };
                 self.push_scope();
                 for (name, ty) in names.iter().zip(&param_types) {
@@ -572,7 +605,7 @@ impl Checker<'_, '_> {
                 "`await` it inside an action or a handler: `(await load()).field`",
             );
             self.plan_await(base);
-            return Type::Any;
+            return Type::Error;
         }
         match base_ty {
             // What a failed request says about itself.
@@ -580,7 +613,12 @@ impl Checker<'_, '_> {
                 "message" => Type::String,
                 "status" => Type::Number,
                 "kind" => Type::String,
-                "body" => (**failed).clone(),
+                "body" => match &**failed {
+                    Type::Any => {
+                        self.hole(HoleKind::RequestError, format!("{}.body", expr_text(base)))
+                    }
+                    other => other.clone(),
+                },
                 "headers" => Type::Map,
                 _ => {
                     self.error_at_current(
@@ -588,7 +626,7 @@ impl Checker<'_, '_> {
                         format!("a request's error has no field `{field}`"),
                         "It has `.message`, `.status`, `.kind`, `.body` and `.headers`, and matches `.offline`, `.timeout`, `.aborted`, `.parse`, `.network` and `.status(code, body)`",
                     );
-                    Type::Any
+                    Type::Error
                 }
             },
             // An endpoint of a service.
@@ -632,7 +670,7 @@ impl Checker<'_, '_> {
                         &known,
                         true,
                     );
-                    Type::Any
+                    Type::Error
                 }
             }
             // A scalar's fields are its carrier's: money is an amount and a
@@ -651,7 +689,7 @@ impl Checker<'_, '_> {
                         format!("`{}` is a `Secret`, which has no `{field}`: it is not read apart", expr_text(base)),
                         "Hand it on whole — to `api` headers, or a request body — and read what it unlocks",
                     );
-                    Type::Any
+                    Type::Error
                 }
                 (s, "length") if s.is_text() => Type::Number,
                 (s, _) => {
@@ -660,7 +698,7 @@ impl Checker<'_, '_> {
                         format!("`{}` has no field `{field}`", s.name()),
                         &scalar_methods_hint(s),
                     );
-                    Type::Any
+                    Type::Error
                 }
             },
             Type::Shape(fields) => {
@@ -677,7 +715,7 @@ impl Checker<'_, '_> {
                         &known,
                         true,
                     );
-                    Type::Any
+                    Type::Error
                 }
             }
             Type::Record(name) => {
@@ -699,7 +737,7 @@ impl Checker<'_, '_> {
                         &known,
                         true,
                     );
-                    Type::Any
+                    Type::Error
                 }
             }
             Type::Store(name) => match self.world.stores.get(name.as_str()) {
@@ -719,10 +757,10 @@ impl Checker<'_, '_> {
                             &known,
                             true,
                         );
-                        Type::Any
+                        Type::Error
                     }
                 }
-                None => Type::Any,
+                None => self.hole(HoleKind::StoreOrder, format!("{name}.{field}")),
             },
             Type::Optional(inner) => {
                 self.error_at_current(
@@ -744,16 +782,18 @@ impl Checker<'_, '_> {
             }
             Type::List(_) => match field {
                 "length" => Type::Number,
-                _ => Type::Any,
+                _ => self.hole(HoleKind::ListField, format!("{}.{field}", expr_text(base))),
             },
             Type::String => match field {
                 "length" => Type::Number,
-                _ => Type::Any,
+                _ => self.hole(HoleKind::ListField, format!("{}.{field}", expr_text(base))),
             },
             Type::Resource(inner, _) => match field {
                 "data" => Type::optional((**inner).clone()),
                 "state" => Type::String,
-                "error" => Type::optional(Type::Any),
+                "error" => Type::optional(
+                    self.hole(HoleKind::RequestError, format!("{}.error", expr_text(base))),
+                ),
                 "refreshing" | "pending" | "hasMore" => Type::Bool,
                 // `paginate:`'s pages, gathered: each answer if it is a list,
                 // or its `items` if it carries them.
@@ -761,18 +801,23 @@ impl Checker<'_, '_> {
                     Type::List(_) => (**inner).clone(),
                     Type::Shape(fields) => match fields.iter().find(|(n, _)| n == "items") {
                         Some((_, ty @ Type::List(_))) => ty.clone(),
-                        _ => Type::Any,
+                        _ => {
+                            self.hole(HoleKind::RequestError, format!("{}.items", expr_text(base)))
+                        }
                     },
                     Type::Record(name) => match self.world.record_field(name, "items") {
                         Some(ty) => match self.world.resolve(ty) {
                             list @ Type::List(_) => list,
-                            _ => Type::Any,
+                            _ => self
+                                .hole(HoleKind::RequestError, format!("{}.items", expr_text(base))),
                         },
-                        None => Type::Any,
+                        None => {
+                            self.hole(HoleKind::RequestError, format!("{}.items", expr_text(base)))
+                        }
                     },
-                    _ => Type::Any,
+                    _ => self.hole(HoleKind::RequestError, format!("{}.items", expr_text(base))),
                 },
-                _ => Type::Any,
+                _ => self.hole(HoleKind::MapField, format!("{}.{field}", expr_text(base))),
             },
             // `save.pending`: whether a call of the action is under way —
             // which is only ever for an action that awaits something.
@@ -814,10 +859,14 @@ impl Checker<'_, '_> {
                         ),
                         "An action has `pending`, true while a call of it runs; a service's endpoint also has `progress`",
                     );
-                    Type::Any
+                    Type::Error
                 }
             },
-            _ => Type::Any,
+            other => self.loose(
+                other,
+                HoleKind::MapField,
+                format!("{}.{field}", expr_text(base)),
+            ),
         }
     }
 
@@ -1118,6 +1167,7 @@ impl Checker<'_, '_> {
         let errors = self.info.findings.errors.len();
         let warnings = self.info.findings.warnings.len();
         let unresolved = self.info.unresolved.len();
+        let holes = self.info.holes.len();
         let too_deep = self.too_deep;
         let ty = self.infer(e, None);
         // What was found here is dropped, so it may be found again.
@@ -1125,6 +1175,7 @@ impl Checker<'_, '_> {
         self.info.findings.errors.truncate(errors);
         self.info.findings.warnings.truncate(warnings);
         self.info.unresolved.truncate(unresolved);
+        self.info.holes.truncate(holes);
         ty
     }
 }

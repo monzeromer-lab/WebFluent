@@ -52,7 +52,7 @@ wf verify [path] [--json] [--budget MS] [--returning-visitor] [--allow-output-ou
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
 wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L]  # A template rendered with JSON data (see Template Engine)
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
-wf types [path] [--json]                  # What a project declares: enums, types, components, stores, pages
+wf types [path] [--json] [--holes]        # What a project declares: enums, types, components, stores, pages; --holes: every place a type is unknown, and why
 ```
 
 `wf verify` builds nothing — it loads what `wf build` already wrote. It

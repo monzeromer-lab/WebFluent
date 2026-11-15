@@ -1,9 +1,10 @@
 //! Statements: declarations, assignments, `if`, `match`, handlers and the names a handler binds.
 
 use super::{
-    ARM, ArmPattern, Body, Checker, DOM_SENDS, EmitStmt, EventHandler, Expr, IfStmt, MatchStmt,
-    Scalar, Span, Statement, StatementKind, Type, TypeRef, awaits, case_signature, expr_text,
-    narrowed_names, non_empty_lists, not_serialisable, null_names, refinement_fault, rule_wants,
+    ARM, ArmPattern, Body, Checker, DOM_SENDS, EmitStmt, EventHandler, Expr, HoleKind, IfStmt,
+    MatchStmt, Scalar, Span, Statement, StatementKind, Type, TypeRef, awaits, case_signature,
+    expr_text, narrowed_names, non_empty_lists, not_serialisable, null_names, refinement_fault,
+    rule_wants,
 };
 
 impl Checker<'_, '_> {
@@ -30,7 +31,7 @@ impl Checker<'_, '_> {
         hint: &str,
     ) {
         for (i, name) in handler.params.iter().enumerate() {
-            let ty = sends.get(i).cloned().unwrap_or(Type::Any);
+            let ty = sends.get(i).cloned().unwrap_or(Type::Error);
             self.bind(name, ty, handler.span);
         }
         if handler.params.len() > sends.len() {
@@ -242,7 +243,7 @@ impl Checker<'_, '_> {
                         "A `validate` block guards a `state` of the page or component it is in",
                     );
                 }
-                let ty = guarded.unwrap_or(Type::Any).unwrapped();
+                let ty = guarded.unwrap_or(Type::Error).unwrapped();
                 for rule in &v.rules {
                     for e in rule.args.iter().chain(rule.message.iter()) {
                         self.infer(e, None);
@@ -295,7 +296,7 @@ impl Checker<'_, '_> {
                     self.push_scope();
                     let ty = match &c.receives {
                         Some(t) => self.world.resolve(Type::from_ref(t)),
-                        None => Type::Any,
+                        None => self.hole(HoleKind::Connection, format!("{} message", c.name)),
                     };
                     self.handler_names(
                         handler,
@@ -323,10 +324,14 @@ impl Checker<'_, '_> {
                 self.async_ok = was;
                 let returned = self.returns.pop().unwrap_or_default();
                 self.pop_scope();
-                let ret = returned
-                    .into_iter()
-                    .reduce(Type::join)
-                    .unwrap_or(Type::Null);
+                let mut ret: Option<Type> = None;
+                for ty in returned {
+                    ret = Some(match ret {
+                        None => ty,
+                        Some(prev) => self.join_at(prev, ty, &|| a.name.clone()),
+                    });
+                }
+                let ret = ret.unwrap_or(Type::Null);
                 let ret = if awaits(&a.body) {
                     Type::Promise(Box::new(ret))
                 } else {
@@ -377,7 +382,8 @@ impl Checker<'_, '_> {
             }
             StatementKind::EventHandler(h) => {
                 self.push_scope();
-                self.handler_names(h, &[Type::Any], DOM_SENDS);
+                let event = self.dom_event(h);
+                self.handler_names(h, &[event], DOM_SENDS);
                 let was = std::mem::replace(&mut self.async_ok, true);
                 self.in_handler += 1;
                 self.statements(&h.body, Body::Imperative);
@@ -393,7 +399,8 @@ impl Checker<'_, '_> {
                 self.pop_scope();
                 self.push_scope();
                 if let Some(param) = &t.param {
-                    self.bind(param, Type::Any, span);
+                    let caught = self.hole(HoleKind::CaughtError, param.clone());
+                    self.bind(param, caught, span);
                 }
                 self.statements(&t.catch_body, body);
                 self.pop_scope();
@@ -402,7 +409,9 @@ impl Checker<'_, '_> {
                 let iterable = self.infer(&f.iterable, None);
                 let item = match &iterable {
                     Type::List(inner) => (**inner).clone(),
-                    Type::Any | Type::Map => Type::Any,
+                    Type::Error => Type::Error,
+                    Type::Any => Type::Any,
+                    Type::Map => self.hole(HoleKind::LooseLoop, f.item.clone()),
                     other => {
                         self.error(
                             span,
@@ -413,7 +422,7 @@ impl Checker<'_, '_> {
                             ),
                             "Give it a list, or `.split(…)` a string first",
                         );
-                        Type::Any
+                        Type::Error
                     }
                 };
                 self.push_scope();
@@ -448,7 +457,7 @@ impl Checker<'_, '_> {
                             if !self.is_known_name(name) {
                                 self.unresolved(name, false);
                             }
-                            Type::Any
+                            Type::Error
                         }
                     }
                     other => self.infer(other, None),
@@ -754,12 +763,13 @@ impl Checker<'_, '_> {
                     }
                     self.push_scope();
                     if let Some(name) = &arm.binding {
-                        self.bind_fixed(name, Type::Any, arm.span, ARM);
+                        let loose = self.hole(HoleKind::LooseArm, name.clone());
+                        self.bind_fixed(name, loose, arm.span, ARM);
                     }
                     if let ArmPattern::Case(case) = &arm.pattern {
                         let fields = self.payload_of(name, case).unwrap_or_default();
                         for (i, bound) in arm.bindings.iter().enumerate() {
-                            let ty = fields.get(i).map_or(Type::Any, |(_, t)| t.clone());
+                            let ty = fields.get(i).map_or(Type::Error, |(_, t)| t.clone());
                             self.bind_fixed(bound, ty, arm.span, ARM);
                         }
                     }
@@ -767,14 +777,16 @@ impl Checker<'_, '_> {
                     self.pop_scope();
                 }
             }
-            Type::Any | Type::Case(_) => {
+            Type::Any | Type::Error | Type::Case(_) => {
                 for arm in &m.arms {
                     self.push_scope();
                     if let Some(name) = &arm.binding {
-                        self.bind_fixed(name, Type::Any, arm.span, ARM);
+                        let ty = self.loose(&scrutinee, HoleKind::LooseArm, name.clone());
+                        self.bind_fixed(name, ty, arm.span, ARM);
                     }
                     for bound in &arm.bindings {
-                        self.bind_fixed(bound, Type::Any, arm.span, ARM);
+                        let ty = self.loose(&scrutinee, HoleKind::LooseArm, bound.clone());
+                        self.bind_fixed(bound, ty, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();
@@ -805,13 +817,20 @@ impl Checker<'_, '_> {
                         self.plan_nearest_case(case, &ways);
                     }
                     if let Some(name) = &arm.binding {
-                        self.bind_fixed(name, Type::Any, arm.span, ARM);
+                        let loose = self.hole(HoleKind::LooseArm, name.clone());
+                        self.bind_fixed(name, loose, arm.span, ARM);
                     }
                     // `.status(code, body)` carries the status and the body
                     // the server sent; every other way it fails, nothing.
                     if let ArmPattern::Case(case) = &arm.pattern {
                         let fields: Vec<Type> = if case == "status" {
-                            vec![Type::Number, (**failed).clone()]
+                            let body = match &**failed {
+                                Type::Any => {
+                                    self.hole(HoleKind::RequestError, ".status(code, body)")
+                                }
+                                other => other.clone(),
+                            };
+                            vec![Type::Number, body]
                         } else {
                             Vec::new()
                         };
@@ -835,7 +854,7 @@ impl Checker<'_, '_> {
                             );
                         }
                         for (i, bound) in arm.bindings.iter().enumerate() {
-                            let ty = fields.get(i).cloned().unwrap_or(Type::Any);
+                            let ty = fields.get(i).cloned().unwrap_or(Type::Error);
                             self.bind_fixed(bound, ty, arm.span, ARM);
                         }
                     }
@@ -856,7 +875,7 @@ impl Checker<'_, '_> {
                 for arm in &m.arms {
                     self.push_scope();
                     if let Some(name) = &arm.binding {
-                        self.bind_fixed(name, Type::Any, arm.span, ARM);
+                        self.bind_fixed(name, Type::Error, arm.span, ARM);
                     }
                     self.statements(&arm.body, body);
                     self.pop_scope();

@@ -50,6 +50,17 @@ Requests stop losing and duplicating data.
 - A resource has `reload()`, `invalidate()`, `loadMore()` and `cancel()`;
   `rows.relaod()` is `T16`.
 
+## Where a type is unknown
+
+`wf types --holes` lists every place the checker cannot say what a value
+is — a parameter with no type, a field of a `Map`, a browser global,
+`catch e`, a built-in's prop of no declared type — with its file, line and
+kind, and the count of each kind (`--json` for a tool). A value is counted
+where it becomes unknown, not at every place it goes afterwards. Inside the
+checker, a value an error has already been reported about is no longer
+`Any` but a type of its own, which agrees with everything as `Any` did, so
+the count holds only what the program leaves untyped.
+
 ## Removed
 
 - `WF.fetch`, the runtime of WebFluent 2's `fetch x from url { … }`, which

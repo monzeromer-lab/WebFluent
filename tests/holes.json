@@ -1,0 +1,116 @@
+{
+  "projects": {
+    "examples/decks/arabic-workshop": {
+      "builtin-prop": 44
+    },
+    "examples/decks/halyard-review": {
+      "any-accepted": 1,
+      "builtin-prop": 152,
+      "map-field": 11,
+      "written-map": 1
+    },
+    "examples/decks/webfluent": {
+      "builtin-prop": 137
+    },
+    "examples/decks/webfluent-ar": {
+      "builtin-prop": 137
+    },
+    "examples/documents/halyard-report": {
+      "browser-global": 2,
+      "builtin-prop": 90
+    },
+    "examples/documents/invoice": {
+      "browser-global": 2,
+      "builtin-prop": 58
+    },
+    "examples/documents/resume": {
+      "builtin-prop": 46
+    },
+    "examples/tutorials/easy-todos": {
+      "any-accepted": 1,
+      "builtin-prop": 6,
+      "env-query": 1,
+      "loose-join": 3,
+      "spread-map": 2,
+      "untyped-lambda": 1
+    },
+    "examples/tutorials/hard-pocket": {
+      "action-result": 6,
+      "any-accepted": 5,
+      "browser-global": 4,
+      "builtin-function": 1,
+      "builtin-prop": 59,
+      "connection": 3,
+      "dom-event": 4,
+      "empty-list": 1,
+      "env-query": 2,
+      "loose-arithmetic": 1,
+      "loose-join": 4,
+      "script": 1
+    },
+    "examples/tutorials/medium-field-notes": {
+      "any-accepted": 1,
+      "builtin-prop": 31,
+      "env-query": 1,
+      "list-method": 2
+    },
+    "examples/videos/arabic-invoice": {
+      "builtin-prop": 48
+    },
+    "examples/videos/counter": {
+      "builtin-prop": 2
+    },
+    "examples/videos/invoice": {
+      "builtin-prop": 55
+    },
+    "examples/videos/one-file-three-outputs": {
+      "builtin-prop": 11
+    },
+    "examples/videos/report-contents": {
+      "browser-global": 2,
+      "builtin-prop": 90
+    },
+    "examples/videos/typo": {
+      "builtin-prop": 2
+    },
+    "site": {
+      "action-result": 2,
+      "any-accepted": 41,
+      "browser-global": 22,
+      "builtin-function": 3,
+      "builtin-prop": 7026,
+      "caught-error": 6,
+      "dom-event": 1,
+      "empty-list": 330,
+      "empty-map": 3,
+      "list-method": 1,
+      "loose-index": 9,
+      "map-field": 62,
+      "script": 24,
+      "untyped-lambda": 15,
+      "written-map": 21
+    }
+  },
+  "total": {
+    "action-result": 8,
+    "any-accepted": 49,
+    "browser-global": 32,
+    "builtin-function": 4,
+    "builtin-prop": 7994,
+    "caught-error": 6,
+    "connection": 3,
+    "dom-event": 5,
+    "empty-list": 331,
+    "empty-map": 3,
+    "env-query": 4,
+    "list-method": 3,
+    "loose-arithmetic": 1,
+    "loose-index": 9,
+    "loose-join": 7,
+    "map-field": 73,
+    "script": 25,
+    "spread-map": 2,
+    "untyped-lambda": 16,
+    "written-map": 22
+  }
+}

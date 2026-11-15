@@ -22854,7 +22854,7 @@ wf serve
 | `wf components [-d, --dir DIR] [--json]` | Lists every component a call can name — the built-ins and the project's — with what each takes |
 | `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
 | `wf registry [--json]` | Describes every built-in |
-| `wf types [PATH] [--json]` | Describes what the project declares |
+| `wf types [PATH] [--json] [--holes]` | Describes what the project declares, or every place a value's type is unknown |
 
 ## Conventions
 
@@ -23819,14 +23819,35 @@ pages.
 |---|---|---|---|
 | `PATH` | a directory | `.` | The project. |
 | `--json` | — | off | Prints JSON, for a tool. |
+| `--holes` | — | off | Lists every place a value's type is unknown instead, and why. |
 
 ```bash
 wf types
 wf types --json
+wf types --holes
 ```
 
 It includes the names the project's scripts under `src/` declare, each with
 the parameters and return type its JSDoc gives it.
+
+With `--holes` it lists every place the checker cannot say what a value is
+— a parameter with no type, a field read from a `Map`, a browser global, a
+`catch e` — each with its file, line and kind, then the count of each kind.
+A hole is counted where the unknown value is made, not at every place it
+goes afterwards; the loose rules (a value of unknown type given where a
+type is declared, a map where a record is wanted) are counted where they
+are used. A program with none is one whose every value has a type the
+checker knows. `--json` gives `total`, the count of each kind, and the
+list.
+
+```text
+  src/stores/Session.wf:14:5      caught-error       e
+  src/pages/Report.wf:22:9        map-field          r.findings
+
+  2 place(s) where a type is unknown, in 2 file(s)
+    map-field              1  a field of a `Map`, or of a value with no known fields
+    caught-error           1  `catch e`
+```
 
 ## Environment variables
 

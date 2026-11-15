@@ -1,9 +1,9 @@
 //! Elements and component calls: their props, required arguments, bindings and classes.
 
 use super::{
-    Arg, Body, Checker, ComponentDecl, ComponentRef, DOM_SENDS, Expr, LayoutRef, PropDecl,
-    PropType, Scalar, Span, Type, TypeRef, UIElement, arg_value, bound_type, expr_text, registry,
-    takes_length,
+    Arg, Body, Checker, ComponentDecl, ComponentRef, DOM_SENDS, Expr, HoleKind, LayoutRef,
+    PropDecl, PropType, Scalar, Span, Type, TypeRef, UIElement, arg_value, bound_type, expr_text,
+    registry, takes_length,
 };
 
 impl Checker<'_, '_> {
@@ -42,6 +42,7 @@ impl Checker<'_, '_> {
                     matches!(
                         t,
                         Type::Any
+                            | Type::Error
                             | Type::String
                             | Type::Null
                             | Type::Map
@@ -196,46 +197,46 @@ impl Checker<'_, '_> {
                     .and_then(|c| c.events.iter().find(|e| e.name == handler.event)),
                 _ => None,
             };
-            match declared {
-                Some(event) => {
-                    let sends: Vec<Type> = event
+            if let Some(event) = declared {
+                let sends: Vec<Type> = event
+                    .params
+                    .iter()
+                    .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
+                    .collect();
+                let what = format!(
+                    "`event {}({})` sends {}",
+                    event.name,
+                    event
                         .params
                         .iter()
-                        .map(|p| self.world.resolve(Type::from_ref(&p.param_type)))
-                        .collect();
-                    let what = format!(
-                        "`event {}({})` sends {}",
-                        event.name,
-                        event
-                            .params
-                            .iter()
-                            .map(|p| format!("{}: {}", p.name, Type::from_ref(&p.param_type)))
-                            .collect::<Vec<_>>()
-                            .join(", "),
-                        match sends.len() {
-                            0 => "no value".to_string(),
-                            1 => "one value".to_string(),
-                            n => format!("{n} values"),
-                        }
-                    );
-                    let names: Vec<&str> = event.params.iter().map(|p| p.name.as_str()).collect();
-                    self.handler_names_hinted(
-                        handler,
-                        &sends,
-                        &what,
-                        &if names.is_empty() {
-                            format!("Write `on {} {{ … }}`", event.name)
-                        } else {
-                            format!(
-                                "Name at most {}, in order: `on {}({})`",
-                                names.len(),
-                                event.name,
-                                names.join(", ")
-                            )
-                        },
-                    );
-                }
-                None => self.handler_names(handler, &[Type::Any], DOM_SENDS),
+                        .map(|p| format!("{}: {}", p.name, Type::from_ref(&p.param_type)))
+                        .collect::<Vec<_>>()
+                        .join(", "),
+                    match sends.len() {
+                        0 => "no value".to_string(),
+                        1 => "one value".to_string(),
+                        n => format!("{n} values"),
+                    }
+                );
+                let names: Vec<&str> = event.params.iter().map(|p| p.name.as_str()).collect();
+                self.handler_names_hinted(
+                    handler,
+                    &sends,
+                    &what,
+                    &if names.is_empty() {
+                        format!("Write `on {} {{ … }}`", event.name)
+                    } else {
+                        format!(
+                            "Name at most {}, in order: `on {}({})`",
+                            names.len(),
+                            event.name,
+                            names.join(", ")
+                        )
+                    },
+                );
+            } else {
+                let event = self.dom_event(handler);
+                self.handler_names(handler, &[event], DOM_SENDS);
             }
             let was = std::mem::replace(&mut self.async_ok, true);
             self.in_handler += 1;
@@ -247,6 +248,7 @@ impl Checker<'_, '_> {
         for fill in &el.slot_fills {
             // A fill's names take the types the slot's declaration gives
             // its values, in order.
+            let built_in = !matches!(&el.component, ComponentRef::UserDefined(_));
             let params: Vec<Type> = match &el.component {
                 ComponentRef::UserDefined(name) => self
                     .world
@@ -268,7 +270,17 @@ impl Checker<'_, '_> {
             };
             self.push_scope();
             for (i, name) in fill.params.iter().enumerate() {
-                let ty = params.get(i).cloned().unwrap_or(Type::Any);
+                let ty = if let Some(ty) = params.get(i) {
+                    ty.clone()
+                } else {
+                    self.current_span = fill.span;
+                    let kind = if built_in {
+                        HoleKind::BuiltinProp
+                    } else {
+                        HoleKind::ExtraEventValue
+                    };
+                    self.hole(kind, format!("{}({name})", fill.name))
+                };
                 self.bind_fixed(name, ty, fill.span, "a value a slot hands over");
             }
             self.statements(&fill.body, Body::Page);
@@ -620,7 +632,10 @@ impl Checker<'_, '_> {
                         &format!("`{}:` on `{name}`", prop.name),
                     );
                 }
-                _ => {
+                (ty, prop_name) => {
+                    if ty == PropType::Any {
+                        self.hole(HoleKind::BuiltinProp, format!("{name}({prop_name}:)"));
+                    }
                     self.infer(value, None);
                 }
             }

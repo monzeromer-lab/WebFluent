@@ -610,7 +610,7 @@ pub mod paths {
                 }
                 Type::Enum(_) | Type::Case(_) => (Shape::Enum, false, None),
                 Type::Resource(..) => (Shape::Resource, false, None),
-                Type::Any => (Shape::Any, false, None),
+                Type::Any | Type::Error => (Shape::Any, false, None),
                 _ => (Shape::Other, false, None),
             }
         }

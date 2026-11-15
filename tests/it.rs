@@ -85,6 +85,8 @@ mod golden;
 mod guide_runs;
 #[path = "handler_values.rs"]
 mod handler_values;
+#[path = "holes.rs"]
+mod holes;
 #[path = "html_output_hygiene.rs"]
 mod html_output_hygiene;
 #[path = "in_place.rs"]

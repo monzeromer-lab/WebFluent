@@ -33,6 +33,7 @@ mod call;
 mod element;
 mod expr;
 mod handles;
+mod holes;
 mod jsdoc;
 mod members;
 mod method;
@@ -50,6 +51,7 @@ mod walk;
 internal! {
     pub use handles::{browser_value_type, form_names, form_type, image_type, ref_names};
 }
+pub use holes::{Hole, HoleKind, of_project as holes_of};
 pub use jsdoc::jsdoc_type;
 internal! {
     pub use members::{Member, members};
@@ -168,6 +170,9 @@ pub struct TypeInfo {
     /// template rendered with data reads its data's keys by name, so the
     /// template engine does not.
     pub unresolved: Vec<Diagnostic>,
+    /// Every place a value's type is unknown, and why, in the order of
+    /// their files and lines.
+    pub holes: Vec<Hole>,
 }
 
 impl TypeInfo {
@@ -324,8 +329,16 @@ pub fn check_sources<'s>(
             let ty = if d.is_image {
                 image_type()
             } else {
-                d.ty.as_ref()
-                    .map_or(Type::Any, |t| world.resolve(Type::from_ref(t)))
+                let file = file_of(index);
+                let mut cx = Checker::new(&world, &file, index, &mut info, None);
+                cx.current_span = d.span;
+                match &d.ty {
+                    Some(t) => {
+                        cx.written(t, &d.name);
+                        world.resolve(Type::from_ref(t))
+                    }
+                    None => cx.hole(HoleKind::UntypedData, &d.name),
+                }
             };
             info.bindings.push(Typed {
                 decl: index,
@@ -340,6 +353,9 @@ pub fn check_sources<'s>(
             let source = source_of(index);
             let mut cx = Checker::new(&world, &file, index, &mut info, source);
             cx.current_span = c.span;
+            if let Some(t) = &c.ty {
+                cx.written(t, &c.name);
+            }
             let declared = c.ty.as_ref().map(|t| cx.world.resolve(Type::from_ref(t)));
             let given = cx.infer(&c.value, declared.as_ref());
             if let Some(declared) = &declared {
@@ -388,6 +404,8 @@ pub fn check_sources<'s>(
             Declaration::Page(p) => {
                 cx.push_scope();
                 for param in &p.params {
+                    cx.current_span = param.span;
+                    cx.written(&param.prop_type, &param.name);
                     let ty = cx.world.resolve(Type::from_ref(&param.prop_type));
                     cx.bind_fixed(&param.name, ty, param.span, "a route parameter");
                 }
@@ -404,6 +422,8 @@ pub fn check_sources<'s>(
             Declaration::Component(c) => {
                 cx.push_scope();
                 for prop in &c.props {
+                    cx.current_span = prop.span;
+                    cx.written(&prop.prop_type, &prop.name);
                     let mut ty = cx.world.resolve(Type::from_ref(&prop.prop_type));
                     if prop.optional {
                         ty = Type::optional(ty);
@@ -419,6 +439,18 @@ pub fn check_sources<'s>(
                         );
                     }
                     cx.bind_fixed(&prop.name, ty, prop.span, "a prop");
+                }
+                for event in &c.events {
+                    cx.current_span = event.span;
+                    for p in &event.params {
+                        cx.written_param(&p.param_type, &format!("{}({})", event.name, p.name));
+                    }
+                }
+                cx.current_span = c.header_span;
+                for slot in &c.slots {
+                    for p in &slot.params {
+                        cx.written_param(&p.param_type, &p.name);
+                    }
                 }
                 cx.component = Some(c);
                 cx.bound = bound_names(&c.body);
@@ -436,6 +468,8 @@ pub fn check_sources<'s>(
             }
             Declaration::Type(t) => {
                 for field in &t.fields {
+                    cx.current_span = field.span;
+                    cx.written(&field.ty, &format!("{}.{}", t.name, field.name));
                     if let Some(default) = &field.default {
                         cx.current_span = field.span;
                         let ty = cx.world.resolve(Type::from_ref(&field.ty));
@@ -459,6 +493,18 @@ pub fn check_sources<'s>(
                     cx.infer(e, None);
                 }
                 for endpoint in &a.endpoints {
+                    cx.current_span = endpoint.span;
+                    let what = format!("{}.{}", a.name, endpoint.name);
+                    for p in &endpoint.params {
+                        cx.written_param(&p.prop_type, &format!("{what}({})", p.name));
+                    }
+                    for t in endpoint
+                        .returns
+                        .iter()
+                        .chain(endpoint.errors.iter().map(|(_, t)| t))
+                    {
+                        cx.written(t, &what);
+                    }
                     for (_, e) in &endpoint.settings {
                         cx.current_span = endpoint.span;
                         cx.infer(e, None);
@@ -503,9 +549,11 @@ pub fn check_sources<'s>(
                 }
                 for hook in &a.hooks {
                     cx.push_scope();
+                    cx.current_span = hook.span;
+                    let given = cx.hole(HoleKind::ServiceHook, format!("on {}", hook.event));
                     cx.handler_names(
                         hook,
-                        &[Type::Any],
+                        &[given],
                         &format!("an `api`'s `on {}` hook receives one value", hook.event),
                     );
                     cx.returns.push(Vec::new());
@@ -528,6 +576,10 @@ pub fn check_sources<'s>(
             | Declaration::Data(_) => {}
         }
     }
+    info.holes.extend(holes::unchecked_tests(program, file_of));
+    // An expression inferred twice — quietly, then for real — is one hole.
+    info.holes.sort();
+    info.holes.dedup();
     info
 }
 
@@ -820,6 +872,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             return;
         }
         if given.assignable_to(wanted) {
+            self.loosely(given, wanted, what);
             return;
         }
         if let Type::Promise(inner) = given {
@@ -877,11 +930,14 @@ impl<'a, 'p> Checker<'a, 'p> {
                         self.refined.insert(s.name.clone(), t.clone());
                     }
                     let ty = match &s.ty {
-                        Some(t) => self.world.resolve(Type::from_ref(t)),
+                        Some(t) => {
+                            self.written(t, &s.name);
+                            self.world.resolve(Type::from_ref(t))
+                        }
                         // A state that starts as `null` will hold something
                         // later: a value that may be null.
                         None => match self.infer(&s.value, None) {
-                            Type::Null => Type::optional(Type::Any),
+                            Type::Null => Type::optional(self.hole(HoleKind::NullState, &s.name)),
                             other => other,
                         },
                     };
@@ -889,23 +945,29 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
                 StatementKind::Resource(r) => {
                     let inner = match &r.ty {
-                        Some(t) => self.world.resolve(Type::from_ref(t)),
+                        Some(t) => {
+                            self.written(t, &r.name);
+                            self.world.resolve(Type::from_ref(t))
+                        }
                         // An endpoint says what it returns, so a resource
                         // over one is typed without an annotation.
                         None => match &r.url {
                             Expr::MethodCall(obj, method, _) => {
                                 match (&**obj, self.world.apis.is_empty()) {
-                                    (Expr::Identifier(api), false) => self
-                                        .world
-                                        .endpoint(api, method)
-                                        .and_then(|e| e.returns.as_ref())
-                                        .map_or(Type::Any, |t| {
-                                            self.world.resolve(Type::from_ref(t))
-                                        }),
-                                    _ => Type::Any,
+                                    (Expr::Identifier(api), false) => {
+                                        match self
+                                            .world
+                                            .endpoint(api, method)
+                                            .and_then(|e| e.returns.as_ref())
+                                        {
+                                            Some(t) => self.world.resolve(Type::from_ref(t)),
+                                            None => self.hole(HoleKind::UntypedResource, &r.name),
+                                        }
+                                    }
+                                    _ => self.hole(HoleKind::UntypedResource, &r.name),
                                 }
                             }
-                            _ => Type::Any,
+                            _ => self.hole(HoleKind::UntypedResource, &r.name),
                         },
                     };
                     // An annotation says what the endpoint returns, or it
@@ -951,14 +1013,16 @@ impl<'a, 'p> Checker<'a, 'p> {
                 // bound before the body so a handler may name another
                 // connection declared after it.
                 StatementKind::Connection(c) => {
-                    self.bind_fixed(&c.name, Type::Any, stmt.span, "a connection");
+                    let handle = self.hole(HoleKind::Connection, &c.name);
+                    self.bind_fixed(&c.name, handle, stmt.span, "a connection");
                 }
                 _ => {}
             }
             // `ref: name` anywhere in the body declares `name`: a handle on
             // the element, read like the element itself.
             for name in ref_names(std::slice::from_ref(stmt)) {
-                self.bind_fixed(&name, Type::Any, stmt.span, "an element's handle");
+                let handle = self.hole(HoleKind::ElementHandle, &name);
+                self.bind_fixed(&name, handle, stmt.span, "an element's handle");
             }
             // `Form(bind: form)` declares `form`: its validity and values.
             for name in form_names(std::slice::from_ref(stmt)) {
@@ -973,6 +1037,9 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.current_span = stmt.span;
             if let StatementKind::Action(a) = &stmt.kind {
                 self.own_actions.insert(a.name.clone(), &a.body);
+                for p in &a.params {
+                    self.written_param(&p.param_type, &format!("{}({})", a.name, p.name));
+                }
                 let params: Vec<Type> = a
                     .params
                     .iter()
@@ -980,10 +1047,15 @@ impl<'a, 'p> Checker<'a, 'p> {
                     .collect();
                 // The return type is found when the body is checked; an
                 // action that awaits hands back a promise of it.
-                let ret = if awaits(&a.body) {
-                    Type::Promise(Box::new(Type::Any))
+                let result = if holes::returns_value(&a.body) {
+                    self.hole(HoleKind::ActionResult, &a.name)
                 } else {
                     Type::Any
+                };
+                let ret = if awaits(&a.body) {
+                    Type::Promise(Box::new(result))
+                } else {
+                    result
                 };
                 self.bind_fixed(
                     &a.name,
@@ -996,6 +1068,9 @@ impl<'a, 'p> Checker<'a, 'p> {
         for stmt in stmts {
             self.current_span = stmt.span;
             if let StatementKind::Derived(d) = &stmt.kind {
+                if let Some(t) = &d.ty {
+                    self.written(t, &d.name);
+                }
                 let declared = d.ty.as_ref().map(|t| self.world.resolve(Type::from_ref(t)));
                 let given = self.infer_quiet(&d.value);
                 let ty = declared.unwrap_or(given);

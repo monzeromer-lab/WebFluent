@@ -154,8 +154,8 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell("Describes every built-in")
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`wf types [PATH] [--json]`") }
-                            Table.Cell("Describes what the project declares")
+                            Table.Cell { Markdown("`wf types [PATH] [--json] [--holes]`") }
+                            Table.Cell("Describes what the project declares, or every place a value's type is unknown")
                         }
                     }
                 }
@@ -1361,15 +1361,29 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell("off")
                             Table.Cell("Prints JSON, for a tool.")
                         }
+                        Table.Row {
+                            Table.Cell { Markdown("`--holes`") }
+                            Table.Cell("—")
+                            Table.Cell("off")
+                            Table.Cell("Lists every place a value's type is unknown instead, and why.")
+                        }
                     }
                 }
 
                 Terminal(lines: [
                 Line(command: "wf types"),
-                Line(command: "wf types --json")
+                Line(command: "wf types --json"),
+                Line(command: "wf types --holes")
             ])
 
-                Markdown("It includes the names the project's scripts under `src/` declare, each with the parameters and return type its JSDoc gives it.")
+                Markdown("It includes the names the project's scripts under `src/` declare, each with the parameters and return type its JSDoc gives it.\n\nWith `--holes` it lists every place the checker cannot say what a value is — a parameter with no type, a field read from a `Map`, a browser global, a `catch e` — each with its file, line and kind, then the count of each kind. A hole is counted where the unknown value is made, not at every place it goes afterwards; the loose rules (a value of unknown type given where a type is declared, a map where a record is wanted) are counted where they are used. A program with none is one whose every value has a type the checker knows. `--json` gives `total`, the count of each kind, and the list.")
+
+                CodeBlock(#"  src/stores/Session.wf:14:5      caught-error       e
+  src/pages/Report.wf:22:9        map-field          r.findings
+
+  2 place(s) where a type is unknown, in 2 file(s)
+    map-field              1  a field of a `Map`, or of a value with no known fields
+    caught-error           1  `catch e`"#, title: "text")
 
                 Heading("Environment variables", id: "environment-variables").h2
 
