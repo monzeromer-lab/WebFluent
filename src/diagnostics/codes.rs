@@ -636,6 +636,12 @@ pub static CODES: &[CodeInfo] = &[
         "A write's `invalidates [list, byId(id)]` names the reads a success makes stale, each a `get` of the same group, each argument one of the write's own parameters. A name the group does not have would make nothing stale.",
     ),
     code(
+        "N06",
+        Error,
+        "A `fake` that does not match its group's contract",
+        "A `fake OneUser for Backend.users { … }` answers in place of the network, so it is held to what the network would have to do: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares — `.ok(value)` of its type, or `.err(error)` of its error. A test's `fakes:` names fakes, and `expect called` an endpoint.",
+    ),
+    code(
         "N08",
         Error,
         "A form 7.0 removed",

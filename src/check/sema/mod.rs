@@ -132,6 +132,7 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
         let mut cx = Checker {
@@ -1159,6 +1160,7 @@ pub fn lower(mut program: Program) -> Program {
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
         lower_statements(body, &user);
@@ -1170,6 +1172,13 @@ pub fn lower(mut program: Program) -> Program {
             Declaration::Const(c) => &mut c.value,
             Declaration::Test(t) => {
                 fill_records(&mut t.body, &records);
+                continue;
+            }
+            // A fake's answers build records as any value does.
+            Declaration::Fake(f) => {
+                for a in &mut f.answers {
+                    a.body.walk_mut(&mut |e| fill_record(e, &records));
+                }
                 continue;
             }
             _ => continue,

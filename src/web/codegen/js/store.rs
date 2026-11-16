@@ -29,6 +29,57 @@ impl JsCodegen {
         self.emit_line("};");
     }
 
+    /// The fakes, as what the runtime asks before it sends anything:
+    /// `window.__wfFakes["Backend.users.list"]`, each handed the call's
+    /// arguments by name and giving the result. The table is there even
+    /// with no fake in it, so a call no fake answers is reported, not sent.
+    pub(super) fn emit_fakes(&mut self, program: &crate::syntax::parser::ast::Program) {
+        use crate::syntax::parser::ast::Declaration;
+        self.emit_line("window.__wfFakes = {};");
+        for decl in &program.declarations {
+            let Declaration::Fake(f) = decl else {
+                continue;
+            };
+            let api = program.declarations.iter().find_map(|d| match d {
+                Declaration::Api(a) if a.name == f.target => Some(a),
+                _ => None,
+            });
+            for answer in &f.answers {
+                let endpoint =
+                    api.and_then(|a| a.endpoints.iter().find(|e| e.name == answer.endpoint));
+                let mut lets = Vec::new();
+                for name in &answer.params {
+                    let key = serde_json::to_string(name).unwrap_or_default();
+                    // A parameter the call left out is its default, as the
+                    // server would take it.
+                    let default = endpoint
+                        .and_then(|e| e.params.iter().find(|p| p.name == *name))
+                        .and_then(|p| p.default.as_ref())
+                        .map(|d| self.emit_expr(d));
+                    lets.push(match default {
+                        Some(d) => format!(
+                            "const {n} = $args[{key}] === undefined ? {d} : $args[{key}];",
+                            n = super::names::bare(name)
+                        ),
+                        None => format!(
+                            "const {n} = $args[{key}] === undefined ? null : $args[{key}];",
+                            n = super::names::bare(name)
+                        ),
+                    });
+                }
+                let body = self.with_locals(super::expr::Cx::Page, answer.params.clone(), || {
+                    self.emit_expr(&answer.body)
+                });
+                self.emit_line(&format!(
+                    "window.__wfFakes[{}] = ($args) => {{ {} return {body}; }};",
+                    serde_json::to_string(&format!("{}.{}", f.target, answer.endpoint))
+                        .unwrap_or_default(),
+                    lets.join(" ")
+                ));
+            }
+        }
+    }
+
     /// One step of a service's `middleware [ … ]`: a middleware the
     /// project declares, or one of the runtime's, its arguments read when a
     /// request is made — a token refreshed a moment ago is the one sent.

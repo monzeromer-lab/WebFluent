@@ -351,6 +351,10 @@ enum Commands {
         /// Let `build.output` name a directory outside the project
         #[arg(long)]
         allow_output_outside: bool,
+        /// Build the site with these fakes answering its endpoints, then load
+        /// that: for a site whose API is elsewhere
+        #[arg(long, value_name = "FILE")]
+        fakes: Option<PathBuf>,
     },
     /// Describe every built-in component: props, cases, flags, events, slots, parts
     Registry {
@@ -598,12 +602,14 @@ pub fn main() {
             budget,
             returning_visitor,
             allow_output_outside,
+            fakes,
         } => super::verify::run_verify(
             &path,
             super::Report::from_json_flag(json),
             budget,
             returning_visitor,
             allow_output_outside,
+            fakes.as_deref(),
         ),
         Commands::Registry { json } => super::describe::run_registry(json),
         Commands::Types { path, json, holes } => {

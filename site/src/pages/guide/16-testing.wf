@@ -1,6 +1,6 @@
 /// Chapter 16 of the guide, written from md-docs/learn/16-testing.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn16Testing(path: "/learn/16-testing", title: "Testing", description: "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.", layout: DocsShell("Testing", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", source: "md-docs/learn/16-testing.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "write-a-test-that-looks", label: "Write a test that looks"), Anchor(id: "write-a-test-that-acts", label: "Write a test that acts"), Anchor(id: "seed-data-and-stores", label: "Seed data and stores"), Anchor(id: "test-a-whole-page", label: "Test a whole page"), Anchor(id: "run-the-tests", label: "Run the tests"), Anchor(id: "check-every-page-with-wf-verify", label: "Check every page with wf verify"), Anchor(id: "run-the-checks-in-ci", label: "Run the checks in CI"), Anchor(id: "choose-what-to-test", label: "Choose what to test"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Write a `test` that renders a component and holds it to `expect` and a snapshot", "Seed a test's values and stores with `data:`", "Click, type and press keys through a page with steps that run in headless Chrome", "Load every built page with `wf verify`, and run it all in CI"], prevTo: "/learn/15-data", prevLabel: t("ch.15"), nextTo: "/learn/17-pdf-and-slides", nextLabel: t("ch.17"))) {
+page Learn16Testing(path: "/learn/16-testing", title: "Testing", description: "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.", layout: DocsShell("Testing", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", source: "md-docs/learn/16-testing.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "write-a-test-that-looks", label: "Write a test that looks"), Anchor(id: "write-a-test-that-acts", label: "Write a test that acts"), Anchor(id: "seed-data-and-stores", label: "Seed data and stores"), Anchor(id: "test-a-whole-page", label: "Test a whole page"), Anchor(id: "answer-a-service-with-fakes", label: "Answer a service with fakes"), Anchor(id: "run-the-tests", label: "Run the tests"), Anchor(id: "check-every-page-with-wf-verify", label: "Check every page with wf verify"), Anchor(id: "run-the-checks-in-ci", label: "Run the checks in CI"), Anchor(id: "choose-what-to-test", label: "Choose what to test"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Write a `test` that renders a component and holds it to `expect` and a snapshot", "Seed a test's values and stores with `data:`", "Click, type and press keys through a page with steps that run in headless Chrome", "Answer a service with a `fake`, and check what was called with `expect called`", "Load every built page with `wf verify`, and run it all in CI"], prevTo: "/learn/15-data", prevLabel: t("ch.15"), nextTo: "/learn/17-pdf-and-slides", nextLabel: t("ch.17"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about testing a WebFluent project: render a component and check what it shows, click and type through a page in a real browser, and load every page of the built site to catch errors before a reader does.\n\nYou write tests in WebFluent itself, as `test \"name\" \{ … \}` declarations. A test renders something — a component, a fragment of a page, a whole page — and holds it to what it must and must not show. A test that clicks or types runs in a headless browser. `wf verify` then loads every page of the built site in one.")
 
@@ -158,6 +158,79 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 
         Markdown("`press \"Enter\"` in a form's text field submits the form, as a real key does. The `spa` and `static` projects that `wf init` writes carry tests like this under `tests/`; run `wf test` in a new project to see them pass.")
 
+        Heading("Answer a service with fakes", id: "answer-a-service-with-fakes").h2
+
+        Markdown("A page that reads from a service has nothing to show in a test until something answers it, and a test should not depend on a server being up. A `fake` answers a group's endpoints in its place. The compiler holds it to the group's contract, as it holds a call: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares.\n\nThis test lists the team from a fake, and checks that adding a person with the wrong address shows the server's field error:")
+
+        CodeBlock(#"type Person { id: String, name: String, email: Email }
+type NewPerson { name: String, email: Email }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    post create(body: NewPerson) at "people" -> Person ! CreatePersonError
+    invalidates [list]
+}
+
+store Team {
+    state problem = ""
+    action add(name: String, email: Email) {
+        match await Backend.people.create(body: NewPerson(name: name, email: email)) {
+            .ok(_) { problem = "" }
+            .err(.unprocessableContent(p)) { problem = p.errors.first()?.message ?? "Check the form" }
+            .err(.http(e)) { problem = e.message }
+        }
+    }
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    use Team
+    state email: Email = "ada@example.com"
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Input(bind: email, label: "Email").email
+    Button("Add") { on click { Team.add("Grace", email) } }
+    Text(Team.problem)
+}
+
+fake OneEngineer for Backend.people {
+    list() {
+        .ok([Person(id: "1", name: "Ada", email: "ada@example.com")])
+    }
+    create(body) {
+        if body.email.domain() == "example.com" { .ok(Person(id: "2", name: body.name, email: body.email)) } else { .err(.unprocessableContent(ValidationProblem(title: "Invalid", errors: [FieldError(field: "email", message: "Use your work address")]))) }
+    }
+}
+
+test "lists the team"(fakes: [OneEngineer]) {
+    People
+    expect "Ada"
+    expect not called Backend.people.create
+}
+
+test "shows the server's field error"(fakes: [OneEngineer]) {
+    People
+    type "grace@elsewhere.org" into "Email"
+    click "Add"
+    expect "Use your work address"
+    expect called Backend.people.create
+}"#, title: "wf")
+
+        Markdown("How a fake answers:\n\n- **By name.** `fake OneEngineer for Backend.people` answers that group; `fake … for Backend` answers a service's own endpoints. Each answer names the endpoint, then the parameters it reads — any of them, by the names the endpoint gives them. A parameter the call left out is its default, or `null`.\n- **As the endpoint would.** An answer is the endpoint's result: `.ok(value)`, or `.err(error)` with a case of its error enum, or an `HttpError` such as `.status(500, null)`. An `if` or a `match` picks one from what the call sent.\n- **Without the network.** A test that names `fakes:` runs in a browser, where its page makes the calls. Nothing is sent: a call goes to the fake, and a write's `invalidates` asks its reads again, as after a real success. A call to an endpoint no fake answers fails the test and names the endpoint.\n- **Whole.** A paged endpoint is answered a page at a time, from the parameter the page goes in; a `streamed` one with the whole list, which arrives a line at a time.\n\n`expect called Backend.people.create` passes once the page has asked that endpoint; `expect not called` passes while it has not. Use them to check that a write went out, or that a form did not send what it should not.\n\nA fake that does not fit its contract is `N06`, with what is wrong: an endpoint the group does not have, a parameter it does not take, an answer of the wrong type. So is a test's `fakes:` naming no fake, two fakes answering one endpoint, and an `expect called` naming no endpoint.\n\nPut fakes beside the tests that use them, under `tests/`. A fake in `src/` is checked like any declaration, and a build leaves it out.")
+
         Heading("Run the tests", id: "run-the-tests").h2
 
         Markdown("To run every test under `tests/`, and any declared in `src/`:")
@@ -188,7 +261,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
                 Line(command: "wf build && wf verify")
             ])
 
-        Markdown("`wf verify` serves the build and opens every route in headless Chrome. It fails on:\n\n- an uncaught exception or a `console.error`;\n- a request that failed, or an image that did not load;\n- a page that rendered no text.\n\nFor each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:\n\n- `--budget 400` fails a route that takes more than 400 ms to paint;\n- `--json` prints the report for a pipeline;\n- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept.\n\n[CLI](/reference/cli#wf-verify) has the details.")
+        Markdown("`wf verify` serves the build and opens every route in headless Chrome. It fails on:\n\n- an uncaught exception or a `console.error`;\n- a request that failed, or an image that did not load;\n- a page that rendered no text.\n\nFor each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:\n\n- `--budget 400` fails a route that takes more than 400 ms to paint;\n- `--json` prints the report for a pipeline;\n- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept;\n- `--fakes tests/fakes.wf` builds the site with the fakes that file declares answering its endpoints, and loads that — for a site whose API is elsewhere, or not running. It writes that build aside and removes it after; the project's own `build/` is not touched.\n\n[CLI](/reference/cli#wf-verify) has the details.")
 
         Heading("Run the checks in CI", id: "run-the-checks-in-ci").h2
 

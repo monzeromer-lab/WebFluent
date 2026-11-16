@@ -688,6 +688,11 @@
      "name": "--allow-output-outside",
      "type": "flag",
      "meaning": "Let `build.output` name a directory outside the project"
+    },
+    {
+     "name": "--fakes FILE",
+     "type": "path",
+     "meaning": "Build the site with these fakes answering its endpoints, then load that: for a site whose API is elsewhere"
     }
    ],
    "subcommands": []

@@ -48,7 +48,7 @@ wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wf
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
 wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
 wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
-wf verify [path] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
+wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
 wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L]  # A template rendered with JSON data (see Template Engine)
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
@@ -162,6 +162,65 @@ or `aria-label`), and a handler that throws fails the test.
 | `click "Save"` | Clicks whatever carries that name, and puts the focus on it as a real click does |
 | `type "Ada" into "Name"` | Types into the control that label names |
 | `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` |
+| `expect called Backend.users.create` · `expect not called …` | Whether the page has asked that endpoint |
+
+A page that reads a service is tested against a **fake**: what answers a
+group's endpoints in place of the network, held to the group's contract
+(`N06`) — every endpoint it answers is one the group has, every name it
+binds one of that endpoint's parameters (a default when the call left it
+out), every answer the result the endpoint declares. A test names its
+fakes and runs in a browser; nothing is sent, a write's `invalidates` asks
+its reads again, and a call to an endpoint no fake answers fails the test,
+naming it. A paged endpoint is answered a page at a time, a `streamed` one
+with the whole list.
+
+```wf
+type User { id: String, name: String }
+type NewUser { name: String }
+enum CreateUserError {
+    unprocessableContent(problem: Problem) on 422
+    http(error: HttpError)
+}
+api Backend(base: "/api") { }
+api Backend.users {
+    get list(page: Number = 1) at "users" -> [User]!
+    post create(body: NewUser) at "users" -> User ! CreateUserError
+    invalidates [list]
+    delete remove(id: String) at "users/{id}" -> !
+}
+
+page Users(path: "/users", title: "Users", description: "Who is here.") {
+    state name = ""
+    resource users = Backend.users.list()
+    Heading("Users").h1
+    match users {
+        .loaded(list) { for u in list by u.id { Text(u.name) } }
+        else { Spinner }
+    }
+    Input(bind: name, label: "Name")
+    Button("Add") { on click { Backend.users.create(body: NewUser(name: name)) } }
+}
+
+fake OneUser for Backend.users {
+    list(page) { .ok([User(id: "1", name: "Ada")]) }
+    create(body) {
+        if body.name == "" { .err(.unprocessableContent(Problem(title: "A name is needed"))) } else { .ok(User(id: "2", name: body.name)) }
+    }
+    remove(id) { .err(.status(500, null)) }
+}
+
+test "adds a user"(fakes: [OneUser]) {
+    Users
+    expect "Ada"
+    type "Grace" into "Name"
+    click "Add"
+    expect called Backend.users.create
+}
+```
+
+`wf verify --fakes tests/fakes.wf` builds the site with that file's fakes
+answering its endpoints, aside from `build/`, and loads every page of
+that — for a site whose API is elsewhere. A build leaves fakes out.
 
 `wf docs` writes `docs/index.html`: a self-contained gallery of every
 built-in — props, cases, flags, events, slots, parts — and of the
@@ -3671,6 +3730,7 @@ And what the type checker finds:
 | `N02` | A `resource` over a write, or `.update` on one: a resource and an update are a read's |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N05` | An `invalidates` naming no read of the same group, an `invalidates` on a read, or an argument that is not one of the write's own parameters |
+| `N06` | A `fake` that does not match its group's contract — an endpoint the group does not have, a parameter it does not take, an answer of the wrong type, one endpoint answered twice; a test's `fakes:` naming no fake, or two answering one endpoint; an `expect called` naming no endpoint |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
 | `N14` | A `pages` or `streamed` an endpoint cannot have: a write, a page parameter the endpoint lacks or the first call must give, a cursor with no `next:`, a page that is not a list with no `items:`, a streamed answer that is not a list; `for await` over anything but a streamed endpoint's call |
 | `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces; a service's `headers { }` and `on request`/`on response`/`on error` hooks, which `middleware [ … ]` replaces; an endpoint with no `at`, and a path's `:name`, which `{name}` replaces; and a group's `base:`, `retry:` or `middleware`, which are its service's; and `paginate:` on a call, which the endpoint's `pages` replaces |
@@ -4088,7 +4148,14 @@ page Invoice(path: "/", title: "Invoice",
 
 **Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, flags, themes. A `state` is its first value and a `derived` value what that works out to (data handed to the render wins over either) — so a page may work its figures out once and show them anywhere.
 
-**Not supported**: `effect`, handlers (`on click`), navigation, stores, animations, `resource` — nothing runs after the render.
+A `resource` has nothing to show at render time, so it paints its
+`.loading` arm — unless the data gives it a value by its name: `{ "users":
+{ "loaded": [ … ] } }` paints `.loaded`, `{ "users": { "failed": { … } } }`
+`.failed`, and its members (`users.value`, `users.isLoaded`) read the same.
+A declared type holds what `loaded` gives (`T33`, `users.loaded[0].name is
+missing`).
+
+**Not supported**: `effect`, handlers (`on click`), navigation, stores, animations, a `resource`'s request — nothing runs after the render.
 
 A render is bounded: 100 levels of nesting (`E120`), ten million steps and
 256 MB of markup (`E121`). A `style { }` value from the data is one value —

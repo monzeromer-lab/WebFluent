@@ -185,6 +185,13 @@
     // list it declares.
     const itemShape = endpoint.shape && endpoint.shape[0] === "l" ? endpoint.shape[1] : null;
     const lines = (args) => {
+      // A fake answers the whole list; it arrives a line at a time.
+      if (fakesOn()) {
+        return (async function* () {
+          const all = await faked(args);
+          for (const line of all || []) yield line;
+        })();
+      }
       const empty = unfilled(args);
       if (empty) {
         return (async function* () {
@@ -193,7 +200,44 @@
       }
       return streamResponse(addressOf(args), optionsOf(args), itemShape);
     };
+    // On a page a test opens (or `wf verify --fakes`), nothing is sent:
+    // the fake the test names answers, and every call is counted, so a test
+    // can `expect called` it. A call no fake answers is the test's failure,
+    // said by name.
+    const whole = (config.name ? config.name + "." : "") + name;
+    const faked = (args) => {
+      const calls = window.__wfCalls || (window.__wfCalls = []);
+      calls.push(whole);
+      const answer = window.__wfFakes[whole];
+      if (!answer) {
+        const message = "No fake answers " + whole + ": name one that does in the test's `fakes:`";
+        console.error(message);
+        return Promise.reject(netError("transport", message));
+      }
+      return Promise.resolve()
+        .then(() => answer(args || {}))
+        .then((given) => {
+          if (given === "ok") return undefined;
+          if (Array.isArray(given) && given[0] === "ok") {
+            return endpoint.withHeaders ? { value: given[1], headers: {}, status: 200, url: addressOf(args) } : given[1];
+          }
+          // What the fake said went wrong is the endpoint's error as it
+          // stands: nothing to read from a status.
+          throw { $faked: true, error: Array.isArray(given) ? given[1] : given };
+        });
+    };
+    const fakesOn = () => typeof window !== "undefined" && window.__wfFakes != null;
     const raw = (args) => {
+      if (fakesOn() && !endpoint.streamed) {
+        const sent = faked(args);
+        if (!endpoint.invalidates || !siblings) return sent;
+        return sent.then((value) => {
+          for (const [read, readArgs] of endpoint.invalidates(args || {})) {
+            if (siblings[read] && siblings[read].invalidate) siblings[read].invalidate(readArgs || undefined);
+          }
+          return value;
+        });
+      }
       const empty = unfilled(args);
       if (empty) {
         return Promise.reject(netError("aborted", "`" + empty[0] + "` " + empty[1] + ", so " + endpoint.path + " was not requested"));
@@ -253,7 +297,7 @@
       };
     }
     // What a read of it holds when it fails: what `.err` would.
-    call.failure = (error) => (result ? failureOf(error, result) : httpError(error));
+    call.failure = (error) => (result ? failureOf(error, result) : error && error.$faked ? error.error : httpError(error));
     call.progress = progress;
     call.key = (args) => optionsOf(args).key;
     call.url = addressOf;
@@ -294,6 +338,7 @@
   /// `http` case for anything else; or the `HttpError` itself, for an
   /// endpoint that declares no enum (`-> User!`).
   function failureOf(error, result) {
+    if (error && error.$faked) return error.error;
     const cases = result.cases || {};
     if (error && error.kind === "status" && cases[error.status] != null) {
       return [cases[error.status], error.body];

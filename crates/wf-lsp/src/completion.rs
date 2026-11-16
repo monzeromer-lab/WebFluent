@@ -2146,6 +2146,7 @@ fn top_level() -> Vec<CompletionItem> {
                 "image" => "image ${1:name} = \"${2:media/photo.jpg}\"",
                 "api" => "api ${1:Backend}(base: \"${2:/api}\") {\n\tget ${3:items}() -> ${4:[Map]}\n}",
                 "test" => "test \"${1:what it does}\" {\n\t$0\n}",
+                "fake" => "fake ${1:Name} for ${2:Backend} {\n\t${3:endpoint}() { .ok($0) }\n}",
                 other => other,
             };
             CompletionItem {

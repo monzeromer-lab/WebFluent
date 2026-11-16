@@ -1,0 +1,34 @@
+// The team page against fakes the compiler holds to `Backend.people`.
+
+fake OneEngineer for Backend.people {
+    listPeople(q, after) {
+        .ok(PersonPage(items: [Person(id: "p1", name: "Ada", email: "ada@example.com", role: .engineer, joinedAt: @2026-01-05T09:00Z)], nextCursor: null))
+    }
+    createPerson(body) {
+        if body.email.domain() == "example.com" { .ok(Person(id: "p2", name: body.name, email: body.email, role: body.role, joinedAt: @2026-11-15T10:00Z)) } else { .err(.unprocessableContent(ValidationProblem(title: "Invalid", status: 422, errors: [FieldError(field: "email", message: "Use your work address")]))) }
+    }
+    deletePerson(id) {
+        .err(.status(500, null))
+    }
+}
+
+test "lists the team"(fakes: [OneEngineer]) {
+    People
+    expect "Ada"
+    expect not called Backend.people.createPerson
+}
+
+test "shows the server's field error"(fakes: [OneEngineer]) {
+    People
+    type "Grace" into "Name"
+    type "grace@elsewhere.org" into "Email"
+    click "Add"
+    expect "Use your work address"
+    expect called Backend.people.createPerson
+}
+
+test "says when removing fails"(fakes: [OneEngineer]) {
+    People
+    click "Remove Ada"
+    expect "Ada is still here"
+}

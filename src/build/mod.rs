@@ -94,6 +94,10 @@ pub struct BuildOptions<'a> {
     /// the report: `wf build` prints them as they come, so a build that
     /// spends a while on its images shows where it is.
     pub on_line: Option<&'a dyn Fn(&BuildLine)>,
+    /// A file of fakes, relative to the project, compiled in to answer every
+    /// endpoint: the site sends nothing (`wf verify --fakes`). Never for a
+    /// site that is published.
+    pub fakes: Option<&'a str>,
 }
 
 impl std::fmt::Debug for BuildOptions<'_> {
@@ -111,6 +115,7 @@ impl std::fmt::Debug for BuildOptions<'_> {
             .field("studio", &self.studio)
             .field("sourcemap", &self.sourcemap)
             .field("only_route", &self.only_route)
+            .field("fakes", &self.fakes)
             .finish_non_exhaustive()
     }
 }
@@ -133,6 +138,7 @@ impl<'a> BuildOptions<'a> {
             sourcemap: false,
             only_route: None,
             on_line: None,
+            fakes: None,
         }
     }
 }
@@ -532,8 +538,24 @@ pub fn analyse_via(
     config: &mut ProjectConfig,
     media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<Analysis> {
-    let (program, declaration_files, parse_errors) =
+    let (mut program, mut declaration_files, mut parse_errors) =
         read_project_collecting_via(vfs, project_dir, media)?;
+    // `wf verify --fakes`: the fakes that file declares answer every
+    // endpoint, checked with the program as one in `src/` would be.
+    if let Some(file) = &config.build.fakes {
+        let path = project_dir.join(file);
+        let source = vfs
+            .read_to_string(&path)
+            .map_err(|e| crate::diagnostics::error::WebFluentError::io(format!("{file}: {e}")))?;
+        let (fakes, errors) = crate::syntax::parse_source_recovering(&source, file);
+        parse_errors.extend(errors);
+        for d in fakes.declarations {
+            if matches!(d, Declaration::Fake(_)) {
+                program.declarations.push(d);
+                declaration_files.push(file.clone());
+            }
+        }
+    }
     // What the pages will contain, decided before any of them is written:
     // the policy each one ships has to describe that page.
     config.build.inline_styles = crate::web::codegen::csp::writes_inline_styles(&program);
@@ -600,6 +622,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     let vfs: &dyn Vfs = &confined;
     let stats = options.stats;
     let mut config = load_config(options)?;
+    config.build.fakes = options.fakes.map(str::to_string);
 
     out.say(format!("Building {}...", config.name));
     // A value whose name does not say it is public, in the bundle because
@@ -828,6 +851,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
             offline: config.offline.as_ref().map(|offline| offline.sync),
             mangle: config.build.minify && !options.dev,
         })
+        .with_fakes(config.build.fakes.is_some())
         // What calls into the runtime from outside the bundle: a project's own
         // scripts, and the custom elements an `elements` build defines after it.
         .with_external_callers({

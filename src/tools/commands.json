@@ -1384,6 +1384,20 @@
           "takes": "nothing",
           "value_name": "ALLOW_OUTPUT_OUTSIDE",
           "values": []
+        },
+        {
+          "default": null,
+          "flag": false,
+          "help": "Build the site with these fakes answering its endpoints, then load that: for a site whose API is elsewhere",
+          "long": "fakes",
+          "name": "fakes",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "path",
+          "value_name": "FILE",
+          "values": []
         }
       ],
       "preview": null,

@@ -34,6 +34,7 @@ mod connection;
 mod contract;
 mod element;
 mod expr;
+mod fake;
 mod handles;
 mod holes;
 mod host;
@@ -889,6 +890,7 @@ pub fn check_sources_with<'s>(
             }
             Declaration::Enum(e) => cx.error_enum_shape(e),
             Declaration::Middleware(m) => cx.middleware(m),
+            Declaration::Fake(f) => cx.fake(f),
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Script(_)

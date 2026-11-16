@@ -521,6 +521,44 @@
     "after": ""
    },
    {
+    "title": "Fakes: a service answered in a test",
+    "id": "7.0.0-fakes-a-service-answered-in-a-test",
+    "intro": "A test of a page that reads a service no longer needs the service.",
+    "items": [
+     {
+      "text": "**`fake OneUser for Backend.users { list(page) { .ok([…]) } }`** answers\na group's endpoints (or a service's own) in place of the network. Each\nanswer names the endpoint and the parameters it reads, by the names the\nendpoint gives them, and gives the endpoint's result — `.ok(value)` or\n`.err(error)`, picked by an `if` or a `match` from what the call sent.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Held to the contract (`N06`).** An endpoint the group does not have, a\nparameter it does not take, an answer of the wrong type, an endpoint\nanswered twice; a test's `fakes:` naming no fake or two that answer one\nendpoint; an `expect called` naming no endpoint.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`test \"…\"(fakes: [OneUser]) { … }`** runs in a browser with those fakes\nanswering. Nothing is sent: a write's `invalidates` asks its reads again,\nas after a real success, and a call to an endpoint no fake answers fails\nthe test, naming it. A paged endpoint is answered a page at a time; a\n`streamed` one with the whole list, a line at a time.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`expect called Backend.users.create`** and `expect not called …` check\nwhether the page asked an endpoint.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`wf verify --fakes tests/fakes.wf`** builds the site aside with that\nfile's fakes answering its endpoints, and loads every page of that build.\nA build never carries fakes.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A read in `wf render` data.** `{ \"users\": { \"loaded\": [ … ] } }` paints a\n`resource users`' `.loaded` arm (and `{ \"failed\": … }` its `.failed`\narm), its members reading the same; a declared type holds the value\n(`T33`). A static page still paints `.loading`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -541,7 +579,7 @@
     "after": ""
    }
   ],
-  "count": 80
+  "count": 86
  },
  {
   "version": "6.2.0",

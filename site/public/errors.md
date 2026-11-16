@@ -316,6 +316,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [N03](https://webfluent.monzeromer.dev/errors/N03.md) — A `try` with nowhere to pass its error
 - [N04](https://webfluent.monzeromer.dev/errors/N04.md) — A result nothing reads
 - [N05](https://webfluent.monzeromer.dev/errors/N05.md) — An `invalidates` naming what the contract does not have
+- [N06](https://webfluent.monzeromer.dev/errors/N06.md) — A `fake` that does not match its group's contract
 - [N08](https://webfluent.monzeromer.dev/errors/N08.md) — A form 7.0 removed
 - [N09](https://webfluent.monzeromer.dev/errors/N09.md) — A retry asked of a write that is not idempotent
 - [N11](https://webfluent.monzeromer.dev/errors/N11.md) — `Any` or `Map` where a service meets the program

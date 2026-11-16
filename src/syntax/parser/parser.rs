@@ -2832,6 +2832,7 @@ mod span_tests {
                 | Declaration::Const(_)
                 | Declaration::Animation(_)
                 | Declaration::Test(_)
+                | Declaration::Fake(_)
                 | Declaration::Data(_) => {}
             }
         }

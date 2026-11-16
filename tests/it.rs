@@ -68,6 +68,8 @@ mod e2e_rendered;
 mod e2e_sites;
 #[path = "effect_order.rs"]
 mod effect_order;
+#[path = "fakes.rs"]
+mod fakes;
 #[path = "fix_cli.rs"]
 mod fix_cli;
 #[path = "fixes.rs"]

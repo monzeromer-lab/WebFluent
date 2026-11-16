@@ -52,6 +52,35 @@ pub enum Declaration {
     /// writes one: the build reads `src/` and puts one here per `.js` file,
     /// so every reader of a project sees the same names.
     Script(ScriptDecl),
+    /// `fake OneUser for Backend.users { list(page) { .ok([…]) } }`: what a
+    /// test's endpoints answer in place of the network.
+    Fake(FakeDecl),
+}
+
+/// `fake OneUser for Backend.users { … }`: a group's endpoints answered
+/// without the network, for a test that names it (`fakes: [OneUser]`) or
+/// `wf verify --fakes`. Held to the group's contract (`N06`). A build
+/// leaves it out.
+#[derive(Debug, Clone)]
+pub struct FakeDecl {
+    pub name: String,
+    /// The service or group it answers for: `Backend`, `Backend.users`.
+    pub target: String,
+    pub answers: Vec<FakeAnswer>,
+    pub doc: Option<String>,
+    pub span: Span,
+    /// The header, `fake OneUser for Backend.users`.
+    pub header_span: Span,
+}
+
+/// One endpoint a fake answers: `list(page, q) { .ok([…]) }`. The names are
+/// the endpoint's parameters, by name; the body is the result it gives.
+#[derive(Debug, Clone)]
+pub struct FakeAnswer {
+    pub endpoint: String,
+    pub params: Vec<String>,
+    pub body: Expr,
+    pub span: Span,
 }
 
 /// A `.js` file under `src/` (`project_js`), as the build read it.
@@ -445,6 +474,9 @@ pub struct TestDecl {
     pub name: String,
     /// The data the body renders over, a map literal.
     pub data: Option<Expr>,
+    /// `fakes: [OneUser]`: what answers the endpoints the body calls. A
+    /// test that names one is run in a browser, where a call is made.
+    pub fakes: Vec<String>,
     pub body: Vec<Statement>,
     /// What the test does and what it expects, in the order written.
     ///
@@ -455,9 +487,10 @@ pub struct TestDecl {
 }
 
 impl TestDecl {
-    /// Whether this test does something, rather than only looking.
+    /// Whether this test does something, rather than only looking: a
+    /// step that acts, or fakes whose answers only a running page asks for.
     pub fn acts(&self) -> bool {
-        self.steps.iter().any(|s| !matches!(s, Step::Expect { .. }))
+        !self.fakes.is_empty() || self.steps.iter().any(|s| !matches!(s, Step::Expect { .. }))
     }
 }
 
@@ -483,6 +516,13 @@ pub enum Step {
         target: Option<Expr>,
         span: Span,
     },
+    /// `expect called Backend.users.create`, or `expect not called …`:
+    /// whether the page asked an endpoint, by its whole name.
+    ExpectCalled {
+        endpoint: String,
+        negated: bool,
+        span: Span,
+    },
 }
 
 impl Step {
@@ -492,7 +532,8 @@ impl Step {
             | Step::ExpectFocus { span, .. }
             | Step::Click { span, .. }
             | Step::Type { span, .. }
-            | Step::Press { span, .. } => *span,
+            | Step::Press { span, .. }
+            | Step::ExpectCalled { span, .. } => *span,
         }
     }
 }

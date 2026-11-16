@@ -98,6 +98,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "N03 A try with nowhere to pass its error", to: "/errors/N03", group: "Requests"),
     IndexEntry(label: "N04 A result nothing reads", to: "/errors/N04", group: "Requests"),
     IndexEntry(label: "N05 An invalidates naming what the contract does not have", to: "/errors/N05", group: "Requests"),
+    IndexEntry(label: "N06 A fake that does not match its group's contract", to: "/errors/N06", group: "Requests"),
     IndexEntry(label: "N08 A form 7.0 removed", to: "/errors/N08", group: "Requests"),
     IndexEntry(label: "N09 A retry asked of a write that is not idempotent", to: "/errors/N09", group: "Requests"),
     IndexEntry(label: "N11 Any or Map where a service meets the program", to: "/errors/N11", group: "Requests"),
@@ -2524,6 +2525,66 @@ page P(path: "/", title: "T", description: "D") {
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Error.\n\nA write's `invalidates [list, byId(id)]` names the reads that a success\nmakes stale: every resource on the page over one of them asks again. Each\nname is a `get` of the same group, and each argument is one of the write's\nown parameters, so that `byId(id)` refreshes the item the write changed. A\nname the group does not have would make nothing stale, and the page would\nkeep showing what the write changed.\n\nA read changes nothing, so an `invalidates` on a `get` is refused too.")
+    }
+}
+
+page ErrorN06(path: "/errors/N06", title: "N06 — A fake that does not match its group's contract", description: "") {
+    ErrorShell("N06", title: "A fake that does not match its group's contract", severity: "error", family: "Requests", summary: "A `fake OneUser for Backend.users \{ … \}` answers in place of the network, so it is held to what the network would have to do: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares — `.ok(value)` of its type, or `.err(error)` of its error. A test's `fakes:` names fakes, and `expect called` an endpoint.", printed: #"error[N06]: `Backend.users` has no endpoint `lists` for `fake OneUser` to answer
+  --> src/App.wf:10:5
+   |
+10 |     lists(page) {
+   |     ^^^^^
+   = help: Did you mean `list`? It has `list`
+   = docs: https://webfluent.monzeromer.dev/errors/N06"#, quickfix: "Change to `list`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N06.md") {
+        broken { CodeBlock(#"type User { id: String, name: String }
+
+api Backend(base: "/api") { }
+
+api Backend.users {
+    get list(page: Number = 1) at "users" -> [User]!
+}
+
+fake OneUser for Backend.users {
+    lists(page) {
+        .ok([User(id: "1", name: "Ada")])
+    }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    resource users = Backend.users.list()
+    Heading("Users").h1
+    match users {
+        .loaded(list) { Text("{list.length} users") }
+        else { Spinner }
+    }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"type User { id: String, name: String }
+
+api Backend(base: "/api") { }
+
+api Backend.users {
+    get list(page: Number = 1) at "users" -> [User]!
+}
+
+fake OneUser for Backend.users {
+    list(page) {
+        .ok([User(id: "1", name: "Ada")])
+    }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    resource users = Backend.users.list()
+    Heading("Users").h1
+    match users {
+        .loaded(list) { Text("{list.length} users") }
+        else { Spinner }
+    }
+}"#, title: "wf") }
+        note {
+            Markdown("Answer the endpoints the group declares, by their names and\nparameters, with the result each declares.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nA `fake` answers a group's endpoints in place of the network, for a test\nthat names it in `fakes:` or for `wf verify --fakes`. It is held to what\nthe network would have to do: every endpoint it answers is one the group\nhas, every name it binds is one of that endpoint's parameters, and every\nanswer is the result the endpoint declares — `.ok(value)` of its type, or\n`.err(error)` of its error. A fake that answered something else would let\na test pass against a server that cannot exist.\n\nA test is held to its fakes too: each name in `fakes:` is a fake the\nproject or the test's file declares, no two of them answer one endpoint,\nand `expect called` names an endpoint an `api` declares.")
     }
 }
 

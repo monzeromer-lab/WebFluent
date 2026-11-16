@@ -403,6 +403,34 @@ How an endpoint answers more than once is written in its contract, once.
   `.loadMore()` stay; `pages .number(param: page)` moves to the endpoint,
   and the `state page` the runtime used to write goes.
 
+## Fakes: a service answered in a test
+
+A test of a page that reads a service no longer needs the service.
+
+- **`fake OneUser for Backend.users { list(page) { .ok([…]) } }`** answers
+  a group's endpoints (or a service's own) in place of the network. Each
+  answer names the endpoint and the parameters it reads, by the names the
+  endpoint gives them, and gives the endpoint's result — `.ok(value)` or
+  `.err(error)`, picked by an `if` or a `match` from what the call sent.
+- **Held to the contract (`N06`).** An endpoint the group does not have, a
+  parameter it does not take, an answer of the wrong type, an endpoint
+  answered twice; a test's `fakes:` naming no fake or two that answer one
+  endpoint; an `expect called` naming no endpoint.
+- **`test "…"(fakes: [OneUser]) { … }`** runs in a browser with those fakes
+  answering. Nothing is sent: a write's `invalidates` asks its reads again,
+  as after a real success, and a call to an endpoint no fake answers fails
+  the test, naming it. A paged endpoint is answered a page at a time; a
+  `streamed` one with the whole list, a line at a time.
+- **`expect called Backend.users.create`** and `expect not called …` check
+  whether the page asked an endpoint.
+- **`wf verify --fakes tests/fakes.wf`** builds the site aside with that
+  file's fakes answering its endpoints, and loads every page of that build.
+  A build never carries fakes.
+- **A read in `wf render` data.** `{ "users": { "loaded": [ … ] } }` paints a
+  `resource users`' `.loaded` arm (and `{ "failed": … }` its `.failed`
+  arm), its members reading the same; a declared type holds the value
+  (`T33`). A static page still paints `.loading`.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

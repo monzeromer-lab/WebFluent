@@ -57,6 +57,7 @@ Each keyword declares one kind of thing:
 | `image` | A picture the build resizes and hands to `Image` | [Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md) |
 | `animation` | Keyframes | [Keyframes](https://webfluent.monzeromer.dev/recipes/keyframes.md) |
 | `test` | A render held to expectations and a snapshot | [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md) |
+| `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a
 stylesheet the build bundles. A `.js` file is a plain browser script, and its

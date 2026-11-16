@@ -344,6 +344,7 @@ fn walk_program<'a>(
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
         let owner = if name_counts.get(name).copied().unwrap_or(0) > 1 {
@@ -408,6 +409,7 @@ fn decl_owner_name(decl: &Declaration) -> Option<&str> {
         | Declaration::Const(_)
         | Declaration::Animation(_)
         | Declaration::Test(_)
+        | Declaration::Fake(_)
         | Declaration::Data(_) => None,
     }
 }

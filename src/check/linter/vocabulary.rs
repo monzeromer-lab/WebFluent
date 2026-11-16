@@ -85,6 +85,7 @@ pub fn lint_vocabulary_with(
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
         // Hoisted, order-independent scope for the whole declaration: warning on
@@ -151,7 +152,8 @@ fn global_names(program: &Program) -> HashSet<String> {
             | Declaration::Api(_)
             | Declaration::Middleware(_)
             | Declaration::Animation(_)
-            | Declaration::Test(_) => {}
+            | Declaration::Test(_)
+            | Declaration::Fake(_) => {}
         }
     }
     names

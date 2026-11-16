@@ -44,6 +44,7 @@ fn wf_blocks(markdown: &str) -> Vec<(usize, String, bool)> {
 const DECLARATIONS: &[&str] = &[
     "api",
     "middleware",
+    "fake",
     "page",
     "component",
     "store",

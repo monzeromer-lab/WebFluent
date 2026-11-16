@@ -1755,11 +1755,18 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
             )
         }
         Declaration::Test(t) => {
-            let data = t
-                .data
-                .as_ref()
-                .map(|d| format!("(data: {})", expr(d)))
-                .unwrap_or_default();
+            let mut given = Vec::new();
+            if let Some(d) = &t.data {
+                given.push(format!("data: {}", expr(d)));
+            }
+            if !t.fakes.is_empty() {
+                given.push(format!("fakes: [{}]", t.fakes.join(", ")));
+            }
+            let data = if given.is_empty() {
+                String::new()
+            } else {
+                format!("({})", given.join(", "))
+            };
             let mut lines = statements(&t.body, Block::Render, 1);
             for s in &t.steps {
                 lines.push(match s {
@@ -1785,11 +1792,38 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                     } => {
                         format!("press {} in {}", expr(key), expr(t))
                     }
+                    Step::ExpectCalled {
+                        endpoint, negated, ..
+                    } => format!(
+                        "expect {}called {endpoint}",
+                        if *negated { "not " } else { "" }
+                    ),
                 });
             }
             format!(
                 "test {}{data}{}",
                 text_with_names(&t.name),
+                lines_block(lines, 0)
+            )
+        }
+        Declaration::Fake(f) => {
+            let lines: Vec<String> = f
+                .answers
+                .iter()
+                .map(|a| {
+                    format!(
+                        "{}({}){}",
+                        a.endpoint,
+                        a.params.join(", "),
+                        lines_block(vec![expr(&a.body)], 1)
+                    )
+                })
+                .collect();
+            format!(
+                "{}fake {} for {}{}",
+                doc(f.doc.as_deref(), 0),
+                f.name,
+                f.target,
                 lines_block(lines, 0)
             )
         }
@@ -2149,6 +2183,7 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
         Declaration::Data(x) => x.span,
         Declaration::Animation(a) => a.span,
         Declaration::Test(t) => t.span,
+        Declaration::Fake(f) => f.span,
         Declaration::Api(a) => a.span,
         Declaration::Middleware(m) => m.span,
         // The app keeps no place of its own: it is the `app { … }` that

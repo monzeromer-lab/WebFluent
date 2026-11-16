@@ -235,6 +235,13 @@ pub struct BuildConfig {
     /// each one, in this order, before the compiled code.
     #[serde(skip)]
     pub scripts: Vec<String>,
+    /// A file of fakes the build compiles in, relative to the project:
+    /// every endpoint is answered by them and nothing is sent
+    /// (`wf verify --fakes tests/fakes.wf`).
+    ///
+    /// Not a setting: a site a reader opens never carries fakes.
+    #[serde(skip)]
+    pub fakes: Option<String>,
     #[serde(default = "default_output_dir")]
     pub output: String,
     #[serde(default = "default_true")]
@@ -1123,6 +1130,7 @@ impl Default for BuildConfig {
             inline_styles: false,
             frames_itself: false,
             scripts: Vec::new(),
+            fakes: None,
             output: default_output_dir(),
             minify: true,
             sourcemap: false,

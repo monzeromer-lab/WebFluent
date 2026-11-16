@@ -458,6 +458,7 @@ pub fn decl_span(decl: &Declaration) -> Option<Span> {
         Declaration::Data(d) => d.span,
         Declaration::Animation(a) => a.span,
         Declaration::Test(t) => t.span,
+        Declaration::Fake(f) => f.span,
         Declaration::App(a) => {
             let first = a.body.first()?.span;
             let last = a.body.last()?.span;

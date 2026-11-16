@@ -1,0 +1,74 @@
+// A team kept on a service, for `wf test`: its tests answer the service
+// with fakes, and nothing goes to the network.
+
+enum Role { engineer, designer }
+type Person { id: String, name: String, email: Email, role: Role, joinedAt: DateTime }
+type PersonPage { items: [Person], nextCursor: String? }
+type NewPerson { name: String, email: Email, role: Role }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get listPeople(q: String?, after: String?) at "people" -> PersonPage!
+    pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)
+    post createPerson(body: NewPerson) at "people" -> Person ! CreatePersonError
+    invalidates [listPeople]
+    delete deletePerson(id: String) at "people/{id}" -> !
+    invalidates [listPeople]
+}
+
+store Team {
+    state said = ""
+    state fieldError = ""
+
+    action add(name: String, email: Email) {
+        fieldError = ""
+        match await Backend.people.createPerson(body: NewPerson(name: name, email: email, role: .engineer)) {
+            .ok(p) { said = "Added {p.name}" }
+            .err(.unprocessableContent(p)) { fieldError = p.errors.first()?.message ?? "Check the form" }
+            .err(.http(e)) { said = e.message }
+        }
+    }
+
+    action remove(person: Person) {
+        match await Backend.people.deletePerson(id: person.id) {
+            .ok { said = "{person.name} is gone" }
+            .err(_) { said = "{person.name} is still here" }
+        }
+    }
+}
+
+app { Router }
+
+page People(path: "/", title: "People", description: "The team.") {
+    use Team
+    state name = ""
+    state email: Email = "a@example.com"
+    resource people = Backend.people.listPeople()
+
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) {
+            for p in list by p.id {
+                Row(gap: .sm) {
+                    Text(p.name)
+                    Button("Remove {p.name}") { on click { Team.remove(p) } }
+                }
+            }
+        }
+    }
+    Input(bind: name, label: "Name")
+    Input(bind: email, label: "Email").email
+    Button("Add").primary { on click { Team.add(name, email) } }
+    Text(Team.fieldError)
+    Text(Team.said)
+}

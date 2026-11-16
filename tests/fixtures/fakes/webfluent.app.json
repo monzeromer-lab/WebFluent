@@ -1,0 +1,4 @@
+{
+  "name": "fakes",
+  "build": { "output": "build" }
+}

@@ -57,6 +57,7 @@ pub fn scoped_rules(program: &Program) -> String {
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
         let mut uses = Uses::default();
@@ -170,6 +171,7 @@ pub fn split_rules(program: &Program) -> SplitRules {
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => {}
         }
     }

@@ -36,7 +36,7 @@ wf serve
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
 | `wf explain [CODE] [--json]` | Prints what a diagnostic code means, a program that draws it, and the fix |
 | `wf test [PATH] [--update]` | Runs the project's `test` declarations |
-| `wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]` | Loads every built page in headless Chrome |
+| `wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]` | Loads every built page in headless Chrome |
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf render TEMPLATE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
@@ -435,6 +435,7 @@ wrong there.
 | `--json` | — | off | The same report, as JSON for a pipeline. |
 | `--budget` | milliseconds | none | Fails a route whose first paint is slower than this. |
 | `--returning-visitor` | — | off | Visits every route again as a returning reader (below). |
+| `--fakes` | a file | none | Builds the site with that file's fakes answering its endpoints, and loads that (below). |
 | `--allow-output-outside` | — | off | Lets `build.output` name a directory outside the project. |
 
 ```bash
@@ -481,6 +482,14 @@ here before. Their storage holds what the previous build's pages kept: each
 `persist` value's starting value as the build before this one wrote it,
 which a build saves in `.wf-cache/` when it changes. A persisted shape that
 changed without a `version:` then shows as the broken page it would be.
+
+`--fakes tests/fakes.wf` is for a site whose API is elsewhere, or not
+running. It builds the project again, aside from `build/`, with the fakes
+that file declares answering every endpoint — the same `fake` declarations
+a test names ([Testing](../learn/16-testing.md#answer-a-service-with-fakes))
+— and loads every page of that build, which sends no request to a service.
+A fake that does not fit its contract stops the build (`N06`). The aside
+build is removed when the visits are done.
 
 The report also names **the built-ins no page drew**. A component can be in
 the registry, the tests and the documentation and still be broken on a

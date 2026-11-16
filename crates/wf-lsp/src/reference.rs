@@ -333,6 +333,12 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         place: Place::TopLevel,
     },
     KeywordDoc {
+        name: "fake",
+        summary: "What answers a service's endpoints in a test, in place of the network, held to the group's contract (`N06`): each endpoint it answers, the parameters it reads by name, and the result each gives. A test names it with `fakes: [ … ]`; `wf verify --fakes FILE` builds a site with them.",
+        example: "fake OneUser for Backend.users {\n    list(page) { .ok([User(id: \"1\", name: \"Ada\")]) }\n}",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
         name: "validate",
         summary: "What the state it names must be. The control bound to that state shows what the rules say, with the accessible plumbing. Rules: `required`, `email`, `url`, `minLength(n)`, `maxLength(n)`, `min(v)`, `max(v)`, `pattern(/…/)`, `matches(other)`, `oneOf([…])`, `custom \"…\" { }`, `async \"…\" { }`.",
         example: "validate email {\n    required\n    email \"That is not an address\"\n}",
@@ -412,8 +418,8 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "expect",
-        summary: "What the page under test must show — or, with `not`, must not.",
-        example: "expect \"3 open\"\nexpect not \"Error\"",
+        summary: "What the page under test must show — or, with `not`, must not. `expect called Backend.users.create` is whether the page asked that endpoint.",
+        example: "expect \"3 open\"\nexpect not \"Error\"\nexpect called Backend.users.create",
         place: Place::Test,
     },
     KeywordDoc {

@@ -337,6 +337,14 @@ jobs:
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour
 
+      # A page that reads a service, tested against fakes: nothing is sent.
+      - name: Fakes
+        run: target/release/wf test tests/fixtures/fakes
+
+      - name: Every page against fakes
+        working-directory: tests/fixtures/fakes
+        run: ../../../target/release/wf verify --fakes tests/people.wf
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest

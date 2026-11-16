@@ -484,11 +484,49 @@ impl Template {
         }) else {
             return Ok(value);
         };
+        let shapes = crate::check::sema::types::shape::Shapes::of(&self.program.declarations);
+        // A read's value in the data is held to the type the read declares:
+        // `{ "users": { "loaded": [ … ] } }` for `resource users: [User]`.
+        if let Value::Object(given) = &value {
+            for stmt in &page.body {
+                let StatementKind::Resource(r) = &stmt.kind else {
+                    continue;
+                };
+                let (Some(ty), Some(Value::Object(read))) = (&r.ty, given.get(&r.name)) else {
+                    continue;
+                };
+                let Some(loaded) = read.get("loaded") else {
+                    continue;
+                };
+                if let Some(fault) =
+                    crate::check::sema::types::shape::fault(loaded, &shapes.shape(ty))
+                {
+                    return Err(WebFluentError::Diagnostics(vec![
+                        crate::diagnostics::error::Diagnostic::coded(
+                            "T33",
+                            format!(
+                                "the data is not what the read `{}` holds: {}.loaded{} {}",
+                                r.name,
+                                r.name,
+                                &fault.at[1..],
+                                fault.message
+                            ),
+                            "<data>",
+                            1,
+                            1,
+                        )
+                        .with_hint(format!(
+                            "Give `{}` what it reads: {{ \"loaded\": … }} of its type",
+                            r.name
+                        )),
+                    ]));
+                }
+            }
+        }
         let params = data_params(page);
         if params.is_empty() {
             return Ok(value);
         }
-        let shapes = crate::check::sema::types::shape::Shapes::of(&self.program.declarations);
         let fields = params
             .iter()
             .map(|p| {
@@ -1498,6 +1536,16 @@ fn seed_values(stmts: &[Statement], ctx: &mut RenderContext<'_>) -> Seeded {
         }
     }
     let given = |ctx: &RenderContext<'_>, name: &str| matches!(ctx.data, Value::Object(m) if m.contains_key(name));
+    // A read the data gives a value: `{ "users": { "loaded": [ … ] } }`
+    // paints its `.loaded` arm, and its members read as that value's.
+    for stmt in stmts {
+        if let StatementKind::Resource(r) = &stmt.kind
+            && let Value::Object(data) = &ctx.data
+            && let Some(read) = data.get(&r.name).and_then(read_of)
+        {
+            saved.push((r.name.clone(), ctx.locals.insert(r.name.clone(), read)));
+        }
+    }
     for stmt in stmts {
         if let StatementKind::State(st) = &stmt.kind
             && !given(ctx, &st.name)
@@ -1530,6 +1578,45 @@ fn seed_values(stmts: &[Statement], ctx: &mut RenderContext<'_>) -> Seeded {
         values: saved,
         functions,
     }
+}
+
+/// A read as the data gives it — `{ "loaded": value }`, `{ "failed":
+/// error }` or `{ "loading": true }` — as what the page reads of one: its
+/// case, for a `match`, beside its members. Anything else is not a read's
+/// value, and the read paints as it would with no data.
+fn read_of(given: &Value) -> Option<Value> {
+    let Value::Object(map) = given else {
+        return None;
+    };
+    let [(case, value)] = map.iter().collect::<Vec<_>>()[..] else {
+        return None;
+    };
+    let (shown, error, read) = match case.as_str() {
+        "loaded" => (
+            value.clone(),
+            Value::Null,
+            serde_json::json!(["loaded", value, false, null]),
+        ),
+        "failed" => (
+            Value::Null,
+            value.clone(),
+            serde_json::json!(["failed", value]),
+        ),
+        "loading" => (Value::Null, Value::Null, Value::String("loading".into())),
+        _ => return None,
+    };
+    Some(serde_json::json!({
+        "$read": read,
+        "value": shown,
+        "items": shown,
+        "error": error,
+        "isLoading": case == "loading",
+        "isLoaded": case == "loaded",
+        "isFailed": case == "failed",
+        "isRefreshing": false,
+        "pending": false,
+        "hasMore": false,
+    }))
 }
 
 /// What seeding a body shadowed, to put back when the body is done.
@@ -1578,7 +1665,11 @@ fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext<'_>) ->
             StatementKind::Match(m) => {
                 let over_resource = crate::syntax::parser::ast::over_read(&m.arms);
                 let value = if over_resource {
-                    Value::Null
+                    // What the data says the read holds, or nothing yet.
+                    match ctx.eval_expr(&m.scrutinee) {
+                        Value::Object(read) => read.get("$read").cloned().unwrap_or(Value::Null),
+                        _ => Value::Null,
+                    }
                 } else {
                     ctx.eval_expr(&m.scrutinee)
                 };

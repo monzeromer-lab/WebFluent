@@ -57,6 +57,7 @@ impl Usage {
                 | Declaration::Const(_)
                 | Declaration::Animation(_)
                 | Declaration::Test(_)
+                | Declaration::Fake(_)
                 | Declaration::Data(_) => continue,
             };
             walk(body, &mut usage);

@@ -89,6 +89,7 @@ pub webfluent::build::BuildOptions::cache: core::option::Option<&'a webfluent::b
 pub webfluent::build::BuildOptions::color: bool
 pub webfluent::build::BuildOptions::deny_warnings: bool
 pub webfluent::build::BuildOptions::dev: bool
+pub webfluent::build::BuildOptions::fakes: core::option::Option<&'a str>
 pub webfluent::build::BuildOptions::format: webfluent::diagnostics::format::Format
 pub webfluent::build::BuildOptions::on_line: core::option::Option<&'a dyn core::ops::function::Fn(&webfluent::build::BuildLine)>
 pub webfluent::build::BuildOptions::only_route: core::option::Option<&'a str>
@@ -333,6 +334,7 @@ pub webfluent::config::project::BuildConfig::clean_urls: core::option::Option<we
 pub webfluent::config::project::BuildConfig::compress: bool
 pub webfluent::config::project::BuildConfig::csp: bool
 pub webfluent::config::project::BuildConfig::elements: alloc::vec::Vec<alloc::string::String>
+pub webfluent::config::project::BuildConfig::fakes: core::option::Option<alloc::string::String>
 pub webfluent::config::project::BuildConfig::frames_itself: bool
 pub webfluent::config::project::BuildConfig::inline_styles: bool
 pub webfluent::config::project::BuildConfig::media: webfluent::config::project::MediaConfig
@@ -2258,6 +2260,7 @@ pub webfluent::syntax::parser::ast::Declaration::Component(webfluent::syntax::pa
 pub webfluent::syntax::parser::ast::Declaration::Const(webfluent::syntax::parser::ConstDecl)
 pub webfluent::syntax::parser::ast::Declaration::Data(webfluent::syntax::parser::DataDecl)
 pub webfluent::syntax::parser::ast::Declaration::Enum(webfluent::syntax::parser::EnumDecl)
+pub webfluent::syntax::parser::ast::Declaration::Fake(webfluent::syntax::parser::FakeDecl)
 pub webfluent::syntax::parser::ast::Declaration::Middleware(webfluent::syntax::parser::MiddlewareDecl)
 pub webfluent::syntax::parser::ast::Declaration::Page(webfluent::syntax::parser::PageDecl)
 pub webfluent::syntax::parser::ast::Declaration::Script(webfluent::syntax::parser::ScriptDecl)
@@ -2447,6 +2450,10 @@ pub webfluent::syntax::parser::ast::Step::Expect
 pub webfluent::syntax::parser::ast::Step::Expect::negated: bool
 pub webfluent::syntax::parser::ast::Step::Expect::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::Step::Expect::text: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::ast::Step::ExpectCalled
+pub webfluent::syntax::parser::ast::Step::ExpectCalled::endpoint: alloc::string::String
+pub webfluent::syntax::parser::ast::Step::ExpectCalled::negated: bool
+pub webfluent::syntax::parser::ast::Step::ExpectCalled::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::Step::ExpectFocus
 pub webfluent::syntax::parser::ast::Step::ExpectFocus::name: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::Step::ExpectFocus::span: webfluent::syntax::parser::Span
@@ -2892,6 +2899,40 @@ impl core::marker::Unpin for webfluent::syntax::parser::EventHandler
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EventHandler
+pub struct webfluent::syntax::parser::ast::FakeAnswer
+pub webfluent::syntax::parser::ast::FakeAnswer::body: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::ast::FakeAnswer::endpoint: alloc::string::String
+pub webfluent::syntax::parser::ast::FakeAnswer::params: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::ast::FakeAnswer::span: webfluent::syntax::parser::Span
+impl core::clone::Clone for webfluent::syntax::parser::FakeAnswer
+pub fn webfluent::syntax::parser::FakeAnswer::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::FakeAnswer
+pub fn webfluent::syntax::parser::FakeAnswer::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::FakeAnswer
+impl core::marker::Send for webfluent::syntax::parser::FakeAnswer
+impl core::marker::Sync for webfluent::syntax::parser::FakeAnswer
+impl core::marker::Unpin for webfluent::syntax::parser::FakeAnswer
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::FakeAnswer
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::FakeAnswer
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::FakeAnswer
+pub struct webfluent::syntax::parser::ast::FakeDecl
+pub webfluent::syntax::parser::ast::FakeDecl::answers: alloc::vec::Vec<webfluent::syntax::parser::FakeAnswer>
+pub webfluent::syntax::parser::ast::FakeDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ast::FakeDecl::header_span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::ast::FakeDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ast::FakeDecl::span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::ast::FakeDecl::target: alloc::string::String
+impl core::clone::Clone for webfluent::syntax::parser::FakeDecl
+pub fn webfluent::syntax::parser::FakeDecl::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::FakeDecl
+pub fn webfluent::syntax::parser::FakeDecl::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::FakeDecl
+impl core::marker::Send for webfluent::syntax::parser::FakeDecl
+impl core::marker::Sync for webfluent::syntax::parser::FakeDecl
+impl core::marker::Unpin for webfluent::syntax::parser::FakeDecl
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::FakeDecl
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::FakeDecl
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::FakeDecl
 pub struct webfluent::syntax::parser::ast::FetchDecl
 pub webfluent::syntax::parser::ast::FetchDecl::error_block: core::option::Option<(alloc::string::String, alloc::vec::Vec<webfluent::syntax::parser::Statement>)>
 pub webfluent::syntax::parser::ast::FetchDecl::error_span: core::option::Option<webfluent::syntax::parser::Span>
@@ -3474,6 +3515,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::StylePr
 pub struct webfluent::syntax::parser::ast::TestDecl
 pub webfluent::syntax::parser::ast::TestDecl::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 pub webfluent::syntax::parser::ast::TestDecl::data: core::option::Option<webfluent::syntax::parser::Expr>
+pub webfluent::syntax::parser::ast::TestDecl::fakes: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::ast::TestDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::TestDecl::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::TestDecl::steps: alloc::vec::Vec<webfluent::syntax::parser::Step>
@@ -3774,6 +3816,7 @@ pub webfluent::syntax::parser::Declaration::Component(webfluent::syntax::parser:
 pub webfluent::syntax::parser::Declaration::Const(webfluent::syntax::parser::ConstDecl)
 pub webfluent::syntax::parser::Declaration::Data(webfluent::syntax::parser::DataDecl)
 pub webfluent::syntax::parser::Declaration::Enum(webfluent::syntax::parser::EnumDecl)
+pub webfluent::syntax::parser::Declaration::Fake(webfluent::syntax::parser::FakeDecl)
 pub webfluent::syntax::parser::Declaration::Middleware(webfluent::syntax::parser::MiddlewareDecl)
 pub webfluent::syntax::parser::Declaration::Page(webfluent::syntax::parser::PageDecl)
 pub webfluent::syntax::parser::Declaration::Script(webfluent::syntax::parser::ScriptDecl)
@@ -3963,6 +4006,10 @@ pub webfluent::syntax::parser::Step::Expect
 pub webfluent::syntax::parser::Step::Expect::negated: bool
 pub webfluent::syntax::parser::Step::Expect::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::Step::Expect::text: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::Step::ExpectCalled
+pub webfluent::syntax::parser::Step::ExpectCalled::endpoint: alloc::string::String
+pub webfluent::syntax::parser::Step::ExpectCalled::negated: bool
+pub webfluent::syntax::parser::Step::ExpectCalled::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::Step::ExpectFocus
 pub webfluent::syntax::parser::Step::ExpectFocus::name: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::Step::ExpectFocus::span: webfluent::syntax::parser::Span
@@ -4408,6 +4455,40 @@ impl core::marker::Unpin for webfluent::syntax::parser::EventHandler
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EventHandler
+pub struct webfluent::syntax::parser::FakeAnswer
+pub webfluent::syntax::parser::FakeAnswer::body: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::FakeAnswer::endpoint: alloc::string::String
+pub webfluent::syntax::parser::FakeAnswer::params: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::FakeAnswer::span: webfluent::syntax::parser::Span
+impl core::clone::Clone for webfluent::syntax::parser::FakeAnswer
+pub fn webfluent::syntax::parser::FakeAnswer::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::FakeAnswer
+pub fn webfluent::syntax::parser::FakeAnswer::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::FakeAnswer
+impl core::marker::Send for webfluent::syntax::parser::FakeAnswer
+impl core::marker::Sync for webfluent::syntax::parser::FakeAnswer
+impl core::marker::Unpin for webfluent::syntax::parser::FakeAnswer
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::FakeAnswer
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::FakeAnswer
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::FakeAnswer
+pub struct webfluent::syntax::parser::FakeDecl
+pub webfluent::syntax::parser::FakeDecl::answers: alloc::vec::Vec<webfluent::syntax::parser::FakeAnswer>
+pub webfluent::syntax::parser::FakeDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::FakeDecl::header_span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::FakeDecl::name: alloc::string::String
+pub webfluent::syntax::parser::FakeDecl::span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::FakeDecl::target: alloc::string::String
+impl core::clone::Clone for webfluent::syntax::parser::FakeDecl
+pub fn webfluent::syntax::parser::FakeDecl::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::FakeDecl
+pub fn webfluent::syntax::parser::FakeDecl::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::FakeDecl
+impl core::marker::Send for webfluent::syntax::parser::FakeDecl
+impl core::marker::Sync for webfluent::syntax::parser::FakeDecl
+impl core::marker::Unpin for webfluent::syntax::parser::FakeDecl
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::FakeDecl
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::FakeDecl
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::FakeDecl
 pub struct webfluent::syntax::parser::FetchDecl
 pub webfluent::syntax::parser::FetchDecl::error_block: core::option::Option<(alloc::string::String, alloc::vec::Vec<webfluent::syntax::parser::Statement>)>
 pub webfluent::syntax::parser::FetchDecl::error_span: core::option::Option<webfluent::syntax::parser::Span>
@@ -4990,6 +5071,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::StylePr
 pub struct webfluent::syntax::parser::TestDecl
 pub webfluent::syntax::parser::TestDecl::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 pub webfluent::syntax::parser::TestDecl::data: core::option::Option<webfluent::syntax::parser::Expr>
+pub webfluent::syntax::parser::TestDecl::fakes: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::TestDecl::name: alloc::string::String
 pub webfluent::syntax::parser::TestDecl::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::TestDecl::steps: alloc::vec::Vec<webfluent::syntax::parser::Step>

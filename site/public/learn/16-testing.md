@@ -234,6 +234,119 @@ test "a task is added with Enter" {
 does. The `spa` and `static` projects that `wf init` writes carry tests
 like this under `tests/`; run `wf test` in a new project to see them pass.
 
+## Answer a service with fakes
+
+A page that reads from a service has nothing to show in a test until
+something answers it, and a test should not depend on a server being up.
+A `fake` answers a group's endpoints in its place. The compiler holds it to
+the group's contract, as it holds a call: every endpoint it answers is one
+the group has, every name it binds is one of that endpoint's parameters,
+and every answer is the result the endpoint declares.
+
+This test lists the team from a fake, and checks that adding a person with
+the wrong address shows the server's field error:
+
+```wf
+type Person { id: String, name: String, email: Email }
+type NewPerson { name: String, email: Email }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    post create(body: NewPerson) at "people" -> Person ! CreatePersonError
+    invalidates [list]
+}
+
+store Team {
+    state problem = ""
+    action add(name: String, email: Email) {
+        match await Backend.people.create(body: NewPerson(name: name, email: email)) {
+            .ok(_) { problem = "" }
+            .err(.unprocessableContent(p)) { problem = p.errors.first()?.message ?? "Check the form" }
+            .err(.http(e)) { problem = e.message }
+        }
+    }
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    use Team
+    state email: Email = "ada@example.com"
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Input(bind: email, label: "Email").email
+    Button("Add") { on click { Team.add("Grace", email) } }
+    Text(Team.problem)
+}
+
+fake OneEngineer for Backend.people {
+    list() {
+        .ok([Person(id: "1", name: "Ada", email: "ada@example.com")])
+    }
+    create(body) {
+        if body.email.domain() == "example.com" { .ok(Person(id: "2", name: body.name, email: body.email)) } else { .err(.unprocessableContent(ValidationProblem(title: "Invalid", errors: [FieldError(field: "email", message: "Use your work address")]))) }
+    }
+}
+
+test "lists the team"(fakes: [OneEngineer]) {
+    People
+    expect "Ada"
+    expect not called Backend.people.create
+}
+
+test "shows the server's field error"(fakes: [OneEngineer]) {
+    People
+    type "grace@elsewhere.org" into "Email"
+    click "Add"
+    expect "Use your work address"
+    expect called Backend.people.create
+}
+```
+
+How a fake answers:
+
+- **By name.** `fake OneEngineer for Backend.people` answers that group;
+  `fake … for Backend` answers a service's own endpoints. Each answer names
+  the endpoint, then the parameters it reads — any of them, by the names
+  the endpoint gives them. A parameter the call left out is its default, or
+  `null`.
+- **As the endpoint would.** An answer is the endpoint's result:
+  `.ok(value)`, or `.err(error)` with a case of its error enum, or an
+  `HttpError` such as `.status(500, null)`. An `if` or a `match` picks one
+  from what the call sent.
+- **Without the network.** A test that names `fakes:` runs in a browser,
+  where its page makes the calls. Nothing is sent: a call goes to the fake,
+  and a write's `invalidates` asks its reads again, as after a real
+  success. A call to an endpoint no fake answers fails the test and names
+  the endpoint.
+- **Whole.** A paged endpoint is answered a page at a time, from the
+  parameter the page goes in; a `streamed` one with the whole list, which
+  arrives a line at a time.
+
+`expect called Backend.people.create` passes once the page has asked that
+endpoint; `expect not called` passes while it has not. Use them to check
+that a write went out, or that a form did not send what it should not.
+
+A fake that does not fit its contract is `N06`, with what is wrong: an
+endpoint the group does not have, a parameter it does not take, an answer
+of the wrong type. So is a test's `fakes:` naming no fake, two fakes
+answering one endpoint, and an `expect called` naming no endpoint.
+
+Put fakes beside the tests that use them, under `tests/`. A fake in `src/`
+is checked like any declaration, and a build leaves it out.
+
 ## Run the tests
 
 To run every test under `tests/`, and any declared in `src/`:
@@ -280,7 +393,11 @@ coverage, not a failure. Its options:
 - `--budget 400` fails a route that takes more than 400 ms to paint;
 - `--json` prints the report for a pipeline;
 - `--returning-visitor` visits every route again with storage holding what
-  the previous build's pages kept.
+  the previous build's pages kept;
+- `--fakes tests/fakes.wf` builds the site with the fakes that file
+  declares answering its endpoints, and loads that — for a site whose API
+  is elsewhere, or not running. It writes that build aside and removes it
+  after; the project's own `build/` is not touched.
 
 [CLI](https://webfluent.monzeromer.dev/reference/cli.md#wf-verify) has the details.
 

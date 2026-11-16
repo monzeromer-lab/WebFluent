@@ -98,6 +98,11 @@ test "pill shows its label" { Pill("Beta")  expect "Beta" }"#, title: "wf")
                     Table.Cell("A render held to expectations and a snapshot")
                     Table.Cell { Markdown("[Testing](/learn/16-testing)") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`fake`") }
+                    Table.Cell("What answers a service's endpoints in a test, in place of the network")
+                    Table.Cell { Markdown("[Answer a service with fakes](/learn/16-testing#answer-a-service-with-fakes)") }
+                }
             }
         }
 

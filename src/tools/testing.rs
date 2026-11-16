@@ -222,6 +222,9 @@ pub fn collect(path: &Path) -> Result<Tests> {
     for (file, test) in &tests {
         clashes.extend(seed_faults(test, &declarations, file));
     }
+    // A fake is held to the contract it answers for, and a test to the
+    // fakes and endpoints it names (`N06`).
+    clashes.extend(fake_faults(&declarations, &owners, &own, &tests));
     if !clashes.is_empty() {
         return Err(crate::diagnostics::error::WebFluentError::Diagnostics(
             clashes,
@@ -298,6 +301,155 @@ pub fn collect(path: &Path) -> Result<Tests> {
         i18n,
         styles,
     })
+}
+
+/// What is wrong with the fakes and with what the tests name of them
+/// (`N06`): a fake in a test file checked against the contract it answers
+/// for, as the build checks one in `src/`; a test's `fakes:` naming
+/// something no fake is, or two fakes answering one endpoint; an `expect
+/// called` naming no endpoint.
+fn fake_faults(
+    declarations: &[Declaration],
+    owners: &[String],
+    own: &HashMap<String, Vec<Declaration>>,
+    tests: &[(String, TestDecl)],
+) -> Vec<crate::diagnostics::Diagnostic> {
+    let mut out = Vec::new();
+    // What the type checker says of the fakes the test files declare,
+    // checked beside everything the project and those files declare.
+    let mut program = Program {
+        declarations: Vec::new(),
+    };
+    let mut files = Vec::new();
+    // Each fake of a test file, as the lines from its own to the next
+    // declaration's: what is found there is the fake's.
+    let mut fakes: Vec<(&str, usize, usize)> = Vec::new();
+    for (i, (d, file)) in declarations.iter().zip(owners).enumerate() {
+        if is_drawn(d) {
+            continue;
+        }
+        if let Declaration::Fake(f) = d
+            && own.contains_key(file)
+        {
+            let next = declarations
+                .iter()
+                .zip(owners)
+                .skip(i + 1)
+                .find(|(_, o)| *o == file)
+                .and_then(|(d, _)| crate::check::scope::decl_span(d))
+                .map_or(usize::MAX, |s| s.line as usize);
+            fakes.push((file, f.span.line as usize, next));
+        }
+        program.declarations.push(d.clone());
+        files.push(file.clone());
+    }
+    if !fakes.is_empty() {
+        let info = crate::check::sema::types::check(&program, &|i| {
+            files.get(i).cloned().unwrap_or_default()
+        });
+        out.extend(info.findings.errors.into_iter().filter(|d| {
+            fakes
+                .iter()
+                .any(|(file, from, to)| d.file == *file && d.line >= *from && d.line < *to)
+        }));
+    }
+    // What a test names.
+    let fake_decls = |file: &str| -> Vec<&crate::syntax::parser::ast::FakeDecl> {
+        declarations
+            .iter()
+            .zip(owners)
+            .filter(|(_, f)| !own.contains_key(*f) || *f == file)
+            .filter_map(|(d, _)| match d {
+                Declaration::Fake(f) => Some(f),
+                _ => None,
+            })
+            .collect()
+    };
+    let apis: Vec<&crate::syntax::parser::ast::ApiDecl> = declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Api(a) => Some(a),
+            _ => None,
+        })
+        .collect();
+    for (file, test) in tests {
+        let at = |code: &'static str, message: String, hint: &str| {
+            crate::diagnostics::Diagnostic::coded(
+                code,
+                message,
+                file,
+                test.span.line as usize,
+                test.span.col as usize,
+            )
+            .with_hint(hint)
+        };
+        let known = fake_decls(file);
+        let mut answered: Vec<(String, &str)> = Vec::new();
+        for name in &test.fakes {
+            let Some(fake) = known.iter().find(|f| f.name == *name) else {
+                let names: Vec<&str> = known.iter().map(|f| f.name.as_str()).collect();
+                let hint = match crate::diagnostics::fixes::nearest(name, names.iter().copied()) {
+                    Some(n) => format!("Did you mean `{n}`?"),
+                    None if names.is_empty() => {
+                        "Declare one beside the test: `fake OneUser for Backend.users { … }`"
+                            .to_string()
+                    }
+                    None => format!(
+                        "The fakes are {}",
+                        names
+                            .iter()
+                            .map(|n| format!("`{n}`"))
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    ),
+                };
+                out.push(at(
+                    "N06",
+                    format!(
+                        "test \"{}\" names the fake `{name}`, and nothing declares it",
+                        test.name
+                    ),
+                    &hint,
+                ));
+                continue;
+            };
+            for a in &fake.answers {
+                let endpoint = format!("{}.{}", fake.target, a.endpoint);
+                if let Some((_, first)) = answered.iter().find(|(e, _)| *e == endpoint) {
+                    out.push(at(
+                        "N06",
+                        format!(
+                            "test \"{}\": `{first}` and `{name}` both answer `{endpoint}`",
+                            test.name
+                        ),
+                        "Keep one fake an endpoint in a test",
+                    ));
+                } else {
+                    answered.push((endpoint, name));
+                }
+            }
+        }
+        for step in &test.steps {
+            let Step::ExpectCalled { endpoint, .. } = step else {
+                continue;
+            };
+            let found = endpoint.rsplit_once('.').is_some_and(|(api, ep)| {
+                apis.iter()
+                    .any(|a| a.name == api && a.endpoints.iter().any(|e| e.name == ep))
+            });
+            if !found {
+                out.push(at(
+                    "N06",
+                    format!(
+                        "test \"{}\" expects a call of `{endpoint}`, which no `api` declares",
+                        test.name
+                    ),
+                    "Name the endpoint as a call names it: `expect called Backend.users.create`",
+                ));
+            }
+        }
+    }
+    out
 }
 
 /// What a test's `data:` gives that the state it seeds cannot hold (`T33`),
@@ -1130,6 +1282,38 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             }
             page.settle(120)?;
         }
+        Step::ExpectCalled {
+            endpoint, negated, ..
+        } => {
+            // Every endpoint the page asked, as the runtime counted them
+            // when a fake answered — or no fake did.
+            let read = format!(
+                "(window.__wfCalls || []).includes({})",
+                serde_json::to_string(endpoint).unwrap_or_default()
+            );
+            let called = |page: &mut dyn Page| -> Result<bool> {
+                Ok(page.eval(&read)?.as_bool().unwrap_or(false))
+            };
+            let mut found = called(page)?;
+            // A call still on its way is waited for; one that must not come
+            // is given a moment to.
+            let until = std::time::Instant::now()
+                + std::time::Duration::from_millis(if *negated { 150 } else { 1500 });
+            while (found == *negated || *negated) && std::time::Instant::now() < until {
+                page.settle(50)?;
+                found = called(page)?;
+                if found && *negated {
+                    break;
+                }
+            }
+            if found == *negated {
+                return Ok(Err(if *negated {
+                    format!("expected no call of {endpoint}, and the page made one")
+                } else {
+                    format!("expected a call of {endpoint}, and the page made none")
+                }));
+            }
+        }
         Step::Press { key, target, .. } => {
             let key = text(key);
             let where_ = target.as_ref().map(text).unwrap_or_default();
@@ -1174,6 +1358,9 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site<'_>) -> Result<()> 
     // write, and the shell would be served in its place.
     config.build.split = false;
     let mut js = crate::web::codegen::JsCodegen::new();
+    // A test's page asks no network: what answers its endpoints is the
+    // fakes it names, and a call none answers fails the test.
+    js.set_fakes(true);
     if let Some((c, tables)) = site.i18n {
         js.set_i18n(c.default_locale.clone(), tables.clone());
     }
@@ -1261,7 +1448,7 @@ fn as_program(shared: &[Declaration], test: &TestDecl) -> Program {
             !matches!(
                 d,
                 Declaration::Page(_) | Declaration::App(_) | Declaration::Test(_)
-            )
+            ) && !matches!(d, Declaration::Fake(f) if !test.fakes.contains(&f.name))
         })
         .cloned()
         .map(|d| match d {

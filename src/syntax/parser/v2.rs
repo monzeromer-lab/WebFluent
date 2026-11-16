@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, FakeDecl, FakeAnswer, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -203,6 +203,7 @@ pub const DECLARATION_WORDS: &[&str] = &[
     "test",
     "data",
     "image",
+    "fake",
     "external",
 ];
 const STATEMENT_WORDS: &[&str] = &[
@@ -611,6 +612,9 @@ impl ParserV2 {
                 "test" if matches!(self.kind_at(1), TokenType::StringLiteral(_)) => {
                     self.parse_test_decl()?
                 }
+                "fake" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
+                    self.parse_fake_decl(doc)?
+                }
                 "data" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
                     self.parse_data_decl(doc)?
                 }
@@ -634,7 +638,7 @@ impl ParserV2 {
                 _ => {
                     return Err(self.error_with_hint(
                         format!(
-                            "Expected a declaration — page, component, store, theme, app, type, enum, const, animation, data or test — got {}",
+                            "Expected a declaration — page, component, store, theme, app, type, enum, api, const, animation, data, test or fake — got {}",
                             self.describe()
                         ),
                         "Every file is a list of declarations; elements live inside a page or component",
@@ -1314,17 +1318,35 @@ impl ParserV2 {
             _ => return Err(self.error("Expected the test's name, in quotes".into())),
         };
         let mut data = None;
+        let mut fakes = Vec::new();
         if self.eat(&TokenType::OpenParen) {
             while !self.check(&TokenType::CloseParen) && !self.at_end() {
-                let key = self.expect_ident("`data`")?;
+                let key = self.expect_ident("`data` or `fakes`")?;
                 self.expect(&TokenType::Colon, "`:`")?;
                 let value = self.parse_expression()?;
                 if key == "data" {
                     data = Some(value);
+                } else if key == "fakes" {
+                    // `fakes: [OneUser, NoOrders]`: the fakes by name.
+                    let Expr::ListLiteral(items) = &value else {
+                        return Err(self.error_with_hint(
+                            "`fakes:` is a list of fakes".to_string(),
+                            "Name them: `fakes: [OneUser]`",
+                        ));
+                    };
+                    for item in items {
+                        let Expr::Identifier(name) = item else {
+                            return Err(self.error_with_hint(
+                                "`fakes:` names fakes, each by its name".to_string(),
+                                "Name them: `fakes: [OneUser]`",
+                            ));
+                        };
+                        fakes.push(name.clone());
+                    }
                 } else {
                     return Err(self.error_with_hint(
                         format!("`{key}` is not something a test takes"),
-                        "A test takes `data: { … }`, the values its body renders over",
+                        "A test takes `data: { … }`, the values its body renders over, and `fakes: [ … ]`, what answers its endpoints",
                     ));
                 }
                 if !self.check(&TokenType::CloseParen) {
@@ -1382,12 +1404,20 @@ impl ParserV2 {
                     target: positional(1),
                     span,
                 }),
+                "__ExpectCalled" => steps.push(Step::ExpectCalled {
+                    endpoint: match positional(0) {
+                        Some(Expr::StringLiteral(s)) => s,
+                        _ => String::new(),
+                    },
+                    negated: el.modifiers.iter().any(|m| m == "not"),
+                    span,
+                }),
                 _ => body.push(stmt),
             }
         }
         if !steps
             .iter()
-            .any(|s| matches!(s, Step::Expect { .. } | Step::ExpectFocus { .. }))
+            .any(|s| matches!(s, Step::Expect { .. } | Step::ExpectFocus { .. } | Step::ExpectCalled { .. }))
         {
             return Err(self.error_with_hint(
                 format!("test \"{name}\" expects nothing"),
@@ -1397,9 +1427,67 @@ impl ParserV2 {
         Ok(Declaration::Test(TestDecl {
             name,
             data,
+            fakes,
             body,
             steps,
             span: self.span_since(mark),
+        }))
+    }
+
+    /// `fake OneUser for Backend.users { list(page) { .ok([…]) } }`.
+    fn parse_fake_decl(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("fake")?;
+        let name = self.expect_ident("the fake's name")?;
+        if !self.eat_word("for") {
+            return Err(self.error_with_hint(
+                format!("`fake {name}` says nothing of what it answers for"),
+                "Name the service or the group: `fake OneUser for Backend.users { … }`",
+            ));
+        }
+        let mut target = self.expect_ident("the service it answers for, `Backend`")?;
+        while self.eat(&TokenType::Dot) {
+            target.push('.');
+            target.push_str(&self.expect_ident("the group, `Backend.users`")?);
+        }
+        let header_span = self.span_since(mark);
+        self.expect(&TokenType::OpenBrace, "`{`")?;
+        let mut answers = Vec::new();
+        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+            self.take_docs();
+            if self.check(&TokenType::CloseBrace) {
+                break;
+            }
+            let answer_mark = self.mark();
+            let endpoint = self.expect_ident("an endpoint's name, `list(page) { .ok([]) }`")?;
+            let mut params = Vec::new();
+            if self.eat(&TokenType::OpenParen) {
+                while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                    params.push(self.expect_ident("a parameter's name")?);
+                    if !self.check(&TokenType::CloseParen) {
+                        self.expect(&TokenType::Comma, "`,`")?;
+                    }
+                }
+                self.expect(&TokenType::CloseParen, "`)`")?;
+            }
+            self.expect(&TokenType::OpenBrace, "`{`")?;
+            let body = self.parse_expression()?;
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+            answers.push(FakeAnswer {
+                endpoint,
+                params,
+                body,
+                span: self.span_since(answer_mark),
+            });
+        }
+        self.expect(&TokenType::CloseBrace, "`}`")?;
+        Ok(Declaration::Fake(FakeDecl {
+            name,
+            target,
+            answers,
+            doc,
+            span: self.span_since(mark),
+            header_span,
         }))
     }
 
@@ -1808,6 +1896,28 @@ impl ParserV2 {
                 let name = self.parse_expression()?;
                 let mut el = self.blank_element(ComponentRef::BuiltIn("__ExpectFocus".to_string()));
                 el.args.push(Arg::Positional(name));
+                Ok(StatementKind::UIElement(el))
+            }
+            // `expect called Backend.users.create`: whether the page asked
+            // an endpoint, named as a call of it is.
+            "expect"
+                if body == Body::Test
+                    && (self.is_word_at(1, "called")
+                        || self.is_word_at(1, "not") && self.is_word_at(2, "called")) =>
+            {
+                self.advance();
+                let negated = self.eat_word("not");
+                self.expect_word("called")?;
+                let mut path = self.expect_ident("the endpoint, `Backend.users.create`")?;
+                while self.eat(&TokenType::Dot) {
+                    path.push('.');
+                    path.push_str(&self.expect_ident("the rest of the endpoint's name")?);
+                }
+                let mut el = self.blank_element(ComponentRef::BuiltIn("__ExpectCalled".to_string()));
+                el.args.push(Arg::Positional(Expr::StringLiteral(path)));
+                if negated {
+                    el.modifiers.push("not".to_string());
+                }
                 Ok(StatementKind::UIElement(el))
             }
             "expect" if body == Body::Test => {

@@ -74,6 +74,7 @@ pub fn lint_accessibility_in(
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Fake(_)
             | Declaration::Data(_) => {}
         }
     }

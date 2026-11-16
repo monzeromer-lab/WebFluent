@@ -119,6 +119,10 @@ pub struct JsOptions {
 )]
 pub struct JsCodegen {
     output: String,
+    /// A page a test, or `wf verify --fakes`, opens: the program's fakes
+    /// answer its endpoints, and a call none answers is reported rather
+    /// than sent. A build leaves fakes out.
+    fakes: bool,
     /// `build.sourcemap`: each declaration's source (by `map_key`) as an
     /// index into the map's sources; the one being emitted; and the marker
     /// the next line written starts with (`codegen::sourcemap`).
@@ -438,6 +442,7 @@ impl JsCodegen {
             runtime_report: Vec::new(),
             runtime_bytes: 0,
             indent: 0,
+            fakes: false,
             components: Vec::new(),
             stores: Vec::new(),
             store_async_actions: Vec::new(),
@@ -533,6 +538,19 @@ impl JsCodegen {
     ) {
         self.i18n_default_locale = Some(default_locale);
         self.i18n_translations = translations;
+    }
+
+    /// Answer the program's endpoints with its fakes, and send nothing: a
+    /// test's page, or `wf verify --fakes`.
+    pub fn set_fakes(&mut self, enabled: bool) {
+        self.fakes = enabled;
+    }
+
+    /// [`set_fakes`](Self::set_fakes), as a builder.
+    #[must_use]
+    pub fn with_fakes(mut self, enabled: bool) -> Self {
+        self.fakes = enabled;
+        self
     }
 
     /// Take pre-rendered pages over in place ([`JsOptions::ssg`]).
@@ -1180,6 +1198,12 @@ impl JsCodegen {
                 let value = self.emit_expr(&c.value);
                 self.emit_line(&format!("const {} = {};", top_level(&c.name), value));
             }
+        }
+
+        // What answers the endpoints in place of the network, on a page a
+        // test opens.
+        if self.fakes {
+            self.emit_fakes(program);
         }
 
         // Middleware, which a service's chain names when it is made.

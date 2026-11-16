@@ -90,7 +90,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell { Markdown("Runs the project's `test` declarations") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]`") }
+                            Table.Cell { Markdown("`wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]`") }
                             Table.Cell("Loads every built page in headless Chrome")
                         }
                         Table.Row {
@@ -651,6 +651,12 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell("Visits every route again as a returning reader (below).")
                         }
                         Table.Row {
+                            Table.Cell { Markdown("`--fakes`") }
+                            Table.Cell("a file")
+                            Table.Cell("none")
+                            Table.Cell("Builds the site with that file's fakes answering its endpoints, and loads that (below).")
+                        }
+                        Table.Row {
                             Table.Cell { Markdown("`--allow-output-outside`") }
                             Table.Cell("—")
                             Table.Cell("off")
@@ -671,7 +677,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
 
   16 page(s), 0 problem(s)"#, title: "text")
 
-                Markdown("The columns are the first contentful paint, the number of elements in the document once it settled, the bytes the page fetched, and the requests it made. `--budget 400` fails a route that takes longer than 400 ms to paint.\n\n`--returning-visitor` visits every route a second time as a reader who was here before. Their storage holds what the previous build's pages kept: each `persist` value's starting value as the build before this one wrote it, which a build saves in `.wf-cache/` when it changes. A persisted shape that changed without a `version:` then shows as the broken page it would be.\n\nThe report also names **the built-ins no page drew**. A component can be in the registry, the tests and the documentation and still be broken on a page. The classes the pages carried list what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all: the list is a fact about coverage, not a failure.\n\n`wf verify` needs Chrome or Chromium on the machine, or `WF_CHROME` pointing at one, and says so when there is none.\n\nSee also: [Testing](/learn/16-testing).")
+                Markdown("The columns are the first contentful paint, the number of elements in the document once it settled, the bytes the page fetched, and the requests it made. `--budget 400` fails a route that takes longer than 400 ms to paint.\n\n`--returning-visitor` visits every route a second time as a reader who was here before. Their storage holds what the previous build's pages kept: each `persist` value's starting value as the build before this one wrote it, which a build saves in `.wf-cache/` when it changes. A persisted shape that changed without a `version:` then shows as the broken page it would be.\n\n`--fakes tests/fakes.wf` is for a site whose API is elsewhere, or not running. It builds the project again, aside from `build/`, with the fakes that file declares answering every endpoint — the same `fake` declarations a test names ([Testing](/learn/16-testing#answer-a-service-with-fakes)) — and loads every page of that build, which sends no request to a service. A fake that does not fit its contract stops the build (`N06`). The aside build is removed when the visits are done.\n\nThe report also names **the built-ins no page drew**. A component can be in the registry, the tests and the documentation and still be broken on a page. The classes the pages carried list what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all: the list is a fact about coverage, not a failure.\n\n`wf verify` needs Chrome or Chromium on the machine, or `WF_CHROME` pointing at one, and says so when there is none.\n\nSee also: [Testing](/learn/16-testing).")
 
                 Heading("wf audit", id: "wf-audit").h3
 
@@ -1894,7 +1900,7 @@ page CliAudit(path: "/reference/cli/audit", title: "wf audit — Reference", des
 page CliVerify(path: "/reference/cli/verify", title: "wf verify — Reference", description: "wf verify: Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew. What it writes…") {
     ReferenceItemShell("wf verify", summary: "Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew", signature: "wf verify [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
-        PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for a pipeline" }, { name: "--budget MS", type: "number", meaning: "Fail a route whose first paint is slower than this, in milliseconds" }, { name: "--returning-visitor", type: "flag", meaning: "Visit every route again as a reader whose storage holds what the previous build's pages kept" }, { name: "--allow-output-outside", type: "flag", meaning: "Let `build.output` name a directory outside the project" }], caption: "Options of wf verify", nameLabel: t("cli.option"))
+        PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for a pipeline" }, { name: "--budget MS", type: "number", meaning: "Fail a route whose first paint is slower than this, in milliseconds" }, { name: "--returning-visitor", type: "flag", meaning: "Visit every route again as a reader whose storage holds what the previous build's pages kept" }, { name: "--allow-output-outside", type: "flag", meaning: "Let `build.output` name a directory outside the project" }, { name: "--fakes FILE", type: "path", meaning: "Build the site with these fakes answering its endpoints, then load that: for a site whose API is elsewhere" }], caption: "Options of wf verify", nameLabel: t("cli.option"))
         Markdown(t("cli.full", { name: "verify" }), class: "bp-prose")
         Link(t("cli.all"), to: "/reference/cli")
     }

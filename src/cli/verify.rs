@@ -22,13 +22,92 @@ pub(crate) fn run_verify(
     budget_ms: Option<u64>,
     returning: bool,
     allow_output_outside: bool,
+    fakes: Option<&Path>,
 ) -> Result<()> {
     let json = report == super::Report::Json;
     let config = ProjectConfig::load(project_dir)?;
     // What is served to the browser is the project's own output: a config
-    // that names a directory elsewhere would serve that to the page.
-    let output_dir =
-        crate::build::project_output(project_dir, &config.build.output, allow_output_outside)?;
+    // that names a directory elsewhere would serve that to the page. With
+    // `--fakes`, it is a build of its own, with the fakes answering every
+    // endpoint, written aside and thrown away after.
+    let faked = match fakes {
+        Some(file) => Some(build_with_fakes(project_dir, file, json)?),
+        None => None,
+    };
+    let output_dir = match &faked {
+        Some(dir) => dir.clone(),
+        None => {
+            crate::build::project_output(project_dir, &config.build.output, allow_output_outside)?
+        }
+    };
+    let outcome = visit_all(
+        project_dir,
+        &config,
+        &output_dir,
+        json,
+        budget_ms,
+        returning,
+    );
+    if let Some(dir) = faked {
+        let _ = std::fs::remove_dir_all(dir);
+    }
+    outcome
+}
+
+/// The project built with the fakes `file` declares answering its
+/// endpoints, into a folder of its own: where it was written.
+fn build_with_fakes(project_dir: &Path, file: &Path, json: bool) -> Result<std::path::PathBuf> {
+    // The file as the project names it: relative to the project, whether it
+    // was given that way or from where the command was run.
+    let absolute = |p: &Path| p.canonicalize().unwrap_or_else(|_| p.to_path_buf());
+    let project = absolute(project_dir);
+    let given = absolute(file);
+    let relative = given
+        .strip_prefix(&project)
+        .map(Path::to_path_buf)
+        .or_else(|_| {
+            let under = project.join(file);
+            under.is_file().then(|| file.to_path_buf()).ok_or(())
+        })
+        .map_err(|()| {
+            WebFluentError::io(format!(
+                "{}: a file of fakes is one of the project's, under {}",
+                file.display(),
+                project_dir.display()
+            ))
+        })?;
+    let relative = relative.to_string_lossy().replace('\\', "/");
+    let out = std::env::temp_dir().join(format!("wf-verify-fakes-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&out);
+    let mut options = crate::build::BuildOptions::new(project_dir, &crate::base::vfs::FsVfs);
+    options.output_dir = Some(out.clone());
+    options.fakes = Some(&relative);
+    // What the build said is said only when it failed: what it found is
+    // the reason there is nothing to load.
+    crate::build::build(&options).map_err(|failure| {
+        let _ = std::fs::remove_dir_all(&out);
+        if !json {
+            for line in &failure.report.lines {
+                match line.stream {
+                    crate::build::Stream::Stdout => println!("{}", line.text),
+                    crate::build::Stream::Stderr => eprintln!("{}", line.text),
+                }
+            }
+        }
+        failure.error
+    })?;
+    Ok(out)
+}
+
+fn visit_all(
+    project_dir: &Path,
+    config: &ProjectConfig,
+    output_dir: &Path,
+    json: bool,
+    budget_ms: Option<u64>,
+    returning: bool,
+) -> Result<()> {
+    let output_dir = output_dir.to_path_buf();
     if !output_dir.exists() {
         return Err(WebFluentError::io(format!(
             "nothing to verify: {} does not exist. Run `wf build` first",
@@ -36,7 +115,7 @@ pub(crate) fn run_verify(
         )));
     }
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
-    let routes = crate::verify::routes(&output_dir, project_dir, &config)?;
+    let routes = crate::verify::routes(&output_dir, project_dir, config)?;
     if routes.is_empty() {
         return Err(WebFluentError::io("the build wrote no pages to load"));
     }
