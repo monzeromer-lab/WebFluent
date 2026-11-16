@@ -204,7 +204,7 @@ fn read(text: &str, problems: &mut Vec<String>) -> Type {
 
 /// What a JSDoc type expression means here. A union, or an `Array` that
 /// does not say what it holds, is a type the language cannot say: it is
-/// unknown, and [`jsdoc_problems`] says why.
+/// unknown, and `jsdoc_problems` says why.
 pub fn jsdoc_type(text: &str) -> Type {
     read(text, &mut Vec::new())
 }
