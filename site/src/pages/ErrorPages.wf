@@ -62,6 +62,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T30 A part of the browser the language does not type", to: "/errors/T30", group: "Types"),
     IndexEntry(label: "T31 A script's function the language cannot type", to: "/errors/T31", group: "Types"),
     IndexEntry(label: "T32 A parameter written with no type", to: "/errors/T32", group: "Types"),
+    IndexEntry(label: "T33 Data that is not what its type says", to: "/errors/T33", group: "Types"),
     IndexEntry(label: "T34 A conversion the language does not make for you", to: "/errors/T34", group: "Types"),
     IndexEntry(label: "T35 Values worked out from each other with neither declared", to: "/errors/T35", group: "Types"),
     IndexEntry(label: "C01 A required prop or field left out", to: "/errors/C01", group: "Components"),
@@ -1501,6 +1502,17 @@ page P(path: "/", title: "Todos", description: "D") {
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Error.\n\nA parameter is what a caller sees, so it says its type: an action's\n(`action add(title: String)`), an event's (`event pick(id: String)`), a\nslot's (`slot row(item: Todo)`). A lambda's parameters are worked out from\nwhat it is passed to — `rows.filter(r => r.live)` — and are written only\nwhen nothing says them: `derived byName = (a: User, b: User) =>\na.name.localeCompare(b.name)`.")
+    }
+}
+
+page ErrorT33(path: "/errors/T33", title: "T33 — Data that is not what its type says", description: "") {
+    ErrorShell("T33", title: "Data that is not what its type says", severity: "error", family: "Types", summary: "Data that comes from outside the program is held to the type that receives it, where it comes in: a `data` file when the project is built, a template's data before it renders, a test's `data:` seeds before it runs. A value that does not fit is named by its place — `$[3].date is \"March 5\", not a Date` — rather than shown wrong, or as nothing, on the page.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T33.md") {
+        fixed {
+            Stack(gap: .sm) {
+                Markdown("Correct the data at the place the message names, or change the\ntype to what the data holds.")
+            }
+        }
+        Markdown("Error.\n\nA template that says what it takes, and data that is not that:\n\n```text\ntype Line \{ name: String, price: Number \}\n\npage Invoice(path: \"/\", title: \"Invoice\", number: String, items: [Line]) \{\n    Heading(\"Invoice #\{number\}\").h1\n    for item in items \{ Text(\"\{item.name\}: \{item.price\}\") \}\n\}\n```\n\n```text\n$ echo '\{\"number\": \"7\", \"items\": [\{\"name\": \"Widget\"\}]\}' | wf render invoice.wf\nerror[T33]: the data is not what `Invoice` takes: $.items[0].price is missing\n --> <data>:1:1\n  = help: `Invoice` takes `number`, `items`\n```\n\nData that comes in from outside the program is held to the type that\nreceives it, where it comes in, and refused with the place it goes wrong:\n\n- **A `data` file**, when the project is built: `data posts: [Post] =\n  \"posts.json\"` reads the file and holds it to `[Post]` —\n  `` `posts.json` is not what `data posts` says it is: $[3].date is \"March\n  5\", not a Date ``.\n- **A template's data**, before every render: a page that declares\n  parameters beside its route's — `page Invoice(path: \"/\", number: String,\n  items: [Line])` — takes those, and data that does not fit is refused\n  (`$.items[1].price is missing`) rather than drawn as an empty cell.\n- **A test's `data:`**, before the test runs: a seed is held to the state it\n  seeds, `count is \"two\", not a Number`.\n\nA value kept with `persist` is held to its type when it is read back too,\nand one that does not fit is dropped for the initial value rather than\nreported: a reader's storage never stops a page from loading.")
     }
 }
 

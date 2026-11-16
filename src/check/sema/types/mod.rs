@@ -47,6 +47,7 @@ mod read;
 mod refine;
 mod report;
 mod results;
+pub mod shape;
 mod signature;
 mod stmt;
 mod tables;
@@ -564,7 +565,29 @@ pub fn check_sources_with<'s>(
                 cx.written(t, &c.name);
             }
             let declared = c.ty.as_ref().map(|t| cx.world.resolve(Type::from_ref(t)));
-            let given = cx.infer(&c.value, declared.as_ref());
+            // A `data` file is data from outside the program: held to its
+            // type as JSON, and a fault named by the file and the place in
+            // it (`T33`). What reads it then reads the declared type, and
+            // the literal nobody wrote is not reported again.
+            let unfit = match (&c.source, &c.ty) {
+                (Some(file), Some(ty)) => data_fault(program, &c.value, ty).map(|fault| {
+                    cx.error(
+                        c.span,
+                        "T33",
+                        format!("`{file}` is not what `data {}` says it is: {fault}", c.name),
+                        &format!(
+                            "Correct the file at `{}`, or change the type to what the file holds",
+                            fault.at
+                        ),
+                    );
+                }),
+                _ => None,
+            };
+            let given = if unfit.is_some() {
+                declared.clone().unwrap_or(Type::Error)
+            } else {
+                cx.infer(&c.value, declared.as_ref())
+            };
             if let Some(declared) = &declared {
                 let what = format!("`const {}`", c.name);
                 cx.expect(&given, declared, c.span, &what);
@@ -1721,6 +1744,16 @@ fn store_cycles(program: &Program) -> Vec<(usize, String, String)> {
         }
     }
     found
+}
+
+/// Where a `data` constant's value — its file's JSON — is not the type it
+/// declares.
+fn data_fault(program: &Program, value: &Expr, ty: &TypeRef) -> Option<shape::Fault> {
+    let json =
+        crate::project::static_eval::eval(value, &crate::project::static_eval::Scope::of([]))?
+            .to_json();
+    let shapes = shape::Shapes::of(&program.declarations);
+    shape::fault(&json, &shapes.shape(ty))
 }
 
 fn answer_of(ty: Type) -> Type {

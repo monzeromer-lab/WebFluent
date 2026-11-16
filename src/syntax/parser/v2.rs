@@ -1419,6 +1419,7 @@ impl ParserV2 {
             value,
             doc,
             span: self.span_since(mark),
+            source: None,
         }))
     }
 

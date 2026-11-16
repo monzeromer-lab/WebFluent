@@ -668,6 +668,10 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
                     Table.Cell { Markdown("A condition — `if`, `show`, `!`, `&&`, `||` — on something that is not a `Bool`") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`T33`") }
+                    Table.Cell { Markdown("Data from outside the program — a `data` file, a template's data, a test's seed — that is not its type, named by its place") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`T34`") }
                     Table.Cell { Markdown("A `Date` or a time where text is wanted, or a `Duration` and a `Number` mixed") }
                 }

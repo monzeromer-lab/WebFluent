@@ -733,7 +733,9 @@
       ]
     },
     {
-      "deps": [],
+      "deps": [
+        "json"
+      ],
       "exports": [
         [
           "persist",

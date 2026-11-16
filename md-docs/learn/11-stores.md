@@ -285,6 +285,13 @@ The build checks the chain:
 - A value written by a *newer* build is left alone, and the page uses the
   initial value. This build cannot know what a later shape means.
 
+What storage hands back is held to the value's type as it is read — its
+declared type, or what a plain first value says it is. A value that does
+not fit (a record missing a field, text where a number is kept, something
+typed into the devtools) is not this value: the page uses the initial value
+instead, and a development build says so in the console. A reader's
+storage never stops a page from loading.
+
 The build also remembers the shape of every persisted value, in
 `.wf-cache/persist.json`. When a shape changes and `version:` was not
 raised, it warns (`D04`): a returning reader's browser still holds the old

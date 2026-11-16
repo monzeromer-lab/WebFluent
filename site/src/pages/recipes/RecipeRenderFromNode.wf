@@ -3,7 +3,11 @@
 page RecipeRenderFromNode(path: "/recipes/render-from-node", title: "Render templates from Node — Recipes", description: "Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF.") {
     RecipeShell("Render templates from Node", summary: "The Node binding is a small wrapper around `wf render`: it renders a template with your data as HTML, a fragment, a PDF or slides. This Express server answers with an invoice in either form. You need Node.js, npm and the `wf` command, and a template like the one in [Render a template with data](/recipes/render-a-template). This one is `templates/invoice.wf`:", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Render templates from Rust", to: "/recipes/render-from-rust"), RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template")], source: "md-docs/recipes/render-from-node.md", how: true, hasVariations: false, project: {}) {
         code {
-            CodeBlock(#"page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+            CodeBlock(#"type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -63,7 +67,7 @@ app.get("/invoices/:id", async (req, res) => {
 
 app.listen(3000, () => console.log("http://localhost:3000/invoices/INV-001"));"#, title: "js")
         }
-        Markdown("Run `node server.js` and open `/invoices/INV-001` for the page, or `/invoices/INV-001.pdf` for the PDF.\n\n- `Template.fromDir` reads every template under the directory, with components shared, and `page(\"Invoice\")` picks the page to render. `Template.fromFile` and `Template.fromString` load one template instead. The server loads it once, at start-up.\n- Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`, `renderPdf`, `renderSlides`) and an `…Async` form that does not block the event loop. Use the `…Async` forms in a server, as this one does.\n- `withTheme`, `withTokens` and `withLang` set what the Rust API sets ([Render templates from Rust](/recipes/render-from-rust#configure-a-render)), and each returns the template, so they chain before a render.\n- A render runs `wf` once and takes a few milliseconds. The data goes over standard input, so nothing is written to disk.\n\nThe binding needs `wf` itself installed. It looks for it at `WF_BIN`, then on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.")
+        Markdown("Run `node server.js` and open `/invoices/INV-001` for the page, or `/invoices/INV-001.pdf` for the PDF.\n\n- `Template.fromDir` reads every template under the directory, with components shared, and `page(\"Invoice\")` picks the page to render. `Template.fromFile` and `Template.fromString` load one template instead. The server loads it once, at start-up.\n- Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`, `renderPdf`, `renderSlides`) and an `…Async` form that does not block the event loop. Use the `…Async` forms in a server, as this one does.\n- `withTheme`, `withTokens` and `withLang` set what the Rust API sets ([Render templates from Rust](/recipes/render-from-rust#configure-a-render)), and each returns the template, so they chain before a render.\n- The data is held to the page's parameters before anything is drawn: a field missing or of the wrong type throws, its message naming the place (`T33 … $.items[1].price is missing`).\n- A render runs `wf` once and takes a few milliseconds. The data goes over standard input, so nothing is written to disk.\n\nThe binding needs `wf` itself installed. It looks for it at `WF_BIN`, then on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.")
 
         Heading("Troubleshooting", id: "troubleshooting").h2
 
@@ -84,8 +88,12 @@ app.listen(3000, () => console.log("http://localhost:3000/invoices/INV-001"));"#
                     Table.Cell { Markdown("Pass `page()` one of the names the message lists") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("A render throws `T33`") }
+                    Table.Cell("The data is not what the page's parameters say; the message names the place")
+                }
+                Table.Row {
                     Table.Cell { Markdown("A `\{name\}` renders empty") }
-                    Table.Cell { Markdown("The data has no top-level key `name`; check the object's spelling and nesting") }
+                    Table.Cell { Markdown("The page declares no parameters, and the data has no top-level key `name`. Declare them, and the render says so instead") }
                 }
             }
         }

@@ -1286,6 +1286,9 @@ const EXAMPLE_EXEMPT: &[&str] = &[
     // E120 needs a hundred levels of nesting to show, and E121 is a
     // template render's, which no check draws.
     "E120", "E121",
+    // T33 is a data file's, a render's or a test run's: data from outside
+    // the program, which one file checked on its own has none of.
+    "T33",
 ];
 
 /// The anchor a heading gets on the site, as the generator writes it: its

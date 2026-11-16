@@ -10,7 +10,9 @@ fn a_page_s_key_is_a_function_the_runtime_follows() {
     let src = "store Project {\n    state id = \"halyard\"\n}\npage P(path: \"/\", title: \"T\") {\n    persist side = 240 {\n        key: Project.id\n        in: .app\n    }\n    Text(\"{side}\")\n}\n";
     let js = spa_generated(src);
     assert!(
-        js.contains("WF.persist(\"P.side\", 240, { key: () => Project.id, in: \"app\" })"),
+        js.contains(
+            "WF.persist(\"P.side\", 240, { key: () => Project.id, in: \"app\", shape: \"n\" })"
+        ),
         "{js}"
     );
 }
@@ -20,7 +22,7 @@ fn a_store_s_key_is_kept_and_may_read_the_store() {
     let src = "store Layout {\n    state project = \"halyard\"\n    persist side = 240 {\n        key: project\n    }\n}\npage P(path: \"/\", title: \"T\") { Text(\"{Layout.side}\") }\n";
     let js = spa_generated(src);
     assert!(
-        js.contains("side: { key: (store) => store.project },"),
+        js.contains("side: { key: (store) => store.project, shape: \"n\" },"),
         "a store's key used to be dropped: {js}"
     );
 }

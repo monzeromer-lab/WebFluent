@@ -130,6 +130,7 @@ pub fn resolve_data_via(
                     })),
                     doc: d.doc.clone(),
                     span: d.span,
+                    source: None,
                 });
                 continue;
             };
@@ -148,6 +149,7 @@ pub fn resolve_data_via(
                 value: json_expr(&asset.as_json()),
                 doc: d.doc.clone(),
                 span: d.span,
+                source: None,
             });
             continue;
         }
@@ -174,6 +176,7 @@ pub fn resolve_data_via(
             value: json_expr(&json),
             doc: d.doc.clone(),
             span: d.span,
+            source: Some(d.file.clone()),
         });
     }
     // `Image(src: "/hero.png")`, naming a picture of `public/`: the same

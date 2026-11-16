@@ -185,7 +185,7 @@ fn verify_visits_param_routes_and_a_returning_visitor() {
     let dir = project(
         "verify",
         r#"{ "name": "v" }"#,
-        "app { Router }\ntype Item { n: Number }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    persist items: [Item] = [Item(n: 1)]\n    Heading(\"Home {items.map(i => i.n.toFixed(1)).join(\\\", \\\")}\").h1\n}\npage User(path: \"/user/:id\", title: \"U\", description: \"D\", id: String) { Heading(\"User {id}\").h1 }\n",
+        "app { Router }\ntype Item { n: Number }\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    persist items = [Item(n: 1)]\n    Heading(\"Home {items.map(i => i.n.toFixed(1)).join(\\\", \\\")}\").h1\n}\npage User(path: \"/user/:id\", title: \"U\", description: \"D\", id: String) { Heading(\"User {id}\").h1 }\n",
     );
     let (code, _, err) = wf(&dir, &["build"]);
     assert_eq!(code, 0, "{err}");
@@ -207,7 +207,9 @@ fn verify_visits_param_routes_and_a_returning_visitor() {
 
     // What a returning reader holds is of a shape this build cannot read —
     // as when a build changed the shape with no new `version:` (D04): the
-    // returning visit shows the page it would break.
+    // returning visit shows the page it would break. (A `persist` that
+    // declares its type drops such a value for its default; this one says
+    // only what its first value is.)
     std::fs::write(
         dir.join(".wf-cache/persist-values.previous.json"),
         r#"{ "wf:Home.items": ["a"] }"#,

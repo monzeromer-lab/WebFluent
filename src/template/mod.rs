@@ -286,9 +286,32 @@ impl Template {
                 .cloned()
                 .unwrap_or_else(|| "<template>".to_string())
         };
+        // A page that says what data it takes is checked as a page is: a
+        // name nothing declares in it is a name nothing declares.
+        let typed: Vec<(String, usize, usize)> = program
+            .declarations
+            .iter()
+            .enumerate()
+            .filter_map(|(i, d)| match d {
+                Declaration::Page(p) if !data_params(p).is_empty() => {
+                    let file = file_of(i);
+                    let source = sources.iter().find(|(l, _)| *l == file).map(|(_, s)| *s)?;
+                    let end = source
+                        .get(..(p.span.end as usize).min(source.len()))
+                        .map_or(0, |t| t.matches('\n').count() + 1);
+                    Some((file, p.span.line as usize, end))
+                }
+                _ => None,
+            })
+            .collect();
+        let declares = |d: &crate::diagnostics::error::Diagnostic| {
+            typed
+                .iter()
+                .any(|(f, from, to)| *f == d.file && (*from..=*to).contains(&d.line))
+        };
         let errors: Vec<_> = crate::web::check::program_checks(&program, &file_of, &|_| None)
             .into_iter()
-            .filter(|d| d.is_error() && !d.waits_for_data())
+            .filter(|d| d.is_error() && (!d.waits_for_data() || declares(d)))
             .collect();
         if !errors.is_empty() {
             return Err(WebFluentError::Diagnostics(errors));
@@ -445,6 +468,65 @@ impl Template {
     }
 
     /// The program a render draws: every page, or the one chosen.
+    /// `data` as JSON, held to what the drawn page says it takes: a page
+    /// that declares parameters beside its route's — `page Invoice(path:
+    /// "/", number: String, customer: Customer)` — takes those, each of its
+    /// type, and data that is not is refused with the place it goes wrong
+    /// (`T33`), never drawn as nothing. A page that declares none takes
+    /// whatever it is given.
+    fn input<T: Serialize + ?Sized>(&self, data: &T) -> Result<Value> {
+        use crate::check::sema::types::shape::Shape;
+        let value = to_value(data)?;
+        let drawn = self.drawn();
+        let Some(page) = drawn.declarations.iter().find_map(|d| match d {
+            Declaration::Page(p) => Some(p),
+            _ => None,
+        }) else {
+            return Ok(value);
+        };
+        let params = data_params(page);
+        if params.is_empty() {
+            return Ok(value);
+        }
+        let shapes = crate::check::sema::types::shape::Shapes::of(&self.program.declarations);
+        let fields = params
+            .iter()
+            .map(|p| {
+                let shape = shapes.shape(&p.prop_type);
+                let shape = if (p.optional || p.default.is_some())
+                    && !matches!(shape, Shape::Optional(_))
+                {
+                    Shape::Optional(Box::new(shape))
+                } else {
+                    shape
+                };
+                (p.name.clone(), shape)
+            })
+            .collect();
+        let shape = Shape::Record(page.name.clone(), fields);
+        match crate::check::sema::types::shape::fault(&value, &shape) {
+            None => Ok(value),
+            Some(fault) => Err(WebFluentError::Diagnostics(vec![
+                crate::diagnostics::error::Diagnostic::coded(
+                    "T33",
+                    format!("the data is not what `{}` takes: {fault}", page.name),
+                    "<data>",
+                    1,
+                    1,
+                )
+                .with_hint(format!(
+                    "`{}` takes {}",
+                    page.name,
+                    params
+                        .iter()
+                        .map(|p| format!("`{}`", p.name))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )),
+            ])),
+        }
+    }
+
     fn drawn(&self) -> std::borrow::Cow<'_, Program> {
         match &self.page {
             None => std::borrow::Cow::Borrowed(&self.program),
@@ -545,7 +627,7 @@ impl Template {
     /// holding an `E120` or `E121` when the render nests too deep or does too
     /// much.
     pub fn render_html<T: Serialize + ?Sized>(&self, data: &T) -> Result<String> {
-        let data = to_value(data)?;
+        let data = self.input(data)?;
         let fragment = self.render_fragment(&data)?;
         let css = self.stylesheet()?;
         let doc_lang = self.document_lang();
@@ -603,7 +685,7 @@ impl Template {
     /// holding an `E120` or `E121` when the render nests too deep or does too
     /// much.
     pub fn render_html_parts<T: Serialize + ?Sized>(&self, data: &T) -> Result<(String, String)> {
-        let data = to_value(data)?;
+        let data = self.input(data)?;
         Ok((self.stylesheet()?, self.render_fragment(&data)?))
     }
 
@@ -621,7 +703,7 @@ impl Template {
     /// holding an `E120` or `E121` when the render nests too deep or does too
     /// much.
     pub fn render_html_fragment<T: Serialize + ?Sized>(&self, data: &T) -> Result<String> {
-        self.render_fragment(&to_value(data)?)
+        self.render_fragment(&self.input(data)?)
     }
 
     fn render_fragment(&self, data: &Value) -> Result<String> {
@@ -694,7 +776,7 @@ impl Template {
     /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
     /// page out.
     pub fn render_pdf_report<T: Serialize + ?Sized>(&self, data: &T) -> Result<PdfReport> {
-        let data = to_value(data)?;
+        let data = self.input(data)?;
         let html = self.paged_document(&data)?;
         let read = crate::paged::reader(self.root.clone());
         let options = crate::paged::Options::from_pdf(&self.pdf, &read, self.root.as_deref());
@@ -716,7 +798,7 @@ impl Template {
     /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
     /// page out.
     pub fn render_slides_report<T: Serialize + ?Sized>(&self, data: &T) -> Result<PdfReport> {
-        let data = to_value(data)?;
+        let data = self.input(data)?;
         let html = self.paged_document(&data)?;
         let read = crate::paged::reader(self.root.clone());
         let (options, chrome) =
@@ -746,7 +828,7 @@ impl Template {
     /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
     /// page out.
     pub fn render_slides<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
-        let data = to_value(data)?;
+        let data = self.input(data)?;
         let html = self.paged_document(&data)?;
         let read = crate::paged::reader(self.root.clone());
         let (options, chrome) =
@@ -776,6 +858,20 @@ impl Template {
 }
 
 /// `data` as the JSON value the renderers read.
+/// The parameters a page takes from its data: those its route does not
+/// name, since a template's data is what a page is given.
+fn data_params(page: &crate::syntax::parser::ast::PageDecl) -> Vec<&PropDecl> {
+    let route: Vec<&str> = page
+        .path
+        .split('/')
+        .filter_map(|s| s.strip_prefix(':'))
+        .collect();
+    page.params
+        .iter()
+        .filter(|p| !route.contains(&p.name.as_str()))
+        .collect()
+}
+
 fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
     serde_json::to_value(data)
         .map_err(|e| WebFluentError::config_with(format!("the data does not serialize: {e}"), e))

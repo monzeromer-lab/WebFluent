@@ -2718,6 +2718,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Connect
 pub struct webfluent::syntax::parser::ast::ConstDecl
 pub webfluent::syntax::parser::ast::ConstDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::ConstDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ast::ConstDecl::source: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::ConstDecl::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::ConstDecl::ty: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ast::ConstDecl::value: webfluent::syntax::parser::Expr
@@ -4211,6 +4212,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Connect
 pub struct webfluent::syntax::parser::ConstDecl
 pub webfluent::syntax::parser::ConstDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ConstDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ConstDecl::source: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ConstDecl::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ConstDecl::ty: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ConstDecl::value: webfluent::syntax::parser::Expr

@@ -1818,7 +1818,9 @@ fn a_page_keeps_a_value_under_the_same_policy_a_store_does() {
         "persist theme = \"light\" { in: .session  sync: false }\n    Text(theme)",
     ));
     assert!(
-        js.contains("WF.persist(\"P.theme\", \"light\", { in: \"session\", sync: false })"),
+        js.contains(
+            "WF.persist(\"P.theme\", \"light\", { in: \"session\", sync: false, shape: \"s\" })"
+        ),
         "{js}"
     );
 }

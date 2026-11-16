@@ -266,6 +266,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T30](T30.md) — A part of the browser the language does not type
 - [T31](T31.md) — A script's function the language cannot type
 - [T32](T32.md) — A parameter written with no type
+- [T33](T33.md) — Data that is not what its type says
 - [T34](T34.md) — A conversion the language does not make for you
 - [T35](T35.md) — Values worked out from each other with neither declared
 

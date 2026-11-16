@@ -1095,6 +1095,25 @@
   "related": []
  },
  {
+  "code": "T33",
+  "title": "Data that is not what its type says",
+  "plain": "Data that is not what its type says",
+  "severity": "error",
+  "family": "T",
+  "group": "Types",
+  "summary": "Data that comes from outside the program is held to the type that receives it, where it comes in: a `data` file when the project is built, a template's data before it renders, a test's `data:` seeds before it runs. A value that does not fit is named by its place — `$[3].date is \"March 5\", not a Date` — rather than shown wrong, or as nothing, on the page.",
+  "lowerable": false,
+  "description": "",
+  "printed": "",
+  "broken": "",
+  "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
+  "why": "Error.\n\nA template that says what it takes, and data that is not that:\n\n```text\ntype Line { name: String, price: Number }\n\npage Invoice(path: \"/\", title: \"Invoice\", number: String, items: [Line]) {\n    Heading(\"Invoice #{number}\").h1\n    for item in items { Text(\"{item.name}: {item.price}\") }\n}\n```\n\n```text\n$ echo '{\"number\": \"7\", \"items\": [{\"name\": \"Widget\"}]}' | wf render invoice.wf\nerror[T33]: the data is not what `Invoice` takes: $.items[0].price is missing\n --> <data>:1:1\n  = help: `Invoice` takes `number`, `items`\n```\n\nData that comes in from outside the program is held to the type that\nreceives it, where it comes in, and refused with the place it goes wrong:\n\n- **A `data` file**, when the project is built: `data posts: [Post] =\n  \"posts.json\"` reads the file and holds it to `[Post]` —\n  `` `posts.json` is not what `data posts` says it is: $[3].date is \"March\n  5\", not a Date ``.\n- **A template's data**, before every render: a page that declares\n  parameters beside its route's — `page Invoice(path: \"/\", number: String,\n  items: [Line])` — takes those, and data that does not fit is refused\n  (`$.items[1].price is missing`) rather than drawn as an empty cell.\n- **A test's `data:`**, before the test runs: a seed is held to the state it\n  seeds, `count is \"two\", not a Number`.\n\nA value kept with `persist` is held to its type when it is read back too,\nand one that does not fit is dropped for the initial value rather than\nreported: a reader's storage never stops a page from loading.",
+  "fix": "Correct the data at the place the message names, or change the\ntype to what the data holds.",
+  "related": []
+ },
+ {
   "code": "T34",
   "title": "A conversion the language does not make for you",
   "plain": "A conversion the language does not make for you",

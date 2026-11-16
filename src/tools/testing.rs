@@ -217,6 +217,11 @@ pub fn collect(path: &Path) -> Result<Tests> {
             }
         }
     }
+    // A seed is held to the state it seeds: `data: { count: "two" }` for a
+    // `state count = 0` is the test's mistake, said before anything runs.
+    for (file, test) in &tests {
+        clashes.extend(seed_faults(test, &declarations, file));
+    }
     if !clashes.is_empty() {
         return Err(crate::diagnostics::error::WebFluentError::Diagnostics(
             clashes,
@@ -293,6 +298,106 @@ pub fn collect(path: &Path) -> Result<Tests> {
         i18n,
         styles,
     })
+}
+
+/// What a test's `data:` gives that the state it seeds cannot hold (`T33`),
+/// and a store's member it names that the store does not have (`T05`). A
+/// key that names neither a state of the body nor a store is data the body
+/// reads by name, as a template's is, and is not checked here.
+fn seed_faults(
+    test: &TestDecl,
+    declarations: &[Declaration],
+    file: &str,
+) -> Vec<crate::diagnostics::Diagnostic> {
+    use crate::check::sema::types::shape::{Shape, Shapes, fault};
+    let Some(Expr::MapLiteral(pairs)) = &test.data else {
+        return Vec::new();
+    };
+    let shapes = Shapes::of(declarations);
+    let scope = crate::project::static_eval::Scope::of([]);
+    let value_of = |e: &Expr| crate::project::static_eval::eval(e, &scope).map(|v| v.to_json());
+    // What a state holds: its declared type, else what its first value is
+    // when that is a plain number, string or boolean.
+    let shape_of = |state: &crate::syntax::parser::ast::StateDecl| match &state.ty {
+        Some(ty) => Some(shapes.shape(ty)),
+        None => match value_of(&state.value)? {
+            serde_json::Value::Number(_) => Some(Shape::Number),
+            serde_json::Value::String(_) => Some(Shape::String),
+            serde_json::Value::Bool(_) => Some(Shape::Bool),
+            _ => None,
+        },
+    };
+    let states_of = |body: &[Statement]| -> Vec<crate::syntax::parser::ast::StateDecl> {
+        body.iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::State(st) => Some(st.clone()),
+                _ => None,
+            })
+            .collect()
+    };
+    let mut out = Vec::new();
+    let mut report = |code: &'static str, message: String, hint: &str| {
+        out.push(
+            crate::diagnostics::Diagnostic::coded(
+                code,
+                message,
+                file,
+                test.span.line as usize,
+                test.span.col as usize,
+            )
+            .with_hint(hint),
+        );
+    };
+    // Why `given` does not fit `state`, seeded as `name`.
+    let held = |name: &str, state: &crate::syntax::parser::ast::StateDecl, given: &Expr| {
+        let f = fault(&value_of(given)?, &shape_of(state)?)?;
+        Some(format!(
+            "test \"{}\": `data:` seeds `{name}` with what it cannot hold: {name}{} {}",
+            test.name,
+            &f.at[1..],
+            f.message
+        ))
+    };
+    let seed_hint = "Give the seed a value of the state's type";
+    let body_states = states_of(&test.body);
+    for (key, given) in pairs {
+        let key = key.trim_matches('"');
+        if let Some(state) = body_states.iter().find(|s| s.name == key) {
+            if let Some(message) = held(key, state, given) {
+                report("T33", message, seed_hint);
+            }
+            continue;
+        }
+        let Some(store) = declarations.iter().find_map(|d| match d {
+            Declaration::Store(st) if st.name == key => Some(st),
+            _ => None,
+        }) else {
+            continue;
+        };
+        let Expr::MapLiteral(members) = given else {
+            continue;
+        };
+        let states = states_of(&store.body);
+        for (member, value) in members {
+            let member = member.trim_matches('"');
+            if let Some(state) = states.iter().find(|s| s.name == member) {
+                if let Some(message) = held(&format!("{key}.{member}"), state, value) {
+                    report("T33", message, seed_hint);
+                }
+            } else {
+                let names: Vec<String> = states.iter().map(|s| format!("`{}`", s.name)).collect();
+                report(
+                    "T05",
+                    format!(
+                        "test \"{}\": `data:` seeds `{key}.{member}`, but `{key}` has no state `{member}`",
+                        test.name
+                    ),
+                    &format!("Its states are {}", names.join(", ")),
+                );
+            }
+        }
+    }
+    out
 }
 
 /// A page, the app or a test: what a test's render is not drawn with.

@@ -111,7 +111,8 @@ browser lays it out — white space collapsed, blocks (and what a `Row`,
 `Stack` or `Grid` lays out) apart, inline elements that touch touching, so
 `Text { Code("live") Code(": ") }` reads `live:` rendered and in a browser
 alike; `t("key")` reads
-the project's default locale; `data: { … }` seeds the body's state and,
+the project's default locale; `data: { … }` (held to the type of each
+state it seeds, `T33`) seeds the body's state and,
 by a store's name, the store — in a render and in a browser alike; a
 page with no route parameter is placed by its name, as a component is
 (`Tasks`, then `click "Add"`), so a test can click through a whole page;
@@ -657,7 +658,9 @@ image does no image work. A PDF or a deck embeds the real picture.
 `data posts = "posts.json"` (or `data posts: [Post] = "content/posts.json"`)
 is a constant whose value is a JSON file's, read at build time from the
 project directory or its `src/`; it is inlined into the bundle and seeded
-into the static paint. A page on a `:param` route names the values a
+into the static paint. A declared type is held to the file when it is read:
+a record that does not fit stops the build with `T33`, naming the file and
+the place (`` `posts.json` … $[3].date is "March 5", not a Date ``). A page on a `:param` route names the values a
 static build renders it for with `paths:`, one value per parameter (a map
 by name for several):
 
@@ -867,7 +870,7 @@ effect { log(count) }                // Side effect — runs on change
 
 ```wf
 persist scheme = "light"              // kept in the browser across visits (page, component or store)
-persist items: [Item] = [] {          // and what a value says about itself
+persist items: [Item] = [] {          // read back as its type: a kept value that is not one is dropped for the default
     in: .local                        // .local (default) · .session (this tab) · .app: window.wfStorage.app, a project script's { get, set, watch? } (get may return a promise)
     version: 2                        // the version of the shape this build writes
     sync: false                       // don't adopt what another tab or window wrote
@@ -3604,6 +3607,7 @@ And what the type checker finds:
 | `T25` | A `state` or `persist` whose first value does not say what it holds — `[]`, `{}`, `null`, open JSON; the fix writes the type the body assigns it |
 | `T31` | A project script's function called from `.wf` with no JSDoc, or a JSDoc type the language cannot say (a union, a bare `Array`); the fix writes JSDoc from the call |
 | `T32` | A parameter written with no type — an action's, an event's, a slot's — or a lambda's that nothing it is passed to types; the fix writes what every call passes |
+| `T33` | Data from outside the program that is not its type, named by its place: a `data` file at build time (`$[3].date is "March 5", not a Date`), a template's data against its page's parameters, a test's `data:` seed against the state it seeds |
 | `T34` | A conversion the language does not make: a `Date`, `Time` or `DateTime` where a `String` is wanted (`Text(due)` — `Text("{due:.date(long)}")`), or a `Duration` and a `Number` mixed (`3.seconds + 500` — `500.ms`) |
 | `T35` | Two `derived` values — in one body or two stores — that each read the other, or one that reads itself, with none declared |
 | `N01` | An endpoint's path naming `{name}` that no parameter fills, or a parameter in the path and in a header or cookie too |
@@ -3986,11 +3990,21 @@ natively too.
 
 ### Template Data Context
 
-Data is a JSON object. Top-level keys become template variables:
+Data is a JSON object. The page says what it takes, as its parameters:
+every render holds the data to them first, and data that does not fit is
+refused with the place it goes wrong — `T33: the data is not what
+`Invoice` takes: $.items[0].price is missing` — never drawn as nothing. A
+name the page reads that is neither a parameter nor declared is `T13`. A
+page that declares no parameters reads the data's top-level keys by name,
+unchecked.
 
 ```wf
 // template.wf
-page Invoice(path: "/", title: "Invoice") {
+type Customer { name: String }
+type Item { name: String, price: Number }
+
+page Invoice(path: "/", title: "Invoice",
+             number: String, customer: Customer, items: [Item], paid: Bool) {
     Container {
         Heading("Invoice #{number}").h1
         Text("Customer: {customer.name}")

@@ -734,6 +734,7 @@ and `T21`, which are warnings.
 | `T27` | Two values with no type in common made into one: an `if`'s branches, a list's items, the sides of `??` |
 | `T28` | A `Json` value read as a record, a list or a number rather than matched or decoded |
 | `T29` | A condition — `if`, `show`, `!`, `&&`, `\|\|` — on something that is not a `Bool` |
+| `T33` | Data from outside the program — a `data` file, a template's data, a test's seed — that is not its type, named by its place |
 | `T34` | A `Date` or a time where text is wanted, or a `Duration` and a `Number` mixed |
 
 Most findings come with a hint: a conversion (`Number(value)`,

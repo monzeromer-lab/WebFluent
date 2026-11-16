@@ -15,7 +15,11 @@ need the `wf` command installed
 ([Getting started](../learn/01-getting-started.md#install)).
 
 ```wf
-page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -61,8 +65,14 @@ row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.
 
 ## How it works
 
-The data's top-level keys are in scope by name, so the template reads
-`number`, `customer` and `items` without declaring them. A template uses
+The page says what data it takes, as its parameters: `number`, `customer`,
+`items`, `total` and `paid`, each of its type. Every render holds the data
+to them first, and data that does not fit is refused with the place it goes
+wrong — `T33: the data is not what `Invoice` takes: $.items[0].price is
+missing` — rather than drawn as an empty cell. A name the page reads that
+is neither a parameter nor declared is `T13`, found when the template is
+loaded. Keys the page does not take, such as `locale`, are passed through.
+A template uses
 the static subset of the language: no handlers, stores, `resource` or
 motion (see [What a template may use](#what-a-template-may-use)).
 
@@ -137,6 +147,7 @@ server, where a secret stays secret.
 | The render fails with "no page called …" | Pass one of the page names the message lists to `page(name)` or `--page` |
 | A render refuses a component or a flag | Declare the component in the template's files, or use a flag the component takes — the same checks as `wf build` |
 | `WebFluent CLI (wf) not found` from Node | Install `wf`, or set `WF_BIN` to the binary's path |
-| A `{name}` renders empty | The data has no top-level key `name`; check the JSON's spelling and nesting |
+| The render fails with `T33` | The data is not what the page's parameters say; the message names the place, `$.items[1].price` |
+| A `{name}` renders empty | A page that declares no parameters reads whatever it is given: the data has no top-level key `name`. Declare the page's parameters, and the render says so instead |
 | `format` writes the wrong language | Add a `locale` key to the data |
 | The render fails with `E120` or `E121` | The template nests too deeply, or the render does too much; see [Limits of one render](render-from-rust.md#limits-of-one-render) |

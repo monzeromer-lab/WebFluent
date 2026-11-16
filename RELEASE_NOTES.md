@@ -344,6 +344,29 @@ things could be at once is accepted as either.
   `on message(m)` is then one.
 - `Input(…).time` and `.datetime` hold a `Time` and a `DateTime`.
 
+## Data from outside, held to its type where it comes in
+
+What the program did not write is checked against the type that receives it,
+at the boundary, and refused with the place it goes wrong (`T33`) rather than
+shown wrong, or as nothing, further in.
+
+- **A `data` file at build time.** `data posts: [Post] = "posts.json"` holds
+  the file to `[Post]` when the project is built: `` `posts.json` is not
+  what `data posts` says it is: $[3].date is "March 5", not a Date ``. Dates,
+  times, addresses and colours are read for what they are.
+- **A template's data before it renders.** A page that declares parameters
+  beside its route's — `page Invoice(path: "/", number: String, customer:
+  Customer, items: [Line])` — takes those: `wf render`, `Template::render_*`
+  and the Node binding refuse data that does not fit (`$.items[1].price is
+  missing`), and a name the page reads that it does not declare is `T13`. A
+  page that declares no parameters reads its data by name, as before.
+- **A test's seeds before it runs.** `data: { count: "two" }` for a `state
+  count = 0` is `T33`, and a store member the store does not have is `T05`.
+- **A `persist` value as it is read back.** What storage holds is held to the
+  value's type; a value an older build left in another shape is dropped for
+  the initial value, with a warning in a development build, and the page
+  loads.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

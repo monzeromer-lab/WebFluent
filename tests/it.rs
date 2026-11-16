@@ -14,6 +14,8 @@ mod agent;
 mod arabic_source;
 #[path = "assets_data.rs"]
 mod assets_data;
+#[path = "boundaries.rs"]
+mod boundaries;
 #[path = "build_and_runtime_agree.rs"]
 mod build_and_runtime_agree;
 #[path = "build_api.rs"]

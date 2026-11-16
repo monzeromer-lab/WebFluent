@@ -5613,6 +5613,13 @@ The build checks the chain:
 - A value written by a *newer* build is left alone, and the page uses the
   initial value. This build cannot know what a later shape means.
 
+What storage hands back is held to the value's type as it is read — its
+declared type, or what a plain first value says it is. A value that does
+not fit (a record missing a field, text where a number is kept, something
+typed into the devtools) is not this value: the page uses the initial value
+instead, and a development build says so in the console. A reader's
+storage never stops a page from loading.
+
 The build also remembers the shape of every persisted value, in
 `.wf-cache/persist.json`. When a shape changes and `version:` was not
 raised, it warns (`D04`): a returning reader's browser still holds the old
@@ -6691,6 +6698,7 @@ and `T21`, which are warnings.
 | `T27` | Two values with no type in common made into one: an `if`'s branches, a list's items, the sides of `??` |
 | `T28` | A `Json` value read as a record, a list or a number rather than matched or decoded |
 | `T29` | A condition — `if`, `show`, `!`, `&&`, `\|\|` — on something that is not a `Bool` |
+| `T33` | Data from outside the program — a `data` file, a template's data, a test's seed — that is not its type, named by its place |
 | `T34` | A `Date` or a time where text is wanted, or a `Duration` and a `Number` mixed |
 
 Most findings come with a hint: a conversion (`Number(value)`,
@@ -9079,7 +9087,11 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 ]
 ```
 
-Annotate it (`data posts: [Post]`) and the checker knows every field.
+Annotate it (`data posts: [Post]`) and the checker knows every field —
+and the build holds the file to the type when it reads it. A record that is
+not a `Post` stops the build with `T33`, naming the file and the place:
+`` `posts.json` is not what `data posts` says it is: $[3].date is "March 5",
+not a Date ``.
 
 ### Render a page for each item
 
@@ -9464,6 +9476,10 @@ To start a test from a known state, name it in `data:`. A key that is a
 value's name supplies that value; a key that is a store's name seeds that
 store's state. Seeding works the same in a test that only looks and in one
 that clicks.
+
+A seed is held to the state it seeds before the test runs: `data: { count:
+"two" }` for a `state count = 0` is `T33`, naming the place (`Cart.items[0]
+is 1, not a String`), and a store member the store does not have is `T05`.
 
 This test fills the cart with two of one item and checks the summary:
 
@@ -15821,7 +15837,11 @@ need the `wf` command installed
 ([Getting started](/learn/01-getting-started#install)).
 
 ```wf
-page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -15867,8 +15887,14 @@ row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.
 
 ## How it works
 
-The data's top-level keys are in scope by name, so the template reads
-`number`, `customer` and `items` without declaring them. A template uses
+The page says what data it takes, as its parameters: `number`, `customer`,
+`items`, `total` and `paid`, each of its type. Every render holds the data
+to them first, and data that does not fit is refused with the place it goes
+wrong — `T33: the data is not what `Invoice` takes: $.items[0].price is
+missing` — rather than drawn as an empty cell. A name the page reads that
+is neither a parameter nor declared is `T13`, found when the template is
+loaded. Keys the page does not take, such as `locale`, are passed through.
+A template uses
 the static subset of the language: no handlers, stores, `resource` or
 motion (see [What a template may use](#what-a-template-may-use)).
 
@@ -15943,7 +15969,8 @@ server, where a secret stays secret.
 | The render fails with "no page called …" | Pass one of the page names the message lists to `page(name)` or `--page` |
 | A render refuses a component or a flag | Declare the component in the template's files, or use a flag the component takes — the same checks as `wf build` |
 | `WebFluent CLI (wf) not found` from Node | Install `wf`, or set `WF_BIN` to the binary's path |
-| A `{name}` renders empty | The data has no top-level key `name`; check the JSON's spelling and nesting |
+| The render fails with `T33` | The data is not what the page's parameters say; the message names the place, `$.items[1].price` |
+| A `{name}` renders empty | A page that declares no parameters reads whatever it is given: the data has no top-level key `name`. Declare the page's parameters, and the render says so instead |
 | `format` writes the wrong language | Add a `locale` key to the data |
 | The render fails with `E120` or `E121` | The template nests too deeply, or the render does too much; see [Limits of one render](/recipes/render-from-rust#limits-of-one-render) |
 
@@ -15963,7 +15990,11 @@ the `wf` command, and a template like the one in
 `templates/invoice.wf`:
 
 ```wf
-page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -16047,6 +16078,9 @@ Run `node server.js` and open `/invoices/INV-001` for the page, or
 - `withTheme`, `withTokens` and `withLang` set what the Rust API sets
   ([Render templates from Rust](/recipes/render-from-rust#configure-a-render)),
   and each returns the template, so they chain before a render.
+- The data is held to the page's parameters before anything is drawn: a
+  field missing or of the wrong type throws, its message naming the place
+  (`T33 … $.items[1].price is missing`).
 - A render runs `wf` once and takes a few milliseconds. The data goes over
   standard input, so nothing is written to disk.
 
@@ -16060,7 +16094,8 @@ Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.
 |---|---|
 | `WebFluent CLI (wf) not found` | Install `wf`, or set `WF_BIN` to the binary's path |
 | The render fails with "no page called …" | Pass `page()` one of the names the message lists |
-| A `{name}` renders empty | The data has no top-level key `name`; check the object's spelling and nesting |
+| A render throws `T33` | The data is not what the page's parameters say; the message names the place |
+| A `{name}` renders empty | The page declares no parameters, and the data has no top-level key `name`. Declare them, and the render says so instead |
 
 
 
@@ -16077,7 +16112,11 @@ one in [Render a template with data](/recipes/render-a-template). This one is
 `templates/invoice.wf`:
 
 ```wf
-page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -16182,9 +16221,13 @@ no page called `Receipt`; the template has `Invoice`
 ### Pass data
 
 The data is anything `serde` serializes: your own `#[derive(Serialize)]`
-structs, or a `serde_json::Value`. Its top-level fields are the names the
-template reads, so `Invoice`'s `number`, `customer` and `items` are what
-the template splices. A `const` and a `data` file are in scope too.
+structs, or a `serde_json::Value`. Its top-level fields are the page's
+parameters — `Invoice`'s `number`, `customer`, `items`, `total` and `paid` —
+and every render holds the data to them first: a field missing or of the
+wrong type is `WebFluentError::Diagnostics` with a `T33` naming the place
+(`$.items[1].price is missing`), never an empty cell. A `const` and a
+`data` file are in scope too. A page that declares no parameters reads
+whatever it is given, by name.
 
 ### Choose the output
 
@@ -16258,7 +16301,8 @@ element where the render stopped.
 |---|---|
 | `no page called …` | Pass `page(name)` one of the names the message lists |
 | `WebFluentError::Diagnostics` when the template loads | The template does not check: the error names the file, the line and the code, as `wf check` would |
-| A `{name}` renders empty | The data has no top-level field `name`; check the struct's field names, or `#[serde(rename)]` |
+| A render fails with `T33` | The data is not what the page's parameters say; the message names the place. Check the struct's field names, or `#[serde(rename)]` |
+| A `{name}` renders empty | The page declares no parameters, and the data has no top-level field `name`. Declare them, and the render says so instead |
 
 
 
@@ -25397,6 +25441,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T30](/errors/T30) — A part of the browser the language does not type
 - [T31](/errors/T31) — A script's function the language cannot type
 - [T32](/errors/T32) — A parameter written with no type
+- [T33](/errors/T33) — Data that is not what its type says
 - [T34](/errors/T34) — A conversion the language does not make for you
 - [T35](/errors/T35) — Values worked out from each other with neither declared
 

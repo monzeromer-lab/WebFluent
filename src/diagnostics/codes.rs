@@ -414,6 +414,12 @@ pub static CODES: &[CodeInfo] = &[
         "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.",
     ),
     code(
+        "T33",
+        Error,
+        "Data that is not what its type says",
+        "Data that comes from outside the program is held to the type that receives it, where it comes in: a `data` file when the project is built, a template's data before it renders, a test's `data:` seeds before it runs. A value that does not fit is named by its place — `$[3].date is \"March 5\", not a Date` — rather than shown wrong, or as nothing, on the page.",
+    ),
+    code(
         "T34",
         Error,
         "A conversion the language does not make for you",

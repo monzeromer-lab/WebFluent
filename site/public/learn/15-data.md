@@ -911,7 +911,11 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 ]
 ```
 
-Annotate it (`data posts: [Post]`) and the checker knows every field.
+Annotate it (`data posts: [Post]`) and the checker knows every field —
+and the build holds the file to the type when it reads it. A record that is
+not a `Post` stops the build with `T33`, naming the file and the place:
+`` `posts.json` is not what `data posts` says it is: $[3].date is "March 5",
+not a Date ``.
 
 ### Render a page for each item
 

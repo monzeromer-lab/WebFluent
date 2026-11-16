@@ -38,6 +38,21 @@ test("a fragment interpolates, loops and branches", () => {
   assert.doesNotMatch(html, /<!DOCTYPE/);
 });
 
+test("a template that says what it takes refuses data that is not that, naming the place", () => {
+  const tpl = Template.fromString(`
+type Line { name: String, price: Number }
+page Invoice(path: "/", title: "Invoice", number: String, items: [Line]) {
+    Heading("Invoice #{number}").h1
+    for item in items { Text("{item.name}: {item.price}") }
+}
+`);
+  assert.match(tpl.renderHtmlFragment({ number: "7", items: [{ name: "Widget", price: 3 }] }), /Widget: 3/);
+  assert.throws(
+    () => tpl.renderHtmlFragment({ number: "7", items: [{ name: "Widget", price: 3 }, { name: "Gadget" }] }),
+    /\$\.items\[1\]\.price is missing/,
+  );
+});
+
 test("a document carries its styles", () => {
   const html = Template.fromString(SHOP).renderHtml({ ...DATA, showBadge: false });
   assert.match(html, /<!DOCTYPE html>/);

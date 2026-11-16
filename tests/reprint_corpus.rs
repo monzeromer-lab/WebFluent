@@ -341,6 +341,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
                 value: text("x"),
                 doc: Some("Added.".into()),
                 span: Span::dummy(),
+                source: None,
             }));
         });
         check(

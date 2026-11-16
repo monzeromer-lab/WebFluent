@@ -37,7 +37,7 @@
   /// an older build of the site left, and — unless it says otherwise —
   /// kept in step with the site's other tabs.
   ///
-  /// The policy is `{ in, version, sync, migrate, key, off }`; with none of
+  /// The policy is `{ in, version, sync, migrate, key, off, shape }`; with none of
   /// it, the value is kept in `localStorage` under `wf:<name>`, as it always
   /// was. `key` is a function, read as state: when what it reads changes —
   /// the project that is open — the value is the one kept under the new
@@ -48,7 +48,18 @@
     const rules = policy || {};
     const version = rules.version || 0;
     const store = () => _storage(rules.in);
-    const decode = (text) => (text === null || text === undefined ? initial : forward(JSON.parse(text), initial, version, rules.migrate));
+    // What storage hands back is held to the declared type: a value an
+    // older build, another site or a hand in the devtools left that does
+    // not fit is not this value, and the default is used instead — a
+    // reader's storage never stops a page from loading.
+    const fits = (value) => {
+      if (!rules.shape || value === initial) return value;
+      const fault = shapeFault(value, rules.shape, "$");
+      if (!fault) return value;
+      if (devMode()) console.warn("WF: what was kept for `" + base + "` is not its type (" + fault.at + " " + fault.message + "); the default is used.");
+      return initial;
+    };
+    const decode = (text) => (text === null || text === undefined ? initial : fits(forward(JSON.parse(text), initial, version, rules.migrate)));
     // No key yet — no project open — is nowhere: the value lives in
     // memory until there is one, and nothing is read or written.
     //

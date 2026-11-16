@@ -547,10 +547,21 @@ impl JsCodegen {
     /// `store` is the store's states, when it is a store's: its `key:` is
     /// then a function of the store.
     pub(super) fn persist_policy(&mut self, state: &StateDecl, store: Option<&[String]>) -> String {
-        let Some(policy) = &state.policy else {
-            return "{}".to_string();
-        };
         let mut parts = Vec::new();
+        // What a value read back must be: the declared type, or what a
+        // plain first value says it is.
+        let shape = match (&state.ty, &state.value) {
+            (Some(ty), _) => self.shape_of(ty, 0),
+            (None, Expr::NumberLiteral(_)) => "\"n\"".to_string(),
+            (None, Expr::StringLiteral(_)) => "\"s\"".to_string(),
+            (None, Expr::BoolLiteral(_)) => "\"b\"".to_string(),
+            _ => "\"*\"".to_string(),
+        };
+        let shape = (shape != "\"*\"").then(|| format!("shape: {shape}"));
+        let Some(policy) = &state.policy else {
+            parts.extend(shape);
+            return format!("{{ {} }}", parts.join(", "));
+        };
         if let Some(key) = &policy.key {
             parts.push(match store {
                 Some(states) => format!("key: (store) => {}", self.emit_store_expr(key, states)),
@@ -579,6 +590,7 @@ impl JsCodegen {
             self.loop_bindings.truncate(bound);
             parts.push(format!("migrate: {{ {} }}", steps.join(", ")));
         }
+        parts.extend(shape);
         format!("{{ {} }}", parts.join(", "))
     }
 

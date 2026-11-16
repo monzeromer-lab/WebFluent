@@ -16,7 +16,11 @@ the `wf` command, and a template like the one in
 `templates/invoice.wf`:
 
 ```wf
-page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -100,6 +104,9 @@ Run `node server.js` and open `/invoices/INV-001` for the page, or
 - `withTheme`, `withTokens` and `withLang` set what the Rust API sets
   ([Render templates from Rust](render-from-rust.md#configure-a-render)),
   and each returns the template, so they chain before a render.
+- The data is held to the page's parameters before anything is drawn: a
+  field missing or of the wrong type throws, its message naming the place
+  (`T33 … $.items[1].price is missing`).
 - A render runs `wf` once and takes a few milliseconds. The data goes over
   standard input, so nothing is written to disk.
 
@@ -113,4 +120,5 @@ Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.
 |---|---|
 | `WebFluent CLI (wf) not found` | Install `wf`, or set `WF_BIN` to the binary's path |
 | The render fails with "no page called …" | Pass `page()` one of the names the message lists |
-| A `{name}` renders empty | The data has no top-level key `name`; check the object's spelling and nesting |
+| A render throws `T33` | The data is not what the page's parameters say; the message names the place |
+| A `{name}` renders empty | The page declares no parameters, and the data has no top-level key `name`. Declare them, and the render says so instead |

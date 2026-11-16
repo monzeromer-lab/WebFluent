@@ -11,7 +11,11 @@ one in [Render a template with data](https://webfluent.monzeromer.dev/recipes/re
 `templates/invoice.wf`:
 
 ```wf
-page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
     Heading("Invoice #{number}").h1
     Text("Bill to: {customer.name}")
     Table {
@@ -116,9 +120,13 @@ no page called `Receipt`; the template has `Invoice`
 ### Pass data
 
 The data is anything `serde` serializes: your own `#[derive(Serialize)]`
-structs, or a `serde_json::Value`. Its top-level fields are the names the
-template reads, so `Invoice`'s `number`, `customer` and `items` are what
-the template splices. A `const` and a `data` file are in scope too.
+structs, or a `serde_json::Value`. Its top-level fields are the page's
+parameters — `Invoice`'s `number`, `customer`, `items`, `total` and `paid` —
+and every render holds the data to them first: a field missing or of the
+wrong type is `WebFluentError::Diagnostics` with a `T33` naming the place
+(`$.items[1].price is missing`), never an empty cell. A `const` and a
+`data` file are in scope too. A page that declares no parameters reads
+whatever it is given, by name.
 
 ### Choose the output
 
@@ -192,4 +200,5 @@ element where the render stopped.
 |---|---|
 | `no page called …` | Pass `page(name)` one of the names the message lists |
 | `WebFluentError::Diagnostics` when the template loads | The template does not check: the error names the file, the line and the code, as `wf check` would |
-| A `{name}` renders empty | The data has no top-level field `name`; check the struct's field names, or `#[serde(rename)]` |
+| A render fails with `T33` | The data is not what the page's parameters say; the message names the place. Check the struct's field names, or `#[serde(rename)]` |
+| A `{name}` renders empty | The page declares no parameters, and the data has no top-level field `name`. Declare them, and the render says so instead |

@@ -455,6 +455,34 @@
     "after": ""
    },
    {
+    "title": "Data from outside, held to its type where it comes in",
+    "id": "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in",
+    "intro": "What the program did not write is checked against the type that receives it,\nat the boundary, and refused with the place it goes wrong (`T33`) rather than\nshown wrong, or as nothing, further in.",
+    "items": [
+     {
+      "text": "**A `data` file at build time.** `data posts: [Post] = \"posts.json\"` holds\nthe file to `[Post]` when the project is built: `` `posts.json` is not\nwhat `data posts` says it is: $[3].date is \"March 5\", not a Date ``. Dates,\ntimes, addresses and colours are read for what they are.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A template's data before it renders.** A page that declares parameters\nbeside its route's — `page Invoice(path: \"/\", number: String, customer:\nCustomer, items: [Line])` — takes those: `wf render`, `Template::render_*`\nand the Node binding refuse data that does not fit (`$.items[1].price is\nmissing`), and a name the page reads that it does not declare is `T13`. A\npage that declares no parameters reads its data by name, as before.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A test's seeds before it runs.** `data: { count: \"two\" }` for a `state\ncount = 0` is `T33`, and a store member the store does not have is `T05`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A `persist` value as it is read back.** What storage holds is held to the\nvalue's type; a value an older build left in another shape is dropped for\nthe initial value, with a warning in a development build, and the page\nloads.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -475,7 +503,7 @@
     "after": ""
    }
   ],
-  "count": 70
+  "count": 74
  },
  {
   "version": "6.2.0",

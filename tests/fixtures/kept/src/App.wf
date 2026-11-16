@@ -1,0 +1,22 @@
+// What storage hands back, held to its type, for tests/browser/kept.mjs:
+// a value that fits is read back, and one an older build left in another
+// shape is not this value — the default is used, and the page loads.
+
+/// What a reader set out.
+type Prefs { columns: Number, dense: Bool = false }
+
+store Settings {
+    persist prefs: Prefs = Prefs(columns: 3)
+    persist scheme = "light"
+}
+
+app { Router }
+
+page Home(path: "/", title: "Kept", description: "Values kept across visits, read back as their type.") {
+    use Settings
+    persist count = 0
+    Heading("Kept").h1
+    Text("{Settings.prefs.columns}", id: "columns")
+    Text(Settings.scheme, id: "scheme")
+    Text("{count}", id: "count")
+}

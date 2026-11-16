@@ -776,9 +776,9 @@ impl JsCodegen {
             // brought forward.
             // `key: id` tells one instance's value from another's, and
             // is followed as state: `key: Project.id` keeps one per project.
-            let policy = match &s.policy {
-                Some(_) => format!(", {}", self.persist_policy(s, None)),
-                None => String::new(),
+            let policy = match self.persist_policy(s, None) {
+                p if p == "{  }" => String::new(),
+                p => format!(", {p}"),
             };
             let init = format!("WF.persist(\"{key}\", {value}{policy})");
             if self.studio {

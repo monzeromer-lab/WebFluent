@@ -391,6 +391,26 @@ A connection that receives something says so — `receive Message` — and
 `on message(m)` is then one."#),
                     Change(text: #"`Input(…).time` and `.datetime` hold a `Time` and a `DateTime`."#)
                 ]),
+                NotesSection(title: #"Data from outside, held to its type where it comes in"#, id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", intro: #"What the program did not write is checked against the type that receives it,
+at the boundary, and refused with the place it goes wrong (`T33`) rather than
+shown wrong, or as nothing, further in."#, items: [
+                    Change(text: #"**A `data` file at build time.** `data posts: [Post] = "posts.json"` holds
+the file to `[Post]` when the project is built: `` `posts.json` is not
+what `data posts` says it is: $[3].date is "March 5", not a Date ``. Dates,
+times, addresses and colours are read for what they are."#),
+                    Change(text: #"**A template's data before it renders.** A page that declares parameters
+beside its route's — `page Invoice(path: "/", number: String, customer:
+Customer, items: [Line])` — takes those: `wf render`, `Template::render_*`
+and the Node binding refuse data that does not fit (`$.items[1].price is
+missing`), and a name the page reads that it does not declare is `T13`. A
+page that declares no parameters reads its data by name, as before."#),
+                    Change(text: #"**A test's seeds before it runs.** `data: { count: "two" }` for a `state
+count = 0` is `T33`, and a store member the store does not have is `T05`."#),
+                    Change(text: #"**A `persist` value as it is read back.** What storage holds is held to the
+value's type; a value an older build left in another shape is dropped for
+the initial value, with a warning in a development build, and the page
+loads."#)
+                ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
 `catch e`, a built-in's prop of no declared type — with its file, line and
@@ -404,7 +424,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 70), latest: true)
+            ], count: 74), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4190,6 +4210,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

@@ -142,9 +142,9 @@ fn persisted_state_and_the_browsers_values() {
     );
     let js = raw_output(Backend::Spa, &src);
     for expected in [
-        "WF.persist(\"P.draft\", \"\")",
+        "WF.persist(\"P.draft\", \"\", { shape: \"s\" })",
         "persist: {",
-        "theme: {},",
+        "theme: { shape: \"s\" },",
         "WF.viewport().md",
         "WF.query().tab",
         "WF.hash()",

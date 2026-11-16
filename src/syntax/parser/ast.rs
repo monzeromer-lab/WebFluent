@@ -337,6 +337,10 @@ pub struct ConstDecl {
     pub value: Expr,
     pub doc: Option<String>,
     pub span: Span,
+    /// The file a `data` declaration read its value from, `posts.json`:
+    /// the value is that file's JSON, held to the declared type as data
+    /// from outside the program (`T33`). `None` for a `const` written out.
+    pub source: Option<String>,
 }
 
 /// `data posts = "posts.json"`: a value read from a file at build time —
