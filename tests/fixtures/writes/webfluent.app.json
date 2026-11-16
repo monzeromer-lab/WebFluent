@@ -1,0 +1,4 @@
+{
+    "name": "Writes",
+    "build": { "ssg": false }
+}

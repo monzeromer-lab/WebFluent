@@ -27,7 +27,7 @@ enum LookupError {
 
 api Backend(base: "/api") {
     post create(body: NewUser) at "users" -> User ! CreateUserError
-    get byId(id: String) at "users/:id" -> User ! LookupError
+    get byId(id: String) at "users/{id}" -> User ! LookupError
     get ping() at "ping" -> !
     get list() at "users" -> [User]!
 }
@@ -96,7 +96,7 @@ fn a_service_s_failures_print_as_they_were_written() {
     for written in [
         "unprocessableContent(problem: ValidationProblem) on 422",
         "post create(body: NewUser) at \"users\" -> User ! CreateUserError",
-        "get ping -> !",
+        "get ping at \"ping\" -> !",
         "get list at \"users\" -> [User]!",
         ".err(.unprocessableContent(p))",
         ".err(.http(.status(503, _)))",

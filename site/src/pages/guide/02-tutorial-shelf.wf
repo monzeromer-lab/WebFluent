@@ -261,7 +261,7 @@ app {
 
         CodeBlock(#"// … in src/api.wf, beside the pages
 api Suggestions(base: "/api") {
-    post suggest(body: Json) -> !
+    post suggest(body: Json) at "suggest" -> !
 }"#, title: "wf")
 
         Markdown("and call it from the form's handler:")

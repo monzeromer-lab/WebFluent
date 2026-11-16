@@ -341,6 +341,12 @@
     }
     // Leaving takes the request with it.
     onCleanup(() => { generation += 1; if (controller) controller.abort(); });
+    // A read of an endpoint is one its `update` reaches.
+    if (options && options.call && url.reads) {
+      const read = { data };
+      url.reads.add(read);
+      onCleanup(() => url.reads.delete(read));
+    }
 
     // What the cache knows this request by; an `invalidate` that names it —
     // the endpoint's, the service's, everything — asks again.

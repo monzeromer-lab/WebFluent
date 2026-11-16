@@ -317,10 +317,10 @@ api Backend(base: "/api/v1") {
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
 
-    get    users(page: Number = 1, q: String?)  -> [User]!
-    get    user(id: String) at "users/:id"      -> User!
-    post   createUser(body: NewUser)            -> User ! CreateUserError
-    delete removeUser(id: String) at "users/:id" -> !
+    get    users(page: Number = 1, q: String?) at "users"  -> [User]!
+    get    user(id: String) at "users/{id}"      -> User!
+    post   createUser(body: NewUser) at "createUser"            -> User ! CreateUserError
+    delete removeUser(id: String) at "users/{id}" -> !
 }
 
 page Users(path: "/users", title: "Users", description: "Everyone.") {
@@ -380,7 +380,7 @@ store Session {
 api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
     middleware [refreshOn401(Session.refresh), bearer(Session.accessToken), header("Accept-Language", Session.language), requestId]
 
-    get me -> User!
+    get me at "me" -> User!
 }
 ```
 
@@ -416,7 +416,7 @@ middleware client(req, next) {
 
 api Accounts(base: "/accounts") {
     middleware [client, timed]
-    get me -> Me!
+    get me at "me" -> Me!
 }
 ```
 
@@ -443,6 +443,65 @@ Beside each endpoint you also get `Backend.users.invalidate()`,
 `.prefetch(args)`, `.url(args)` and `.key(args)`. `invalidate()` drops what
 the cache holds, and every resource over the endpoint on the page asks again,
 so a list redraws after the write that changed it.
+
+### Groups, and what a write makes stale
+
+A service's endpoints can be split into groups by what they are about. A
+group is reached through its service and sends what its service sends: its
+`base`, `timeout`, `retry` and `middleware`. A group that sets its own is
+`N08`.
+
+A write can say which reads it changes with `invalidates`. Each name is a
+`get` of the same group, and each argument is one of the write's own
+parameters (`N05`). When the write succeeds, every resource on the page over
+one of those reads asks again, and the answer is drawn in place:
+
+```wf
+type Todo { id: String, title: String }
+type NewTodo { title: String }
+type Rename { title: String }
+
+api Backend(base: "/api") { }
+
+api Backend.todos {
+    get   list() at "todos" -> [Todo]!
+    get   byId(id: String) at "todos/{id}" -> Todo!
+    post  create(body: NewTodo) at "todos" -> Todo!
+    invalidates [list]
+    patch rename(id: String, body: Rename) at "todos/{id}" -> Todo!
+    idempotent
+        invalidates [list, byId(id)]
+}
+
+store Drafts {
+    action add(title: String) {
+        let undo = Backend.todos.list.update(list => list.concat([Todo(id: "new", title: title)]))
+        if let .err(_) = await Backend.todos.create(body: NewTodo(title: title)) { undo() }
+    }
+}
+
+page Todos(path: "/todos", title: "Todos", description: "The list.") {
+    resource todos = Backend.todos.list()
+    Heading("Todos").h1
+    Button("Add bread") {
+        on click { Backend.todos.create(body: NewTodo(title: "Bread")) }
+    }
+    match todos {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for todo in list by todo.id { Text(todo.title) } }
+    }
+}
+```
+
+To show a change before the server agrees, call `.update(change)` on a read.
+It changes what every resource over that read shows, and returns a function
+that takes the change back. `Drafts.add` in the example above shows the new
+todo at once and takes it back if the server refuses it.
+
+A `resource` must be over a read; a resource over a write is `N02`. A call
+awaited on its own, with nothing reading its result, is `N04`, because a
+failure would go unheard.
 
 ### Read the service from an OpenAPI file
 
@@ -531,7 +590,7 @@ How `retry` works:
 - Only a request that is safe to send twice is retried: `GET`, `HEAD`,
   `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have reached
   the server, and a second one could be a second order, so it fails instead
-  — unless its endpoint is marked `idempotent`: `post order(body: Order) ->
+  — unless its endpoint is marked `idempotent`: `post order(body: Order) at "order" ->
   Order! idempotent`. That sends one `Idempotency-Key` with every try of a
   call, so a server that keeps the key does the order once, and the call is
   retried, and kept to replay offline, like a `PUT`. A `retry:` on a call of
@@ -542,18 +601,21 @@ How `retry` works:
 Each line of a service, after its settings, is an endpoint:
 
 ```text
-get users(page: Number = 1, q: String?) -> [User]!
-get user(id: String) at "users/:id" -> User ! LookupError
-post createUser(body: NewUser) -> User ! CreateUserError
-put rename(id: String, body: Rename) at "users/:id" -> User!
-patch settings(body: Settings) -> Settings!
-delete removeUser(id: String) at "users/:id" -> !
-get report(id: String) at "reports/:id" -> Json! as: .blob
+get users(page: Number = 1, q: String?) at "users" -> [User]!
+get user(id: String) at "users/{id}" -> User ! LookupError
+post createUser(body: NewUser) at "createUser" -> User ! CreateUserError
+put rename(id: String, body: Rename) at "users/{id}" -> User!
+patch settings(body: Settings) at "settings" -> Settings!
+delete removeUser(id: String) at "users/{id}" -> !
+get report(id: String) at "reports/{id}" -> Json! as: .blob
 ```
 
 - **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or
   `options`.
-- **Path parameters.** A parameter the path names (`:id`) goes in the path.
+- **The path.** `at` is required: where the server answers the endpoint,
+  below the service's `base`.
+- **Path parameters.** A parameter the path names (`{id}`) goes in the path,
+  and every `{name}` must be one of the endpoint's parameters (`N01`).
   One that is empty (`null` or `""`) is not sent at all, since `users/`
   would be the whole collection, not the user; nor is one that is `.` or
   `..`, which the browser reads as this folder or the one above. The call
@@ -563,6 +625,10 @@ get report(id: String) at "reports/:id" -> Json! as: .blob
   sent as JSON. A `File` parameter makes the call a multipart upload.
 - **Query parameters.** Every other parameter goes in the query string, and
   one that is `null` is left out.
+- **Headers and cookies.** `token: String in header "X-Token"` sends a
+  parameter as a header, and `theme: String? in cookie` as a cookie.
+- **The first parameter** may be passed without its name:
+  `Backend.user("7")`.
 - **What comes back.** `-> T!` is a success's `T`, or an `HttpError`;
   `-> T ! E` names the failures in an error enum `E`, each status a case
   with its typed body; `-> !` returns nothing, as `204 No Content` does, and
@@ -678,7 +744,7 @@ This page shows items and a **Load more** button while there are more:
 type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]!
+    get items(page: Number = 1) at "items" -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {

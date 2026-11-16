@@ -181,6 +181,13 @@ impl JsCodegen {
     /// page and in a store is written once, and a name, a property read, a
     /// method's holder and a call each resolve as their place reads them.
     pub(super) fn emit_expr_in(&self, expr: &Expr, cx: Cx<'_>) -> String {
+        // `Backend.users.byId(id)`: a value written without its name is the
+        // endpoint's first parameter, sent as the one map the call takes.
+        if let Expr::MethodCall(obj, method, args) = expr
+            && let Some(named) = self.endpoint_arguments(obj, method, args)
+        {
+            return self.emit_expr_in(&Expr::MethodCall(obj.clone(), method.clone(), named), cx);
+        }
         match (expr, cx) {
             (Expr::Typed(_, carrier), _) => self.emit_expr_in(carrier, cx),
             (Expr::StringLiteral(s), _) => js_str(s),
@@ -995,6 +1002,37 @@ impl JsCodegen {
             return call;
         }
         format!("WF.returned({}, {shape}, {call})", js_str(name))
+    }
+
+    /// The arguments of a call of an endpoint with its positional value
+    /// named — `byId(id)` as `byId({ id: id })` — or `None` when the call
+    /// is not of an endpoint, or has none.
+    pub(super) fn endpoint_arguments(
+        &self,
+        obj: &Expr,
+        method: &str,
+        args: &[Expr],
+    ) -> Option<Vec<Expr>> {
+        fn path(e: &Expr) -> Option<String> {
+            match e {
+                Expr::Identifier(n) => Some(n.clone()),
+                Expr::PropertyAccess(owner, field) => Some(format!("{}.{field}", path(owner)?)),
+                _ => None,
+            }
+        }
+        let first = self
+            .endpoint_first
+            .get(&format!("{}.{method}", path(obj)?))?;
+        let positional = args
+            .iter()
+            .position(|a| !matches!(a, Expr::MapLiteral(_)))?;
+        let mut pairs = vec![(first.clone(), args[positional].clone())];
+        for a in args {
+            if let Expr::MapLiteral(more) = a {
+                pairs.extend(more.iter().cloned());
+            }
+        }
+        Some(vec![Expr::MapLiteral(pairs)])
     }
 
     /// Whether `subject` names a read — a resource of this page or this

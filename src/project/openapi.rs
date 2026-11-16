@@ -239,6 +239,7 @@ impl<'a> Spec<'a> {
             .and_then(|v| v.as_str())
             .map_or_else(|| name_of(method, path), camel);
         let mut params = Vec::new();
+        let mut locations = Vec::new();
         // A path's own parameters count for every operation under it.
         for source in [item.get("parameters"), operation.get("parameters")] {
             for parameter in source.and_then(|v| v.as_array()).into_iter().flatten() {
@@ -258,6 +259,18 @@ impl<'a> Spec<'a> {
                 // Required and nullable is a value that must be passed, and
                 // may be null.
                 let ty = if required { ty } else { optional(ty) };
+                // A header or a cookie goes where the specification says.
+                match parameter.get("in").and_then(|v| v.as_str()) {
+                    Some("header") => locations.push((
+                        camel(pname),
+                        crate::syntax::parser::ast::ParamLocation::Header(pname.to_string()),
+                    )),
+                    Some("cookie") => locations.push((
+                        camel(pname),
+                        crate::syntax::parser::ast::ParamLocation::Cookie,
+                    )),
+                    _ => {}
+                }
                 params.push(prop(pname, ty, !required, span));
             }
         }
@@ -305,8 +318,9 @@ impl<'a> Spec<'a> {
         Endpoint {
             method: method.to_uppercase(),
             name,
-            // The path as the language writes one: `{id}` is `:id`, and the
-            // leading slash goes, since the base carries it.
+            // The path as the language writes one: `{id}`, named as the
+            // parameter is, and the leading slash gone, since the base
+            // carries it.
             path: to_path(path),
             params,
             returns,
@@ -318,6 +332,8 @@ impl<'a> Spec<'a> {
                 .and_then(|v| v.as_str())
                 .map(str::to_string),
             span,
+            locations,
+            path_written: true,
         }
     }
 
@@ -725,7 +741,8 @@ fn prop(name: &str, ty: TypeRef, optional: bool, span: Span) -> PropDecl {
     }
 }
 
-/// `/users/{id}` as the language spells a path: `users/:id`.
+/// `/users/{user_id}` as the language spells a path: `users/{userId}`,
+/// each part named as its parameter is.
 fn to_path(path: &str) -> String {
     let mut out = String::new();
     let mut rest = path.trim_start_matches('/');
@@ -734,8 +751,9 @@ fn to_path(path: &str) -> String {
         let Some(end) = rest[at..].find('}') else {
             break;
         };
-        out.push(':');
-        out.push_str(&rest[at + 1..at + end]);
+        out.push('{');
+        out.push_str(&camel(&rest[at + 1..at + end]));
+        out.push('}');
         rest = &rest[at + end + 1..];
     }
     out.push_str(rest);

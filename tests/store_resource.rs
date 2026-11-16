@@ -122,7 +122,7 @@ fn only_the_store_that_declares_it_has_the_resource() {
 
 #[test]
 fn a_store_s_endpoint_resource_takes_its_arguments_from_the_store() {
-    let src = "type Item { id: String, name: String }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) -> [Item]\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page, refresh: .every(30000), cache: .swr(60000))\n    derived names = list.items.map(i => i.name)\n}\npage P(path: \"/\", title: \"T\") {\n    for item in Shelf.list.items by item.id { Text(item.name) }\n    if Shelf.list.hasMore { Button(\"More\") { on click { Shelf.list.loadMore() } } }\n    Text(\"{Shelf.names.length}\")\n}\n";
+    let src = "type Item { id: String, name: String }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) at \"items\" -> [Item]\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page, refresh: .every(30000), cache: .swr(60000))\n    derived names = list.items.map(i => i.name)\n}\npage P(path: \"/\", title: \"T\") {\n    for item in Shelf.list.items by item.id { Text(item.name) }\n    if Shelf.list.hasMore { Button(\"More\") { on click { Shelf.list.loadMore() } } }\n    Text(\"{Shelf.names.length}\")\n}\n";
     let js = spa_generated(src);
     assert!(
         js.contains("list: (store) => WF.resource(Catalog.items, { call: true, args: () => ({ page: store.page, cache: { kind: \"swr\", ttl: 60000 } }), refresh: { interval: 30000 }, paginate: { by: \"page\", set: (v) => { store.page = v; } } }),"),
@@ -196,7 +196,7 @@ fn a_paged_resource_s_items_are_what_its_pages_hold() {
     // `.items` was `Any`, so a misspelt field of a gathered item was found
     // only in the browser. It is a list of what a page holds: the answer,
     // when that is a list, or its `items`.
-    let src = "type Item { id: String, name: String }\ntype Page { items: [Item], total: Number }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) -> [Item]\n    get paged(page: Number = 1) -> Page\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page)\n}\npage P(path: \"/\", title: \"T\") {\n    Heading(\"Shelf\").h1\n    state n = 1\n    resource more = Catalog.paged(page: n, paginate: .page)\n    for item in Shelf.list.items by item.id { Text(item.nme) }\n    for item in more.items by item.id { Text(item.titl) }\n    if Shelf.list.hasMore && more.hasMore { Text(\"More\") }\n}\n";
+    let src = "type Item { id: String, name: String }\ntype Page { items: [Item], total: Number }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) at \"items\" -> [Item]\n    get paged(page: Number = 1) at \"paged\" -> Page\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page)\n}\npage P(path: \"/\", title: \"T\") {\n    Heading(\"Shelf\").h1\n    state n = 1\n    resource more = Catalog.paged(page: n, paginate: .page)\n    for item in Shelf.list.items by item.id { Text(item.nme) }\n    for item in more.items by item.id { Text(item.titl) }\n    if Shelf.list.hasMore && more.hasMore { Text(\"More\") }\n}\n";
     let found = diagnostics(src, "T05");
     assert!(
         found.iter().any(|d| d == "[T05] `Item` has no field `nme`"),

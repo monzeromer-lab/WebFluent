@@ -310,7 +310,11 @@ Errors. The type checker's findings; a program that declares no types raises non
 
 ### Requests
 
+- [N01](N01.md) — A path that names no parameter
+- [N02](N02.md) — A resource over a write
 - [N03](N03.md) — A `try` with nowhere to pass its error
+- [N04](N04.md) — A result nothing reads
+- [N05](N05.md) — An `invalidates` naming what the contract does not have
 - [N08](N08.md) — A form 7.0 removed
 - [N09](N09.md) — A retry asked of a write that is not idempotent
 - [N11](N11.md) — `Any` or `Map` where a service meets the program

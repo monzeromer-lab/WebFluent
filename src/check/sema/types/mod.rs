@@ -31,6 +31,7 @@ use crate::syntax::parser::ast::{
 
 mod call;
 mod connection;
+mod contract;
 mod element;
 mod expr;
 mod handles;
@@ -122,6 +123,20 @@ struct World<'p> {
 }
 
 impl<'p> World<'p> {
+    /// The service, or the group of one, an expression names: `Backend`,
+    /// `Backend.users`.
+    fn api_of(&self, e: &Expr) -> Option<String> {
+        match e {
+            Expr::Identifier(n) if self.apis.contains_key(n.as_str()) => Some(n.clone()),
+            Expr::PropertyAccess(owner, group) => {
+                let owner = self.api_of(owner)?;
+                let name = format!("{owner}.{group}");
+                self.apis.contains_key(name.as_str()).then_some(name)
+            }
+            _ => None,
+        }
+    }
+
     /// One endpoint of a service, by name.
     fn endpoint(&self, api: &str, name: &str) -> Option<&'p Endpoint> {
         self.apis
@@ -781,6 +796,7 @@ pub fn check_sources_with<'s>(
                     }
                 }
                 cx.old_transport(a);
+                cx.group_of(a);
                 for endpoint in &a.endpoints {
                     cx.current_span = endpoint.span;
                     let what = format!("{}.{}", a.name, endpoint.name);
@@ -811,47 +827,16 @@ pub fn check_sources_with<'s>(
                     {
                         cx.written(t, &what);
                     }
-                    for (_, e) in &endpoint.settings {
+                    // `invalidates [list, byId(id)]` names endpoints and
+                    // arguments, which `contract` checks, not values.
+                    for (k, e) in &endpoint.settings {
+                        if k == "invalidates" {
+                            continue;
+                        }
                         cx.current_span = endpoint.span;
                         cx.infer(e, None);
                     }
-                    // Every `:name` in the path is filled by the parameter of
-                    // that name; one that is not stays `:name` in the
-                    // address, and the value it was meant to carry goes as a
-                    // query instead (`/users/:id?userId=42`).
-                    let params: Vec<&str> =
-                        endpoint.params.iter().map(|p| p.name.as_str()).collect();
-                    for segment in endpoint.path.split('/') {
-                        let Some(name) = segment.strip_prefix(':') else {
-                            continue;
-                        };
-                        if !params.contains(&name) {
-                            let hint = if params.is_empty() {
-                                format!(
-                                    "Give it the parameter: `{}({name}: String)`",
-                                    endpoint.name
-                                )
-                            } else {
-                                format!(
-                                    "Name a parameter `{name}`; it takes {}",
-                                    params
-                                        .iter()
-                                        .map(|p| format!("`{p}`"))
-                                        .collect::<Vec<_>>()
-                                        .join(", ")
-                                )
-                            };
-                            cx.error(
-                                endpoint.span,
-                                "T10",
-                                format!(
-                                    "`{}.{}` is at `{}`, and no parameter fills `:{name}`",
-                                    a.name, endpoint.name, endpoint.path
-                                ),
-                                &hint,
-                            );
-                        }
-                    }
+                    cx.contract(a, endpoint);
                 }
                 for hook in &a.hooks {
                     cx.push_scope();
@@ -1080,12 +1065,12 @@ impl<'a, 'p> Checker<'a, 'p> {
         let Expr::MethodCall(obj, method, _) = url else {
             return http();
         };
-        let Expr::Identifier(api) = &**obj else {
+        let Some(api) = self.world.api_of(obj) else {
             return http();
         };
         match self
             .world
-            .endpoint(api, method)
+            .endpoint(&api, method)
             .and_then(|e| e.returns.as_ref())
             .map(|t| self.world.resolve(Type::from_ref(t)))
         {
@@ -1317,11 +1302,11 @@ impl<'a, 'p> Checker<'a, 'p> {
                         // over one is typed without an annotation.
                         None => match &r.url {
                             Expr::MethodCall(obj, method, _) => {
-                                match (&**obj, self.world.apis.is_empty()) {
-                                    (Expr::Identifier(api), false) => {
+                                match self.world.api_of(obj) {
+                                    Some(api) => {
                                         match self
                                             .world
-                                            .endpoint(api, method)
+                                            .endpoint(&api, method)
                                             .and_then(|e| e.returns.as_ref())
                                         {
                                             // A read of `-> T ! E` holds the `T`.
@@ -1331,20 +1316,37 @@ impl<'a, 'p> Checker<'a, 'p> {
                                             None => self.hole(HoleKind::UntypedResource, &r.name),
                                         }
                                     }
-                                    _ => self.hole(HoleKind::UntypedResource, &r.name),
+                                    None => self.hole(HoleKind::UntypedResource, &r.name),
                                 }
                             }
                             _ => self.hole(HoleKind::UntypedResource, &r.name),
                         },
                     };
+                    // A read is of what can be read: a resource over a
+                    // write would send it every time the page drew it.
+                    if let Expr::MethodCall(obj, method, _) = &r.url
+                        && let Some(api) = self.world.api_of(obj)
+                        && let Some(endpoint) = self.world.endpoint(&api, method)
+                        && !matches!(endpoint.method.as_str(), "GET" | "HEAD")
+                    {
+                        self.error(
+                            stmt.span,
+                            "N02",
+                            format!(
+                                "`resource {}` reads `{api}.{method}`, a `{}`: a write is sent when something happens, not whenever the page draws",
+                                r.name, endpoint.method
+                            ),
+                            &format!("Call it from an action: `action save() {{ match await {api}.{method}(…) {{ .ok(v) {{ … }} .err(e) {{ … }} }} }}`"),
+                        );
+                    }
                     // An annotation says what the endpoint returns, or it
                     // is wrong: `resource u: [User] = Backend.user(…)`.
                     if r.ty.is_some()
                         && let Expr::MethodCall(obj, method, _) = &r.url
-                        && let Expr::Identifier(api) = &**obj
+                        && let Some(api) = self.world.api_of(obj)
                         && let Some(returns) = self
                             .world
-                            .endpoint(api, method)
+                            .endpoint(&api, method)
                             .and_then(|e| e.returns.as_ref())
                     {
                         let returns = answer_of(self.world.resolve(Type::from_ref(returns)));

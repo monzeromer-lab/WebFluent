@@ -1099,7 +1099,7 @@ fn opening_dot(
 
 /// Whether the cursor is where a type is written: `state x: ‸`,
 /// `component C(name: ‸`, `action a(n: ‸`, `type T { field: ‸`,
-/// `get users() -> ‸`, `items: [‸`.
+/// `get users() at "users" -> ‸`, `items: [‸`.
 fn type_position(previous: &[&Token], decl: &Declaration) -> bool {
     let n = previous.len();
     let at = |back: usize| n.checked_sub(back).map(|i| &previous[i].token_type);

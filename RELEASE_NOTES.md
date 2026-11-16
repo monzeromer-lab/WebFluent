@@ -244,12 +244,42 @@ arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
   `resource` declares it returns is held to what arrives, deployed as under
   `wf serve`, and a server that breaks its contract fails as `.decode(at,
   message)`.
-- **`idempotent`** on an endpoint — `post order(body: Order) -> Order!
-  idempotent` — sends one `Idempotency-Key` with every try of a call, and lets
+- **`idempotent`** on an endpoint — `post order(body: Order) at "orders" ->
+  Order! idempotent` — sends one `Idempotency-Key` with every try of a call, and lets
   a `POST` or `PATCH` be retried and replayed offline; `retry:` on any other
   write is `N09`, and does nothing.
 - **A call gives up after 30 seconds** unless its service or the call says
   otherwise.
+
+## Contracts and writes
+
+- **`at` is required**, and a path names its parameters as OpenAPI does:
+  `get user(id: String) at "users/{id}" -> User!`. Every `{name}` is one of
+  the endpoint's parameters (`N01`). 6.x made a path from the endpoint's
+  name when it gave none, and wrote a parameter `:id`; both are `N08`, and
+  `wf fix` writes `at "<name>"` and `{id}`.
+- **Headers and cookies.** `token: String in header "X-Token"` and `theme:
+  String? in cookie` say where a parameter goes; one the path names has no
+  other place. A specification's `"in": "header"` and `"in": "cookie"` are
+  read the same way.
+- **Groups.** `api Backend.todos { … }` splits a service's endpoints by
+  what they are about, reached as `Backend.todos.list()`. A group sends
+  what its service sends; its own `base:`, `retry:` or `middleware` is
+  `N08`.
+- **What a write makes stale.** `invalidates [list, byId(id)]` on a write
+  names the reads of its group it changes, each argument one of the write's
+  own parameters (`N05`). When the write succeeds, every resource over one
+  of them asks again and draws the answer in place.
+- **A change shown before the server agrees.** A read's `.update(change)`
+  changes what every resource over it shows, and returns what takes the
+  change back: `let undo = Backend.todos.list.update(…)`, then `undo()` when
+  the write fails.
+- **The first parameter may be passed without its name**:
+  `Backend.user("7")`.
+- **A resource is over a read**: one over a `POST`, `PUT`, `PATCH` or
+  `DELETE` would send it again each time the page draws, and is `N02`. A
+  call's result awaited on its own, so that a failure is never heard, is
+  `N04`.
 
 ## Declared where others see it, inferred where only the body does
 

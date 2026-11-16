@@ -5,11 +5,11 @@ api Backend(base: "/api") {
     timeout: 300.ms
     retry: .backoff(times: 2, on: [.network, .timeout, .status5xx])
 
-    get    users -> [User]!
+    get    users at "users" -> [User]!
     get    slowRead at "slow-read" -> Json!
     post   slowWrite(body: Json) at "slow-write" -> Json!
     post   order(body: Json) at "orders" -> Json!
-    put    note(id: String, body: Json) at "notes/:id" -> Json!
+    put    note(id: String, body: Json) at "notes/{id}" -> Json!
 }
 
 app { Router }

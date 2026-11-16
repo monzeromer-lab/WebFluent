@@ -318,12 +318,55 @@
       "after": ""
      },
      {
-      "text": "**`idempotent`** on an endpoint — `post order(body: Order) -> Order!\nidempotent` — sends one `Idempotency-Key` with every try of a call, and lets\na `POST` or `PATCH` be retried and replayed offline; `retry:` on any other\nwrite is `N09`, and does nothing.",
+      "text": "**`idempotent`** on an endpoint — `post order(body: Order) at \"orders\" ->\nOrder! idempotent` — sends one `Idempotency-Key` with every try of a call, and lets\na `POST` or `PATCH` be retried and replayed offline; `retry:` on any other\nwrite is `N09`, and does nothing.",
       "points": [],
       "after": ""
      },
      {
       "text": "**A call gives up after 30 seconds** unless its service or the call says\notherwise.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Contracts and writes",
+    "id": "7.0.0-contracts-and-writes",
+    "intro": "",
+    "items": [
+     {
+      "text": "**`at` is required**, and a path names its parameters as OpenAPI does:\n`get user(id: String) at \"users/{id}\" -> User!`. Every `{name}` is one of\nthe endpoint's parameters (`N01`). 6.x made a path from the endpoint's\nname when it gave none, and wrote a parameter `:id`; both are `N08`, and\n`wf fix` writes `at \"<name>\"` and `{id}`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Headers and cookies.** `token: String in header \"X-Token\"` and `theme:\nString? in cookie` say where a parameter goes; one the path names has no\nother place. A specification's `\"in\": \"header\"` and `\"in\": \"cookie\"` are\nread the same way.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Groups.** `api Backend.todos { … }` splits a service's endpoints by\nwhat they are about, reached as `Backend.todos.list()`. A group sends\nwhat its service sends; its own `base:`, `retry:` or `middleware` is\n`N08`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**What a write makes stale.** `invalidates [list, byId(id)]` on a write\nnames the reads of its group it changes, each argument one of the write's\nown parameters (`N05`). When the write succeeds, every resource over one\nof them asks again and draws the answer in place.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A change shown before the server agrees.** A read's `.update(change)`\nchanges what every resource over it shows, and returns what takes the\nchange back: `let undo = Backend.todos.list.update(…)`, then `undo()` when\nthe write fails.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The first parameter may be passed without its name**:\n`Backend.user(\"7\")`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A resource is over a read**: one over a `POST`, `PUT`, `PATCH` or\n`DELETE` would send it again each time the page draws, and is `N02`. A\ncall's result awaited on its own, so that a failure is never heard, is\n`N04`.",
       "points": [],
       "after": ""
      }
@@ -394,7 +437,7 @@
     "after": ""
    }
   ],
-  "count": 57
+  "count": 64
  },
  {
   "version": "6.2.0",

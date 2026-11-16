@@ -250,7 +250,7 @@ enum InviteError {
 api Accounts(base: "/api") {
     timeout: 10.seconds
     credentials: .sameOrigin
-    post invite(body: Invitation) -> Invited ! InviteError
+    post invite(body: Invitation) at "invite" -> Invited ! InviteError
 }
 
 page Invite(path: "/invite", title: "Invite", description: "Ask someone to join the board.", layout: BoardShell) {
@@ -294,7 +294,7 @@ type Release { tag: String, title: String, published: DateTime }
 api Releases(base: "/api") {
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
-    get list(page: Number = 1) -> [Release]!
+    get list(page: Number = 1) at "list" -> [Release]!
 }
 
 page Changelog(path: "/changelog", title: "Changelog", description: "What changed, newest first.", layout: BoardShell) {

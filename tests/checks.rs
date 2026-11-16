@@ -779,14 +779,14 @@ fn d02_d03_what_persist_cannot_keep_and_what_every_instance_shares() {
 }
 
 #[test]
-fn t10_an_endpoint_path_parameter_nothing_fills() {
+fn n01_an_endpoint_path_parameter_nothing_fills() {
     let src = format!(
-        "api B(base: \"/api\") {{\n    get user(userId: String) at \"users/:id\"\n    get ok(id: String) at \"users/:id\"\n}}\n{}",
+        "api B(base: \"/api\") {{\n    get user(userId: String) at \"users/{{id}}\" -> Json!\n    get ok(id: String) at \"users/{{id}}\" -> Json!\n}}\n{}",
         page("")
     );
-    let found = with(&src, "T10");
+    let found = with(&src, "N01");
     assert_eq!(found.len(), 1, "{found:?}");
-    assert!(found[0].contains("no parameter fills `:id`"), "{found:?}");
+    assert!(found[0].contains("no parameter fills `{id}`"), "{found:?}");
 }
 
 // ─── C12: literals, styles, text ─────────────────────────────────────
@@ -956,7 +956,7 @@ fn e118_nothing_at_the_top_level_takes_a_name_the_language_has() {
         "data env = \"posts.json\"",
         "image env = \"hero.png\"",
         "store env { state a = 1 }",
-        "api env(base: \"/api\") { get users() -> Json! }",
+        "api env(base: \"/api\") { get users() at \"users\" -> Json! }",
     ] {
         let found = with(&format!("{decl}\n{}", page("    Text(\"x\")")), "E118");
         assert_eq!(found.len(), 1, "{decl}: {found:?}");
@@ -1060,7 +1060,7 @@ fn e118_no_name_a_body_declares_takes_one_the_language_has() {
     // parameter. A name that only begins like one is a name like any other.
     clean(&format!(
         "enum Stage {{ env, query, t }}\ntype Box {{ env: String, t: Number }}\n\
-         api Backend(base: \"/api\") {{ get users(page: Number = 1, query: String?) -> [Box]! }}\n\
+         api Backend(base: \"/api\") {{ get users(page: Number = 1, query: String?) at \"users\" -> [Box]! }}\n\
          const envy = 1\n{}",
         page(concat!(
             "    state value = 1\n",
@@ -1230,7 +1230,7 @@ fn pages_that_share_a_name_are_a_duplicate_and_not_a_translation() {
 
 // ─── Requests to a service ────────────────────────────────────────────
 
-const SERVICE: &str = "type User { id: String, name: String }\ntype NewUser { name: String }\ntype Invalid = Problem { field: String }\nenum CreateUserError {\n    unprocessableContent(problem: Invalid) on 422\n    http(error: HttpError)\n}\napi Backend(base: \"/api\") {\n    get user(userId: String) at \"users/:userId\" -> User!\n    get users(q: String?) -> [User]!\n    post createUser(body: NewUser) at \"users\" -> User ! CreateUserError\n    post ping at \"ping\" -> !\n}\n";
+const SERVICE: &str = "type User { id: String, name: String }\ntype NewUser { name: String }\ntype Invalid = Problem { field: String }\nenum CreateUserError {\n    unprocessableContent(problem: Invalid) on 422\n    http(error: HttpError)\n}\napi Backend(base: \"/api\") {\n    get user(userId: String) at \"users/{userId}\" -> User!\n    get users(q: String?) at \"users\" -> [User]!\n    post createUser(body: NewUser) at \"users\" -> User ! CreateUserError\n    post ping at \"ping\" -> !\n    get found(name: String) at \"found\" -> User ! CreateUserError\n}\n";
 
 fn with_service(body: &str) -> String {
     format!("{SERVICE}{}", page(body))
@@ -1241,7 +1241,7 @@ fn a_failed_reads_error_is_what_its_endpoint_declares() {
     // `-> User ! CreateUserError`: a read's `.failed(e)` holds the error
     // enum, a declared status with its typed body.
     clean(&with_service(
-        "    resource made = Backend.createUser(body: NewUser(name: \"Ada\"))\n    match made {\n        .loading { Text(\"…\") }\n        .failed(e) {\n            match e {\n                .unprocessableContent(p) { Text(\"{p.status ?? 0}: {p.field}\") }\n                .http(h) { Text(h.message) }\n            }\n        }\n        .loaded(u) { Text(u.name) }\n    }",
+        "    resource made = Backend.found(name: \"Ada\")\n    match made {\n        .loading { Text(\"…\") }\n        .failed(e) {\n            match e {\n                .unprocessableContent(p) { Text(\"{p.status ?? 0}: {p.field}\") }\n                .http(h) { Text(h.message) }\n            }\n        }\n        .loaded(u) { Text(u.name) }\n    }",
     ));
     // `-> User!`: an `HttpError`, whose `.offline` carries nothing.
     let src = with_service(
@@ -1303,4 +1303,85 @@ fn a_resource_has_the_methods_it_has() {
     clean(&with_service(
         "    resource all = Backend.users()\n    Text(all.isLoaded)\n    Button(\"x\") { on click { all.reload()  all.invalidate()  all.cancel() } }",
     ));
+}
+
+// ─── Contracts and writes ────────────────────────────────────────────
+
+/// A group of todos, its reads and its writes.
+const TODOS: &str = "type Todo { id: String, title: String }\ntype NewTodo { title: String }\napi Backend(base: \"/api\") { }\napi Backend.todos {\n    get list() at \"todos\" -> [Todo]!\n    get byId(id: String) at \"todos/{id}\" -> Todo!\n    post create(body: NewTodo) at \"todos\" -> Todo!\n        invalidates [list]\n    patch rename(id: String, body: NewTodo) at \"todos/{id}\" -> Todo!\n        invalidates [list, byId(id)]\n}\n";
+
+#[test]
+fn a_group_is_reached_through_its_service_and_its_writes_name_what_goes_stale() {
+    clean(&format!(
+        "{TODOS}{}",
+        page(
+            "    resource todos = Backend.todos.list()\n    resource one = Backend.todos.byId(\"1\")\n    match todos { .loaded(l) { Text(\"{l.length}\") } else { Spinner } }\n    match one { .loaded(todo) { Text(todo.title) } else { Spinner } }\n    Button(\"Add\") { on click { let undo = Backend.todos.list.update(l => l)  match await Backend.todos.create(body: NewTodo(title: \"x\")) { .ok(_) { } .err(_) { undo() } } } }"
+        )
+    ));
+}
+
+#[test]
+fn n02_a_resource_is_over_a_read() {
+    let src = format!(
+        "{TODOS}{}",
+        page(
+            "    resource made = Backend.todos.create(body: NewTodo(title: \"x\"))\n    match made { .loaded(todo) { Text(todo.title) } else { Spinner } }"
+        )
+    );
+    let found = with(&src, "N02");
+    assert_eq!(found.len(), 1, "{found:?}");
+    let src = format!(
+        "{TODOS}{}",
+        page("    Button(\"x\") { on click { Backend.todos.create.update(t => t) } }")
+    );
+    assert_eq!(with(&src, "N02").len(), 1, "{:?}", findings(&src));
+}
+
+#[test]
+fn n04_a_result_awaited_on_its_own_is_heard_by_no_one() {
+    let src = format!(
+        "{TODOS}store S {{\n    action add() {{\n        await Backend.todos.create(body: NewTodo(title: \"x\"))\n    }}\n}}\n{}",
+        page("    use S\n    Button(\"x\") { on click { S.add() } }")
+    );
+    assert_eq!(with(&src, "N04").len(), 1, "{:?}", findings(&src));
+}
+
+#[test]
+fn n05_invalidates_names_a_read_of_the_group_with_the_writes_own_parameters() {
+    let bad = "type Todo { id: String, title: String }\napi Backend(base: \"/api\") { }\napi Backend.todos {\n    get list() at \"todos\" -> [Todo]!\n        invalidates [list]\n    get byId(id: String) at \"todos/{id}\" -> Todo!\n    post create(title: String) at \"todos\" -> Todo!\n        invalidates [all, byId(id), byId(title, title)]\n}\n";
+    let found = with(&format!("{bad}{}", page("")), "N05");
+    // The read that invalidates, `all`, `id` that `create` does not take,
+    // and two arguments to a read of one.
+    assert_eq!(found.len(), 4, "{found:?}");
+    assert!(found.iter().any(|f| f.contains("`all`")), "{found:?}");
+}
+
+#[test]
+fn n08_an_endpoint_says_where_it_is_with_braces_and_a_group_sends_what_its_service_sends() {
+    let src = format!(
+        "type User {{ id: String }}\napi Backend(base: \"/api\") {{\n    get users() -> [User]!\n    get user(id: String) at \"users/:id\" -> User!\n}}\napi Backend.admin {{\n    timeout: 5.seconds\n    get stats() at \"stats\" -> Json!\n}}\napi Lost.things {{ }}\n{}",
+        page("")
+    );
+    let found = with(&src, "N08");
+    assert_eq!(found.len(), 3, "{found:?}");
+    assert!(
+        found.iter().any(|f| f.contains("asks for `at`")),
+        "{found:?}"
+    );
+    assert!(
+        found.iter().any(|f| f.contains("`{id}`, not `:id`")),
+        "{found:?}"
+    );
+    assert_eq!(with(&src, "T13").len(), 1, "{:?}", findings(&src));
+}
+
+#[test]
+fn a_parameter_has_one_place() {
+    let src = format!(
+        "type User {{ id: String }}\napi Backend(base: \"/api\") {{\n    get me(token: String in header \"X-Token\", theme: String? in cookie) at \"me\" -> User!\n    get user(id: String in header \"X-Id\") at \"users/{{id}}\" -> User!\n}}\n{}",
+        page("")
+    );
+    let found = with(&src, "N01");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("one place"), "{found:?}");
 }

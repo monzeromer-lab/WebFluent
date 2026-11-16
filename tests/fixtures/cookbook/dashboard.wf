@@ -136,7 +136,8 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.",
     state rolledBack = ""
     resource deploys: [Deploy] = http.get("/api/deploys")
     action rollback(id: String) {
-        await http.post("/api/deploys/{id}/rollback")
+        let done: Json! = await http.post("/api/deploys/{id}/rollback")
+        if let .err(_) = done { return }
         rolledBack = id
         Ui.close()
         deploys.reload()

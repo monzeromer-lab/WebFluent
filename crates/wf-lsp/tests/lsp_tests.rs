@@ -760,7 +760,7 @@ fn a_markdown_page_is_a_page_the_editor_knows() {
     );
 }
 
-const DECLS: &str = "const LIMIT = 3\ndata posts = \"p.json\"\nimage hero = \"h.jpg\"\ntype Post { id: String }\nenum Tone { calm, loud }\nanimation Wobble { from { opacity: 0 } to { opacity: 1 } }\napi Backend(base: \"/api\") {\n    get users() -> [Post]\n}\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    state t: Tone = .calm\n    state p: Post? = Post(id: \"1\")\n    resource r = Backend.users()\n    Heading(\"{LIMIT} {posts.length}\").h1\n    Image(hero, alt: \"a\")\n    Card(animate: .Wobble) { Text(\"a\") }\n    match t {\n        .calm { Text(\"c\") }\n        .loud { Text(\"l\") }\n    }\n}\n";
+const DECLS: &str = "const LIMIT = 3\ndata posts = \"p.json\"\nimage hero = \"h.jpg\"\ntype Post { id: String }\nenum Tone { calm, loud }\nanimation Wobble { from { opacity: 0 } to { opacity: 1 } }\napi Backend(base: \"/api\") {\n    get users() at \"users\" -> [Post]\n}\npage Home(path: \"/\", title: \"H\", description: \"D\") {\n    state t: Tone = .calm\n    state p: Post? = Post(id: \"1\")\n    resource r = Backend.users()\n    Heading(\"{LIMIT} {posts.length}\").h1\n    Image(hero, alt: \"a\")\n    Card(animate: .Wobble) { Text(\"a\") }\n    match t {\n        .calm { Text(\"c\") }\n        .loud { Text(\"l\") }\n    }\n}\n";
 
 /// The line (1-based) go-to-definition lands on for the `nth` occurrence of
 /// `needle`.
@@ -793,7 +793,7 @@ fn every_kind_of_declaration_has_a_definition() {
         ("calm", 2, 5),    // a case, as a match arm
         ("Wobble", 1, 6),  // an animation, played
         ("Backend", 1, 7), // a service
-        ("users", 1, 8),   // its endpoint
+        ("users()", 1, 8), // its endpoint
     ] {
         assert_eq!(
             definition_line(DECLS, needle, nth),
@@ -859,9 +859,9 @@ fn every_kind_of_declaration_renames_everywhere_it_is_named() {
             && out.contains(".quiet { Text"),
         "{out}"
     );
-    let out = renamed(DECLS, "users", 1, "people");
+    let out = renamed(DECLS, "users()", 1, "people");
     assert!(
-        out.contains("get people() ->") && out.contains("Backend.people()"),
+        out.contains("get people() at \"users\" ->") && out.contains("Backend.people()"),
         "{out}"
     );
     let out = renamed(DECLS, "Backend", 1, "Server");
@@ -1127,7 +1127,7 @@ fn after_a_dot_a_value_offers_what_its_type_has() {
 
 #[test]
 fn after_a_dot_a_declaration_or_a_handle_offers_its_members() {
-    let api = "api Backend(base: \"/api\") {\n    get users() -> [Map]\n    get user(id: String) at \"users/:id\" -> Map\n}\n";
+    let api = "api Backend(base: \"/api\") {\n    get users() at \"users\" -> [Map]\n    get user(id: String) at \"users/{id}\" -> Map\n}\n";
     let v = format!("{api}{HEAD}    resource r = Backend.users()\n}}\n");
     offers(
         &offered(&v, &v.replace("Backend.users()", "Backend.‸")),
@@ -1239,7 +1239,7 @@ fn a_type_is_offered_wherever_one_is_written() {
         ),
         types,
     );
-    let v = format!("{decls}api B(base: \"/x\") {{\n    get posts() -> [Post]\n}}\n");
+    let v = format!("{decls}api B(base: \"/x\") {{\n    get posts() at \"posts\" -> [Post]\n}}\n");
     offers(&offered(&v, &v.replace("-> [Post]", "-> ‸")), types);
     offers(&offered(&v, &v.replace("-> [Post]", "-> [‸")), types);
 }
@@ -1264,9 +1264,9 @@ fn a_block_offers_what_it_may_hold() {
             "async",
         ],
     );
-    let api = "api B(base: \"/x\") {\n    get a() -> Map\n}\n";
+    let api = "api B(base: \"/x\") {\n    get a() at \"a\" -> Map\n}\n";
     offers(
-        &offered(api, &api.replace("get a() -> Map", "‸")),
+        &offered(api, &api.replace("get a() at \"a\" -> Map", "‸")),
         &[
             "timeout",
             "retry",
@@ -1469,7 +1469,7 @@ fn hover_on_a_function_or_a_value_the_language_gives() {
 
 #[test]
 fn hover_on_a_member_says_what_it_is_and_what_it_gives() {
-    let src = "type User { id: String, /// Shown everywhere.\nname: String }\napi Backend(base: \"/api\") {\n    /// Everyone.\n    get users(page: Number = 1) -> [User]\n}\nenum Tone { calm, loud, failed(reason: String) }\nimage hero = \"h.jpg\"\npage P(path: \"/\") {\n    state u: User = User(id: \"1\", name: \"Ada\")\n    state d: Date = @2026-01-01\n    state t: Tone = .loud\n    resource r = Backend.users(page: 1)\n    Text(u.name)\n    Text(d.plus(days: 1))\n    Image(hero, alt: \"a\")\n}\n";
+    let src = "type User { id: String, /// Shown everywhere.\nname: String }\napi Backend(base: \"/api\") {\n    /// Everyone.\n    get users(page: Number = 1) at \"users\" -> [User]\n}\nenum Tone { calm, loud, failed(reason: String) }\nimage hero = \"h.jpg\"\npage P(path: \"/\") {\n    state u: User = User(id: \"1\", name: \"Ada\")\n    state d: Date = @2026-01-01\n    state t: Tone = .loud\n    resource r = Backend.users(page: 1)\n    Text(u.name)\n    Text(d.plus(days: 1))\n    Image(hero, alt: \"a\")\n}\n";
     let endpoint = hover_text(src, "users(page: 1)").unwrap();
     assert!(
         endpoint.contains("endpoint of `Backend`")
@@ -1519,7 +1519,7 @@ fn hover_on_every_keyword_explains_it() {
         ),
         ("data posts = \"p.json\"\n".to_string(), "data"),
         (
-            "api B(base: \"/x\") {\n    get a() -> Map\n}\n".to_string(),
+            "api B(base: \"/x\") {\n    get a() at \"a\" -> Map\n}\n".to_string(),
             "api",
         ),
         (
@@ -1639,7 +1639,7 @@ fn signature_at(valid: &str, broken: &str) -> Option<(String, Option<String>)> {
 
 #[test]
 fn signature_help_shows_what_a_call_takes_and_where_the_cursor_is() {
-    let decls = "component UserCard(_ name: String, role: String, active: Bool = true) { Text(name) }\napi Backend(base: \"/api\") {\n    get user(id: String) at \"users/:id\" -> Map\n}\nstore Cart {\n    state n = 0\n    action add(item: Map, qty: Number) { n = n + qty }\n}\n";
+    let decls = "component UserCard(_ name: String, role: String, active: Bool = true) { Text(name) }\napi Backend(base: \"/api\") {\n    get user(id: String) at \"users/{id}\" -> Map\n}\nstore Cart {\n    state n = 0\n    action add(item: Map, qty: Number) { n = n + qty }\n}\n";
     let page = |valid: &str, broken: &str| {
         signature_at(
             &format!("{decls}{HEAD}    use Cart\n{valid}\n}}\n"),

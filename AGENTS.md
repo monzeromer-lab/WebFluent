@@ -1000,8 +1000,8 @@ is the same one `error:` has always used.
 type SignUp { email: String, password: String }
 
 api Backend(base: "/api") {
-    get emailTaken(email: String) -> Bool!
-    post signUp(body: SignUp) -> !
+    get emailTaken(email: String) at "emailTaken" -> Bool!
+    post signUp(body: SignUp) at "signUp" -> !
 }
 
 page Signup(path: "/join", title: "Join", description: "Make an account.") {
@@ -1368,14 +1368,62 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                                        // session belongs; `persist` is not
     middleware [requestId, log]        // and refreshOn401(Session.refresh), bearer(Session.token), …
 
-    get    users(page: Number = 1, q: String?)   -> [User]!
-    get    user(id: String) at "users/:id"       -> User!
-    post   createUser(body: NewUser)             -> User!
+    get    users(page: Number = 1, q: String?) at "users"   -> [User]!
+    get    user(id: String) at "users/{id}"       -> User!
+    post   createUser(body: NewUser) at "createUser"             -> User!
     put    order(body: Order) at "orders" -> Order! idempotent
-    delete removeUser(id: String) at "users/:id" -> !
-    post   avatar(id: String, file: File) at "users/:id/avatar" -> Url!
+    delete removeUser(id: String) at "users/{id}" -> !
+    post   avatar(id: String, file: File) at "users/{id}/avatar" -> Url!
 }
 ```
+
+**Where an endpoint is.** `at` is required: the path the server answers it
+at, below `base`. A parameter the path names goes there — `at
+"users/{id}"`, `{name}` as OpenAPI writes it — and every `{name}` is one of
+the endpoint's parameters (`N01`). Another goes in the query of a read and
+the body of a write, or where it says: `get me(token: String in header
+"X-Token", theme: String? in cookie) at "me" -> User!`. A call may pass the
+first parameter without its name: `Backend.user("7")`.
+
+**Groups.** A service's endpoints may be split by what they are about. A
+group is reached through its service and sends what the service sends —
+its `base`, `timeout`, `retry` and `middleware`, none of its own (`N08`):
+
+```wf
+type Todo { id: String, title: String }
+type NewTodo { title: String }
+type Rename { title: String }
+
+api Backend(base: "/api") { }
+
+api Backend.todos {
+    get   list() at "todos" -> [Todo]!
+    get   byId(id: String) at "todos/{id}" -> Todo!
+    post  create(body: NewTodo) at "todos" -> Todo!
+    invalidates [list]
+    patch rename(id: String, body: Rename) at "todos/{id}" -> Todo!
+    idempotent
+        invalidates [list, byId(id)]
+}
+
+store Todos {
+    action add(title: String) {
+        let undo = Backend.todos.list.update(list => list.concat([Todo(id: "new", title: title)]))
+        if let .err(_) = await Backend.todos.create(body: NewTodo(title: title)) { undo() }
+    }
+}
+```
+
+**What a write makes stale.** `invalidates [list, byId(id)]` names the reads
+of the same group that a write changes, each with the write's own
+parameters as its arguments (`N05`): once the write succeeds, every
+`resource` on the page over one of them asks again — a refresh, drawn in
+place. A read's `.update(change)` shows a change before the server agrees,
+in every resource over it, and returns what takes it back — `Todos.add`
+above undoes its change when the server refuses.
+
+A `resource` is over a read (`N02` for a write); a write's result that
+nothing reads is `N04`, a failure no one hears.
 
 **Middleware.** What every request passes through, in the order written:
 each step is handed the request and the rest of the chain, `next`, and
@@ -3539,9 +3587,12 @@ And what the type checker finds:
 | `T31` | A project script's function called from `.wf` with no JSDoc, or a JSDoc type the language cannot say (a union, a bare `Array`); the fix writes JSDoc from the call |
 | `T32` | A parameter written with no type — an action's, an event's, a slot's — or a lambda's that nothing it is passed to types; the fix writes what every call passes |
 | `T35` | Two `derived` values — in one body or two stores — that each read the other, or one that reads itself, with none declared |
+| `N01` | An endpoint's path naming `{name}` that no parameter fills, or a parameter in the path and in a header or cookie too |
+| `N02` | A `resource` over a write, or `.update` on one: a resource and an update are a read's |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
+| `N05` | An `invalidates` naming no read of the same group, an `invalidates` on a read, or an argument that is not one of the write's own parameters |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
-| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces; a service's `headers { }` and `on request`/`on response`/`on error` hooks, which `middleware [ … ]` replaces |
+| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces; a service's `headers { }` and `on request`/`on response`/`on error` hooks, which `middleware [ … ]` replaces; an endpoint with no `at`, and a path's `:name`, which `{name}` replaces; and a group's `base:`, `retry:` or `middleware`, which are its service's |
 | `N11` | `Any` or `Map` where a service meets the program — an endpoint's parameter or answer, a resource's type — or an `http.get` with nowhere that names what it answers; the fix names `Json`, or declare a `type` |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
@@ -3626,6 +3677,7 @@ paint alike.
 | `C05` | A positional argument a built-in does not take |
 | `C06` | A positional argument bound to a component's first prop, which is not marked `_` |
 | `D05` | A font, stylesheet or script from another origin with no `meta.integrity` hash |
+| `N04` | A call's result awaited on its own, so a failure is never heard: match it or pass it up with `try` |
 | `N09` | `retry:` on a call of a `POST` or `PATCH` its contract does not mark `idempotent`, which is not retried |
 | `D06` | A `meta.scripts` entry marked `"load": "consent"` in a program with no `ConsentBanner` to ask for it, so it never loads |
 | `T19` | A value that may be null spliced into text, where it shows as `null` |

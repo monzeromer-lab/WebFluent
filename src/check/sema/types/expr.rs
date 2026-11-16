@@ -786,6 +786,15 @@ impl Checker<'_, '_> {
                     Type::Error
                 }
             },
+            // A group of a service's endpoints: `Backend.users`.
+            Type::Api(name)
+                if self
+                    .world
+                    .apis
+                    .contains_key(format!("{name}.{field}").as_str()) =>
+            {
+                Type::Api(format!("{name}.{field}"))
+            }
             // An endpoint of a service.
             Type::Api(name) => {
                 if let Some(endpoint) = self.world.endpoint(name, field) {

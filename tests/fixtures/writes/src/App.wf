@@ -1,0 +1,69 @@
+// Writes and what they make stale, for tests/browser/writes.mjs: a create
+// that refreshes the list, a rename that refreshes the item and the list,
+// and a change shown before the server agrees, undone when it refuses.
+
+type Todo { id: String, title: String }
+type NewTodo { title: String }
+type Rename { title: String }
+
+api Backend(base: "/api") { }
+
+api Backend.todos {
+    get list() at "todos" -> [Todo]!
+    get byId(id: String) at "todos/{id}" -> Todo!
+    post create(body: NewTodo) at "todos" -> Todo!
+    invalidates [list]
+    patch rename(id: String, body: Rename) at "todos/{id}" -> Todo!
+    idempotent
+    invalidates [list, byId(id)]
+    post refuse(body: NewTodo) at "todos/refuse" -> Todo!
+    invalidates [list]
+}
+
+store Writes {
+    state said = ""
+    action create() {
+        match await Backend.todos.create(body: NewTodo(title: "Bread")) {
+            .ok(made) { said = "made {made.title}" }
+            .err(e) { said = e.message }
+        }
+    }
+    action rename() {
+        match await Backend.todos.rename("1", body: Rename(title: "Oat milk")) {
+            .ok(renamed) { said = "renamed {renamed.title}" }
+            .err(e) { said = e.message }
+        }
+    }
+    action hopeful() {
+        let undo = Backend.todos.list.update(list => list.concat([Todo(id: "ghost", title: "Ghost")]))
+        match await Backend.todos.refuse(body: NewTodo(title: "Ghost")) {
+            .ok(made) { said = "made {made.title}" }
+            .err(e) {
+                undo()
+                said = "undone: {e.message}"
+            }
+        }
+    }
+}
+
+app { Router }
+
+page Home(path: "/", title: "Writes", description: "What a write makes stale.") {
+    use Writes
+    resource todos = Backend.todos.list()
+    resource first = Backend.todos.byId("1")
+    Heading("Writes").h1
+    Button("Create") { on click { Writes.create() } }
+    Button("Rename") { on click { Writes.rename() } }
+    Button("Hopeful") { on click { Writes.hopeful() } }
+    Text(Writes.said, id: "said")
+    match todos {
+        .loading { Text("…", id: "list") }
+        .failed(e) { Text(e.message, id: "list") }
+        .loaded(list) { Text(list.map(todo => todo.title).join(","), id: "list") }
+    }
+    match first {
+        .loaded(todo) { Text(todo.title, id: "detail") }
+        else { Text("…", id: "detail") }
+    }
+}

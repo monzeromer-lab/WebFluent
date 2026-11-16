@@ -1611,12 +1611,26 @@ fn header_key(k: &str) -> String {
 pub fn endpoint(e: &Endpoint) -> String {
     let mut out = format!("{} {}", e.method.to_lowercase(), e.name);
     if !e.params.is_empty() {
-        out.push_str(&format!(
-            "({})",
-            e.params.iter().map(prop).collect::<Vec<_>>().join(", ")
-        ));
+        let params: Vec<String> = e
+            .params
+            .iter()
+            .map(|p| {
+                let mut written = prop(p);
+                match e.locations.iter().find(|(n, _)| *n == p.name).map(|(_, l)| l) {
+                    Some(crate::syntax::parser::ast::ParamLocation::Header(h)) => {
+                        written.push_str(&format!(" in header {}", string(h)));
+                    }
+                    Some(crate::syntax::parser::ast::ParamLocation::Cookie) => {
+                        written.push_str(" in cookie");
+                    }
+                    None => {}
+                }
+                written
+            })
+            .collect();
+        out.push_str(&format!("({})", params.join(", ")));
     }
-    if e.path != e.name {
+    if e.path_written || e.path != e.name {
         out.push_str(&format!(" at {}", text_with_names(&e.path)));
     }
     if let Some(r) = &e.returns {
@@ -1635,6 +1649,8 @@ pub fn endpoint(e: &Endpoint) -> String {
     for (k, v) in &e.settings {
         if k == "idempotent" {
             out.push_str(" idempotent");
+        } else if k == "invalidates" {
+            out.push_str(&format!(" invalidates {}", expr(v)));
         } else {
             out.push_str(&format!(" {k}: {}", expr(v)));
         }

@@ -379,9 +379,9 @@ fn served(body: &str) -> String {
          api Backend(base: \"/api/v1\") {{\n\
          \x20   middleware [bearer(\"t\")]\n\
          \x20   timeout: 10.seconds\n\
-         \x20   get users(page: Number = 1) -> [User]!\n\
-         \x20   get user(id: String) at \"users/:id\" -> User!\n\
-         \x20   post createUser(body: User) -> User!\n\
+         \x20   get users(page: Number = 1) at \"users\" -> [User]!\n\
+         \x20   get user(id: String) at \"users/{{id}}\" -> User!\n\
+         \x20   post createUser(body: User) at \"createUser\" -> User!\n\
          }}\n{}",
         page(body)
     )
@@ -415,7 +415,7 @@ fn a_service_is_one_object_of_endpoints() {
     );
     assert!(
         js.contains(
-            "user: { method: \"GET\", path: \"users/:id\", result: {}, shape: [\"r\", \"User\""
+            "user: { method: \"GET\", path: \"users/{id}\", result: {}, shape: [\"r\", \"User\""
         ),
         "{js}"
     );
@@ -611,7 +611,7 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
     assert_eq!(api.endpoints.len(), 1);
     assert_eq!(api.endpoints[0].method, "GET");
     assert_eq!(
-        api.endpoints[0].path, "users/:id",
+        api.endpoints[0].path, "users/{id}",
         "a spec path becomes the language's"
     );
     assert!(
@@ -2803,7 +2803,7 @@ fn an_action_that_fails_with_nothing_to_return_rolls_back_and_is_ok_when_it_does
 #[test]
 fn an_endpoint_called_with_positional_arguments_is_t10() {
     let src = "api Backend(base: \"/api\") {\n\
-         \x20   post signUp(body: Json) -> !\n\
+         \x20   post signUp(body: Json) at \"signUp\" -> !\n\
          }\n";
     let text = errors_of(&format!(
         "{src}{}",
@@ -2812,7 +2812,10 @@ fn an_endpoint_called_with_positional_arguments_is_t10() {
              \x20   Button(\"Go\") { on click { go() } }"
         )
     ));
-    assert!(text.contains("takes its arguments by name"), "{text}");
+    assert!(
+        text.contains("takes one argument without its name"),
+        "{text}"
+    );
     let text = errors_of(&format!(
         "{src}{}",
         page(

@@ -183,7 +183,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
 
         Heading("Requests", id: "requests").h3
 
-        Markdown("- [N03](/errors/N03) — A `try` with nowhere to pass its error\n- [N08](/errors/N08) — A form 7.0 removed\n- [N09](/errors/N09) — A retry asked of a write that is not idempotent\n- [N11](/errors/N11) — `Any` or `Map` where a service meets the program\n- [N12](/errors/N12) — An error enum that is not shaped as one")
+        Markdown("- [N01](/errors/N01) — A path that names no parameter\n- [N02](/errors/N02) — A resource over a write\n- [N03](/errors/N03) — A `try` with nowhere to pass its error\n- [N04](/errors/N04) — A result nothing reads\n- [N05](/errors/N05) — An `invalidates` naming what the contract does not have\n- [N08](/errors/N08) — A form 7.0 removed\n- [N09](/errors/N09) — A retry asked of a write that is not idempotent\n- [N11](/errors/N11) — `Any` or `Map` where a service meets the program\n- [N12](/errors/N12) — An error enum that is not shaped as one")
 
         Heading("Translations", id: "translations").h3
 

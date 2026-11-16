@@ -2338,6 +2338,24 @@ impl core::marker::Unpin for webfluent::syntax::parser::Pace
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
+pub enum webfluent::syntax::parser::ast::ParamLocation
+pub webfluent::syntax::parser::ast::ParamLocation::Cookie
+pub webfluent::syntax::parser::ast::ParamLocation::Header(alloc::string::String)
+impl core::clone::Clone for webfluent::syntax::parser::ParamLocation
+pub fn webfluent::syntax::parser::ParamLocation::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::ParamLocation
+impl core::cmp::PartialEq for webfluent::syntax::parser::ParamLocation
+pub fn webfluent::syntax::parser::ParamLocation::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::parser::ParamLocation
+pub fn webfluent::syntax::parser::ParamLocation::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::ParamLocation
+impl core::marker::Freeze for webfluent::syntax::parser::ParamLocation
+impl core::marker::Send for webfluent::syntax::parser::ParamLocation
+impl core::marker::Sync for webfluent::syntax::parser::ParamLocation
+impl core::marker::Unpin for webfluent::syntax::parser::ParamLocation
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ParamLocation
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ParamLocation
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ParamLocation
 pub enum webfluent::syntax::parser::ast::Pattern
 pub webfluent::syntax::parser::ast::Pattern::Bind(alloc::string::String)
 pub webfluent::syntax::parser::ast::Pattern::Case(alloc::string::String, alloc::vec::Vec<webfluent::syntax::parser::Pattern>)
@@ -2779,10 +2797,12 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EmitStm
 pub struct webfluent::syntax::parser::ast::Endpoint
 pub webfluent::syntax::parser::ast::Endpoint::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::Endpoint::errors: alloc::vec::Vec<(u16, webfluent::syntax::parser::TypeRef)>
+pub webfluent::syntax::parser::ast::Endpoint::locations: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::ParamLocation)>
 pub webfluent::syntax::parser::ast::Endpoint::method: alloc::string::String
 pub webfluent::syntax::parser::ast::Endpoint::name: alloc::string::String
 pub webfluent::syntax::parser::ast::Endpoint::params: alloc::vec::Vec<webfluent::syntax::parser::PropDecl>
 pub webfluent::syntax::parser::ast::Endpoint::path: alloc::string::String
+pub webfluent::syntax::parser::ast::Endpoint::path_written: bool
 pub webfluent::syntax::parser::ast::Endpoint::returns: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ast::Endpoint::settings: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::ast::Endpoint::span: webfluent::syntax::parser::Span
@@ -3811,6 +3831,24 @@ impl core::marker::Unpin for webfluent::syntax::parser::Pace
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
+pub enum webfluent::syntax::parser::ParamLocation
+pub webfluent::syntax::parser::ParamLocation::Cookie
+pub webfluent::syntax::parser::ParamLocation::Header(alloc::string::String)
+impl core::clone::Clone for webfluent::syntax::parser::ParamLocation
+pub fn webfluent::syntax::parser::ParamLocation::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::syntax::parser::ParamLocation
+impl core::cmp::PartialEq for webfluent::syntax::parser::ParamLocation
+pub fn webfluent::syntax::parser::ParamLocation::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::parser::ParamLocation
+pub fn webfluent::syntax::parser::ParamLocation::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::parser::ParamLocation
+impl core::marker::Freeze for webfluent::syntax::parser::ParamLocation
+impl core::marker::Send for webfluent::syntax::parser::ParamLocation
+impl core::marker::Sync for webfluent::syntax::parser::ParamLocation
+impl core::marker::Unpin for webfluent::syntax::parser::ParamLocation
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ParamLocation
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ParamLocation
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ParamLocation
 pub enum webfluent::syntax::parser::Pattern
 pub webfluent::syntax::parser::Pattern::Bind(alloc::string::String)
 pub webfluent::syntax::parser::Pattern::Case(alloc::string::String, alloc::vec::Vec<webfluent::syntax::parser::Pattern>)
@@ -4252,10 +4290,12 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EmitStm
 pub struct webfluent::syntax::parser::Endpoint
 pub webfluent::syntax::parser::Endpoint::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::Endpoint::errors: alloc::vec::Vec<(u16, webfluent::syntax::parser::TypeRef)>
+pub webfluent::syntax::parser::Endpoint::locations: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::ParamLocation)>
 pub webfluent::syntax::parser::Endpoint::method: alloc::string::String
 pub webfluent::syntax::parser::Endpoint::name: alloc::string::String
 pub webfluent::syntax::parser::Endpoint::params: alloc::vec::Vec<webfluent::syntax::parser::PropDecl>
 pub webfluent::syntax::parser::Endpoint::path: alloc::string::String
+pub webfluent::syntax::parser::Endpoint::path_written: bool
 pub webfluent::syntax::parser::Endpoint::returns: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::Endpoint::settings: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::Endpoint::span: webfluent::syntax::parser::Span

@@ -87,6 +87,8 @@ impl JsCodegen {
         // are read again on every load, so one that reads state makes the
         // request again when it changes.
         if let Expr::MethodCall(object, endpoint, args) = &r.url {
+            let named = self.endpoint_arguments(object, endpoint, args);
+            let args = named.as_deref().unwrap_or(args);
             let call = format!("{}.{}", self.term(object, store), endpoint);
             let named = args.iter().find_map(|a| match a {
                 Expr::MapLiteral(pairs) => Some(pairs),

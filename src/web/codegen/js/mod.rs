@@ -138,6 +138,9 @@ pub struct JsCodegen {
     /// Each error enum's statuses: the status, the case it goes to, and
     /// the type of the body it carries.
     error_enums: HashMap<String, Vec<(u16, String, TypeRef)>>,
+    /// Each endpoint's first parameter, by `Service.endpoint` or
+    /// `Service.group.endpoint`: what a value written without a name is.
+    endpoint_first: HashMap<String, String>,
     /// For each action being written, innermost last, how a `try` in it
     /// passes an error up — `"enum"`, `"http"`, `"same"` — when it declares
     /// a result, and whether that result holds a value.
@@ -420,6 +423,7 @@ impl JsCodegen {
             shapes: Default::default(),
             json_subjects: Vec::new(),
             error_enums: HashMap::new(),
+            endpoint_first: HashMap::new(),
             action_results: Vec::new(),
             offline: None,
             later: Vec::new(),
@@ -978,6 +982,14 @@ impl JsCodegen {
                             e.cases.iter().map(|c| c.name.clone()).collect(),
                         );
                     }
+                    Declaration::Api(a) => {
+                        for e in &a.endpoints {
+                            if let Some(first) = e.params.first() {
+                                self.endpoint_first
+                                    .insert(format!("{}.{}", a.name, e.name), first.name.clone());
+                            }
+                        }
+                    }
                     _ => {}
                 }
             }
@@ -1179,7 +1191,19 @@ impl JsCodegen {
 
         // Emit services, which a store's actions may call.
         for decl in &program.declarations {
-            if let Declaration::Api(a) = decl {
+            if let Declaration::Api(a) = decl
+                && !a.name.contains('.')
+            {
+                self.map_start(&format!("api:{}", a.name));
+                self.emit_api(a);
+                self.map_end();
+            }
+        }
+        // Then each group, onto its service.
+        for decl in &program.declarations {
+            if let Declaration::Api(a) = decl
+                && a.name.contains('.')
+            {
                 self.map_start(&format!("api:{}", a.name));
                 self.emit_api(a);
                 self.map_end();

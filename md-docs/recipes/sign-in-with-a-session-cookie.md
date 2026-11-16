@@ -30,9 +30,9 @@ enum SignInError {
 
 api Auth(base: "/api") {
     credentials: .sameOrigin
-    get me -> User!
-    post signIn(body: Credentials) -> User ! SignInError
-    post signOut -> !
+    get me at "me" -> User!
+    post signIn(body: Credentials) at "signIn" -> User ! SignInError
+    post signOut at "signOut" -> !
 }
 
 store Session {

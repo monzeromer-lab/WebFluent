@@ -306,7 +306,11 @@ Errors. The type checker's findings; a program that declares no types raises non
 
 ### Requests
 
+- [N01](https://webfluent.monzeromer.dev/errors/N01.md) — A path that names no parameter
+- [N02](https://webfluent.monzeromer.dev/errors/N02.md) — A resource over a write
 - [N03](https://webfluent.monzeromer.dev/errors/N03.md) — A `try` with nowhere to pass its error
+- [N04](https://webfluent.monzeromer.dev/errors/N04.md) — A result nothing reads
+- [N05](https://webfluent.monzeromer.dev/errors/N05.md) — An `invalidates` naming what the contract does not have
 - [N08](https://webfluent.monzeromer.dev/errors/N08.md) — A form 7.0 removed
 - [N09](https://webfluent.monzeromer.dev/errors/N09.md) — A retry asked of a write that is not idempotent
 - [N11](https://webfluent.monzeromer.dev/errors/N11.md) — `Any` or `Map` where a service meets the program

@@ -164,6 +164,15 @@ impl Checker<'_, '_> {
                 return self.decode_call(name, args);
             }
         }
+        // `Backend.users.list.update(f)`, `.invalidate()`: what a page does
+        // to what it has read of an endpoint, not a call of it.
+        if let Expr::PropertyAccess(owner, ep) = obj
+            && let Some(api) = self.world.api_of(owner)
+            && let Some(endpoint) = self.world.endpoint(&api, ep)
+            && matches!(method, "update" | "invalidate" | "prefetch" | "key" | "url")
+        {
+            return self.endpoint_method(&api, endpoint, method, args);
+        }
         let obj_ty = self.infer(obj, None);
         // `Backend.users(page: 2)`: an endpoint of a service, whose
         // arguments are its parameters and whose value is what it returns.
@@ -280,22 +289,21 @@ impl Checker<'_, '_> {
                                 }
                             }
                         } else {
-                            let given = self.infer(arg, wanted.first().map(|(_, t)| t));
-                            // An endpoint takes its arguments by name, as one
-                            // map: `signUp(email, password)` sent the first
-                            // value as that map, and the second nowhere.
+                            // A value written without a name is the first
+                            // parameter, whatever it is called: `byId(id)`.
+                            // Any further one has nowhere to go.
                             let positional = args
                                 .iter()
                                 .filter(|a| !matches!(a, Expr::MapLiteral(_)))
                                 .count();
-                            if positional > 1
-                                || matches!(given, Type::String | Type::Number | Type::Bool)
-                            {
+                            let first = wanted.first().map(|(n, t)| (n.clone(), t.clone()));
+                            let given = self.infer(arg, first.as_ref().map(|(_, t)| t));
+                            if positional > 1 || first.is_none() {
                                 let names: Vec<String> =
                                     wanted.iter().map(|(n, _)| format!("{n}: …")).collect();
                                 self.error_at_current(
                                     "T10",
-                                    format!("`{api}.{method}` takes its arguments by name"),
+                                    format!("`{api}.{method}` takes one argument without its name, its first: the rest by name"),
                                     &if names.is_empty() {
                                         format!("`{api}.{method}` takes no arguments")
                                     } else {
@@ -303,6 +311,15 @@ impl Checker<'_, '_> {
                                     },
                                 );
                                 break;
+                            }
+                            if let Some((name, want)) = first
+                                && !given.assignable_to(&want)
+                            {
+                                self.error_at_current(
+                                    "T01",
+                                    format!("`{name}` of `{api}.{method}` is `{want}`, but `{}` is `{given}`", expr_text(arg)),
+                                    "",
+                                );
                             }
                         }
                     }
@@ -815,6 +832,76 @@ impl Checker<'_, '_> {
                     HoleKind::ListMethod,
                     format!("{}.{method}(…)", expr_text(obj)),
                 )
+            }
+        }
+    }
+}
+
+impl Checker<'_, '_> {
+    /// A method of an endpoint itself: `update(f)` changes what every read
+    /// of it on the page shows and returns what undoes it; `invalidate()`
+    /// has them ask again; `prefetch(args)`, `key(args)` and `url(args)`.
+    fn endpoint_method(
+        &mut self,
+        api: &str,
+        endpoint: &crate::syntax::parser::ast::Endpoint,
+        method: &str,
+        args: &[Expr],
+    ) -> Type {
+        match method {
+            "update" => {
+                let answer = endpoint.returns.as_ref().map_or(Type::Error, |t| {
+                    match self.world.resolve(Type::from_ref(t)) {
+                        Type::Result(value, _) => *value,
+                        other => other,
+                    }
+                });
+                if !matches!(endpoint.method.as_str(), "GET" | "HEAD") {
+                    self.error_at_current(
+                        "N02",
+                        format!(
+                            "`{api}.{}` is a `{}`: only what is read can be updated in place",
+                            endpoint.name, endpoint.method
+                        ),
+                        "Update the read the write changes: `Backend.todos.list.update(list => …)`",
+                    );
+                }
+                let change = Type::Func(vec![answer.clone()], Box::new(answer));
+                if args.len() != 1 {
+                    self.error_at_current(
+                        "T10",
+                        format!("`{api}.{}.update` takes one function, from what is shown to what is to be shown", endpoint.name),
+                        &format!("`{api}.{}.update(list => …)`", endpoint.name),
+                    );
+                }
+                for arg in args {
+                    let given = self.infer(arg, Some(&change));
+                    if !given.assignable_to(&change) {
+                        self.error_at_current(
+                            "T01",
+                            format!(
+                                "`{api}.{}.update` takes a `{change}`, but `{}` is `{given}`",
+                                endpoint.name,
+                                expr_text(arg)
+                            ),
+                            "",
+                        );
+                    }
+                }
+                // What undoes it.
+                Type::Func(Vec::new(), Box::new(Type::Null))
+            }
+            "invalidate" | "prefetch" => {
+                for arg in args {
+                    self.infer(arg, None);
+                }
+                Type::Null
+            }
+            _ => {
+                for arg in args {
+                    self.infer(arg, None);
+                }
+                Type::String
             }
         }
     }

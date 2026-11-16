@@ -656,7 +656,7 @@ it instead: `api Backend from "openapi.json"` types every endpoint,
 parameter, response and error from the file, and turns each named schema
 into a `type`, or an `enum` for a string with cases (see
 [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file)). An `api` you write by
-hand types its calls the same way: `get users() -> [User]`.
+hand types its calls the same way: `get users() at "users" -> [User]`.
 
 ## The checks
 

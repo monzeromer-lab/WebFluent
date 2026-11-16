@@ -24,7 +24,7 @@ middleware second(req, next) {
 
 api Backend(base: "/api") {
     middleware [refreshOn401(Session.refresh), bearer(Session.token), header("X-First", "first"), second]
-    get me(n: Number) -> Me!
+    get me(n: Number) at "me" -> Me!
 }
 
 store Calls {

@@ -445,7 +445,7 @@ mod tests {
     #[test]
     fn a_service_reads_a_store_in_its_headers_and_its_hooks() {
         let found = codes(
-            "store Session { state token = \"\"\n state lang = \"en\"\n action refresh() { token = \"x\" } }\nstore Metrics { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {Session.token}\"\n Accept-Language: Session.lang }\n on response(r) { Metrics.record(r.status) }\n on error(e) { await Session.refresh()  return \"retry\" }\n get me() -> Map }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+            "store Session { state token = \"\"\n state lang = \"en\"\n action refresh() { token = \"x\" } }\nstore Metrics { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {Session.token}\"\n Accept-Language: Session.lang }\n on response(r) { Metrics.record(r.status) }\n on error(e) { await Session.refresh()  return \"retry\" }\n get me() at \"me\" -> Map }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
         );
         assert!(found.is_empty(), "{found:?}");
     }

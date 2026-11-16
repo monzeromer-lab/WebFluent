@@ -13,11 +13,28 @@
       return (b || "").replace(/\/+$/, "");
     };
     for (const [name, endpoint] of Object.entries(config.endpoints || {})) {
-      client[name] = makeEndpoint(config, base, name, endpoint);
+      client[name] = makeEndpoint(config, base, name, endpoint, client);
     }
     // The whole service's cache, for a mutation that changes everything.
     client.invalidate = () => invalidate(config.name ? config.name + " " : null);
+    // What a group of it is reached through.
+    Object.defineProperty(client, "$reach", { value: { config, base }, enumerable: false });
     return client;
+  }
+
+  /// `api Backend.users { … }`: a group of a service's endpoints, reached
+  /// through it — its address, its middleware, its cache — as
+  /// `Backend.users.list(…)`.
+  function group(client, name, spec) {
+    const { config, base } = client.$reach;
+    const members = {};
+    for (const [ep, endpoint] of Object.entries((spec && spec.endpoints) || {})) {
+      members[ep] = makeEndpoint(config, base, name + "." + ep, endpoint, members);
+    }
+    // The group's cache, every endpoint of it.
+    members.invalidate = () => invalidate((config.name || "") + " " + name + ".");
+    client[name] = members;
+    return members;
   }
 
   /// A key no other call has: what an `Idempotency-Key` carries.
@@ -26,16 +43,29 @@
     return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
   }
 
-  /// The path with its `:name` parts filled in, and what is left over as
-  /// the query string.
+  /// The path with its `{name}` parts filled in (and 6.x's `:name`), and
+  /// what is left over as the query string.
   function fillPath(path, args) {
     const used = new Set();
-    const filled = String(path).replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, (whole, name) => {
+    const fill = (whole, name) => {
       if (!(name in args)) return whole;
       used.add(name);
       return encodeURIComponent(String(args[name]));
-    });
+    };
+    const filled = String(path)
+      .replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}/g, fill)
+      .replace(/:([A-Za-z_][A-Za-z0-9_]*)/g, fill);
     return { path: filled, used };
+  }
+
+  /// The names a path takes its parts from.
+  function pathNames(path) {
+    const names = [];
+    String(path).replace(/\{([A-Za-z_][A-Za-z0-9_]*)\}|:([A-Za-z_][A-Za-z0-9_]*)/g, (whole, a, b) => {
+      names.push(a || b);
+      return whole;
+    });
+    return names;
   }
 
   function queryString(args, used, skip) {
@@ -51,7 +81,7 @@
     return parts.length ? "?" + parts.join("&") : "";
   }
 
-  function makeEndpoint(config, base, name, endpoint) {
+  function makeEndpoint(config, base, name, endpoint, siblings) {
     const progress = signal(0);
     const method = (endpoint.method || "GET").toUpperCase();
     // What is a parameter of the call rather than of the request.
@@ -62,11 +92,27 @@
     perCall.add(fileField);
     const fileOf = (given) => given[fileField] != null ? given[fileField] : given.file;
 
+    // Where a parameter goes that is not in the path, the body or the
+    // query: `in header "X-Tenant"`, `in cookie`.
+    const placed = endpoint.locations || {};
+    for (const p of Object.keys(placed)) perCall.add(p);
     const addressOf = (args) => {
       const given = args || {};
       const { path, used } = fillPath(endpoint.path, given);
       const url = /^[a-z]+:\/\//i.test(path) ? path : base() + "/" + path.replace(/^\/+/, "");
       return url + queryString(given, used, perCall);
+    };
+    /// The headers a call's own parameters put on it.
+    const placedHeaders = (given) => {
+      const out = {};
+      for (const [p, where] of Object.entries(placed)) {
+        if (given[p] == null) continue;
+        if (where[0] === "header") out[where[1]] = String(given[p]);
+        else if (where[0] === "cookie" && typeof document !== "undefined") {
+          document.cookie = encodeURIComponent(p) + "=" + encodeURIComponent(String(given[p])) + "; path=/";
+        }
+      }
+      return out;
     };
 
     const optionsOf = (args) => {
@@ -83,7 +129,7 @@
       return {
         method,
         body,
-        headers: { ...(config.headers || {}), ...(given.headers || {}) },
+        headers: { ...(config.headers || {}), ...placedHeaders(given), ...(given.headers || {}) },
         as: given.as || endpoint.as || "json",
         errorAs: endpoint.errorAs || "json",
         timeout: given.timeout != null ? given.timeout : config.timeout != null ? config.timeout : 30000,
@@ -119,11 +165,10 @@
     // value arrives and the address changes.
     const unfilled = (args) => {
       const given = args || {};
-      const names = String(endpoint.path).match(/:([A-Za-z_][A-Za-z0-9_]*)/g) || [];
-      for (const n of names) {
-        const v = given[n.slice(1)];
-        if (v == null || v === "") return [n.slice(1), "is empty"];
-        if (String(v) === "." || String(v) === "..") return [n.slice(1), "is `" + v + "`"];
+      for (const n of pathNames(endpoint.path)) {
+        const v = given[n];
+        if (v == null || v === "") return [n, "is empty"];
+        if (String(v) === "." || String(v) === "..") return [n, "is `" + v + "`"];
       }
       return null;
     };
@@ -132,7 +177,16 @@
       if (empty) {
         return Promise.reject(netError("aborted", "`" + empty[0] + "` " + empty[1] + ", so " + endpoint.path + " was not requested"));
       }
-      return send(addressOf(args), optionsOf(args));
+      const sent = send(addressOf(args), optionsOf(args));
+      // `invalidates [list, byId(id)]`: what a success makes stale asks
+      // again, wherever it is shown.
+      if (!endpoint.invalidates || !siblings) return sent;
+      return sent.then((value) => {
+        for (const [read, readArgs] of endpoint.invalidates(args || {})) {
+          if (siblings[read] && siblings[read].invalidate) siblings[read].invalidate(readArgs || undefined);
+        }
+        return value;
+      });
     };
     // An endpoint that declares a result (`-> User ! CreateUserError`,
     // `-> User!`) never throws: what comes back is `.ok(value)` or
@@ -153,6 +207,27 @@
     /// Forget what this endpoint cached — every argument of it.
     call.invalidate = (args) =>
       invalidate(args ? optionsOf(args).key : (config.name || "") + " " + name + " ");
+    /// The reads of it shown on the page, which `update` changes in place.
+    call.reads = new Set();
+    /// `Backend.todos.list.update(list => …)`: what every read of it shows,
+    /// and what the cache holds of it, changed at once — before the server
+    /// has answered — and what undoes it, returned.
+    call.update = (change) => {
+      const undone = [];
+      for (const read of call.reads) {
+        const before = read.data();
+        if (before == null) continue;
+        read.data.set(change(before));
+        undone.push(() => read.data.set(before));
+      }
+      undone.push(updateCached((config.name || "") + " " + name + " ", change));
+      let done = false;
+      return () => {
+        if (done) return;
+        done = true;
+        for (const undo of undone.reverse()) undo();
+      };
+    };
     /// Ask now for what will be wanted soon.
     call.prefetch = (args) => send(addressOf(args), optionsOf(args)).catch(() => null);
     /// Every line of a streamed response, as it arrives.

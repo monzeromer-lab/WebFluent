@@ -119,6 +119,22 @@ pub struct Endpoint {
     pub settings: Vec<(String, Expr)>,
     pub doc: Option<String>,
     pub span: Span,
+    /// Where a parameter goes when the path does not name it and it is not
+    /// the body: `tenant: String in header "X-Tenant"` is
+    /// `("tenant", Header("X-Tenant"))`. Every other parameter is a query.
+    pub locations: Vec<(String, ParamLocation)>,
+    /// Whether the path was written, `at "users/{id}"`. 7.0 asks for it:
+    /// a path made from the endpoint's name was a guess.
+    pub path_written: bool,
+}
+
+/// Where an endpoint's parameter goes, beside the path and the query.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ParamLocation {
+    /// `in header "X-Tenant"`.
+    Header(String),
+    /// `in cookie`, under the parameter's name.
+    Cookie,
 }
 
 // ─── Types ───────────────────────────────────────────────

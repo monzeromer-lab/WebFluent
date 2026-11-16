@@ -253,6 +253,10 @@ jobs:
         working-directory: tests/browser
         run: node transport.mjs
 
+      - name: What a write makes stale, and an undo on a refusal
+        working-directory: tests/browser
+        run: node writes.mjs
+
       - name: A long session lets go
         working-directory: tests/browser
         run: node leaks.mjs

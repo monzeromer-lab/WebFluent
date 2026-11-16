@@ -317,7 +317,7 @@ This rule asks the server whether an address is free. The rule passes when the c
 
 ```wf
 api Backend(base: "/api") {
-    get emailFree(email: String) -> Bool!
+    get emailFree(email: String) at "emailFree" -> Bool!
 }
 
 page Register(path: "/register", title: "Register", description: "Check an address is free.") {
@@ -414,7 +414,7 @@ enum SignUpError {
 }
 
 api Backend(base: "/api") {
-    post signUp(body: SignUp) -> ! SignUpError
+    post signUp(body: SignUp) at "signUp" -> ! SignUpError
 }
 
 action join() {
@@ -445,7 +445,7 @@ progress bar:
 
 ```wf
 api Backend(base: "/api") {
-    post avatar(id: String, file: File) at "users/:id/avatar" -> !
+    post avatar(id: String, file: File) at "users/{id}/avatar" -> !
 }
 
 page Avatar(path: "/avatar", title: "Your picture", description: "Change your picture.") {
@@ -498,7 +498,7 @@ enum SignUpError {
 }
 
 api Backend(base: "/api") {
-    post signUp(body: SignUp) -> ! SignUpError
+    post signUp(body: SignUp) at "signUp" -> ! SignUpError
 }
 
 page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {

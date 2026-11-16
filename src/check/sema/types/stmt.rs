@@ -567,7 +567,16 @@ impl Checker<'_, '_> {
                 );
             }
             StatementKind::ExprStatement(e) => {
-                self.infer(e, None);
+                let ty = self.infer(e, None);
+                // `await Backend.users.create(body: draft)` on its own: what
+                // came back — the user made, or why not — goes nowhere.
+                if matches!(e, Expr::Await(_)) && matches!(ty, Type::Result(..)) {
+                    self.warn(
+                        "N04",
+                        format!("what `{}` answers is not read: whether it worked goes nowhere", expr_text(e)),
+                        "Match it — `match await … { .ok(v) { … } .err(e) { … } }` — or pass a failure up with `try await …`",
+                    );
+                }
             }
             StatementKind::Navigate(e) => {
                 let ty = self.infer(e, Some(&Type::String));

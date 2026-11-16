@@ -576,10 +576,34 @@ pub static CODES: &[CodeInfo] = &[
     ),
     // ── N: requests ──────────────────────────────────────────────────
     code(
+        "N01",
+        Error,
+        "A path that names no parameter",
+        "An endpoint's path names its parameters, `at \"users/{id}\"`: each `{name}` is filled by the parameter of that name, and one that no parameter fills would be sent as written. A parameter has one place — the path, a header or a cookie.",
+    ),
+    code(
+        "N02",
+        Error,
+        "A resource over a write",
+        "A `resource` asks whenever the page draws it and whenever what it reads changes. A write — a `POST`, `PUT`, `PATCH` or `DELETE` — is sent when something happens, from an action, once.",
+    ),
+    code(
         "N03",
         Error,
         "A `try` with nowhere to pass its error",
         "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.",
+    ),
+    code(
+        "N04",
+        Warning,
+        "A result nothing reads",
+        "`await Backend.users.create(body: draft)` written on its own drops what came back: whether the user was made, or why not. Match it, or pass a failure up with `try`.",
+    ),
+    code(
+        "N05",
+        Error,
+        "An `invalidates` naming what the contract does not have",
+        "A write's `invalidates [list, byId(id)]` names the reads a success makes stale, each a `get` of the same group, each argument one of the write's own parameters. A name the group does not have would make nothing stale.",
     ),
     code(
         "N08",

@@ -323,7 +323,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     KeywordDoc {
         name: "api",
         summary: "A service, described once: its address, how it is reached (`timeout`, `retry`, `credentials`), hooks on each request and response, and its endpoints. Every call is typed, cached, deduplicated and cancellable. `api B from \"openapi.json\"` reads it from a specification.",
-        example: "api Backend(base: \"/api/v1\") {\n    timeout: 10.seconds\n    get users(page: Number = 1) -> [User]\n    get user(id: String) at \"users/:id\" -> User\n}",
+        example: "api Backend(base: \"/api/v1\") {\n    timeout: 10.seconds\n    get users(page: Number = 1) at \"users\" -> [User]\n    get user(id: String) at \"users/{id}\" -> User\n}",
         place: Place::TopLevel,
     },
     KeywordDoc {

@@ -4,7 +4,7 @@ page RecipeLoadMore(path: "/recipes/load-more", title: "Load more as the reader 
     RecipeShell("Load more as the reader asks", summary: "A **Load more** button keeps what the reader has already seen and adds the next page below it. To build one, call an endpoint with `paginate: .page`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates"), RelatedLink(kind: "Recipe", title: "Show what the network is doing", to: "/recipes/show-the-network"), RelatedLink(kind: "Recipe", title: "Send a message as the page unloads", to: "/recipes/send-on-unload")], source: "md-docs/recipes/load-more.md", how: true, hasVariations: false, project: { "src/pages/LoadMore.wf": #"type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]!
+    get items(page: Number = 1) at "items" -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
@@ -25,7 +25,7 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
             CodeBlock(#"type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
-    get items(page: Number = 1) -> [Item]!
+    get items(page: Number = 1) at "items" -> [Item]!
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {

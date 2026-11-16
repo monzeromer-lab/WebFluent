@@ -68,7 +68,7 @@ fn a_resource_or_a_connection_is_read_as_what_it_holds() {
 #[test]
 fn a_call_may_ask_for_pages() {
     let src = "type Item { id: String, name: String }\n\
-               api Catalog(base: \"/api\") { get items(page: Number = 1) -> [Item]! }\n\
+               api Catalog(base: \"/api\") { get items(page: Number = 1) at \"items\" -> [Item]! }\n\
                page P(path: \"/\", title: \"T\", description: \"D\") {\n\
                \x20   state page = 1\n\
                \x20   resource list = Catalog.items(page: page, paginate: .page)\n\

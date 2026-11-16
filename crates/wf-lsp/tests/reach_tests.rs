@@ -368,8 +368,7 @@ fn a_request_s_options_and_their_cases_are_offered() {
         &in_page(fetch, &fetch.replace("method: \"GET\"", "refresh: .‸")),
         &["onFocus", "onReconnect", "every", "never"],
     );
-    let api =
-        "api Backend(base: \"/api\") {\n    get users(page: Number = 1, q: String?) -> [Map]\n}\n";
+    let api = "api Backend(base: \"/api\") {\n    get users(page: Number = 1, q: String?) at \"users\" -> [Map]\n}\n";
     let v = format!("{api}{HEAD}    resource r = Backend.users(page: 1)\n}}\n");
     let call = offered(&v, &v.replace("page: 1", "‸"));
     offers(

@@ -298,12 +298,41 @@ its `cache:` said whatever the server answered. `cache: .maxAge(d)`,
 `resource` declares it returns is held to what arrives, deployed as under
 `wf serve`, and a server that breaks its contract fails as `.decode(at,
 message)`."#),
-                    Change(text: #"**`idempotent`** on an endpoint — `post order(body: Order) -> Order!
-idempotent` — sends one `Idempotency-Key` with every try of a call, and lets
+                    Change(text: #"**`idempotent`** on an endpoint — `post order(body: Order) at "orders" ->
+Order! idempotent` — sends one `Idempotency-Key` with every try of a call, and lets
 a `POST` or `PATCH` be retried and replayed offline; `retry:` on any other
 write is `N09`, and does nothing."#),
                     Change(text: #"**A call gives up after 30 seconds** unless its service or the call says
 otherwise."#)
+                ]),
+                NotesSection(title: #"Contracts and writes"#, id: "7.0.0-contracts-and-writes", items: [
+                    Change(text: #"**`at` is required**, and a path names its parameters as OpenAPI does:
+`get user(id: String) at "users/{id}" -> User!`. Every `{name}` is one of
+the endpoint's parameters (`N01`). 6.x made a path from the endpoint's
+name when it gave none, and wrote a parameter `:id`; both are `N08`, and
+`wf fix` writes `at "<name>"` and `{id}`."#),
+                    Change(text: #"**Headers and cookies.** `token: String in header "X-Token"` and `theme:
+String? in cookie` say where a parameter goes; one the path names has no
+other place. A specification's `"in": "header"` and `"in": "cookie"` are
+read the same way."#),
+                    Change(text: #"**Groups.** `api Backend.todos { … }` splits a service's endpoints by
+what they are about, reached as `Backend.todos.list()`. A group sends
+what its service sends; its own `base:`, `retry:` or `middleware` is
+`N08`."#),
+                    Change(text: #"**What a write makes stale.** `invalidates [list, byId(id)]` on a write
+names the reads of its group it changes, each argument one of the write's
+own parameters (`N05`). When the write succeeds, every resource over one
+of them asks again and draws the answer in place."#),
+                    Change(text: #"**A change shown before the server agrees.** A read's `.update(change)`
+changes what every resource over it shows, and returns what takes the
+change back: `let undo = Backend.todos.list.update(…)`, then `undo()` when
+the write fails."#),
+                    Change(text: #"**The first parameter may be passed without its name**:
+`Backend.user("7")`."#),
+                    Change(text: #"**A resource is over a read**: one over a `POST`, `PUT`, `PATCH` or
+`DELETE` would send it again each time the page draws, and is `N02`. A
+call's result awaited on its own, so that a failure is never heard, is
+`N04`."#)
                 ]),
                 NotesSection(title: #"Declared where others see it, inferred where only the body does"#, id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", intro: #"What another declaration, another file or a caller sees is now declared,
 and what only the body sees is still inferred — so the checker never has to
@@ -349,7 +378,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 57), latest: true)
+            ], count: 64), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4135,6 +4164,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

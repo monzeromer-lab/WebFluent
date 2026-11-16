@@ -297,7 +297,7 @@ component P29 {
     Button("go P29") { on click { @.add()  @.flags.done = true } }
     Text(if @.count == 2 && @.word == "hi" && @.flags.done == true && P29Reader.seen == 20 { "P29 ok" } else { "P29 bad {@.count} {@.word} {P29Reader.seen}" })
 }`, [{ type: "word P29", value: "hi" }]],
-  ["service", `api @(base: "/api") { get users() -> [String]! }
+  ["service", `api @(base: "/api") { get users() at "users" -> [String]! }
 component P30 { Text(if @.users.url() == "/api/users" { "P30 ok" } else { "P30 bad {@.users.url()}" }) }`],
 ];
 

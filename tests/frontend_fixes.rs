@@ -597,7 +597,7 @@ fn a_tree_deeper_than_the_parser_allows_is_e120_in_the_checker() {
 
 fn api_with(status: &str) -> String {
     format!(
-        "api B(base: \"/api\") {{\n    post make(body: Map) -> Map\n        errors {{ {status} -> Map }}\n}}\n"
+        "api B(base: \"/api\") {{\n    post make(body: Map) at \"make\" -> Map\n        errors {{ {status} -> Map }}\n}}\n"
     )
 }
 
@@ -687,7 +687,7 @@ fn child_bodies_names_every_body_the_ast_has() {
 fn a_service_may_be_invalidated_whole() {
     let with = |call: &str| {
         format!(
-            "api Backend(base: \"/api\") {{\n    get users() -> [Json]!\n}}\npage P(path: \"/\", title: \"T\", description: \"D\") {{\n    Heading(\"H\").h1\n    Button(\"Log out\") {{ on click {{ {call} }} }}\n}}\n"
+            "api Backend(base: \"/api\") {{\n    get users() at \"users\" -> [Json]!\n}}\npage P(path: \"/\", title: \"T\", description: \"D\") {{\n    Heading(\"H\").h1\n    Button(\"Log out\") {{ on click {{ {call} }} }}\n}}\n"
         )
     };
     let errors = |call: &str| {

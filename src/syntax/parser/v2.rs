@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -2391,7 +2391,13 @@ impl ParserV2 {
     fn parse_api(&mut self, doc: Option<String>) -> Result<Declaration> {
         let mark = self.mark();
         self.expect_word("api")?;
-        let name = self.expect_ident("the service's name")?;
+        let mut name = self.expect_ident("the service's name")?;
+        // `api Backend.users { … }`: a group of the service's endpoints.
+        if self.check(&TokenType::Dot) && matches!(self.kind_at(1), TokenType::Identifier(_)) {
+            self.advance();
+            name.push('.');
+            name.push_str(&self.expect_ident("the group's name")?);
+        }
         // `api Backend from "openapi.json" (base: …)`: the surface is read
         // from a specification, and every endpoint comes from it.
         let from = if self.is_word("from") {
@@ -2520,17 +2526,37 @@ impl ParserV2 {
         let method = self.expect_ident("an HTTP method")?.to_uppercase();
         let name = self.expect_ident("the endpoint's name")?;
         let mut params = Vec::new();
+        let mut locations = Vec::new();
         if self.eat(&TokenType::OpenParen) {
             while !self.check(&TokenType::CloseParen) && !self.at_end() {
-                params.push(self.parse_prop_decl(params.is_empty())?);
+                let param = self.parse_prop_decl(params.is_empty())?;
+                // `tenant: String in header "X-Tenant"`, `session: String in cookie`.
+                if self.is_word("in") {
+                    self.advance();
+                    if self.is_word("header") {
+                        self.advance();
+                        let header = self.expect_string("the header's name")?;
+                        locations.push((param.name.clone(), ParamLocation::Header(header)));
+                    } else if self.is_word("cookie") {
+                        self.advance();
+                        locations.push((param.name.clone(), ParamLocation::Cookie));
+                    } else {
+                        return Err(self.error_with_hint(
+                            format!("Expected `header \"…\"` or `cookie` after `in`, got {}", self.describe()),
+                            "A parameter goes `in header \"X-Tenant\"` or `in cookie`; one the path names goes in the path, `body` in the body, any other in the query",
+                        ));
+                    }
+                }
+                params.push(param);
                 if !self.check(&TokenType::CloseParen) {
                     self.expect(&TokenType::Comma, "`,`")?;
                 }
             }
             self.expect(&TokenType::CloseParen, "`)`")?;
         }
-        // `at "users/:id"` when the path is not the name.
-        let path = if self.is_word("at") {
+        // `at "users/{id}"`: where it is.
+        let path_written = self.is_word("at");
+        let path = if path_written {
             self.advance();
             self.expect_string("the endpoint's path")?
         } else {
@@ -2572,6 +2598,12 @@ impl ParserV2 {
                 self.expect(&TokenType::CloseBrace, "`}`")?;
                 continue;
             }
+            // `invalidates [list, byId(id)]`: the reads a success makes stale.
+            if self.is_word("invalidates") && matches!(self.kind_at(1), TokenType::OpenBracket) {
+                self.advance();
+                settings.push(("invalidates".to_string(), self.parse_expression()?));
+                continue;
+            }
             // `idempotent`: safe to send twice, with the key that says so.
             if self.is_word("idempotent")
                 && !matches!(self.kind_at(1), TokenType::Colon | TokenType::OpenParen)
@@ -2602,6 +2634,8 @@ impl ParserV2 {
             settings,
             doc,
             span: self.span_since(mark),
+            locations,
+            path_written,
         })
     }
 

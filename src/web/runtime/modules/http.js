@@ -281,6 +281,18 @@
     for (const hear of [..._invalidated]) hear(prefix);
   }
   const _invalidated = new Set();
+
+  /// What the cache holds under keys that start with `prefix`, changed by
+  /// `change`; what puts it back is returned.
+  function updateCached(prefix, change) {
+    const before = [];
+    for (const [key, entry] of _httpCache) {
+      if (!key.startsWith(prefix) || entry.value === undefined) continue;
+      before.push([entry, entry.value]);
+      entry.value = change(entry.value);
+    }
+    return () => { for (const [entry, value] of before) entry.value = value; };
+  }
   /// Hear every `invalidate`, until the function it returns is called.
   function onInvalidate(hear) {
     _invalidated.add(hear);

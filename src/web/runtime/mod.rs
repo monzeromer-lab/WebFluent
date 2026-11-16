@@ -153,7 +153,7 @@ pub const MODULES: &[Module] = &[
         same("send"), same("beacon"), same("invalidate"), same("mw"),
     ], deps: ["json"], triggers: []),
     module!("api", exports: [
-        same("api"), same("ws"), same("sse"), same("broadcast"),
+        same("api"), same("group"), same("ws"), same("sse"), same("broadcast"),
     ], deps: ["http"], triggers: []),
     module!("net", exports: [
         same("resource"), same("request"), same("httpCall"), same("optimistic"), same("attempt"),

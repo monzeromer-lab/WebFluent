@@ -117,7 +117,7 @@ fn a_services_hook_runs_what_it_says_with_its_parameter_bound() {
         "store L { state last = \"\"\n action note(s: String) { last = s } }\n",
         "api B(base: \"/api\") {\n",
         "  on request(r) { r.headers[\"X-Id\"] = \"abc\"  L.note(r.url) }\n",
-        "  get me() -> Map\n}\n",
+        "  get me() at \"me\" -> Map\n}\n",
         "page P(path: \"/\") { resource m = B.me()\n Text(L.last)\n",
         "  match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
     ));

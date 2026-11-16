@@ -64,6 +64,20 @@ impl JsCodegen {
     }
 
     pub(super) fn emit_api(&mut self, api: &ApiDecl) {
+        // `api Backend.users { … }`: a group, reached through its service.
+        if let Some((service, group)) = api.name.split_once('.') {
+            self.emit_line(&format!(
+                "WF.group({}, {}, {{",
+                top_level(service),
+                js_str(group)
+            ));
+            self.indent += 1;
+            self.emit_endpoints(api);
+            self.indent -= 1;
+            self.emit_line("});");
+            self.emit_line("");
+            return;
+        }
         self.emit_line(&format!("const {} = WF.api({{", top_level(&api.name)));
         self.indent += 1;
         self.emit_line(&format!("name: \"{}\",", api.name));
@@ -130,6 +144,16 @@ impl JsCodegen {
             self.indent -= 1;
             self.emit_line("},");
         }
+        self.emit_endpoints(api);
+        self.indent -= 1;
+        self.emit_line("});");
+        self.emit_line("");
+    }
+
+    /// `endpoints: { … }`: each endpoint of a service or a group — its
+    /// method and path, what it answers and how it fails, where its
+    /// parameters go, and what it makes stale.
+    fn emit_endpoints(&mut self, api: &ApiDecl) {
         self.emit_line("endpoints: {");
         self.indent += 1;
         for endpoint in &api.endpoints {
@@ -138,6 +162,10 @@ impl JsCodegen {
                 format!("path: {}", js_str(&endpoint.path)),
             ];
             for (key, value) in &endpoint.settings {
+                // Written below, as what a success makes stale.
+                if key == "invalidates" {
+                    continue;
+                }
                 parts.push(format!("{}: {}", api_setting(key), self.emit_expr(value)));
             }
             // `-> User ! CreateUserError`: the call answers with a result,
@@ -201,13 +229,58 @@ impl JsCodegen {
             {
                 parts.push(format!("fileField: \"{}\"", file.name));
             }
+            // Where a parameter goes that is not in the path or the query.
+            if !endpoint.locations.is_empty() {
+                let placed: Vec<String> = endpoint
+                    .locations
+                    .iter()
+                    .map(|(p, l)| match l {
+                        crate::syntax::parser::ast::ParamLocation::Header(h) => {
+                            format!("{}: [\"header\", {}]", js_str(p), js_str(h))
+                        }
+                        crate::syntax::parser::ast::ParamLocation::Cookie => {
+                            format!("{}: [\"cookie\"]", js_str(p))
+                        }
+                    })
+                    .collect();
+                parts.push(format!("locations: {{ {} }}", placed.join(", ")));
+            }
+            // `invalidates [list, byId(id)]`: each read, and what it is
+            // asked with — the write's own arguments, the read's in order.
+            if let Some((_, Expr::ListLiteral(items))) =
+                endpoint.settings.iter().find(|(k, _)| k == "invalidates")
+            {
+                let stale: Vec<String> = items
+                    .iter()
+                    .filter_map(|item| {
+                        let (name, args) = match item {
+                            Expr::Identifier(n) => (n.as_str(), &[][..]),
+                            Expr::FunctionCall(n, args) => (n.as_str(), args.as_slice()),
+                            _ => return None,
+                        };
+                        let read = api.endpoints.iter().find(|e| e.name == name)?;
+                        if args.is_empty() {
+                            return Some(format!("[{}, null]", js_str(name)));
+                        }
+                        let given: Vec<String> = args
+                            .iter()
+                            .zip(&read.params)
+                            .filter_map(|(a, p)| match a {
+                                Expr::Identifier(own) => {
+                                    Some(format!("{}: args.{own}", js_str(&p.name)))
+                                }
+                                _ => None,
+                            })
+                            .collect();
+                        Some(format!("[{}, {{ {} }}]", js_str(name), given.join(", ")))
+                    })
+                    .collect();
+                parts.push(format!("invalidates: (args) => [{}]", stale.join(", ")));
+            }
             self.emit_line(&format!("{}: {{ {} }},", endpoint.name, parts.join(", ")));
         }
         self.indent -= 1;
         self.emit_line("},");
-        self.indent -= 1;
-        self.emit_line("});");
-        self.emit_line("");
     }
 
     pub(super) fn emit_store(&mut self, store: &StoreDecl) {
