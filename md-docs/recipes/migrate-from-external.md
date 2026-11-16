@@ -31,7 +31,7 @@ above it as JSDoc:
 ```js
 // src/vendor/tilt.js
 /**
- * @param {*} node
+ * @param {HTMLElement} node
  * @param {number} max
  */
 function initTilt(node, max) {

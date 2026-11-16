@@ -703,7 +703,10 @@ impl Checker<'_, '_> {
                         }
                         (Some(declared), None) => declared,
                         (None, Some(given)) => given,
-                        (None, None) => self.hole(HoleKind::UntypedLambda, *name),
+                        (None, None) => {
+                            self.untyped_lambda(name);
+                            self.hole(HoleKind::UntypedLambda, *name)
+                        }
                     });
                 }
                 self.push_scope();

@@ -61,6 +61,14 @@ pub enum Plan {
         at: usize,
         text: String,
     },
+    /// `text` goes in at the start of line `line` (1-based) of `file` —
+    /// a JSDoc block above a script's function, which the finder knows by
+    /// its line.
+    InsertAtLine {
+        file: String,
+        line: usize,
+        text: String,
+    },
 }
 
 /// A plan and the words an editor shows for it.
@@ -103,12 +111,15 @@ pub fn realise(d: &mut Diagnostic, source: &str) {
 /// through `text_of`. A plan whose file cannot be read, or whose text does
 /// not fit it, yields no fix.
 pub fn realise_with(d: &mut Diagnostic, text_of: &dyn Fn(&str) -> Option<String>) {
-    let plans = std::mem::take(&mut d.plans);
-    let Some(source) = text_of(&d.file) else {
-        return;
-    };
-    for planned in plans {
-        let edits = match &planned.plan {
+    // One plan's edits: an edit in another file is read through `text_of`,
+    // and a plan of several parts is every part's, or none.
+    fn edits_of(
+        d: &Diagnostic,
+        source: &str,
+        plan: &Plan,
+        text_of: &dyn Fn(&str) -> Option<String>,
+    ) -> Option<Vec<Edit>> {
+        match plan {
             Plan::InsertIn { file, at, text } => text_of(file).and_then(|other| {
                 (*at <= other.len() && other.is_char_boundary(*at)).then(|| {
                     let (line, column) = place(&other, *at);
@@ -122,13 +133,32 @@ pub fn realise_with(d: &mut Diagnostic, text_of: &dyn Fn(&str) -> Option<String>
                     }]
                 })
             }),
+            Plan::InsertAtLine { file, line, text } => text_of(file).and_then(|other| {
+                (*line >= 1 && *line <= other.lines().count() + 1).then(|| {
+                    vec![Edit {
+                        file: file.clone(),
+                        line: *line,
+                        column: 1,
+                        end_line: *line,
+                        end_column: 1,
+                        text: text.clone(),
+                    }]
+                })
+            }),
             Plan::All(plans) => plans
                 .iter()
-                .map(|p| edits(d, &source, p))
+                .map(|p| edits_of(d, source, p, text_of))
                 .collect::<Option<Vec<_>>>()
                 .map(|all| all.concat()),
-            plan => edits(d, &source, plan),
-        };
+            plan => edits(d, source, plan),
+        }
+    }
+    let plans = std::mem::take(&mut d.plans);
+    let Some(source) = text_of(&d.file) else {
+        return;
+    };
+    for planned in plans {
+        let edits = edits_of(d, &source, &planned.plan, text_of);
         if let Some(edits) = edits {
             d.fixes.push(Fix {
                 title: planned.title,
@@ -515,7 +545,7 @@ fn edits(d: &Diagnostic, source: &str, plan: &Plan) -> Option<Vec<Edit>> {
             let open = start + source[start..(start + 4000).min(source.len())].find('{')?;
             insert_in_block(d, source, open, text)
         }
-        Plan::InsertIn { .. } => None,
+        Plan::InsertIn { .. } | Plan::InsertAtLine { .. } => None,
         Plan::AddArms { arms } => {
             let at = find_word(source, start, "match", 400).unwrap_or(start);
             let open = at + source[at..].find('{')?;

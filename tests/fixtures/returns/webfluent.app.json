@@ -1,0 +1,5 @@
+{
+    "name": "Returns",
+    "build": { "ssg": false },
+    "dev": { "port": 4933, "hot_reload": false }
+}

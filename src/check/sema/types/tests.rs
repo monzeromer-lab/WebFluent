@@ -184,12 +184,12 @@ const TODOS: &str = "enum Tone { calm, loud }\ntype Todo { id: String, title: St
 #[test]
 fn declared_and_inferred_types_of_names() {
     let src = format!(
-        "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() -> Number {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = http.get(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ .loaded(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
+        "{TODOS}store Todos {{\n  state items: [Todo] = []\n  state draft = \"\"\n  state n = 0\n  state sel: Todo? = null\n  derived remaining = items.filter(item => !item.done).length\n  derived titles = items.map(item => item.title)\n  derived first = items.find(item => item.done)\n  action add(title: String) {{ items = items.concat([Todo(id: \"1\", title: title)]) }}\n  action count() -> Number {{ return items.length }}\n}}\npage P(path: \"/\", id: String) {{\n  use Todos\n  resource rows: [Todo] = http.get(\"/x\")\n  state item = Todo(id: \"a\", title: \"b\")\n  for todo in Todos.items by todo.id {{ Text(todo.title) }}\n  match rows {{ .loaded(list) {{ for r in list {{ Text(r.title) }} }} else {{ }} }}\n}}"
     );
     assert_eq!(type_of(&src, "items"), "[Todo]");
     assert_eq!(type_of(&src, "draft"), "String");
     assert_eq!(type_of(&src, "n"), "Number");
-    assert_eq!(type_of(&src, "sel"), "Any?");
+    assert_eq!(type_of(&src, "sel"), "Todo?");
     assert_eq!(type_of(&src, "remaining"), "Number");
     assert_eq!(type_of(&src, "titles"), "[String]");
     assert_eq!(type_of(&src, "first"), "Todo?");
@@ -463,7 +463,7 @@ fn the_layout_and_the_universal_props_are_typed_too() {
 #[test]
 fn untyped_programs_check_as_they_always_did() {
     clean(
-        "store S { state items = [] state q = \"\" action add(item: Map) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
+        "store S { state items: [Map] = [] state q = \"\" action add(item: Map) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user: Map? = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
     );
 }
 
@@ -550,7 +550,7 @@ fn a_map_literal_has_the_shape_it_was_written_with() {
     // A shape fits a record, a map or another shape that agrees on the
     // shared fields; an empty literal or a spread says nothing about the keys.
     clean(&format!(
-        "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n state form = {{}}\n state opts = {{ ...form, x: 1 }}\n action add() {{ items.push({{ id: \"1\", title: \"t\" }})  form.anything = 1  opts.other = 2 }} }}"
+        "{TODOS}page P(path: \"/\") {{ state items: [Todo] = []\n state form: [String: Number] = {{}}\n state opts: [String: Number] = {{ ...form, x: 1 }}\n action add() {{ items.push({{ id: \"1\", title: \"t\" }})  form.anything = 1  opts.other = 2 }} }}"
     ));
     has(
         &format!(

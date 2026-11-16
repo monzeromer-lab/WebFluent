@@ -289,8 +289,16 @@ impl Checker<'_, '_> {
                     let url = self.infer(url, Some(&Type::String));
                     self.expect(&url, &Type::String, span, "a connection's address");
                 }
-                for (_, value) in &c.options {
-                    self.infer(value, None);
+                for (key, value) in &c.options {
+                    // A peer's `signal:` is handed what to tell the other
+                    // side, which is JSON.
+                    let wanted = (key == "signal").then(|| {
+                        Type::Func(
+                            vec![Type::Enum(super::ty::JSON.to_string())],
+                            Box::new(Type::Null),
+                        )
+                    });
+                    self.infer(value, wanted.as_ref());
                 }
                 let receive = match self.connection_type(c) {
                     Type::Connection(_, _, receive) => *receive,
@@ -526,6 +534,12 @@ impl Checker<'_, '_> {
                     other => self.infer(other, None),
                 };
                 let value = self.infer(&a.value, Some(&target));
+                if let Expr::Identifier(name) = &a.target
+                    && self.untyped.iter().any(|u| u.name == *name)
+                {
+                    let said = self.assigned_type(name, &a.value, &value);
+                    self.note_assigned(name, &said);
+                }
                 let what = format!("`{}`", expr_text(&a.target));
                 self.expect(&value, &target, span, &what);
                 // A value the checker can read is held to what the state's

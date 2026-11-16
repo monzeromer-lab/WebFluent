@@ -1,0 +1,42 @@
+// What a project script returns, held to its `@returns` as the page runs,
+// for tests/browser/returns.mjs: a function that keeps its word, one that
+// does not, and a promise that settles to the wrong thing.
+
+app { Router }
+
+page Home(path: "/", title: "Returns", description: "A script held to its word.") {
+    state rows: [Row] = []
+    state said = ""
+    Heading("Returns").h1
+    Button("Good") {
+        on click {
+            try {
+                rows = goodRows()
+                said = "good: {rows.length}"
+            } catch e {
+                said = "{e.name}: {e.message}"
+            }
+        }
+    }
+    Button("Bad") {
+        on click {
+            try {
+                rows = badRows()
+                said = "bad: {rows.length}"
+            } catch e {
+                said = "{e.name}: {e.message}"
+            }
+        }
+    }
+    Button("Later") {
+        on click {
+            try {
+                let n = await laterCount()
+                said = "later: {n}"
+            } catch e {
+                said = "{e.name}: {e.message}"
+            }
+        }
+    }
+    Text(said, id: "said")
+}

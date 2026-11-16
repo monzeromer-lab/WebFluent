@@ -133,6 +133,14 @@ pub fn read_project_collecting_via(
         if script.scan.module_at.is_some() || !script.scan.problems.is_empty() {
             continue;
         }
+        // Each `@typedef` its comments name is a record the program may
+        // name, as if it were declared in `.wf`.
+        for def in &script.scan.typedefs {
+            declaration_files.push(script.path.clone());
+            all_declarations.push(Declaration::Type(crate::project::project_js::typedef_decl(
+                def,
+            )));
+        }
         declaration_files.push(script.path.clone());
         all_declarations.push(Declaration::Script(
             crate::syntax::parser::ast::ScriptDecl {

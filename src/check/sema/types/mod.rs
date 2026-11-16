@@ -40,11 +40,13 @@ mod jsdoc;
 mod members;
 mod method;
 mod names;
+mod order;
 mod reactivity;
 mod read;
 mod refine;
 mod report;
 mod results;
+mod signature;
 mod stmt;
 mod tables;
 #[cfg(test)]
@@ -90,6 +92,8 @@ struct World<'p> {
     components: HashMap<&'p str, &'p ComponentDecl>,
     /// Each store's members, typed.
     stores: HashMap<&'p str, HashMap<String, Type>>,
+    /// Where each store is declared, by name.
+    store_decl: HashMap<&'p str, usize>,
     /// The program's constants, typed.
     consts: HashMap<String, Type>,
     /// The services the program declares.
@@ -169,6 +173,17 @@ impl<'p> World<'p> {
                 if !self.types.contains_key(name.as_str()) && Scalar::of_name(&name).is_some() =>
             {
                 Type::Scalar(Scalar::of_name(&name).expect("just checked"))
+            }
+            // An object the browser hands a program — `e: KeyboardEvent`,
+            // `node: Element` — or an instance of a project script's class.
+            Type::Record(name)
+                if !self.types.contains_key(name.as_str())
+                    && (host::is_browser_object(&name)
+                        || self.scripts.get(name.as_str()).is_some_and(|(_, n)| {
+                            matches!(n.kind, crate::syntax::js_scan::NameKind::Class { .. })
+                        })) =>
+            {
+                Type::Host(name)
             }
             Type::List(inner) => Type::list(self.resolve_at(*inner, depth)),
             Type::Optional(inner) => Type::optional(self.resolve_at(*inner, depth)),
@@ -271,6 +286,13 @@ pub struct Typed {
 #[derive(Debug, Default)]
 pub struct TypeInfo {
     pub findings: Findings,
+    /// What each call of the program's own actions passes, by the body
+    /// that declares the action, its name and the argument's place — for
+    /// the fix of a parameter written with no type (`T32`).
+    passed: HashMap<(usize, String, usize), Vec<Type>>,
+    /// The parameters written with no type, waiting for what their callers
+    /// pass.
+    untyped_params: Vec<signature::UntypedParam>,
     pub bindings: Vec<Typed>,
     /// Names read or called that nothing declares — not the program, not
     /// the language, not the browser. The build refuses them (`T13`); a
@@ -361,6 +383,15 @@ pub fn check_sources_with<'s>(
         enums: HashMap::new(),
         components: HashMap::new(),
         stores: HashMap::new(),
+        store_decl: program
+            .declarations
+            .iter()
+            .enumerate()
+            .filter_map(|(i, d)| match d {
+                Declaration::Store(s) => Some((s.name.as_str(), i)),
+                _ => None,
+            })
+            .collect(),
         consts: HashMap::new(),
         apis: HashMap::new(),
         scripts: HashMap::new(),
@@ -524,9 +555,41 @@ pub fn check_sources_with<'s>(
         }
     }
 
-    // Stores next: their members are read everywhere else. A store's
-    // derived values and actions may read other stores, which are `Any`
-    // until met.
+    // Stores next: their members are read everywhere else, and a store's
+    // derived values may read another's, declared before it or after. So
+    // the stores are worked out quietly until what each holds stops
+    // changing — a chain of stores reading stores settles in as many
+    // rounds as it is long — and only then checked, with what they report.
+    let cross = store_cycles(program);
+    let rounds = program
+        .declarations
+        .iter()
+        .filter(|d| matches!(d, Declaration::Store(_)))
+        .count()
+        + 1;
+    for _ in 0..rounds {
+        let mut scratch = TypeInfo::default();
+        let before: Vec<String> = store_signature(&world);
+        for (index, decl) in program.declarations.iter().enumerate() {
+            if let Declaration::Store(s) = decl {
+                let file = file_of(index);
+                let mut cx = Checker::new(&world, &file, index, &mut scratch, None);
+                cx.cyclic = cross
+                    .iter()
+                    .filter(|(st, _, _)| *st == index)
+                    .map(|(_, n, _)| n.clone())
+                    .collect();
+                cx.push_scope();
+                cx.declare_hoisted(&s.body);
+                let members = cx.scopes.last().cloned().unwrap_or_default();
+                cx.pop_scope();
+                world.stores.insert(s.name.as_str(), members);
+            }
+        }
+        if store_signature(&world) == before {
+            break;
+        }
+    }
     for (index, decl) in program.declarations.iter().enumerate() {
         if let Declaration::Store(s) = decl {
             let file = file_of(index);
@@ -538,10 +601,33 @@ pub fn check_sources_with<'s>(
                 .filter_map(|w| w.strip_prefix(s.name.as_str())?.strip_prefix('.'))
                 .map(str::to_string)
                 .collect();
+            cx.cyclic = cross
+                .iter()
+                .filter(|(st, _, _)| *st == index)
+                .map(|(_, n, _)| n.clone())
+                .collect();
+            for (_, name, others) in cross.iter().filter(|(st, _, _)| *st == index) {
+                if let Some(stmt) = s
+                    .body
+                    .iter()
+                    .find(|st| matches!(&st.kind, StatementKind::Derived(d) if d.name == *name))
+                {
+                    cx.error(
+                        stmt.span,
+                        "T35",
+                        format!(
+                            "`{}.{name}` and {others} are each worked out from the other, so neither says what it is",
+                            s.name
+                        ),
+                        &format!("Declare what one of them is: `derived {name}: T = …`"),
+                    );
+                }
+            }
             cx.push_scope();
             cx.declare_hoisted(&s.body);
             let members = cx.scopes.last().cloned().unwrap_or_default();
             cx.statements(&s.body, Body::Store);
+            cx.report_untyped();
             cx.pop_scope();
             world.stores.insert(s.name.as_str(), members);
         }
@@ -574,6 +660,7 @@ pub fn check_sources_with<'s>(
                 cx.written = written_names(&p.body);
                 cx.declare_hoisted(&p.body);
                 cx.statements(&p.body, Body::Page);
+                cx.report_untyped();
                 cx.pop_scope();
             }
             Declaration::Component(c) => {
@@ -601,12 +688,40 @@ pub fn check_sources_with<'s>(
                     cx.current_span = event.span;
                     for p in &event.params {
                         cx.written_param(&p.param_type, &format!("{}({})", event.name, p.name));
+                        if p.untyped {
+                            cx.error_at_current(
+                                "T32",
+                                format!(
+                                    "`{}` of the event `{}` says nothing of its type",
+                                    p.name, event.name
+                                ),
+                                &format!(
+                                    "Write what it sends: `event {}({}: String)`",
+                                    event.name, p.name
+                                ),
+                            );
+                        }
                     }
                 }
                 cx.current_span = c.header_span;
                 for slot in &c.slots {
                     for p in &slot.params {
                         cx.written_param(&p.param_type, &p.name);
+                        if p.untyped {
+                            cx.error_at_current(
+                                "T32",
+                                format!(
+                                    "`{}` of the slot `{}` says nothing of its type",
+                                    p.name,
+                                    slot.name.as_deref().unwrap_or("children")
+                                ),
+                                &format!(
+                                    "Write what it hands over: `slot {}({}: Todo)`",
+                                    slot.name.as_deref().unwrap_or("row"),
+                                    p.name
+                                ),
+                            );
+                        }
                     }
                 }
                 cx.component = Some(c);
@@ -614,6 +729,7 @@ pub fn check_sources_with<'s>(
                 cx.written = written_names(&c.body);
                 cx.declare_hoisted(&c.body);
                 cx.statements(&c.body, Body::Component);
+                cx.report_untyped();
                 cx.pop_scope();
             }
             Declaration::App(a) => {
@@ -621,6 +737,7 @@ pub fn check_sources_with<'s>(
                 cx.written = written_names(&a.body);
                 cx.declare_hoisted(&a.body);
                 cx.statements(&a.body, Body::Page);
+                cx.report_untyped();
                 cx.pop_scope();
             }
             Declaration::Type(t) => {
@@ -752,6 +869,19 @@ pub fn check_sources_with<'s>(
             | Declaration::Data(_) => {}
         }
     }
+    // A parameter written with no type, reported once every call of it has
+    // been seen, with the type they pass when they agree.
+    for pending in std::mem::take(&mut info.untyped_params) {
+        let file = file_of(pending.decl);
+        let source = source_of(pending.decl);
+        let passed = info
+            .passed
+            .get(&(pending.decl, pending.action.clone(), pending.index))
+            .cloned()
+            .unwrap_or_default();
+        let mut cx = Checker::new(&world, &file, pending.decl, &mut info, source);
+        cx.report_untyped_param(&pending, &passed);
+    }
     info.holes.extend(holes::unchecked_tests(program, file_of));
     // An expression inferred twice — quietly, then for real — is one hole.
     info.holes.sort();
@@ -849,6 +979,13 @@ struct Checker<'a, 'p> {
     /// Whether the finding reported last was an error, for the fix that
     /// follows it ([`Checker::plan_last`]).
     last_was_error: bool,
+    /// The store's `derived` values that read another store's, which read
+    /// them (`T35`): they have no type to be worked out.
+    cyclic: HashSet<String>,
+    /// The body's states whose first value says nothing (`T25`), and what
+    /// the body assigns each.
+    untyped: Vec<signature::Untyped>,
+    assigned: HashMap<String, Type>,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
@@ -886,6 +1023,9 @@ impl<'a, 'p> Checker<'a, 'p> {
             depth: 0,
             too_deep: false,
             last_was_error: false,
+            cyclic: HashSet::new(),
+            untyped: Vec::new(),
+            assigned: HashMap::new(),
             source,
         }
     }
@@ -1116,17 +1256,35 @@ impl<'a, 'p> Checker<'a, 'p> {
                     {
                         self.refined.insert(s.name.clone(), t.clone());
                     }
-                    let ty = match &s.ty {
-                        Some(t) => {
-                            self.written(t, &s.name);
-                            self.world.resolve(Type::from_ref(t))
+                    // A state that starts as `null` will hold something
+                    // later: a value that may be null.
+                    let ty = if let Some(t) = &s.ty {
+                        self.written(t, &s.name);
+                        self.world.resolve(Type::from_ref(t))
+                    } else {
+                        {
+                            let ty = match self.infer(&s.value, None) {
+                                Type::Null => {
+                                    Type::optional(self.hole(HoleKind::NullState, &s.name))
+                                }
+                                other => other,
+                            };
+                            if signature::says_nothing(&ty) {
+                                self.untyped.push(signature::Untyped {
+                                    name: s.name.clone(),
+                                    span: stmt.span,
+                                    persist: s.persist,
+                                    null: matches!(s.value, Expr::Null),
+                                    start: match &s.value {
+                                        Expr::Null => "null",
+                                        Expr::ListLiteral(_) => "[]",
+                                        Expr::MapLiteral(_) => "{}",
+                                        _ => "…",
+                                    },
+                                });
+                            }
+                            ty
                         }
-                        // A state that starts as `null` will hold something
-                        // later: a value that may be null.
-                        None => match self.infer(&s.value, None) {
-                            Type::Null => Type::optional(self.hole(HoleKind::NullState, &s.name)),
-                            other => other,
-                        },
                     };
                     self.bind(&s.name, ty, stmt.span);
                 }
@@ -1230,8 +1388,17 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.current_span = stmt.span;
             if let StatementKind::Action(a) = &stmt.kind {
                 self.own_actions.insert(a.name.clone(), &a.body);
-                for p in &a.params {
+                for (index, p) in a.params.iter().enumerate() {
                     self.written_param(&p.param_type, &format!("{}({})", a.name, p.name));
+                    if p.untyped {
+                        self.info.untyped_params.push(signature::UntypedParam {
+                            decl: self.decl,
+                            span: stmt.span,
+                            action: a.name.clone(),
+                            index,
+                            name: p.name.clone(),
+                        });
+                    }
                 }
                 let params: Vec<Type> = a
                     .params
@@ -1262,9 +1429,59 @@ impl<'a, 'p> Checker<'a, 'p> {
                 );
             }
         }
-        for stmt in stmts {
-            self.current_span = stmt.span;
-            if let StatementKind::Derived(d) = &stmt.kind {
+        // Derived values after what they read, so the order they are
+        // written in cannot change a type; two that read each other with
+        // neither declared have nothing to start from (`T35`).
+        let derived: Vec<(&Statement, &crate::syntax::parser::ast::DerivedDecl)> = stmts
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::Derived(d) => Some((s, d)),
+                _ => None,
+            })
+            .collect();
+        let names: Vec<&str> = derived.iter().map(|(_, d)| d.name.as_str()).collect();
+        let values: Vec<&Expr> = derived.iter().map(|(_, d)| &d.value).collect();
+        let deps = order::bare_deps(&names, &values);
+        for group in order::components(&deps) {
+            let cyclic =
+                order::is_cycle(&group, &deps) && group.iter().all(|&i| derived[i].1.ty.is_none());
+            if cyclic {
+                for &i in &group {
+                    let (stmt, d) = derived[i];
+                    let others: Vec<String> = group
+                        .iter()
+                        .filter(|&&j| j != i)
+                        .map(|&j| format!("`{}`", names[j]))
+                        .collect();
+                    let message = if others.is_empty() {
+                        format!(
+                            "`{}` is worked out from itself, so nothing says what it is",
+                            d.name
+                        )
+                    } else {
+                        format!(
+                            "`{}` and {} are each worked out from the other, so neither says what it is",
+                            d.name,
+                            others.join(" and ")
+                        )
+                    };
+                    self.error(
+                        stmt.span,
+                        "T35",
+                        message,
+                        &format!("Declare what one of them is: `derived {}: T = …`", d.name),
+                    );
+                    self.bind_fixed(&d.name, Type::Error, stmt.span, "a `derived` value");
+                }
+                continue;
+            }
+            for &i in &group {
+                let (stmt, d) = derived[i];
+                self.current_span = stmt.span;
+                if self.cyclic.contains(&d.name) {
+                    self.bind_fixed(&d.name, Type::Error, stmt.span, "a `derived` value");
+                    continue;
+                }
                 if let Some(t) = &d.ty {
                     self.written(t, &d.name);
                 }
@@ -1330,6 +1547,77 @@ impl<'a, 'p> Checker<'a, 'p> {
 
 /// What a read of an endpoint holds: its answer, a result's value apart
 /// from what it fails with.
+/// What every store's members are, written out, to tell when another
+/// round of working them out changed nothing.
+fn store_signature(world: &World<'_>) -> Vec<String> {
+    let mut out: Vec<String> = world
+        .stores
+        .iter()
+        .flat_map(|(store, members)| {
+            members
+                .iter()
+                .map(move |(name, ty)| format!("{store}.{name}: {ty}"))
+        })
+        .collect();
+    out.sort();
+    out
+}
+
+/// The `derived` values of two or more stores that read each other with
+/// none of them declared: each one's store (its declaration's index), its
+/// name, and the others, for `T35`. A cycle inside one store is that
+/// store's body's to report.
+fn store_cycles(program: &Program) -> Vec<(usize, String, String)> {
+    let mut nodes: Vec<(usize, &str, &str, &crate::syntax::parser::ast::DerivedDecl)> = Vec::new();
+    for (index, decl) in program.declarations.iter().enumerate() {
+        if let Declaration::Store(s) = decl {
+            for stmt in &s.body {
+                if let StatementKind::Derived(d) = &stmt.kind {
+                    nodes.push((index, s.name.as_str(), d.name.as_str(), d));
+                }
+            }
+        }
+    }
+    let deps: Vec<Vec<usize>> = nodes
+        .iter()
+        .map(|(_, store, _, d)| {
+            let mut read = Vec::new();
+            order::reads(&d.value, &mut read);
+            let mut out: Vec<usize> = read
+                .iter()
+                .filter_map(|(owner, member)| {
+                    let owner = owner.as_deref().unwrap_or(store);
+                    nodes
+                        .iter()
+                        .position(|(_, s, n, _)| *s == owner && *n == member.as_str())
+                })
+                .collect();
+            out.sort_unstable();
+            out.dedup();
+            out
+        })
+        .collect();
+    let mut found = Vec::new();
+    for group in order::components(&deps) {
+        let stores: HashSet<&str> = group.iter().map(|&i| nodes[i].1).collect();
+        if stores.len() < 2
+            || !order::is_cycle(&group, &deps)
+            || group.iter().any(|&i| nodes[i].3.ty.is_some())
+        {
+            continue;
+        }
+        for &i in &group {
+            let others: Vec<String> = group
+                .iter()
+                .filter(|&&j| j != i)
+                .map(|&j| format!("`{}.{}`", nodes[j].1, nodes[j].2))
+                .collect();
+            found.push((nodes[i].0, nodes[i].2.to_string(), others.join(" and ")));
+        }
+    }
+    found
+}
+
 fn answer_of(ty: Type) -> Type {
     match ty {
         Type::Result(value, _) => *value,

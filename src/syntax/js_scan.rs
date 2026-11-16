@@ -69,6 +69,233 @@ pub struct Scan {
     pub module_at: Option<(usize, usize)>,
     /// What could not be read, with where.
     pub problems: Vec<Problem>,
+    /// The record types its comments name: `@typedef {{ id: string }} Row`,
+    /// or `@typedef {Object} Row` with a `@property` per field.
+    pub typedefs: Vec<Typedef>,
+}
+
+/// A record type a script's JSDoc names, for the program to name too.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Typedef {
+    pub name: String,
+    /// Each field: its name, its type as written, and whether it may be
+    /// left out (`id?: string`, `@property {string} [id]`).
+    pub fields: Vec<(String, String, bool)>,
+    /// What the type is, as written, when it is not a record of fields:
+    /// `@typedef {string[]} Tags`.
+    pub alias: Option<String>,
+    pub line: usize,
+}
+
+/// A JSDoc type expression as the language writes the type: what a
+/// `@typedef`'s fields become, and what a function's `@returns` is held to.
+/// What the language cannot say — a union, a bare `Array`, a function — is
+/// `Json`, the type of anything plain.
+pub fn jsdoc_typeref(text: &str) -> crate::syntax::parser::ast::TypeRef {
+    use crate::syntax::parser::ast::TypeRef;
+    fn split_top(text: &str, sep: char) -> Vec<&str> {
+        let mut parts = Vec::new();
+        let (mut depth, mut start) = (0i32, 0);
+        let mut prev = '\0';
+        for (i, c) in text.char_indices() {
+            match c {
+                '(' | '[' | '{' | '<' => depth += 1,
+                '>' if prev == '=' => {}
+                ')' | ']' | '}' | '>' => depth -= 1,
+                _ if c == sep && depth == 0 => {
+                    parts.push(&text[start..i]);
+                    start = i + c.len_utf8();
+                }
+                _ => {}
+            }
+            prev = c;
+        }
+        parts.push(&text[start..]);
+        parts
+    }
+    let json = || TypeRef::Named("Json".to_string());
+    let t = text.trim();
+    let t = t.strip_prefix("...").unwrap_or(t).trim();
+    if let Some(inner) = t.strip_prefix('?') {
+        return TypeRef::Optional(Box::new(jsdoc_typeref(inner)));
+    }
+    let t = t.strip_prefix('!').unwrap_or(t);
+    let alternatives = split_top(t, '|');
+    if alternatives.len() > 1 {
+        let others: Vec<&str> = alternatives
+            .iter()
+            .map(|a| a.trim())
+            .filter(|a| !matches!(*a, "null" | "undefined"))
+            .collect();
+        let one = match others.as_slice() {
+            [one] => jsdoc_typeref(one),
+            _ => json(),
+        };
+        return if others.len() < alternatives.len() {
+            TypeRef::Optional(Box::new(one))
+        } else {
+            one
+        };
+    }
+    if let Some(element) = t.strip_suffix("[]") {
+        return TypeRef::List(Box::new(jsdoc_typeref(element)));
+    }
+    if let Some(open) = t.find('<')
+        && t.ends_with('>')
+    {
+        let name = t[..open].trim_end_matches('.');
+        let args = split_top(&t[open + 1..t.len() - 1], ',');
+        return match (name, args.as_slice()) {
+            ("Array", [element]) => TypeRef::List(Box::new(jsdoc_typeref(element))),
+            ("Promise", [value]) => jsdoc_typeref(value),
+            ("Object" | "Record" | "Map", [.., value]) => {
+                TypeRef::Dict(Box::new(TypeRef::String), Box::new(jsdoc_typeref(value)))
+            }
+            _ => json(),
+        };
+    }
+    match t {
+        "string" | "String" => TypeRef::String,
+        "number" | "Number" => TypeRef::Number,
+        "boolean" | "Boolean" | "bool" => TypeRef::Bool,
+        "void" | "undefined" | "null" => TypeRef::Unit,
+        "Element" | "HTMLElement" | "Node" | "SVGElement" => TypeRef::Named("Element".to_string()),
+        n if n.starts_with("HTML") && n.ends_with("Element") => {
+            TypeRef::Named("Element".to_string())
+        }
+        n if n.chars().next().is_some_and(char::is_uppercase)
+            && n.chars().all(|c| c.is_alphanumeric() || c == '_')
+            && !matches!(n, "Array" | "Object" | "Function") =>
+        {
+            TypeRef::Named(n.to_string())
+        }
+        _ => json(),
+    }
+}
+
+/// Every `@typedef` in `source`'s `/** … */` comments.
+pub fn typedefs(source: &str) -> Vec<Typedef> {
+    let mut out = Vec::new();
+    let mut rest = source;
+    let mut offset = 0;
+    while let Some(open) = rest.find("/**") {
+        let Some(close) = rest[open..].find("*/") else {
+            break;
+        };
+        let comment = &rest[open + 3..open + close];
+        let line = source[..offset + open].matches('\n').count() + 1;
+        if let Some(def) = typedef_in(comment, line) {
+            out.push(def);
+        }
+        offset += open + close + 2;
+        rest = &rest[open + close + 2..];
+    }
+    out
+}
+
+/// The braced type that starts `text`, and what follows it.
+fn braced(text: &str) -> Option<(&str, &str)> {
+    let text = text.trim_start();
+    if !text.starts_with('{') {
+        return None;
+    }
+    let mut depth = 0;
+    for (i, c) in text.char_indices() {
+        match c {
+            '{' => depth += 1,
+            '}' => {
+                depth -= 1;
+                if depth == 0 {
+                    return Some((&text[1..i], &text[i + 1..]));
+                }
+            }
+            _ => {}
+        }
+    }
+    None
+}
+
+fn typedef_in(comment: &str, line: usize) -> Option<Typedef> {
+    let lines: Vec<&str> = comment
+        .lines()
+        .map(|l| l.trim().trim_start_matches('*').trim())
+        .collect();
+    let text = lines.join("\n");
+    let at = text.find("@typedef")?;
+    let (ty, after) = braced(&text[at + "@typedef".len()..])?;
+    let name: String = after
+        .trim_start()
+        .chars()
+        .take_while(|c| c.is_alphanumeric() || *c == '_')
+        .collect();
+    if name.is_empty() {
+        return None;
+    }
+    let ty = ty.trim();
+    let mut fields = Vec::new();
+    let mut alias = None;
+    if ty.starts_with('{') && ty.ends_with('}') {
+        // `{ id: string, n?: number }`: split at the top level.
+        let inner = &ty[1..ty.len() - 1];
+        let mut depth = 0;
+        let mut start = 0;
+        let mut parts = Vec::new();
+        for (i, c) in inner.char_indices() {
+            match c {
+                '{' | '(' | '[' | '<' => depth += 1,
+                '}' | ')' | ']' | '>' => depth -= 1,
+                ',' if depth == 0 => {
+                    parts.push(&inner[start..i]);
+                    start = i + 1;
+                }
+                _ => {}
+            }
+        }
+        parts.push(&inner[start..]);
+        for part in parts {
+            if let Some((field, ty)) = part.split_once(':') {
+                let field = field.trim();
+                let optional = field.ends_with('?');
+                fields.push((
+                    field.trim_end_matches('?').trim().to_string(),
+                    ty.trim().to_string(),
+                    optional,
+                ));
+            }
+        }
+    } else if matches!(ty, "Object" | "object") {
+        // `@property {string} id`, one a field.
+        for l in &lines {
+            let Some(rest) = l
+                .strip_prefix("@property")
+                .or_else(|| l.strip_prefix("@prop "))
+            else {
+                continue;
+            };
+            let Some((ty, after)) = braced(rest) else {
+                continue;
+            };
+            let word = after.split_whitespace().next().unwrap_or("");
+            let optional = word.starts_with('[');
+            let field = word
+                .trim_start_matches('[')
+                .split(['=', ']'])
+                .next()
+                .unwrap_or("")
+                .to_string();
+            if !field.is_empty() {
+                fields.push((field, ty.trim().to_string(), optional));
+            }
+        }
+    } else {
+        alias = Some(ty.to_string());
+    }
+    Some(Typedef {
+        name,
+        fields,
+        alias,
+        line,
+    })
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -470,6 +697,7 @@ pub fn scan(source: &str) -> Scan {
         out: &mut out,
     }
     .read();
+    out.typedefs = typedefs(source);
     out
 }
 
@@ -1034,6 +1262,29 @@ mod tests {
         let s = scan(src);
         assert!(s.problems.is_empty(), "{:?}", s.problems);
         s.names.into_iter().map(|n| n.name).collect()
+    }
+
+    #[test]
+    fn a_typedef_is_read_in_either_spelling() {
+        let defs = typedefs(
+            "/** @typedef {{ id: string, n?: number }} Row */\n/**\n * A user.\n * @typedef {Object} User\n * @property {string} name\n * @property {number} [age]\n */\n/** @typedef {string[]} Tags */\n",
+        );
+        assert_eq!(defs.len(), 3);
+        assert_eq!(defs[0].name, "Row");
+        assert_eq!(
+            defs[0].fields,
+            vec![
+                ("id".to_string(), "string".to_string(), false),
+                ("n".to_string(), "number".to_string(), true)
+            ]
+        );
+        assert_eq!(defs[1].name, "User");
+        assert_eq!(defs[1].line, 2);
+        assert_eq!(
+            defs[1].fields[1],
+            ("age".to_string(), "number".to_string(), true)
+        );
+        assert_eq!(defs[2].alias.as_deref(), Some("string[]"));
     }
 
     fn one(src: &str, name: &str) -> Name {

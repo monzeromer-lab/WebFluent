@@ -227,6 +227,40 @@ match users {
 arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
 `.status(code, problem)`.
 
+## Declared where others see it, inferred where only the body does
+
+What another declaration, another file or a caller sees is now declared,
+and what only the body sees is still inferred — so the checker never has to
+work one declaration out to check another.
+
+- **Order no longer matters.** A store's `derived` values were typed in the
+  order they were written, and a store reading one declared further down
+  was refused (`T13`). Each is now worked out after what it reads, wherever
+  that is, so moving a declaration never changes a type. Two that read each
+  other with neither declared are `T35`.
+- **A state says what it holds** when its first value does not: `state
+  items = []`, `state picked = null`, `persist prefs = {}` and open JSON are
+  `T25`, and the fix writes the type the body assigns — `items =
+  items.concat([Todo(…)])` gives `state items: [Todo] = []`.
+- **A parameter says its type**: an action's, an event's and a slot's (`T32`,
+  whose fix writes what every call passes), and a lambda's when nothing it
+  is passed to says it — `derived byName = (a: User, b: User) => …`.
+- **A script's JSDoc is its signature.** A function called from `.wf` with
+  none is `T31`, and the fix writes a block from the call; a union or a bare
+  `Array` is `T31` too. `{*}` is `Json`, `{Object<string, T>}` is `[String:
+  T]`, `{HTMLElement}` is `Element`, a function with no `@returns` gives
+  nothing back, and a class is a type whose members are its JSDoc'd methods.
+- **`@typedef` is a type.** `/** @typedef {{ id: string, done?: boolean }}
+  Row */` in a script is a record the program names: `state rows: [Row] =
+  []`.
+- **What a script returns is checked, in every build.** A call of a function
+  whose `@returns` names a type is held to it as it returns or settles, and a
+  mismatch throws a `DecodeError` naming the function — so a value typed
+  `Row` is a `Row`, under `wf serve` and deployed alike.
+- A parameter or state may name what the browser hands a program —
+  `action run(e: KeyboardEvent)`, `node: Element` — and `now(every: …)` is
+  a `DateTime`, as `now` is.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

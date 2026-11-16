@@ -249,6 +249,14 @@ impl Diagnostic {
         self.severity == Severity::Error
     }
 
+    /// Whether it says only what a template's data, still to come, would
+    /// tell: a name nothing declares (`T13`), or a lambda's parameter
+    /// nothing types (`T32`) — a template reads its data's keys by name,
+    /// and their values say their types when they arrive.
+    pub fn waits_for_data(&self) -> bool {
+        self.code == "T13" || (self.code == "T32" && self.message.contains("a lambda's parameter"))
+    }
+
     /// The finding written as a warning, whatever its severity: the same
     /// place and hint.
     pub fn as_warning(&self) -> String {

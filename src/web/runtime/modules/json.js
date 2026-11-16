@@ -82,6 +82,22 @@
     return fault ? ["err", fault] : ["ok", value];
   }
 
+  /// What a project script's function gave back, held to its `@returns`:
+  /// the value as it is, or a `DecodeError` thrown naming the function and
+  /// the place — in every build, since nothing else can see a script keep
+  /// its promise. A promise is held to it once it settles.
+  function returned(name, shape, value) {
+    const held = (v) => {
+      const fault = shapeFault(v, shape, "$");
+      if (!fault) return v;
+      const error = new Error("`" + name + "` returned what its @returns does not say: " + fault.at + " " + fault.message);
+      error.name = "DecodeError";
+      error.at = fault.at;
+      throw error;
+    };
+    return value && typeof value.then === "function" ? value.then(held) : held(value);
+  }
+
   /// The case of a JSON value: `object`, `array`, `string`, `number`,
   /// `bool` or `null`.
   function jsonCase(value) {

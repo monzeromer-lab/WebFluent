@@ -71,6 +71,28 @@ impl Checker<'_, '_> {
     }
 
     /// `name` resolves to nothing: recorded, for the build to refuse.
+    /// `T32` for a lambda's parameter nothing gives a type to. It goes
+    /// where a name nothing declares goes: the build refuses it, and a
+    /// template rendered with data — whose values say their types only when
+    /// they arrive — does not.
+    pub(super) fn untyped_lambda(&mut self, name: &str) {
+        let message = format!("`{name}` is a lambda's parameter nothing gives a type to");
+        let span = self.located(self.current_span, &message);
+        let d = Diagnostic::coded("T32", message, self.file, span.line as usize, span.col as usize)
+            .with_span(span, self.source)
+            .with_hint(format!(
+                "Write its type: `({name}: User) => …` — or pass the lambda where its parameters are known"
+            ));
+        if !self
+            .info
+            .unresolved
+            .iter()
+            .any(|u| u.message == d.message && u.line == d.line && u.column == d.column)
+        {
+            self.info.unresolved.push(d);
+        }
+    }
+
     pub(super) fn unresolved(&mut self, name: &str, called: bool) {
         // A store's own action, called where the store is not built yet —
         // its initial values are worked out before its actions exist.

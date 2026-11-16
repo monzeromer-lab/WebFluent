@@ -256,10 +256,12 @@ an expression, usually a store's derived value. When it is false, the reader
 is sent to `redirect:` (by default, `/`):
 
 ```wf
+type User { name: String }
+
 store Auth {
-    state user = null
+    state user: User? = null
     derived loggedIn = user != null
-    action login() { user = { name: "Sam" } }
+    action login() { user = User(name: "Sam") }
     action logout() { user = null }
 }
 
@@ -367,9 +369,11 @@ renders. A call written there, such as `Deploys.load(id)`, is *set-up code*:
 it runs once as the page opens.
 
 ```wf
+type Run { id: String, ok: Bool }
+
 store Deploys {
-    state rows = []
-    action load(id: String) { rows = [{ id: id, ok: true }] }
+    state rows: [Run] = []
+    action load(id: String) { rows = [Run(id: id, ok: true)] }
 }
 
 page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", id: String) {

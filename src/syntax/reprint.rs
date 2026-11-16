@@ -2037,6 +2037,7 @@ const LIMIT = 10
                 params: vec![ParamDecl {
                     name: "id".into(),
                     param_type: TypeRef::String,
+                    untyped: false,
                 }],
                 doc: Some("When one is picked.".into()),
                 span: Span::dummy(),

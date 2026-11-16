@@ -978,6 +978,9 @@ pub struct ActionDecl {
 pub struct ParamDecl {
     pub name: String,
     pub param_type: TypeRef,
+    /// Written with no type, `action add(title)`: read as `Any`, and
+    /// refused (`T32`) — unlike `title: Any`, written out.
+    pub untyped: bool,
 }
 
 #[derive(Debug, Clone)]

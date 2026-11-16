@@ -398,9 +398,21 @@ fn chapter_scripts(markdown: &str) -> Vec<webfluent::syntax::parser::ast::Declar
             scan.problems.is_empty() && scan.module_at.is_none(),
             "src/{path}: {scan:?}"
         );
+        // A page shows a script, then the script fixed: the last one shown
+        // for a file is the file.
+        let path = format!("src/{}", path.trim());
+        out.retain(|d| {
+            !matches!(d, webfluent::syntax::parser::ast::Declaration::Script(s) if s.path == path)
+        });
+        // Its `@typedef`s are records the chapter's pages name.
+        for def in &scan.typedefs {
+            out.push(webfluent::syntax::parser::ast::Declaration::Type(
+                webfluent::project_js::typedef_decl(def),
+            ));
+        }
         out.push(webfluent::syntax::parser::ast::Declaration::Script(
             webfluent::syntax::parser::ast::ScriptDecl {
-                path: format!("src/{}", path.trim()),
+                path,
                 names: scan.names,
             },
         ));
@@ -1007,8 +1019,55 @@ fn chapter(stem: &str) -> String {
 /// Every finding the build would report for `src`, through the build's own
 /// pipeline, as if it were saved as `file`: `src/App.wfx` reads it in the
 /// indented layout.
-fn findings_in(src: &str, file: &str) -> Vec<webfluent::diagnostics::Diagnostic> {
-    let (program, mut out) = webfluent::syntax::parse_source_recovering(src, file);
+/// The ```` ```js ```` blocks shown above line `at` of a page, each whose
+/// first line is `// src/<file>.js`: the scripts an example below them has,
+/// the last one shown for a file winning — a page shows a script, then the
+/// script fixed.
+fn scripts_above(text: &str, at: usize) -> Vec<(String, String)> {
+    let mut out: Vec<(String, String)> = Vec::new();
+    let mut lines = text.lines().take(at);
+    while let Some(line) = lines.next() {
+        if line.trim_end() != "```js" {
+            continue;
+        }
+        let body: Vec<&str> = lines
+            .by_ref()
+            .take_while(|l| l.trim_end() != "```")
+            .collect();
+        if let Some(path) = body.first().and_then(|l| l.strip_prefix("// src/")) {
+            let path = format!("src/{}", path.trim());
+            out.retain(|(p, _)| *p != path);
+            out.push((path, body.join("\n")));
+        }
+    }
+    out
+}
+
+/// [`findings_in`], with the project's scripts beside the example.
+fn findings_with(
+    src: &str,
+    file: &str,
+    scripts: &[(String, String)],
+) -> Vec<webfluent::diagnostics::Diagnostic> {
+    let (mut program, mut out) = webfluent::syntax::parse_source_recovering(src, file);
+    for (path, body) in scripts {
+        let scan = webfluent::project_js::scan::scan(body);
+        for def in &scan.typedefs {
+            program
+                .declarations
+                .push(webfluent::syntax::parser::ast::Declaration::Type(
+                    webfluent::project_js::typedef_decl(def),
+                ));
+        }
+        program
+            .declarations
+            .push(webfluent::syntax::parser::ast::Declaration::Script(
+                webfluent::syntax::parser::ast::ScriptDecl {
+                    path: path.clone(),
+                    names: scan.names,
+                },
+            ));
+    }
     let incomplete = !out.is_empty();
     let source = src.to_string();
     let checked =
@@ -1078,7 +1137,8 @@ fn shows_what_the_build_prints(path: &Path, text: &str, write: bool) -> Vec<Stri
         }
         out.push("```".to_string());
         i += 1;
-        let Some(finding) = findings_in(&body, file)
+        let scripts = scripts_above(text, i);
+        let Some(finding) = findings_with(&body, file, &scripts)
             .into_iter()
             .find(|d| d.code == code)
         else {
@@ -1157,7 +1217,7 @@ fn every_diagnostic_example_draws_its_code() {
                 body.push_str(l);
                 body.push('\n');
             }
-            let found: Vec<String> = findings_in(&body, file)
+            let found: Vec<String> = findings_with(&body, file, &scripts_above(&text, at))
                 .iter()
                 .map(std::string::ToString::to_string)
                 .collect();
@@ -2045,10 +2105,11 @@ fn every_fixed_example_draws_nothing() {
                 continue;
             };
             fixed_one = true;
-            let found: Vec<String> = findings_in(&body, example_file(&f.lang))
-                .iter()
-                .map(std::string::ToString::to_string)
-                .collect();
+            let found: Vec<String> =
+                findings_with(&body, example_file(&f.lang), &scripts_above(&text, at))
+                    .iter()
+                    .map(std::string::ToString::to_string)
+                    .collect();
             if !found.is_empty() {
                 failures.push(format!(
                     "md-docs/{name}:{}: the fix for {code} still draws {found:?}",

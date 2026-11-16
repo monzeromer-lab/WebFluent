@@ -88,8 +88,16 @@ function initTilt(node, max = 15) {
                     Table.Cell { Markdown("`String` · `Number` · `Bool`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`object` · `\{ a: T \}`") }
-                    Table.Cell { Markdown("`Map`, or a shape of the fields written") }
+                    Table.Cell { Markdown("`\{ a: T \}`") }
+                    Table.Cell("a shape of the fields written")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`*` · `any` · `object`") }
+                    Table.Cell { Markdown("`Json`: plain data, matched or decoded") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Object<string, T>` · `Record<string, T>`") }
+                    Table.Cell { Markdown("`[String: T]`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T[]` · `Array<T>`") }
@@ -108,13 +116,41 @@ function initTilt(node, max = 15) {
                     Table.Cell("a function: you may pass an action or a lambda")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`HTMLElement`, anything else") }
-                    Table.Cell { Markdown("`Any`") }
+                    Table.Cell { Markdown("`HTMLElement` · `Element`") }
+                    Table.Cell { Markdown("`Element`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("a `@typedef`, a class, a `type` of the program's") }
+                    Table.Cell("that type")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`string | number` · a bare `Array`") }
+                    Table.Cell { Markdown("`T31`: the language cannot say it") }
                 }
             }
         }
 
-        Markdown("With no comment at all, every parameter is `Any`, so adding a script never breaks a build. Each tag only narrows what a call may pass. `@returns` types the result.")
+        Markdown("The JSDoc is the function's signature, so a function called from `.wf` with none is `T31`; the editor's quick fix and `wf fix --code T31` write one from the call. A function with JSDoc and no `@returns` gives nothing back.\n\nWhat `@returns` says is held at the other end too: every call checks what the function gives back (or what its promise settles to) as it returns, in every build, and a mismatch throws a `DecodeError` naming the function and the place — `` `rows` returned what its @returns does not say: $[0].title is missing``. A value typed `Row` is a `Row`.\n\nA `@typedef` names a record the program can use:")
+
+        CodeBlock(#"// src/rows.js
+/** @typedef {{ id: string, title: string, done?: boolean }} Row */
+
+/**
+ * @param {string} q
+ * @returns {Row[]}
+ */
+function search(q) {
+  return [{ id: "1", title: q }];
+}"#, title: "js")
+
+        CodeBlock(#"page Search(path: "/search", title: "Search", description: "Rows a script finds.") {
+    state rows: [Row] = []
+    Heading("Search").h1
+    Button("Find milk") { on click { rows = search("milk") } }
+    for r in rows by r.id { Text(r.title) }
+}"#, title: "wf")
+
+        Markdown("A class is a type too: `Counter(1)` is a `Counter`, whose members are its JSDoc'd methods.")
 
         Heading("Let a script report, and keep the class in WebFluent", id: "let-a-script-report-and-keep-the-class-in-webfluent").h2
 

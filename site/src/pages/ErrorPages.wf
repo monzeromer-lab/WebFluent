@@ -54,8 +54,12 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T15 A match that misses a case, or has one twice", to: "/errors/T15", group: "Types"),
     IndexEntry(label: "T22 A handler that names more values than its event sends", to: "/errors/T22", group: "Types"),
     IndexEntry(label: "T21 A read's match with no .failed arm", to: "/errors/T21", group: "Types"),
+    IndexEntry(label: "T25 A state whose first value does not say what it holds", to: "/errors/T25", group: "Types"),
     IndexEntry(label: "T26 An action that returns a value and does not say what", to: "/errors/T26", group: "Types"),
     IndexEntry(label: "T30 A part of the browser the language does not type", to: "/errors/T30", group: "Types"),
+    IndexEntry(label: "T31 A script's function the language cannot type", to: "/errors/T31", group: "Types"),
+    IndexEntry(label: "T32 A parameter written with no type", to: "/errors/T32", group: "Types"),
+    IndexEntry(label: "T35 Values worked out from each other with neither declared", to: "/errors/T35", group: "Types"),
     IndexEntry(label: "C01 A required prop or field left out", to: "/errors/C01", group: "Components"),
     IndexEntry(label: "C02 A prop the component does not declare", to: "/errors/C02", group: "Components"),
     IndexEntry(label: "C03 A part outside the component it belongs to", to: "/errors/C03", group: "Components"),
@@ -763,13 +767,13 @@ page ErrorT06(path: "/errors/T06", title: "T06 — A member a store or service d
   |                    ^^^^^
   = help: Its members are `items`
   = docs: https://webfluent.monzeromer.dev/errors/T06"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T06.md") {
-        broken { CodeBlock(#"store Cart { state items = [] }
+        broken { CodeBlock(#"store Cart { state items: [String] = [] }
 page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("{Cart.count} items").h1
 }"#, title: "wf") }
         fixed { CodeBlock(#"store Cart {
-    state items = []
+    state items: [String] = []
     derived count = items.length
 }
 page P(path: "/", title: "T", description: "D") {
@@ -1234,6 +1238,38 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
+page ErrorT25(path: "/errors/T25", title: "T25 — A state whose first value does not say what it holds", description: "A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.") {
+    ErrorShell("T25", title: "A state whose first value does not say what it holds", severity: "error", family: "Types", summary: "A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.", printed: #"error[T25]: `state items`'s first value does not say what it holds
+ --> src/App.wf:4:5
+  |
+4 |     state items = []
+  |     ^^^^^^^^^^^^^^^^
+  = help: Write what it holds: `state items: [Todo] = …`
+  = docs: https://webfluent.monzeromer.dev/errors/T25"#, quickfix: "Declare `items: [Todo]`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T25.md") {
+        broken { CodeBlock(#"type Todo { id: String, title: String }
+
+page P(path: "/", title: "Todos", description: "D") {
+    state items = []
+    Heading("Todos").h1
+    Button("Add") { on click { items = items.concat([Todo(id: "1", title: "Milk")]) } }
+    for todo in items by todo.id { Text(todo.title) }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"type Todo { id: String, title: String }
+
+page P(path: "/", title: "Todos", description: "D") {
+    state items: [Todo] = []
+    Heading("Todos").h1
+    Button("Add") { on click { items = items.concat([Todo(id: "1", title: "Milk")]) } }
+    for todo in items by todo.id { Text(todo.title) }
+}"#, title: "wf") }
+        note {
+            Markdown("Write the type after the name. The editor's quick fix and `wf fix\n--code T25` write the type the body later assigns — `items =\nitems.concat([Todo(…)])` gives `[Todo]` — when the body assigns one.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nWhat another declaration, another file or a caller sees is declared; what\nonly the body sees is inferred. A `state` or `persist` is inferred from its\nfirst value when that value says everything — `0`, `\"x\"`, `.calm`,\n`Todo(…)`, `[1, 2]`, `\{ name: \"\", age: 0 \}`. An empty list, an empty map,\n`null`, or JSON that could be anything says nothing of what will be kept\nthere, so the declaration says it: `state items: [Todo] = []`,\n`state picked: User? = null`, `persist prefs: [String: Bool] = \{\}`.")
+    }
+}
+
 page ErrorT26(path: "/errors/T26", title: "T26 — An action that returns a value and does not say what", description: "An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.") {
     ErrorShell("T26", title: "An action that returns a value and does not say what", severity: "error", family: "Types", summary: "What an action returns is part of what it is: a caller in another file reads it without reading the action's body. An action that returns a value declares it, `-> T`, and every `return` is held to it.", printed: #"error[T26]: `total` returns a value and does not say what
  --> src/App.wf:3:5
@@ -1309,6 +1345,107 @@ page ErrorT30(path: "/errors/T30", title: "T30 — A part of the browser the lan
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Error.\n\nThe browser's names keep the meaning the browser gives them, and the\nlanguage types them: `window`, `document`, `localStorage`, `JSON`, `Math`,\n`navigator`, `location`, the timers, the element a `ref:` names, and the\nevent a handler is given — `on keydown(e)` is a `KeyboardEvent`, so\n`e.key` is a `String` and `e.kye` is found where it is written. The table\ncovers what pages reach for. Anything it does not list is `T30`, whether it\nis misspelt or simply a part of the browser the language leaves out.")
+    }
+}
+
+page ErrorT31(path: "/errors/T31", title: "T31 — A script's function the language cannot type", description: "A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.") {
+    ErrorShell("T31", title: "A script's function the language cannot type", severity: "error", family: "Types", summary: "A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.", printed: #"error[T31]: `tiltBy` has no JSDoc, so nothing says what it takes or gives back
+ --> src/App.wf:3:24
+  |
+3 |     Card(mount: (n) => tiltBy(n, 15)) { Text("Lean on me.") }
+  |                        ^^^^^^
+  = help: Say it above the function, at src/tilt.js:2: `/** @param {number} max … @returns {string} */`
+  = docs: https://webfluent.monzeromer.dev/errors/T31"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T31.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "Tilt", description: "D") {
+    Heading("Tilt").h1
+    Card(mount: (n) => tiltBy(n, 15)) { Text("Lean on me.") }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "Tilt", description: "D") {
+    Heading("Tilt").h1
+    Card(mount: (n) => tiltBy(n, 15)) { Text("Lean on me.") }
+}"#, title: "wf") }
+        note {
+            Markdown("Write the JSDoc. The editor's quick fix and `wf fix --code T31`\nwrite a block above the function from the call — each parameter's type as\nthe call passes it, and `@returns \{*\}` for you to narrow.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\n```js\n// src/tilt.js\nfunction tiltBy(node, max) \{\n  node.style.transform = `rotate($\{max\}deg)`;\n\}\n```\n\n```js\n// src/tilt.js\n/**\n * @param \{HTMLElement\} node\n * @param \{number\} max degrees\n */\nfunction tiltBy(node, max) \{\n  node.style.transform = `rotate($\{max\}deg)`;\n\}\n```\n\nA script under `src/` stays plain JavaScript, and its JSDoc is its\nsignature: what each parameter is, and what comes back. A function called\nfrom `.wf` with no JSDoc says neither, so nothing could check the call or\nwhat is done with its result. A JSDoc type the language has no word for\nsays nothing either: a union (`\{string|number\}` — use two functions, or\n`\{*\}` for any JSON) or an `\{Array\}` that does not say what it holds\n(`\{string[]\}`).\n\nWhat the JSDoc says is held at both ends: each call is checked against the\n`@param`s, and what the function returns is checked against its `@returns`\nas it returns, in every build — a mismatch throws a `DecodeError` naming\nthe function. A function with JSDoc and no `@returns` gives nothing back.")
+    }
+}
+
+page ErrorT32(path: "/errors/T32", title: "T32 — A parameter written with no type", description: "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.") {
+    ErrorShell("T32", title: "A parameter written with no type", severity: "error", family: "Types", summary: "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.", printed: #"error[T32]: `title` of `add` says nothing of its type
+ --> src/App.wf:3:5
+  |
+3 |     action add(title) { titles = titles.concat([title]) }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Every call passes a `String`: write `title: String`
+  = docs: https://webfluent.monzeromer.dev/errors/T32"#, quickfix: "Declare `title: String`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T32.md") {
+        broken { CodeBlock(#"store Todos {
+    state titles: [String] = []
+    action add(title) { titles = titles.concat([title]) }
+}
+
+page P(path: "/", title: "Todos", description: "D") {
+    use Todos
+    Heading("Todos").h1
+    Button("Add") { on click { Todos.add("Milk") } }
+    for title in Todos.titles { Text(title) }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"store Todos {
+    state titles: [String] = []
+    action add(title: String) { titles = titles.concat([title]) }
+}
+
+page P(path: "/", title: "Todos", description: "D") {
+    use Todos
+    Heading("Todos").h1
+    Button("Add") { on click { Todos.add("Milk") } }
+    for title in Todos.titles { Text(title) }
+}"#, title: "wf") }
+        note {
+            Markdown("Write the type. For an action's parameter, the editor's quick fix\nand `wf fix --code T32` write the type every call of it passes, when they\nall pass one.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nA parameter is what a caller sees, so it says its type: an action's\n(`action add(title: String)`), an event's (`event pick(id: String)`), a\nslot's (`slot row(item: Todo)`). A lambda's parameters are worked out from\nwhat it is passed to — `rows.filter(r => r.live)` — and are written only\nwhen nothing says them: `derived byName = (a: User, b: User) =>\na.name.localeCompare(b.name)`.")
+    }
+}
+
+page ErrorT35(path: "/errors/T35", title: "T35 — Values worked out from each other with neither declared", description: "Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.") {
+    ErrorShell("T35", title: "Values worked out from each other with neither declared", severity: "error", family: "Types", summary: "Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.", printed: #"error[T35]: `total` and `shipping` are each worked out from the other, so neither says what it is
+ --> src/App.wf:3:5
+  |
+3 |     derived total = prices.sum() + shipping
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Declare what one of them is: `derived total: T = …`
+  = docs: https://webfluent.monzeromer.dev/errors/T35"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T35.md") {
+        broken { CodeBlock(#"store Cart {
+    state prices: [Number] = [3, 4]
+    derived total = prices.sum() + shipping
+    derived shipping = if total > 50 { 0 } else { 5 }
+}
+
+page P(path: "/", title: "Cart", description: "D") {
+    use Cart
+    Heading("Cart").h1
+    Text("{Cart.total}")
+}"#, title: "wf") }
+        fixed { CodeBlock(#"store Cart {
+    state prices: [Number] = [3, 4]
+    derived subtotal = prices.sum()
+    derived shipping = if subtotal > 50 { 0 } else { 5 }
+    derived total = subtotal + shipping
+}
+
+page P(path: "/", title: "Cart", description: "D") {
+    use Cart
+    Heading("Cart").h1
+    Text("{Cart.total}")
+}"#, title: "wf") }
+        note {
+            Markdown("Untangle them, so one is worked out from the other and not back —\nusually by naming what both read (`subtotal` above). Where the loop is\nmeant, declare what one of them is: `derived total: Number = …`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nA `derived` value is worked out after what it reads, wherever that is\ndeclared — below it, in another store, in a store further down — so the\norder declarations are written in never changes a type. Two that read each\nother, or one that reads itself, have nothing to start from: neither type\ncan be worked out first.")
     }
 }
 
@@ -1714,12 +1851,12 @@ page ErrorX05(path: "/errors/X05", title: "X05 — use of a store nothing declar
   |     ^^^
   = help: The stores are `Cart`
   = docs: https://webfluent.monzeromer.dev/errors/X05"#, quickfix: "Change to `Cart`", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/X05.md") {
-        broken { CodeBlock(#"store Cart { state items = [] }
+        broken { CodeBlock(#"store Cart { state items: [String] = [] }
 page P(path: "/", title: "T", description: "D") {
     use Carts
     Heading("Cart").h1
 }"#, title: "wf") }
-        fixed { CodeBlock(#"store Cart { state items = [] }
+        fixed { CodeBlock(#"store Cart { state items: [String] = [] }
 page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("Cart: {Cart.items.length}").h1
@@ -1973,7 +2110,7 @@ page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed wit
                 Markdown("raise `version:` and add `migrate 1 -> 2 \{ … \}` to bring the\nold value forward.")
             }
         }
-        Markdown("Warning. The build remembers what each `persist` held (in\n`.wf-cache/persist.json`); when that changes — `persist items = []` becomes\n`persist items = \{ open: [], done: [] \}` — and `version:` does not, a\nreturning reader's browser hands the old shape to code written for the new\none.")
+        Markdown("Warning. The build remembers what each `persist` held (in\n`.wf-cache/persist.json`); when that changes — `persist items: [String] = []`\nbecomes `persist items: Lists = Lists()` — and `version:` does not, a\nreturning reader's browser hands the old shape to code written for the new\none.")
     }
 }
 
@@ -2914,7 +3051,7 @@ page ErrorU04(path: "/errors/U04", title: "U04 — A store member nothing reads"
   = help: Nothing reads the state, inside the store or as `Cart.coupon`; remove it, or name it `_coupon` to keep it
   = docs: https://webfluent.monzeromer.dev/errors/U04"#, quickfix: "Remove `Cart.coupon`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U04.md") {
         broken { CodeBlock(#"store Cart {
-    state items = []
+    state items: [String] = []
     state coupon = ""
 }
 page P(path: "/", title: "T", description: "D") {
@@ -2922,7 +3059,7 @@ page P(path: "/", title: "T", description: "D") {
     Heading("{Cart.items.length}").h1
 }"#, title: "wf") }
         fixed { CodeBlock(#"store Cart {
-    state items = []
+    state items: [String] = []
 }
 page P(path: "/", title: "T", description: "D") {
     use Cart

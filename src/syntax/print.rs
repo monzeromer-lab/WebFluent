@@ -1019,7 +1019,7 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                     a.params
                         .iter()
                         .map(|p| match &p.param_type {
-                            TypeRef::Any => p.name.clone(),
+                            TypeRef::Any if p.untyped => p.name.clone(),
                             t => format!("{}: {}", p.name, type_ref(t)),
                         })
                         .collect::<Vec<_>>()
@@ -1395,7 +1395,7 @@ fn prop_list(props: &[PropDecl], indent: usize) -> String {
 fn params(ps: &[ParamDecl]) -> String {
     ps.iter()
         .map(|p| match &p.param_type {
-            TypeRef::Any => p.name.clone(),
+            TypeRef::Any if p.untyped => p.name.clone(),
             t => format!("{}: {}", p.name, type_ref(t)),
         })
         .collect::<Vec<_>>()

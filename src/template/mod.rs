@@ -288,7 +288,7 @@ impl Template {
         };
         let errors: Vec<_> = crate::web::check::program_checks(&program, &file_of, &|_| None)
             .into_iter()
-            .filter(|d| d.is_error() && d.code != "T13")
+            .filter(|d| d.is_error() && !d.waits_for_data())
             .collect();
         if !errors.is_empty() {
             return Err(WebFluentError::Diagnostics(errors));

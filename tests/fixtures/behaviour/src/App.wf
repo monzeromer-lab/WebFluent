@@ -23,7 +23,7 @@ page Home(path: "/", title: "Home", description: "d") {
     Shown(fmt: (v) => v * 2)
     Text("dark {Prefs.dark}")
 }
-component Shown(fmt: Any, n: Number = 2) { Text("shown {fmt(n)}") }
+component Shown(fmt: (Number) -> Number, n: Number = 2) { Text("shown {fmt(n)}") }
 store Prefs { state dark = false }
 // A program's names that are also the generated code's own: `_p` (the
 // props), `_slots`, `_frag`, `_e1`, `_error` (a nameless catch), `_ev` (a

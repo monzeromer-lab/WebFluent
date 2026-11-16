@@ -24,7 +24,7 @@ fn project(name: &str) -> PathBuf {
     .unwrap();
     std::fs::write(
         dir.join("src/stores/deploys.wf"),
-        "store Deploys {\n    state live = 3\n    state queued = []\n}\n",
+        "store Deploys {\n    state live = 3\n    state queued: [String] = []\n}\n",
     )
     .unwrap();
     std::fs::write(dir.join("src/pages/Home.wf"), home("on disk", "live")).unwrap();

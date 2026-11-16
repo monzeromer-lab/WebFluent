@@ -298,6 +298,49 @@
     "after": "6.x's forms are `N08`, and `wf fix` rewrites them: the `loading`,\n`error(e)` and `ready(v)` arms become `.loading`, `.failed(e)` and\n`.loaded(v)`; `.data` becomes `.value` and `.refreshing` `.isRefreshing`;\n`on: .focus`, `.reconnect` and `.interval(d)` become `refresh: .onFocus`,\n`.onReconnect` and `.every(d)`. `.state` has no one rewrite: compare with\n`isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`\narm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:\n`.status(code, problem)`."
    },
    {
+    "title": "Declared where others see it, inferred where only the body does",
+    "id": "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does",
+    "intro": "What another declaration, another file or a caller sees is now declared,\nand what only the body sees is still inferred — so the checker never has to\nwork one declaration out to check another.",
+    "items": [
+     {
+      "text": "**Order no longer matters.** A store's `derived` values were typed in the\norder they were written, and a store reading one declared further down\nwas refused (`T13`). Each is now worked out after what it reads, wherever\nthat is, so moving a declaration never changes a type. Two that read each\nother with neither declared are `T35`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A state says what it holds** when its first value does not: `state\nitems = []`, `state picked = null`, `persist prefs = {}` and open JSON are\n`T25`, and the fix writes the type the body assigns — `items =\nitems.concat([Todo(…)])` gives `state items: [Todo] = []`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A parameter says its type**: an action's, an event's and a slot's (`T32`,\nwhose fix writes what every call passes), and a lambda's when nothing it\nis passed to says it — `derived byName = (a: User, b: User) => …`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A script's JSDoc is its signature.** A function called from `.wf` with\nnone is `T31`, and the fix writes a block from the call; a union or a bare\n`Array` is `T31` too. `{*}` is `Json`, `{Object<string, T>}` is `[String:\nT]`, `{HTMLElement}` is `Element`, a function with no `@returns` gives\nnothing back, and a class is a type whose members are its JSDoc'd methods.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`@typedef` is a type.** `/** @typedef {{ id: string, done?: boolean }}\nRow */` in a script is a record the program names: `state rows: [Row] =\n[]`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**What a script returns is checked, in every build.** A call of a function\nwhose `@returns` names a type is held to it as it returns or settles, and a\nmismatch throws a `DecodeError` naming the function — so a value typed\n`Row` is a `Row`, under `wf serve` and deployed alike.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A parameter or state may name what the browser hands a program —\n`action run(e: KeyboardEvent)`, `node: Element` — and `now(every: …)` is\na `DateTime`, as `now` is.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -318,7 +361,7 @@
     "after": ""
    }
   ],
-  "count": 45
+  "count": 52
  },
  {
   "version": "6.2.0",

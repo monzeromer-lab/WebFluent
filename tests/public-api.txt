@@ -1044,6 +1044,7 @@ pub fn webfluent::diagnostics::Diagnostic::coded(&'static str, impl core::conver
 pub fn webfluent::diagnostics::Diagnostic::docs_url(&self) -> core::option::Option<alloc::string::String>
 pub fn webfluent::diagnostics::Diagnostic::is_error(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::waits_for_data(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::with_code(self, &'static str) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_end(self, usize, usize) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_fix(self, impl core::convert::Into<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Edit>) -> Self
@@ -1240,6 +1241,7 @@ pub fn webfluent::diagnostics::Diagnostic::coded(&'static str, impl core::conver
 pub fn webfluent::diagnostics::Diagnostic::docs_url(&self) -> core::option::Option<alloc::string::String>
 pub fn webfluent::diagnostics::Diagnostic::is_error(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::waits_for_data(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::with_code(self, &'static str) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_end(self, usize, usize) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_fix(self, impl core::convert::Into<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Edit>) -> Self
@@ -1349,6 +1351,10 @@ pub webfluent::diagnostics::fixes::Plan::Flag::flag: alloc::string::String
 pub webfluent::diagnostics::fixes::Plan::Flag::word: alloc::string::String
 pub webfluent::diagnostics::fixes::Plan::Insert
 pub webfluent::diagnostics::fixes::Plan::Insert::text: alloc::string::String
+pub webfluent::diagnostics::fixes::Plan::InsertAtLine
+pub webfluent::diagnostics::fixes::Plan::InsertAtLine::file: alloc::string::String
+pub webfluent::diagnostics::fixes::Plan::InsertAtLine::line: usize
+pub webfluent::diagnostics::fixes::Plan::InsertAtLine::text: alloc::string::String
 pub webfluent::diagnostics::fixes::Plan::InsertBefore
 pub webfluent::diagnostics::fixes::Plan::InsertBefore::anchor: alloc::string::String
 pub webfluent::diagnostics::fixes::Plan::InsertBefore::text: alloc::string::String
@@ -1515,6 +1521,7 @@ pub fn webfluent::diagnostics::Diagnostic::coded(&'static str, impl core::conver
 pub fn webfluent::diagnostics::Diagnostic::docs_url(&self) -> core::option::Option<alloc::string::String>
 pub fn webfluent::diagnostics::Diagnostic::is_error(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::waits_for_data(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::with_code(self, &'static str) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_end(self, usize, usize) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_fix(self, impl core::convert::Into<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Edit>) -> Self
@@ -1936,6 +1943,7 @@ pub struct webfluent::syntax::js_scan::Scan
 pub webfluent::syntax::js_scan::Scan::module_at: core::option::Option<(usize, usize)>
 pub webfluent::syntax::js_scan::Scan::names: alloc::vec::Vec<webfluent::syntax::js_scan::Name>
 pub webfluent::syntax::js_scan::Scan::problems: alloc::vec::Vec<webfluent::syntax::js_scan::Problem>
+pub webfluent::syntax::js_scan::Scan::typedefs: alloc::vec::Vec<webfluent::syntax::js_scan::Typedef>
 impl core::clone::Clone for webfluent::syntax::js_scan::Scan
 pub fn webfluent::syntax::js_scan::Scan::clone(&self) -> Self
 impl core::cmp::PartialEq for webfluent::syntax::js_scan::Scan
@@ -1952,7 +1960,28 @@ impl core::marker::Unpin for webfluent::syntax::js_scan::Scan
 impl core::marker::UnsafeUnpin for webfluent::syntax::js_scan::Scan
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::js_scan::Scan
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::js_scan::Scan
+pub struct webfluent::syntax::js_scan::Typedef
+pub webfluent::syntax::js_scan::Typedef::alias: core::option::Option<alloc::string::String>
+pub webfluent::syntax::js_scan::Typedef::fields: alloc::vec::Vec<(alloc::string::String, alloc::string::String, bool)>
+pub webfluent::syntax::js_scan::Typedef::line: usize
+pub webfluent::syntax::js_scan::Typedef::name: alloc::string::String
+impl core::clone::Clone for webfluent::syntax::js_scan::Typedef
+pub fn webfluent::syntax::js_scan::Typedef::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::syntax::js_scan::Typedef
+pub fn webfluent::syntax::js_scan::Typedef::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::syntax::js_scan::Typedef
+pub fn webfluent::syntax::js_scan::Typedef::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::syntax::js_scan::Typedef
+impl core::marker::Freeze for webfluent::syntax::js_scan::Typedef
+impl core::marker::Send for webfluent::syntax::js_scan::Typedef
+impl core::marker::Sync for webfluent::syntax::js_scan::Typedef
+impl core::marker::Unpin for webfluent::syntax::js_scan::Typedef
+impl core::marker::UnsafeUnpin for webfluent::syntax::js_scan::Typedef
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::js_scan::Typedef
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::js_scan::Typedef
+pub fn webfluent::syntax::js_scan::jsdoc_typeref(&str) -> webfluent::syntax::parser::TypeRef
 pub fn webfluent::syntax::js_scan::scan(&str) -> webfluent::syntax::js_scan::Scan
+pub fn webfluent::syntax::js_scan::typedefs(&str) -> alloc::vec::Vec<webfluent::syntax::js_scan::Typedef>
 pub mod webfluent::syntax::layout
 pub fn webfluent::syntax::layout::to_braces(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::syntax::layout::to_offside(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
@@ -3091,6 +3120,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::PageDec
 pub struct webfluent::syntax::parser::ast::ParamDecl
 pub webfluent::syntax::parser::ast::ParamDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::ParamDecl::param_type: webfluent::syntax::parser::TypeRef
+pub webfluent::syntax::parser::ast::ParamDecl::untyped: bool
 impl core::clone::Clone for webfluent::syntax::parser::ParamDecl
 pub fn webfluent::syntax::parser::ParamDecl::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::ParamDecl
@@ -4546,6 +4576,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::PageDec
 pub struct webfluent::syntax::parser::ParamDecl
 pub webfluent::syntax::parser::ParamDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ParamDecl::param_type: webfluent::syntax::parser::TypeRef
+pub webfluent::syntax::parser::ParamDecl::untyped: bool
 impl core::clone::Clone for webfluent::syntax::parser::ParamDecl
 pub fn webfluent::syntax::parser::ParamDecl::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::ParamDecl
@@ -5499,6 +5530,7 @@ pub fn webfluent::diagnostics::Diagnostic::coded(&'static str, impl core::conver
 pub fn webfluent::diagnostics::Diagnostic::docs_url(&self) -> core::option::Option<alloc::string::String>
 pub fn webfluent::diagnostics::Diagnostic::is_error(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::new(impl core::convert::Into<alloc::string::String>, impl core::convert::Into<alloc::string::String>, usize, usize) -> Self
+pub fn webfluent::diagnostics::Diagnostic::waits_for_data(&self) -> bool
 pub fn webfluent::diagnostics::Diagnostic::with_code(self, &'static str) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_end(self, usize, usize) -> Self
 pub fn webfluent::diagnostics::Diagnostic::with_fix(self, impl core::convert::Into<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Edit>) -> Self

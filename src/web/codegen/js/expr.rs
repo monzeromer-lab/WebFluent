@@ -826,7 +826,7 @@ impl JsCodegen {
                 } else if self.consts.contains(name) {
                     format!("{}({})", top_level(name), args_str.join(", "))
                 } else {
-                    format!("{}({})", name, args_str.join(", "))
+                    self.checked_return(name, format!("{}({})", name, args_str.join(", ")))
                 }
             }
             (Expr::FunctionCall(name, args), Cx::Store(store_states)) => {
@@ -882,7 +882,7 @@ impl JsCodegen {
                 {
                     format!("new {}({})", name, args_str.join(", "))
                 } else {
-                    format!("{}({})", name, args_str.join(", "))
+                    self.checked_return(name, format!("{}({})", name, args_str.join(", ")))
                 }
             }
 
@@ -977,6 +977,24 @@ impl JsCodegen {
     /// from what the value is, not from a tag.
     pub(super) fn is_json_subject(&self, subject: &Expr) -> bool {
         self.json_subjects.iter().any(|s| s == subject)
+    }
+
+    /// `call`, a call of the project script's function `name`, held to
+    /// what its `@returns` says in every build: a script is code the
+    /// checker cannot see, so its promise is checked where it is kept, and
+    /// a value typed `Row` is a `Row`. One that says nothing, or any JSON,
+    /// is not checked.
+    pub(super) fn checked_return(&self, name: &str, call: String) -> String {
+        let Some(returns) = self.script_returns.get(name) else {
+            return call;
+        };
+        let shape = self.shape_of(returns, 0);
+        // An element, a class's instance or anything else JSON does not
+        // carry is the script's to vouch for.
+        if shape == "\"j\"" || shape.contains("\"*\"") {
+            return call;
+        }
+        format!("WF.returned({}, {shape}, {call})", js_str(name))
     }
 
     /// Whether `subject` names a read — a resource of this page or this

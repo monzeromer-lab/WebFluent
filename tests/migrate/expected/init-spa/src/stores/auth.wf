@@ -1,5 +1,7 @@
+type User { name: String, email: String, role: String }
+
 store AuthStore {
-    state user = null
+    state user: User? = null
     state authToken = ""
 
     derived isLoggedIn = user != null

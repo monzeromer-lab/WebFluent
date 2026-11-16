@@ -98,7 +98,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
         { id: "palette", keys: "mod+shift+p", title: "Commands" },
         { id: "sidebar", keys: "mod+b", title: "Toggle sidebar" },
     ]
-    action run(e) {
+    action run(e: KeyboardEvent) {
         for c in table {
             if keyIs(e, c.keys) {
                 e.preventDefault()

@@ -245,6 +245,10 @@ jobs:
         working-directory: tests/browser
         run: node reads.mjs
 
+      - name: A script held to its @returns
+        working-directory: tests/browser
+        run: node returns.mjs
+
       - name: A long session lets go
         working-directory: tests/browser
         run: node leaks.mjs

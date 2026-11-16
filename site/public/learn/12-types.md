@@ -464,15 +464,49 @@ E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A
 
 The checker reads a type from five places.
 
-**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's
-route parameters, an event's parameters, a component's props.
+What another declaration, another file or a caller sees is **declared**;
+what only the body sees is **inferred**. So the checker never has to work
+one declaration out to check another, and the order declarations are
+written in never changes a type.
 
-**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`, `[]`
-is `[Any]`); a record construction; a `derived` value from its expression;
-a `state` from its initial value (one that starts as `null` is `Any?`); a
-`for` binding from the list's item type; a `match` arm's binding; an
-`if let` binding; a lambda's parameters from what the method expects
-(`items.filter(item => …)` gives `item` the item type).
+**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's
+route parameters, a component's props, an action's, an event's and a
+slot's parameters (`T32` without one), and an action's result (`-> T`).
+
+**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`); a
+record construction; a `derived` value from its expression; a `state` from
+its first value, when that value says everything; a `for` binding from the
+list's item type; a `match` arm's binding; an `if let` binding; a lambda's
+parameters from what the method expects (`items.filter(item => …)` gives
+`item` the item type).
+
+A first value says everything when it is a number, a string, a case, a
+record or a list or map with items. An empty list, an empty map, `null` or
+open JSON says nothing of what will be kept, so the state declares it:
+
+```wf
+type Todo { id: String, title: String }
+type User { name: String }
+
+page Board(path: "/board", title: "Board", description: "Todos.") {
+    state draft = ""
+    state items: [Todo] = []
+    state picked: User? = null
+    Heading("Board").h1
+    Input(bind: draft, label: "New todo")
+    Button("Add") { on click { items = items.concat([Todo(id: uuid(), title: draft)])  draft = "" } }
+    for todo in items by todo.id { Text(todo.title) }
+    if let user = picked { Text("Picked by {user.name}") }
+}
+```
+
+Written `state items = []`, it is `T25`, and the fix writes the type the
+body assigns it. A lambda written where nothing says its parameters'
+types — `derived byName = (a: User, b: User) => …` — says them (`T32`).
+
+A `derived` value is worked out after what it reads, wherever that is: one
+below it, another store's, a store declared further down. Two that read
+each other with neither declared have nothing to start from (`T35`).
 
 **From the registry:** the type of every built-in prop, and what a `bind:`
 needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
@@ -497,8 +531,13 @@ Any other method is `Any`. The full lists are in
 **From stores:** `Todos.items` has the type of the store's state, and
 `Todos.add` the signature of its action.
 
-Browser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are
-`Any`.
+**From the browser table:** `window`, `document`, `JSON`, `Math`, `Date`,
+the timers, an event a handler is given and an element a `ref:` names (see
+[Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md)).
+
+**From a script's JSDoc:** what a project script's function takes and
+returns, a `@typedef`'s record, a class's methods — and what it returns is
+checked as the page runs ([Call your own script](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)).
 
 A name keeps the type it was declared or inferred with: `state x = 1` stays
 a `Number`, and assigning a string to it later is `T01`.

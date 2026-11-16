@@ -14,11 +14,13 @@ If you are an open-source contributor and find this project helpful and have exp
 WebFluent compiles `.wf` files to a website (HTML, CSS and a small JavaScript runtime), to PDF documents with real page layout, and to slide decks. The same file can be all three. The PDFs come from WebFluent's own layout engine — flexbox and grid, shaped text, Arabic and right-to-left, embedded font subsets — built into `wf`, a 10 MB download.
 
 ```wf
+type Todo { id: String, title: String, done: Bool = false }
+
 store Todos {
-    state items = []
+    state items: [Todo] = []
 
     action add(title: String) {
-        items = items.concat([{ id: uuid(), title: title, done: false }])
+        items = items.concat([Todo(id: uuid(), title: title)])
     }
 }
 

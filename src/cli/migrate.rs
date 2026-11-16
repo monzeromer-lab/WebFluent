@@ -53,10 +53,28 @@ pub(crate) fn run_migrate(
         plan.files.len() - changed - failed
     );
     print_four(&plan, check)?;
+    if !check && failed == 0 {
+        print_seven(&plan)?;
+    }
     if failed > 0 {
         return Err(WebFluentError::io(format!(
             "{failed} file(s) could not be migrated"
         )));
+    }
+    Ok(())
+}
+
+/// The step to 7: what a declaration's readers see is declared, so each
+/// state whose first value says nothing is given the type the program
+/// assigns it, and each parameter the type its callers pass — the fixes of
+/// `T25` and `T32`, where the checker is sure of one.
+fn print_seven(plan: &Plan) -> Result<()> {
+    let Some(dir) = &plan.project_dir else {
+        return Ok(()); // a lone file
+    };
+    println!("\n  Declaring what each state holds and each parameter takes:");
+    for code in ["T25", "T32"] {
+        super::fix::run_fix(dir, Some(code), false)?;
     }
     Ok(())
 }

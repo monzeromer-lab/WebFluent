@@ -700,8 +700,8 @@ derived leaders = players.sortBy(p => -p.score).take(3)
 
 Every one of WebFluent's own helpers also runs at build time, so the
 pre-rendered page shows its result. A member something declares wins over
-a helper of its name: a store's own `action first(n)` or
-`action preview(path)` is the store's, called with its arguments, and a
+a helper of its name: a store's own `action first(n: Number)` or
+`action preview(path: String)` is the store's, called with its arguments, and a
 worker's `css.last(kind)` is the worker's.
 
 ## Number methods

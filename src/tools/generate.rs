@@ -75,7 +75,7 @@ pub fn source(kind: Kind, name: &str) -> String {
         ),
         Kind::Store => format!(
             r"store {name} {{
-    state items = []
+    state items: [String] = []
 
     action add(item: String) {{
         items.push(item)

@@ -88,6 +88,9 @@ impl Checker<'_, '_> {
         match self.lookup(name) {
             Some(Type::Func(params, ret)) => {
                 self.call_args(&params, args, &format!("`{name}`"));
+                if self.own_actions.contains_key(name) {
+                    self.note_passed(self.decl, name, &params, args);
+                }
                 *ret
             }
             Some(other) => {
@@ -155,6 +158,8 @@ impl Checker<'_, '_> {
                     "Bool" | "Boolean" => Type::Bool,
                     // Where a `Uuid` comes from.
                     "uuid" => Type::Scalar(Scalar::Uuid),
+                    // `now(every: 1.seconds)`: the time, kept current that often.
+                    "now" => Type::Scalar(Scalar::DateTime),
                     // `keyIs(e, "mod+s")`: whether a key event is that
                     // combination; `keyLabel("mod+s")`: how it is written for
                     // the reader, `⌘S` or `Ctrl+S`.
@@ -249,18 +254,49 @@ impl Checker<'_, '_> {
             );
         }
         // What its doc comment says each parameter is, and what it gives
-        // back; without one, everything is `Any`.
-        let doc = script
-            .doc
-            .as_deref()
-            .map(crate::check::jsdoc::parse)
-            .unwrap_or_default();
+        // back. A function with none says nothing of either (`T31`), and
+        // its fix writes one from this call.
+        let doc = script.doc.as_deref().map(crate::check::jsdoc::parse);
+        let class = matches!(script.kind, NameKind::Class { .. });
+        if doc.is_none() && !class {
+            let given: Vec<Type> = args.iter().map(|a| self.infer_quiet(a)).collect();
+            let block = jsdoc_block(params, &given);
+            self.error_at_current(
+                "T31",
+                format!("`{name}` has no JSDoc, so nothing says what it takes or gives back"),
+                &format!(
+                    "Say it above the function, at {file}:{}: `/** @param {{number}} max … @returns {{string}} */`",
+                    script.line
+                ),
+            );
+            self.plan_last(
+                format!("Write `{name}`'s JSDoc from this call"),
+                crate::diagnostics::fixes::Plan::InsertAtLine {
+                    file: file.to_string(),
+                    line: script.line,
+                    text: block,
+                },
+            );
+        }
+        let doc = doc.unwrap_or_default();
+        let unsaid = |cx: &mut Self, text: &str, what: &str| {
+            for problem in super::jsdoc::jsdoc_problems(text) {
+                cx.error_at_current(
+                    "T31",
+                    format!("{what} of `{name}`: {problem}"),
+                    &format!("At {file}:{}", script.line),
+                );
+            }
+        };
         for (i, arg) in args.iter().enumerate() {
             let param = params.get(i).or_else(|| params.last().filter(|p| p.rest));
-            let wanted = param
+            let written = param
                 .and_then(|p| doc.param(&p.name))
-                .and_then(|d| d.ty.as_deref())
-                .map_or(Type::Any, jsdoc_type);
+                .and_then(|d| d.ty.as_deref());
+            if let (Some(text), Some(p)) = (written, param) {
+                unsaid(self, text, &format!("`{}`", p.name));
+            }
+            let wanted = written.map_or(Type::Any, |t| self.script_type(jsdoc_type(t)));
             if wanted.is_any() {
                 let param = param.map_or("…", |p| p.name.as_str());
                 self.hole(HoleKind::Script, format!("{name}({param})"));
@@ -282,15 +318,62 @@ impl Checker<'_, '_> {
             }
         }
         let result = match &script.kind {
-            // A class's call is the instance, which the checker takes as
-            // given.
-            NameKind::Class { .. } => Type::Any,
-            _ => doc.returns.as_deref().map_or(Type::Any, jsdoc_type),
+            // A class's call is an instance of it, its methods typed by
+            // their JSDoc.
+            NameKind::Class { .. } => Type::Host(name.to_string()),
+            // A function with JSDoc and no `@returns` gives nothing back.
+            _ if script.doc.is_some() => match doc.returns.as_deref() {
+                Some(text) => {
+                    unsaid(self, text, "`@returns`");
+                    self.script_type(jsdoc_type(text))
+                }
+                None => Type::Null,
+            },
+            _ => Type::Any,
         };
         if result.is_any() {
             self.hole(HoleKind::Script, format!("{name}(…)"))
         } else {
             result
+        }
+    }
+
+    /// A type a script's JSDoc names, as the program knows it: a record or
+    /// an enum of the program's — a `@typedef` among them — a class of a
+    /// script's, or an object of the browser's; anything else is unknown.
+    pub(super) fn script_type(&self, ty: Type) -> Type {
+        match ty {
+            Type::Host(name) => {
+                if self.world.types.contains_key(name.as_str())
+                    || self.world.enums.contains_key(name.as_str())
+                {
+                    self.world.resolve(Type::Record(name))
+                } else if super::host::is_browser_object(&name)
+                    || matches!(
+                        self.world.scripts.get(name.as_str()),
+                        Some((_, n)) if matches!(n.kind, crate::syntax::js_scan::NameKind::Class { .. })
+                    )
+                {
+                    Type::Host(name)
+                } else {
+                    Type::Any
+                }
+            }
+            Type::List(t) => Type::list(self.script_type(*t)),
+            Type::Optional(t) => Type::optional(self.script_type(*t)),
+            Type::Dict(k, v) => Type::Dict(k, Box::new(self.script_type(*v))),
+            Type::Promise(t) => Type::Promise(Box::new(self.script_type(*t))),
+            Type::Func(params, ret) => Type::Func(
+                params.into_iter().map(|p| self.script_type(p)).collect(),
+                Box::new(self.script_type(*ret)),
+            ),
+            Type::Shape(fields) => Type::Shape(
+                fields
+                    .into_iter()
+                    .map(|(n, t)| (n, self.script_type(t)))
+                    .collect(),
+            ),
+            other => other,
         }
     }
 
@@ -391,4 +474,37 @@ impl Checker<'_, '_> {
             }
         }
     }
+}
+
+/// A JSDoc block for a function of `params`, from what one call passes it:
+/// each parameter's type as JSDoc writes it, `*` where it is unknown, and a
+/// `@returns {*}` for the author to narrow.
+fn jsdoc_block(params: &[crate::syntax::js_scan::Param], given: &[Type]) -> String {
+    fn written(ty: &Type) -> String {
+        match ty {
+            Type::String => "string".into(),
+            Type::Number => "number".into(),
+            Type::Bool => "boolean".into(),
+            Type::List(t) => format!("{}[]", written(t)),
+            Type::Optional(t) => format!("?{}", written(t)),
+            Type::Record(n) => n.clone(),
+            Type::Host(n) if n == "Element" => "HTMLElement".into(),
+            Type::Dict(_, v) => format!("Object<string, {}>", written(v)),
+            _ => "*".into(),
+        }
+    }
+    let mut out = String::from("/**\n");
+    for (i, p) in params.iter().enumerate() {
+        let ty = given.get(i).map_or_else(|| "*".to_string(), written);
+        let name = if p.optional {
+            format!("[{}]", p.name)
+        } else if p.rest {
+            format!("...{}", p.name)
+        } else {
+            p.name.clone()
+        };
+        out.push_str(&format!(" * @param {{{ty}}} {name}\n"));
+    }
+    out.push_str(" * @returns {*}\n */\n");
+    out
 }

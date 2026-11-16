@@ -2362,12 +2362,17 @@ impl ParserV2 {
         let mut params = Vec::new();
         while !self.check(&TokenType::CloseParen) && !self.at_end() {
             let name = self.expect_ident("a parameter name")?;
-            let param_type = if self.eat(&TokenType::Colon) {
-                self.parse_type_ref()?
-            } else {
+            let untyped = !self.eat(&TokenType::Colon);
+            let param_type = if untyped {
                 TypeRef::Any
+            } else {
+                self.parse_type_ref()?
             };
-            params.push(ParamDecl { name, param_type });
+            params.push(ParamDecl {
+                name,
+                param_type,
+                untyped,
+            });
             if !self.check(&TokenType::CloseParen) {
                 self.expect(&TokenType::Comma, "`,` between parameters")?;
             }

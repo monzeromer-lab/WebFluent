@@ -656,7 +656,8 @@ static build renders it for with `paths:`, one value per parameter (a map
 by name for several):
 
 ```wf
-data posts = "posts.json"
+type Post { slug: String, title: String }
+data posts: [Post] = "posts.json"
 page Post(path: "/p/:slug", title: "Post", slug: String, paths: posts.map(p => p.slug)) {
     derived post = posts.find(p => p.slug == slug)
     Heading(post?.title ?? "?").h1
@@ -801,7 +802,7 @@ store Boot(eager: true) { … }         // built at boot, for set-up that must r
 
 ```wf
 store CartStore {
-    state items = []
+    state items: [Map] = []
     state total = 0
 
     derived count = items.length
@@ -1176,7 +1177,7 @@ regex. Every one runs at build time too, so the static paint shows the
 result.
 
 A member something declares always wins over a helper of its name: a
-store's `action preview(path)` or `action first(n)` is called as
+store's `action preview(path: String)` or `action first(n: Number)` is called as
 `OpenFiles.preview(path)` from a page or another store, and a worker's
 `css.last(kind)` is the worker's — never the list or file helper.
 
@@ -1731,9 +1732,24 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
   `...rest` allowed for), and each argument's type from the JSDoc (`T01`) —
   `string`/`number`/`boolean` → `String`/`Number`/`Bool`, `T[]` → `[T]`,
   `?T`/`[name]` → optional, `(v: T) => R` → a function (an action may be
-  passed), anything else `Any`; `@returns` types the result. No comment, no
-  narrowing: adding a script never breaks a build.
-- **A class is constructed**: a call to one compiles to `new C(…)`.
+  passed), `{*}`/`{object}` → `Json`, `{Object<string, T>}` → `[String:
+  T]`, `{HTMLElement}` → `Element`, a `@typedef` or a class of the
+  project's → that type; `@returns` types the result.
+- **The JSDoc is the signature**: a function called from `.wf` with none
+  is `T31`, and its fix writes one from the call (`@param {number} max`);
+  a union (`{string|number}`) or an `{Array}` that does not say what it
+  holds is `T31` too. A function with JSDoc and no `@returns` gives nothing
+  back.
+- **What it returns is checked, in every build**: a call of a function
+  whose `@returns` names a type is held to it as it returns (or settles),
+  and a mismatch throws a `DecodeError` naming the function and the place —
+  so a value typed `Row` is a `Row`, under `wf serve` and deployed alike.
+- **`@typedef` is a type**: `/** @typedef {{ id: string, done?: boolean }}
+  Row */` (or `@typedef {Object} Row` with a `@property` a field) is a
+  record the program names — `state rows: [Row] = []`.
+- **A class is constructed**: a call to one compiles to `new C(…)`, and is
+  an instance whose members are its JSDoc'd methods (`c.next()`; another
+  name is `T05`).
 - **One name, one meaning**: two scripts declaring one name, or a script
   name that is also a component, store, `const`, `type` or a name the
   language or browser owns (`format`, `log`, `fetch`, `WF`, `env`), is an
@@ -3472,6 +3488,10 @@ And what the type checker finds:
 | `T22` | A handler that names more values than its event sends — `on click(e, x)`, or `on menu(a, b, c, d)` for an event of three |
 | `T26` | An action that returns a value without `-> T`; the fix writes the type it returns |
 | `T30` | A browser global, or a member of an element, an event or a browser object, the language does not type — `navigator.bluetooth`, `e.kye`; reach it from a project script with JSDoc |
+| `T25` | A `state` or `persist` whose first value does not say what it holds — `[]`, `{}`, `null`, open JSON; the fix writes the type the body assigns it |
+| `T31` | A project script's function called from `.wf` with no JSDoc, or a JSDoc type the language cannot say (a union, a bare `Array`); the fix writes JSDoc from the call |
+| `T32` | A parameter written with no type — an action's, an event's, a slot's — or a lambda's that nothing it is passed to types; the fix writes what every call passes |
+| `T35` | Two `derived` values — in one body or two stores — that each read the other, or one that reads itself, with none declared |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
 | `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces |

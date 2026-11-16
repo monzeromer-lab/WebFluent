@@ -103,3 +103,38 @@ pub fn from_source(project_dir: &Path, src_dir: &Path, file: &Path, source: Stri
         source,
     }
 }
+
+/// A script's `@typedef`, as the record (or alias) a `.wf` file would
+/// declare: each field typed as its JSDoc says, one that may be left out
+/// optional and `null` by default.
+pub fn typedef_decl(def: &crate::syntax::js_scan::Typedef) -> crate::syntax::parser::ast::TypeDecl {
+    use crate::syntax::js_scan::jsdoc_typeref;
+    use crate::syntax::parser::ast::{Expr, FieldDecl, TypeDecl, TypeRef};
+    let span = crate::base::span::Span::new(0, 0, def.line as u32, 1);
+    TypeDecl {
+        name: def.name.clone(),
+        extends: None,
+        alias: def.alias.as_deref().map(jsdoc_typeref),
+        fields: def
+            .fields
+            .iter()
+            .map(|(name, ty, optional)| {
+                let ty = jsdoc_typeref(ty);
+                FieldDecl {
+                    name: name.clone(),
+                    ty: if *optional && !matches!(ty, TypeRef::Optional(_)) {
+                        TypeRef::Optional(Box::new(ty))
+                    } else {
+                        ty
+                    },
+                    default: optional.then_some(Expr::Null),
+                    doc: None,
+                    span,
+                }
+            })
+            .collect(),
+        doc: None,
+        span,
+        header_span: span,
+    }
+}

@@ -273,7 +273,7 @@ fn a_public_file_at_a_scripts_address_is_refused() {
 
 // ─── §1–2: what a script declares is in scope, typed by its JSDoc ─────
 
-const MONEY: &str = "/**\n * Money, in dollars.\n * @param {number} n\n * @param {string} [currency]\n * @returns {string}\n */\nconst money = (n, currency) => \"$\" + n.toFixed(2)\n\nclass Counter {\n  constructor(start) { this.n = start }\n  next() { return ++this.n }\n}\n";
+const MONEY: &str = "/**\n * Money, in dollars.\n * @param {number} n\n * @param {string} [currency]\n * @returns {string}\n */\nconst money = (n, currency) => \"$\" + n.toFixed(2)\n\nclass Counter {\n  /** @param {number} start */\n  constructor(start) { this.n = start }\n  /** @returns {number} */\n  next() { return ++this.n }\n}\n";
 
 fn page_using(body: &str) -> String {
     format!(
@@ -437,12 +437,16 @@ fn a_jsdoc_type_reads_as_the_language_reads_it() {
         ("number", "Number"),
         ("?string", "String?"),
         ("string | null", "String?"),
-        ("string | number", "Any"),
+        ("string | number", "unknown"),
         ("number[]", "[Number]"),
         ("Array.<boolean>", "[Bool]"),
         ("Promise<string>", "String"),
-        ("Object<string, number>", "Map"),
-        ("HTMLElement", "Any"),
+        ("Object<string, number>", "[String: Number]"),
+        ("*", "Json"),
+        ("object", "Json"),
+        ("Array", "unknown"),
+        ("Row", "Row"),
+        ("HTMLElement", "Element"),
         ("...string", "String"),
     ];
     for (written, means) in cases {

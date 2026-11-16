@@ -142,7 +142,7 @@ pub const MODULES: &[Module] = &[
     // `Json` read by its case, a value decoded into a declared type, and a
     // dictionary's methods.
     module!("json", exports: [
-        same("decode"), same("jsonCase"), same("jsonTagged"), same("jsonPayload"),
+        same("decode"), same("returned"), same("jsonCase"), same("jsonTagged"), same("jsonPayload"),
         same("dictKeys"), same("dictValues"), same("dictEntries"), same("dictHas"),
         same("dictWithout"),
     ], deps: [], triggers: []),

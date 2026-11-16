@@ -423,6 +423,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
                                 params: vec![ParamDecl {
                                     name: "id".into(),
                                     param_type: TypeRef::String,
+                                    untyped: false,
                                 }],
                                 doc: Some("When one is picked.".into()),
                                 span: Span::dummy(),

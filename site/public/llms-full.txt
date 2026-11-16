@@ -1938,7 +1938,7 @@ declaration. This file uses all thirteen kinds:
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
 component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
-store Cart { state items = []  derived count = items.length }
+store Cart { state items: [String] = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
@@ -2510,10 +2510,12 @@ an expression, usually a store's derived value. When it is false, the reader
 is sent to `redirect:` (by default, `/`):
 
 ```wf
+type User { name: String }
+
 store Auth {
-    state user = null
+    state user: User? = null
     derived loggedIn = user != null
-    action login() { user = { name: "Sam" } }
+    action login() { user = User(name: "Sam") }
     action logout() { user = null }
 }
 
@@ -2621,9 +2623,11 @@ renders. A call written there, such as `Deploys.load(id)`, is *set-up code*:
 it runs once as the page opens.
 
 ```wf
+type Run { id: String, ok: Bool }
+
 store Deploys {
-    state rows = []
-    action load(id: String) { rows = [{ id: id, ok: true }] }
+    state rows: [Run] = []
+    action load(id: String) { rows = [Run(id: id, ok: true)] }
 }
 
 page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", id: String) {
@@ -3832,7 +3836,7 @@ store Commands {
         { id: "palette", keys: "mod+shift+p", title: "Commands" },
         { id: "sidebar", keys: "mod+b", title: "Toggle sidebar" },
     ]
-    action run(e) {
+    action run(e: KeyboardEvent) {
         for c in table {
             if keyIs(e, c.keys) {
                 e.preventDefault()
@@ -6422,15 +6426,49 @@ E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A
 
 The checker reads a type from five places.
 
-**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's
-route parameters, an event's parameters, a component's props.
+What another declaration, another file or a caller sees is **declared**;
+what only the body sees is **inferred**. So the checker never has to work
+one declaration out to check another, and the order declarations are
+written in never changes a type.
 
-**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`, `[]`
-is `[Any]`); a record construction; a `derived` value from its expression;
-a `state` from its initial value (one that starts as `null` is `Any?`); a
-`for` binding from the list's item type; a `match` arm's binding; an
-`if let` binding; a lambda's parameters from what the method expects
-(`items.filter(item => …)` gives `item` the item type).
+**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's
+route parameters, a component's props, an action's, an event's and a
+slot's parameters (`T32` without one), and an action's result (`-> T`).
+
+**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`); a
+record construction; a `derived` value from its expression; a `state` from
+its first value, when that value says everything; a `for` binding from the
+list's item type; a `match` arm's binding; an `if let` binding; a lambda's
+parameters from what the method expects (`items.filter(item => …)` gives
+`item` the item type).
+
+A first value says everything when it is a number, a string, a case, a
+record or a list or map with items. An empty list, an empty map, `null` or
+open JSON says nothing of what will be kept, so the state declares it:
+
+```wf
+type Todo { id: String, title: String }
+type User { name: String }
+
+page Board(path: "/board", title: "Board", description: "Todos.") {
+    state draft = ""
+    state items: [Todo] = []
+    state picked: User? = null
+    Heading("Board").h1
+    Input(bind: draft, label: "New todo")
+    Button("Add") { on click { items = items.concat([Todo(id: uuid(), title: draft)])  draft = "" } }
+    for todo in items by todo.id { Text(todo.title) }
+    if let user = picked { Text("Picked by {user.name}") }
+}
+```
+
+Written `state items = []`, it is `T25`, and the fix writes the type the
+body assigns it. A lambda written where nothing says its parameters'
+types — `derived byName = (a: User, b: User) => …` — says them (`T32`).
+
+A `derived` value is worked out after what it reads, wherever that is: one
+below it, another store's, a store declared further down. Two that read
+each other with neither declared have nothing to start from (`T35`).
 
 **From the registry:** the type of every built-in prop, and what a `bind:`
 needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
@@ -6455,8 +6493,13 @@ Any other method is `Any`. The full lists are in
 **From stores:** `Todos.items` has the type of the store's state, and
 `Todos.add` the signature of its action.
 
-Browser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are
-`Any`.
+**From the browser table:** `window`, `document`, `JSON`, `Math`, `Date`,
+the timers, an event a handler is given and an element a `ref:` names (see
+[Built-ins](/reference/built-ins)).
+
+**From a script's JSDoc:** what a project script's function takes and
+returns, a `@typedef`'s record, a class's methods — and what it returns is
+checked as the page runs ([Call your own script](/recipes/call-your-own-script)).
 
 A name keeps the type it was declared or inferred with: `state x = 1` stays
 a `Number`, and assigning a string to it later is `T01`.
@@ -11977,16 +12020,54 @@ browser runs. The checker reads it this way:
 | JSDoc | WebFluent |
 |---|---|
 | `string` · `number` · `boolean` | `String` · `Number` · `Bool` |
-| `object` · `{ a: T }` | `Map`, or a shape of the fields written |
+| `{ a: T }` | a shape of the fields written |
+| `*` · `any` · `object` | `Json`: plain data, matched or decoded |
+| `Object<string, T>` · `Record<string, T>` | `[String: T]` |
 | `T[]` · `Array<T>` | `[T]` |
 | `?T` · `T \| null` · `[name]` | `T?`, or a parameter a call may leave out |
 | `Promise<T>` | `T`, as an action that awaits it reads it |
 | `(v: T) => R` | a function: you may pass an action or a lambda |
-| `HTMLElement`, anything else | `Any` |
+| `HTMLElement` · `Element` | `Element` |
+| a `@typedef`, a class, a `type` of the program's | that type |
+| `string \| number` · a bare `Array` | `T31`: the language cannot say it |
 
-With no comment at all, every parameter is `Any`, so adding a script never
-breaks a build. Each tag only narrows what a call may pass. `@returns` types
-the result.
+The JSDoc is the function's signature, so a function called from `.wf`
+with none is `T31`; the editor's quick fix and `wf fix --code T31` write
+one from the call. A function with JSDoc and no `@returns` gives nothing
+back.
+
+What `@returns` says is held at the other end too: every call checks what
+the function gives back (or what its promise settles to) as it returns, in
+every build, and a mismatch throws a `DecodeError` naming the function and
+the place — `` `rows` returned what its @returns does not say: $[0].title
+is missing``. A value typed `Row` is a `Row`.
+
+A `@typedef` names a record the program can use:
+
+```js
+// src/rows.js
+/** @typedef {{ id: string, title: string, done?: boolean }} Row */
+
+/**
+ * @param {string} q
+ * @returns {Row[]}
+ */
+function search(q) {
+  return [{ id: "1", title: q }];
+}
+```
+
+```wf
+page Search(path: "/search", title: "Search", description: "Rows a script finds.") {
+    state rows: [Row] = []
+    Heading("Search").h1
+    Button("Find milk") { on click { rows = search("milk") } }
+    for r in rows by r.id { Text(r.title) }
+}
+```
+
+A class is a type too: `Counter(1)` is a `Counter`, whose members are its
+JSDoc'd methods.
 
 ## Let a script report, and keep the class in WebFluent
 
@@ -14481,7 +14562,7 @@ above it as JSDoc:
 ```js
 // src/vendor/tilt.js
 /**
- * @param {*} node
+ * @param {HTMLElement} node
  * @param {number} max
  */
 function initTilt(node, max) {
@@ -18173,9 +18254,10 @@ branch or item leaves. First, wrap Tauri's `listen` in a script:
 ```js
 // src/events.js
 /**
- * Hear an event the native side emits, until the function it returns is called.
+ * Hear a number the native side emits — how far a sync has got — until the
+ * function it returns is called.
  * @param {string} name
- * @param {(payload: any) => void} handler
+ * @param {(payload: number) => void} handler
  * @returns {() => void}
  */
 function onEvent(name, handler) {
@@ -22808,8 +22890,8 @@ derived leaders = players.sortBy(p => -p.score).take(3)
 
 Every one of WebFluent's own helpers also runs at build time, so the
 pre-rendered page shows its result. A member something declares wins over
-a helper of its name: a store's own `action first(n)` or
-`action preview(path)` is the store's, called with its arguments, and a
+a helper of its name: a store's own `action first(n: Number)` or
+`action preview(path: String)` is the store's, called with its arguments, and a
 worker's `css.last(kind)` is the worker's.
 
 ## Number methods
@@ -25141,8 +25223,12 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T15](/errors/T15) — A `match` that misses a case, or has one twice
 - [T22](/errors/T22) — A handler that names more values than its event sends
 - [T21](/errors/T21) — A read's `match` with no `.failed` arm
+- [T25](/errors/T25) — A state whose first value does not say what it holds
 - [T26](/errors/T26) — An action that returns a value and does not say what
 - [T30](/errors/T30) — A part of the browser the language does not type
+- [T31](/errors/T31) — A script's function the language cannot type
+- [T32](/errors/T32) — A parameter written with no type
+- [T35](/errors/T35) — Values worked out from each other with neither declared
 
 ### Components
 

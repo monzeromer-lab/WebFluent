@@ -237,9 +237,10 @@ branch or item leaves. First, wrap Tauri's `listen` in a script:
 ```js
 // src/events.js
 /**
- * Hear an event the native side emits, until the function it returns is called.
+ * Hear a number the native side emits — how far a sync has got — until the
+ * function it returns is called.
  * @param {string} name
- * @param {(payload: any) => void} handler
+ * @param {(payload: number) => void} handler
  * @returns {() => void}
  */
 function onEvent(name, handler) {

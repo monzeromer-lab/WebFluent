@@ -227,10 +227,12 @@ page Reference(path: "/docs/reference", title: "Reference", description: "The re
 
         Markdown("A guard keeps a route from rendering until a condition holds. `guard:` names an expression, usually a store's derived value. When it is false, the reader is sent to `redirect:` (by default, `/`):")
 
-        CodeBlock(#"store Auth {
-    state user = null
+        CodeBlock(#"type User { name: String }
+
+store Auth {
+    state user: User? = null
     derived loggedIn = user != null
-    action login() { user = { name: "Sam" } }
+    action login() { user = User(name: "Sam") }
     action logout() { user = null }
 }
 
@@ -295,9 +297,11 @@ page HomeAr(path: "/ar", title: "الرئيسية", description: "ما نصنع�
 
         Markdown("A page's body is a render block: it declares state, derived values and actions, and lists what to show. The top of the body runs once, when the page renders. A call written there, such as `Deploys.load(id)`, is *set-up code*: it runs once as the page opens.")
 
-        CodeBlock(#"store Deploys {
-    state rows = []
-    action load(id: String) { rows = [{ id: id, ok: true }] }
+        CodeBlock(#"type Run { id: String, ok: Bool }
+
+store Deploys {
+    state rows: [Run] = []
+    action load(id: String) { rows = [Run(id: id, ok: true)] }
 }
 
 page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", id: String) {

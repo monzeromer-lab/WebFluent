@@ -278,6 +278,37 @@ ones arrive — where a changed request used to go back to loading."#)
 `isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`
 arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
 `.status(code, problem)`."#),
+                NotesSection(title: #"Declared where others see it, inferred where only the body does"#, id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", intro: #"What another declaration, another file or a caller sees is now declared,
+and what only the body sees is still inferred — so the checker never has to
+work one declaration out to check another."#, items: [
+                    Change(text: #"**Order no longer matters.** A store's `derived` values were typed in the
+order they were written, and a store reading one declared further down
+was refused (`T13`). Each is now worked out after what it reads, wherever
+that is, so moving a declaration never changes a type. Two that read each
+other with neither declared are `T35`."#),
+                    Change(text: #"**A state says what it holds** when its first value does not: `state
+items = []`, `state picked = null`, `persist prefs = {}` and open JSON are
+`T25`, and the fix writes the type the body assigns — `items =
+items.concat([Todo(…)])` gives `state items: [Todo] = []`."#),
+                    Change(text: #"**A parameter says its type**: an action's, an event's and a slot's (`T32`,
+whose fix writes what every call passes), and a lambda's when nothing it
+is passed to says it — `derived byName = (a: User, b: User) => …`."#),
+                    Change(text: #"**A script's JSDoc is its signature.** A function called from `.wf` with
+none is `T31`, and the fix writes a block from the call; a union or a bare
+`Array` is `T31` too. `{*}` is `Json`, `{Object<string, T>}` is `[String:
+T]`, `{HTMLElement}` is `Element`, a function with no `@returns` gives
+nothing back, and a class is a type whose members are its JSDoc'd methods."#),
+                    Change(text: #"**`@typedef` is a type.** `/** @typedef {{ id: string, done?: boolean }}
+Row */` in a script is a record the program names: `state rows: [Row] =
+[]`."#),
+                    Change(text: #"**What a script returns is checked, in every build.** A call of a function
+whose `@returns` names a type is held to it as it returns or settles, and a
+mismatch throws a `DecodeError` naming the function — so a value typed
+`Row` is a `Row`, under `wf serve` and deployed alike."#),
+                    Change(text: #"A parameter or state may name what the browser hands a program —
+`action run(e: KeyboardEvent)`, `node: Element` — and `now(every: …)` is
+a `DateTime`, as `now` is."#)
+                ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
 `catch e`, a built-in's prop of no declared type — with its file, line and
@@ -291,7 +322,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 45), latest: true)
+            ], count: 52), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4077,6 +4108,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

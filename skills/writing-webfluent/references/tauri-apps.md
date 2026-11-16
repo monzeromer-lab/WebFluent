@@ -220,9 +220,10 @@ function callNative(command, args) {
 }
 
 /**
- * Hear an event Rust emits to this window, until the returned function runs.
+ * Hear an event Rust emits to this window — the path of a note that
+ * changed — until the returned function runs.
  * @param {string} name
- * @param {(payload: any) => void} heard
+ * @param {(payload: string) => void} heard
  * @returns {() => void}
  */
 function hear(name, heard) {
@@ -253,7 +254,7 @@ function goBack() {
 
 /**
  * The notes in the library folder.
- * @returns {Promise<any[]>}
+ * @returns {Promise<Note[]>}
  */
 function listNotes() {
   if (!inApp()) return Promise.resolve([]);

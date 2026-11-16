@@ -280,6 +280,9 @@ pub struct JsCodegen {
     /// The classes the project's scripts declare: a call to one is a
     /// construction, `new C(…)`, since the language has no `new`.
     script_classes: std::collections::HashSet<String>,
+    /// What each project script's function says it returns, for the
+    /// check every call of it makes.
+    script_returns: HashMap<String, crate::syntax::parser::ast::TypeRef>,
     /// Every name the project's scripts declare at their top level —
     /// function, class or value: the script's own global, read as itself.
     script_names: std::collections::HashSet<String>,
@@ -467,6 +470,7 @@ impl JsCodegen {
             component_positional: HashMap::new(),
             component_events: HashMap::new(),
             script_classes: std::collections::HashSet::new(),
+            script_returns: HashMap::new(),
             script_names: std::collections::HashSet::new(),
             component_props: HashMap::new(),
             component_slot_params: HashMap::new(),
@@ -986,6 +990,18 @@ impl JsCodegen {
                     for n in &script.names {
                         if matches!(n.kind, crate::syntax::js_scan::NameKind::Class { .. }) {
                             self.script_classes.insert(n.name.clone());
+                        }
+                        if matches!(n.kind, crate::syntax::js_scan::NameKind::Function { .. })
+                            && let Some(returns) = n
+                                .doc
+                                .as_deref()
+                                .map(crate::check::jsdoc::parse)
+                                .and_then(|d| d.returns)
+                        {
+                            self.script_returns.insert(
+                                n.name.clone(),
+                                crate::syntax::js_scan::jsdoc_typeref(&returns),
+                            );
                         }
                         self.script_names.insert(n.name.clone());
                     }

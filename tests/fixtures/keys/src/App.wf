@@ -10,7 +10,7 @@ store Keys {
         { id: "palette", keys: "mod+shift+p" },
         { id: "sidebar", keys: "mod+b" },
     ]
-    action run(e) {
+    action run(e: KeyboardEvent) {
         for c in commands {
             if keyIs(e, c.keys) {
                 said = c.id

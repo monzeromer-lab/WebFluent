@@ -197,7 +197,11 @@ fn chapter_scripts(markdown: &str) -> Vec<(String, String)> {
             .and_then(|l| l.strip_prefix("// "))
             .filter(|p| p.starts_with("src/"))
         {
-            out.push((path.trim().to_string(), format!("{}\n", body.join("\n"))));
+            // A page shows a script, then the script fixed: the last one
+            // shown for a file is the file.
+            let path = path.trim().to_string();
+            out.retain(|(p, _): &(String, String)| *p != path);
+            out.push((path, format!("{}\n", body.join("\n"))));
         }
     }
     out

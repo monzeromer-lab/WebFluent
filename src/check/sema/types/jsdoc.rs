@@ -4,11 +4,9 @@ use super::Type;
 
 /// What `Form(bind: form)` binds: whether every control is valid, the
 /// values by field name, and `reset()`.
-/// What a JSDoc type expression means here. What the checker has no word
-/// for — `HTMLElement`, a class of the page's own, a generic it does not
-/// know — is `Any`, which agrees with everything, so a comment can only
-/// ever narrow a call, never break a correct one.
-pub fn jsdoc_type(text: &str) -> Type {
+/// What a JSDoc type expression means here, with what it cannot say
+/// collected in `problems`.
+fn read(text: &str, problems: &mut Vec<String>) -> Type {
     /// Split `text` at `sep` where no bracket is open.
     fn split_top(text: &str, sep: char) -> Vec<&str> {
         let mut parts = Vec::new();
@@ -49,15 +47,15 @@ pub fn jsdoc_type(text: &str) -> Type {
         None
     }
     /// `name: T` / `name?: T` / `T`, as a parameter or a field.
-    fn field(text: &str) -> (String, bool, Type) {
+    fn field(text: &str, problems: &mut Vec<String>) -> (String, bool, Type) {
         let text = text.trim();
         match split_top(text, ':').as_slice() {
             [name, ty] => {
                 let optional = name.trim().ends_with('?');
                 let name = name.trim().trim_end_matches('?').trim().to_string();
-                (name, optional, jsdoc_type(ty))
+                (name, optional, read(ty, problems))
             }
-            _ => (String::new(), false, jsdoc_type(text)),
+            _ => (String::new(), false, read(text, problems)),
         }
     }
 
@@ -67,7 +65,7 @@ pub fn jsdoc_type(text: &str) -> Type {
         return Type::Any;
     }
     if let Some(inner) = t.strip_prefix('?') {
-        return Type::optional(jsdoc_type(inner));
+        return Type::optional(read(inner, problems));
     }
     let t = t.strip_prefix('!').unwrap_or(t);
     let alternatives = split_top(t, '|');
@@ -76,10 +74,14 @@ pub fn jsdoc_type(text: &str) -> Type {
             .iter()
             .map(|a| a.trim())
             .partition(|a| matches!(*a, "null" | "undefined"));
-        let joined = match others.as_slice() {
-            [one] => jsdoc_type(one),
-            // `string | number`: the language has no union to say it with.
-            _ => Type::Any,
+        // `string | number`: the language has no union to say it with.
+        let joined = if let [one] = others.as_slice() {
+            read(one, problems)
+        } else {
+            problems.push(format!(
+                "`{t}` is one of several types, and the language has no unions: use two functions, or `{{*}}` for any JSON"
+            ));
+            Type::Error
         };
         return if nulls.is_empty() {
             joined
@@ -99,13 +101,13 @@ pub fn jsdoc_type(text: &str) -> Type {
             } else {
                 split_top(inside, ',')
                     .into_iter()
-                    .map(|p| field(p).2)
+                    .map(|p| field(p, problems).2)
                     .collect()
             };
-            return Type::Func(params, Box::new(jsdoc_type(ret)));
+            return Type::Func(params, Box::new(read(ret, problems)));
         }
         if rest.is_empty() {
-            return jsdoc_type(&t[1..end - 1]);
+            return read(&t[1..end - 1], problems);
         }
     }
     // `function(T, U): R`
@@ -120,13 +122,13 @@ pub fn jsdoc_type(text: &str) -> Type {
             } else {
                 split_top(inside, ',')
                     .into_iter()
-                    .map(|p| field(p).2)
+                    .map(|p| field(p, problems).2)
                     .collect()
             };
             let ret = after[end..]
                 .trim()
                 .strip_prefix(':')
-                .map_or(Type::Any, jsdoc_type);
+                .map_or(Type::Any, |r| read(r, problems));
             return Type::Func(params, Box::new(ret));
         }
     }
@@ -145,7 +147,7 @@ pub fn jsdoc_type(text: &str) -> Type {
                 {
                     return (f[..paren].to_string(), Type::Any);
                 }
-                let (name, optional, ty) = field(f);
+                let (name, optional, ty) = field(f, problems);
                 (name, if optional { Type::optional(ty) } else { ty })
             })
             .filter(|(name, _)| !name.is_empty())
@@ -153,7 +155,7 @@ pub fn jsdoc_type(text: &str) -> Type {
         return Type::Shape(fields);
     }
     if let Some(element) = t.strip_suffix("[]") {
-        return Type::list(jsdoc_type(element));
+        return Type::list(read(element, problems));
     }
     // `Name<T>` and Closure's `Name.<T>`.
     if let Some(open) = t.find('<')
@@ -162,10 +164,14 @@ pub fn jsdoc_type(text: &str) -> Type {
         let name = t[..open].trim_end_matches('.');
         let args = split_top(&t[open + 1..t.len() - 1], ',');
         return match (name, args.as_slice()) {
-            ("Array", [element]) => Type::list(jsdoc_type(element)),
+            ("Array", [element]) => Type::list(read(element, problems)),
             // What a call awaits is the value; an action awaits it.
-            ("Promise", [value]) => jsdoc_type(value),
-            ("Object" | "Record" | "Map", _) => Type::Map,
+            ("Promise", [value]) => read(value, problems),
+            // `Object<string, T>`, `Record<string, T>`: text keys, and the
+            // values the last says.
+            ("Object" | "Record" | "Map", [.., value]) => {
+                Type::Dict(Box::new(Type::String), Box::new(read(value, problems)))
+            }
             _ => Type::Any,
         };
     }
@@ -173,9 +179,39 @@ pub fn jsdoc_type(text: &str) -> Type {
         "string" | "String" => Type::String,
         "number" | "Number" => Type::Number,
         "boolean" | "Boolean" | "bool" => Type::Bool,
-        "object" | "Object" => Type::Map,
-        "Array" | "array" => Type::list(Type::Any),
+        // What could be anything is JSON: plain data, matched or decoded.
+        "*" | "any" | "unknown" | "object" | "Object" => Type::Enum(super::ty::JSON.to_string()),
+        "Array" | "array" => {
+            problems.push(
+                "`Array` does not say what it holds: write `{string[]}`, `{Row[]}`".to_string(),
+            );
+            Type::Error
+        }
         "void" | "undefined" | "null" => Type::Null,
+        // An element of the page, whatever kind.
+        "Element" | "HTMLElement" | "Node" | "SVGElement" => Type::Host("Element".to_string()),
+        n if n.starts_with("HTML") && n.ends_with("Element") => Type::Host("Element".to_string()),
+        // A name: a class or a `@typedef` of the project's, or an object the
+        // browser hands over — what the caller resolves.
+        n if n.chars().next().is_some_and(char::is_uppercase)
+            && n.chars().all(|c| c.is_alphanumeric() || c == '_') =>
+        {
+            Type::Host(n.to_string())
+        }
         _ => Type::Any,
     }
+}
+
+/// What a JSDoc type expression means here. A union, or an `Array` that
+/// does not say what it holds, is a type the language cannot say: it is
+/// unknown, and [`jsdoc_problems`] says why.
+pub fn jsdoc_type(text: &str) -> Type {
+    read(text, &mut Vec::new())
+}
+
+/// Why a JSDoc type expression is one the language cannot say, if it is.
+pub(super) fn jsdoc_problems(text: &str) -> Vec<String> {
+    let mut problems = Vec::new();
+    read(text, &mut problems);
+    problems
 }

@@ -20,8 +20,7 @@
       "any-accepted": 1,
       "loose-join": 4,
       "map-field": 1,
-      "native": 1,
-      "script": 1
+      "native": 1
     },
     "examples/tutorials/medium-field-notes": {
       "list-method": 2
@@ -36,10 +35,9 @@
       "any-accepted": 37,
       "empty-list": 330,
       "empty-map": 3,
-      "list-method": 6,
+      "list-method": 7,
       "loose-index": 7,
       "map-field": 66,
-      "script": 24,
       "written-map": 21
     }
   },
@@ -47,12 +45,11 @@
     "any-accepted": 40,
     "empty-list": 330,
     "empty-map": 3,
-    "list-method": 8,
+    "list-method": 9,
     "loose-index": 7,
     "loose-join": 7,
     "map-field": 78,
     "native": 1,
-    "script": 25,
     "spread-map": 2,
     "written-map": 22
   }

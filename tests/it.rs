@@ -47,6 +47,8 @@ mod config_edit;
 mod content;
 #[path = "cookbook.rs"]
 mod cookbook;
+#[path = "declared_signatures.rs"]
+mod declared_signatures;
 #[path = "derived_in_a_run.rs"]
 mod derived_in_a_run;
 #[path = "diagnostics.rs"]

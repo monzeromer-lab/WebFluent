@@ -99,16 +99,54 @@ browser runs. The checker reads it this way:
 | JSDoc | WebFluent |
 |---|---|
 | `string` · `number` · `boolean` | `String` · `Number` · `Bool` |
-| `object` · `{ a: T }` | `Map`, or a shape of the fields written |
+| `{ a: T }` | a shape of the fields written |
+| `*` · `any` · `object` | `Json`: plain data, matched or decoded |
+| `Object<string, T>` · `Record<string, T>` | `[String: T]` |
 | `T[]` · `Array<T>` | `[T]` |
 | `?T` · `T \| null` · `[name]` | `T?`, or a parameter a call may leave out |
 | `Promise<T>` | `T`, as an action that awaits it reads it |
 | `(v: T) => R` | a function: you may pass an action or a lambda |
-| `HTMLElement`, anything else | `Any` |
+| `HTMLElement` · `Element` | `Element` |
+| a `@typedef`, a class, a `type` of the program's | that type |
+| `string \| number` · a bare `Array` | `T31`: the language cannot say it |
 
-With no comment at all, every parameter is `Any`, so adding a script never
-breaks a build. Each tag only narrows what a call may pass. `@returns` types
-the result.
+The JSDoc is the function's signature, so a function called from `.wf`
+with none is `T31`; the editor's quick fix and `wf fix --code T31` write
+one from the call. A function with JSDoc and no `@returns` gives nothing
+back.
+
+What `@returns` says is held at the other end too: every call checks what
+the function gives back (or what its promise settles to) as it returns, in
+every build, and a mismatch throws a `DecodeError` naming the function and
+the place — `` `rows` returned what its @returns does not say: $[0].title
+is missing``. A value typed `Row` is a `Row`.
+
+A `@typedef` names a record the program can use:
+
+```js
+// src/rows.js
+/** @typedef {{ id: string, title: string, done?: boolean }} Row */
+
+/**
+ * @param {string} q
+ * @returns {Row[]}
+ */
+function search(q) {
+  return [{ id: "1", title: q }];
+}
+```
+
+```wf
+page Search(path: "/search", title: "Search", description: "Rows a script finds.") {
+    state rows: [Row] = []
+    Heading("Search").h1
+    Button("Find milk") { on click { rows = search("milk") } }
+    for r in rows by r.id { Text(r.title) }
+}
+```
+
+A class is a type too: `Counter(1)` is a `Counter`, whose members are its
+JSDoc'd methods.
 
 ## Let a script report, and keep the class in WebFluent
 

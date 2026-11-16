@@ -554,6 +554,7 @@ impl Parser {
             params.push(ParamDecl {
                 name: param_name,
                 param_type,
+                untyped: false,
             });
             if !self.check(&TokenType::CloseParen) {
                 self.expect(&TokenType::Comma)?;

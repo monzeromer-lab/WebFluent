@@ -57,6 +57,9 @@ impl Checker<'_, '_> {
     /// A field of a browser object, `e.key`; a method read without being
     /// called is the function it is.
     pub(super) fn host_field(&mut self, object: &str, base: &Expr, field: &str) -> Type {
+        if let Some(ty) = self.class_member(object, base, field, None) {
+            return ty;
+        }
         match browser().member(object, field) {
             Some(BrowserMember::Field(t)) => self.host_type(t),
             Some(BrowserMember::Method(f)) => {
@@ -78,6 +81,9 @@ impl Checker<'_, '_> {
         method: &str,
         args: &[Expr],
     ) -> Type {
+        if let Some(ty) = self.class_member(object, base, method, Some(args)) {
+            return ty;
+        }
         match browser().member(object, method) {
             Some(BrowserMember::Method(f)) => {
                 let f = f.clone();
@@ -103,6 +109,73 @@ impl Checker<'_, '_> {
                 self.untyped_browser(&format!("{}.{method}", expr_text(base)), method, &names)
             }
         }
+    }
+
+    /// A member of an instance of a project script's class — `tilt.setMax(3)`
+    /// — typed by its method's JSDoc: called when `args` is given, read
+    /// (a getter) when it is not. `None` when `object` is no class of the
+    /// project's.
+    fn class_member(
+        &mut self,
+        object: &str,
+        base: &Expr,
+        member: &str,
+        args: Option<&[Expr]>,
+    ) -> Option<Type> {
+        use crate::syntax::js_scan::{Name, NameKind};
+        if browser().object(object).is_some() {
+            return None;
+        }
+        let (file, class) = self.world.scripts.get(object).copied()?;
+        let NameKind::Class { methods, .. } = &class.kind else {
+            return None;
+        };
+        let Some(m) = methods.iter().find(|m| m.name == member && !m.is_static) else {
+            let known: Vec<&str> = methods
+                .iter()
+                .filter(|m| !m.is_static)
+                .map(|m| m.name.as_str())
+                .collect();
+            if let Some(args) = args {
+                for a in args {
+                    self.infer(a, None);
+                }
+            }
+            self.error_naming(
+                "T05",
+                format!(
+                    "`{}` is a `{object}`; it has no member `{member}`",
+                    expr_text(base)
+                ),
+                &format!(
+                    "A `{object}` has {}",
+                    known
+                        .iter()
+                        .map(|k| format!("`{k}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+                member,
+                &known,
+                true,
+            );
+            return Some(Type::Error);
+        };
+        let as_function = Name {
+            name: format!("{object}.{}", m.name),
+            kind: NameKind::Function {
+                params: m.params.clone(),
+                is_async: false,
+            },
+            line: class.line,
+            col: class.col,
+            doc: m.doc.clone(),
+        };
+        Some(match args {
+            Some(args) => self.script_call(file, &as_function, args),
+            None if m.getter => self.script_call(file, &as_function, &[]),
+            None => Type::Error,
+        })
     }
 
     /// A function of the browser called by name, `setTimeout(…)`.
@@ -210,4 +283,9 @@ impl Checker<'_, '_> {
     pub(super) fn event_type(event: &str) -> Type {
         Type::Host(browser().event(event).to_string())
     }
+}
+
+/// Whether the browser table declares an object of this name.
+pub(super) fn is_browser_object(name: &str) -> bool {
+    browser().object(name).is_some()
 }

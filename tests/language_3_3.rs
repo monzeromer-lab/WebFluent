@@ -256,7 +256,7 @@ fn a_guarded_page_carries_its_guard_and_redirect_into_the_route_table() {
     let dir = scratch("guard");
     std::fs::write(
         dir.join("src/App.wf"),
-        "store Auth { state user = null\n derived loggedIn = user != null }\napp { Router }\npage Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"h\").h1 }\npage Login(path: \"/login\", title: \"Login\", description: \"d\") { Heading(\"l\").h1 }\npage Account(path: \"/account\", title: \"Account\", description: \"d\", guard: Auth.loggedIn, redirect: \"/login\") { Heading(\"a\").h1 }\n",
+        "type User { name: String }\nstore Auth { state user: User? = null\n derived loggedIn = user != null }\napp { Router }\npage Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"h\").h1 }\npage Login(path: \"/login\", title: \"Login\", description: \"d\") { Heading(\"l\").h1 }\npage Account(path: \"/account\", title: \"Account\", description: \"d\", guard: Auth.loggedIn, redirect: \"/login\") { Heading(\"a\").h1 }\n",
     )
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);

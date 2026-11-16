@@ -648,7 +648,7 @@ fn x06_leaves_a_live_value_that_is_followed_or_a_state_that_changes() {
     // Worked out again whenever it changes: a derived value, and a lambda
     // that reads it when it is called.
     clean(&page(
-        "    derived clock = now(every: 1.seconds)\n    state late = (d) => d.isBefore(now)\n    Text(\"{clock} {late(clock)}\")",
+        "    derived clock = now(every: 1.seconds)\n    state late = (d: DateTime) => d.isBefore(now)\n    Text(\"{clock} {late(clock)}\")",
     ));
     // A starting value the page then changes: assigned, bound, changed in
     // place. A `persist` keeps what it was; an action's local is read once.

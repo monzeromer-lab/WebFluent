@@ -310,7 +310,7 @@ fn a_project_s_files_translations_and_stored_shapes_are_held_to_its_program() {
         &[
             (
                 "src/App.wf",
-                "app { Router }\npage P(path: \"/\", title: \"P\", description: \"D\") {\n    persist items = []\n    Heading(t(\"title\")).h1\n    Text(t(\"greet\", { nme: \"Ada\" }))\n    Text(t(\"missing.key\"))\n    Image(src: \"/hero.png\", alt: \"\")\n    Image(src: \"/here.png\", alt: \"\")\n    Button(\"FR\") { on click { setLocale(\"fr\") } }\n    Button(\"AR\") { on click { setLocale(\"ar-u-nu-arab\") } }\n    Text(\"{items.length}\")\n}\n",
+                "app { Router }\npage P(path: \"/\", title: \"P\", description: \"D\") {\n    persist items: [String] = []\n    Heading(t(\"title\")).h1\n    Text(t(\"greet\", { nme: \"Ada\" }))\n    Text(t(\"missing.key\"))\n    Image(src: \"/hero.png\", alt: \"\")\n    Image(src: \"/here.png\", alt: \"\")\n    Button(\"FR\") { on click { setLocale(\"fr\") } }\n    Button(\"AR\") { on click { setLocale(\"ar-u-nu-arab\") } }\n    Text(\"{items.length}\")\n}\n",
             ),
             (
                 "src/translations/en.json",
@@ -364,7 +364,10 @@ fn a_project_s_files_translations_and_stored_shapes_are_held_to_its_program() {
     assert_eq!(code, 0, "{err}");
     std::fs::write(
         &app,
-        fixed.replace("persist items = []", "persist items = { open: [] }"),
+        fixed.replace(
+            "persist items: [String] = []",
+            "persist items = { open: [1] }",
+        ),
     )
     .unwrap();
     let (_, _, err) = wf(&dir, &["build"]);

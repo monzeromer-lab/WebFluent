@@ -27,7 +27,7 @@ declaration. This file uses all thirteen kinds:
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
 component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
-store Cart { state items = []  derived count = items.length }
+store Cart { state items: [String] = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }

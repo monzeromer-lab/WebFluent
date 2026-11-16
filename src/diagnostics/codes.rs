@@ -366,6 +366,12 @@ pub static CODES: &[CodeInfo] = &[
         "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.",
     ),
     code(
+        "T25",
+        Error,
+        "A state whose first value does not say what it holds",
+        "A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.",
+    ),
+    code(
         "T26",
         Error,
         "An action that returns a value and does not say what",
@@ -376,6 +382,24 @@ pub static CODES: &[CodeInfo] = &[
         Error,
         "A part of the browser the language does not type",
         "The browser's globals and the objects it hands a program — an element, an event, `localStorage`, the clipboard — are typed by the language's browser table, so a misspelt member is found where it is written. A global or a member the table does not list is reached from a project script whose JSDoc says its types: the call is then checked like any other.",
+    ),
+    code(
+        "T31",
+        Error,
+        "A script's function the language cannot type",
+        "A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.",
+    ),
+    code(
+        "T32",
+        Error,
+        "A parameter written with no type",
+        "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.",
+    ),
+    code(
+        "T35",
+        Error,
+        "Values worked out from each other with neither declared",
+        "Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.",
     ),
     // ── C: components ────────────────────────────────────────────────
     code(

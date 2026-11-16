@@ -195,7 +195,7 @@ store Commands {
         { id: "palette", keys: "mod+shift+p", title: "Commands" },
         { id: "sidebar", keys: "mod+b", title: "Toggle sidebar" },
     ]
-    action run(e) {
+    action run(e: KeyboardEvent) {
         for c in table {
             if keyIs(e, c.keys) {
                 e.preventDefault()

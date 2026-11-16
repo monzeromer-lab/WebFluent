@@ -469,6 +469,9 @@ impl Checker<'_, '_> {
                 match member {
                     Some(Type::Func(params, ret)) => {
                         self.call_args(&params, args, &format!("`{name}.{method}`"));
+                        if let Some(&decl) = self.world.store_decl.get(name.as_str()) {
+                            self.note_passed(decl, method, &params, args);
+                        }
                         *ret
                     }
                     Some(_) => {

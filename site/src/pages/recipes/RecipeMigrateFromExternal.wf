@@ -3,7 +3,7 @@
 page RecipeMigrateFromExternal(path: "/recipes/migrate-from-external", title: "Upgrade a WebFluent 4 project that uses external — Recipes", description: "Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.") {
     RecipeShell("Upgrade a WebFluent 4 project that uses external", summary: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them, and the parser now refuses one. `wf migrate` rewrites a project. This is a page after the migration: it calls a function of a plain script, and places a custom element by its tag:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Load a library from a CDN", to: "/recipes/library-from-a-cdn"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Place a custom element from a library", to: "/recipes/place-a-custom-element")], source: "md-docs/recipes/migrate-from-external.md", how: true, hasVariations: false, project: { "src/vendor/tilt.js": #"// src/vendor/tilt.js
 /**
- * @param {*} node
+ * @param {HTMLElement} node
  * @param {number} max
  */
 function initTilt(node, max) {
@@ -37,7 +37,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card 
             Markdown("The function it calls is the old local module, now a plain script under `src/`, its `export` taken off and the declaration's signature written above it as JSDoc:")
             CodeBlock(#"// src/vendor/tilt.js
 /**
- * @param {*} node
+ * @param {HTMLElement} node
  * @param {number} max
  */
 function initTilt(node, max) {
