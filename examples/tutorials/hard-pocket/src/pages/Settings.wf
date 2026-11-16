@@ -7,13 +7,16 @@ page Settings(path: "/settings", title: "Settings", description: "Language, appe
 
     // The same channel the app listens on. A post reaches every other
     // `broadcast("pocket")` — the app shell of every open tab, this one's too.
-    channel news = broadcast("pocket")
+    channel news = broadcast("pocket") {
+        send Imported
+        receive Imported
+    }
 
     // One entry as a line of CSV. The note is quoted, and a quote inside it
     // doubled, so a comma in a note cannot split the line.
     action csvLine(e: Entry) -> String {
         let note = e.note.replaceAll(QUOTE, QUOTE + QUOTE)
-        return [e.id, e.date, e.kind, e.category, (e.amount.amount / 100).toFixed(2), e.amount.currency, QUOTE + note + QUOTE].join(",")
+        return ["{e.id}", "{e.date}", "{e.kind}", e.category, (e.amount.amount / 100).toFixed(2), e.amount.currency, QUOTE + note + QUOTE].join(",")
     }
 
     action exportCsv() {

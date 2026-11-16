@@ -319,6 +319,35 @@ work one declaration out to check another.
   `action run(e: KeyboardEvent)`, `node: Element` — and `now(every: …)` is
   a `DateTime`, as `now` is.
 
+## A value is what it says
+
+Agreement is now exact: nothing is converted on the way, and nothing two
+things could be at once is accepted as either.
+
+- **A map is a record's field by field.** A map kept in a state and later
+  given as a `User` is checked as a literal written there is: a field the
+  record lacks is `T05`, a required one left out `C01`, one of the wrong type
+  `T01`. `{ ...todo, done: true }` is a `Todo` again.
+- **One value, one type (`T27`).** `if ok { 1 } else { "none" }`, `[1, "a"]`
+  and `day ?? "none"` with `day: Date?` have no type in common, and are
+  refused where they meet instead of becoming a value the checker cannot
+  name. `null` on one side still makes the value `T?`.
+- **A condition is a `Bool` (`T29`).** `if count`, `show name`, `!count`
+  and `user || fallback` are refused; the fix writes what each asks —
+  `count != 0`, `name != ""`, `count == 0`, `user ?? fallback`. A `Bool?` is
+  a condition, its `null` false.
+- **No conversions (`T34`, `T18`).** A `Date`, a `Time` or a `DateTime` is
+  shown through a splice that says how — `Text("{due:.date(long)}")`, not
+  `Text(due)`; a `Duration` and a `Number` are not added (`3.seconds +
+  500.ms`), though a duration is scaled by a number; `"Total: " + n` is
+  `"Total: {n}"`. A `Url`, an `Email`, a `Color` and a `Uuid` are strings
+  wherever text is wanted.
+- **`Json` is matched or decoded (`T28`).** `raw.name`, `raw[0]`, `raw + 1`
+  and `raw.keys()` assume what nobody checked; `User.decode(raw)` checks it.
+  A connection that receives something says so — `receive Message` — and
+  `on message(m)` is then one.
+- `Input(…).time` and `.datetime` hold a `Time` and a `DateTime`.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

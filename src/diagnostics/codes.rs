@@ -345,7 +345,7 @@ pub static CODES: &[CodeInfo] = &[
         "T18",
         Error,
         "Arithmetic on something that is not a number",
-        "`-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.",
+        "`-`, `*`, `/` and `%` take numbers (or scale a duration); on a string or a list the result is `NaN`. `+` adds two numbers, joins two strings or adds two durations — text and a number are not joined by `+`, a splice says how the number is shown: `\"Total: {n}\"`.",
     ),
     code(
         "T15",
@@ -378,6 +378,24 @@ pub static CODES: &[CodeInfo] = &[
         "What an action returns is part of what it is: a caller in another file reads it without reading the action's body. An action that returns a value declares it, `-> T`, and every `return` is held to it.",
     ),
     code(
+        "T27",
+        Error,
+        "Two values with no type in common",
+        "The branches of an `if` or a `match`, the items of a list, or the two sides of `??` are one value, so they are one type: `if ok { 1 } else { \"none\" }` is a number one way and text the other, and nothing that reads it can say which. `null` on one side is fine — the value is then `T?`.",
+    ),
+    code(
+        "T28",
+        Error,
+        "A `Json` value read as if it were something else",
+        "`Json` is JSON as it arrives: it may be an object, a list, a string, a number, a boolean or null, so reading a field of it, indexing it, calling a method on it or adding to it assumes what nobody checked. Match its cases, or decode it into a type — `User.decode(raw)` — and read the value that comes back.",
+    ),
+    code(
+        "T29",
+        Error,
+        "A condition that is not a `Bool`",
+        "`if`, `show`, `!`, `&&` and `||` take a `Bool` (or a `Bool?`, whose `null` is `false`). A number, a string or a value that may be null is not one: JavaScript would read `0`, `\"\"` and `null` as false, and the program says which it means — `count != 0`, `name != \"\"`, `user != null`. A fallback for a value that may be null is `??`, not `||`.",
+    ),
+    code(
         "T30",
         Error,
         "A part of the browser the language does not type",
@@ -394,6 +412,12 @@ pub static CODES: &[CodeInfo] = &[
         Error,
         "A parameter written with no type",
         "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.",
+    ),
+    code(
+        "T34",
+        Error,
+        "A conversion the language does not make for you",
+        "A `Date`, a `Time` or a `DateTime` where a `String` is wanted: each has more than one spelling, and a splice says which — `\"{due}\"`, `\"{due:.date(long)}\"`. A `Duration` and a `Number` taken for each other: a duration says its unit — `500.ms`, `3.seconds` — and `wait.ms()` is the number it counts.",
     ),
     code(
         "T35",

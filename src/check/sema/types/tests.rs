@@ -341,7 +341,7 @@ fn a_value_that_may_be_null_must_be_unwrapped() {
         "[T04] `item.note` may be null",
     );
     clean(&format!(
-        "{TODOS}page P(path: \"/\") {{ state item = Todo(id: \"a\", title: \"b\")\n state sel: Todo? = null\n if let n = item.note {{ Text(n.length) }}\n Text(item.note ?? \"none\")\n if sel != null {{ Text(sel.title) }}\n if sel {{ Text(sel.title) }}\n if sel && item.done {{ Text(sel.title) }} }}"
+        "{TODOS}page P(path: \"/\") {{ state item = Todo(id: \"a\", title: \"b\")\n state sel: Todo? = null\n if let n = item.note {{ Text(n.length) }}\n Text(item.note ?? \"none\")\n if sel != null {{ Text(sel.title) }}\n if sel != null && item.done {{ Text(sel.title) }} }}"
     ));
     has(
         &format!("{TODOS}page P(path: \"/\") {{ state sel: Todo? = null\n Text(sel.title) }}"),
@@ -462,7 +462,7 @@ fn loops_conditions_and_matches_need_the_right_shapes() {
         "`r` is a read; `.calm` is not one of its cases",
     );
     clean(
-        "page P(path: \"/\") { state items = [1]\n state n = 0\n state s = \"\"\n if items.length > 0 { Text(\"some\") }\n if n { Text(\"n\") }\n if s { Text(\"s\") }\n show n > 1 { Text(\"x\") } }",
+        "page P(path: \"/\") { state items = [1]\n state n = 0\n state s = \"\"\n if items.length > 0 { Text(\"some\") }\n if n != 0 { Text(\"n\") }\n if s != \"\" { Text(\"s\") }\n show n > 1 { Text(\"x\") } }",
     );
 }
 
@@ -480,7 +480,7 @@ fn the_layout_and_the_universal_props_are_typed_too() {
 #[test]
 fn untyped_programs_check_as_they_always_did() {
     clean(
-        "store S { state items: [Map] = [] state q = \"\" action add(item: Map) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user: Map? = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
+        "store S { state items: [Map] = [] state q = \"\" action add(item: Map) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user: Map? = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user != null { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
     );
 }
 

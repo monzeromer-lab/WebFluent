@@ -12,17 +12,21 @@ browser: open `/room?host=1` in one tab and `/room` in another.
 **Needs:** nothing besides the page; open it in two tabs of one browser.
 
 ```wf
+type Wave { text: String }
+
 page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
     state heard = ""
     channel lobby = broadcast("room") { on message(m) { link.signal(m) } }
     peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") {
+        send Wave
+        receive Wave
         on message(m) { heard = m.text }
     }
 
     Heading("Room").h1
     match link {
         connecting { Text("Waiting for the other side…").muted }
-        open       { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        open       { Button("Wave") { on click { link.send(Wave(text: "hello")) } } }
         closed(c)  { Text("They left.") }
         error(e)   { Alert(e.message).danger }
     }
@@ -68,17 +72,21 @@ socket or `api` instead of a `broadcast` channel, and `ice:` names a STUN
 server so readers behind different networks can find each other:
 
 ```wf
+type Wave { text: String }
+
 page Call(path: "/call", title: "Call", description: "Two readers, two machines.") {
     state heard = ""
     socket relay = ws("wss://example.com/signal") { on message(m) { link.signal(m) } }
     peer link = rtc(signal: m => relay.send(m), initiator: query.host == "1",
                     ice: [{ urls: "stun:stun.example.com:3478" }]) {
+        send Wave
+        receive Wave
         on message(m) { heard = m.text }
     }
 
     Heading("Call").h1
     match link {
-        open { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        open { Button("Wave") { on click { link.send(Wave(text: "hello")) } } }
         else { Text("Connecting…").muted }
     }
     Text(heard)

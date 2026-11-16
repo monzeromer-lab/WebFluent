@@ -387,6 +387,10 @@ impl Checker<'_, '_> {
                 // has items.
                 let fixed_index = matches!(**index, Expr::NumberLiteral(_));
                 let ty = match base_ty.unwrapped() {
+                    Type::Enum(n) if n == super::ty::JSON => {
+                        self.json_fault(base, "`[…]` reads it as a list or a record");
+                        Type::Error
+                    }
                     Type::List(inner) if fixed_index && !self.non_empty.contains(base) => {
                         Type::optional(*inner)
                     }
@@ -442,49 +446,43 @@ impl Checker<'_, '_> {
                                 );
                             }
                         }
-                        if lt.unwrapped() == Type::String || rt.unwrapped() == Type::String {
-                            Type::String
-                        } else if lt == Type::Number && rt == Type::Number {
-                            Type::Number
-                        } else {
-                            for (side, ty) in [(l, &lt), (r, &rt)] {
-                                if !adds(ty) {
-                                    self.arithmetic_fault("+", side, ty);
-                                }
-                            }
-                            if [&lt, &rt]
-                                .iter()
-                                .any(|t| !adds(t) || t.unwrapped() == Type::Error)
-                            {
-                                Type::Error
-                            } else {
-                                self.hole(HoleKind::LooseArithmetic, expr_text(expr))
-                            }
-                        }
+                        self.arithmetic(BinOp::Add, l, &lt, r, &rt, expr)
                     }
                     BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::Mod => {
-                        let sign = match op {
-                            BinOp::Sub => "-",
-                            BinOp::Mul => "*",
-                            BinOp::Div => "/",
-                            _ => "%",
-                        };
-                        for (side, ty) in [(l, &lt), (r, &rt)] {
-                            if !counts(ty) {
-                                self.arithmetic_fault(sign, side, ty);
-                            }
-                        }
-                        if [&lt, &rt].iter().any(|t| t.unwrapped() == Type::Any) {
-                            self.hole(HoleKind::LooseArithmetic, expr_text(expr));
-                        }
-                        Type::Number
+                        self.arithmetic(op.clone(), l, &lt, r, &rt, expr)
                     }
                     BinOp::Eq | BinOp::Neq => {
                         self.comparison(l, &lt, r, &rt, matches!(op, BinOp::Eq));
                         Type::Bool
                     }
                     BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte => Type::Bool,
-                    BinOp::And | BinOp::Or => Type::Bool,
+                    BinOp::And | BinOp::Or => {
+                        let word = if matches!(op, BinOp::And) { "&&" } else { "||" };
+                        let at = self.current_span;
+                        // `name || "default"`: a fallback for a value that
+                        // may be null is `??`, which keeps `0` and `""`.
+                        if matches!(op, BinOp::Or)
+                            && matches!(lt, Type::Optional(ref inner) if **inner != Type::Bool)
+                        {
+                            self.error(
+                                at,
+                                "T29",
+                                format!("`||` reads `{}` as a condition, but it is a value that may be null: `{lt}`", expr_text(l)),
+                                &format!("A fallback for null is `??`: `{} ?? {}`", expr_text(l), expr_text(r)),
+                            );
+                            self.plan_text(
+                                &format!("{} || {}", expr_text(l), expr_text(r)),
+                                format!("{} ?? {}", expr_text(l), expr_text(r)),
+                                at,
+                                "Write `??`",
+                            );
+                            return self.join(lt.unwrapped(), rt, expr);
+                        }
+                        for (side, ty) in [(l, &lt), (r, &rt)] {
+                            self.not_bool(ty, side, at, word, false);
+                        }
+                        Type::Bool
+                    }
                     // A left side that is only ever null (a field written
                     // `null` in a map literal) gives way to the right.
                     BinOp::NullCoalesce if matches!(lt, Type::Null) => rt,
@@ -492,9 +490,13 @@ impl Checker<'_, '_> {
                 }
             }
             Expr::UnaryOp(op, e) => {
-                self.infer(e, None);
+                let ty = self.infer(e, None);
                 match op {
-                    UnaryOp::Not => Type::Bool,
+                    UnaryOp::Not => {
+                        let at = self.current_span;
+                        self.not_bool(&ty, e, at, "!", true);
+                        Type::Bool
+                    }
                     UnaryOp::Neg => Type::Number,
                 }
             }
@@ -538,7 +540,7 @@ impl Checker<'_, '_> {
             // A map literal has the shape it was written with; a spread inside
             // it makes the keys unknown.
             Expr::MapLiteral(pairs) => {
-                let wanted = match expected {
+                let wanted = match expected.map(Type::unwrapped).as_ref() {
                     Some(Type::Record(name)) => self.world.record_fields(name).map(|fields| {
                         fields
                             .into_iter()
@@ -556,9 +558,12 @@ impl Checker<'_, '_> {
                 };
                 let mut shape: Vec<(String, Type)> = Vec::new();
                 let mut spread = false;
+                // What each `...x` spreads: `{ ...todo, done: true }` is a
+                // `Todo` again when `todo` is one.
+                let mut spread_types: Vec<Type> = Vec::new();
                 for (k, v) in pairs {
                     if k == "..." {
-                        self.infer(v, None);
+                        spread_types.push(self.infer(v, None));
                         spread = true;
                         continue;
                     }
@@ -605,9 +610,33 @@ impl Checker<'_, '_> {
                 {
                     let keys: Vec<String> = shape.iter().map(|(k, _)| k.clone()).collect();
                     self.record_keys_given(&record, &keys, "the map");
+                    return Type::Record(record);
                 }
+                // A copy of a record with some of its fields given again.
+                let copied = match spread_types.first().map(Type::unwrapped) {
+                    Some(Type::Record(record))
+                        if spread_types
+                            .iter()
+                            .all(|t| t.unwrapped() == Type::Record(record.clone()))
+                            && self.world.record_fields(&record).is_some_and(|fields| {
+                                shape.iter().all(|(k, ty)| {
+                                    fields.iter().any(|f| {
+                                        &f.name == k
+                                            && ty.assignable_to(
+                                                &self.world.resolve(Type::from_ref(&f.ty)),
+                                            )
+                                    })
+                                })
+                            }) =>
+                    {
+                        Some(record)
+                    }
+                    _ => None,
+                };
                 // An empty literal says nothing about its keys.
-                if let Some((k, v)) = dict
+                if let Some(record) = copied {
+                    Type::Record(record)
+                } else if let Some((k, v)) = dict
                     && !spread
                 {
                     Type::Dict(Box::new(k), Box::new(v))
@@ -756,6 +785,10 @@ impl Checker<'_, '_> {
                 "`await` it inside an action or a handler: `(await load()).field`",
             );
             self.plan_await(base);
+            return Type::Error;
+        }
+        if matches!(base_ty, Type::Enum(n) if n == super::ty::JSON) {
+            self.json_fault(base, &format!("`.{field}` reads it as a record"));
             return Type::Error;
         }
         match base_ty {
@@ -1402,6 +1435,114 @@ impl Checker<'_, '_> {
         }
     }
 
+    /// `+`, `-`, `*`, `/` or `%`: two numbers, two strings for `+`, or a
+    /// duration with a duration (`+`, `-`) or a number (`*`, `/`, `%`,
+    /// scaling it). Text and a number are not joined by `+` — a splice says
+    /// how a value is shown — and a duration is not a number (`T34`).
+    fn arithmetic(
+        &mut self,
+        op: BinOp,
+        l: &Expr,
+        lt: &Type,
+        r: &Expr,
+        rt: &Type,
+        expr: &Expr,
+    ) -> Type {
+        let sign = match op {
+            BinOp::Add => "+",
+            BinOp::Sub => "-",
+            BinOp::Mul => "*",
+            BinOp::Div => "/",
+            _ => "%",
+        };
+        let duration = Type::Scalar(Scalar::Duration);
+        let (a, b) = (lt.unwrapped(), rt.unwrapped());
+        // JSON is read by matching or decoding it, never as a number.
+        for (side, ty) in [(l, &a), (r, &b)] {
+            if matches!(ty, Type::Enum(n) if n == super::ty::JSON) {
+                self.json_fault(side, &format!("`{sign}` reads it as a number"));
+                return Type::Error;
+            }
+        }
+        if a == Type::Error || b == Type::Error {
+            return Type::Error;
+        }
+        if a == Type::Any || b == Type::Any {
+            for (side, ty) in [(l, &a), (r, &b)] {
+                let fits = if op == BinOp::Add {
+                    adds(ty)
+                } else {
+                    counts(ty)
+                };
+                if !fits {
+                    self.arithmetic_fault(sign, side, ty);
+                    return Type::Error;
+                }
+            }
+            return self.hole(HoleKind::LooseArithmetic, expr_text(expr));
+        }
+        match (op, &a, &b) {
+            (BinOp::Add, Type::String, Type::String) => Type::String,
+            (_, Type::Number | Type::Null, Type::Number | Type::Null) => Type::Number,
+            (BinOp::Add | BinOp::Sub, x, y) if *x == duration && *y == duration => duration,
+            (BinOp::Div, x, y) if *x == duration && *y == duration => Type::Number,
+            (BinOp::Mul, x, Type::Number) | (BinOp::Mul, Type::Number, x) if *x == duration => {
+                duration
+            }
+            (BinOp::Div | BinOp::Mod, x, Type::Number) if *x == duration => duration,
+            (_, x, y)
+                if (*x == duration && *y == Type::Number)
+                    || (*x == Type::Number && *y == duration) =>
+            {
+                let (number, _) = if *x == Type::Number { (l, r) } else { (r, l) };
+                self.error_at_current(
+                    "T34",
+                    format!(
+                        "`{sign}` mixes a `Duration` and a `Number`: `{}` says no unit",
+                        expr_text(number)
+                    ),
+                    "Give the number its unit: `500.ms`, `2.seconds`",
+                );
+                Type::Error
+            }
+            (BinOp::Add, Type::String, other) | (BinOp::Add, other, Type::String) => {
+                let (other_side, other_ty) = if a == Type::String {
+                    (r, other)
+                } else {
+                    (l, other)
+                };
+                self.error_at_current(
+                    "T18",
+                    format!(
+                        "`+` joins two strings or adds two numbers, but `{}` is `{other_ty}`",
+                        expr_text(other_side)
+                    ),
+                    "Splice it into the text, which says how it is shown: `\"Total: {n}\"`",
+                );
+                Type::Error
+            }
+            _ => {
+                for (side, ty) in [(l, &a), (r, &b)] {
+                    if !matches!(ty, Type::Number | Type::Null) && *ty != duration {
+                        self.arithmetic_fault(sign, side, ty);
+                        return Type::Error;
+                    }
+                }
+                self.arithmetic_fault(sign, l, &a);
+                Type::Error
+            }
+        }
+    }
+
+    /// `T28`: a `Json` value read as if it were something else.
+    pub(super) fn json_fault(&mut self, side: &Expr, how: &str) {
+        self.error_at_current(
+            "T28",
+            format!("`{}` is `Json`, and {how}", expr_text(side)),
+            "JSON is read by matching its cases (`match raw { .object(fields) { … } }`) or decoding it into a type: `User.decode(raw)`",
+        );
+    }
+
     /// Arithmetic on something that is not a number: `"a" - 1` is `NaN`,
     /// `items * 2` is `NaN`, and `list + 1` is a string nobody wanted.
     pub(super) fn arithmetic_fault(&mut self, sign: &str, side: &Expr, ty: &Type) {
@@ -1412,9 +1553,7 @@ impl Checker<'_, '_> {
                 expr_text(side)
             ),
             match ty.unwrapped() {
-                Type::String => {
-                    "Convert it: `Number(value)`; `+` joins text when one side is a string"
-                }
+                Type::String => "Convert it: `Number(value)`",
                 Type::List(_) => "Use its length, or `sum()` its numbers",
                 _ => "Use a number field of it",
             },

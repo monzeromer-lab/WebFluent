@@ -19,13 +19,13 @@
     "pages/EntryDetail.js": "cf6c7f0ba42009a973ed065cc53b9217165877a7dc34f6d8e5fb90b78bb531bd",
     "pages/EntryDetail.js.gz": "55eb7425b663e90ac80f66f7daa8c9e189378039bde78b9dd9fed1519c0e5723",
     "pages/NotFound.js": "fafda002cb432e6ef495917d2fbfbb941da2d5802acf6e5be20ab2f8a6a66989",
-    "pages/Settings.js": "75443349112a188739d38bf9227929d863cb508ec87de1a62e95ab72211f8549",
-    "pages/Settings.js.gz": "cc72cd2012b13974da4a6a1f408e541ccbec16d2c6656749188ca060474b267d",
+    "pages/Settings.js": "e1cb9abcb1dfeaa4ddc34f354ad20e39b3d4210b2914867823c1fe1d073ff779",
+    "pages/Settings.js.gz": "33056123a0e87c30acbc133aee130954fa149383fda5e044e691b57bfd4d74a0",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "9bdbcf583fd333b00123d522ffc0ceca50560c0ba480babe67104ae45ef9dbae",
     "styles.css.gz": "272a2df4e8047897c961e4f08ed6c70294324da6f308c3948d666c9e71f4efc2",
-    "sw.js": "c4daef44a5a7f2c783d2a553d93b0daf1878526636b316c1bb2c4963de3669a6",
-    "sw.js.gz": "20add15d37db52d4134b9b9920055ea304488ca829cb81c631779bdb4f3300ef",
+    "sw.js": "a16923dfe183155347e7661d0dc0b939f2200812af459c174abd1172df77a803",
+    "sw.js.gz": "957930e8b9a1de8921ef03b2a3e6a1de67d72cf6c4aa9d7216eeaf1c22a96fe1",
     "theme.js": "ece5bb41a0b05bc1e887bc97f1466299b28e1a8e7eb43f9711dd1f1367dfc358"
   }
 }

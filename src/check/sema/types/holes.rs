@@ -279,8 +279,9 @@ impl Checker<'_, '_> {
         }
     }
 
-    /// The type both `a` and `b` fit. Two that have nothing in common make
-    /// one of unknown type: a hole at `expr`, where they meet.
+    /// The type both `a` and `b` fit. Two that have nothing in common are
+    /// `T27` at `expr`, where they meet: a value is one type, never one or
+    /// another the checker cannot name.
     pub(super) fn join(
         &mut self,
         a: Type,
@@ -293,9 +294,40 @@ impl Checker<'_, '_> {
     /// [`Checker::join`], naming the place as `what` says.
     pub(super) fn join_at(&mut self, a: Type, b: Type, what: &dyn Fn() -> String) -> Type {
         let known = !has_any(&a) && !has_any(&b);
+        // A map literal written where a record is: the record, when its
+        // fields are the record's.
+        if let (Type::Shape(_), Type::Record(_)) | (Type::Record(_), Type::Shape(_)) = (&a, &b) {
+            let (shape, record) = if matches!(a, Type::Shape(_)) {
+                (&a, &b)
+            } else {
+                (&b, &a)
+            };
+            if self.record_fault(shape, record).is_none() {
+                return record.clone();
+            }
+        }
+        // Two bare cases name no enum on their own: what they join to is
+        // known only where an enum is wanted.
+        let cases = matches!(
+            (a.unwrapped(), b.unwrapped()),
+            (Type::Case(_), Type::Case(_))
+        );
+        let (shown_a, shown_b) = (a.to_string(), b.to_string());
         let joined = Type::join(a, b);
         if known && has_any(&joined) {
-            self.hole(HoleKind::LooseJoin, what());
+            if cases {
+                self.hole(HoleKind::LooseJoin, what());
+                return joined;
+            }
+            self.error_at_current(
+                "T27",
+                format!(
+                    "`{}` is `{shown_a}` one way and `{shown_b}` the other, which have no type in common",
+                    what()
+                ),
+                "Make both the same type: show a number as text with a splice (`\"{n}\"`), or use `null` for nothing",
+            );
+            return Type::Error;
         }
         joined
     }
@@ -547,16 +579,18 @@ mod tests {
     }
 
     #[test]
-    fn two_branches_that_disagree_are_a_hole_where_they_meet() {
+    fn two_bare_cases_with_no_enum_wanted_are_a_hole_where_they_meet() {
+        // Two values of different types are `T27`; two bare cases name no
+        // enum, so what they join to is unknown until one is wanted.
         let src = r#"
             page P(path: "/") {
                 state ok = true
-                derived x = if ok { 1 } else { "none" }
+                derived x = if ok { .calm } else { .loud }
                 derived y = if ok { 1 } else { 2 }
                 Text("x")
             }
         "#;
-        assert_eq!(of(src, HoleKind::LooseJoin), ["ok"]);
+        assert_eq!(of(src, HoleKind::LooseJoin), ["if ok { … }"]);
     }
 
     #[test]

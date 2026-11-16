@@ -13,13 +13,11 @@
     "examples/documents/resume": {},
     "examples/tutorials/easy-todos": {
       "any-accepted": 1,
-      "loose-join": 3,
-      "spread-map": 2
+      "loose-join": 1
     },
     "examples/tutorials/hard-pocket": {
       "any-accepted": 1,
-      "loose-join": 4,
-      "map-field": 1,
+      "loose-join": 2,
       "native": 1
     },
     "examples/tutorials/medium-field-notes": {
@@ -47,10 +45,9 @@
     "empty-map": 3,
     "list-method": 9,
     "loose-index": 7,
-    "loose-join": 7,
-    "map-field": 78,
+    "loose-join": 3,
+    "map-field": 77,
     "native": 1,
-    "spread-map": 2,
     "written-map": 22
   }
 }

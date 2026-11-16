@@ -254,7 +254,7 @@ component P25 {
   ["loop item bound to a date", `type P26Row { id: String, day: Date? = null }
 component P26 {
     state rows: [P26Row] = [P26Row(id: "a")]
-    derived shown = "{rows[0]?.day ?? "none"}"
+    derived shown = if let d = rows[0]?.day { "{d}" } else { "none" }
     for @ in rows { DatePicker(bind: @.day, label: "day P26") }
     Text(if shown == "2026-03-14" { "P26 ok" } else { "P26 bad {shown}" })
 }`, [{ change: "day P26", value: "2026-03-14" }]],

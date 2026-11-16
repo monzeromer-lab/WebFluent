@@ -256,9 +256,13 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T21](https://webfluent.monzeromer.dev/errors/T21.md) — A read's `match` with no `.failed` arm
 - [T25](https://webfluent.monzeromer.dev/errors/T25.md) — A state whose first value does not say what it holds
 - [T26](https://webfluent.monzeromer.dev/errors/T26.md) — An action that returns a value and does not say what
+- [T27](https://webfluent.monzeromer.dev/errors/T27.md) — Two values with no type in common
+- [T28](https://webfluent.monzeromer.dev/errors/T28.md) — A `Json` value read as if it were something else
+- [T29](https://webfluent.monzeromer.dev/errors/T29.md) — A condition that is not a `Bool`
 - [T30](https://webfluent.monzeromer.dev/errors/T30.md) — A part of the browser the language does not type
 - [T31](https://webfluent.monzeromer.dev/errors/T31.md) — A script's function the language cannot type
 - [T32](https://webfluent.monzeromer.dev/errors/T32.md) — A parameter written with no type
+- [T34](https://webfluent.monzeromer.dev/errors/T34.md) — A conversion the language does not make for you
 - [T35](https://webfluent.monzeromer.dev/errors/T35.md) — Values worked out from each other with neither declared
 
 ### Components

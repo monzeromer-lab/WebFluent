@@ -12,9 +12,14 @@ connects, the messages once it is open, and why it stopped when it closes:
 **Needs:** a WebSocket server; change `wss://example.com/chat` to yours.
 
 ```wf
+type Outgoing { text: String }
+type Incoming { id: String, text: String }
+
 page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
     state draft = ""
     socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        send Outgoing
+        receive Incoming
         on message(m) { log(m) }
     }
 
@@ -26,7 +31,7 @@ page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
         error(e)   { Alert(e.message).danger }
     }
     Input(bind: draft, label: "Message").text
-    Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
+    Button("Send").primary { on click { chat.send(Outgoing(text: draft))  draft = "" } }
 }
 ```
 
@@ -40,6 +45,10 @@ know how a `resource` is read with `match` and its arms
 
 - **`socket chat = ws(…)`** opens the socket when the page is drawn and
   closes it when the reader leaves.
+- **`send Outgoing` and `receive Incoming`** say what goes each way:
+  `chat.send(…)` takes an `Outgoing`, and `m` and `chat.messages` hold
+  `Incoming`s. A socket that names neither carries `Json`, which is matched
+  or decoded rather than read as a record.
 - **`on message(m) { }`**, inside the socket's block, handles each message
   that arrives. `on open { }` runs each time the line opens — the first
   time and after every reconnection.
@@ -84,9 +93,8 @@ reconnects:
 
 ### Type the messages
 
-To have the compiler check what you send and type what you receive, name a
-type for each direction inside the socket's block with `send` and
-`receive`:
+The types may be declared beside the page, and the socket's block need
+hold nothing else:
 
 ```wf
 type Incoming { id: String, text: String }

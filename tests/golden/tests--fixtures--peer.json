@@ -1,10 +1,8 @@
 {
-  "diagnostics": [
-    "{\"code\":\"T19\",\"severity\":\"warning\",\"message\":\"`query.role` may be null, and in text it would show as `null`\",\"file\":\"src/App.wf\",\"line\":27,\"column\":55,\"end_line\":27,\"end_column\":65,\"hint\":\"Say what to show instead: `{query.role ?? \\\"\\\"}`\",\"related\":[],\"fixes\":[],\"tags\":[]}"
-  ],
+  "diagnostics": [],
   "files": {
-    "app.js": "3485bd959c071ea102388c1baa7a63d68aaaa3149a08ab810aa3925f3bd5e9ff",
-    "app.js.gz": "0c7f36b6ec019fd25401d6f5a93d15131af8e40ca79cac5eb3fe54cca1c6b6cd",
+    "app.js": "b7d1af6e2cce7eddd46e55334ebced40511e9551c0d3f2e48281353a4760b6cd",
+    "app.js.gz": "5ad65d4ddd3f8f65fde1c91e58f795a5af760ce2d36e05a4cbe5babd7721cbf5",
     "index.html": "c01da947fb8d194b0170b200bf756c45baac0d5709fedd356a4c35dd05e29ce1",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "6c7d08350821371cabe18880bccd1f8891a25c3cbd732bb99c60fe942670d34a",

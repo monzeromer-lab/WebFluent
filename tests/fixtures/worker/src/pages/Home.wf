@@ -1,3 +1,8 @@
+/// What the worker posts unasked: diagnostics it pushes, and word that a
+/// request was cancelled.
+type Problem { line: Number, message: String }
+type Pushed { type: String, items: [Problem] = [], id: Number? = null }
+
 // A worker a store holds: asked, answered, failing, pushing, superseded,
 // timing out, and crashing once before it is started again.
 store Lang {
@@ -7,9 +12,10 @@ store Lang {
     state restarted = 0
     state cancelled = ""
     worker lang = spawn("/workers/lang.js", restart: 1, timeout: 1000) {
+        receive Pushed
         on message(m) {
-            if m.type == "diagnostics" { pushed = m.items[0].message }
-            if m.type == "cancelled" { cancelled = "{m.id}" }
+            if m.type == "diagnostics" { pushed = m.items[0]?.message ?? "" }
+            if m.type == "cancelled" { cancelled = "{m.id ?? 0}" }
         }
         on restart(e) { restarted = restarted + 1 }
     }

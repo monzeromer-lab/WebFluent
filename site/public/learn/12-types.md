@@ -351,6 +351,46 @@ page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape
 }
 ```
 
+## What agrees with what
+
+A value fits where a type is wanted when it *is* that type, with nothing
+converted on the way:
+
+- **A map literal is a record's** only when its fields are the record's: a
+  field the record lacks is `T05`, a required one left out `C01`, one of
+  the wrong type `T01` — where it is written, and when a map kept in a
+  state is given as the record later. `{ ...todo, done: true }` is a
+  `Todo` again.
+- **One value, one type.** The branches of an `if` or a `match`, a list's
+  items and the two sides of `??` make one value: `if ok { 1 } else {
+  "none" }` is `T27`. `null` on one side makes it `T?`.
+- **A condition is a `Bool`.** `if count` is `T29`; write what it asks,
+  `count != 0`, `name != ""`, `user != null`. A `Bool?` is a condition, its
+  `null` false. A fallback for null is `??`, not `||`.
+- **No conversions.** `+` adds two numbers, joins two strings or adds two
+  durations; text and a number meet in a splice, `"Total: {n}"` (`T18`).
+  A `Date` is shown through a splice that says how, `"{due:.date(long)}"`,
+  and a `Duration` says its unit, `500.ms` (`T34`). A `Url`, an `Email`, a
+  `Color` and a `Uuid` are strings wherever text is wanted.
+- **`Json` is matched or decoded**, never read as a record, a list or a
+  number (`T28`): `User.decode(raw)`.
+
+```wf
+type Todo { id: String, title: String, done: Bool = false }
+
+page Agree(path: "/", title: "Agree", description: "Values that are what they say.") {
+    state todo = Todo(id: "1", title: "Milk")
+    state left = 3
+    state due: Date = @2026-03-14
+    state nickname: String? = null
+    Heading("Agree").h1
+    Button("Done") { on click { todo = { ...todo, done: true } } }
+    if left != 0 { Text("{left} left") }
+    Text("Due {due:.date(long)}")
+    Text(nickname ?? "friend")
+}
+```
+
 ## Dictionaries, functions and aliases
 
 A *dictionary* holds values of one type under keys of another: `[String:
@@ -596,7 +636,6 @@ page Narrow(path: "/", title: "Narrow", description: "Values that may be null, n
     Heading("Narrow").h1
     if let n = todo.note { Text("{n.length} chars") }
     if sel != null { Text(sel.title) }
-    if sel { Text(sel.title) }
     derived label = if sel != null { sel.title } else { "none" }
     Text(todo.note ?? "no note")
     Text(sel?.title ?? "nothing selected")
@@ -681,11 +720,15 @@ and `T21`, which are warnings.
 | `T15` | A `match` with no `else` that misses a case of the enum, or has a case twice |
 | `T16` | A method a number, a string or a list does not have, with the nearest one it does |
 | `T17` | An async action's result used before it is awaited, or `await` where it cannot run |
-| `T18` | Arithmetic on something that is not a number |
+| `T18` | Arithmetic on something that is not a number, or `+` between text and a number |
 | `T19` | A value that may be `null` spliced into text (warning) |
 | `T20` | A list or a record shown as text (warning) |
 | `T21` | A resource `match` with no `error` arm and no `else` (warning) |
 | `T22` | A handler that names more values than its event sends |
+| `T27` | Two values with no type in common made into one: an `if`'s branches, a list's items, the sides of `??` |
+| `T28` | A `Json` value read as a record, a list or a number rather than matched or decoded |
+| `T29` | A condition — `if`, `show`, `!`, `&&`, `\|\|` — on something that is not a `Bool` |
+| `T34` | A `Date` or a time where text is wanted, or a `Duration` and a `Number` mixed |
 
 Most findings come with a hint: a conversion (`Number(value)`,
 `"{value}"`), the cases an enum takes, the fields a record has, or one of

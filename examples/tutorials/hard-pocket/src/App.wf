@@ -15,6 +15,8 @@ app {
 
     // Another tab (or the settings page of this one) imported a file: say so.
     channel news = broadcast("pocket") {
+        send Imported
+        receive Imported
         on message(m) { Ui.notify(t("toast.imported", { count: m.count })) }
     }
 

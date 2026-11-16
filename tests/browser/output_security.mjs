@@ -39,7 +39,7 @@ write("src/App.wf", `page Home(path: "/", title: "Home", description: "d") {
     state heard = ""
     Heading("Home").h1
     Frame(srcdoc: doc, title: "From a value")
-    Frame(src: "/inner.html", title: "Inner") { on message(m) { heard = heard + m.data + ";" } }
+    Frame(src: "/inner.html", title: "Inner") { on message(m) { match m.data { .string(said) { heard = "{heard}{said};" } else { } } } }
     Text(heard, id: "heard")
 }
 `);

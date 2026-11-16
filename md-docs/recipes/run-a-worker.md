@@ -19,10 +19,14 @@ works](#how-it-works) shows. It claims `/`: paste it into a new project,
 or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
+type Problem { line: Number, message: String }
+type CssMessage { type: String, items: [Problem] = [] }
+
 store Lang {
-    state problems: [Map] = []
+    state problems: [Problem] = []
     state restarts = 0
     worker css = spawn("/workers/css.js", restart: 1, timeout: 5000) {
+        receive CssMessage
         on message(m) { if m.type == "diagnostics" { problems = m.items } }
         on restart(e) { restarts = restarts + 1 }
     }

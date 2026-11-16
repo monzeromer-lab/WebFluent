@@ -56,9 +56,13 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T21 A read's match with no .failed arm", to: "/errors/T21", group: "Types"),
     IndexEntry(label: "T25 A state whose first value does not say what it holds", to: "/errors/T25", group: "Types"),
     IndexEntry(label: "T26 An action that returns a value and does not say what", to: "/errors/T26", group: "Types"),
+    IndexEntry(label: "T27 Two values with no type in common", to: "/errors/T27", group: "Types"),
+    IndexEntry(label: "T28 A Json value read as if it were something else", to: "/errors/T28", group: "Types"),
+    IndexEntry(label: "T29 A condition that is not a Bool", to: "/errors/T29", group: "Types"),
     IndexEntry(label: "T30 A part of the browser the language does not type", to: "/errors/T30", group: "Types"),
     IndexEntry(label: "T31 A script's function the language cannot type", to: "/errors/T31", group: "Types"),
     IndexEntry(label: "T32 A parameter written with no type", to: "/errors/T32", group: "Types"),
+    IndexEntry(label: "T34 A conversion the language does not make for you", to: "/errors/T34", group: "Types"),
     IndexEntry(label: "T35 Values worked out from each other with neither declared", to: "/errors/T35", group: "Types"),
     IndexEntry(label: "C01 A required prop or field left out", to: "/errors/C01", group: "Components"),
     IndexEntry(label: "C02 A prop the component does not declare", to: "/errors/C02", group: "Components"),
@@ -1112,12 +1116,12 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
 }
 
 page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that is not a number", description: "`-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.") {
-    ErrorShell("T18", title: "Arithmetic on something that is not a number", severity: "error", family: "Types", summary: "`-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.", printed: #"error[T18]: `*` takes numbers, but `price` is `String`
+    ErrorShell("T18", title: "Arithmetic on something that is not a number", severity: "error", family: "Types", summary: "`-`, `*`, `/` and `%` take numbers (or scale a duration); on a string or a list the result is `NaN`. `+` adds two numbers, joins two strings or adds two durations — text and a number are not joined by `+`, a splice says how the number is shown: `\"Total: \{n\}\"`.", printed: #"error[T18]: `*` takes numbers, but `price` is `String`
  --> src/App.wf:3:27
   |
 3 |     Heading("Total {price * 2}").h1
   |                           ^
-  = help: Convert it: `Number(value)`; `+` joins text when one side is a string
+  = help: Convert it: `Number(value)`
   = docs: https://webfluent.monzeromer.dev/errors/T18"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T18.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state price = "12"
@@ -1315,6 +1319,91 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
+page ErrorT27(path: "/errors/T27", title: "T27 — Two values with no type in common", description: "") {
+    ErrorShell("T27", title: "Two values with no type in common", severity: "error", family: "Types", summary: "The branches of an `if` or a `match`, the items of a list, or the two sides of `??` are one value, so they are one type: `if ok \{ 1 \} else \{ \"none\" \}` is a number one way and text the other, and nothing that reads it can say which. `null` on one side is fine — the value is then `T?`.", printed: #"error[T27]: `if left … 0 { … }` is `Number` one way and `String` the other, which have no type in common
+ --> src/App.wf:3:5
+  |
+3 |     derived label = if left > 0 { left } else { "sold out" }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Make both the same type: show a number as text with a splice (`"{n}"`), or use `null` for nothing
+  = docs: https://webfluent.monzeromer.dev/errors/T27"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T27.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "Stock", description: "D") {
+    state left = 0
+    derived label = if left > 0 { left } else { "sold out" }
+    Heading("Stock").h1
+    Text("{label}")
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "Stock", description: "D") {
+    state left = 0
+    derived label = if left > 0 { "{left} left" } else { "sold out" }
+    Heading("Stock").h1
+    Text(label)
+}"#, title: "wf") }
+        note {
+            Markdown("Make both sides the same type. Show a number as text with a\nsplice — `\"\{left\} left\"` — or give the value a case of its own: an enum\nwith payloads says \"a count, or sold out\" with names.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nThe branches of an `if` or a `match`, the items of a list and the two\nsides of `??` make one value, so they are one type. A value that is a\nnumber one way and text the other has no type anything can be checked\nagainst: `label * 2` would be `NaN` on one branch and a number on the other,\nand nothing could say which.\n\n`null` on one side is not a disagreement: `if ok \{ 1 \} else \{ null \}` is a\n`Number?`. An address, a colour or an id is a string, so it joins with\ntext.")
+    }
+}
+
+page ErrorT28(path: "/errors/T28", title: "T28 — A Json value read as if it were something else", description: "") {
+    ErrorShell("T28", title: "A Json value read as if it were something else", severity: "error", family: "Types", summary: "`Json` is JSON as it arrives: it may be an object, a list, a string, a number, a boolean or null, so reading a field of it, indexing it, calling a method on it or adding to it assumes what nobody checked. Match its cases, or decode it into a type — `User.decode(raw)` — and read the value that comes back.", printed: #"error[T28]: `raw` is `Json`, and `.name` reads it as a record
+ --> src/App.wf:5:10
+  |
+5 |     Text(raw.name)
+  |          ^^^
+  = help: JSON is read by matching its cases (`match raw { .object(fields) { … } }`) or decoding it into a type: `User.decode(raw)`
+  = docs: https://webfluent.monzeromer.dev/errors/T28"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T28.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "Profile", description: "D") {
+    state text = "{\"name\": \"Ada\"}"
+    derived raw = JSON.parse(text)
+    Heading("Profile").h1
+    Text(raw.name)
+}"#, title: "wf") }
+        fixed { CodeBlock(#"type Person { name: String }
+
+page P(path: "/", title: "Profile", description: "D") {
+    state text = "{\"name\": \"Ada\"}"
+    derived raw = JSON.parse(text)
+    derived name = match Person.decode(raw) { .ok(p) { p.name } .err(e) { e.message } }
+    Heading("Profile").h1
+    Text(name)
+}"#, title: "wf") }
+        note {
+            Markdown("Decode it into a type — `Person.decode(raw)` is a result,\n`.ok(person)` or `.err(e)` naming where it went wrong — or match its cases\n(`.object(fields)`, `.array(items)`, `.string(value)`, …). A connection\nsays what it receives: `socket chat = ws(…) \{ receive Message \}`, and\n`on message(m)` is then a `Message`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\n`Json` is JSON as it arrives — `JSON.parse`, a connection that declares\nnothing it receives, a worker's answer. It may be an object, a list, a\nstring, a number, a boolean or `null`, so reading `.name` of it, indexing\nit, calling a method on it or adding to it assumes what nobody checked.\nIn the browser that is `undefined` where a name was meant, or `NaN`.")
+    }
+}
+
+page ErrorT29(path: "/errors/T29", title: "T29 — A condition that is not a Bool", description: "") {
+    ErrorShell("T29", title: "A condition that is not a Bool", severity: "error", family: "Types", summary: "`if`, `show`, `!`, `&&` and `||` take a `Bool` (or a `Bool?`, whose `null` is `false`). A number, a string or a value that may be null is not one: JavaScript would read `0`, `\"\"` and `null` as false, and the program says which it means — `count != 0`, `name != \"\"`, `user != null`. A fallback for a value that may be null is `??`, not `||`.", printed: #"error[T29]: `if` reads `count` as a condition, but it is a number, not a `Bool`: `Number`
+ --> src/App.wf:4:5
+  |
+4 |     if count { Text("{count} items") }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Say what it asks: `count != 0`
+  = docs: https://webfluent.monzeromer.dev/errors/T29"#, quickfix: "Write `!= 0`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T07", title: "A condition that is always true", to: "/errors/T07")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T29.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "Cart", description: "D") {
+    state count = 0
+    Heading("Cart").h1
+    if count { Text("{count} items") }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "Cart", description: "D") {
+    state count = 0
+    Heading("Cart").h1
+    if count != 0 { Text("{count} items") }
+}"#, title: "wf") }
+        note {
+            Markdown("Write the comparison: `count != 0`, `name != \"\"`,\n`user != null` (which narrows `user` inside the branch, as `if let` does).\n`!count` is `count == 0`. A fallback for a value that may be null is `??`,\nnot `||`: `nickname ?? \"friend\"`. The editor's quick fix and `wf fix --code\nT29` write each.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\n`if`, `show`, `!`, `&&` and `||` take a `Bool`. JavaScript reads `0`, `\"\"`,\n`null` and `NaN` as false and everything else as true, so `if count` asks\n\"is it not zero\" and `if name` \"is it not empty\" without saying so — and\n`if price` is false for a price of `0`. The program says which it means.\n\nA `Bool?` is a condition: its `null` is `false`. A list, a record or an\naction is always true, which is [`T07`](/errors/T07).")
+    }
+}
+
 page ErrorT30(path: "/errors/T30", title: "T30 — A part of the browser the language does not type", description: "A browser global, or a member of an element or an event, the language does not type: reach it from a project script whose JSDoc says its types.") {
     ErrorShell("T30", title: "A part of the browser the language does not type", severity: "error", family: "Types", summary: "The browser's globals and the objects it hands a program — an element, an event, `localStorage`, the clipboard — are typed by the language's browser table, so a misspelt member is found where it is written. A global or a member the table does not list is reached from a project script whose JSDoc says its types: the call is then checked like any other.", printed: #"error[T30]: the language does not type `navigator.clipbaord`
  --> src/App.wf:6:23
@@ -1412,6 +1501,32 @@ page P(path: "/", title: "Todos", description: "D") {
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Error.\n\nA parameter is what a caller sees, so it says its type: an action's\n(`action add(title: String)`), an event's (`event pick(id: String)`), a\nslot's (`slot row(item: Todo)`). A lambda's parameters are worked out from\nwhat it is passed to — `rows.filter(r => r.live)` — and are written only\nwhen nothing says them: `derived byName = (a: User, b: User) =>\na.name.localeCompare(b.name)`.")
+    }
+}
+
+page ErrorT34(path: "/errors/T34", title: "T34 — A conversion the language does not make for you", description: "") {
+    ErrorShell("T34", title: "A conversion the language does not make for you", severity: "error", family: "Types", summary: "A `Date`, a `Time` or a `DateTime` where a `String` is wanted: each has more than one spelling, and a splice says which — `\"\{due\}\"`, `\"\{due:.date(long)\}\"`. A `Duration` and a `Number` taken for each other: a duration says its unit — `500.ms`, `3.seconds` — and `wait.ms()` is the number it counts.", printed: #"error[T34]: `content:` on `Text` is `Date`, and a `Date` is not a `String`: it has more than one spelling
+ --> src/App.wf:4:10
+  |
+4 |     Text(due)
+  |          ^^^
+  = help: Show it through a splice, which says how: `"{due}"`, or `"{due:.date(long)}"`
+  = docs: https://webfluent.monzeromer.dev/errors/T34"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T34.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "Due", description: "D") {
+    state due: Date = @2026-03-14
+    Heading("Due").h1
+    Text(due)
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "Due", description: "D") {
+    state due: Date = @2026-03-14
+    Heading("Due").h1
+    Text("{due:.date(long)}")
+}"#, title: "wf") }
+        note {
+            Markdown("A splice for a date or a time — `\"\{due\}\"`, `\"\{due:.date(long)\}\"`;\na unit for a number — `500.ms`, `2.seconds`; `.ms()` for the number a\nduration counts.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nA `Date`, a `Time` and a `DateTime` are carried by strings, but each has\nmore than one spelling — `2026-03-14`, `March 14, 2026`, `14/03/2026` — so\nthe language does not pick one where a `String` is wanted. A splice shows\nthe value and says how: `\"\{due\}\"` is its ISO text, `\"\{due:.date(long)\}\"`\nthe reader's own.\n\nA `Duration` is a number of milliseconds, but `3.seconds + 500` does not\nsay what the `500` is. A duration adds to a duration and is scaled by a\nnumber (`wait * 2`); `wait.ms()` is the number it counts.\n\nAn address, a colour and an id (`Url`, `Email`, `Color`, `Uuid`) have one\nspelling, and are strings wherever text is wanted.")
     }
 }
 
@@ -2347,10 +2462,10 @@ page P(path: "/", title: "T", description: "D") {
 
 page ErrorN05(path: "/errors/N05", title: "N05 — An invalidates naming what the contract does not have", description: "") {
     ErrorShell("N05", title: "An invalidates naming what the contract does not have", severity: "error", family: "Requests", summary: "A write's `invalidates [list, byId(id)]` names the reads a success makes stale, each a `get` of the same group, each argument one of the write's own parameters. A name the group does not have would make nothing stale.", printed: #"error[N05]: `Backend.todos.create` invalidates `all`, which `Backend.todos` has no read of
- --> src/App.wf:9:22
+ --> src/App.wf:9:18
   |
-9 |         invalidates [all]
-  |                      ^^^
+9 |     invalidates [all]
+  |                  ^^^
   = help: It may name `list`
   = docs: https://webfluent.monzeromer.dev/errors/N05"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N05.md") {
         broken { CodeBlock(#"type Todo { id: String, title: String }

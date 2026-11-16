@@ -665,7 +665,78 @@ impl Checker<'_, '_> {
                 ),
                 "Call it: `{}()`",
             ),
-            _ => {}
+            _ => self.not_bool(ty, expr, span, keyword, false),
+        }
+    }
+
+    /// `T29`: a condition — `if`, `show`, `!`, `&&`, `||` — on something that
+    /// is not a `Bool` (or a `Bool?`, whose `null` is `false`). JavaScript
+    /// would read `0`, `""` and `null` as false; the program says which it
+    /// means, and the fix writes that comparison. `negated` is a `!` before
+    /// it: the comparison is then the opposite one.
+    pub(super) fn not_bool(
+        &mut self,
+        ty: &Type,
+        expr: &Expr,
+        span: Span,
+        keyword: &str,
+        negated: bool,
+    ) {
+        let (none, word) = match ty {
+            Type::Bool
+            | Type::Any
+            | Type::Error
+            | Type::Never
+            | Type::List(_)
+            | Type::Record(_)
+            | Type::Func(..) => {
+                return;
+            }
+            Type::Optional(inner) if **inner == Type::Bool => return,
+            Type::Enum(n) if n == super::ty::JSON => {
+                self.json_fault(expr, &format!("`{keyword}` reads it as a condition"));
+                return;
+            }
+            Type::Number => ("0", "a number"),
+            Type::String => ("\"\"", "a string"),
+            Type::Optional(_) | Type::Null => ("null", "a value that may be null"),
+            _ => ("", "not a `Bool`"),
+        };
+        let text = expr_text(expr);
+        let op = if negated { "==" } else { "!=" };
+        let hint = if none.is_empty() {
+            "Compare it with the value that decides".to_string()
+        } else {
+            format!("Say what it asks: `{text} {op} {none}`")
+        };
+        self.error(
+            span,
+            "T29",
+            format!(
+                "`{keyword}` reads `{text}` as a condition, but it is {word}, not a `Bool`: `{ty}`"
+            ),
+            &hint,
+        );
+        if !none.is_empty() {
+            let (find, wrap) = if negated {
+                (format!("!{text}"), format!("{text} == {none}"))
+            } else {
+                let wrap = if matches!(
+                    expr,
+                    Expr::Identifier(_)
+                        | Expr::PropertyAccess(..)
+                        | Expr::OptionalProperty(..)
+                        | Expr::MethodCall(..)
+                        | Expr::FunctionCall(..)
+                        | Expr::IndexAccess(..)
+                ) {
+                    format!("{text} != {none}")
+                } else {
+                    format!("({text}) != {none}")
+                };
+                (text, wrap)
+            };
+            self.plan_text(&find, wrap, span, &format!("Write `{op} {none}`"));
         }
     }
 

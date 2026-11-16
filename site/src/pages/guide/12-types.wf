@@ -1,6 +1,6 @@
 /// Chapter 12 of the guide, written from md-docs/learn/12-types.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it.", source: "md-docs/learn/12-types.md", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
+page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it.", source: "md-docs/learn/12-types.md", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "what-agrees-with-what", label: "What agrees with what"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers WebFluent's types and the checker that holds a program to them. The checker runs in `wf build`, `wf check` and the editor, before any output is written. It is *gradual*: a program that declares no types still checks, because whatever the checker cannot work out has the type `Any`, and `Any` agrees with everything. Every annotation you add lets the checker say more. It is also *structural*: a value fits a type when it has the right fields, whatever it was declared as. The checker changes nothing in the output; it only reports.\n\n**In this chapter**\n\n- The type language, and the types that come with the language\n- Records (`type`), enums and the shapes of map literals\n- Where the checker gets a type from, and how it infers one\n- Narrowing a value that may be `null`\n- Typing data from the network\n- The checks, and what the checker does not check")
 
@@ -384,6 +384,24 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
     Text("{form.name} is {form.age} with {form.tags.length} tags")
 }"#, title: "wf")
 
+        Heading("What agrees with what", id: "what-agrees-with-what").h2
+
+        Markdown("A value fits where a type is wanted when it *is* that type, with nothing converted on the way:\n\n- **A map literal is a record's** only when its fields are the record's: a field the record lacks is `T05`, a required one left out `C01`, one of the wrong type `T01` — where it is written, and when a map kept in a state is given as the record later. `\{ ...todo, done: true \}` is a `Todo` again.\n- **One value, one type.** The branches of an `if` or a `match`, a list's items and the two sides of `??` make one value: `if ok \{ 1 \} else \{ \"none\" \}` is `T27`. `null` on one side makes it `T?`.\n- **A condition is a `Bool`.** `if count` is `T29`; write what it asks, `count != 0`, `name != \"\"`, `user != null`. A `Bool?` is a condition, its `null` false. A fallback for null is `??`, not `||`.\n- **No conversions.** `+` adds two numbers, joins two strings or adds two durations; text and a number meet in a splice, `\"Total: \{n\}\"` (`T18`). A `Date` is shown through a splice that says how, `\"\{due:.date(long)\}\"`, and a `Duration` says its unit, `500.ms` (`T34`). A `Url`, an `Email`, a `Color` and a `Uuid` are strings wherever text is wanted.\n- **`Json` is matched or decoded**, never read as a record, a list or a number (`T28`): `User.decode(raw)`.")
+
+        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+
+page Agree(path: "/", title: "Agree", description: "Values that are what they say.") {
+    state todo = Todo(id: "1", title: "Milk")
+    state left = 3
+    state due: Date = @2026-03-14
+    state nickname: String? = null
+    Heading("Agree").h1
+    Button("Done") { on click { todo = { ...todo, done: true } } }
+    if left != 0 { Text("{left} left") }
+    Text("Due {due:.date(long)}")
+    Text(nickname ?? "friend")
+}"#, title: "wf")
+
         Heading("Dictionaries, functions and aliases", id: "dictionaries-functions-and-aliases").h2
 
         Markdown("A *dictionary* holds values of one type under keys of another: `[String: Number]` is a score per name, `[Region: Money]` a price per region of an enum. It is written as a map literal where one is wanted, every value checked against its type and, for an enum's keys, every key against its cases. A key may be missing, so reading one — `scores[\"ada\"]` or `scores.ada` — gives a `Number?`. Its methods are `keys()`, `values()`, `entries()` (each `\{ key, value \}`), `has(k)`, and `with(k, v)` and `without(k)`, which make a copy with one key more or one fewer.\n\nA *function type* is written with its parameters in parentheses and its result after `->`: `(Todo) -> Bool`. `()` is nothing: `() -> ()` takes and returns nothing. A prop that takes a lambda declares one, and what the caller passes is held to it, parameters and result.\n\n`type Name = T` gives a type a second name, read as the type it names:")
@@ -509,7 +527,6 @@ page Narrow(path: "/", title: "Narrow", description: "Values that may be null, n
     Heading("Narrow").h1
     if let n = todo.note { Text("{n.length} chars") }
     if sel != null { Text(sel.title) }
-    if sel { Text(sel.title) }
     derived label = if sel != null { sel.title } else { "none" }
     Text(todo.note ?? "no note")
     Text(sel?.title ?? "nothing selected")
@@ -620,7 +637,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T18`") }
-                    Table.Cell("Arithmetic on something that is not a number")
+                    Table.Cell { Markdown("Arithmetic on something that is not a number, or `+` between text and a number") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T19`") }
@@ -637,6 +654,22 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
                 Table.Row {
                     Table.Cell { Markdown("`T22`") }
                     Table.Cell("A handler that names more values than its event sends")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T27`") }
+                    Table.Cell { Markdown("Two values with no type in common made into one: an `if`'s branches, a list's items, the sides of `??`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T28`") }
+                    Table.Cell { Markdown("A `Json` value read as a record, a list or a number rather than matched or decoded") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T29`") }
+                    Table.Cell { Markdown("A condition — `if`, `show`, `!`, `&&`, `||` — on something that is not a `Bool`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T34`") }
+                    Table.Cell { Markdown("A `Date` or a time where text is wanted, or a `Duration` and a `Number` mixed") }
                 }
             }
         }

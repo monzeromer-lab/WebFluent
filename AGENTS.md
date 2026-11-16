@@ -459,6 +459,12 @@ Text("Due {format(total)} on {checkout:.date(long)}")
 
 A literal written where one of these is wanted is read as one and held to
 its shape: `state site: Url = "example"` is an error where it is written.
+A `Url`, an `Email`, a `Color` and a `Uuid` have one spelling, and fit
+wherever a `String` does. A `Date`, a `Time` and a `DateTime` have many, so
+one is shown through a splice that says which — `Text("{due}")`,
+`Text("{due:.date(long)}")` — and `Text(due)` is `T34`. A `Duration` adds to
+a duration and is scaled by a number; `3.seconds + 500` is `T34`
+(`500.ms`), and `wait.ms()` is the number it counts.
 A `type` the program declares wins over the name — a project with its own
 `type Color { … }` means that one.
 
@@ -1639,7 +1645,8 @@ Each is a handle, not a signal: `.state` (what a `match` reads),
 `.close()`, and `.send(v)` on a socket or a peer, `.post(v)` on a channel.
 Each is typed by what it declares — `send Outgoing` is what `.send` takes,
 `receive Incoming` what `.messages` holds and `on message(m)` is given —
-and one that declares neither sends and receives `Json`.
+and one that declares neither sends and receives `Json`, which is matched
+or decoded rather than read as a record (`T28`).
 A store may hold any of them too: opened when the store is first read,
 closed with it, read as `Lang.css.state` and in its actions as `css`.
 
@@ -1649,9 +1656,13 @@ closed with it, read as `Lang.css.state` and in its actions as `css`.
 parser — held like a socket:
 
 ```wf
+type Problem { line: Number, message: String }
+type CssMessage { type: String, items: [Problem] = [] }
+
 store Lang {
-    state problems: [Map] = []
+    state problems: [Problem] = []
     worker css = spawn("/workers/css.js", restart: 1, timeout: 5000) {
+        receive CssMessage
         on message(m) { if m.type == "diagnostics" { problems = m.items } }
         on restart(e) { log("css restarted: {e.message}") }
     }
@@ -1682,18 +1693,22 @@ out through `signal:`, over whatever the app already has, and what the other
 side sent is handed to `link.signal(m)`. One side is the `initiator`.
 
 ```wf
+type Wave { text: String }
+
 page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
     state heard = ""
     channel lobby = broadcast("room") { on message(m) { link.signal(m) } }
     peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1",
                     ice: [{ urls: "stun:stun.example.com:3478" }]) {
+        send Wave
+        receive Wave
         on message(m) { heard = m.text }
     }
 
     Heading("Room").h1
     match link {
         connecting { Text("Waiting for the other side…").muted }
-        open       { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        open       { Button("Wave") { on click { link.send(Wave(text: "hello")) } } }
         closed(c)  { Text("They left.") }
         error(e)   { Alert(e.message).danger }
     }
@@ -3579,13 +3594,17 @@ And what the type checker finds:
 | `T21` | A `match` over a read with no `.failed` arm and no `else`: a failed request shows nothing |
 | `T16` | A method a number, a string or a list does not have, with the nearest one that it does (`joined` → `join`) |
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
-| `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`) |
+| `T18` | Arithmetic on something that is not a number (`"12" * 2`, `items - 1`), or `+` between text and a number (`"Total: " + n` — a splice says how it shows: `"Total: {n}"`) |
 | `T22` | A handler that names more values than its event sends — `on click(e, x)`, or `on menu(a, b, c, d)` for an event of three |
 | `T26` | An action that returns a value without `-> T`; the fix writes the type it returns |
+| `T27` | Two values with no type in common where one value is made of them — an `if`'s or a `match`'s branches, a list's items, the sides of `??`: `if ok { 1 } else { "none" }`. `null` on one side makes it `T?` |
+| `T28` | A `Json` value read as if it were something else — `raw.name`, `raw[0]`, `raw + 1`, a method — rather than matched or decoded (`User.decode(raw)`) |
+| `T29` | A condition — `if`, `show`, `!`, `&&`, `\|\|` — on something that is not a `Bool` (a `Bool?` is one, its `null` false): `if count` is `count != 0`, `!name` is `name == ""`, `user \|\| x` is `user ?? x`; the fix writes the comparison |
 | `T30` | A browser global, or a member of an element, an event or a browser object, the language does not type — `navigator.bluetooth`, `e.kye`; reach it from a project script with JSDoc |
 | `T25` | A `state` or `persist` whose first value does not say what it holds — `[]`, `{}`, `null`, open JSON; the fix writes the type the body assigns it |
 | `T31` | A project script's function called from `.wf` with no JSDoc, or a JSDoc type the language cannot say (a union, a bare `Array`); the fix writes JSDoc from the call |
 | `T32` | A parameter written with no type — an action's, an event's, a slot's — or a lambda's that nothing it is passed to types; the fix writes what every call passes |
+| `T34` | A conversion the language does not make: a `Date`, `Time` or `DateTime` where a `String` is wanted (`Text(due)` — `Text("{due:.date(long)}")`), or a `Duration` and a `Number` mixed (`3.seconds + 500` — `500.ms`) |
 | `T35` | Two `derived` values — in one body or two stores — that each read the other, or one that reads itself, with none declared |
 | `N01` | An endpoint's path naming `{name}` that no parameter fills, or a parameter in the path and in a header or cookie too |
 | `N02` | A `resource` over a write, or `.update` on one: a resource and an update are a read's |

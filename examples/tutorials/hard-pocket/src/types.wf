@@ -52,3 +52,6 @@ const CSV_HEADER = "id,date,kind,category,amount,currency,note"
 
 /// A double quote, which CSV wraps a note in and doubles inside one.
 const QUOTE = "\""
+
+/// What one tab tells the others when it has imported entries.
+type Imported { count: Number }

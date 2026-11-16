@@ -77,7 +77,7 @@ use tables::{
     LIST_METHODS, NUMBER_METHODS, SECRET_SINKS, STRING_METHODS, bound_type, case_signature,
     not_serialisable, scalar_method, scalar_methods_hint, string_method, takes_length,
 };
-use ty::{adds, counts, disjoint};
+use ty::{adds, conversion, counts, disjoint};
 internal! {
     pub use ty::{PRIMITIVE_TYPES, Scalar, Type};
 }
@@ -1199,6 +1199,16 @@ impl<'a, 'p> Checker<'a, 'p> {
             self.plan_nearest_case(case, &cases);
             return;
         }
+        // A map built by hand, or a record, where the other is wanted:
+        // agreement is field by field.
+        if let Some((code, message, hint)) = self.record_fault(given, wanted) {
+            self.error(span, code, format!("{what}: {message}"), &hint);
+            return;
+        }
+        if let Some((message, hint)) = conversion(given, wanted) {
+            self.error(span, "T34", format!("{what} is `{given}`, {message}"), hint);
+            return;
+        }
         if given.assignable_to(wanted) {
             self.loosely(given, wanted, what);
             return;
@@ -1237,6 +1247,83 @@ impl<'a, 'p> Checker<'a, 'p> {
             format!("{what} is `{given}`, but `{wanted}` is wanted"),
             &hint,
         );
+    }
+
+    /// Why a map literal's shape — or a record — does not fit where the
+    /// other is wanted, looking through lists and `null`: a field the
+    /// record lacks is `T05`, a required one left out `C01`, one of the
+    /// wrong type `T01`. `None` when the two agree, or are not a shape and
+    /// a record.
+    fn record_fault(&self, given: &Type, wanted: &Type) -> Option<(&'static str, String, String)> {
+        match (given, wanted) {
+            (Type::Optional(a), Type::Optional(b)) | (Type::List(a), Type::List(b)) => {
+                self.record_fault(a, b)
+            }
+            (_, Type::Optional(b)) => self.record_fault(given, b),
+            (Type::Shape(fields), Type::Record(record)) => {
+                let all = self.world.record_fields(record)?;
+                let names: Vec<String> = all.iter().map(|f| format!("`{}`", f.name)).collect();
+                for (name, ty) in fields {
+                    let Some(field) = all.iter().find(|f| &f.name == name) else {
+                        return Some((
+                            "T05",
+                            format!("`{record}` has no field `{name}`"),
+                            format!("Its fields are {}", names.join(", ")),
+                        ));
+                    };
+                    let field_ty = self.world.resolve(Type::from_ref(&field.ty));
+                    if let Some(inner) = self.record_fault(ty, &field_ty) {
+                        return Some(inner);
+                    }
+                    if !ty.assignable_to(&field_ty) {
+                        return Some((
+                            "T01",
+                            format!(
+                                "`{name}` of `{record}` is `{field_ty}`, but this one is `{ty}`"
+                            ),
+                            String::new(),
+                        ));
+                    }
+                }
+                let missing = all.iter().find(|f| {
+                    f.default.is_none()
+                        && !matches!(f.ty, TypeRef::Optional(_))
+                        && !fields.iter().any(|(n, _)| n == &f.name)
+                })?;
+                Some((
+                    "C01",
+                    format!(
+                        "the map leaves out `{}` of `{record}`, which has no default",
+                        missing.name
+                    ),
+                    format!("Give it `{}`", missing.name),
+                ))
+            }
+            // A record given where a map literal's shape is wanted: it has
+            // every field the shape has, each of its type.
+            (Type::Record(record), Type::Shape(fields)) => {
+                let all = self.world.record_fields(record)?;
+                for (name, ty) in fields {
+                    let Some(field) = all.iter().find(|f| &f.name == name) else {
+                        return Some((
+                            "T05",
+                            format!("`{record}` has no field `{name}`, which this map has"),
+                            String::new(),
+                        ));
+                    };
+                    let field_ty = self.world.resolve(Type::from_ref(&field.ty));
+                    if !field_ty.assignable_to(ty) {
+                        return Some((
+                            "T01",
+                            format!("`{name}` of `{record}` is `{field_ty}`, but `{ty}` is wanted"),
+                            String::new(),
+                        ));
+                    }
+                }
+                None
+            }
+            _ => None,
+        }
     }
 
     // ─── Declarations first ──────────────────────────────

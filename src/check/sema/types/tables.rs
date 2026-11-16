@@ -172,6 +172,12 @@ pub(super) fn bound_type(component: &str, modifiers: &[String]) -> Option<Type> 
         // that happens to look like one. Empty, it holds nothing.
         "DatePicker" => Some(Type::optional(Type::Scalar(Scalar::Date))),
         "Input" if modifiers.iter().any(|m| m == "number") => Some(Type::Number),
+        // The date and time pickers hold a date, a time, and a moment.
+        "Input" if modifiers.iter().any(|m| m == "date") => Some(Type::Scalar(Scalar::Date)),
+        "Input" if modifiers.iter().any(|m| m == "time") => Some(Type::Scalar(Scalar::Time)),
+        "Input" if modifiers.iter().any(|m| m == "datetime") => {
+            Some(Type::Scalar(Scalar::DateTime))
+        }
         "Input" | "Textarea" => Some(Type::String),
         _ => None,
     }

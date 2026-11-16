@@ -828,6 +828,13 @@ impl Checker<'_, '_> {
             {
                 let given = self.infer(value, alternatives.first());
                 if !given.unwrapped().is_any() {
+                    if let Some((message, hint)) = alternatives
+                        .iter()
+                        .find_map(|alt| super::ty::conversion(&given, alt))
+                    {
+                        self.error(at, "T34", format!("{what} is `{given}`, {message}"), hint);
+                        return;
+                    }
                     let mut wanted: Vec<String> =
                         alternatives.iter().map(|t| format!("`{t}`")).collect();
                     let last = wanted.pop().unwrap_or_default();

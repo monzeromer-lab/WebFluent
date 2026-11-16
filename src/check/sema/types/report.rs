@@ -274,6 +274,36 @@ impl Checker<'_, '_> {
         );
     }
 
+    /// A fix for the finding just reported that writes `with` in place of
+    /// the first `find` within `span` — an expression's text, as the
+    /// source spells it. Nothing is offered when the text is not found
+    /// there as written (a shortened call, a spacing of its own).
+    pub(super) fn plan_text(&mut self, find: &str, with: String, span: Span, title: &str) {
+        let Some(source) = self.source else {
+            return;
+        };
+        let (from, to) = (span.start as usize, (span.end as usize).min(source.len()));
+        if find.is_empty()
+            || find.contains('…')
+            || from >= to
+            || !source.is_char_boundary(from)
+            || !source.is_char_boundary(to)
+        {
+            return;
+        }
+        let Some(at) = source[from..to].find(find).map(|i| from + i) else {
+            return;
+        };
+        self.plan_last(
+            title.to_string(),
+            crate::diagnostics::fixes::Plan::Replace {
+                start: at,
+                end: at + find.len(),
+                text: with,
+            },
+        );
+    }
+
     /// A fix for the error just reported.
     pub(super) fn plan_last(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
         let list = self.last_list();

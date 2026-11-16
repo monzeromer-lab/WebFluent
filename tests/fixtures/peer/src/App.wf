@@ -1,8 +1,8 @@
-/// Two pages talking over WebRTC: `tests/browser/peer.mjs` opens this page
-/// twice, as `?role=a` (the initiator) and `?role=b`, and holds them to
-/// connecting, to a message each way, and to one side noticing the other
-/// leave. The signalling rides a `broadcast` channel, since both pages are
-/// in one browser; a real app would carry it over its own socket or `api`.
+// Two pages talking over WebRTC: `tests/browser/peer.mjs` opens this page
+// twice, as `?role=a` (the initiator) and `?role=b`, and holds them to
+// connecting, to a message each way, and to one side noticing the other
+// leave. The signalling rides a `broadcast` channel, since both pages are
+// in one browser; a real app would carry it over its own socket or `api`.
 
 page Chat(path: "/", title: "Peer", description: "Two pages talking over WebRTC.") {
     state got = ""
@@ -11,6 +11,8 @@ page Chat(path: "/", title: "Peer", description: "Two pages talking over WebRTC.
         on message(m) { link.signal(m) }
     }
     peer link = rtc(signal: m => room.post(m), initiator: query.role == "a") {
+        send Said
+        receive Said
         on message(m) { got = m.text }
     }
 
@@ -24,7 +26,10 @@ page Chat(path: "/", title: "Peer", description: "Two pages talking over WebRTC.
         }
         Text("got:{got}", id: "got")
         Button("Send", id: "send") {
-            on click { link.send({ text: "hello from {query.role}" }) }
+            on click { link.send(Said(text: "hello from {query.role ?? ""}")) }
         }
     }
 }
+
+/// What one side says to the other.
+type Said { text: String }

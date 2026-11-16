@@ -166,6 +166,17 @@ impl Scalar {
         })
     }
 
+    /// Whether it is a string with nothing to choose about its spelling — a
+    /// URL, an address, a colour, an id — so it fits where a `String` is
+    /// wanted. A date or a time has many spellings, and is shown through a
+    /// splice that picks one; a secret is never shown.
+    pub fn is_string(self) -> bool {
+        matches!(
+            self,
+            Scalar::Url | Scalar::Email | Scalar::Color | Scalar::Uuid
+        )
+    }
+
     /// Whether a string carries it, so a literal may be read as one and the
     /// value shown wherever text is shown.
     pub fn is_text(self) -> bool {
@@ -302,12 +313,11 @@ impl Type {
             }
             (Type::Map, Type::Dict(..)) | (Type::Dict(..), Type::Map) => true,
             (Type::Result(a, e), Type::Result(b, f)) => a.assignable_to(b) && e.assignable_to(f),
-            // A scalar is a plain value at run time, so it shows wherever
-            // text shows — except a `Secret`, which must not be shown at
-            // all, and `Duration`, which is a number of milliseconds.
-            (Type::Scalar(s), Type::String) => s.is_text() && *s != Scalar::Secret,
-            (Type::Scalar(Scalar::Duration), Type::Number) => true,
-            (Type::Number, Type::Scalar(Scalar::Duration)) => true,
+            // A scalar whose text is its one spelling — an address, a
+            // colour, an id — is a string. One that has many — a date, a
+            // time — is shown through a splice that says which (`T34`), and
+            // a `Duration` is not a `Number` (`3.seconds + 500.ms`).
+            (Type::Scalar(s), Type::String) => s.is_string(),
             (Type::Resource(a, _), Type::Resource(b, _)) => a.assignable_to(b),
             (Type::NetError(_), Type::NetError(_)) => true,
             (Type::Promise(a), Type::Promise(b)) => a.assignable_to(b),
@@ -349,6 +359,10 @@ impl Type {
             (Type::Shape(_), Type::Map | Type::Record(_))
             | (Type::Map | Type::Record(_), Type::Shape(_)) => Type::Map,
             (Type::Case(_), Type::Enum(e)) | (Type::Enum(e), Type::Case(_)) => Type::Enum(e),
+            // An address, a colour or an id is a string.
+            (Type::Scalar(s), Type::String) | (Type::String, Type::Scalar(s)) if s.is_string() => {
+                Type::String
+            }
             (Type::Case(_), Type::Case(_)) => Type::Any,
             _ => Type::Any,
         }
@@ -471,3 +485,35 @@ pub(super) fn disjoint(a: &Type, b: &Type) -> bool {
 
 /// The plain types a program writes, beside its own and [`Scalar::ALL`].
 pub const PRIMITIVE_TYPES: &[&str] = &["String", "Number", "Bool", "Map", "Any"];
+
+/// Why `given` does not fit `wanted` when the language would once have
+/// converted it: a date or a time where text is wanted — it has many
+/// spellings, and a splice says which — or a `Duration` and a `Number`
+/// taken for each other. `T34`'s message and hint.
+pub(super) fn conversion(given: &Type, wanted: &Type) -> Option<(String, &'static str)> {
+    let (from, to) = match (given, wanted) {
+        (Type::Optional(a), Type::Optional(b)) => (&**a, &**b),
+        (from, Type::Optional(b)) => (from, &**b),
+        (from, to) => (from, to),
+    };
+    match (from, to) {
+        (Type::Scalar(s @ (Scalar::Date | Scalar::Time | Scalar::DateTime)), Type::String) => {
+            Some((
+                format!(
+                    "and a `{}` is not a `String`: it has more than one spelling",
+                    s.name()
+                ),
+                "Show it through a splice, which says how: `\"{due}\"`, or `\"{due:.date(long)}\"`",
+            ))
+        }
+        (Type::Scalar(Scalar::Duration), Type::Number) => Some((
+            "and a `Duration` is not a `Number`".to_string(),
+            "Say what it counts: `wait.ms()`, `wait.seconds()`",
+        )),
+        (Type::Number, Type::Scalar(Scalar::Duration)) => Some((
+            "and a `Number` is not a `Duration`".to_string(),
+            "Give it its unit: `500.ms`, `3.seconds`, or `n.ms` for a number held in a value",
+        )),
+        _ => None,
+    }
+}

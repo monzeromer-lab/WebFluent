@@ -42,7 +42,9 @@ impl Checker<'_, '_> {
             self.in_chain = match_arm(&args[1]).is_some();
             let else_ty = self.infer(&args[1], None);
             self.in_chain = was;
-            return self.join(then_ty, else_ty, obj);
+            return self.join_at(then_ty, else_ty, &|| {
+                format!("if let {name} = {} {{ … }}", expr_text(obj))
+            });
         }
         // `match` over an enum as a value: `__is` asks for a case, `__payload`
         // for the payload where the case is the one asked for.
@@ -138,7 +140,9 @@ impl Checker<'_, '_> {
             self.in_chain = match_arm(&args[1]).is_some();
             let else_ty = self.infer(&args[1], None);
             self.in_chain = was;
-            return self.join(then_ty, else_ty, obj);
+            return self.join_at(then_ty, else_ty, &|| {
+                format!("if {} {{ … }}", expr_text(obj))
+            });
         }
         // A secret handed to the browser itself — logged, stored, written
         // into the document — is a secret anyone at the keyboard can read.
@@ -174,6 +178,17 @@ impl Checker<'_, '_> {
             return self.endpoint_method(&api, endpoint, method, args);
         }
         let obj_ty = self.infer(obj, None);
+        // JSON has no methods: it is matched, or decoded into a type.
+        if matches!(obj_ty.unwrapped(), Type::Enum(n) if n == super::ty::JSON) {
+            for a in args {
+                self.infer(a, None);
+            }
+            self.json_fault(
+                obj,
+                &format!("`.{method}(…)` reads it as something with methods"),
+            );
+            return Type::Error;
+        }
         // `Backend.users(page: 2)`: an endpoint of a service, whose
         // arguments are its parameters and whose value is what it returns.
         if let Type::Api(name) = &obj_ty {

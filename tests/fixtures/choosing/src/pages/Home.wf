@@ -38,7 +38,7 @@ page Home(path: "/", title: "Choosing", description: "Every choosing built-in.")
     NumberInput(bind: qty, min: 1, max: 5, label: "Quantity")
     Text("qty {qty}", id: "qty")
     Calendar(bind: day, min: @2026-03-03, disabled: d => d.weekday() >= 6, label: "Delivery day")
-    derived dayText = day ?? "none"
+    derived dayText = if let d = day { "{d}" } else { "none" }
     Text("day {dayText}", id: "day")
     Calendar(bind: stay, mode: .range, id: "stay")
     derived stayText = "{stay.start ?? "-"} {stay.end ?? "-"}"

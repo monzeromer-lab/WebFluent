@@ -263,8 +263,11 @@ fn t18_arithmetic_takes_numbers() {
         "    state s = \"12\"\n    state xs = [1]\n    Text(\"{s * 2}\")\n    Text(\"{xs - 1}\")\n    Text(\"{xs + 1}\")",
     );
     assert_eq!(with(&src, "T18").len(), 3, "{:?}", with(&src, "T18"));
+    // Text and a number are not joined by `+`: a splice says how it shows.
+    let src = page("    state s = \"12\"\n    state n = 2\n    Text(s + n)");
+    assert_eq!(with(&src, "T18").len(), 1, "{:?}", findings(&src));
     clean(&page(
-        "    state s = \"12\"\n    state n = 2\n    Text(\"{s + n}\")\n    Text(\"{n * 2 - 1}\")",
+        "    state s = \"12\"\n    state n = 2\n    Text(s + s)\n    Text(\"{s}{n}\")\n    Text(\"{n * 2 - 1}\")",
     ));
 }
 
@@ -1384,4 +1387,119 @@ fn a_parameter_has_one_place() {
     let found = with(&src, "N01");
     assert_eq!(found.len(), 1, "{found:?}");
     assert!(found[0].contains("one place"), "{found:?}");
+}
+
+// ─── Closing the agreement rules ─────────────────────────────────────
+
+/// The first fix of the first finding with `code`, applied to `src`.
+fn fixed(src: &str, code: &str) -> String {
+    let finding = findings(src)
+        .into_iter()
+        .find(|d| d.code == code)
+        .unwrap_or_else(|| panic!("no {code} in {:?}", findings(src)));
+    let fix = finding
+        .fixes
+        .first()
+        .unwrap_or_else(|| panic!("{code} offers no fix: {finding:?}"));
+    webfluent::diagnostics::fixes::apply(src, fix)
+}
+
+#[test]
+fn t27_branches_items_and_fallbacks_are_one_type() {
+    let src = page(
+        "    state ok = true\n    state day: Date? = null\n    derived a = if ok { 1 } else { \"none\" }\n    derived b = [1, \"a\"]\n    derived c = day ?? \"none\"\n    Text(\"{a} {b.length} {c}\")",
+    );
+    let found = with(&src, "T27");
+    assert_eq!(found.len(), 3, "{found:?}");
+    assert!(
+        found[0].contains("`Number` one way and `String` the other"),
+        "{found:?}"
+    );
+    // `null` on one side makes the value optional; an address is a
+    // string; two cases with no enum wanted are not refused here.
+    clean(&page(
+        "    state ok = true\n    state site: Url = \"https://example.com\"\n    derived a = if ok { 1 } else { null }\n    derived b = if ok { site } else { \"none\" }\n    Text(\"{a ?? 0} {b}\")",
+    ));
+}
+
+#[test]
+fn t28_json_is_matched_or_decoded_never_read_as_something_else() {
+    let src = page(
+        "    state text = \"{}\"\n    derived raw = JSON.parse(text)\n    derived a = raw.name\n    derived b = raw + 1\n    derived c = raw[0]\n    derived d = raw.keys()\n    Text(\"{a} {b} {c} {d}\")",
+    );
+    let found = with(&src, "T28");
+    assert_eq!(found.len(), 4, "{found:?}");
+    assert!(
+        found[0].contains("`raw` is `Json`, and `.name` reads it as a record"),
+        "{found:?}"
+    );
+    clean(&format!(
+        "type User {{ name: String }}\n{}",
+        page(
+            "    state text = \"{}\"\n    derived raw = JSON.parse(text)\n    derived name = match User.decode(raw) { .ok(u) { u.name } else { \"\" } }\n    Text(name)"
+        )
+    ));
+}
+
+#[test]
+fn t29_a_condition_is_a_bool_and_the_fix_writes_the_comparison() {
+    let src = page(
+        "    state n = 0\n    state name = \"\"\n    state picked: String? = null\n    state open: Bool? = null\n    if n { Text(\"a\") }\n    show name { Text(\"b\") }\n    if picked { Text(\"c\") }\n    if open { Text(\"d\") }\n    derived e = !n\n    derived f = picked || \"none\"\n    Text(\"{e} {f}\")",
+    );
+    let found = with(&src, "T29");
+    // `if n`, `show name`, `if picked`, `!n` and `picked || …`; a `Bool?`
+    // is a condition, its `null` false.
+    assert_eq!(found.len(), 5, "{found:?}");
+    let src = page("    state n = 0\n    if n { Text(\"a\") }");
+    let after = fixed(&src, "T29");
+    assert!(after.contains("if n != 0 {"), "{after}");
+    clean(&after);
+    let src =
+        page("    state picked: String? = null\n    derived f = picked || \"none\"\n    Text(f)");
+    let after = fixed(&src, "T29");
+    assert!(after.contains("picked ?? \"none\""), "{after}");
+    clean(&after);
+    let src = page("    state n = 0\n    derived e = !n\n    Text(\"{e}\")");
+    let after = fixed(&src, "T29");
+    assert!(after.contains("derived e = n == 0"), "{after}");
+    clean(&after);
+}
+
+#[test]
+fn t34_a_date_is_shown_through_a_splice_and_a_duration_says_its_unit() {
+    let src = page(
+        "    state due: Date = @2026-03-14\n    state wait = 3.seconds\n    state n = 2\n    Text(due)\n    derived d = wait + 500\n    derived m: Number = wait\n    Text(\"{d} {m}\")",
+    );
+    let found = with(&src, "T34");
+    assert_eq!(found.len(), 3, "{found:?}");
+    assert!(found[0].contains("a `Date` is not a `String`"), "{found:?}");
+    clean(&page(
+        "    state due: Date = @2026-03-14\n    state wait = 3.seconds\n    state site: Url = \"https://example.com\"\n    Text(\"{due}\")\n    Text(site)\n    derived d = wait + 500.ms\n    derived twice = wait * 2\n    derived m = wait.ms()\n    Text(\"{d} {twice} {m}\")",
+    ));
+}
+
+#[test]
+fn a_map_is_held_to_the_record_it_is_given_as_field_by_field() {
+    let types = "type User { id: String, name: String }\n";
+    // A map kept in a state is a record's only when its fields are.
+    let src = format!(
+        "{types}{}",
+        page(
+            "    state draft = { id: \"1\", nmae: \"Ada\" }\n    state short = { id: \"1\" }\n    state wrong = { id: 1, name: \"Ada\" }\n    state u: User = User(id: \"0\", name: \"\")\n    Button(\"x\") { on click { u = draft\n u = short\n u = wrong } }"
+        )
+    );
+    let all = findings(&src);
+    let codes: Vec<&str> = all
+        .iter()
+        .filter(|d| d.is_error())
+        .map(|d| d.code)
+        .collect();
+    assert_eq!(codes, ["T05", "C01", "T01"], "{all:?}");
+    // A copy of a record with a field given again is the record.
+    clean(&format!(
+        "{types}{}",
+        page(
+            "    state u: User = User(id: \"0\", name: \"\")\n    state good = { id: \"1\", name: \"Ada\" }\n    Button(\"x\") { on click { u = good\n u = { ...u, name: \"Bo\" } } }\n    Text(u.name)"
+        )
+    ));
 }
