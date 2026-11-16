@@ -128,6 +128,66 @@ pub struct Endpoint {
     pub path_written: bool,
 }
 
+impl Endpoint {
+    /// How a read of it is gathered a page at a time, when it says:
+    /// `pages .cursor(param: after, next: p => p.next, items: p => p.posts)`.
+    pub fn pages(&self) -> Option<Paging<'_>> {
+        let (_, how) = self.settings.iter().find(|(k, _)| k == "pages")?;
+        let (style, given) = match how {
+            Expr::EnumCase(style) => (style.as_str(), &[][..]),
+            Expr::CaseValue(style, args) => (style.as_str(), args.as_slice()),
+            _ => ("", &[][..]),
+        };
+        let args = given
+            .iter()
+            .filter_map(|a| match a {
+                Expr::MapLiteral(pairs) => Some(pairs),
+                _ => None,
+            })
+            .flatten()
+            .map(|(k, v)| (k.trim_matches('"'), v))
+            .collect();
+        Some(Paging {
+            style,
+            args,
+            written: how,
+        })
+    }
+
+    /// Whether it answers a line at a time: `-> [LogLine] streamed`.
+    pub fn streamed(&self) -> bool {
+        self.settings.iter().any(|(k, _)| k == "streamed")
+    }
+}
+
+/// How an endpoint pages: `.number(param: page)`, `.cursor(param: after,
+/// next: p => p.next)` or `.link`, and what each names.
+#[derive(Debug, Clone)]
+pub struct Paging<'a> {
+    /// `number`, `cursor` or `link`; empty when what is written is not a
+    /// case.
+    pub style: &'a str,
+    /// Its named arguments: `param`, `next`, `items`.
+    pub args: Vec<(&'a str, &'a Expr)>,
+    /// What was written after `pages`.
+    pub written: &'a Expr,
+}
+
+impl Paging<'_> {
+    /// The argument written under `name`.
+    pub fn arg(&self, name: &str) -> Option<&Expr> {
+        self.args.iter().find(|(k, _)| *k == name).map(|(_, v)| *v)
+    }
+
+    /// The parameter the page goes in, when `param:` names one.
+    pub fn param(&self) -> Option<&str> {
+        match self.arg("param")? {
+            Expr::Identifier(name) => Some(name),
+            _ => None,
+        }
+    }
+}
+
 /// Where an endpoint's parameter goes, beside the path and the query.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ParamLocation {
@@ -1261,6 +1321,9 @@ pub struct ForStmt {
     /// The `, animate(…)` clause as written, when there is one.
     pub animate_span: Option<Span>,
     pub body: Vec<Statement>,
+    /// `for await line in Logs.tail(id: id)`: each line of a streamed
+    /// answer as it arrives, in an action or a handler.
+    pub streaming: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -1826,7 +1889,7 @@ pub fn awaits(stmts: &[Statement]) -> bool {
                         || i.else_if_branches.iter().any(|(_, b)| awaits(b))
                         || i.else_body.as_deref().is_some_and(awaits)
                 }
-                StatementKind::For(f) => awaits(&f.body),
+                StatementKind::For(f) => f.streaming || awaits(&f.body),
                 StatementKind::Try(t) => awaits(&t.body) || awaits(&t.catch_body),
                 StatementKind::Show(s) => awaits(&s.body),
                 StatementKind::Match(m) => m.arms.iter().any(|a| awaits(&a.body)),

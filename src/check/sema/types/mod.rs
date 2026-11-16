@@ -42,6 +42,7 @@ mod members;
 mod method;
 mod names;
 mod order;
+mod paging;
 mod reactivity;
 mod read;
 mod refine;
@@ -253,7 +254,7 @@ type DecodeError { at: String, message: String }
 /// What went wrong between the page and the server. Every one has
 /// `.message`, for showing.
 enum HttpError {
-    offline
+    offline(queued: Bool)
     timeout(after: Duration)
     cancelled
     transport(message: String)
@@ -274,6 +275,9 @@ type Point { x: Number, y: Number }
 /// One file of a `CodeBlock`'s tabs.
 type CodeFile { name: String, code: String, language: String = \"wf\" }
 type Request { url: String, method: String, headers: [String: String] = {}, body: Json? = null }
+/// A write kept while the connection was gone, which the server refused
+/// once it was sent: `network.refused`.
+type RefusedWrite { method: String, url: String, status: Number, at: DateTime }
 /// A range a `DateRangePicker` offers to take at a press.
 enum RangePreset { today, last7, last30, thisMonth, lastMonth }
 ",
@@ -853,13 +857,14 @@ pub fn check_sources_with<'s>(
                     // `invalidates [list, byId(id)]` names endpoints and
                     // arguments, which `contract` checks, not values.
                     for (k, e) in &endpoint.settings {
-                        if k == "invalidates" {
+                        if k == "invalidates" || k == "pages" {
                             continue;
                         }
                         cx.current_span = endpoint.span;
                         cx.infer(e, None);
                     }
                     cx.contract(a, endpoint);
+                    cx.paging(a, endpoint);
                 }
                 for hook in &a.hooks {
                     cx.push_scope();
@@ -1414,16 +1419,19 @@ impl<'a, 'p> Checker<'a, 'p> {
                             Expr::MethodCall(obj, method, _) => {
                                 match self.world.api_of(obj) {
                                     Some(api) => {
-                                        match self
-                                            .world
-                                            .endpoint(&api, method)
-                                            .and_then(|e| e.returns.as_ref())
-                                        {
-                                            // A read of `-> T ! E` holds the `T`.
-                                            Some(t) => {
-                                                answer_of(self.world.resolve(Type::from_ref(t)))
+                                        match self.world.endpoint(&api, method) {
+                                            // A paged read holds every
+                                            // page's items, gathered.
+                                            Some(e) if e.pages().is_some() => {
+                                                self.paged_items(e, true).unwrap_or(Type::Error)
                                             }
-                                            None => self.hole(HoleKind::UntypedResource, &r.name),
+                                            // A read of `-> T ! E` holds the `T`.
+                                            Some(e) if e.returns.is_some() => {
+                                                answer_of(self.world.resolve(Type::from_ref(
+                                                    e.returns.as_ref().expect("checked"),
+                                                )))
+                                            }
+                                            _ => self.hole(HoleKind::UntypedResource, &r.name),
                                         }
                                     }
                                     None => self.hole(HoleKind::UntypedResource, &r.name),
@@ -1454,12 +1462,13 @@ impl<'a, 'p> Checker<'a, 'p> {
                     if r.ty.is_some()
                         && let Expr::MethodCall(obj, method, _) = &r.url
                         && let Some(api) = self.world.api_of(obj)
-                        && let Some(returns) = self
-                            .world
-                            .endpoint(&api, method)
-                            .and_then(|e| e.returns.as_ref())
+                        && let Some(endpoint) = self.world.endpoint(&api, method)
+                        && let Some(returns) = endpoint.returns.as_ref()
                     {
-                        let returns = answer_of(self.world.resolve(Type::from_ref(returns)));
+                        let returns = match self.paged_items(endpoint, true) {
+                            Some(items) => items,
+                            None => answer_of(self.world.resolve(Type::from_ref(returns))),
+                        };
                         if !returns.assignable_to(&inner) {
                             self.error(
                                 stmt.span,

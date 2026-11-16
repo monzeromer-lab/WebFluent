@@ -199,8 +199,8 @@ What happens when a request fails, or changes:
   would be the wrong one. What the last request brought goes with it:
   `name.value` is `null` (and a paged resource's `name.items` empty) until
   the answer arrives, and stays so if it fails, so a `derived` value over it
-  never reads the other request's answer. With `paginate:`, the next page
-  is a refresh instead.
+  never reads the other request's answer. A paged read's next page is a
+  refresh instead ([Load results a page at a time](#load-results-a-page-at-a-time)).
 - `placeholder: .previous` keeps the last value shown instead, `.loaded`
   and refreshing, until the new answer arrives — a search whose results
   stay while the next ones load.
@@ -326,7 +326,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
         .loading { Skeleton(height: "20px") }
         .failed(e) {
             match e {
-                .offline { Alert("You are offline.").warning }
+                .offline(_) { Alert("You are offline.").warning }
                 .timeout { Alert("The server took too long.").warning }
                 else     { Alert(e.message).danger }
             }
@@ -430,7 +430,7 @@ call with `.transport`.
 | Cache | What the server's `Cache-Control` allows (RFC 9111): fresh for its `max-age`, stale within `stale-while-revalidate`, revalidated with `ETag`, never under `no-store`, kept apart by `Vary` and the credentials; nothing without caching headers. `cache: .maxAge(60.seconds)`, `.swr(…)`, `.none`, `.forever` override it. It holds the 256 answers read most recently |
 | Dedupe | Two readers of one address make one request, cached or not |
 | Refetch | `refresh: .onFocus`, `.onReconnect`, `.every(30.seconds)` |
-| Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
+| Pages | An endpoint that says how it pages gives a read `.items`, `.loadMore()` and `.hasMore` ([Load results a page at a time](#load-results-a-page-at-a-time)) |
 | Progress | A `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
 
 Beside each endpoint you also get `Backend.users.invalidate()`,
@@ -637,8 +637,9 @@ A call passes the endpoint's parameters by name, and one with no default
 that may not be null must be given. Called in an action, it is a promise of
 a result: `await` it, then `match` it or pass its failure up with `try`
 ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`,
-`headers:`, `timeout:` and `retry:`, and in a `resource` also `on:` (`.focus`, `.reconnect`,
-`.interval(30.seconds)`) and `paginate:`.
+`headers:`, `timeout:` and `retry:`, and in a `resource` also `refresh:`
+(`.onFocus`, `.onReconnect`, `.every(30.seconds)`, `.never`) and
+`placeholder:`.
 
 ### Say how a call fails
 
@@ -706,9 +707,10 @@ page Team(path: "/people", title: "People", description: "Adding someone, and wh
   carries one value, the body of that status. An enum that names a status
   is held to that shape (`N12`).
 - **`HttpError`** is what goes wrong between the page and the server:
-  `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`,
+  `.offline(queued)`, `.timeout(after)`, `.cancelled`, `.transport(message)`,
   `.decode(at, message)` and `.status(code, problem)`. Every one has
-  `.message`, for showing.
+  `.message`, for showing. `queued` is true for a write kept to send when
+  the connection returns ([Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md)).
 - **`Problem`** is a server's account of a failure as RFC 9457 has it —
   `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a
   project extends it like any record. A status the enum does not name
@@ -731,7 +733,8 @@ page Team(path: "/people", title: "People", description: "Adding someone, and wh
 
 ### Load results a page at a time
 
-To show a long list in pages, call the endpoint with `paginate: .page`.
+How an endpoint pages is part of its contract, so you say it once, on the
+endpoint, with `pages`. A read of it then holds every page loaded so far.
 This page shows items and a **Load more** button while there are more:
 
 ```wf
@@ -739,26 +742,113 @@ type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
     get items(page: Number = 1) at "items" -> [Item]!
+        pages .number(param: page)
 }
 
 page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
-    state page = 1
-    resource list = Catalog.items(page: page, paginate: .page)
+    resource list = Catalog.items()
 
     Heading("Items").h1
     for item in list.items by item.id { Text(item.name) }
     if list.hasMore {
-        Button("Load more") { on click { list.loadMore() } }
+        Button("Load more", loading: list.pending) { on click { list.loadMore() } }
     }
 }
 ```
 
-- `.items` gathers every page loaded so far. It is a list of what a page
-  holds — the answer, when the endpoint returns a list, or its `items`
-  field — so `item.name` is checked against `Item`.
-- `.loadMore()` moves `page` on by one and fetches the next page, as a
-  refresh.
-- `.hasMore` turns false when a page comes back empty.
+- `.items` is every item loaded so far, in order — the same list as the
+  read's `.value` and its `.loaded(items)` — so `item.name` is checked
+  against `Item`.
+- `.loadMore()` asks for the next page, as a refresh: what is shown stays
+  while it loads. It does nothing while a request runs or when there is no
+  next page.
+- `.hasMore` is whether there is a next page.
+- `reload()`, `refresh:` and an `invalidates` ask again for every page
+  loaded, in order, and show them together. A call with other arguments
+  starts again from the first page.
+
+The read keeps the page number itself; nothing on the page holds it. There
+are three ways an endpoint can page:
+
+| Written | Asks for the next page with | Stops when |
+|---|---|---|
+| `pages .number(param: page)` | the parameter, one more each time | a page comes back empty |
+| `pages .cursor(param: after, next: p => p.nextCursor)` | the cursor the last page gave | `next:` gives `null` |
+| `pages .link` | the address the answer's `Link` header names `rel="next"` (RFC 8288) | no `Link` names one |
+
+`param:` names one of the endpoint's parameters that the first call need
+not give: it has a default, or may be `null`. When a page is not a list
+itself, `items:` says where its items are:
+
+```wf
+type Post { id: String, title: String }
+type FeedPage { posts: [Post], nextCursor: String? }
+
+api Social(base: "/api") {
+    get feed(after: String?) at "feed" -> FeedPage!
+        pages .cursor(param: after, next: p => p.nextCursor, items: p => p.posts)
+}
+
+page Feed(path: "/feed", title: "Feed", description: "What is new, a page at a time.") {
+    resource feed = Social.feed()
+
+    Heading("Feed").h1
+    for post in feed.items by post.id { Text(post.title) }
+    if feed.hasMore {
+        Button("More", loading: feed.pending) { on click { feed.loadMore() } }
+    }
+}
+```
+
+A numbered pager, `Pagination(bind: page)`, is a different thing: each
+page is a read of its own, `Catalog.items(page: page)` with no `pages`, and
+going back to one is a cache hit when the server allows caching.
+
+### Read an answer that arrives a line at a time
+
+An endpoint that answers one JSON value a line — a log tail, a build's
+output, NDJSON — is marked `streamed`, and says the list its lines make:
+
+```wf
+type LogLine { at: String, text: String }
+
+api Deploys(base: "/api") {
+    get tail(id: String) at "deploys/{id}/log" -> [LogLine]! streamed
+}
+
+store Follow {
+    state last = ""
+    action watch(id: String) {
+        for await line in Deploys.tail(id: id) { last = line.text }
+    }
+}
+
+page Log(path: "/log", title: "Log", description: "A deploy's log, as it is written.") {
+    use Follow
+    resource lines = Deploys.tail(id: "7")
+
+    Heading("Deploy 7").h1
+    match lines {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(all) { for line, i in all by i { Text("{line.at} {line.text}") } }
+    }
+    Button("Follow") { on click { Follow.watch("7") } }
+    Text(Follow.last)
+}
+```
+
+- A `resource` over it is `.loaded` from the first line, and its list
+  grows as the rest arrive; `.pending` is true until the answer ends. A
+  refresh gathers the lines again and shows them when they are all there.
+- `await Deploys.tail(id: …)` is every line, as one result.
+- `for await line in Deploys.tail(id: …)`, in an action or a handler,
+  runs its body for each line as it arrives; `for await line, i in …`
+  counts them.
+- Each line is held to the item's type, `LogLine` here; one that is not
+  fails as `.decode(at, message)`, naming the line.
+
+`pages` and `streamed` are a read's: a write is sent once (`N14`).
 
 ### Call an API on another origin
 

@@ -571,6 +571,7 @@ fn if_let_binds_the_value_and_for_by_passes_the_key() {
                 animate: None,
                 animate_span: None,
                 body: vec![text(Expr::Identifier("it".to_string()))],
+                streaming: false,
             })),
             stmt(StatementKind::Action(ActionDecl {
                 returns: None,

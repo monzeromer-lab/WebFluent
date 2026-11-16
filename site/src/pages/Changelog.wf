@@ -411,6 +411,35 @@ value's type; a value an older build left in another shape is dropped for
 the initial value, with a warning in a development build, and the page
 loads."#)
                 ]),
+                NotesSection(title: #"Pages, lines, and writes kept offline"#, id: "7.0.0-pages-lines-and-writes-kept-offline", intro: #"How an endpoint answers more than once is written in its contract, once."#, items: [
+                    Change(text: #"**Pages.** `pages .number(param: page)`, `pages .cursor(param: after,
+next: p => p.nextCursor, items: p => p.posts)` or `pages .link` (the
+answer's `Link` header, RFC 8288). A read of it holds every page's items,
+typed, with `.items`, `.hasMore` and `.loadMore()`; the read keeps the
+page itself and writes no state of the page's. A refresh asks again for
+every page gathered, in order, and shows them together."#),
+                    Change(text: #"**Lines.** `get tail(id: String) at "logs/{id}" -> [LogLine]! streamed`:
+a read over it is `.loaded` from its first line and grows; awaited whole
+it is every line; `for await line in Logs.tail(id: id)` in an action or a
+handler walks them as they arrive. Each line is held to its type, and the
+request goes through the service's middleware, timeout and retries."#),
+                    Change(text: #"**A write kept offline says so.** Its call used to resolve with nothing
+while the checker said `User`; it now fails `.offline(queued: true)`, so
+the page knows no answer came. `HttpError`'s `.offline` carries `queued`."#),
+                    Change(text: #"**What happens to it later.** Once sent, what its endpoint `invalidates`
+asks again — on the page that sends it, or on every open page when the
+service worker does. One the server refuses is never sent again and is
+listed in `network.refused` (`{ method, url, status, at }`) until
+`network.clearRefused()`."#),
+                    Change(text: #"**`N14`** refuses a `pages` or `streamed` that cannot work: on a write, a
+page parameter the endpoint lacks or the first call must give, a cursor
+with no `next:`, a page that is not a list with no `items:`, a streamed
+answer that is not a list, and `for await` over anything but a streamed
+call."#),
+                    Change(text: #"**`paginate:` on a call is `N08`.** Its `.items`, `.hasMore` and
+`.loadMore()` stay; `pages .number(param: page)` moves to the endpoint,
+and the `state page` the runtime used to write goes."#)
+                ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
 `catch e`, a built-in's prop of no declared type — with its file, line and
@@ -424,7 +453,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 74), latest: true)
+            ], count: 80), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4210,6 +4239,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-pages-lines-and-writes-kept-offline", label: #"Pages, lines, and writes kept offline"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

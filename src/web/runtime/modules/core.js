@@ -332,6 +332,10 @@
   // many such writes wait. Empty in a build without it.
   let offlineWrites = null;
   let offlineQueued = null;
+  // The writes the server refused once they were sent, and what forgets
+  // them: `network.refused`, `network.clearRefused()`.
+  let offlineRefused = null;
+  let offlineClearRefused = null;
   // How many messages a connection's `.messages` holds by default: the
   // newest, the oldest going first. `keep:` on the connection says another
   // number. A list that grew for as long as the page was open — copied on

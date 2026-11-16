@@ -1855,6 +1855,25 @@
   "related": []
  },
  {
+  "code": "N14",
+  "title": "A `pages` or `streamed` an endpoint cannot have",
+  "plain": "A pages or streamed an endpoint cannot have",
+  "severity": "error",
+  "family": "N",
+  "group": "Requests",
+  "summary": "A read may answer a page at a time — `pages .number(param: page)`, `.cursor(param: after, next: p => p.next)` or `.link` — or a line at a time, `streamed`. Each is a read's, each gathers a list, and each names what it needs: the parameter the next page goes in, which the first call need not give, and where a page's items are when it is not a list itself. `for await` walks only a `streamed` endpoint's lines.",
+  "lowerable": false,
+  "description": "An endpoint that pages names the parameter the next page goes in and where a page's items are; one that streams answers a list. Each is a read's.",
+  "printed": "error[N14]: `pages .cursor` on `Social.feed` says nothing of where the next page starts\n --> src/App.wf:5:5\n  |\n5 |     get feed(after: String?) at \"feed\" -> FeedPage!\n  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  = help: Name it from a page: `next: p => p.nextCursor`\n  = docs: https://webfluent.monzeromer.dev/errors/N14",
+  "broken": "type Post { id: String, title: String }\ntype FeedPage { posts: [Post], nextCursor: String? }\n\napi Social(base: \"/api\") {\n    get feed(after: String?) at \"feed\" -> FeedPage!\n        pages .cursor(param: after)\n}\n\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    resource feed = Social.feed()\n    Heading(\"Feed\").h1\n    for p in feed.items by p.id { Text(p.title) }\n}",
+  "fixed": "type Post { id: String, title: String }\ntype FeedPage { posts: [Post], nextCursor: String? }\n\napi Social(base: \"/api\") {\n    get feed(after: String?) at \"feed\" -> FeedPage!\n        pages .cursor(param: after, next: p => p.nextCursor, items: p => p.posts)\n}\n\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    resource feed = Social.feed()\n    Heading(\"Feed\").h1\n    for p in feed.items by p.id { Text(p.title) }\n}",
+  "lang": "wf",
+  "quickfix": "",
+  "why": "Error.\n\nAn endpoint may answer more than once for one read. It may answer a page\nat a time:\n\n- `pages .number(param: page)` asks for page 1, 2, 3 and stops at the\n  first empty page;\n- `pages .cursor(param: after, next: p => p.nextCursor)` asks for the next\n  page with the cursor the last one gave, and stops when there is none;\n- `pages .link` asks for the address the answer's `Link` header names\n  `rel=\"next\"` (RFC 8288), and stops when there is none.\n\nOr it may answer a line at a time, `-> [Line]! streamed`, one JSON value\na line.\n\nEither way a read of it holds a list: every page's items, or every line\nso far. So each must say what it needs. The parameter the next page goes\nin is one of the endpoint's, and the first call need not give it: it has\na default, or may be null. A page that is not a list itself says where\nits items are, `items: p => p.posts`. A streamed endpoint answers a list.\nBoth are reads, `get`s: a write is sent once. And `for await` walks only\na streamed endpoint's lines.",
+  "fix": "Say what the style needs — the parameter, where the next page\nstarts, where a page's items are — or answer a list.",
+  "related": []
+ },
+ {
   "code": "I01",
   "title": "A message no translation has",
   "plain": "A message no translation has",

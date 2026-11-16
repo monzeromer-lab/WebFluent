@@ -1,10 +1,39 @@
 // A recipe, written from md-docs/recipes/keep-writes-made-offline.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeKeepWritesMadeOffline(path: "/recipes/keep-writes-made-offline", title: "Keep writes made offline — Recipes", description: "Keep the reader's changes when the network drops: with sync on, a write that fails offline is kept and sent in order when the connection returns.") {
-    RecipeShell("Keep writes made offline", summary: "Keep the reader's changes when the network drops, and send them when it comes back. This needs offline support turned on ([Make a site work offline](/recipes/work-offline)), with `\"sync\": true` in its config:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline"), RelatedLink(kind: "Recipe", title: "Translate a site", to: "/recipes/translate-a-site")], source: "md-docs/recipes/keep-writes-made-offline.md", how: true, hasVariations: false, project: { "src/pages/KeepWritesMadeOffline.wf": #"page Notes(path: "/notes", title: "Notes", description: "Notes that save offline.") {
+    RecipeShell("Keep writes made offline", summary: "Keep the reader's changes when the network drops, and send them when it comes back. This needs offline support turned on ([Make a site work offline](/recipes/work-offline)), with `\"sync\": true` in its config:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline"), RelatedLink(kind: "Recipe", title: "Translate a site", to: "/recipes/translate-a-site")], source: "md-docs/recipes/keep-writes-made-offline.md", how: true, hasVariations: false, project: { "src/pages/KeepWritesMadeOffline.wf": #"type Note { id: String, text: String }
+
+api Backend(base: "/api") { }
+
+api Backend.notes {
+    get list() at "notes" -> [Note]!
+    put save(id: String, body: Note) at "notes/{id}" -> Note!
+        invalidates [list]
+}
+
+page Notes(path: "/notes", title: "Notes", description: "Notes that save offline.") {
+    state draft = ""
+    state said = ""
     Heading("Notes").h1
+    Input(bind: draft, label: "Note")
+    Button("Save") {
+        on click {
+            match await Backend.notes.save(id: "n1", body: Note(id: "n1", text: draft)) {
+                .ok(_) { said = "Saved." }
+                .err(.offline(true)) { said = "Saved here; it will be sent when you are back online." }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    Text(said)
     if network.queued > 0 {
         Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    for r in network.refused by r.at {
+        Alert("The server refused a change ({r.status}).").danger
+    }
+    if network.refused.length > 0 {
+        Button("Dismiss") { on click { network.clearRefused() } }
     }
 }
 "#, "webfluent.app.json": #"{
@@ -20,15 +49,44 @@ page RecipeKeepWritesMadeOffline(path: "/recipes/keep-writes-made-offline", titl
         code {
             Markdown("**Needs:** `offline` with `\"sync\": true` in `webfluent.app.json`, below, and a site served over HTTPS ([Make a site work offline](/recipes/work-offline)).")
             CodeBlock(#"{ "offline": { "precache": ["/"], "sync": true } }"#, title: "json")
-            Markdown("This page tells the reader how many changes are waiting to be sent:")
-            CodeBlock(#"page Notes(path: "/notes", title: "Notes", description: "Notes that save offline.") {
+            Markdown("This page saves a note, says when the save is waiting for the connection, and lists any the server refused once they were sent:")
+            CodeBlock(#"type Note { id: String, text: String }
+
+api Backend(base: "/api") { }
+
+api Backend.notes {
+    get list() at "notes" -> [Note]!
+    put save(id: String, body: Note) at "notes/{id}" -> Note!
+        invalidates [list]
+}
+
+page Notes(path: "/notes", title: "Notes", description: "Notes that save offline.") {
+    state draft = ""
+    state said = ""
     Heading("Notes").h1
+    Input(bind: draft, label: "Note")
+    Button("Save") {
+        on click {
+            match await Backend.notes.save(id: "n1", body: Note(id: "n1", text: draft)) {
+                .ok(_) { said = "Saved." }
+                .err(.offline(true)) { said = "Saved here; it will be sent when you are back online." }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    Text(said)
     if network.queued > 0 {
         Text("{network.queued} change(s) will be sent when you are back online").muted
     }
+    for r in network.refused by r.at {
+        Alert("The server refused a change ({r.status}).").danger
+    }
+    if network.refused.length > 0 {
+        Button("Dismiss") { on click { network.clearRefused() } }
+    }
 }"#, title: "wf")
         }
-        Markdown("With `sync` on, a write that is safe to send twice — a `PUT` or a `DELETE`, made through `fetch` or an `api` — that fails because the network is gone is kept instead of thrown. A `POST` or a `PATCH` is not kept: one whose answer was lost may already have reached the server, so it fails as `.offline` and the page decides. The call resolves with nothing, so what the page showed stays shown.\n\n`network.queued` is how many writes are waiting. Show it, as the page above does, so the reader knows their changes are safe.")
+        Markdown("With `sync` on, a write that is safe to send twice — a `PUT` or a `DELETE`, or a `POST` or `PATCH` its endpoint marks `idempotent` — that fails because the network is gone is kept. Its call still fails, as `.offline(queued: true)`: no answer came, so there is no value to show, and the page can say the change is waiting. A `POST` or `PATCH` that is not `idempotent` is not kept: one whose answer was lost may already have reached the server, so it fails as `.offline(queued: false)` and the page decides.\n\n`network.queued` is how many writes are waiting. Show it, as the page above does, so the reader knows their changes are safe.")
 
         Heading("What is kept", id: "what-is-kept").h3
 
@@ -36,7 +94,7 @@ page RecipeKeepWritesMadeOffline(path: "/recipes/keep-writes-made-offline", titl
 
         Heading("When it is sent", id: "when-it-is-sent").h3
 
-        Markdown("When the connection returns, the kept writes are sent in order:\n\n- by Background Sync, where the browser has it, so a closed tab still sends them;\n- by the page otherwise, the next time it is open.\n\nA server that answers has the write, even if it refuses it. A server that is down, or asks the client to wait, keeps the write waiting for later.\n\nA write whose service adds credentials with its hook is sent by a page that has that service open, so the worker leaves it — and the writes after it, to keep them in order — for the next such page.")
+        Markdown("When the connection returns, the kept writes are sent in order:\n\n- by Background Sync, where the browser has it, so a closed tab still sends them;\n- by the page otherwise, the next time it is open.\n\nA server that takes the write makes stale what its endpoint `invalidates`: every read of those on an open page asks again, as it would after the write had gone at once. A server that refuses it — a `4xx` — has answered, so the write is not sent again; it is listed in `network.refused`, each `\{ method, url, status, at \}`, until `network.clearRefused()`. A server that is down, or asks the client to wait, keeps the write waiting for later.\n\nA write whose service adds credentials with its hook is sent by a page that has that service open, so the worker leaves it — and the writes after it, to keep them in order — for the next such page.")
 
         Heading("Forget the kept writes", id: "forget-the-kept-writes").h3
 

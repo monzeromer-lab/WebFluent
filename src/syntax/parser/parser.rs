@@ -676,6 +676,7 @@ impl Parser {
             animate,
             animate_span,
             body,
+            streaming: false,
         }))
     }
 

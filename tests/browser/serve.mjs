@@ -1,7 +1,9 @@
 // A build served as a static host would, for the browser suites: a
 // directory is its `index.html`, a single-page build answers every route with
 // its shell, and a write (`POST`, `PUT`, `PATCH`, `DELETE`) is recorded rather
-// than refused.
+// than refused — but one to `/api/refuse`, which is answered `409`. A read
+// of anything under `/api/` is recorded too, and `/api/notes` answers a
+// list.
 import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
@@ -14,15 +16,23 @@ const TYPES = {
 /// The build served as a static host would, and every write recorded.
 export function host(root, port) {
   const received = [];
+  const fetched = [];
   const server = http.createServer((req, res) => {
     if (/^(POST|PUT|PATCH|DELETE)$/.test(req.method)) {
       let body = "";
       req.on("data", (c) => { body += c; });
       req.on("end", () => {
         received.push(`${req.url} ${body}`);
+        if (req.url.startsWith("/api/refuse")) {
+          return res.writeHead(409, { "Content-Type": "application/json" }).end('{"title":"conflict"}');
+        }
         res.writeHead(200, { "Content-Type": "application/json" }).end('{"ok":true}');
       });
       return;
+    }
+    if (req.url.startsWith("/api/")) fetched.push(req.url);
+    if (req.url === "/api/notes") {
+      return res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" }).end('["a","b"]');
     }
     let file = path.join(root, decodeURIComponent(new URL(req.url, "http://x").pathname));
     if (fs.existsSync(file) && fs.statSync(file).isDirectory()) file = path.join(file, "index.html");
@@ -37,6 +47,7 @@ export function host(root, port) {
   });
   return {
     received,
+    fetched,
     start: () => new Promise((r) => server.listen(port, "127.0.0.1", r)),
     stop: () => new Promise((r) => { server.closeAllConnections?.(); server.close(() => r()); }),
   };

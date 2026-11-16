@@ -142,6 +142,8 @@ mod overlays2;
 mod page_lang;
 #[path = "paged.rs"]
 mod paged;
+#[path = "paging.rs"]
+mod paging;
 #[path = "peer.rs"]
 mod peer;
 #[path = "portal.rs"]

@@ -484,15 +484,13 @@ fn what_a_request_can_fail_with_is_a_closed_set() {
 #[test]
 fn what_the_call_site_asks_for_reaches_the_engine() {
     let js = spa_generated(&served(
-        "state n: Number = 1\n    resource rows = Backend.users(page: n, cache: .swr(60.seconds), refresh: .onFocus, paginate: .page)\n    Text(\"{rows.hasMore}\")",
+        "state n: Number = 1\n    resource rows = Backend.users(page: n, cache: .swr(60.seconds), refresh: .onFocus)\n    Text(\"{rows.hasMore}\")",
     ));
     assert!(js.contains("cache: { kind: \"swr\", ttl: 60000 }"), "{js}");
     assert!(js.contains("refresh: { focus: true }"), "{js}");
-    // `loadMore()` moves the state the page number came from.
-    assert!(
-        js.contains("paginate: { by: \"page\", set: (v) => _n.set(v) }"),
-        "{js}"
-    );
+    // A read writes no state of the page's: how it pages is its
+    // endpoint's.
+    assert!(!js.contains("paginate"), "{js}");
 }
 
 #[test]

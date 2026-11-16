@@ -1,7 +1,17 @@
-/// A site that keeps working without the network: `tests/browser/offline.mjs`
-/// drives it in Chrome — a stored route with the server gone, the fallback
-/// for one that is not stored, a write kept and sent later, and an update
-/// taken with one reload.
+// A site that keeps working without the network: `tests/browser/offline.mjs`
+// drives it in Chrome — a stored route with the server gone, the fallback
+// for one that is not stored, a write kept and sent later (what it makes
+// stale asked again, one the server refuses listed), and an update taken
+// with one reload.
+
+type Note { note: String }
+
+api Backend(base: "/api") {
+    get notes() at "notes" -> [String]!
+    put save(body: Note) at "save" -> !
+    invalidates [notes]
+    put refuse(body: Note) at "refuse" -> !
+}
 
 app {
     Router
@@ -9,22 +19,38 @@ app {
 
 page Home(path: "/", title: "Home", description: "The front page.") {
     state saved = "nothing yet"
+    state refused = "nothing yet"
+    resource notes = Backend.notes(refresh: .never)
 
     Container {
         Heading("Offline test").h1
         Text("queued:{network.queued}", id: "queued")
         Text("saved:{saved}", id: "saved")
+        Text("refuse:{refused}", id: "refuse-said")
+        Text("notes:{notes.value?.length ?? 0}", id: "notes")
+        Text("refused:{network.refused.map(r => \"{r.status} {r.url}\").join(\",\")}", id: "refused")
         if update.available {
             Button("Update", id: "update") { on click { update.apply() } }
         }
         Button("Save", id: "save") {
             on click {
-                match await http.put("/api/save", body: { note: "written while offline" }) {
-                    .ok { saved = "sent or kept" }
+                match await Backend.save(body: Note(note: "written while offline")) {
+                    .ok { saved = "sent" }
+                    .err(.offline(true)) { saved = "kept" }
                     .err(e) { saved = "failed: {e.message}" }
                 }
             }
         }
+        Button("Refuse", id: "refuse") {
+            on click {
+                match await Backend.refuse(body: Note(note: "the server will refuse this")) {
+                    .ok { refused = "sent" }
+                    .err(.offline(true)) { refused = "kept" }
+                    .err(e) { refused = "failed: {e.message}" }
+                }
+            }
+        }
+        Button("Dismiss", id: "dismiss") { on click { network.clearRefused() } }
         Link("About", to: "/about")
     }
 }

@@ -99,7 +99,6 @@ impl JsCodegen {
             // other argument is the request's.
             let mut refetch = None;
             let mut placeholder = None;
-            let mut paginate = None;
             let pairs: Vec<(String, Expr)> = named.into_iter().flatten().cloned().collect();
             for (key, value) in &pairs {
                 let key = key.trim_matches('"');
@@ -111,27 +110,9 @@ impl JsCodegen {
                     placeholder = Some(self.placeholder_in(value, store));
                     continue;
                 }
-                // `paginate: .page` — `.items` gathers the pages, and
-                // `loadMore()` moves the state the page number came from.
+                // 6.x's `paginate:`, which the checker refuses: how a read
+                // pages is its endpoint's to say.
                 if key == "paginate" {
-                    let by = match value {
-                        Expr::EnumCase(name) => name.clone(),
-                        _ => "page".to_string(),
-                    };
-                    let set = pairs
-                        .iter()
-                        .find(|(k, _)| k.trim_matches('"') == by)
-                        .and_then(|(_, v)| match (v, store) {
-                            (Expr::Identifier(name), None) => {
-                                Some(format!(", set: (v) => {}.set(v)", sig(name)))
-                            }
-                            (Expr::Identifier(name), Some(states)) if states.contains(name) => {
-                                Some(format!(", set: (v) => {{ store.{name} = v; }}"))
-                            }
-                            _ => None,
-                        })
-                        .unwrap_or_default();
-                    paginate = Some(format!("{{ by: \"{by}\"{set} }}"));
                     continue;
                 }
                 let emitted = match key {
@@ -147,12 +128,8 @@ impl JsCodegen {
             if let Some(kept) = placeholder {
                 on.push_str(&format!(", placeholder: {kept}"));
             }
-            let paging = match paginate {
-                Some(policy) => format!(", paginate: {policy}"),
-                None => String::new(),
-            };
             return format!(
-                "WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on}{paging} }})",
+                "WF.resource({call}, {{ call: true, args: () => ({{ {} }}){on} }})",
                 parts.join(", ")
             );
         }

@@ -224,31 +224,87 @@
         : () => (options && options.args) || {};
     let generation = 0;
     let controller = null;
-    // `paginate: .page` — the pages gathered so far, and whether the last
-    // one had anything in it. `by` names the argument that is the page
-    // number; `set` moves the state it came from, when it came from one.
-    const paging = options && options.paginate;
+    // `pages` on the endpoint: a read gathered a page at a time. Its value
+    // is every page's items, in order; each page knows what asks for the
+    // one after it — a number, a cursor, the address its `Link` names — or
+    // that there is none. A refresh asks again for every page gathered, in
+    // order, and shows them together.
+    const paging = options && options.call && url.pages ? url.pages : null;
+    // `streamed`: a read that grows a line at a time.
+    const streaming = !!(options && options.call && url.streamed && url.stream);
     const items = signal([]);
-    const hasMore = signal(true);
-    // What each page brought, by its number: a page asked for again — a
-    // refresh, `on: .interval` — takes its own place, never a second one.
-    let pages = new Map();
-    let extraPage = null;
+    const hasMore = signal(false);
+    let pages = [];
     // A next page asked for and not yet answered: another is not asked for
-    // on top of it, which would abandon it.
+    // on top of it.
     let gathering = false;
-    const pageArgs = () => {
-      const args = argsOf();
-      if (paging && extraPage != null) args[paging.by] = extraPage;
-      return args;
+    let more = false;
+    const linkNext = (got) => {
+      const header = got && got.headers && got.headers.link;
+      if (!header) return null;
+      for (const part of String(header).split(/,(?=\s*<)/)) {
+        // `<…?page=3>; rel="next"` (RFC 8288): a rel may name several.
+        const m = /^<([^>]*)>(.*)$/.exec(part.trim());
+        const rel = m && /;\s*rel\s*=\s*(?:"([^"]*)"|([^\s;]+))/i.exec(m[2]);
+        if (!rel || !(rel[1] || rel[2]).toLowerCase().split(/\s+/).includes("next")) continue;
+        try {
+          const here = typeof location !== "undefined" && location.href ? location.href : "http://localhost/";
+          return new URL(m[1], new URL(got.url || "", here)).href;
+        } catch (e) {
+          return m[1];
+        }
+      }
+      return null;
     };
-    // Which request this is, the page `paginate` moves left out: what has
-    // arrived for it may stay on the page while it is asked for again.
+    /// One page: the one asked with `at` (the first when `at` is null).
+    const askPage = (base, at, signalOf) => {
+      const args = { ...base, signal: signalOf };
+      if (at != null) {
+        if (paging.style === "link") args.$address = at;
+        else args[paging.param] = at;
+      }
+      return url(args).then((got) => {
+        const answer = paging.style === "link" ? got && got.value : got;
+        const held = paging.items ? paging.items(answer) : answer;
+        const list = Array.isArray(held) ? held : [];
+        let next = null;
+        if (paging.style === "number") {
+          const n = at != null ? Number(at) : Number(base[paging.param]) || 1;
+          next = list.length > 0 ? n + 1 : null;
+        } else if (paging.style === "cursor") {
+          const c = paging.next ? paging.next(answer) : null;
+          next = c == null || c === "" ? null : c;
+        } else {
+          next = linkNext(got);
+        }
+        return { items: list, next };
+      });
+    };
+    /// The pages a load asks for: the next one, or the first and as many
+    /// after it as were gathered; what they hold, together.
+    const gatherPages = async (base, signalOf, mode) => {
+      if (mode === "more") {
+        const last = pages[pages.length - 1];
+        const page = await askPage(base, last ? last.next : null, signalOf);
+        const now = pages.concat([page]);
+        return { now, all: now.flatMap((p) => p.items) };
+      }
+      const count = mode === "refresh" ? Math.max(1, pages.length) : 1;
+      const now = [];
+      let at = null;
+      for (let i = 0; i < count; i++) {
+        const page = await askPage(base, at, signalOf);
+        now.push(page);
+        if (page.next == null) break;
+        at = page.next;
+      }
+      return { now, all: now.flatMap((p) => p.items) };
+    };
+    // Which request this is: what has arrived for it may stay on the page
+    // while it is asked for again.
     const requestOf = () => {
       if (options && options.call) {
-        const args = { ...argsOf() };
-        if (paging) delete args[paging.by];
-        try { return JSON.stringify(args); } catch (e) { return String(Math.random()); }
+        try { return JSON.stringify({ ...argsOf() }); } catch (e) { return String(Math.random()); }
       }
       const address = typeof url === "function" ? url() : url;
       return cacheKey(address, { method: opts.method, body: bodyNow() }) + " " + JSON.stringify(headersOf());
@@ -256,7 +312,7 @@
     // The request whose answer `data` holds, once one has arrived.
     let shown;
     let arrived = false;
-    const settle = () => { refreshing.set(false); pending.set(false); gathering = false; };
+    const settle = () => { refreshing.set(false); pending.set(false); gathering = false; more = false; };
 
     const load = () => {
       const gen = ++generation;
@@ -265,11 +321,7 @@
       const signalOf = controller ? controller.signal : undefined;
       const request = requestOf();
       const again = arrived && (request === shown || keepPrevious);
-      if (again && request !== shown && paging) {
-        hasMore.set(true);
-        extraPage = null;
-        pages = new Map();
-      }
+      const mode = more && again ? "more" : again && request === shown ? "refresh" : "first";
       if (again) {
         refreshing.set(true);
       } else {
@@ -284,18 +336,41 @@
           data.set(null);
           if (paging) {
             items.set([]);
-            hasMore.set(true);
-            extraPage = null;
-            pages = new Map();
+            hasMore.set(false);
+            pages = [];
           }
         }
       }
       pending.set(true);
       // An endpoint is a call; an address is a request.
-      const args = options && options.call ? pageArgs() : null;
-      const made = options && options.call
-        ? url({ ...args, signal: signalOf })
-        : send(typeof url === "function" ? url() : url, { ...opts, body: bodyNow(), headers: headersOf(), signal: signalOf });
+      const args = options && options.call ? argsOf() : null;
+      let made;
+      if (paging) {
+        made = gatherPages(args, signalOf, mode).then(({ now, all }) => {
+          if (gen === generation) pages = now;
+          return all;
+        });
+      } else if (streaming) {
+        // A first load is `.loaded` from its first line, the list growing as
+        // the rest arrive; a refresh gathers them, and shows them whole.
+        const lines = [];
+        made = url.stream({ ...args, signal: signalOf }, (line) => {
+          if (gen !== generation) return;
+          lines.push(line);
+          if (again) return;
+          arrived = true;
+          shown = request;
+          data.set(lines.slice());
+          if (real() !== "ready") {
+            error.set(null);
+            state.set("ready");
+          }
+        }).then(() => lines);
+      } else {
+        made = options && options.call
+          ? url({ ...args, signal: signalOf })
+          : send(typeof url === "function" ? url() : url, { ...opts, body: bodyNow(), headers: headersOf(), signal: signalOf });
+      }
       made.then(
         (value) => {
           if (gen !== generation) return;
@@ -303,17 +378,8 @@
           shown = request;
           data.set(reconcile(data(), value));
           if (paging) {
-            const page = Number(args && args[paging.by]) || 1;
-            const got = Array.isArray(value) ? value : (value && Array.isArray(value.items) ? value.items : []);
-            // A page before the last one gathered starts over from it, as
-            // the first page always did; the last one, asked again, is
-            // replaced; the next one is added.
-            for (const n of [...pages.keys()]) if (n > page) pages.delete(n);
-            pages.set(page, got);
-            const all = [];
-            for (const n of [...pages.keys()].sort((a, b) => a - b)) all.push(...pages.get(n));
-            items.set(reconcile(items(), all));
-            hasMore.set(got.length > 0);
+            items.set(data());
+            hasMore.set(pages.length > 0 && pages[pages.length - 1].next != null);
           }
           error.set(null);
           settle();
@@ -326,7 +392,8 @@
           // nothing to say, and a first load stays "loading".
           if (e && e.kind === "aborted") return;
           error.set(e && e.kind ? e : netError("network", String((e && e.message) || e)));
-          if (!again) state.set("error");
+          // A stream that failed after its first lines keeps them.
+          if (!again && !arrived) state.set("error");
         },
       );
     };
@@ -397,13 +464,12 @@
       pending,
       items,
       hasMore,
-      /// The next page, gathered onto `items`.
+      /// The next page, gathered onto what is shown.
       loadMore() {
-        if (!paging || !hasMore() || state() === "loading" || gathering) return;
-        const next = (Number(pageArgs()[paging.by]) || 1) + 1;
+        if (!paging || !hasMore() || state() !== "ready" || pending() || gathering) return;
         gathering = true;
-        if (paging.set) paging.set(next);
-        else { extraPage = next; load(); }
+        more = true;
+        load();
       },
       reload: load,
       /// Drop what was cached for it, and ask again.

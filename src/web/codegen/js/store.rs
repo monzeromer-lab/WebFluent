@@ -166,6 +166,28 @@ impl JsCodegen {
                 if key == "invalidates" {
                     continue;
                 }
+                // `pages .cursor(param: after, next: p => p.next)`: how a
+                // read of it is gathered — the parameter the next page goes
+                // in, where the next page starts, and where a page's items
+                // are. A page's `Link` header is read with its answer.
+                if key == "pages" {
+                    if let Some(paging) = endpoint.pages() {
+                        let mut how = vec![format!("style: {}", js_str(paging.style))];
+                        if let Some(param) = paging.param() {
+                            how.push(format!("param: {}", js_str(param)));
+                        }
+                        for name in ["next", "items"] {
+                            if let Some(f) = paging.arg(name) {
+                                how.push(format!("{name}: {}", self.emit_expr(f)));
+                            }
+                        }
+                        parts.push(format!("pages: {{ {} }}", how.join(", ")));
+                        if paging.style == "link" {
+                            parts.push("withHeaders: true".to_string());
+                        }
+                    }
+                    continue;
+                }
                 parts.push(format!("{}: {}", api_setting(key), self.emit_expr(value)));
             }
             // `-> User ! CreateUserError`: the call answers with a result,

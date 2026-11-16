@@ -972,7 +972,9 @@ impl ParserV2 {
         // `-> User! idempotent`: a word an endpoint is marked with ends the
         // type; it names no error.
         let starts_type = match self.kind() {
-            TokenType::Identifier(w) => !matches!(w.as_str(), "idempotent" | "invalidates"),
+            TokenType::Identifier(w) => {
+                !matches!(w.as_str(), "idempotent" | "invalidates" | "pages" | "streamed")
+            }
             TokenType::OpenBracket | TokenType::OpenParen => true,
             _ => false,
         };
@@ -2605,12 +2607,20 @@ impl ParserV2 {
                 settings.push(("invalidates".to_string(), self.parse_expression()?));
                 continue;
             }
+            // `pages .cursor(param: after, next: p => p.next)`: how a read of
+            // it is gathered a page at a time.
+            if self.is_word("pages") && matches!(self.kind_at(1), TokenType::Dot) {
+                self.advance();
+                settings.push(("pages".to_string(), self.parse_expression()?));
+                continue;
+            }
             // `idempotent`: safe to send twice, with the key that says so.
-            if self.is_word("idempotent")
+            // `streamed`: an answer that arrives a line at a time.
+            if (self.is_word("idempotent") || self.is_word("streamed"))
                 && !matches!(self.kind_at(1), TokenType::Colon | TokenType::OpenParen)
             {
-                self.advance();
-                settings.push(("idempotent".to_string(), Expr::BoolLiteral(true)));
+                let word = self.expect_ident("a marker")?;
+                settings.push((word, Expr::BoolLiteral(true)));
                 continue;
             }
             // `cache: .swr(60.seconds)`, `as: .blob`, `.progress`.
@@ -2936,6 +2946,9 @@ impl ParserV2 {
     /// the body is statements and the loop runs once, in order.
     fn parse_for(&mut self, imperative: bool) -> Result<StatementKind> {
         self.expect_word("for")?;
+        // `for await line in Logs.tail(id: id)`: the lines of a streamed
+        // answer, each as it arrives.
+        let streaming = imperative && self.eat_word("await");
         let item = self.expect_ident("the loop variable")?;
         let index = if self.eat(&TokenType::Comma) {
             Some(self.expect_ident("the index variable")?)
@@ -2962,6 +2975,7 @@ impl ParserV2 {
             animate: None,
             animate_span: None,
             body: stmts,
+            streaming,
         }))
     }
 

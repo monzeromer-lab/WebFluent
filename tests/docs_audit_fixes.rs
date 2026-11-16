@@ -63,15 +63,14 @@ fn a_resource_or_a_connection_is_read_as_what_it_holds() {
     assert!(js.contains("_chat.messages()"), "{js}");
 }
 
-/// `paginate: .page` was refused by the checker as a parameter the endpoint
-/// does not take, so the paging the guide documents could not be written.
+/// The paging the guide documents can be written: an endpoint that says
+/// how it pages, and a read of it with `.items`, `.hasMore`, `.loadMore()`.
 #[test]
 fn a_call_may_ask_for_pages() {
     let src = "type Item { id: String, name: String }\n\
-               api Catalog(base: \"/api\") { get items(page: Number = 1) at \"items\" -> [Item]! }\n\
+               api Catalog(base: \"/api\") { get items(page: Number = 1) at \"items\" -> [Item]! pages .number(param: page) }\n\
                page P(path: \"/\", title: \"T\", description: \"D\") {\n\
-               \x20   state page = 1\n\
-               \x20   resource list = Catalog.items(page: page, paginate: .page)\n\
+               \x20   resource list = Catalog.items()\n\
                \x20   for item in list.items by item.id { Text(item.name) }\n\
                \x20   if list.hasMore { Button(\"More\") { on click { list.loadMore() } } }\n\
                }\n";

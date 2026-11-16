@@ -1324,7 +1324,7 @@ drawn again only when the case changes.
   else: another environment, another page — is a first load again,
   `.loading`, since the value on screen would be the wrong one;
   `placeholder: .previous` keeps the last value shown, refreshing, until the
-  new one arrives. With `paginate:`, the next page is a refresh.
+  new one arrives. A paged read's next page is a refresh (see Pages).
 
 ```wf
 type Server { id: String, name: String, status: String }
@@ -1530,15 +1530,15 @@ What comes with it, at every call site:
 | | |
 |---|---|
 | Abort | on scope leave, on an argument that reads state changing, on `.cancel()`, on timeout |
-| Errors | a call's `.err` is an `HttpError` — `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a read's `.failed(e)` holds the same |
+| Errors | a call's `.err` is an `HttpError` — `.offline(queued)`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a read's `.failed(e)` holds the same |
 | Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`), and a `POST` or `PATCH` only when its endpoint is `idempotent` (one `Idempotency-Key` on every try) |
 | Cache | what the server's `Cache-Control` allows (RFC 9111): `max-age`, `stale-while-revalidate`, `no-store`, `no-cache`, `Vary`, `ETag` revalidation and `304` served from what is held; nothing without caching headers; `.maxAge(d)`, `.swr(d)`, `.none`, `.forever` override it |
 | Dedupe | two readers of one address make one request, cached or not; each keeps its own abort |
 | Refetch | an argument that reads state changing; `refresh: .onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never` — a refresh: the value stays on the page while it runs, and the answer is drawn in place (see Data Fetching) |
-| Pagination | `paginate: .page` gives `.items`, `.loadMore()`, `.hasMore` |
+| Pages | the endpoint's `pages .number(…)`, `.cursor(…)` or `.link`: a read holds every page's items, with `.loadMore()` and `.hasMore` (see Pages) |
 | Progress | a `File` parameter makes `Backend.avatar.progress` a `Number` signal |
 | Bodies | JSON, text, a `File` (sent as a form), `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` |
-| Responses | JSON, `as: .text`, `.blob`, `.arrayBuffer`, `204` as no value, and `.lines()` for a streamed response |
+| Responses | JSON, `as: .text`, `.blob`, `.arrayBuffer`, `204` as no value; a `streamed` endpoint's lines as they arrive (see Pages) |
 | Elsewhere | `Backend.users.invalidate()` — every resource over it on the page asks again —, `.prefetch(args)`, `.key(args)`, `.url(args)` |
 | Empty path parameters | a call whose path parameter is `null`, `""`, `.` or `..` is not sent (`users/` would be the collection, not the user); it ends `.cancelled`, and a read over it stays `.loading` until the value arrives |
 
@@ -1586,7 +1586,7 @@ store People {
 // `if let .err(.unprocessableContent(p)) = People.invite.result { … }`
 ```
 
-`HttpError` is `.offline`, `.timeout(after)`, `.cancelled`,
+`HttpError` is `.offline(queued)`, `.timeout(after)`, `.cancelled`,
 `.transport(message)`, `.decode(at, message)` or `.status(code, problem)`,
 each with `.message`; `Problem` is RFC 9457's (`type`, `title`, `status`,
 `detail`, `instance`, `extensions`). `try` gives a result's value or returns
@@ -1608,6 +1608,56 @@ http.get(url)`, `resource rows: [Row] = http.get(url)` — and `N11` for a
 `get` with nowhere that says (a write whose answer nothing reads needs no
 type; `as: .text` is a `String`). `fetch` is gone (`N08`); `window.fetch` is
 the browser's own, untouched.
+
+**Pages and lines.** How an endpoint answers more than once is part of
+its contract. One that pages says how, and a read of it holds every page's
+items, in order — `.items` (the same list as `.value`), `.hasMore`, and
+`.loadMore()` for the next page, asked as a refresh with what is shown left
+in place. A refresh asks again for every page gathered, and shows them
+together; another request starts from the first page. The read writes no
+state of the page's.
+
+```wf
+type Post { id: String, title: String }
+type FeedPage { posts: [Post], nextCursor: String? }
+type LogLine { at: String, text: String }
+
+api Social(base: "/api") {
+    get feed(after: String?) at "feed" -> FeedPage!
+        pages .cursor(param: after, next: p => p.nextCursor, items: p => p.posts)
+    get list(page: Number = 1) at "posts" -> [Post]!
+        pages .number(param: page)                // ends at the first empty page
+    get search(q: String) at "search" -> [Post]!
+        pages .link                               // the Link header's rel="next" (RFC 8288)
+    get tail(id: String) at "logs/{id}" -> [LogLine]! streamed
+}
+
+store Logs {
+    state seen: [String] = []
+    action follow(id: String) {
+        for await line, i in Social.tail(id: id) { seen = seen.concat(["{i}: {line.text}"]) }
+    }
+}
+
+page Feed(path: "/feed", title: "Feed", description: "What is new.") {
+    resource feed = Social.feed()                 // a paged read of Post
+    resource tail = Social.tail(id: "deploy-7")   // .loaded from the first line
+    Heading("Feed").h1
+    for p in feed.items by p.id { Text(p.title) }
+    if feed.hasMore { Button("More", loading: feed.pending) { on click { feed.loadMore() } } }
+    Text("{tail.value?.length ?? 0} lines so far")
+}
+```
+
+The parameter a page goes in is one of the endpoint's that the first call
+need not give (a default, or `T?`); a page that is not a list says where
+its items are (`items:`); `.number` stops at an empty page, `.cursor` when
+`next:` gives null, `.link` when no `Link` names `rel="next"`. A
+`streamed` endpoint answers one JSON value a line, each held to the item
+type: a read over it is `.loaded` from its first line and grows; awaited
+whole it is the full list; `for await line in …` in an action or a handler
+walks the lines as they arrive. Each is a `get` (`N14`); 6.x's `paginate:`
+on a call is `N08`.
 
 ### A connection the page holds open
 
@@ -1764,9 +1814,13 @@ that stores the site for when the network is gone:
   order, when the connection returns — by Background Sync where the browser
   has it, so a closed page still sends it. A `POST` or a `PATCH` is not kept:
   one whose answer was lost may have been taken, and sent again would be a
-  second order; it fails as `.offline`. The call resolves with nothing, so what it
-  showed stays shown. A server that answers has the write, even to refuse
-  it; one that is down or asks to wait keeps it for later. A `File` body is
+  second order; it fails as `.offline(queued: false)`. A kept write's call
+  fails `.offline(queued: true)` — no answer came, and the write waits — so
+  the page says so rather than taking it as done. Once it is sent, what its
+  endpoint `invalidates` asks again. A server that answers has the write;
+  one that refuses it puts it in `network.refused` — `{ method, url,
+  status, at }`, never sent again — until `network.clearRefused()`; one
+  that is down or asks to wait keeps it for later. A `File` body is
   not kept. Only a write the network failed is kept — the browser offline,
   or the site's own server unreachable — and never a credential: an `api`'s
   `on request` hook adds them again when it is sent, and a call that carries
@@ -1784,6 +1838,9 @@ page Home(path: "/", title: "Home", description: "The front page.") {
     }
     if network.queued > 0 {
         Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    for r in network.refused by r.at {
+        Alert("The server refused {r.method} {r.url} ({r.status})").danger
     }
     Heading("Home").h1
 }
@@ -3615,7 +3672,8 @@ And what the type checker finds:
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N05` | An `invalidates` naming no read of the same group, an `invalidates` on a read, or an argument that is not one of the write's own parameters |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
-| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces; a service's `headers { }` and `on request`/`on response`/`on error` hooks, which `middleware [ … ]` replaces; an endpoint with no `at`, and a path's `:name`, which `{name}` replaces; and a group's `base:`, `retry:` or `middleware`, which are its service's |
+| `N14` | A `pages` or `streamed` an endpoint cannot have: a write, a page parameter the endpoint lacks or the first call must give, a cursor with no `next:`, a page that is not a list with no `items:`, a streamed answer that is not a list; `for await` over anything but a streamed endpoint's call |
+| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces; a service's `headers { }` and `on request`/`on response`/`on error` hooks, which `middleware [ … ]` replaces; an endpoint with no `at`, and a path's `:name`, which `{name}` replaces; and a group's `base:`, `retry:` or `middleware`, which are its service's; and `paginate:` on a call, which the endpoint's `pages` replaces |
 | `N11` | `Any` or `Map` where a service meets the program — an endpoint's parameter or answer, a resource's type — or an `http.get` with nowhere that names what it answers; the fix names `Json`, or declare a `type` |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |

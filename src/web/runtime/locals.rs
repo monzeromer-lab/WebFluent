@@ -59,6 +59,7 @@ pub(super) const GLOBALS: &[&str] = &[
     "ResizeObserver",
     "Set",
     "String",
+    "Symbol",
     "SyncManager",
     "TextDecoder",
     "TextEncoder",

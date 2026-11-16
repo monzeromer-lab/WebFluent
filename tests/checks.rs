@@ -1246,9 +1246,10 @@ fn a_failed_reads_error_is_what_its_endpoint_declares() {
     clean(&with_service(
         "    resource made = Backend.found(name: \"Ada\")\n    match made {\n        .loading { Text(\"…\") }\n        .failed(e) {\n            match e {\n                .unprocessableContent(p) { Text(\"{p.status ?? 0}: {p.field}\") }\n                .http(h) { Text(h.message) }\n            }\n        }\n        .loaded(u) { Text(u.name) }\n    }",
     ));
-    // `-> User!`: an `HttpError`, whose `.offline` carries nothing.
+    // `-> User!`: an `HttpError`, whose `.offline` carries one value —
+    // whether a write was kept to send later — and `.cancelled` none.
     let src = with_service(
-        "    resource one = Backend.user(userId: \"1\")\n    match one {\n        .loading { Text(\"…\") }\n        .failed(e) { match e { .offline(t) { Text(\"off\") } else { Text(\"\") } } }\n        .loaded(u) { Text(u.name) }\n    }",
+        "    resource one = Backend.user(userId: \"1\")\n    match one {\n        .loading { Text(\"…\") }\n        .failed(e) { match e { .offline(queued) { Text(\"off {queued}\") } .cancelled(c) { Text(\"gone\") } else { Text(\"\") } } }\n        .loaded(u) { Text(u.name) }\n    }",
     );
     assert_eq!(with(&src, "T10").len(), 1, "{:?}", findings(&src));
 }

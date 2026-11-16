@@ -22,17 +22,19 @@
     // A timeout's length, and where a response stopped fitting its type.
     if (extra && extra.after != null) e.after = extra.after;
     if (extra && extra.at != null) { e.at = extra.at; e.detail = extra.detail; }
+    // A write kept to send when the connection returns.
+    if (extra && extra.queued) e.queued = true;
     return e;
   }
 
-  /// A request's failure as an `HttpError`: `.offline`, `.timeout(after)`,
+  /// A request's failure as an `HttpError`: `.offline(queued)`, `.timeout(after)`,
   /// `.cancelled`, `.transport(message)`, `.decode(at, message)` or
   /// `.status(code, problem)`, each with `.message` for showing.
   function httpError(error) {
     const kind = error && error.kind;
     const message = (error && error.message) || String(error);
     let parts;
-    if (kind === "offline") parts = ["offline"];
+    if (kind === "offline") parts = ["offline", !!error.queued];
     else if (kind === "timeout") parts = ["timeout", error.after != null ? error.after : null];
     else if (kind === "aborted") parts = ["cancelled"];
     else if (kind === "parse") parts = ["decode", error.at || "$", error.detail || message];
@@ -442,7 +444,7 @@
         // every build: a value typed `User` is a `User`, and a server that
         // does not keep its contract fails here, as `.decode(at, message)`.
         if (opts.shape) {
-          const fault = shapeFault(value, opts.shape, "$");
+          const fault = shapeFault(opts.withHeaders && value ? value.value : value, opts.shape, "$");
           if (fault) throw netError("parse", "The response of " + url + " is not the type the program declares: " + fault.at + " " + fault.message, { body: value, at: fault.at, detail: fault.message });
         }
         if (entry && entry.http) {
@@ -486,15 +488,20 @@
           }
         }
         // A write made with no network, where the config asks for `sync`: it
-        // is kept and sent later, and this call resolves with nothing. Only
-        // one that is safe to send twice: a `PUT` or a `DELETE`. A `POST`
-        // whose answer was lost may have been taken, and sent again would be
-        // a second order.
-        // One its contract marks `idempotent` is kept too, with its key.
+        // is kept and sent later. Only one that is safe to send twice: a
+        // `PUT` or a `DELETE`, or one its contract marks `idempotent`, with
+        // its key. A `POST` whose answer was lost may have been taken, and
+        // sent again would be a second order. The call says what happened:
+        // it failed `.offline(queued: true)` — no answer came, and the
+        // write waits to be sent.
         if (wrapped.kind === "offline" && offlineWrites && wrapped.request
             && (/^(PUT|DELETE)$/.test(wrapped.request.method) || opts.idempotencyKey)) {
           const kept = offlineWrites(wrapped.request);
-          if (kept) return kept;
+          let held = false;
+          if (kept) {
+            try { await kept; held = true; } catch (e) { held = false; }
+          }
+          if (held) throw netError("offline", "Kept, to send when the connection returns", { queued: true });
         }
         throw wrapped;
       }
@@ -643,6 +650,9 @@
           api: opts.api || null,
           credentials: request.credentials,
           body: request.body,
+          // The reads a success makes stale, by their cache keys: applied
+          // when the write is finally sent.
+          stale: opts.stale ? opts.stale() : [],
         };
       }
       return error;
@@ -716,7 +726,7 @@
     const value = await readBody(response, opts.as);
     // The headers come back with the value when the caller asked for them:
     // pagination lives in `Link`, and nowhere else.
-    if (opts.withHeaders) return { value, headers: heads, status: response.status };
+    if (opts.withHeaders) return { value, headers: heads, status: response.status, url: request.url };
     return value;
   }
 
@@ -818,46 +828,58 @@
     });
   }
 
-  /// A response read line by line, as it arrives: `Stream<T>` on an
-  /// endpoint, and what a log viewer or a token stream is made of.
+  /// A `streamed` endpoint's answer, a line at a time as it arrives: each
+  /// line JSON (or its text), held to the type of the list's item.
   ///
-  /// Every module shares one closure, and this was called `lines` — the
-  /// name of the helper that splits a text — so wherever this module was
-  /// built in, the later declaration won and `text.lines()` handed back an
-  /// async generator: the static paint showed the lines, and the live page
-  /// replaced them with `undefined`.
-  async function* streamLines(url, opts) {
-    const response = await fetch(url, {
-      method: (opts && opts.method) || "GET",
-      headers: (opts && opts.headers) || {},
-      body: opts && opts.body,
-      signal: opts && opts.signal,
-    });
-    if (!response.body) return;
+  /// The request goes as any other — middleware, timeout, retries — and is
+  /// read as it comes rather than whole; a consumer that stops early
+  /// cancels the rest.
+  ///
+  /// Every module shares one closure, so this is not called `lines`, the
+  /// name of the helper that splits a text: wherever both were built in,
+  /// the later declaration won.
+  async function* streamResponse(url, opts, itemShape) {
+    const response = await run(url, { ...opts, as: "response", shape: null, cache: { kind: "none" } }, null);
+    let index = 0;
+    const take = (text) => {
+      let value = text;
+      try { value = JSON.parse(text); } catch (e) { /* a line of text */ }
+      if (itemShape) {
+        const fault = shapeFault(value, itemShape, "$[" + index + "]");
+        if (fault) throw netError("parse", "Line " + (index + 1) + " of " + url + " is not the type the program declares: " + fault.at + " " + fault.message, { body: value, at: fault.at, detail: fault.message });
+      }
+      index += 1;
+      return value;
+    };
+    if (!response || !response.body || typeof response.body.getReader !== "function") {
+      const text = response && typeof response.text === "function" ? await response.text() : "";
+      for (const line of text.split("\n")) if (line.trim()) yield take(line.trim());
+      return;
+    }
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let held = "";
-    for (;;) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      held += decoder.decode(value, { stream: true });
-      const parts = held.split("\n");
-      held = parts.pop();
-      for (const line of parts) {
-        if (!line.trim()) continue;
+    let finished = false;
+    try {
+      for (;;) {
+        let chunk;
         try {
-          yield JSON.parse(line);
+          chunk = await reader.read();
         } catch (e) {
-          yield line;
+          if (e && (e.name === "AbortError" || e.kind === "aborted")) throw netError("aborted", "The request was cancelled");
+          throw netError("transport", (e && e.message) || "The answer stopped arriving");
         }
+        if (chunk.done) break;
+        held += decoder.decode(chunk.value, { stream: true });
+        const parts = held.split("\n");
+        held = parts.pop();
+        for (const line of parts) if (line.trim()) yield take(line.trim());
       }
-    }
-    if (held.trim()) {
-      try {
-        yield JSON.parse(held);
-      } catch (e) {
-        yield held;
-      }
+      held += decoder.decode();
+      if (held.trim()) yield take(held.trim());
+      finished = true;
+    } finally {
+      if (!finished) reader.cancel().catch(() => {});
     }
   }
 

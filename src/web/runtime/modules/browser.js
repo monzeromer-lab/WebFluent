@@ -114,9 +114,12 @@
       if (c && c.addEventListener) c.addEventListener("change", update);
     }
     // `queued`: the writes kept for when the connection returns, which the
-    // offline module counts when the config asks for `sync`.
+    // offline module counts when the config asks for `sync`; `refused`:
+    // those the server refused once they were sent.
     return Object.assign({}, _network(), {
       get queued() { return offlineQueued ? offlineQueued() : 0; },
+      get refused() { return offlineRefused ? offlineRefused() : []; },
+      clearRefused() { if (offlineClearRefused) offlineClearRefused(); },
     });
   }
 

@@ -483,6 +483,44 @@
     "after": ""
    },
    {
+    "title": "Pages, lines, and writes kept offline",
+    "id": "7.0.0-pages-lines-and-writes-kept-offline",
+    "intro": "How an endpoint answers more than once is written in its contract, once.",
+    "items": [
+     {
+      "text": "**Pages.** `pages .number(param: page)`, `pages .cursor(param: after,\nnext: p => p.nextCursor, items: p => p.posts)` or `pages .link` (the\nanswer's `Link` header, RFC 8288). A read of it holds every page's items,\ntyped, with `.items`, `.hasMore` and `.loadMore()`; the read keeps the\npage itself and writes no state of the page's. A refresh asks again for\nevery page gathered, in order, and shows them together.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Lines.** `get tail(id: String) at \"logs/{id}\" -> [LogLine]! streamed`:\na read over it is `.loaded` from its first line and grows; awaited whole\nit is every line; `for await line in Logs.tail(id: id)` in an action or a\nhandler walks them as they arrive. Each line is held to its type, and the\nrequest goes through the service's middleware, timeout and retries.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A write kept offline says so.** Its call used to resolve with nothing\nwhile the checker said `User`; it now fails `.offline(queued: true)`, so\nthe page knows no answer came. `HttpError`'s `.offline` carries `queued`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**What happens to it later.** Once sent, what its endpoint `invalidates`\nasks again — on the page that sends it, or on every open page when the\nservice worker does. One the server refuses is never sent again and is\nlisted in `network.refused` (`{ method, url, status, at }`) until\n`network.clearRefused()`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`N14`** refuses a `pages` or `streamed` that cannot work: on a write, a\npage parameter the endpoint lacks or the first call must give, a cursor\nwith no `next:`, a page that is not a list with no `items:`, a streamed\nanswer that is not a list, and `for await` over anything but a streamed\ncall.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`paginate:` on a call is `N08`.** Its `.items`, `.hasMore` and\n`.loadMore()` stay; `pages .number(param: page)` moves to the endpoint,\nand the `state page` the runtime used to write goes.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -503,7 +541,7 @@
     "after": ""
    }
   ],
-  "count": 74
+  "count": 80
  },
  {
   "version": "6.2.0",

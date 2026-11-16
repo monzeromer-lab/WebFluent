@@ -324,6 +324,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [N09](N09.md) — A retry asked of a write that is not idempotent
 - [N11](N11.md) — `Any` or `Map` where a service meets the program
 - [N12](N12.md) — An error enum that is not shaped as one
+- [N14](N14.md) — A `pages` or `streamed` an endpoint cannot have
 
 ### Translations
 

@@ -355,14 +355,7 @@ fn a_request_s_options_and_their_cases_are_offered() {
     let fetch = "    resource r = fetch(\"/x\", method: \"GET\")";
     offers(
         &in_page(fetch, &fetch.replace("method: \"GET\"", "‸")),
-        &[
-            "method",
-            "body",
-            "refresh",
-            "placeholder",
-            "cache",
-            "paginate",
-        ],
+        &["method", "body", "refresh", "placeholder", "cache"],
     );
     offers(
         &in_page(fetch, &fetch.replace("method: \"GET\"", "refresh: .‸")),
@@ -373,15 +366,7 @@ fn a_request_s_options_and_their_cases_are_offered() {
     let call = offered(&v, &v.replace("page: 1", "‸"));
     offers(
         &call,
-        &[
-            "page",
-            "q",
-            "cache",
-            "as",
-            "refresh",
-            "placeholder",
-            "paginate",
-        ],
+        &["page", "q", "cache", "as", "refresh", "placeholder"],
     );
     offers(
         &offered(&v, &v.replace("page: 1", "cache: .‸")),

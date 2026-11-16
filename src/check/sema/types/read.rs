@@ -163,6 +163,21 @@ impl Checker<'_, '_> {
                         );
                     }
                 }
+                // 6.x's `paginate: .page`: how an endpoint pages is its
+                // contract's to say, and a read writes no state of the page's.
+                "paginate" => {
+                    let endpoint = match &r.url {
+                        Expr::MethodCall(obj, method, _) => {
+                            format!("`{}.{method}`", expr_text(obj))
+                        }
+                        _ => "the endpoint".to_string(),
+                    };
+                    self.error_at_current(
+                        "N08",
+                        format!("`paginate:` on `resource {}` is 6.x's: how a read pages is its endpoint's to say", r.name),
+                        &format!("Write `pages .number(param: page)` on {endpoint} (or `.cursor(…)`, `.link`), and drop `paginate:` — `{0}.items`, `{0}.hasMore` and `{0}.loadMore()` stay", r.name),
+                    );
+                }
                 "refresh" => self.refresh_policy(value),
                 "placeholder" if !matches!(value, Expr::EnumCase(c) if c == "previous") => {
                     self.error_at_current(

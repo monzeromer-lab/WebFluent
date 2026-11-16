@@ -1067,7 +1067,8 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                 .map(|k| format!(" by {}", expr(k)))
                 .unwrap_or_default();
             format!(
-                "for {item} in {}{key}{}",
+                "for {}{item} in {}{key}{}",
+                if f.streaming { "await " } else { "" },
                 expr(&f.iterable),
                 body(&f.body, block, indent)
             )
@@ -1647,10 +1648,10 @@ pub fn endpoint(e: &Endpoint) -> String {
         ));
     }
     for (k, v) in &e.settings {
-        if k == "idempotent" {
-            out.push_str(" idempotent");
-        } else if k == "invalidates" {
-            out.push_str(&format!(" invalidates {}", expr(v)));
+        if k == "idempotent" || k == "streamed" {
+            out.push_str(&format!(" {k}"));
+        } else if k == "invalidates" || k == "pages" {
+            out.push_str(&format!(" {k} {}", expr(v)));
         } else {
             out.push_str(&format!(" {k}: {}", expr(v)));
         }

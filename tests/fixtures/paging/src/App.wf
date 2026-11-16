@@ -1,0 +1,57 @@
+// Reads that answer more than once, for `tests/browser/paging.mjs`: three
+// ways of paging, a streamed answer read as it grows, and the same answer
+// walked line by line in an action.
+
+type Post { id: String, title: String }
+type FeedPage { posts: [Post], nextCursor: String? }
+type Line { n: Number, text: String }
+
+api Social(base: "/api") {
+    get list(page: Number = 1) at "posts" -> [Post]!
+    pages .number(param: page)
+    get feed(after: String?) at "feed" -> FeedPage!
+    pages .cursor(param: after, next: p => p.nextCursor, items: p => p.posts)
+    get search(q: String) at "search" -> [Post]!
+    pages .link
+    get tail(id: String) at "logs/{id}" -> [Line]! streamed
+}
+
+store Walk {
+    state seen: [String] = []
+    action follow(id: String) {
+        seen = []
+        for await line, i in Social.tail(id: id) {
+            seen = seen.concat(["{i}:{line.text}"])
+        }
+    }
+}
+
+app { Router }
+
+page Home(path: "/", title: "Paging", description: "Reads that answer more than once.") {
+    use Walk
+    resource list = Social.list()
+    resource feed = Social.feed()
+    resource found = Social.search(q: "x")
+    resource lines = Social.tail(id: "7")
+
+    Heading("Paging").h1
+    Text(list.items.map(p => p.title).join(","), id: "list")
+    Text("{list.hasMore}", id: "list-more")
+    Button("More list") { on click { list.loadMore() } }
+    Button("Refresh list") { on click { list.reload() } }
+
+    Text(feed.items.map(p => p.title).join(","), id: "feed")
+    Text("{feed.hasMore}", id: "feed-more")
+    Button("More feed") { on click { feed.loadMore() } }
+
+    Text(found.items.map(p => p.title).join(","), id: "found")
+    Text("{found.hasMore}", id: "found-more")
+    Button("More found") { on click { found.loadMore() } }
+
+    Text((lines.value ?? []).map(l => l.text).join(","), id: "lines")
+    Text("{lines.isLoaded} {lines.pending}", id: "lines-state")
+
+    Button("Walk") { on click { Walk.follow("7") } }
+    Text(Walk.seen.join(","), id: "walked")
+}

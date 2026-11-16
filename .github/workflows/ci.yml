@@ -261,6 +261,10 @@ jobs:
         working-directory: tests/browser
         run: node writes.mjs
 
+      - name: Pages by number, cursor and link, and a streamed answer
+        working-directory: tests/browser
+        run: node paging.mjs
+
       - name: A long session lets go
         working-directory: tests/browser
         run: node leaks.mjs

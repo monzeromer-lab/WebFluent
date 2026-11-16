@@ -371,13 +371,35 @@ impl JsCodegen {
             // the item and the index are plain names inside it.
             (StatementKind::For(f), _) => {
                 let list = self.emit_expr_in(&f.iterable, ecx);
-                match &f.index {
-                    Some(index) => self.emit_line(&format!(
-                        "for (const [{}, {}] of Array.from({list}).entries()) {{",
-                        bare(index),
-                        bare(&f.item)
-                    )),
-                    None => self.emit_line(&format!("for (const {} of {list}) {{", bare(&f.item))),
+                // `for await line in Logs.tail(id: id)`: a streamed call is
+                // also each of its lines, as they arrive; the index counts
+                // them.
+                if f.streaming {
+                    match &f.index {
+                        Some(index) => {
+                            self.emit_line(&format!("{{ let {} = -1;", bare(index)));
+                            self.emit_line(&format!(
+                                "for await (const {} of {list}) {{ {} += 1;",
+                                bare(&f.item),
+                                bare(index)
+                            ));
+                        }
+                        None => self.emit_line(&format!(
+                            "{{ for await (const {} of {list}) {{",
+                            bare(&f.item)
+                        )),
+                    }
+                } else {
+                    match &f.index {
+                        Some(index) => self.emit_line(&format!(
+                            "for (const [{}, {}] of Array.from({list}).entries()) {{",
+                            bare(index),
+                            bare(&f.item)
+                        )),
+                        None => {
+                            self.emit_line(&format!("for (const {} of {list}) {{", bare(&f.item)));
+                        }
+                    }
                 }
                 // The bindings, and what the body declares, are the loop's.
                 let mark = self.scope_mark(cx);
@@ -387,7 +409,7 @@ impl JsCodegen {
                 }
                 self.emit_block_in(&f.body, cx);
                 self.scope_reset(cx, mark);
-                self.emit_line("}");
+                self.emit_line(if f.streaming { "} }" } else { "}" });
             }
             (StatementKind::Try(t), _) => {
                 let mark = self.scope_mark(cx);

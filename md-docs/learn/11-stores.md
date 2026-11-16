@@ -452,9 +452,11 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 ```
 
 A resource over a service's endpoint is owned the same way —
-`resource list = Catalog.items(page: page, paginate: .page)` — and its
-`loadMore()` moves the store's `page`. The resource is the store's to
-replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
+`resource list = Catalog.items()` — and when the endpoint says how it pages
+([Load results a page at a time](15-data.md#load-results-a-page-at-a-time)),
+`Shelf.list.loadMore()` asks for the next page from any page that reads
+it. The resource is the store's to replace: `Deploys.rows = …` is an
+`X01`, as it is inside the store.
 
 When an action decides what is kept — a reply merged into rows already
 held, a list built from several calls — fill the store's state from a

@@ -158,6 +158,16 @@ pub(super) fn global_type(name: &str) -> Type {
             ("downlink".to_string(), Type::Number),
             // The writes kept for when the connection returns (`offline.sync`).
             ("queued".to_string(), Type::Number),
+            // Those the server refused once they were sent, and what
+            // forgets them.
+            (
+                "refused".to_string(),
+                Type::List(Box::new(Type::Record("RefusedWrite".to_string()))),
+            ),
+            (
+                "clearRefused".to_string(),
+                Type::Func(Vec::new(), Box::new(Type::Null)),
+            ),
         ]),
         // A new version of the site, installed and waiting (`offline`).
         "update" => Type::Shape(vec![

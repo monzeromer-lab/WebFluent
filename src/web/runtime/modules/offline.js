@@ -46,11 +46,16 @@
     });
     if (opts.sync) {
       offlineWrites = queueWrite;
+      offlineClearRefused = clearRefused;
+      if (!offlineRefused) offlineRefused = signal([]);
       if (!offlineQueued) offlineQueued = signal(0);
       refreshQueued();
       // The worker says when it has sent some, so the count follows.
       sw.addEventListener("message", (e) => {
-        if (e.data && e.data.type === "wf:writes") refreshQueued();
+        if (!e.data || e.data.type !== "wf:writes") return;
+        // What the writes it sent made stale asks again here.
+        staleNow(e.data.stale);
+        refreshQueued();
       });
     }
     sw.register(`${_basePath}/sw.js`, { scope: `${_basePath}/`, updateViaCache: "none" })
@@ -76,6 +81,14 @@
         if (opts.sync) startSending(reg);
       })
       .catch(() => {});
+  }
+
+  /// What a write that was sent made stale asks again: the reads its
+  /// endpoint `invalidates`, by their cache keys. Only a build with the
+  /// request engine has any.
+  function staleNow(keys) {
+    if (typeof invalidate !== "function") return;
+    for (const key of keys || []) if (typeof key === "string") invalidate(key);
   }
 
   // ─── Writes kept for later ──
@@ -115,12 +128,19 @@
       req.onsuccess = () => done(req.result || []);
     });
 
+  /// `network.queued` and `network.refused`, read again from the store:
+  /// the writes still waiting, and those the server refused once sent.
   function refreshQueued() {
     if (!offlineQueued) return;
-    writesStore("readonly", (store, done) => {
-      const req = store.count();
-      req.onsuccess = () => done(req.result);
-    }).then((n) => offlineQueued.set(n || 0), () => {});
+    allWrites().then((all) => {
+      offlineQueued.set(all.filter((w) => !w.refused).length);
+      if (offlineRefused) offlineRefused.set(all.filter((w) => w.refused).map((w) => ({
+        method: w.method,
+        url: w.url,
+        status: w.refused,
+        at: new Date(w.settled || w.at).toISOString(),
+      })));
+    }, () => {});
   }
 
   /// What the request engine hands over when a write fails for want of a
@@ -145,6 +165,7 @@
       api: request.hooked ? request.api || null : null,
       credentials: request.credentials || null,
       body: request.body == null ? null : request.body,
+      stale: Array.isArray(request.stale) ? request.stale.filter((k) => typeof k === "string") : [],
       at: Date.now(),
     };
     // Hooked, with no name to find its hook by later: it cannot be sent as
@@ -152,7 +173,9 @@
     if (request.hooked && !write.api) return null;
     return writesStore("readwrite", (store) => { store.add(write); }).then(() => {
       refreshQueued();
-      askToSend();
+      // Sent after this call has said it was kept, so a write that goes at
+      // once is still one the page heard of as kept.
+      setTimeout(askToSend, 0);
       return undefined;
     });
   }
@@ -166,6 +189,8 @@
   /// Every kept write, oldest first, until one cannot be sent. A server that
   /// answers — even to refuse — has the write, and a retry would not change
   /// its mind; one that is down, busy or asking to wait keeps it for later.
+  /// One it took makes stale what its endpoint `invalidates`; one it refused
+  /// is kept aside, for `network.refused`, and never sent again.
   ///
   /// The worker sends them too, for a page that has closed, so both take the
   /// `wf-writes` lock first: whoever holds it sends, deletes what went, and
@@ -175,6 +200,7 @@
     _sending = true;
     const send = async () => {
       for (const write of await allWrites()) {
+        if (write.refused) continue;
         let request = {
           url: write.url,
           method: write.method,
@@ -205,7 +231,13 @@
           return;
         }
         if (response.status >= 500 || response.status === 408 || response.status === 429) return;
-        await writesStore("readwrite", (store) => { store.delete(write.id); });
+        if (response.status >= 400) {
+          const refused = { ...write, refused: response.status, settled: Date.now() };
+          await writesStore("readwrite", (store) => { store.put(refused); });
+        } else {
+          await writesStore("readwrite", (store) => { store.delete(write.id); });
+          staleNow(write.stale);
+        }
       }
     };
     const locked = typeof navigator !== "undefined" && navigator.locks
@@ -217,6 +249,17 @@
         _sending = false;
         refreshQueued();
       });
+  }
+
+  /// Forget the writes the server refused, once the page has said so:
+  /// `network.clearRefused()`.
+  function clearRefused() {
+    return writesStore("readwrite", (store) => {
+      const req = store.getAll();
+      req.onsuccess = () => { for (const w of req.result || []) if (w.refused) store.delete(w.id); };
+    })
+      .catch(() => {})
+      .then(() => { refreshQueued(); });
   }
 
   /// Forget every write kept for later — for a logout, or a reader who

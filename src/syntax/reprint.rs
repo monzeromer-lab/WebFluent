@@ -329,7 +329,8 @@ fn diff_statement(
                     .as_ref()
                     .map(|k| format!(" by {}", print::expr(k)))
                     .unwrap_or_default();
-                format!("for {item} in {}{key}", print::expr(&f.iterable))
+                let wait = if f.streaming { "await " } else { "" };
+                format!("for {wait}{item} in {}{key}", print::expr(&f.iterable))
             };
             one_block(
                 source,

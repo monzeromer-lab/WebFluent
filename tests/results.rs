@@ -285,7 +285,7 @@ fn an_action_that_may_fail_returns_its_value() {
         "    action first() -> User ! LookupError {\n        let u = try await Backend.byId(id: \"1\")\n        return u\n    }",
     ));
     clean(&store(
-        "    action none() -> User ! LookupError {\n        return .err(.http(.offline))\n    }",
+        "    action none() -> User ! LookupError {\n        return .err(.http(.offline(false)))\n    }",
     ));
     reports(
         &store(

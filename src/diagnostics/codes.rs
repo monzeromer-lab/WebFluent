@@ -659,6 +659,12 @@ pub static CODES: &[CodeInfo] = &[
         "An error enum that is not shaped as one",
         "An error enum names the statuses a service answers with, each a case carrying the body of its status, and keeps one `http(error: HttpError)` case for everything else — no network, a timeout, a status it does not name. A case with no status or more than one value, a status named twice, or no `http` case leaves a failure with nowhere to go.",
     ),
+    code(
+        "N14",
+        Error,
+        "A `pages` or `streamed` an endpoint cannot have",
+        "A read may answer a page at a time — `pages .number(param: page)`, `.cursor(param: after, next: p => p.next)` or `.link` — or a line at a time, `streamed`. Each is a read's, each gathers a list, and each names what it needs: the parameter the next page goes in, which the first call need not give, and where a page's items are when it is not a list itself. `for await` walks only a `streamed` endpoint's lines.",
+    ),
     // ── I: translations ──────────────────────────────────────────────
     code(
         "I01",

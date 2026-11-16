@@ -21,13 +21,43 @@ offline](work-offline.md)).
 { "offline": { "precache": ["/"], "sync": true } }
 ```
 
-This page tells the reader how many changes are waiting to be sent:
+This page saves a note, says when the save is waiting for the
+connection, and lists any the server refused once they were sent:
 
 ```wf
+type Note { id: String, text: String }
+
+api Backend(base: "/api") { }
+
+api Backend.notes {
+    get list() at "notes" -> [Note]!
+    put save(id: String, body: Note) at "notes/{id}" -> Note!
+        invalidates [list]
+}
+
 page Notes(path: "/notes", title: "Notes", description: "Notes that save offline.") {
+    state draft = ""
+    state said = ""
     Heading("Notes").h1
+    Input(bind: draft, label: "Note")
+    Button("Save") {
+        on click {
+            match await Backend.notes.save(id: "n1", body: Note(id: "n1", text: draft)) {
+                .ok(_) { said = "Saved." }
+                .err(.offline(true)) { said = "Saved here; it will be sent when you are back online." }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    Text(said)
     if network.queued > 0 {
         Text("{network.queued} change(s) will be sent when you are back online").muted
+    }
+    for r in network.refused by r.at {
+        Alert("The server refused a change ({r.status}).").danger
+    }
+    if network.refused.length > 0 {
+        Button("Dismiss") { on click { network.clearRefused() } }
     }
 }
 ```
@@ -35,11 +65,13 @@ page Notes(path: "/notes", title: "Notes", description: "Notes that save offline
 ## How it works
 
 With `sync` on, a write that is safe to send twice — a `PUT` or a
-`DELETE`, made through `fetch` or an `api` — that fails because the network
-is gone is kept instead of thrown. A `POST` or a `PATCH` is not kept: one
-whose answer was lost may already have reached the server, so it fails as
-`.offline` and the page decides. The call resolves with nothing, so what the page showed
-stays shown.
+`DELETE`, or a `POST` or `PATCH` its endpoint marks `idempotent` — that
+fails because the network is gone is kept. Its call still fails, as
+`.offline(queued: true)`: no answer came, so there is no value to show, and
+the page can say the change is waiting. A `POST` or `PATCH` that is not
+`idempotent` is not kept: one whose answer was lost may already have
+reached the server, so it fails as `.offline(queued: false)` and the page
+decides.
 
 `network.queued` is how many writes are waiting. Show it, as the page
 above does, so the reader knows their changes are safe.
@@ -69,8 +101,12 @@ When the connection returns, the kept writes are sent in order:
   them;
 - by the page otherwise, the next time it is open.
 
-A server that answers has the write, even if it refuses it. A server that is
-down, or asks the client to wait, keeps the write waiting for later.
+A server that takes the write makes stale what its endpoint `invalidates`:
+every read of those on an open page asks again, as it would after the
+write had gone at once. A server that refuses it — a `4xx` — has answered,
+so the write is not sent again; it is listed in `network.refused`, each
+`{ method, url, status, at }`, until `network.clearRefused()`. A server that
+is down, or asks the client to wait, keeps the write waiting for later.
 
 A write whose service adds credentials with its hook is sent by a page that
 has that service open, so the worker leaves it — and the writes after it,

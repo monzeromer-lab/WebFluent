@@ -41,11 +41,14 @@ function load({ fetchImpl = async () => response({}), online = true, WebSocket =
 
 // ─── M8: a paged resource refreshed ──
 
+/// An endpoint that pages by number, as `pages .number(param: page)` makes one.
+const numbered = (endpoint) => Object.assign(endpoint, { pages: { style: "number", param: "page" } });
+
 test("refreshing a paged resource replaces the page it asked for, never appends it again", async () => {
   const PAGES = { 1: ["a", "b"], 2: ["c", "d"], 3: [] };
   const { WF } = load();
-  const endpoint = (args) => Promise.resolve(PAGES[args.page].slice());
-  const list = WF.resource(endpoint, { call: true, args: () => ({ page: 1 }), paginate: { by: "page" } });
+  const endpoint = numbered((args) => Promise.resolve(PAGES[args.page].slice()));
+  const list = WF.resource(endpoint, { call: true, args: () => ({ page: 1 }) });
   await settle();
   list.loadMore();
   await settle();
@@ -54,16 +57,16 @@ test("refreshing a paged resource replaces the page it asked for, never appends 
     list.reload();
     await settle();
   }
-  assert.deepEqual(list.items(), ["a", "b", "c", "d"], "five refreshes, the same items");
+  assert.deepEqual(list.items(), ["a", "b", "c", "d"], "five refreshes, the same items: each asks again for every page gathered");
   assert.equal(list.hasMore(), true);
 });
 
 test("a refreshed page with new contents shows them in its place", async () => {
   const PAGES = { 1: ["a", "b"], 2: ["c"] };
   const { WF } = load();
-  const page = WF.signal(1);
-  const list = WF.resource((args) => Promise.resolve(PAGES[args.page].slice()), {
-    call: true, args: () => ({ page: page() }), paginate: { by: "page", set: (v) => page.set(v) },
+  const q = WF.signal("x");
+  const list = WF.resource(numbered((args) => Promise.resolve(PAGES[args.page ?? 1].slice())), {
+    call: true, args: () => ({ q: q() }),
   });
   await settle();
   list.loadMore();
@@ -72,8 +75,8 @@ test("a refreshed page with new contents shows them in its place", async () => {
   list.reload();
   await settle();
   assert.deepEqual(list.items(), ["a", "b", "c", "c2"]);
-  // Going back to the first page starts over from it, as it did.
-  page.set(1);
+  // Another request starts over from its first page.
+  q.set("y");
   await settle();
   assert.deepEqual(list.items(), ["a", "b"]);
 });
@@ -81,7 +84,7 @@ test("a refreshed page with new contents shows them in its place", async () => {
 test("a refresh of the first page alone still reconciles it in place", async () => {
   const { WF } = load();
   let answer = [{ id: 1 }, { id: 2 }];
-  const list = WF.resource(() => Promise.resolve(answer), { call: true, args: () => ({ page: 1 }), paginate: { by: "page" } });
+  const list = WF.resource(numbered(() => Promise.resolve(answer)), { call: true, args: () => ({ page: 1 }) });
   await settle();
   const first = list.items()[0];
   answer = [{ id: 1 }, { id: 2 }, { id: 3 }];

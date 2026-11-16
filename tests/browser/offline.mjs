@@ -2,8 +2,10 @@
 // pre-rendered and as a single page — each driven through what a reader
 // meets: the worker stores the site; a stored route loads with the server
 // gone and one that is not shows the fallback; a write made then is counted,
-// kept and sent once when the server returns; a new build is offered and
-// taken with one reload, and the old version's store goes.
+// its call says it was kept, and it is sent once when the server returns,
+// asking again for what it invalidates — one the server refuses is listed in
+// `network.refused` and never sent again; a new build is offered and taken
+// with one reload, and the old version's store goes.
 //
 //   cd tests/browser && npm ci && node offline.mjs
 //
@@ -79,16 +81,37 @@ async function scenario(label, ssg, port) {
     await page.click("#save");
     check("a write made offline is kept, and network.queued counts it",
       await until(page, () => document.getElementById("queued")?.textContent === "queued:1", undefined, 5000));
-    check("the action goes on as if it were sent",
-      await until(page, () => document.getElementById("saved")?.textContent === "saved:sent or kept", undefined, 5000));
+    check("its call says it was kept, not answered: .offline(queued: true)",
+      await until(page, () => document.getElementById("saved")?.textContent === "saved:kept", undefined, 5000),
+      await page.evaluate(() => document.getElementById("saved")?.textContent));
+    await page.click("#refuse");
+    check("a second write is kept behind it",
+      await until(page, () => document.getElementById("queued")?.textContent === "queued:2", undefined, 5000)
+        && await until(page, () => document.getElementById("refuse-said")?.textContent === "refuse:kept", undefined, 5000));
 
+    const notesBefore = site.fetched.filter((u) => u === "/api/notes").length;
     await site.start();
     await page.evaluate(() => window.dispatchEvent(new Event("online")));
-    check("it is sent when the server returns",
+    check("they are sent when the server returns",
       await until(page, () => document.getElementById("queued")?.textContent === "queued:0"));
     await sleep(1500);
-    check("the server received it once, as written",
-      site.received.length === 1 && site.received[0].includes("written while offline"), JSON.stringify(site.received));
+    check("the server received each once, in order, as written",
+      site.received.length === 2 && site.received[0].includes("written while offline") && site.received[1].includes("will refuse"),
+      JSON.stringify(site.received));
+    check("what the sent write invalidates is asked for again",
+      site.fetched.filter((u) => u === "/api/notes").length === notesBefore + 1,
+      JSON.stringify(site.fetched));
+    check("the write the server refused is listed in network.refused",
+      await until(page, () => document.getElementById("refused")?.textContent === "refused:409 /api/refuse"),
+      await page.evaluate(() => document.getElementById("refused")?.textContent));
+    await page.click("#dismiss");
+    check("and network.clearRefused() forgets it",
+      await until(page, () => document.getElementById("refused")?.textContent === "refused:"),
+      await page.evaluate(() => document.getElementById("refused")?.textContent));
+    site.received.length = 0;
+    await page.evaluate(() => window.dispatchEvent(new Event("online")));
+    await sleep(1000);
+    check("a refused write is never sent again", site.received.length === 0, JSON.stringify(site.received));
 
     const home = path.join(dir, "src/App.wf");
     fs.writeFileSync(home, fs.readFileSync(home, "utf8").replace('Heading("Offline test")', 'Heading("Offline test, v2")'));

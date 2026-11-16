@@ -371,6 +371,38 @@ shown wrong, or as nothing, further in.
   the initial value, with a warning in a development build, and the page
   loads.
 
+## Pages, lines, and writes kept offline
+
+How an endpoint answers more than once is written in its contract, once.
+
+- **Pages.** `pages .number(param: page)`, `pages .cursor(param: after,
+  next: p => p.nextCursor, items: p => p.posts)` or `pages .link` (the
+  answer's `Link` header, RFC 8288). A read of it holds every page's items,
+  typed, with `.items`, `.hasMore` and `.loadMore()`; the read keeps the
+  page itself and writes no state of the page's. A refresh asks again for
+  every page gathered, in order, and shows them together.
+- **Lines.** `get tail(id: String) at "logs/{id}" -> [LogLine]! streamed`:
+  a read over it is `.loaded` from its first line and grows; awaited whole
+  it is every line; `for await line in Logs.tail(id: id)` in an action or a
+  handler walks them as they arrive. Each line is held to its type, and the
+  request goes through the service's middleware, timeout and retries.
+- **A write kept offline says so.** Its call used to resolve with nothing
+  while the checker said `User`; it now fails `.offline(queued: true)`, so
+  the page knows no answer came. `HttpError`'s `.offline` carries `queued`.
+- **What happens to it later.** Once sent, what its endpoint `invalidates`
+  asks again — on the page that sends it, or on every open page when the
+  service worker does. One the server refuses is never sent again and is
+  listed in `network.refused` (`{ method, url, status, at }`) until
+  `network.clearRefused()`.
+- **`N14`** refuses a `pages` or `streamed` that cannot work: on a write, a
+  page parameter the endpoint lacks or the first call must give, a cursor
+  with no `next:`, a page that is not a list with no `items:`, a streamed
+  answer that is not a list, and `for await` over anything but a streamed
+  call.
+- **`paginate:` on a call is `N08`.** Its `.items`, `.hasMore` and
+  `.loadMore()` stay; `pages .number(param: page)` moves to the endpoint,
+  and the `state page` the runtime used to write goes.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

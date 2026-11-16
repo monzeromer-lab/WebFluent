@@ -2807,6 +2807,9 @@ pub webfluent::syntax::parser::ast::Endpoint::path_written: bool
 pub webfluent::syntax::parser::ast::Endpoint::returns: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::ast::Endpoint::settings: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::ast::Endpoint::span: webfluent::syntax::parser::Span
+impl webfluent::syntax::parser::Endpoint
+pub fn webfluent::syntax::parser::Endpoint::pages(&self) -> core::option::Option<webfluent::syntax::parser::Paging<'_>>
+pub fn webfluent::syntax::parser::Endpoint::streamed(&self) -> bool
 impl core::clone::Clone for webfluent::syntax::parser::Endpoint
 pub fn webfluent::syntax::parser::Endpoint::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::Endpoint
@@ -2951,6 +2954,7 @@ pub webfluent::syntax::parser::ast::ForStmt::index: core::option::Option<alloc::
 pub webfluent::syntax::parser::ast::ForStmt::item: alloc::string::String
 pub webfluent::syntax::parser::ast::ForStmt::iterable: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::ForStmt::key: core::option::Option<webfluent::syntax::parser::Expr>
+pub webfluent::syntax::parser::ast::ForStmt::streaming: bool
 impl core::clone::Clone for webfluent::syntax::parser::ForStmt
 pub fn webfluent::syntax::parser::ForStmt::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::ForStmt
@@ -3155,6 +3159,24 @@ impl core::marker::Unpin for webfluent::syntax::parser::PageDecl
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::PageDecl
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::PageDecl
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::PageDecl
+pub struct webfluent::syntax::parser::ast::Paging<'a>
+pub webfluent::syntax::parser::ast::Paging::args: alloc::vec::Vec<(&'a str, &'a webfluent::syntax::parser::Expr)>
+pub webfluent::syntax::parser::ast::Paging::style: &'a str
+pub webfluent::syntax::parser::ast::Paging::written: &'a webfluent::syntax::parser::Expr
+impl webfluent::syntax::parser::Paging<'_>
+pub fn webfluent::syntax::parser::Paging<'_>::arg(&self, &str) -> core::option::Option<&webfluent::syntax::parser::Expr>
+pub fn webfluent::syntax::parser::Paging<'_>::param(&self) -> core::option::Option<&str>
+impl<'a> core::clone::Clone for webfluent::syntax::parser::Paging<'a>
+pub fn webfluent::syntax::parser::Paging<'a>::clone(&self) -> Self
+impl<'a> core::fmt::Debug for webfluent::syntax::parser::Paging<'a>
+pub fn webfluent::syntax::parser::Paging<'a>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'a> core::marker::Freeze for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::Send for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::Sync for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::Unpin for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::UnsafeUnpin for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Paging<'a>
 pub struct webfluent::syntax::parser::ast::ParamDecl
 pub webfluent::syntax::parser::ast::ParamDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::ParamDecl::param_type: webfluent::syntax::parser::TypeRef
@@ -4301,6 +4323,9 @@ pub webfluent::syntax::parser::Endpoint::path_written: bool
 pub webfluent::syntax::parser::Endpoint::returns: core::option::Option<webfluent::syntax::parser::TypeRef>
 pub webfluent::syntax::parser::Endpoint::settings: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::Endpoint::span: webfluent::syntax::parser::Span
+impl webfluent::syntax::parser::Endpoint
+pub fn webfluent::syntax::parser::Endpoint::pages(&self) -> core::option::Option<webfluent::syntax::parser::Paging<'_>>
+pub fn webfluent::syntax::parser::Endpoint::streamed(&self) -> bool
 impl core::clone::Clone for webfluent::syntax::parser::Endpoint
 pub fn webfluent::syntax::parser::Endpoint::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::Endpoint
@@ -4445,6 +4470,7 @@ pub webfluent::syntax::parser::ForStmt::index: core::option::Option<alloc::strin
 pub webfluent::syntax::parser::ForStmt::item: alloc::string::String
 pub webfluent::syntax::parser::ForStmt::iterable: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ForStmt::key: core::option::Option<webfluent::syntax::parser::Expr>
+pub webfluent::syntax::parser::ForStmt::streaming: bool
 impl core::clone::Clone for webfluent::syntax::parser::ForStmt
 pub fn webfluent::syntax::parser::ForStmt::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::ForStmt
@@ -4649,6 +4675,24 @@ impl core::marker::Unpin for webfluent::syntax::parser::PageDecl
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::PageDecl
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::PageDecl
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::PageDecl
+pub struct webfluent::syntax::parser::Paging<'a>
+pub webfluent::syntax::parser::Paging::args: alloc::vec::Vec<(&'a str, &'a webfluent::syntax::parser::Expr)>
+pub webfluent::syntax::parser::Paging::style: &'a str
+pub webfluent::syntax::parser::Paging::written: &'a webfluent::syntax::parser::Expr
+impl webfluent::syntax::parser::Paging<'_>
+pub fn webfluent::syntax::parser::Paging<'_>::arg(&self, &str) -> core::option::Option<&webfluent::syntax::parser::Expr>
+pub fn webfluent::syntax::parser::Paging<'_>::param(&self) -> core::option::Option<&str>
+impl<'a> core::clone::Clone for webfluent::syntax::parser::Paging<'a>
+pub fn webfluent::syntax::parser::Paging<'a>::clone(&self) -> Self
+impl<'a> core::fmt::Debug for webfluent::syntax::parser::Paging<'a>
+pub fn webfluent::syntax::parser::Paging<'a>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl<'a> core::marker::Freeze for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::Send for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::Sync for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::Unpin for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::marker::UnsafeUnpin for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Paging<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Paging<'a>
 pub struct webfluent::syntax::parser::ParamDecl
 pub webfluent::syntax::parser::ParamDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ParamDecl::param_type: webfluent::syntax::parser::TypeRef

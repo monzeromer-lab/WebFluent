@@ -85,7 +85,7 @@
     const progress = signal(0);
     const method = (endpoint.method || "GET").toUpperCase();
     // What is a parameter of the call rather than of the request.
-    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "refresh", "placeholder", "timeout", "signal", "as"]);
+    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "refresh", "placeholder", "timeout", "signal", "as", "$address"]);
     // The parameter a file arrives in is the one the endpoint names — `post
     // avatar(image: File)` sends `image` — and never part of the query.
     const fileField = endpoint.fileField || "file";
@@ -98,6 +98,9 @@
     for (const p of Object.keys(placed)) perCall.add(p);
     const addressOf = (args) => {
       const given = args || {};
+      // The next page of a `pages .link` read: the address the server
+      // named, as it named it.
+      if (given.$address) return given.$address;
       const { path, used } = fillPath(endpoint.path, given);
       const url = /^[a-z]+:\/\//i.test(path) ? path : base() + "/" + path.replace(/^\/+/, "");
       return url + queryString(given, used, perCall);
@@ -154,6 +157,12 @@
         shape: endpoint.shape,
         errorShapes: endpoint.errorShapes,
         key: (config.name || "") + " " + name + " " + addressOf(given),
+        // What a success makes stale, by cache key: a write kept offline
+        // carries it, to apply once it is sent.
+        stale: endpoint.invalidates && siblings
+          ? () => endpoint.invalidates(given).map(([read, readArgs]) =>
+              siblings[read] && siblings[read].staleKey ? siblings[read].staleKey(readArgs || undefined) : null).filter(Boolean)
+          : null,
       };
     };
 
@@ -172,10 +181,30 @@
       }
       return null;
     };
+    // `streamed`: the answer a line at a time, each line an item of the
+    // list it declares.
+    const itemShape = endpoint.shape && endpoint.shape[0] === "l" ? endpoint.shape[1] : null;
+    const lines = (args) => {
+      const empty = unfilled(args);
+      if (empty) {
+        return (async function* () {
+          throw netError("aborted", "`" + empty[0] + "` " + empty[1] + ", so " + endpoint.path + " was not requested");
+        })();
+      }
+      return streamResponse(addressOf(args), optionsOf(args), itemShape);
+    };
     const raw = (args) => {
       const empty = unfilled(args);
       if (empty) {
         return Promise.reject(netError("aborted", "`" + empty[0] + "` " + empty[1] + ", so " + endpoint.path + " was not requested"));
+      }
+      // A streamed answer awaited whole: every line, gathered.
+      if (endpoint.streamed) {
+        return (async () => {
+          const all = [];
+          for await (const line of lines(args)) all.push(line);
+          return all;
+        })();
       }
       const sent = send(addressOf(args), optionsOf(args));
       // `invalidates [list, byId(id)]`: what a success makes stale asks
@@ -192,21 +221,46 @@
     // `-> User!`) never throws: what comes back is `.ok(value)` or
     // `.err(error)`. A resource reads it through `raw`, as it always has.
     const result = endpoint.result;
-    const call = result
-      ? (args) => raw(args).then(
+    const outcome = (made) => result
+      ? made.then(
           (value) => (result.unit ? "ok" : ["ok", value]),
           (error) => ["err", failureOf(error, result)],
         )
-      : raw;
+      : made;
+    // A streamed call is two things: awaited, every line as one result;
+    // walked with `for await`, each line as it arrives. Nothing is asked
+    // until one of them is wanted.
+    const call = endpoint.streamed
+      ? (args) => {
+          let whole = null;
+          const once = () => whole || (whole = outcome(raw(args)));
+          return {
+            then: (done, failed) => once().then(done, failed),
+            catch: (failed) => once().catch(failed),
+            finally: (after) => once().finally(after),
+            [Symbol.asyncIterator]: () => lines(args)[Symbol.asyncIterator](),
+          };
+        }
+      : (args) => outcome(raw(args));
     call.raw = raw;
+    /// How a read of it pages, and whether it answers a line at a time.
+    if (endpoint.pages) call.pages = endpoint.pages;
+    if (endpoint.streamed) {
+      call.streamed = true;
+      /// Each line to `onLine` as it arrives; done when the answer is.
+      call.stream = async (args, onLine) => {
+        for await (const line of lines(args)) onLine(line);
+      };
+    }
     // What a read of it holds when it fails: what `.err` would.
     call.failure = (error) => (result ? failureOf(error, result) : httpError(error));
     call.progress = progress;
     call.key = (args) => optionsOf(args).key;
     call.url = addressOf;
+    /// What its cache is known by: one call's, or every call's.
+    call.staleKey = (args) => (args ? optionsOf(args).key : (config.name || "") + " " + name + " ");
     /// Forget what this endpoint cached — every argument of it.
-    call.invalidate = (args) =>
-      invalidate(args ? optionsOf(args).key : (config.name || "") + " " + name + " ");
+    call.invalidate = (args) => invalidate(call.staleKey(args));
     /// The reads of it shown on the page, which `update` changes in place.
     call.reads = new Set();
     /// `Backend.todos.list.update(list => …)`: what every read of it shows,
@@ -231,7 +285,7 @@
     /// Ask now for what will be wanted soon.
     call.prefetch = (args) => send(addressOf(args), optionsOf(args)).catch(() => null);
     /// Every line of a streamed response, as it arrives.
-    call.lines = (args) => streamLines(addressOf(args), optionsOf(args));
+    call.lines = lines;
     return call;
   }
 

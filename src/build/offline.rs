@@ -293,14 +293,19 @@ if (C.sync) {
   const sendWrites = () => (self.navigator.locks
     ? self.navigator.locks.request(WRITES_TAG, sendAll)
     : sendAll());
+  // A write the server took makes stale what its endpoint `invalidates`,
+  // which the open pages ask again; one it refused is kept aside, for the
+  // page's `network.refused`, and never sent again.
   const sendAll = async () => {
     const db = await openWrites();
+    const stale = [];
     try {
       const writes = await inStore(db, "readonly", (s, done) => {
         const r = s.getAll();
         r.onsuccess = () => done(r.result || []);
       });
       for (const w of writes) {
+        if (w.refused) continue;
         if (w.api) break;
         const init = { method: w.method, headers: withoutCredentials(w.headers), body: w.body };
         if (w.credentials) init.credentials = w.credentials;
@@ -308,12 +313,17 @@ if (C.sync) {
         if (response.status >= 500 || response.status === 408 || response.status === 429) {
           throw new Error(`the server answered ${response.status}; trying again later`);
         }
-        await inStore(db, "readwrite", (s) => { s.delete(w.id); });
+        if (response.status >= 400) {
+          await inStore(db, "readwrite", (s) => { s.put({ ...w, refused: response.status, settled: Date.now() }); });
+        } else {
+          await inStore(db, "readwrite", (s) => { s.delete(w.id); });
+          stale.push(...(w.stale || []));
+        }
       }
     } finally {
       db.close();
       const pages = await self.clients.matchAll();
-      for (const page of pages) page.postMessage({ type: "wf:writes" });
+      for (const page of pages) page.postMessage({ type: "wf:writes", stale });
     }
   };
   self.addEventListener("sync", (event) => {

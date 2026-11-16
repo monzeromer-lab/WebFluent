@@ -940,16 +940,15 @@ test("an address that reads state asks again in loading when it changes, and ref
   }
 });
 
-test("an endpoint's argument that changes is another request; the page `paginate` moves is not", async () => {
+test("an endpoint's argument that changes is another request; the next page is not", async () => {
   const { WF } = loadRuntime();
   const calls = [];
   const endpoint = (args) => new Promise((resolve) => calls.push({ args, resolve }));
+  endpoint.pages = { style: "number", param: "page" };
   const kind = WF.signal("deploy");
-  const page = WF.signal(1);
   const r = WF.resource(endpoint, {
     call: true,
-    args: () => ({ kind: kind(), page: page() }),
-    paginate: { by: "page", set: (v) => page.set(v) },
+    args: () => ({ kind: kind() }),
   });
   const tick = () => new Promise((res) => setTimeout(res, 0));
   calls[0].resolve(["a", "b"]);

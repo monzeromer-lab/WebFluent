@@ -477,7 +477,12 @@ impl Checker<'_, '_> {
                 self.pop_scope();
             }
             StatementKind::For(f) => {
-                let iterable = self.infer(&f.iterable, None);
+                let iterable = if f.streaming {
+                    let line = self.streamed_item(&f.iterable);
+                    Type::List(Box::new(line))
+                } else {
+                    self.infer(&f.iterable, None)
+                };
                 let item = match &iterable {
                     Type::List(inner) => (**inner).clone(),
                     Type::Error => Type::Error,

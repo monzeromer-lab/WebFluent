@@ -38,10 +38,6 @@ pub const RESOURCE_OPTIONS: &[ArgDoc] = &[
         "cache",
         "How long an answer stands: `.swr(60.seconds)` (served, then revalidated), `.none`, `.forever`",
     ),
-    arg(
-        "paginate",
-        "`paginate: .page` — the resource gathers the pages as `.items`, with `.loadMore()` and `.hasMore`",
-    ),
 ];
 
 /// What a call of a service's endpoint (`Backend.users(…)`) takes beside the
@@ -58,10 +54,6 @@ pub const ENDPOINT_CALL_OPTIONS: &[ArgDoc] = &[
     arg(
         "placeholder",
         "`placeholder: .previous` — while another request of it loads, the last value stays shown, refreshing",
-    ),
-    arg(
-        "paginate",
-        "`paginate: .page` — `.items` gathers the pages; `.loadMore()` and `.hasMore`",
     ),
     arg(
         "as",
@@ -119,14 +111,6 @@ pub const OPTION_CASES: &[(&str, &[OptionCase])] = &[
             ("none", "none", "Hold nothing; every call asks the network"),
             ("forever", "forever", "Hold the first answer for good"),
         ],
-    ),
-    (
-        "paginate",
-        &[(
-            "page",
-            "page",
-            "By the `page` argument: `.loadMore()` asks for the next one",
-        )],
     ),
     (
         "as",

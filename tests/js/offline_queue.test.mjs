@@ -36,6 +36,7 @@ function fakeIndexedDB() {
             const store = db.stores.get(s);
             tx.objectStore = () => ({
               add: (v) => { const id = db.next++; store.set(id, { ...v, id }); },
+              put: (v) => { store.set(v.id, { ...v }); },
               getAll: () => req(() => [...store.values()]),
               count: () => req(() => store.size),
               delete: (id) => { store.delete(id); },
@@ -90,6 +91,10 @@ const stored = (idb, name = "wf-offline") => {
 
 const ok = () => ({ ok: true, status: 200, headers: { forEach() {} }, text: async () => "{}" });
 
+/// A call whose write was kept fails `.offline(queued: true)`: no answer
+/// came, and the write waits to be sent.
+const kept = (e) => e.kind === "offline" && e.queued === true;
+
 test("a write made offline is kept, without the credentials its hook added", async () => {
   let token = "alice";
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: false });
@@ -98,8 +103,7 @@ test("a write made offline is kept, without the credentials its hook added", asy
     onRequest: (r) => { r.headers.Authorization = "Bearer " + token; return r; },
     endpoints: { save: { method: "PUT", path: "items" } },
   });
-  const result = await B.save({ body: { a: 1 } });
-  assert.equal(result, undefined, "the call resolves with nothing: it is kept");
+  await assert.rejects(B.save({ body: { a: 1 } }), kept, "the call says it was kept, not answered");
   await settle();
   const [write] = stored(indexedDB);
   assert.ok(write, "kept");
@@ -124,7 +128,7 @@ test("a kept write is sent with the hook's credentials of the moment it goes", a
     onRequest: (r) => { r.headers.Authorization = "Bearer " + token; return r; },
     endpoints: { save: { method: "PUT", path: "items" } },
   });
-  await B.save({ body: { a: 1 } });
+  await assert.rejects(B.save({ body: { a: 1 } }), kept);
   await settle();
   token = "bob";
   online = true;
@@ -165,8 +169,8 @@ test("a write another origin refused while the browser is online is not kept and
 
 test("a write to this site's own server that could not be reached is kept, when sending it twice is safe", async () => {
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: true });
-  assert.equal(await WF.send("/api/items/1", { method: "PUT", body: { a: 1 } }), undefined);
-  assert.equal(await WF.send("https://site.example/api/more", { method: "DELETE" }), undefined);
+  await assert.rejects(WF.send("/api/items/1", { method: "PUT", body: { a: 1 } }), kept);
+  await assert.rejects(WF.send("https://site.example/api/more", { method: "DELETE" }), kept);
   await settle();
   assert.equal(stored(indexedDB).length, 2);
 });
@@ -189,7 +193,7 @@ test("a POST made offline fails rather than being kept", async () => {
 
 test("a site under a base path keeps its writes in a database of its own, and can clear them", async () => {
   const { WF, indexedDB } = load({ fetchImpl: async () => { throw new TypeError("Failed to fetch"); }, online: false, base: "/shop" });
-  await WF.send("/shop/api/items", { method: "PUT", body: "x" });
+  await assert.rejects(WF.send("/shop/api/items", { method: "PUT", body: "x" }), kept);
   await settle();
   assert.equal(stored(indexedDB).length, 0, "nothing in the shared database");
   assert.equal(stored(indexedDB, "wf-offline:/shop").length, 1);
@@ -209,7 +213,7 @@ test("a write kept by an older build with a credential is sent without it", asyn
   };
   const { WF, indexedDB, navigator, window } = load({ fetchImpl, online: false });
   // What the old code stored.
-  await WF.send("/api/items", { method: "PUT", body: "x", headers: { "X-Trace": "1" } });
+  await assert.rejects(WF.send("/api/items", { method: "PUT", body: "x", headers: { "X-Trace": "1" } }), kept);
   await settle();
   const db = indexedDB.dbs.get("wf-offline");
   const writes = db.stores.get("writes");
@@ -220,4 +224,63 @@ test("a write kept by an older build with a credential is sent without it", asyn
   await settle(30);
   assert.equal(sent.length, 1);
   assert.deepEqual(sent[0].headers, { "X-Trace": "1", "Content-Type": "text/plain;charset=UTF-8" });
+});
+
+test("a kept write the server takes makes stale what its endpoint invalidates", async () => {
+  const gets = [];
+  const fetchImpl = async (url, init) => {
+    if ((init.method || "GET") === "GET") gets.push(url);
+    if (!navigator.onLine) throw new TypeError("Failed to fetch");
+    return ok();
+  };
+  const { WF, navigator, window } = load({ fetchImpl, online: false });
+  const B = WF.api({
+    name: "B", base: "/api",
+    endpoints: {
+      list: { method: "GET", path: "items" },
+      save: { method: "PUT", path: "items/{id}", invalidates: () => [["list", null]] },
+    },
+  });
+  await assert.rejects(B.save({ id: "1", body: "x" }), kept);
+  await settle();
+  // Back online; a read of the list is on the page, asking only when told.
+  navigator.onLine = true;
+  WF.resource(B.list, { call: true, args: () => ({}), refresh: {} });
+  await settle();
+  assert.equal(gets.length, 1);
+  window._fire("online", {});
+  await settle(30);
+  assert.equal(WF.network().queued, 0, "sent");
+  assert.equal(gets.length, 2, "the list it made stale was asked for again");
+});
+
+test("a kept write the server refuses is kept aside, listed in `network.refused`, and not sent again", async () => {
+  let online = false;
+  let sends = 0;
+  const fetchImpl = async () => {
+    if (!online) throw new TypeError("Failed to fetch");
+    sends += 1;
+    return { ok: false, status: 409, headers: { forEach() {} }, text: async () => "" };
+  };
+  const { WF, indexedDB, navigator, window } = load({ fetchImpl, online: false });
+  await assert.rejects(WF.send("/api/items/1", { method: "PUT", body: "x" }), kept);
+  await settle();
+  online = true;
+  navigator.onLine = true;
+  window._fire("online", {});
+  await settle(30);
+  assert.equal(sends, 1);
+  assert.equal(WF.network().queued, 0, "no longer waiting");
+  const refused = WF.network().refused;
+  assert.equal(refused.length, 1);
+  assert.equal(refused[0].status, 409);
+  assert.equal(refused[0].method, "PUT");
+  assert.equal(refused[0].url, "/api/items/1");
+  window._fire("online", {});
+  await settle(30);
+  assert.equal(sends, 1, "a refused write is not sent again");
+  WF.network().clearRefused();
+  await settle();
+  assert.equal(WF.network().refused.length, 0);
+  assert.equal(stored(indexedDB).length, 0);
 });
