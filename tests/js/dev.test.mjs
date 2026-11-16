@@ -105,7 +105,7 @@ test("an effect that feeds itself is stopped, and said to", () => {
   assert.ok(said.warn.some((w) => w.includes("never settles")), said.warn.join("\n"));
 });
 
-test("a response is held to its declared shape under wf serve", async () => {
+test("a response is held to its declared shape, under wf serve and deployed alike", async () => {
   const fetchImpl = async () => response([{ id: "1", name: "Ada" }, { id: "2" }]);
   const shape = ["l", ["r", "User", { id: "s", name: "s" }]];
   const { WF } = load({ dev: true, fetchImpl });
@@ -113,9 +113,13 @@ test("a response is held to its declared shape under wf serve", async () => {
   assert.ok(error, "the wrong shape is an error");
   assert.equal(error.kind, "parse");
   assert.match(error.message, /\$\[1\]\.name is missing/);
-  // A deployed page trusts the server.
+  // A deployed page holds it too: a value typed `User` is a `User`.
   const { WF: deployed } = load({ fetchImpl });
-  assert.equal((await deployed.send("/api/users", { shape })).length, 2);
+  const refused = await deployed.send("/api/users", { shape }).then(() => null, (e) => e);
+  assert.equal(refused && refused.kind, "parse", "deployed, the wrong shape is an error too");
+  const right = async () => response([{ id: "1", name: "Ada" }]);
+  const { WF: kept } = load({ fetchImpl: right });
+  assert.equal((await kept.send("/api/users", { shape })).length, 1, "and the right one arrives");
 });
 
 test("an empty path parameter does not ask for the collection", async () => {

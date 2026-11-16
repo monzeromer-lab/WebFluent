@@ -59,7 +59,7 @@ fn a_store_makes_its_resource_and_reads_it_in_its_own_terms() {
     assert!(js.contains("resources: {"), "{js}");
     assert!(
         js.contains(
-            "rows: (store) => WF.resource(() => `/api/rows?page=${encodeURIComponent(store.page)}`, { refresh: { focus: true } }),"
+            "rows: (store) => WF.resource(() => `/api/rows?page=${encodeURIComponent(store.page)}`, { refresh: { focus: true }, shape: [\"l\", [\"r\", \"Row\", { \"name\": \"s\" }]] }),"
         ),
         "the address reads the store's state, and is asked again when it changes: {js}"
     );

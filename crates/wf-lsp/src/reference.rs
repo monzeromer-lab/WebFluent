@@ -906,7 +906,7 @@ pub const API_SETTINGS: &[(&str, &str, &str)] = &[
     (
         "retry",
         "retry: .backoff(times: ${1:3}, on: [.network, .timeout, .status5xx])",
-        "When to try again: exponential backoff with jitter, per error kind, honouring `Retry-After`.",
+        "When to try again: exponential backoff with jitter, per error kind, honouring `Retry-After` — for what is safe to send twice, and a write marked `idempotent`.",
     ),
     (
         "credentials",
@@ -915,8 +915,8 @@ pub const API_SETTINGS: &[(&str, &str, &str)] = &[
     ),
     (
         "cache",
-        "cache: .swr(${1:60}.seconds)",
-        "How long an answer stands: `.swr(…)`, `.none`, `.forever`.",
+        "cache: .maxAge(${1:60}.seconds)",
+        "Overrides what the server's `Cache-Control` says: `.maxAge(…)`, `.swr(…)`, `.none`, `.forever`.",
     ),
     (
         "mode",
@@ -934,9 +934,9 @@ pub const API_SETTINGS: &[(&str, &str, &str)] = &[
         "The referrer policy, as `fetch` names it.",
     ),
     (
-        "headers",
-        "headers {\n\t\"${1:X-Api-Key}\": ${2:value}\n}",
-        "Headers every request carries, each read at the moment of the request.",
+        "middleware",
+        "middleware [${1:bearer(Session.token)}]",
+        "What every request passes through, in order: `refreshOn401(action)`, `bearer(token)`, `header(name, value)`, `requestId`, `log`, or a `middleware` of the project's.",
     ),
 ];
 

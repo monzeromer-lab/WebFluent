@@ -1633,7 +1633,11 @@ pub fn endpoint(e: &Endpoint) -> String {
         ));
     }
     for (k, v) in &e.settings {
-        out.push_str(&format!(" {k}: {}", expr(v)));
+        if k == "idempotent" {
+            out.push_str(" idempotent");
+        } else {
+            out.push_str(&format!(" {k}: {}", expr(v)));
+        }
     }
     out
 }
@@ -1809,6 +1813,13 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
             };
             format!("{}{head}{body}", doc(a.doc.as_deref(), 0))
         }
+        Declaration::Middleware(m) => format!(
+            "{}middleware {}({}){}",
+            doc(m.doc.as_deref(), 0),
+            m.name,
+            m.handler.params.join(", "),
+            body(&m.handler.body, Block::Imperative, 0)
+        ),
         // A project script is a file of its own, not source.
         Declaration::Script(_) => String::new(),
     }
@@ -2122,6 +2133,7 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
         Declaration::Animation(a) => a.span,
         Declaration::Test(t) => t.span,
         Declaration::Api(a) => a.span,
+        Declaration::Middleware(m) => m.span,
         // The app keeps no place of its own: it is the `app { … }` that
         // starts a line, of which a file has one.
         Declaration::App(_) => {

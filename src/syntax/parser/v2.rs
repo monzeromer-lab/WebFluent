@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -595,6 +595,7 @@ impl ParserV2 {
                 "type" => self.parse_type_decl(doc)?,
                 "enum" => self.parse_enum_decl(doc)?,
                 "api" => self.parse_api(doc)?,
+                "middleware" => self.parse_middleware(doc)?,
                 // `external` is gone: a library is a URL in `meta.scripts`,
                 // the project's own code a `.js` file under `src/`, and a
                 // custom element `Element("tag-name", …)`.
@@ -968,10 +969,13 @@ impl ParserV2 {
     /// with nothing after it names none.
     fn parse_result_error(&mut self) -> Result<Option<Box<TypeRef>>> {
         let bang_line = self.tokens.get(self.pos.saturating_sub(1)).map(|t| t.line);
-        let starts_type = matches!(
-            self.kind(),
-            TokenType::Identifier(_) | TokenType::OpenBracket | TokenType::OpenParen
-        );
+        // `-> User! idempotent`: a word an endpoint is marked with ends the
+        // type; it names no error.
+        let starts_type = match self.kind() {
+            TokenType::Identifier(w) => !matches!(w.as_str(), "idempotent" | "invalidates"),
+            TokenType::OpenBracket | TokenType::OpenParen => true,
+            _ => false,
+        };
         if starts_type && Some(self.current().line) == bang_line {
             Ok(Some(Box::new(self.nested(Self::parse_plain_type_ref)?)))
         } else {
@@ -2431,6 +2435,13 @@ impl ParserV2 {
                     }
                     // `on request(r) { … }`, `on response(r)`, `on error(e)`.
                     "on" => hooks.push(self.parse_handler()?),
+                    // `middleware [bearer(Session.token), requestId]`: what
+                    // every request passes through, in the order written.
+                    "middleware" if matches!(self.kind_at(1), TokenType::OpenBracket) => {
+                        self.advance();
+                        settings.push(("middleware".to_string(), self.parse_expression()?));
+                        self.eat(&TokenType::Comma);
+                    }
                     m if is_http_method(m) => {
                         endpoints.push(self.parse_endpoint(doc)?);
                     }
@@ -2460,6 +2471,45 @@ impl ParserV2 {
             doc,
             span: self.span_since(mark),
             from,
+        }))
+    }
+
+    /// `middleware refreshOn401(req, next) { … }`.
+    fn parse_middleware(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("middleware")?;
+        let name = self.expect_ident("the middleware's name")?;
+        let hint = "A middleware is handed the request and the rest of the chain: `middleware name(req, next) { return await next(req) }`";
+        self.expect(&TokenType::OpenParen, "`(`")?;
+        let mut params = Vec::new();
+        while !self.check(&TokenType::CloseParen) && !self.at_end() {
+            params.push(self.expect_ident("a parameter's name")?);
+            if !self.check(&TokenType::CloseParen) {
+                self.expect(&TokenType::Comma, "`,`")?;
+            }
+        }
+        self.expect(&TokenType::CloseParen, "`)`")?;
+        if params.len() != 2 {
+            return Err(self.error_with_hint(
+                format!("`middleware {name}` names {} parameter(s); it takes two", params.len()),
+                hint,
+            ));
+        }
+        let body_mark = self.mark();
+        let (body, _) = self.parse_imperative_block()?;
+        let handler = EventHandler {
+            event: "middleware".to_string(),
+            params,
+            key: None,
+            pace: None,
+            body,
+            span: self.span_since(body_mark),
+        };
+        Ok(Declaration::Middleware(MiddlewareDecl {
+            name,
+            handler,
+            doc,
+            span: self.span_since(mark),
         }))
     }
 
@@ -2520,6 +2570,14 @@ impl ParserV2 {
                     self.eat(&TokenType::Comma);
                 }
                 self.expect(&TokenType::CloseBrace, "`}`")?;
+                continue;
+            }
+            // `idempotent`: safe to send twice, with the key that says so.
+            if self.is_word("idempotent")
+                && !matches!(self.kind_at(1), TokenType::Colon | TokenType::OpenParen)
+            {
+                self.advance();
+                settings.push(("idempotent".to_string(), Expr::BoolLiteral(true)));
                 continue;
             }
             // `cache: .swr(60.seconds)`, `as: .blob`, `.progress`.

@@ -252,65 +252,84 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
         Markdown("- A parameter the path names goes in the path. Every other parameter goes in the query string.\n- `->` says what a success returns and how a call fails: `-> [User]!` is a list of users or an `HttpError`, `-> User ! CreateUserError` a user or a case of that error enum, `-> !` nothing but may fail ([Say how a call fails](#say-how-a-call-fails)). A `resource` over the endpoint holds what a success returns, so `u.nam` is `T05` before the page ever runs.\n- An endpoint the service does not have is `T06`, and an argument it does not take is `T10`.")
 
-        Heading("Add headers and hooks to every call", id: "add-headers-and-hooks-to-every-call").h3
+        Heading("Pass every request through middleware", id: "pass-every-request-through-middleware").h3
 
-        Markdown("To send the same headers with every call, add a `headers \{ \}` block. Each value is read at the moment of the request, not when the service is declared, so a token refreshed a moment ago is the one that is sent.\n\nThis service sends a bearer token and the reader's language, tags each request with an ID, logs each response, and refreshes the token on a `401`:")
+        Markdown("What every call of a service carries — a token, the reader's language, a request ID — and what it does when the server says a token expired, is *middleware*: steps each request passes through, in the order written in the service's `middleware [ … ]`. Each step is handed the request and the rest of the chain, `next`, and returns what `next` returns.\n\nThis service refreshes the token on a `401`, sends it as a bearer token, sends the reader's language, and tags each request with an ID:")
 
         CodeBlock(#"type User { id: String, name: String }
+type Token { token: String }
 
 store Session {
-    state token = ""
+    state accessToken = ""
     state language = "en"
-    action refresh() -> ! { token = try await http.get("/api/token", as: .text) }
+    action refresh() -> ! {
+        let fresh: Token = try await http.post("/api/token")
+        accessToken = fresh.token
+    }
 }
 
 api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
-    headers {
-        Authorization: "Bearer {Session.token}"
-        Accept-Language: Session.language
-    }
-
-    on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { log("{r.status} {r.url}") }
-    on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
+    middleware [refreshOn401(Session.refresh), bearer(Session.accessToken), header("Accept-Language", Session.language), requestId]
 
     get me -> User!
 }"#, title: "wf")
 
-        Markdown("The three hooks run around every call the service makes:")
+        Markdown("The runtime's steps:")
 
-        Table(caption: "Add headers and hooks to every call") {
+        Table(caption: "Pass every request through middleware") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("Hook").header
-                    Table.Cell("When it runs").header
-                    Table.Cell("What it gets").header
-                    Table.Cell("What returning does").header
+                    Table.Cell("Step").header
+                    Table.Cell("What it does").header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`on request(r)`") }
-                    Table.Cell { Markdown("Before the request is sent, after `headers \{ \}`") }
-                    Table.Cell { Markdown("`r.url`, `r.method`, `r.headers`, `r.body` — change them in place") }
-                    Table.Cell("The changed request is what goes out")
+                    Table.Cell { Markdown("`bearer(token)`") }
+                    Table.Cell { Markdown("`Authorization: Bearer …`, read when the request reaches it; nothing when the token is empty") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`on response(r)`") }
-                    Table.Cell("After a reply arrives, before it is decoded")
-                    Table.Cell { Markdown("`r.status`, `r.headers`, `r.url`") }
-                    Table.Cell("Nothing; it is for recording")
+                    Table.Cell { Markdown("`header(name, value)`") }
+                    Table.Cell("One header, read when the request reaches it")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`on error(e)`") }
-                    Table.Cell("After every retry the policy allows has failed")
-                    Table.Cell { Markdown("The error, as [What every call does for you](#what-every-call-does-for-you) describes it") }
-                    Table.Cell { Markdown("`return \"retry\"` runs the call once more, which is how a `401` refreshes a token and carries on. Anything else lets the error through.") }
+                    Table.Cell { Markdown("`refreshOn401(action)`") }
+                    Table.Cell { Markdown("On a `401`, runs the action and sends the request again through the steps after it. Requests that hear `401` at the same time share one run of the action, since a running action is joined. Put it before `bearer`, so the request sent again carries the new token") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`requestId`") }
+                    Table.Cell { Markdown("A fresh `X-Request-Id` for each request") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`log`") }
+                    Table.Cell("Each request, and how it ended, in the console")
                 }
             }
         }
 
-        Markdown("A hook may `await`. A hook that throws fails the call it was watching.")
+        Markdown("A step of your own is a `middleware` declaration. Its two names are the request — a `Request`: `url`, `method`, `headers` (a `[String: String]`) and `body` — and the rest of the chain:")
+
+        CodeBlock(#"type Me { name: String }
+
+/// Every request, timed.
+middleware timed(req, next) {
+    let started = Date.now()
+    let answer = await next(req)
+    log("{req.method} {req.url} took {Date.now() - started} ms")
+    return answer
+}
+
+/// What every request sends about the client.
+middleware client(req, next) {
+    return await next(Request(url: req.url, method: req.method, headers: req.headers.with("X-Client", "web"), body: req.body))
+}
+
+api Accounts(base: "/accounts") {
+    middleware [client, timed]
+    get me -> Me!
+}"#, title: "wf")
+
+        Markdown("What `next` returns is a result: `.ok(json)` with the answer before it is decoded, or `.err(e)` with an `HttpError`. A step may look at it, call `next` again, or answer without the network. A step that throws fails the call with `.transport`.")
 
         Heading("What every call does for you", id: "what-every-call-does-for-you").h3
 
@@ -328,15 +347,19 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                 }
                 Table.Row {
                     Table.Cell("Errors")
-                    Table.Cell { Markdown("`.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — each with `.message`, `.status`, `.body` and `.headers` to read") }
+                    Table.Cell { Markdown("an `HttpError`: `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message`") }
+                }
+                Table.Row {
+                    Table.Cell("Decoding")
+                    Table.Cell { Markdown("What a call or a `resource` declares it returns is held to what arrives, in every build: a server that breaks its contract fails as `.decode(at, message)`") }
                 }
                 Table.Row {
                     Table.Cell("Retry")
-                    Table.Cell { Markdown("Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice") }
+                    Table.Cell { Markdown("Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice, a `POST` or `PATCH` only when its endpoint is `idempotent`") }
                 }
                 Table.Row {
                     Table.Cell("Cache")
-                    Table.Cell { Markdown("`cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address, body and credentials, revalidated with `ETag`, and holding the 256 answers read most recently") }
+                    Table.Cell { Markdown("What the server's `Cache-Control` allows (RFC 9111): fresh for its `max-age`, stale within `stale-while-revalidate`, revalidated with `ETag`, never under `no-store`, kept apart by `Vary` and the credentials; nothing without caching headers. `cache: .maxAge(60.seconds)`, `.swr(…)`, `.none`, `.forever` override it. It holds the 256 answers read most recently") }
                 }
                 Table.Row {
                     Table.Cell("Dedupe")
@@ -344,7 +367,7 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                 }
                 Table.Row {
                     Table.Cell("Refetch")
-                    Table.Cell { Markdown("`refresh: .onFocus`, `.reconnect`, `.interval(30.seconds)`") }
+                    Table.Cell { Markdown("`refresh: .onFocus`, `.onReconnect`, `.every(30.seconds)`") }
                 }
                 Table.Row {
                     Table.Cell("Pagination")
@@ -458,7 +481,7 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                 Table.Row {
                     Table.Cell { Markdown("`timeout:`") }
                     Table.Cell { Markdown("A duration after which a call gives up with `.timeout`: `10.seconds`") }
-                    Table.Cell("none")
+                    Table.Cell { Markdown("`30.seconds`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`retry:`") }
@@ -467,8 +490,8 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                 }
                 Table.Row {
                     Table.Cell { Markdown("`cache:`") }
-                    Table.Cell { Markdown("`.swr(60.seconds)` (serve what is held, revalidate behind it), `.cache(5.minutes)`, `.forever`, `.none`") }
-                    Table.Cell { Markdown("`.none`") }
+                    Table.Cell { Markdown("Overrides what the server says: `.maxAge(5.minutes)`, `.swr(60.seconds)` (serve what is held, revalidate behind it), `.forever`, `.none`") }
+                    Table.Cell { Markdown("what the server's `Cache-Control` says") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`credentials:`") }
@@ -491,14 +514,14 @@ api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
                     Table.Cell("the page's")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`headers \{ \}`") }
-                    Table.Cell("Headers every call carries, each read at the moment of the call")
-                    Table.Cell("—")
+                    Table.Cell { Markdown("`middleware [ … ]`") }
+                    Table.Cell { Markdown("The steps every request passes through, in order ([Pass every request through middleware](#pass-every-request-through-middleware))") }
+                    Table.Cell("none")
                 }
             }
         }
 
-        Markdown("How `retry` works:\n\n- Its `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, and single codes in the form `.status429` or `.status503`.\n- Without `on:`, it retries network failures, timeouts, 5xx responses and 429.\n- The wait doubles from `delay` (in milliseconds) up to `max`, with jitter. A `Retry-After` from the server wins.\n- An aborted call is never retried.\n- Only a request that is safe to send twice is retried: `GET`, `HEAD`, `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have reached the server, and a second one could be a second order, so it fails instead.")
+        Markdown("How `retry` works:\n\n- Its `on:` takes `.network`, `.timeout`, `.status5xx`, `.status4xx`, and single codes in the form `.status429` or `.status503`.\n- Without `on:`, it retries network failures, timeouts, 5xx responses and 429.\n- The wait doubles from `delay` (in milliseconds) up to `max`, with jitter. A `Retry-After` from the server wins.\n- An aborted call is never retried.\n- Only a request that is safe to send twice is retried: `GET`, `HEAD`, `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have reached the server, and a second one could be a second order, so it fails instead — unless its endpoint is marked `idempotent`: `post order(body: Order) -> Order! idempotent`. That sends one `Idempotency-Key` with every try of a call, so a server that keeps the key does the order once, and the call is retried, and kept to replay offline, like a `PUT`. A `retry:` on a call of any other write is `N09`.")
 
         Heading("Declare endpoints", id: "declare-endpoints").h3
 

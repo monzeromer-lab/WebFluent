@@ -1405,6 +1405,7 @@ pub fn declaration_name(d: &Declaration) -> Option<&str> {
         Declaration::Data(x) => &x.name,
         Declaration::Animation(a) => &a.name,
         Declaration::Api(a) => &a.name,
+        Declaration::Middleware(m) => &m.name,
         Declaration::Test(t) => &t.name,
         Declaration::App(_) => "app",
         Declaration::Script(_) => return None,

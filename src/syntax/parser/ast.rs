@@ -45,6 +45,9 @@ pub enum Declaration {
     Enum(EnumDecl),
     /// A service, described once: `api Backend(base: "/api") { … }`.
     Api(ApiDecl),
+    /// `middleware refreshOn401(req, next) { … }`: a step a service's
+    /// requests pass through, named in its `middleware [ … ]` list.
+    Middleware(MiddlewareDecl),
     /// A plain script under `src/` and the names it makes global. Nothing
     /// writes one: the build reads `src/` and puts one here per `.js` file,
     /// so every reader of a project sees the same names.
@@ -82,6 +85,20 @@ pub struct ApiDecl {
     /// The file it is read from, when the surface is imported: `api B from
     /// "openapi.json"`.
     pub from: Option<String>,
+}
+
+/// `middleware name(req, next) { … }`: what a request passes through on
+/// its way out and its answer on its way back. `req` is the request,
+/// `next` the rest of the chain, and the body returns what `next` returns —
+/// a result — or a result of its own. Its body is a handler's: the two
+/// names are its parameters.
+#[derive(Debug, Clone)]
+pub struct MiddlewareDecl {
+    pub name: String,
+    /// The body, with `req` and `next` as its parameters.
+    pub handler: EventHandler,
+    pub doc: Option<String>,
+    pub span: Span,
 }
 
 /// One thing a service has: `get users(page: Number = 1) -> [User]`.

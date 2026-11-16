@@ -1962,6 +1962,7 @@ Each keyword declares one kind of thing:
 | `app` | The shell every page renders inside, with the `Router` | [The app shell](/learn/05-pages-and-routing#the-app-shell) |
 | `type`, `enum` | Records and enumerations the type checker enforces | [Types](/learn/12-types) |
 | `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](/learn/15-data#describe-a-service-with-api) |
+| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](/learn/15-data#pass-every-request-through-middleware) |
 | `const` | A value read everywhere | [Constants](/reference/expressions#constants) |
 | `data` | A JSON file read at build time, as a constant | [Read a file at build time](/learn/15-data#read-a-file-at-build-time-with-data) |
 | `image` | A picture the build resizes and hands to `Image` | [Add a picture](/recipes/add-a-picture) |
@@ -8471,58 +8472,89 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 - An endpoint the service does not have is `T06`, and an argument it does
   not take is `T10`.
 
-### Add headers and hooks to every call
+### Pass every request through middleware
 
-To send the same headers with every call, add a `headers { }` block. Each
-value is read at the moment of the request, not when the service is
-declared, so a token refreshed a moment ago is the one that is sent.
+What every call of a service carries — a token, the reader's language, a
+request ID — and what it does when the server says a token expired, is
+*middleware*: steps each request passes through, in the order written in
+the service's `middleware [ … ]`. Each step is handed the request and the
+rest of the chain, `next`, and returns what `next` returns.
 
-This service sends a bearer token and the reader's language, tags each
-request with an ID, logs each response, and refreshes the token on a `401`:
+This service refreshes the token on a `401`, sends it as a bearer token,
+sends the reader's language, and tags each request with an ID:
 
 ```wf
 type User { id: String, name: String }
+type Token { token: String }
 
 store Session {
-    state token = ""
+    state accessToken = ""
     state language = "en"
-    action refresh() -> ! { token = try await http.get("/api/token", as: .text) }
+    action refresh() -> ! {
+        let fresh: Token = try await http.post("/api/token")
+        accessToken = fresh.token
+    }
 }
 
 api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
-    headers {
-        Authorization: "Bearer {Session.token}"
-        Accept-Language: Session.language
-    }
-
-    on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { log("{r.status} {r.url}") }
-    on error(e)    { if e.status == 401 { await Session.refresh()  return "retry" } }
+    middleware [refreshOn401(Session.refresh), bearer(Session.accessToken), header("Accept-Language", Session.language), requestId]
 
     get me -> User!
 }
 ```
 
-The three hooks run around every call the service makes:
+The runtime's steps:
 
-| Hook | When it runs | What it gets | What returning does |
-|---|---|---|---|
-| `on request(r)` | Before the request is sent, after `headers { }` | `r.url`, `r.method`, `r.headers`, `r.body` — change them in place | The changed request is what goes out |
-| `on response(r)` | After a reply arrives, before it is decoded | `r.status`, `r.headers`, `r.url` | Nothing; it is for recording |
-| `on error(e)` | After every retry the policy allows has failed | The error, as [What every call does for you](#what-every-call-does-for-you) describes it | `return "retry"` runs the call once more, which is how a `401` refreshes a token and carries on. Anything else lets the error through. |
+| Step | What it does |
+|---|---|
+| `bearer(token)` | `Authorization: Bearer …`, read when the request reaches it; nothing when the token is empty |
+| `header(name, value)` | One header, read when the request reaches it |
+| `refreshOn401(action)` | On a `401`, runs the action and sends the request again through the steps after it. Requests that hear `401` at the same time share one run of the action, since a running action is joined. Put it before `bearer`, so the request sent again carries the new token |
+| `requestId` | A fresh `X-Request-Id` for each request |
+| `log` | Each request, and how it ended, in the console |
 
-A hook may `await`. A hook that throws fails the call it was watching.
+A step of your own is a `middleware` declaration. Its two names are the
+request — a `Request`: `url`, `method`, `headers` (a `[String: String]`) and
+`body` — and the rest of the chain:
+
+```wf
+type Me { name: String }
+
+/// Every request, timed.
+middleware timed(req, next) {
+    let started = Date.now()
+    let answer = await next(req)
+    log("{req.method} {req.url} took {Date.now() - started} ms")
+    return answer
+}
+
+/// What every request sends about the client.
+middleware client(req, next) {
+    return await next(Request(url: req.url, method: req.method, headers: req.headers.with("X-Client", "web"), body: req.body))
+}
+
+api Accounts(base: "/accounts") {
+    middleware [client, timed]
+    get me -> Me!
+}
+```
+
+What `next` returns is a result: `.ok(json)` with the answer before it is
+decoded, or `.err(e)` with an `HttpError`. A step may look at it, call
+`next` again, or answer without the network. A step that throws fails the
+call with `.transport`.
 
 ### What every call does for you
 
 | Feature | What it does |
 |---|---|
 | Abort | A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout |
-| Errors | `.offline`, `.timeout`, `.aborted`, `.parse`, `.network`, `.status(code, body)` — each with `.message`, `.status`, `.body` and `.headers` to read |
-| Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice |
-| Cache | `cache: .swr(60.seconds)`, `.none`, `.forever` — keyed by method, address, body and credentials, revalidated with `ETag`, and holding the 256 answers read most recently |
+| Errors | an `HttpError`: `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message` |
+| Decoding | What a call or a `resource` declares it returns is held to what arrives, in every build: a server that breaks its contract fails as `.decode(at, message)` |
+| Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice, a `POST` or `PATCH` only when its endpoint is `idempotent` |
+| Cache | What the server's `Cache-Control` allows (RFC 9111): fresh for its `max-age`, stale within `stale-while-revalidate`, revalidated with `ETag`, never under `no-store`, kept apart by `Vary` and the credentials; nothing without caching headers. `cache: .maxAge(60.seconds)`, `.swr(…)`, `.none`, `.forever` override it. It holds the 256 answers read most recently |
 | Dedupe | Two readers of one address make one request, cached or not |
-| Refetch | `refresh: .onFocus`, `.reconnect`, `.interval(30.seconds)` |
+| Refetch | `refresh: .onFocus`, `.onReconnect`, `.every(30.seconds)` |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()` and `.hasMore` |
 | Progress | A `File` parameter makes `Backend.avatar.progress` a number from 0 to 1 |
 
@@ -8597,14 +8629,14 @@ the endpoints:
 | Setting | Values | Default |
 |---|---|---|
 | `base:` | The address every path is relative to: `"/api/v1"`, `env.PUBLIC_API` | — |
-| `timeout:` | A duration after which a call gives up with `.timeout`: `10.seconds` | none |
+| `timeout:` | A duration after which a call gives up with `.timeout`: `10.seconds` | `30.seconds` |
 | `retry:` | A count (`3`), `.never`, or `.backoff(times: 3, on: [.network, .timeout, .status5xx], delay: 300, max: 30000, jitter: true)` | no retries |
-| `cache:` | `.swr(60.seconds)` (serve what is held, revalidate behind it), `.cache(5.minutes)`, `.forever`, `.none` | `.none` |
+| `cache:` | Overrides what the server says: `.maxAge(5.minutes)`, `.swr(60.seconds)` (serve what is held, revalidate behind it), `.forever`, `.none` | what the server's `Cache-Control` says |
 | `credentials:` | `.omit`, `.sameOrigin`, `.include` — whether cookies go with a call | the browser's (`.sameOrigin`) |
 | `mode:` | `.cors`, `.noCors`, `.sameOrigin` | `.cors` |
 | `redirect:` | `.follow`, `.error`, `.manual` | `.follow` |
 | `referrer:` | A referrer policy: `.noReferrer`, `.origin`, … | the page's |
-| `headers { }` | Headers every call carries, each read at the moment of the call | — |
+| `middleware [ … ]` | The steps every request passes through, in order ([Pass every request through middleware](#pass-every-request-through-middleware)) | none |
 
 How `retry` works:
 
@@ -8617,7 +8649,12 @@ How `retry` works:
 - An aborted call is never retried.
 - Only a request that is safe to send twice is retried: `GET`, `HEAD`,
   `PUT` and `DELETE`. A `POST` or `PATCH` that timed out may have reached
-  the server, and a second one could be a second order, so it fails instead.
+  the server, and a second one could be a second order, so it fails instead
+  — unless its endpoint is marked `idempotent`: `post order(body: Order) ->
+  Order! idempotent`. That sends one `Idempotency-Key` with every try of a
+  call, so a server that keeps the key does the order once, and the call is
+  retried, and kept to replay offline, like a `PUT`. A `retry:` on a call of
+  any other write is `N09`.
 
 ### Declare endpoints
 
@@ -25277,6 +25314,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 
 - [N03](/errors/N03) — A `try` with nowhere to pass its error
 - [N08](/errors/N08) — A form 7.0 removed
+- [N09](/errors/N09) — A retry asked of a write that is not idempotent
 - [N11](/errors/N11) — `Any` or `Map` where a service meets the program
 - [N12](/errors/N12) — An error enum that is not shaped as one
 

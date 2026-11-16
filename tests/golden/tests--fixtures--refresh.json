@@ -1,15 +1,15 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "716c27c9e90ab8f10e0074c6a5311377e65ef6946e71ae49817f2af9ccf1c8e6",
-    "app.js.gz": "de3785c6da822082e857126e12492a4f37e4466f5e33b3e6b953267fd46b5e38",
+    "app.js": "98673c3fd18d780705015b4da6a9c5b4794a85acc919385ab608716d88b5b509",
+    "app.js.gz": "87b9bbe17184c772025456f191aaae257d21fefac65ed3b2c5f0b76b1d6251ed",
     "index.html": "fa4689bc64dee78f4c4c891b12509b312a3497d833b0b17b56c73e38734eddba",
-    "pages/Board.js": "14c1c9c23570b76649575f420e14333ee3a5753ca3ac55d0e942d9af7361f72c",
-    "pages/Board.js.gz": "5c3ae19e2928b799181a9870957fbd90773ea6074aa127747546e98674ed22f6",
+    "pages/Board.js": "0ffaffa96101771599f58d7bc3e2b6d792e95ef84e762fdc6318145323e0dd69",
+    "pages/Board.js.gz": "26b7a3cf6f5d8e85f7f2f72939ed875a87f691ce4a7d13a2cfa16bd055f2fcf8",
     "pages/PhasePage.js": "f78d53cfdfb435b3ac4e0c967ad84dd0187832a457537872952476a6bc391ef1",
     "pages/PhasePage.js.gz": "d8b457b35f946d97bc06e46e6c195f31d037449c8388639b6c9c9b6b3ba45021",
-    "pages/Servers.js": "25ead4cbca07fb885047aeabb893892098df6a45ee3a8540466997f8ac62fda6",
-    "pages/Servers.js.gz": "2fba53b4552856aed7c56af696c04e3166375c28453732aa16ec9e1cd71297c9",
+    "pages/Servers.js": "04eb3eaed93e951f4c84a18ee26b551a67b53e103b386bc98a0fb07bc4f0790a",
+    "pages/Servers.js.gz": "ea3176d52b1c5052bd4eca6c0202b24ef787dc3eb7362d20b340dab9f74bd2f0",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "570828a7c567362f63cf1020636bf106c51a78d06b657f29973af8ca2d62c4f7",
     "styles.css.gz": "b888d7052c33b0e9fa3b5d86d131b09ee8729335661cb3efda52784356d64bde"

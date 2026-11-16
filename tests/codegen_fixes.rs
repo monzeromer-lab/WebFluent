@@ -291,10 +291,11 @@ fn a_dev_build_carries_the_shapes_of_declared_responses() {
         "an enum's shape:\n{out}"
     );
     check_js(&out).expect("a dev bundle is a script");
+    // A build for a host holds every answer to its type too.
     let host = webfluent::codegen::JsCodegen::new().generate(&program);
     assert!(
-        !host.contains("shape: ["),
-        "a build for a host carries no shapes"
+        host.contains(r#"shape: ["r", "User""#),
+        "a build for a host carries the shapes"
     );
 }
 

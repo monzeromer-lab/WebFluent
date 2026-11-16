@@ -453,6 +453,7 @@ pub fn decl_span(decl: &Declaration) -> Option<Span> {
         Declaration::Type(t) => t.span,
         Declaration::Enum(e) => e.span,
         Declaration::Api(a) => a.span,
+        Declaration::Middleware(m) => m.span,
         Declaration::Const(c) => c.span,
         Declaration::Data(d) => d.span,
         Declaration::Animation(a) => a.span,

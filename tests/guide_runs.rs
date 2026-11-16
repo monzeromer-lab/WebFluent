@@ -62,6 +62,7 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
                             | "type"
                             | "enum"
                             | "api"
+                            | "middleware"
                             | "const"
                             | "animation"
                             | "test"

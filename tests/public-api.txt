@@ -2258,6 +2258,7 @@ pub webfluent::syntax::parser::ast::Declaration::Component(webfluent::syntax::pa
 pub webfluent::syntax::parser::ast::Declaration::Const(webfluent::syntax::parser::ConstDecl)
 pub webfluent::syntax::parser::ast::Declaration::Data(webfluent::syntax::parser::DataDecl)
 pub webfluent::syntax::parser::ast::Declaration::Enum(webfluent::syntax::parser::EnumDecl)
+pub webfluent::syntax::parser::ast::Declaration::Middleware(webfluent::syntax::parser::MiddlewareDecl)
 pub webfluent::syntax::parser::ast::Declaration::Page(webfluent::syntax::parser::PageDecl)
 pub webfluent::syntax::parser::ast::Declaration::Script(webfluent::syntax::parser::ScriptDecl)
 pub webfluent::syntax::parser::ast::Declaration::Store(webfluent::syntax::parser::StoreDecl)
@@ -3066,6 +3067,22 @@ impl core::marker::Unpin for webfluent::syntax::parser::MethodCallStmt
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::MethodCallStmt
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::MethodCallStmt
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::MethodCallStmt
+pub struct webfluent::syntax::parser::ast::MiddlewareDecl
+pub webfluent::syntax::parser::ast::MiddlewareDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ast::MiddlewareDecl::handler: webfluent::syntax::parser::EventHandler
+pub webfluent::syntax::parser::ast::MiddlewareDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ast::MiddlewareDecl::span: webfluent::syntax::parser::Span
+impl core::clone::Clone for webfluent::syntax::parser::MiddlewareDecl
+pub fn webfluent::syntax::parser::MiddlewareDecl::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::MiddlewareDecl
+pub fn webfluent::syntax::parser::MiddlewareDecl::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::Send for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::Sync for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::Unpin for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::MiddlewareDecl
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::MiddlewareDecl
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::MiddlewareDecl
 pub struct webfluent::syntax::parser::ast::Migration
 pub webfluent::syntax::parser::ast::Migration::body: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::Migration::from: u32
@@ -3714,6 +3731,7 @@ pub webfluent::syntax::parser::Declaration::Component(webfluent::syntax::parser:
 pub webfluent::syntax::parser::Declaration::Const(webfluent::syntax::parser::ConstDecl)
 pub webfluent::syntax::parser::Declaration::Data(webfluent::syntax::parser::DataDecl)
 pub webfluent::syntax::parser::Declaration::Enum(webfluent::syntax::parser::EnumDecl)
+pub webfluent::syntax::parser::Declaration::Middleware(webfluent::syntax::parser::MiddlewareDecl)
 pub webfluent::syntax::parser::Declaration::Page(webfluent::syntax::parser::PageDecl)
 pub webfluent::syntax::parser::Declaration::Script(webfluent::syntax::parser::ScriptDecl)
 pub webfluent::syntax::parser::Declaration::Store(webfluent::syntax::parser::StoreDecl)
@@ -4522,6 +4540,22 @@ impl core::marker::Unpin for webfluent::syntax::parser::MethodCallStmt
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::MethodCallStmt
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::MethodCallStmt
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::MethodCallStmt
+pub struct webfluent::syntax::parser::MiddlewareDecl
+pub webfluent::syntax::parser::MiddlewareDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::MiddlewareDecl::handler: webfluent::syntax::parser::EventHandler
+pub webfluent::syntax::parser::MiddlewareDecl::name: alloc::string::String
+pub webfluent::syntax::parser::MiddlewareDecl::span: webfluent::syntax::parser::Span
+impl core::clone::Clone for webfluent::syntax::parser::MiddlewareDecl
+pub fn webfluent::syntax::parser::MiddlewareDecl::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::MiddlewareDecl
+pub fn webfluent::syntax::parser::MiddlewareDecl::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::Send for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::Sync for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::Unpin for webfluent::syntax::parser::MiddlewareDecl
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::MiddlewareDecl
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::MiddlewareDecl
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::MiddlewareDecl
 pub struct webfluent::syntax::parser::Migration
 pub webfluent::syntax::parser::Migration::body: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::Migration::from: u32

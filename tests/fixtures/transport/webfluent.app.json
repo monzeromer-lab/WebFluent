@@ -1,0 +1,4 @@
+{
+    "name": "Transport",
+    "build": { "ssg": false }
+}

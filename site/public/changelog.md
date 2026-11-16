@@ -227,6 +227,34 @@ match users {
 arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
 `.status(code, problem)`.
 
+## What a request passes through
+
+- **Middleware** replaces a service's `headers { }` and its `on request`,
+  `on response` and `on error` hooks with one mechanism: `middleware [
+  refreshOn401(Session.refresh), bearer(Session.token), requestId ]`, steps
+  run in the order written, each around the next. The runtime's are
+  `bearer`, `header`, `refreshOn401`, `requestId` and `log`; a project
+  writes its own as `middleware name(req, next) { … }`, typed by what a
+  middleware is. Three requests that hear `401` at once share one refresh,
+  since a running action is joined. The old forms are `N08`.
+- **The cache follows the server** (RFC 9111, a private cache): a `GET` is
+  kept only when `Cache-Control` or `Expires` allows, for its `max-age`
+  less its `Age`, stale within `stale-while-revalidate`, revalidated with
+  `ETag`, never under `no-store`, kept apart by `Vary` and the credentials.
+  With no caching headers nothing is kept — before, an endpoint kept what
+  its `cache:` said whatever the server answered. `cache: .maxAge(d)`,
+  `.swr(d)`, `.none` and `.forever` still override it.
+- **Every answer is checked, in every build**: what an endpoint or a
+  `resource` declares it returns is held to what arrives, deployed as under
+  `wf serve`, and a server that breaks its contract fails as `.decode(at,
+  message)`.
+- **`idempotent`** on an endpoint — `post order(body: Order) -> Order!
+  idempotent` — sends one `Idempotency-Key` with every try of a call, and lets
+  a `POST` or `PATCH` be retried and replayed offline; `retry:` on any other
+  write is `N09`, and does nothing.
+- **A call gives up after 30 seconds** unless its service or the call says
+  otherwise.
+
 ## Declared where others see it, inferred where only the body does
 
 What another declaration, another file or a caller sees is now declared,

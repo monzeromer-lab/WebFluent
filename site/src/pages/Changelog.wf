@@ -278,6 +278,33 @@ ones arrive — where a changed request used to go back to loading."#)
 `isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`
 arm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:
 `.status(code, problem)`."#),
+                NotesSection(title: #"What a request passes through"#, id: "7.0.0-what-a-request-passes-through", items: [
+                    Change(text: #"**Middleware** replaces a service's `headers { }` and its `on request`,
+`on response` and `on error` hooks with one mechanism: `middleware [
+refreshOn401(Session.refresh), bearer(Session.token), requestId ]`, steps
+run in the order written, each around the next. The runtime's are
+`bearer`, `header`, `refreshOn401`, `requestId` and `log`; a project
+writes its own as `middleware name(req, next) { … }`, typed by what a
+middleware is. Three requests that hear `401` at once share one refresh,
+since a running action is joined. The old forms are `N08`."#),
+                    Change(text: #"**The cache follows the server** (RFC 9111, a private cache): a `GET` is
+kept only when `Cache-Control` or `Expires` allows, for its `max-age`
+less its `Age`, stale within `stale-while-revalidate`, revalidated with
+`ETag`, never under `no-store`, kept apart by `Vary` and the credentials.
+With no caching headers nothing is kept — before, an endpoint kept what
+its `cache:` said whatever the server answered. `cache: .maxAge(d)`,
+`.swr(d)`, `.none` and `.forever` still override it."#),
+                    Change(text: #"**Every answer is checked, in every build**: what an endpoint or a
+`resource` declares it returns is held to what arrives, deployed as under
+`wf serve`, and a server that breaks its contract fails as `.decode(at,
+message)`."#),
+                    Change(text: #"**`idempotent`** on an endpoint — `post order(body: Order) -> Order!
+idempotent` — sends one `Idempotency-Key` with every try of a call, and lets
+a `POST` or `PATCH` be retried and replayed offline; `retry:` on any other
+write is `N09`, and does nothing."#),
+                    Change(text: #"**A call gives up after 30 seconds** unless its service or the call says
+otherwise."#)
+                ]),
                 NotesSection(title: #"Declared where others see it, inferred where only the body does"#, id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", intro: #"What another declaration, another file or a caller sees is now declared,
 and what only the body sees is still inferred — so the checker never has to
 work one declaration out to check another."#, items: [
@@ -322,7 +349,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 52), latest: true)
+            ], count: 57), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4108,6 +4135,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

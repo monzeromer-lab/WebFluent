@@ -198,6 +198,19 @@ impl Checker<'_, '_> {
                         })
                         .flatten()
                         .map(|(k, _)| k.trim_matches('"'))
+                        .inspect(|k| {
+                            // A write sent twice may be taken twice: only one
+                            // its contract marks `idempotent` is retried.
+                            let write = matches!(endpoint.method.as_str(), "POST" | "PATCH");
+                            let idempotent = endpoint.settings.iter().any(|(s, _)| s == "idempotent");
+                            if *k == "retry" && write && !idempotent {
+                                self.warn(
+                                    "N09",
+                                    format!("`retry:` on `{api}.{method}`, a `{}` its contract does not mark `idempotent`: it is not retried", endpoint.method),
+                                    &format!("If the server takes it once whatever the number of tries, mark it: `{} {method}(…) -> … idempotent`", endpoint.method.to_lowercase()),
+                                );
+                            }
+                        })
                         .collect();
                     let positional = args.iter().any(|a| !matches!(a, Expr::MapLiteral(_)));
                     if !positional {

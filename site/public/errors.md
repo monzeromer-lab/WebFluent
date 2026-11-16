@@ -308,6 +308,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 
 - [N03](https://webfluent.monzeromer.dev/errors/N03.md) — A `try` with nowhere to pass its error
 - [N08](https://webfluent.monzeromer.dev/errors/N08.md) — A form 7.0 removed
+- [N09](https://webfluent.monzeromer.dev/errors/N09.md) — A retry asked of a write that is not idempotent
 - [N11](https://webfluent.monzeromer.dev/errors/N11.md) — `Any` or `Map` where a service meets the program
 - [N12](https://webfluent.monzeromer.dev/errors/N12.md) — An error enum that is not shaped as one
 

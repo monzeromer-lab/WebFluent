@@ -1,0 +1,56 @@
+// A service's middleware against a real server, for
+// tests/browser/transport.mjs: the steps run in the order written, and
+// three requests that hear `401` at once share one refresh before each is
+// sent again with the new token.
+
+type Me { name: String }
+type Token { token: String }
+
+store Session {
+    state token = "old"
+    state refreshes = 0
+    action refresh() -> ! {
+        refreshes = refreshes + 1
+        let fresh: Token = try await http.post("/auth/refresh")
+        token = fresh.token
+    }
+}
+
+/// Says which step ran before it, so the order can be seen.
+middleware second(req, next) {
+    let first = req.headers["X-First"] ?? "none"
+    return await next(Request(url: req.url, method: req.method, headers: req.headers.with("X-Second", "after {first}"), body: req.body))
+}
+
+api Backend(base: "/api") {
+    middleware [refreshOn401(Session.refresh), bearer(Session.token), header("X-First", "first"), second]
+    get me(n: Number) -> Me!
+}
+
+store Calls {
+    state said = ""
+    action three() {
+        let a = Backend.me(n: 1)
+        let b = Backend.me(n: 2)
+        let c = Backend.me(n: 3)
+        let names: [String] = []
+        for answer in [await a, await b, await c] {
+            match answer {
+                .ok(me) { names = names.concat([me.name]) }
+                .err(e) { names = names.concat([e.message]) }
+            }
+        }
+        said = names.join(",")
+    }
+}
+
+app { Router }
+
+page Home(path: "/", title: "Transport", description: "Middleware, in order.") {
+    use Session
+    use Calls
+    Heading("Transport").h1
+    Button("Three") { on click { Calls.three() } }
+    Text(Calls.said, id: "said")
+    Text("{Session.refreshes}", id: "refreshes")
+}

@@ -72,9 +72,12 @@
       headers: given.headers,
       body: given.body,
       as: given.as,
-      timeout: given.timeout,
+      // Thirty seconds unless the call says otherwise: a request with no
+      // limit waits for ever on a server that never answers.
+      timeout: given.timeout != null ? given.timeout : 30000,
       retry: given.retry,
-      cache: given.cache || { kind: "none" },
+      // What the server says of caching, unless the call overrides it.
+      cache: given.cache,
       credentials: given.credentials,
       mode: given.mode,
       redirect: given.redirect,

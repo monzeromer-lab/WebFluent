@@ -109,8 +109,8 @@
   /// what sending it once does: the idempotent methods (RFC 9110 §9.2.2),
   /// or one the engine knows never left — the browser said it was offline
   /// before it was sent. A `POST` that timed out may have been taken.
-  function resendable(method, error) {
-    return /^(GET|HEAD|OPTIONS|TRACE|PUT|DELETE)$/.test(method) || !!(error && error.notSent);
+  function resendable(method, error, idempotent) {
+    return /^(GET|HEAD|OPTIONS|TRACE|PUT|DELETE)$/.test(method) || !!idempotent || !!(error && error.notSent);
   }
 
   /// Whether this error is one the policy retries.
@@ -165,6 +165,80 @@
       }
     }
     return entry;
+  }
+
+  /// The cache held to `CACHE_MAX` entries: the one read least recently
+  /// goes first, never `keep` or one in flight.
+  function trimCache(keep) {
+    for (const [k, held] of _httpCache) {
+      if (_httpCache.size <= CACHE_MAX) break;
+      if (held === keep || held.inflight) continue;
+      _httpCache.delete(k);
+    }
+  }
+
+  /// `Cache-Control`, as a map of its directives.
+  function cacheControl(value) {
+    const out = {};
+    for (const part of String(value || "").split(",")) {
+      const [name, arg] = part.split("=");
+      const key = name.trim().toLowerCase();
+      if (key) out[key] = arg == null ? true : arg.trim().replace(/^"|"$/g, "");
+    }
+    return out;
+  }
+
+  /// What the server allows of an answer it sent (RFC 9111): whether it may
+  /// be kept, for how long it is fresh, and how long it may be served stale
+  /// while it is asked again. With no caching headers nothing is kept.
+  function keepFor(entry, heads) {
+    const cc = cacheControl(heads["cache-control"]);
+    if (cc["no-store"]) {
+      entry.keep = false;
+      return;
+    }
+    let fresh = null;
+    if (cc["max-age"] != null && !Number.isNaN(Number(cc["max-age"]))) {
+      fresh = Number(cc["max-age"]) * 1000;
+    } else if (heads.expires) {
+      const expires = Date.parse(heads.expires);
+      const date = heads.date ? Date.parse(heads.date) : Date.now();
+      fresh = Number.isNaN(expires) ? 0 : Math.max(0, expires - (Number.isNaN(date) ? Date.now() : date));
+    }
+    if (fresh != null && heads.age && !Number.isNaN(Number(heads.age))) {
+      fresh = Math.max(0, fresh - Number(heads.age) * 1000);
+    }
+    // `no-cache`: kept, and asked again before every use.
+    if (cc["no-cache"]) fresh = 0;
+    if (fresh == null) {
+      entry.keep = false;
+      return;
+    }
+    entry.keep = true;
+    entry.fresh = fresh;
+    const swr = Number(cc["stale-while-revalidate"]);
+    entry.swr = cc["no-cache"] || Number.isNaN(swr) ? 0 : swr * 1000;
+  }
+
+  /// The request headers an answer varies by, with the values it was asked
+  /// with: another value is another answer. `*`: it is never reused.
+  function varyOf(heads, requestHeaders) {
+    const vary = heads.vary;
+    if (!vary) return null;
+    if (vary.trim() === "*") return "*";
+    const sent = {};
+    for (const [k, v] of Object.entries(requestHeaders || {})) sent[k.toLowerCase()] = String(v);
+    return vary.split(",").map((n) => n.trim().toLowerCase()).filter(Boolean)
+      .map((name) => [name, sent[name] == null ? null : sent[name]]);
+  }
+
+  /// Whether a held answer is one for a request with these headers.
+  function varyMatches(entry, requestHeaders) {
+    if (!entry.vary) return true;
+    if (entry.vary === "*") return false;
+    const sent = {};
+    for (const [k, v] of Object.entries(requestHeaders || {})) sent[k.toLowerCase()] = String(v);
+    return entry.vary.every(([name, value]) => (sent[name] == null ? null : sent[name]) === value);
   }
 
   /// A short fingerprint of the credentials headers carry: "" for none.
@@ -254,11 +328,34 @@
         return Promise.resolve(entry.value);
       }
     }
-    // A read with no cache: two readers of one address still make one
-    // request. Each keeps its own abort; the request stops when the last
-    // reader of it has gone.
+    // A read the contract says nothing of caching: what the server said of
+    // it (RFC 9111, a private cache). An answer it allowed to be kept is
+    // served while fresh, served stale and revalidated behind within
+    // `stale-while-revalidate`, and asked again with its `ETag` after.
+    // Two readers of one address make one request either way; each keeps
+    // its own abort, and the request stops when the last reader has gone.
     if (!entry && !opts.progress && /^(GET|HEAD)$/.test((opts.method || "GET").toUpperCase())) {
-      return joinRead(key + " \u0001" + (opts.as || "") + " " + JSON.stringify(headersNow(opts.headers)), url, opts);
+      const now = headersNow(opts.headers);
+      const httpKey = key + " \u0002" + authOf(now) + " " + (opts.as || "");
+      const held = policy && policy.kind === "none" ? null : _httpCache.get(httpKey);
+      if (held && held.value !== undefined && varyMatches(held, now)) {
+        _httpCache.delete(httpKey);
+        _httpCache.set(httpKey, held);
+        const age = Date.now() - held.at;
+        if (age < held.fresh) return Promise.resolve(held.value);
+        if (age < held.fresh + held.swr) {
+          if (!held.inflight) {
+            held.inflight = run(url, { ...opts, signal: undefined }, held)
+              .catch(() => held.value)
+              .finally(() => { held.inflight = null; });
+          }
+          return Promise.resolve(held.value);
+        }
+      }
+      const candidate = policy && policy.kind === "none"
+        ? null
+        : held || { value: undefined, at: 0, etag: null, modified: null, inflight: null, auth: "", http: true, key: httpKey };
+      return joinRead(key + " \u0001" + (opts.as || "") + " " + JSON.stringify(now), url, opts, candidate);
     }
     const running = run(url, opts, entry);
     if (entry) {
@@ -278,12 +375,12 @@
   }
 
   const _readsInFlight = new Map();
-  function joinRead(key, url, opts) {
+  function joinRead(key, url, opts, entry) {
     let shared = _readsInFlight.get(key);
     if (!shared) {
       const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
       shared = { readers: 0, controller };
-      shared.promise = run(url, { ...opts, signal: controller ? controller.signal : undefined }, null);
+      shared.promise = run(url, { ...opts, signal: controller ? controller.signal : undefined }, entry || null);
       shared.promise.catch(() => {});
       const gone = () => { if (_readsInFlight.get(key) === shared) _readsInFlight.delete(key); };
       shared.promise.then(gone, gone);
@@ -329,13 +426,25 @@
     for (;;) {
       try {
         const value = await once(url, opts, entry);
-        // What the program declared it would get, held to what came, where
-        // a developer is looking. A deployed page trusts the server.
-        if (opts.shape && devMode()) {
+        // What the program declared it would get, held to what came — in
+        // every build: a value typed `User` is a `User`, and a server that
+        // does not keep its contract fails here, as `.decode(at, message)`.
+        if (opts.shape) {
           const fault = shapeFault(value, opts.shape, "$");
           if (fault) throw netError("parse", "The response of " + url + " is not the type the program declares: " + fault.at + " " + fault.message, { body: value, at: fault.at, detail: fault.message });
         }
-        if (entry) {
+        if (entry && entry.http) {
+          // What the server said may be kept, and nothing else.
+          if (entry.keep) {
+            entry.value = value;
+            entry.at = Date.now();
+            _httpCache.delete(entry.key);
+            _httpCache.set(entry.key, entry);
+            trimCache(entry);
+          } else {
+            _httpCache.delete(entry.key);
+          }
+        } else if (entry) {
           entry.value = value;
           entry.at = Date.now();
         }
@@ -343,13 +452,13 @@
       } catch (error) {
         const wrapped = error && error.kind ? error : netError("network", String(error && error.message || error));
         // A failure's body, held to the type its status declares.
-        if (wrapped.kind === "status" && opts.errorShapes && devMode()) {
+        if (wrapped.kind === "status" && opts.errorShapes) {
           const shape = opts.errorShapes[wrapped.status];
           const wrong = shape && shapeProblem(wrapped.body, shape, "$");
           if (wrong) throw netError("parse", "The " + wrapped.status + " body of " + url + " is not the type the program declares: " + wrong, { body: wrapped.body });
         }
         const method = (opts.method || "GET").toUpperCase();
-        if (attempt < times && retriable(policy, wrapped) && resendable(method, wrapped)) {
+        if (attempt < times && retriable(policy, wrapped) && resendable(method, wrapped, opts.idempotencyKey)) {
           const wait = backoffDelay(policy, attempt, wrapped.headers);
           attempt += 1;
           await new Promise((done) => setTimeout(done, wait));
@@ -369,8 +478,9 @@
         // one that is safe to send twice: a `PUT` or a `DELETE`. A `POST`
         // whose answer was lost may have been taken, and sent again would be
         // a second order.
+        // One its contract marks `idempotent` is kept too, with its key.
         if (wrapped.kind === "offline" && offlineWrites && wrapped.request
-            && /^(PUT|DELETE)$/.test(wrapped.request.method)) {
+            && (/^(PUT|DELETE)$/.test(wrapped.request.method) || opts.idempotencyKey)) {
           const kept = offlineWrites(wrapped.request);
           if (kept) return kept;
         }
@@ -379,14 +489,10 @@
     }
   }
 
-  /// One attempt: the request as the browser makes it.
+  /// One attempt: the request as the browser makes it, through the
+  /// service's middleware when it has any.
   async function once(url, opts, entry) {
     const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
-    let timedOut = false;
-    let timer = null;
-    if (opts.timeout && controller) {
-      timer = setTimeout(() => { timedOut = true; controller.abort(); }, opts.timeout);
-    }
     // The caller's own signal aborts this one too, so a scope leaving takes
     // the request with it.
     if (opts.signal && controller) {
@@ -408,6 +514,7 @@
       if (entry.etag) headers["If-None-Match"] = entry.etag;
       else if (entry.modified) headers["If-Modified-Since"] = entry.modified;
     }
+    if (opts.idempotencyKey) headers["Idempotency-Key"] = opts.idempotencyKey;
 
     let request = {
       url,
@@ -436,6 +543,75 @@
         delete request.headers["If-None-Match"];
         delete request.headers["If-Modified-Since"];
       }
+    }
+
+    const transmit = (request) => sendOnce(request, opts, entry, controller, given, auth);
+    const steps = opts.middleware;
+    if (!steps || !steps.length) return transmit(request);
+    // The chain: each step around the next, the last the network. What a
+    // step is handed is the request; what it returns is a result.
+    const network = (req) => transmit({ ...request, ...req }).then(
+      (value) => ["ok", value],
+      (error) => ["err", toHttpError(error)],
+    );
+    const chain = steps.reduceRight(
+      (next, step) => (req) => Promise.resolve()
+        .then(() => step(req, next))
+        .catch((e) => ["err", toHttpError(e)]),
+      network,
+    );
+    const answered = await chain({
+      url: request.url,
+      method: request.method,
+      headers: { ...request.headers },
+      body: request.body,
+    });
+    if (answered === "ok") return undefined;
+    if (Array.isArray(answered) && answered[0] === "ok") return answered[1];
+    throw fromHttpError(Array.isArray(answered) ? answered[1] : answered);
+  }
+
+  /// A failure as the chain hands it on: an `HttpError`, carrying what the
+  /// engine knew of it.
+  function toHttpError(error) {
+    if (Array.isArray(error) && error.httpError) return error;
+    const failure = error && error.kind ? error : netError("transport", String((error && error.message) || error));
+    const http = httpError(failure);
+    Object.defineProperty(http, "cause", { value: failure, enumerable: false });
+    return http;
+  }
+
+  /// An `HttpError` a middleware returned, as the engine throws it: the
+  /// failure it came from, or one made of its case.
+  function fromHttpError(http) {
+    if (http && http.cause) return http.cause;
+    const kind = Array.isArray(http) ? http[0] : String(http);
+    const message = (http && http.message) || kind;
+    switch (kind) {
+      case "offline": return netError("offline", message);
+      case "timeout": return netError("timeout", message, { after: http[1] });
+      case "cancelled": return netError("aborted", message);
+      case "decode": return netError("parse", message, { at: http[1], detail: http[2] });
+      case "status": return netError("status", "HTTP " + http[1], { status: http[1], body: http[2] });
+      default: return netError("transport", message);
+    }
+  }
+
+  /// The request sent once — by a step of the chain, or straight — and its
+  /// answer read: its value, or the failure thrown.
+  async function sendOnce(request, opts, entry, controller, given, auth) {
+    // A header a step wrote as a function — `bearer(token)` — is read now,
+    // so a token refreshed between two sends is the one the second carries.
+    const headers = {};
+    for (const [k, v] of Object.entries(request.headers || {})) {
+      const value = typeof v === "function" ? v() : v;
+      if (value != null) headers[k] = String(value);
+    }
+    request = { ...request, headers };
+    let timedOut = false;
+    let timer = null;
+    if (opts.timeout && controller) {
+      timer = setTimeout(() => { timedOut = true; controller.abort(); }, opts.timeout);
     }
 
     // After the request is made up, so an offline write can be kept whole.
@@ -470,7 +646,7 @@
     try {
       // An upload only reports its progress through XHR, so a request that
       // is watched goes that way and every other through `fetch`.
-      response = opts.progress && body != null
+      response = opts.progress && request.body != null
         ? await xhrSend(request, opts.progress, controller)
         : await fetch(request.url, {
             method: request.method,
@@ -497,14 +673,18 @@
     const heads = headerMap(response.headers);
     if (opts.onResponse) await opts.onResponse({ status: response.status, headers: heads, url: request.url });
 
-    // Nothing changed: what is held is still current.
+    // Nothing changed: what is held is still current, for as long as the
+    // answer now says.
     if (response.status === 304 && entry && entry.value !== undefined) {
       entry.at = Date.now();
+      if (!opts.cache) keepFor(entry, heads);
       return entry.value;
     }
     if (entry) {
       entry.etag = heads.etag || null;
       entry.modified = heads["last-modified"] || null;
+      entry.vary = varyOf(heads, request.headers);
+      if (!opts.cache) keepFor(entry, heads);
     }
 
     if (!response.ok) {
@@ -527,6 +707,52 @@
     if (opts.withHeaders) return { value, headers: heads, status: response.status };
     return value;
   }
+
+  // ─── Middleware ──
+  //
+  // What every request of a service passes through, in the order its
+  // `middleware [ … ]` names them: each a function of the request and the
+  // rest of the chain, returning what the chain returns — `["ok", value]`
+  // or `["err", httpError]`. A step reads what it adds when the request
+  // reaches it, so one that sends the request again — `refreshOn401`,
+  // written before `bearer` — sends it through `bearer` again, with the
+  // token it just refreshed.
+  const mw = {
+    /// `bearer(Session.token)`: `Authorization: Bearer …`, when there is one.
+    bearer: (read) => (req, next) => {
+      const token = read();
+      return next(token ? { ...req, headers: { ...req.headers, Authorization: "Bearer " + token } } : req);
+    },
+    /// `header("X-Client", "web")`.
+    header: (name, read) => (req, next) => {
+      const value = read();
+      return next(value == null ? req : { ...req, headers: { ...req.headers, [name]: String(value) } });
+    },
+    /// A fresh `X-Request-Id`, the same on every try of one request.
+    requestId: (req, next) => {
+      const id = (typeof crypto !== "undefined" && crypto.randomUUID) ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(36).slice(2);
+      return next({ ...req, headers: { ...req.headers, "X-Request-Id": id } });
+    },
+    /// Each request and how it ended, in the console.
+    log: async (req, next) => {
+      const answer = await next(req);
+      console.log(req.method, req.url, Array.isArray(answer) ? answer[0] : answer);
+      return answer;
+    },
+    /// `refreshOn401(Session.refresh)`: when the server says the
+    /// credentials expired, refresh them — once, for every request that
+    /// heard it at the same time, since a running action is joined — and
+    /// send the request again.
+    refreshOn401: (refresh) => async (req, next) => {
+      const first = await next(req);
+      if (Array.isArray(first) && first[0] === "err" && Array.isArray(first[1])
+          && first[1][0] === "status" && first[1][1] === 401) {
+        await refresh();
+        return next(req);
+      }
+      return first;
+    },
+  };
 
   /// Whether a URL is this site's own.
   function sameOrigin(url) {

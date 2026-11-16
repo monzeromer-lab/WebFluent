@@ -51,6 +51,7 @@ Each keyword declares one kind of thing:
 | `app` | The shell every page renders inside, with the `Router` | [The app shell](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#the-app-shell) |
 | `type`, `enum` | Records and enumerations the type checker enforces | [Types](https://webfluent.monzeromer.dev/learn/12-types.md) |
 | `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api) |
+| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](https://webfluent.monzeromer.dev/learn/15-data.md#pass-every-request-through-middleware) |
 | `const` | A value read everywhere | [Constants](https://webfluent.monzeromer.dev/reference/expressions.md#constants) |
 | `data` | A JSON file read at build time, as a constant | [Read a file at build time](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data) |
 | `image` | A picture the build resizes and hands to `Image` | [Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md) |

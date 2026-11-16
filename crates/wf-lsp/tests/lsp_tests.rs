@@ -1272,7 +1272,7 @@ fn a_block_offers_what_it_may_hold() {
             "retry",
             "credentials",
             "cache",
-            "headers",
+            "middleware",
             "get",
             "post",
             "delete",

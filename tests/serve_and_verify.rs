@@ -153,11 +153,12 @@ fn the_dev_server_answers_only_a_navigation_with_the_shell_and_builds_for_develo
         "the terminal says which: {err}"
     );
 
-    // `wf build` writes for a host: no shapes.
+    // `wf build` writes for a host, and holds every answer to its type
+    // there too.
     let (code, _, err) = wf(&dir, &["build"]);
     assert_eq!(code, 0, "{err}");
     let page = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
-    assert!(!page.replace(' ', "").contains("shape:["), "{page}");
+    assert!(page.replace(' ', "").contains("shape:["), "{page}");
 }
 
 /// `wf verify` with these arguments, or `None` where the machine has no

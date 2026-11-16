@@ -21,6 +21,7 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
         | Declaration::Animation(_)
         | Declaration::Data(_) => &[],
         Declaration::Test(t) => &t.body,
+        Declaration::Middleware(m) => &m.handler.body,
     }
 }
 

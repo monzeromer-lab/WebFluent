@@ -57,6 +57,7 @@ Each keyword declares one kind of thing:
 | `app` | The shell every page renders inside, with the `Router` | [The app shell](05-pages-and-routing.md#the-app-shell) |
 | `type`, `enum` | Records and enumerations the type checker enforces | [Types](12-types.md) |
 | `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](15-data.md#describe-a-service-with-api) |
+| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](15-data.md#pass-every-request-through-middleware) |
 | `const` | A value read everywhere | [Constants](../reference/expressions.md#constants) |
 | `data` | A JSON file read at build time, as a constant | [Read a file at build time](15-data.md#read-a-file-at-build-time-with-data) |
 | `image` | A picture the build resizes and hands to `Image` | [Add a picture](../recipes/add-a-picture.md) |

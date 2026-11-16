@@ -301,17 +301,34 @@ fn a_store_is_checked_without_use_and_from_another_store() {
 }
 
 #[test]
-fn a_services_headers_and_hooks_are_checked() {
+fn a_services_middleware_is_checked() {
     has(
-        "store M { action record(s: Number) { log(s) } }\napi B(base: \"/api\") { on response(r) { M.recrd(r.status) }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
-        "[T06] `M` has no action `recrd`",
-    );
-    has(
-        "store S { state token = \"\" }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.tokn}\" }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "store S { state token = \"\" }\napi B(base: \"/api\") { middleware [bearer(S.tokn)]\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
         "[T06] `S` has no member `tokn`",
     );
+    has(
+        "api B(base: \"/api\") { middleware [timer]\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "[T13] `timer` is not a middleware",
+    );
+    has(
+        "middleware stamp(req, next) { log(req.urll)  return await next(req) }\napi B(base: \"/api\") { middleware [stamp]\n get me() -> Json! }",
+        "[T05] `Request` has no field `urll`",
+    );
+    has(
+        "middleware quiet(req, next) { log(req.url) }\napi B(base: \"/api\") { middleware [quiet]\n get me() -> Json! }",
+        "[T10] `middleware quiet` returns nothing",
+    );
     clean(
-        "store S { state token = \"\"\n action refresh() { token = \"x\" } }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.token}\" }\n on request(r) { r.headers[\"X-Id\"] = \"1\" }\n on error(e) { await S.refresh()  return \"retry\" }\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+        "store S { state token = \"\"\n action refresh() { token = \"x\" } }\nmiddleware stamp(req, next) {\n let answer = await next(Request(url: req.url, method: req.method, headers: req.headers.with(\"X-Id\", \"1\"), body: req.body))\n return answer\n}\napi B(base: \"/api\") { middleware [refreshOn401(S.refresh), bearer(S.token), header(\"X-Client\", \"web\"), requestId, log, stamp]\n get me() -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+    );
+    // 6.x's headers and hooks are refused, each saying what replaced it.
+    has(
+        "store S { state token = \"\" }\napi B(base: \"/api\") { headers { Authorization: \"Bearer {S.token}\" }\n get me() -> Json! }",
+        "[N08] `B`'s `headers { }` is 6.x's",
+    );
+    has(
+        "api B(base: \"/api\") { on error(e) { log(e) }\n get me() -> Json! }",
+        "[N08] `B`'s `on error` hook is 6.x's",
     );
 }
 

@@ -51,6 +51,7 @@ mod stmt;
 mod tables;
 #[cfg(test)]
 mod tests;
+mod transport;
 mod ty;
 mod walk;
 
@@ -256,6 +257,7 @@ type Problem {
 type Point { x: Number, y: Number }
 /// One file of a `CodeBlock`'s tabs.
 type CodeFile { name: String, code: String, language: String = \"wf\" }
+type Request { url: String, method: String, headers: [String: String] = {}, body: Json? = null }
 /// A range a `DateRangePicker` offers to take at a press.
 enum RangePreset { today, last7, last30, thisMonth, lastMonth }
 ",
@@ -453,6 +455,9 @@ pub fn check_sources_with<'s>(
             Declaration::Const(c) => {
                 world.fixed.insert(c.name.clone(), "a `const`");
             }
+            Declaration::Middleware(m) => {
+                world.fixed.insert(m.name.clone(), "a middleware");
+            }
             Declaration::Data(d) => {
                 world.fixed.insert(
                     d.name.clone(),
@@ -529,6 +534,11 @@ pub fn check_sources_with<'s>(
                 ty: ty.clone(),
             });
             world.consts.insert(d.name.clone(), ty);
+        }
+        if let Declaration::Middleware(m) = decl {
+            world
+                .consts
+                .insert(m.name.clone(), transport::middleware_type());
         }
         if let Declaration::Const(c) = decl {
             let file = file_of(index);
@@ -762,10 +772,15 @@ pub fn check_sources_with<'s>(
             // parameter is the request, the reply or the error, whose shape
             // the runtime gives it, so it is `Any`.
             Declaration::Api(a) => {
-                for (_, e) in a.settings.iter().chain(a.headers.iter()) {
+                for (key, e) in a.settings.iter().chain(a.headers.iter()) {
                     cx.current_span = a.span;
-                    cx.infer(e, None);
+                    if key == "middleware" {
+                        cx.middleware_list(e);
+                    } else {
+                        cx.infer(e, None);
+                    }
                 }
+                cx.old_transport(a);
                 for endpoint in &a.endpoints {
                     cx.current_span = endpoint.span;
                     let what = format!("{}.{}", a.name, endpoint.name);
@@ -860,6 +875,7 @@ pub fn check_sources_with<'s>(
                 }
             }
             Declaration::Enum(e) => cx.error_enum_shape(e),
+            Declaration::Middleware(m) => cx.middleware(m),
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Script(_)

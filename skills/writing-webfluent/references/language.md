@@ -1361,22 +1361,69 @@ server changes its contract the build says so.
 type User { id: String, name: String }
 
 api Backend(base: env.PUBLIC_API) {     // its default in the config's `env`
-    timeout: 10.seconds
+    timeout: 10.seconds                // 30 s when it says nothing
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
     credentials: .sameOrigin           // .omit · .sameOrigin · .include — the
                                        // session cookie, which is where a
                                        // session belongs; `persist` is not
-
-    on request(r)  { r.headers["X-Request-Id"] = uuid() }
-    on response(r) { log("{r.status} {r.url}") }
+    middleware [requestId, log]        // and refreshOn401(Session.refresh), bearer(Session.token), …
 
     get    users(page: Number = 1, q: String?)   -> [User]!
     get    user(id: String) at "users/:id"       -> User!
     post   createUser(body: NewUser)             -> User!
+    put    order(body: Order) at "orders" -> Order! idempotent
     delete removeUser(id: String) at "users/:id" -> !
     post   avatar(id: String, file: File) at "users/:id/avatar" -> Url!
 }
 ```
+
+**Middleware.** What every request passes through, in the order written:
+each step is handed the request and the rest of the chain, `next`, and
+returns what `next` returns — a result, `.ok(json)` or `.err(httpError)`.
+The runtime's: `bearer(token)` (`Authorization: Bearer …`, when there is
+one), `header(name, value)`, `refreshOn401(action)` (on a `401`, run the
+action — once for every request that heard it at the same time, since a
+running action is joined — and send the request again through what follows
+it, so it goes before `bearer`), `requestId` (`X-Request-Id`) and `log`. A
+project writes its own:
+
+```wf
+/// Every request, timed.
+middleware timed(req, next) {           // req: Request · next: (Request) -> answer
+    let started = Date.now()
+    let answer = await next(req)
+    log("{req.method} {req.url} took {Date.now() - started} ms")
+    return answer
+}
+```
+
+`Request` is `{ url, method, headers: [String: String], body: Json? }`; a
+step changes what it hands on — `next(Request(url: req.url, method:
+req.method, headers: req.headers.with("X-Client", "web"), body: req.body))`
+— or answers without the network. 6.x's `headers { }` and `on request`,
+`on response`, `on error` hooks are `N08`.
+
+**Retries and `idempotent`.** A retry policy applies to what is safe to
+send twice — `GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE` — with backoff, jitter
+and `Retry-After`. A `POST` or `PATCH` is retried, or kept to replay
+offline, only when its endpoint is marked `idempotent`, which sends one
+`Idempotency-Key` on every try of a call; `retry:` on any other write is
+`N09`.
+
+**Caching.** A `GET` is kept as an HTTP cache keeps it (RFC 9111, a private
+cache): only when the server's `Cache-Control` or `Expires` allows it, fresh
+for its `max-age` (less its `Age`), served stale and asked again behind it
+within `stale-while-revalidate`, asked again with its `ETag` or
+`Last-Modified` after, never under `no-store`, every time under `no-cache`,
+and kept apart by `Vary` and by the credentials it was asked with. With no
+caching headers nothing is kept. An endpoint or a call may override the
+server: `cache: .maxAge(60.seconds)`, `.swr(60.seconds)`, `.forever`,
+`.none`. Identical `GET`s in flight are always joined.
+
+**Every answer is checked**, in every build: what an endpoint or a
+`resource` declares it returns is held to what arrives, and a server that
+does not keep its contract fails as `.decode(at, message)` — `$[1].name is
+missing` — under `wf serve` and deployed alike.
 
 Or read the whole surface from a specification, and let the compiler check
 every call against it:
@@ -1427,8 +1474,8 @@ What comes with it, at every call site:
 |---|---|
 | Abort | on scope leave, on an argument that reads state changing, on `.cancel()`, on timeout |
 | Errors | a call's `.err` is an `HttpError` — `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a read's `.failed(e)` holds the same |
-| Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`); a `POST` or `PATCH` that timed out may have been taken, and is not sent again |
-| Cache | `.swr(60.seconds)`, `.none`, `.forever` — keyed by method, address and body, with `ETag`/`If-None-Match` revalidation and `304` served from what is held |
+| Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`), and a `POST` or `PATCH` only when its endpoint is `idempotent` (one `Idempotency-Key` on every try) |
+| Cache | what the server's `Cache-Control` allows (RFC 9111): `max-age`, `stale-while-revalidate`, `no-store`, `no-cache`, `Vary`, `ETag` revalidation and `304` served from what is held; nothing without caching headers; `.maxAge(d)`, `.swr(d)`, `.none`, `.forever` override it |
 | Dedupe | two readers of one address make one request, cached or not; each keeps its own abort |
 | Refetch | an argument that reads state changing; `refresh: .onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never` — a refresh: the value stays on the page while it runs, and the answer is drawn in place (see Data Fetching) |
 | Pagination | `paginate: .page` gives `.items`, `.loadMore()`, `.hasMore` |
@@ -3494,7 +3541,7 @@ And what the type checker finds:
 | `T35` | Two `derived` values — in one body or two stores — that each read the other, or one that reads itself, with none declared |
 | `N03` | `try` in an action that declares no error, or whose error cannot hold the one passed up |
 | `N12` | An error enum without exactly one `http(error: HttpError)` case, a case with no status or not one value, or a status twice |
-| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces |
+| `N08` | A form 7.0 removed: `fetch(…)`, which `http.get(…)` replaces; an endpoint that does not say how it fails (`-> T`), which `-> T!` replaces; an `errors { }` block, which an error enum replaces; a read's `loading`, `error(e)` and `ready(v)` arms, which `.loading`, `.failed(e)` and `.loaded(v)` replace; its `.data`, `.refreshing` and `.state`, which `.value`, `.isRefreshing` and `.isLoading`/`.isLoaded`/`.isFailed` replace; and `on:`, which `refresh:` replaces; a service's `headers { }` and `on request`/`on response`/`on error` hooks, which `middleware [ … ]` replaces |
 | `N11` | `Any` or `Map` where a service meets the program — an endpoint's parameter or answer, a resource's type — or an `http.get` with nowhere that names what it answers; the fix names `Json`, or declare a `type` |
 | `X01` | An assignment to something that cannot change: a `const`, a `data` constant, a `derived` value (a store's too), a prop, a route parameter, a loop variable, an action |
 | `C01` | A required prop or record field left out — on a call, a `layout:`, a record (`Todo(title: "x")` when `id` has no default), a built-in's (`Portal` without `into:`); a flag gives a `Bool` or an enum prop |
@@ -3579,6 +3626,7 @@ paint alike.
 | `C05` | A positional argument a built-in does not take |
 | `C06` | A positional argument bound to a component's first prop, which is not marked `_` |
 | `D05` | A font, stylesheet or script from another origin with no `meta.integrity` hash |
+| `N09` | `retry:` on a call of a `POST` or `PATCH` its contract does not mark `idempotent`, which is not retried |
 | `D06` | A `meta.scripts` entry marked `"load": "consent"` in a program with no `ConsentBanner` to ask for it, so it never loads |
 | `T19` | A value that may be null spliced into text, where it shows as `null` |
 | `R04` | A relative `src:`/`href:` literal on a nested route, which resolves against the page's address |

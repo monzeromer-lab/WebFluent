@@ -10,11 +10,74 @@ impl JsCodegen {
     /// `api Backend(base: "/api") { … }` — the service as one object of
     /// callable endpoints, each of which also carries `.invalidate()`,
     /// `.prefetch()` and `.progress`.
+    /// `middleware name(req, next) { … }`: a function of the request and
+    /// the rest of the chain, returning what the chain returns.
+    pub(super) fn emit_middleware(&mut self, m: &crate::syntax::parser::ast::MiddlewareDecl) {
+        let head = self.handler_head(&m.handler, "req");
+        let head = if head.starts_with("async") {
+            head
+        } else {
+            format!("async {head}")
+        };
+        self.emit_line(&format!("const {} = {head} => {{", top_level(&m.name)));
+        self.indent += 1;
+        let body = self.emit_event_body(&m.handler);
+        if !body.is_empty() {
+            self.emit_line(&body);
+        }
+        self.indent -= 1;
+        self.emit_line("};");
+    }
+
+    /// One step of a service's `middleware [ … ]`: a middleware the
+    /// project declares, or one of the runtime's, its arguments read when a
+    /// request is made — a token refreshed a moment ago is the one sent.
+    fn middleware_step(&self, step: &Expr) -> String {
+        match step {
+            Expr::Identifier(n) if matches!(n.as_str(), "requestId" | "log") => {
+                format!("WF.mw.{n}")
+            }
+            Expr::Identifier(n) => top_level(n),
+            Expr::FunctionCall(name, args) if name == "bearer" || name == "header" => {
+                let read: Vec<String> = args
+                    .iter()
+                    .enumerate()
+                    .map(|(i, a)| {
+                        let e = self.emit_expr(a);
+                        if name == "header" && i == 0 {
+                            e
+                        } else {
+                            format!("() => {e}")
+                        }
+                    })
+                    .collect();
+                format!("WF.mw.{name}({})", read.join(", "))
+            }
+            Expr::FunctionCall(name, args) if name == "refreshOn401" => {
+                let action = args
+                    .first()
+                    .map_or_else(|| "null".to_string(), |a| self.emit_expr(a));
+                format!("WF.mw.refreshOn401(() => ({action})())")
+            }
+            other => self.emit_expr(other),
+        }
+    }
+
     pub(super) fn emit_api(&mut self, api: &ApiDecl) {
         self.emit_line(&format!("const {} = WF.api({{", top_level(&api.name)));
         self.indent += 1;
         self.emit_line(&format!("name: \"{}\",", api.name));
         for (key, value) in &api.settings {
+            if key == "middleware" {
+                let steps: Vec<String> = match value {
+                    Expr::ListLiteral(items) => {
+                        items.iter().map(|s| self.middleware_step(s)).collect()
+                    }
+                    other => vec![self.emit_expr(other)],
+                };
+                self.emit_line(&format!("middleware: [{}],", steps.join(", ")));
+                continue;
+            }
             // A setting that reads state is read again on every request.
             let emitted = match key.as_str() {
                 // `.backoff(times: 3, on: [.network])`, or a plain count.
@@ -110,12 +173,14 @@ impl JsCodegen {
                 }
                 other => other.clone(),
             };
-            if self.dev
-                && let Some(ty) = &answer
-            {
-                parts.push(format!("shape: {}", self.shape_of(ty, 0)));
+            // What it answers, held to its type in every build.
+            if let Some(ty) = &answer {
+                let shape = self.shape_of(ty, 0);
+                if shape != "\"j\"" && shape != "\"*\"" {
+                    parts.push(format!("shape: {shape}"));
+                }
             }
-            if self.dev && !error_shapes.is_empty() {
+            if !error_shapes.is_empty() {
                 parts.push(format!("errorShapes: {{ {} }}", error_shapes.join(", ")));
             }
             // `errors { 422 -> T }`: under `wf serve`, the body of a failure

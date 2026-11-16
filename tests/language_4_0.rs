@@ -377,7 +377,7 @@ fn served(body: &str) -> String {
     format!(
         "type User {{ id: String, name: String }}\n\
          api Backend(base: \"/api/v1\") {{\n\
-         \x20   headers {{ Authorization: \"Bearer t\" }}\n\
+         \x20   middleware [bearer(\"t\")]\n\
          \x20   timeout: 10.seconds\n\
          \x20   get users(page: Number = 1) -> [User]!\n\
          \x20   get user(id: String) at \"users/:id\" -> User!\n\
@@ -403,13 +403,20 @@ fn a_service_is_one_object_of_endpoints() {
     assert!(js.contains("base: \"/api/v1\""));
     assert!(js.contains("timeout: 10000"), "a duration is milliseconds");
     // A header is read at the moment of the request, not at the start.
-    assert!(js.contains("\"Authorization\": () =>"));
     assert!(
-        js.contains("users: { method: \"GET\", path: \"users\", result: {} }"),
+        js.contains("middleware: [WF.mw.bearer(() => \"t\")]"),
         "{js}"
     );
     assert!(
-        js.contains("user: { method: \"GET\", path: \"users/:id\", result: {} }"),
+        js.contains(
+            "users: { method: \"GET\", path: \"users\", result: {}, shape: [\"l\", [\"r\", \"User\""
+        ),
+        "an answer is held to its type in every build: {js}"
+    );
+    assert!(
+        js.contains(
+            "user: { method: \"GET\", path: \"users/:id\", result: {}, shape: [\"r\", \"User\""
+        ),
         "{js}"
     );
 }

@@ -20,6 +20,12 @@
     return client;
   }
 
+  /// A key no other call has: what an `Idempotency-Key` carries.
+  function oneKey() {
+    if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    return Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+  }
+
   /// The path with its `:name` parts filled in, and what is left over as
   /// the query string.
   function fillPath(path, args) {
@@ -49,7 +55,7 @@
     const progress = signal(0);
     const method = (endpoint.method || "GET").toUpperCase();
     // What is a parameter of the call rather than of the request.
-    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "timeout", "signal", "as"]);
+    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "refresh", "placeholder", "timeout", "signal", "as"]);
     // The parameter a file arrives in is the one the endpoint names — `post
     // avatar(image: File)` sends `image` — and never part of the query.
     const fileField = endpoint.fileField || "file";
@@ -80,7 +86,12 @@
         headers: { ...(config.headers || {}), ...(given.headers || {}) },
         as: given.as || endpoint.as || "json",
         errorAs: endpoint.errorAs || "json",
-        timeout: given.timeout != null ? given.timeout : config.timeout,
+        timeout: given.timeout != null ? given.timeout : config.timeout != null ? config.timeout : 30000,
+        // An endpoint the contract marks `idempotent` may be sent again —
+        // retried, replayed — and says so with one key per call, the same
+        // on every try, so the server does what it asks once.
+        idempotencyKey: endpoint.idempotent ? oneKey() : undefined,
+        middleware: config.middleware,
         retry: given.retry || config.retry,
         cache: given.cache || endpoint.cache || (method === "GET" ? config.cache : { kind: "none" }),
         credentials: config.credentials,

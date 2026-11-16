@@ -150,7 +150,7 @@ pub const MODULES: &[Module] = &[
     // `catch e`: what was thrown, always an `Error`.
     module!("result", exports: [same("tryOk"), same("thrown")], deps: [], triggers: []),
     module!("http", exports: [
-        same("send"), same("beacon"), same("invalidate"),
+        same("send"), same("beacon"), same("invalidate"), same("mw"),
     ], deps: ["json"], triggers: []),
     module!("api", exports: [
         same("api"), same("ws"), same("sse"), same("broadcast"),

@@ -1170,6 +1170,13 @@ impl JsCodegen {
             }
         }
 
+        // Middleware, which a service's chain names when it is made.
+        for decl in &program.declarations {
+            if let Declaration::Middleware(m) = decl {
+                self.emit_middleware(m);
+            }
+        }
+
         // Emit services, which a store's actions may call.
         for decl in &program.declarations {
             if let Declaration::Api(a) = decl {

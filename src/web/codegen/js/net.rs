@@ -196,10 +196,13 @@ impl JsCodegen {
         {
             opts.push(format!("method: \"{}\"", verb.to_uppercase()));
         }
-        if self.dev
-            && let Some(ty) = &r.ty
-        {
-            opts.push(format!("shape: {}", self.shape_of(ty, 0)));
+        // What it holds, held to its type in every build — where the type
+        // says something JSON may not be.
+        if let Some(ty) = &r.ty {
+            let shape = self.shape_of(ty, 0);
+            if shape != "\"j\"" && shape != "\"*\"" {
+                opts.push(format!("shape: {shape}"));
+            }
         }
         let opts_js = if opts.is_empty() {
             "null".to_string()

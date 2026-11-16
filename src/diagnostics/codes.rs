@@ -588,6 +588,12 @@ pub static CODES: &[CodeInfo] = &[
         "`fetch(…)`, an endpoint that does not say how it fails, `errors { }`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.",
     ),
     code(
+        "N09",
+        Warning,
+        "A retry asked of a write that is not idempotent",
+        "A `POST` or `PATCH` whose answer was lost may have been taken, and sent again it would be taken twice — a second order. So it is retried, or replayed offline, only when its endpoint is marked `idempotent`, which sends one `Idempotency-Key` on every try; a `retry:` on any other write does nothing.",
+    ),
+    code(
         "N11",
         Error,
         "`Any` or `Map` where a service meets the program",

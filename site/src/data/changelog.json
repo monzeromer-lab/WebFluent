@@ -298,6 +298,39 @@
     "after": "6.x's forms are `N08`, and `wf fix` rewrites them: the `loading`,\n`error(e)` and `ready(v)` arms become `.loading`, `.failed(e)` and\n`.loaded(v)`; `.data` becomes `.value` and `.refreshing` `.isRefreshing`;\n`on: .focus`, `.reconnect` and `.interval(d)` become `refresh: .onFocus`,\n`.onReconnect` and `.every(d)`. `.state` has no one rewrite: compare with\n`isLoading`, `isLoaded` or `isFailed`, or `match` the read. A `.failed(e)`\narm that read 6.x's `e.status` or `e.body` matches the `HttpError` instead:\n`.status(code, problem)`."
    },
    {
+    "title": "What a request passes through",
+    "id": "7.0.0-what-a-request-passes-through",
+    "intro": "",
+    "items": [
+     {
+      "text": "**Middleware** replaces a service's `headers { }` and its `on request`,\n`on response` and `on error` hooks with one mechanism: `middleware [\nrefreshOn401(Session.refresh), bearer(Session.token), requestId ]`, steps\nrun in the order written, each around the next. The runtime's are\n`bearer`, `header`, `refreshOn401`, `requestId` and `log`; a project\nwrites its own as `middleware name(req, next) { … }`, typed by what a\nmiddleware is. Three requests that hear `401` at once share one refresh,\nsince a running action is joined. The old forms are `N08`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The cache follows the server** (RFC 9111, a private cache): a `GET` is\nkept only when `Cache-Control` or `Expires` allows, for its `max-age`\nless its `Age`, stale within `stale-while-revalidate`, revalidated with\n`ETag`, never under `no-store`, kept apart by `Vary` and the credentials.\nWith no caching headers nothing is kept — before, an endpoint kept what\nits `cache:` said whatever the server answered. `cache: .maxAge(d)`,\n`.swr(d)`, `.none` and `.forever` still override it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Every answer is checked, in every build**: what an endpoint or a\n`resource` declares it returns is held to what arrives, deployed as under\n`wf serve`, and a server that breaks its contract fails as `.decode(at,\nmessage)`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`idempotent`** on an endpoint — `post order(body: Order) -> Order!\nidempotent` — sends one `Idempotency-Key` with every try of a call, and lets\na `POST` or `PATCH` be retried and replayed offline; `retry:` on any other\nwrite is `N09`, and does nothing.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A call gives up after 30 seconds** unless its service or the call says\notherwise.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Declared where others see it, inferred where only the body does",
     "id": "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does",
     "intro": "What another declaration, another file or a caller sees is now declared,\nand what only the body sees is still inferred — so the checker never has to\nwork one declaration out to check another.",
@@ -361,7 +394,7 @@
     "after": ""
    }
   ],
-  "count": 52
+  "count": 57
  },
  {
   "version": "6.2.0",

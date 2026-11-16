@@ -69,6 +69,11 @@ test "pill shows its label" { Pill("Beta")  expect "Beta" }"#, title: "wf")
                     Table.Cell { Markdown("[Describe a service](/learn/15-data#describe-a-service-with-api)") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`middleware`") }
+                    Table.Cell { Markdown("A step every request of a service passes through, named in its `middleware [ … ]`") }
+                    Table.Cell { Markdown("[Pass every request through middleware](/learn/15-data#pass-every-request-through-middleware)") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`const`") }
                     Table.Cell("A value read everywhere")
                     Table.Cell { Markdown("[Constants](/reference/expressions#constants)") }

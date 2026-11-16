@@ -80,6 +80,7 @@ pub fn lint_vocabulary_with(
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
+            | Declaration::Middleware(_)
             | Declaration::Script(_)
             | Declaration::Const(_)
             | Declaration::Animation(_)
@@ -148,6 +149,7 @@ fn global_names(program: &Program) -> HashSet<String> {
             | Declaration::Type(_)
             | Declaration::Enum(_)
             | Declaration::Api(_)
+            | Declaration::Middleware(_)
             | Declaration::Animation(_)
             | Declaration::Test(_) => {}
         }
