@@ -9,11 +9,11 @@
 use std::collections::BTreeMap;
 use std::path::Path;
 
+use crate::base::vfs::FsVfs;
 use crate::build::{BuildOptions, BuildReport};
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::diagnostics::fixes::{apply, merge};
 use crate::diagnostics::{Diagnostic, Edit, Fix, Severity};
-use crate::base::vfs::FsVfs;
 
 /// How many times a fix run looks again: a fix left out because it
 /// overlapped another is taken on the next look, and one fix may make way
@@ -25,8 +25,8 @@ pub const ROUNDS: usize = 8;
 /// error enum's `http` case (`N12`), a read's missing `.failed` arm
 /// (`T21`), and the typing rules (`T25`–`T35`).
 pub const SEVEN: &[&str] = &[
-    "N08", "N11", "N12", "T21", "T25", "T26", "T27", "T28", "T29", "T30", "T31", "T32", "T33",
-    "T34", "T35",
+    "N08", "N11", "N12", "T21", "T23", "T24", "T25", "T26", "T27", "T28", "T29", "T30", "T31",
+    "T32", "T33", "T34", "T35",
 ];
 
 /// Whether a finding is one 7.0 brought: a code of [`SEVEN`], or another

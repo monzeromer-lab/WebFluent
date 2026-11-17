@@ -11,8 +11,8 @@ component HomeShell(other: String = "", lang: String = "en") {
     state editing = false
     state stage = ""
     state run = 0
-    state result: Map? = null
-    derived findings: [Map] = result?.findings ?? []
+    state result: BuildResult? = null
+    derived findings: [BuildFinding] = result?.findings ?? []
     derived fixable = findings.find(f => f.fixed != "")
 
     action edit() {
@@ -27,7 +27,7 @@ component HomeShell(other: String = "", lang: String = "en") {
     action build() {
         wfBuild(WASM, stage, { "src/pages/Home.wf": draft }, EXAMPLE_CONFIG, (r) => heard(r))
     }
-    action heard(r: Map) {
+    action heard(r: BuildResult) {
         result = r
         if r.ok { run = run + 1 }
     }
@@ -136,7 +136,7 @@ component HomeShell(other: String = "", lang: String = "en") {
             Text(t("home.making.body"), class: "bp-lede")
             Grid(columns: { base: 2, lg: 4 }, gap: .md, role: "group", aria-label: t("home.making")) {
                 for o in OUTPUTS by o {
-                    Link(to: OUTPUT_PAGES[o], class: "bp-card bp-out-tile") {
+                    Link(to: OUTPUT_PAGES[o] ?? "/", class: "bp-card bp-out-tile") {
                         Stack(class: "bp-out-tile__thumb", data-kind: o, aria-hidden: "true") {
                             if o == "pdf" {
                                 Image(src: "/showcase/invoice-2026-0417-1.webp", alt: "")
@@ -154,7 +154,7 @@ component HomeShell(other: String = "", lang: String = "en") {
                         }
                         Text(t("home.out.{o}"), class: "bp-out-tile__title")
                         Text(t("home.out.{o}.body"), class: "bp-small")
-                        Text(OUTPUT_COMMANDS[o], class: "bp-out-tile__cmd bp-mono")
+                        Text(OUTPUT_COMMANDS[o] ?? "", class: "bp-out-tile__cmd bp-mono")
                     }
                 }
             }
@@ -229,7 +229,7 @@ const INSTALL_AND_START = """
     """
 
 /// Where each output is taught.
-const OUTPUT_PAGES: Map = {
+const OUTPUT_PAGES: [String: String] = {
     website: "/learn/01-getting-started",
     app: "/learn/03-tutorial-todos",
     pdf: "/learn/17-pdf-and-slides#make-a-pdf-document",
@@ -239,7 +239,7 @@ const OUTPUT_PAGES: Map = {
 }
 
 /// How each output starts.
-const OUTPUT_COMMANDS: Map = {
+const OUTPUT_COMMANDS: [String: String] = {
     website: "wf init -t static",
     app: "wf init -t spa",
     pdf: "wf init -t pdf",

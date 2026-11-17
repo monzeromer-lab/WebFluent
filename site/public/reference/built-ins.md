@@ -337,7 +337,7 @@ Signature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) { on 
 |---|---|---|
 | `signal` | a lambda, required | How what this side must tell the other reaches it |
 | `initiator` | `Bool` | Whether this side makes the offer; one side must |
-| `ice` | `[Map]` | The servers that help readers on different networks connect; none by default |
+| `ice` | `[Json]` | The servers that help readers on different networks connect; none by default |
 
 Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what
 the other side sent), `.state`, `.messages` and `.close()`. Where: only after

@@ -16,7 +16,7 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
     // A whole program, with a page in it, opens in the Playground as it is.
     derived runnable = language == "wf" && /^page /m.test(code)
     action play() {
-        let files = {}
+        let files: [String: String] = {}
         files["src/pages/Home.wf"] = code
         files["webfluent.app.json"] = "\{ \"name\": \"Example\" \}\n"
         wfOpenInPlayground(files)

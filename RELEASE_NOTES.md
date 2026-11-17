@@ -1,6 +1,33 @@
 # WebFluent v7.0.0 Release Notes
 
-Requests stop losing and duplicating data.
+7.0 is strict, and a request is a contract. Every value has a type the
+program can name — `Any` and `Map` are gone, signatures are declared,
+nothing converts by itself — and there is no setting that turns any of it
+off. A service is described once, from its OpenAPI spec if it has one; a
+call answers with a result that says how it failed; a read is one value
+with three cases; and a test answers the service with a fake. `wf migrate`
+carries a 6.x project across.
+
+## `Any` and `Map` leave the language
+
+- **`Any` written as a type is `T23`, `Map` is `T24`**, each with a fix that
+  writes `Json`. A record (`type Price { … }`) or a dictionary (`[String:
+  Number]`) says more, where you know it; `Json` is JSON whose shape is
+  open, matched or decoded before it is read. `wf migrate` writes `Json`.
+- **No place a type is unknown.** The docs site and every example check
+  with none (`wf types --holes` reads zero), and a test holds them to it.
+  Getting there typed more of the language: an empty list beside `??` is
+  the type on its other side (`result?.items ?? []`); two enum cases from an
+  `if` are the enum wanted (`if c { .open } else { .all }`); `pop`, `shift`,
+  `at`, `unshift` and `indexOf` are typed; `groupBy` is a dictionary of
+  lists; `File.text()` is a promise of text; a JSDoc method
+  (`{{ stop(): void }}`) is a function; a library's global takes and gives
+  `Json`; and an argument left out (`sort()`) is not a value of unknown
+  type.
+- **A `let`'s type is held to what any written type is**: `let cells:
+  [Any]` is `T23`.
+
+## A write is sent again only when that is safe
 
 ## A write is sent again only when that is safe
 

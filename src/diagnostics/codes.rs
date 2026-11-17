@@ -366,6 +366,18 @@ pub static CODES: &[CodeInfo] = &[
         "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.",
     ),
     code(
+        "T23",
+        Error,
+        "`Any` written as a type",
+        "7.0 took `Any` out of the language: a value of a type nothing checks agreed with every other, so a mistake passed it by. Every value has a type the program can name — write it, or `Json` for JSON whose shape is open, which is matched or decoded before it is read.",
+    ),
+    code(
+        "T24",
+        Error,
+        "`Map` written as a type",
+        "7.0 took `Map` out of the language: it said nothing of its keys or what they hold, so a misspelt field read as nothing. Write a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open.",
+    ),
+    code(
         "T25",
         Error,
         "A state whose first value does not say what it holds",

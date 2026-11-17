@@ -54,6 +54,8 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "T15 A match that misses a case, or has one twice", to: "/errors/T15", group: "Types"),
     IndexEntry(label: "T22 A handler that names more values than its event sends", to: "/errors/T22", group: "Types"),
     IndexEntry(label: "T21 A read's match with no .failed arm", to: "/errors/T21", group: "Types"),
+    IndexEntry(label: "T23 Any written as a type", to: "/errors/T23", group: "Types"),
+    IndexEntry(label: "T24 Map written as a type", to: "/errors/T24", group: "Types"),
     IndexEntry(label: "T25 A state whose first value does not say what it holds", to: "/errors/T25", group: "Types"),
     IndexEntry(label: "T26 An action that returns a value and does not say what", to: "/errors/T26", group: "Types"),
     IndexEntry(label: "T27 Two values with no type in common", to: "/errors/T27", group: "Types"),
@@ -1248,6 +1250,74 @@ page P(path: "/", title: "T", description: "D") {
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Error.\n\nA read is `.loading`, `.failed(e)` or `.loaded(value)`. A first load that\nfails is `.failed(e)`; with no arm for it, the place stays empty and the\nreader is never told. A `match` that misses `.loading` or `.loaded` is\n[T15](/errors/T15).")
+    }
+}
+
+page ErrorT23(path: "/errors/T23", title: "T23 — Any written as a type", description: "7.0 took `Any` out of the language: a value of a type nothing checks agreed with every other. Write the type it holds, or `Json` for JSON whose shape is open.") {
+    ErrorShell("T23", title: "Any written as a type", severity: "error", family: "Types", summary: "7.0 took `Any` out of the language: a value of a type nothing checks agreed with every other, so a mistake passed it by. Every value has a type the program can name — write it, or `Json` for JSON whose shape is open, which is matched or decoded before it is read.", printed: #"error[T23]: `picked` is written `Any`, which 7.0 took out of the language: every value has a type the program can name
+ --> src/App.wf:4:5
+  |
+4 |     state picked: Any = null
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Write the type it holds, or `Json` for JSON whose shape is open
+  = docs: https://webfluent.monzeromer.dev/errors/T23"#, quickfix: "Write `Json`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T23.md") {
+        broken { CodeBlock(#"type User { name: String }
+
+store People {
+    state picked: Any = null
+    action pick(u: User) { picked = u }
+}
+
+page P(path: "/", title: "People", description: "D") {
+    use People
+    Heading("People").h1
+    Button("Ada") { on click { People.pick(User(name: "Ada")) } }
+    Text(if People.picked == null { "Nobody yet" } else { "Picked" })
+}"#, title: "wf") }
+        fixed { CodeBlock(#"type User { name: String }
+
+store People {
+    state picked: User? = null
+    action pick(u: User) { picked = u }
+}
+
+page P(path: "/", title: "People", description: "D") {
+    use People
+    Heading("People").h1
+    Button("Ada") { on click { People.pick(User(name: "Ada")) } }
+    Text(if People.picked == null { "Nobody yet" } else { "Picked" })
+}"#, title: "wf") }
+        note {
+            Markdown("write the type the value holds. When it is JSON whose shape is\nopen — what a library or a server hands over and nothing says more of — write\n`Json`, and `match` it or `decode` it where it is read. The editor's quick fix,\n`wf fix --code T23` and `wf migrate` write `Json`; a type the program names\nis better where you know it.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\n`Any` agreed with every type in both directions, so a value of it passed\nevery check — a misspelt field, a number where text was wanted — and the\npage found out. 7.0 has no such type: every value has one the program can\nname, written where another declaration or file sees it and inferred where\nonly the body does.")
+    }
+}
+
+page ErrorT24(path: "/errors/T24", title: "T24 — Map written as a type", description: "7.0 took `Map` out of the language: it said nothing of its keys or what they hold. Write a `type` with its fields, a dictionary `[String: T]`, or `Json`.") {
+    ErrorShell("T24", title: "Map written as a type", severity: "error", family: "Types", summary: "7.0 took `Map` out of the language: it said nothing of its keys or what they hold, so a misspelt field read as nothing. Write a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open.", printed: #"error[T24]: `prices` is written `Map`, which 7.0 took out of the language: it says nothing of the keys or what they hold
+ --> src/App.wf:2:5
+  |
+2 |     state prices: Map = { tea: 3, coffee: 4 }
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Write a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open
+  = docs: https://webfluent.monzeromer.dev/errors/T24"#, quickfix: "Write `Json`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T05", title: "A field or method that does not exist", to: "/errors/T05")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T24.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "Prices", description: "D") {
+    state prices: Map = { tea: 3, coffee: 4 }
+    Heading("Prices").h1
+    Text("Tea is {prices.tea ?? 0}")
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "Prices", description: "D") {
+    state prices: [String: Number] = { tea: 3, coffee: 4 }
+    Heading("Prices").h1
+    Text("Tea is {prices.tea ?? 0}")
+}"#, title: "wf") }
+        note {
+            Markdown("write one of them. The editor's quick fix, `wf fix --code T24` and\n`wf migrate` write `Json`; a record or a dictionary is better where you know\nwhat it holds.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Error.\n\nA `Map` held anything under any key, so `prices.tae` read as nothing and the\npage showed it. 7.0 says what a map is:\n\n- **a record**, when its keys are known: `type Price \{ tea: Number, coffee:\n  Number \}` — a field it lacks is `T05`;\n- **a dictionary**, when its keys are not known but what they hold is:\n  `[String: Number]` — reading a key gives a `Number?`;\n- **`Json`**, when it is JSON whose shape is open, matched or decoded where it\n  is read.")
     }
 }
 

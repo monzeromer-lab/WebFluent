@@ -12,7 +12,7 @@ change.
 
 The rule under all of it: **say what a thing is, and let the compiler hold
 you to it.**
-- A `type` instead of a `Map`.
+- A `type` instead of a map of anything.
 - An `enum` instead of a string.
 - A `derived` instead of a copy kept in sync by hand.
 - A label instead of a placeholder.
@@ -97,9 +97,9 @@ type Issue {
 - **Refine where a value has limits**: `nights: Number(1..=30)`,
   `pass: String(minLength: 8)`. The condition is checked on literals at build
   time and validates input at run time with no `validate` written.
-- **`Map` and `Any` say nothing.** Use them only at a boundary you haven't
-  typed yet, and narrow them as soon as you know the shape. (Studio's 63 `Any`s
-  in one store are debt, not a model.)
+- **`Json` says little.** `Any` and `Map` are not types in 7.0 (`T23`,
+  `T24`); `Json` is for JSON whose shape is open, at a boundary you have not
+  typed yet. Decode it into a `type` as soon as you know the shape.
 - **Types several files read** go in `src/types.wf`, or in the feature's own
   file.
 
@@ -418,7 +418,7 @@ Run these, in order, and read every finding:
 Then read the diff for what the compiler can't see:
 
 - [ ] Every record is a `type` and every closed set of words an `enum`; no
-      `Map` or `Any` where the shape is known.
+      `Json` where the shape is known.
 - [ ] No `state` kept in sync by hand: it's a `derived`.
 - [ ] No component reaches into a store it could be handed as a prop; events
       go up.

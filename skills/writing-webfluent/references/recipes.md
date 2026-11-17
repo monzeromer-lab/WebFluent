@@ -503,7 +503,7 @@ store Keys {
         if id == "go.dashboard" { navigate("/dashboard") }
     }
 
-    action pressed(e: Any) {
+    action pressed(e: KeyboardEvent) {
         if let hit = SHORTCUTS.find(s => keyIs(e, s.keys)) {
             e.preventDefault()
             run(hit.id)

@@ -6,7 +6,7 @@
 /// headings); `hasVariations` draws the variations. `project` is the
 /// recipe's code as files (path → text), given when they make a project that
 /// checks clean: it is offered as a download and in the Playground.
-component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", how: Bool = true, hasVariations: Bool = true, project: Map = {}, other: String = "", lang: String = "en") {
+component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", how: Bool = true, hasVariations: Bool = true, project: [String: String] = {}, other: String = "", lang: String = "en") {
     slot code
     slot variations
     slot
@@ -48,7 +48,7 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
                     Row(align: .center, gap: .sm) {
                         style { flex-wrap: wrap; gap: 8px }
                         Button(t("recipe.download"), class: "bp-button", data-track: "download_recipe", data-track-item-id: title) {
-                            on click { wfDownload(location.pathname.split("/").pop(), project) }
+                            on click { wfDownload(location.pathname.split("/").pop() ?? "project", project) }
                         }
                         Button(t("code.play"), class: "bp-button", data-track: "open_playground", data-track-item-id: title) {
                             on click { wfOpenInPlayground(project) }

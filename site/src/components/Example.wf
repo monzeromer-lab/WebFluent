@@ -25,8 +25,8 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
     state editing = false
     state stage = ""
     state run = 0
-    state result: Map? = null
-    derived findings: [Map] = result?.findings ?? []
+    state result: BuildResult? = null
+    derived findings: [BuildFinding] = result?.findings ?? []
     derived fixable = findings.find(f => f.fixed != "")
     derived shown = if tab == "html" { html } else if tab == "css" { css } else if tab == "js" { js } else { draft }
     derived language = if tab == "css" { "css" } else if tab == "code" { "wf" } else { "" }
@@ -50,11 +50,11 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
         build()
     }
     action build() {
-        let files = {}
+        let files: [String: String] = {}
         files["src/pages/{file}"] = draft
         wfBuild(WASM, stage, files, EXAMPLE_CONFIG, (r) => heard(r))
     }
-    action heard(r: Map) {
+    action heard(r: BuildResult) {
         result = r
         if r.ok { run = run + 1 }
     }
@@ -149,7 +149,7 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
 /// The line under an example: what compiled it — the site's build, or the
 /// compiler in the reader's browser, how long it took and what it found —
 /// and, while it is live, Break it, Apply the fix and Start again.
-component LiveStatus(editing: Bool = false, result: Map? = null, version: String = "", mistake: Bool = false, fixable: Bool = false, start: Bool = true) {
+component LiveStatus(editing: Bool = false, result: BuildResult? = null, version: String = "", mistake: Bool = false, fixable: Bool = false, start: Bool = true) {
     event breakIt()
     event fix()
     event reset()

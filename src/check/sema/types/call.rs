@@ -26,7 +26,9 @@ impl Checker<'_, '_> {
                 }
                 ty
             }
-            None => self.hole(HoleKind::ListMethod, format!("argument {}", i + 1)),
+            // An argument left out — `sort()` with no comparator — is not a
+            // value of unknown type: there is none.
+            None => expected.cloned().unwrap_or(Type::Null),
         }
     }
 
@@ -195,6 +197,16 @@ impl Checker<'_, '_> {
         let name = script.name.as_str();
         let params = match &script.kind {
             NameKind::Function { params, .. } | NameKind::Class { params, .. } => params,
+            // A library's global (`meta.scripts`' `globals`) says nothing of
+            // its types: it takes and gives JSON, matched or decoded where it
+            // is read.
+            NameKind::Value if file == "webfluent.app.json" => {
+                let json = Type::Enum(super::ty::JSON.to_string());
+                for a in args {
+                    self.infer(a, Some(&json));
+                }
+                return json;
+            }
             NameKind::Value => {
                 // A value a script declares may hold a function the scanner
                 // could not see; the browser decides.

@@ -4,11 +4,41 @@
   "id": "7.0.0",
   "date": "",
   "when": "",
-  "summary": "Requests stop losing and duplicating data.",
+  "summary": "7.0 is strict, and a request is a contract. Every value has a type the\nprogram can name — `Any` and `Map` are gone, signatures are declared,\nnothing converts by itself — and there is no setting that turns any of it\noff. A service is described once, from its OpenAPI spec if it has one; a\ncall answers with a result that says how it failed; a read is one value\nwith three cases; and a test answers the service with a fake. `wf migrate`\ncarries a 6.x project across.",
   "sections": [
+   {
+    "title": "`Any` and `Map` leave the language",
+    "id": "7.0.0-any-and-map-leave-the-language",
+    "intro": "",
+    "items": [
+     {
+      "text": "**`Any` written as a type is `T23`, `Map` is `T24`**, each with a fix that\nwrites `Json`. A record (`type Price { … }`) or a dictionary (`[String:\nNumber]`) says more, where you know it; `Json` is JSON whose shape is\nopen, matched or decoded before it is read. `wf migrate` writes `Json`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**No place a type is unknown.** The docs site and every example check\nwith none (`wf types --holes` reads zero), and a test holds them to it.\nGetting there typed more of the language: an empty list beside `??` is\nthe type on its other side (`result?.items ?? []`); two enum cases from an\n`if` are the enum wanted (`if c { .open } else { .all }`); `pop`, `shift`,\n`at`, `unshift` and `indexOf` are typed; `groupBy` is a dictionary of\nlists; `File.text()` is a promise of text; a JSDoc method\n(`{{ stop(): void }}`) is a function; a library's global takes and gives\n`Json`; and an argument left out (`sort()`) is not a value of unknown\ntype.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A `let`'s type is held to what any written type is**: `let cells:\n[Any]` is `T23`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
    {
     "title": "A write is sent again only when that is safe",
     "id": "7.0.0-a-write-is-sent-again-only-when-that-is-safe",
+    "intro": "",
+    "items": [],
+    "after": ""
+   },
+   {
+    "title": "A write is sent again only when that is safe",
+    "id": "7.0.0-a-write-is-sent-again-only-when-that-is-safe-2",
     "intro": "",
     "items": [
      {
@@ -655,7 +685,7 @@
     "after": ""
    }
   ],
-  "count": 98
+  "count": 101
  },
  {
   "version": "6.2.0",

@@ -414,7 +414,7 @@ app {
 ```wf
 // … in src/api.wf, beside the pages
 api Suggestions(base: "/api") {
-    post suggest(body: Map)
+    post suggest(body: Json) at "suggest" -> !
 }
 ```
 

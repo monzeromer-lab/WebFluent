@@ -25,7 +25,7 @@ fn templated(src: &str, data: &serde_json::Value) -> String {
 
 #[test]
 fn a_scoped_slot_hands_the_fill_its_values() {
-    let list = "component Rows(items: [Any]) {\n slot row(item: Any, index: Number)\n slot empty\n if items.length == 0 { empty } else { for it, i in items by it { row(item: it, index: i) } }\n}\n";
+    let list = "component Rows(items: [String]) {\n slot row(item: String, index: Number)\n slot empty\n if items.length == 0 { empty } else { for it, i in items by it { row(item: it, index: i) } }\n}\n";
     let src = format!(
         "{list}{}",
         page(
@@ -332,8 +332,11 @@ fn a_page_declares_its_own_head_tags() {
 
 #[test]
 fn an_if_let_binding_is_read_by_the_static_paint_and_the_template_engine() {
-    let src = page(
-        "state user: Map? = { name: \"Ann\" }\n  state none: Map? = null\n  if let u = user { Text(\"Hi {u.name}\") } else { Text(\"nobody\") }\n  if let n = none { Text(\"Hi {n.name}\") } else { Text(\"nobody\") }",
+    let src = format!(
+        "type Person {{ name: String }}\n{}",
+        page(
+            "state user: Person? = Person(name: \"Ann\")\n  state none: Person? = null\n  if let u = user { Text(\"Hi {u.name}\") } else { Text(\"nobody\") }\n  if let n = none { Text(\"Hi {n.name}\") } else { Text(\"nobody\") }",
+        )
     );
     let html = painted(&src);
     assert!(
@@ -413,7 +416,7 @@ fn a_derived_function_paints_what_it_gives_in_every_backend() {
     // to a method, through a component's props; a key the object does not
     // have defaults with `??`.
     let src = format!(
-        "component Counts(counts: Any = null, ids: [String] = []) {{\n  derived countOf = (id) => if counts == null {{ -1 }} else {{ counts[id] ?? 0 }}\n  derived none = ids.every((id) => countOf(id) == 0)\n  Text(\"a {{countOf(\\\"a\\\")}} none {{none}}\")\n  for id in ids {{\n    Text(\"{{id}}={{countOf(id)}}\")\n  }}\n}}\n{}",
+        "component Counts(counts: [String: Number]? = null, ids: [String] = []) {{\n  derived countOf = (id) => if counts == null {{ -1 }} else {{ counts[id] ?? 0 }}\n  derived none = ids.every((id) => countOf(id) == 0)\n  Text(\"a {{countOf(\\\"a\\\")}} none {{none}}\")\n  for id in ids {{\n    Text(\"{{id}}={{countOf(id)}}\")\n  }}\n}}\n{}",
         page("Counts(counts: { a: 7, b: 2 }, ids: [\"b\", \"c\"])")
     );
     for (name, out) in [

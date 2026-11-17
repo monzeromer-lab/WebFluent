@@ -4,7 +4,7 @@
 /// a press changes the element. Without it (a prop the stage cannot set from
 /// a value) the control is drawn as its cases, not as buttons waiting to be
 /// pressed.
-component StageControl(_ control: Map, live: Bool = false, current: String = "", pressed: Bool = false) {
+component StageControl(_ control: StageControlSpec, live: Bool = false, current: String = "", pressed: Bool = false) {
     event pick(value: String)
     if control.kind == "enum" {
         Row(align: .center, gap: .xs, role: "group", aria-label: control.name, class: "bp-stage-control") {

@@ -66,3 +66,26 @@ type Example {
 /// The gallery's examples, rendered on each release by scripts/showcase.py:
 /// the files sit in `public/showcase/`, this list says what each one is.
 data showcase: [Example] = "showcase.json"
+
+/// One row of a props table: a name, its type or cases, and one line of meaning.
+type PropsRow {
+    name: String,
+    type: String,
+    meaning: String
+}
+
+/// One control of a Stage: a prop's name, its kind (`enum`, `bool`), the
+/// cases an enum offers, the value it shows, and the prop a press sets.
+type StageControlSpec {
+    name: String,
+    kind: String,
+    options: [String] = [],
+    value: String = "",
+    sink: String = ""
+}
+
+/// One test of the Playground's project, and whether it passed.
+type TestOutcome {
+    name: String,
+    passed: Bool
+}

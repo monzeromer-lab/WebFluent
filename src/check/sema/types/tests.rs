@@ -478,9 +478,9 @@ fn the_layout_and_the_universal_props_are_typed_too() {
 }
 
 #[test]
-fn untyped_programs_check_as_they_always_did() {
+fn programs_whose_signatures_say_their_types_check() {
     clean(
-        "store S { state items: [Map] = [] state q = \"\" action add(item: Map) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user: Map? = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user != null { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
+        "type Item { name: String }\nstore S { state items: [Item] = [] state q = \"\" action add(item: Item) { items.push(item) } derived hits = items.filter(i => i.name.includes(q)) }\npage P(path: \"/\") { use S\n state user: Item? = null\n derived h = { a: 1 }\n Button(\"x\") { on click { user = { name: \"x\" }  S.add({ name: q })  h.a = 2  log(JSON.stringify(user))  localStorage.setItem(\"k\", \"v\") } }\n if user != null { Text(user.name) }\n for it in S.hits { Text(it.name) }\n Text(\"{S.q.length}\") }",
     );
 }
 

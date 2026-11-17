@@ -254,6 +254,8 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T15](https://webfluent.monzeromer.dev/errors/T15.md) — A `match` that misses a case, or has one twice
 - [T22](https://webfluent.monzeromer.dev/errors/T22.md) — A handler that names more values than its event sends
 - [T21](https://webfluent.monzeromer.dev/errors/T21.md) — A read's `match` with no `.failed` arm
+- [T23](https://webfluent.monzeromer.dev/errors/T23.md) — `Any` written as a type
+- [T24](https://webfluent.monzeromer.dev/errors/T24.md) — `Map` written as a type
 - [T25](https://webfluent.monzeromer.dev/errors/T25.md) — A state whose first value does not say what it holds
 - [T26](https://webfluent.monzeromer.dev/errors/T26.md) — An action that returns a value and does not say what
 - [T27](https://webfluent.monzeromer.dev/errors/T27.md) — Two values with no type in common

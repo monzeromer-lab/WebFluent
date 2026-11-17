@@ -136,6 +136,14 @@ impl Checker<'_, '_> {
         self.current_span = span;
         match &stmt.kind {
             StatementKind::State(s) => {
+                // A local's written type is held to what any written type
+                // is: no `Any`, no `Map` (a page's state is, where declared).
+                if body == Body::Imperative
+                    && let Some(t) = &s.ty
+                {
+                    self.current_span = span;
+                    self.written(t, &s.name);
+                }
                 let declared = s.ty.as_ref().map(|t| self.world.resolve(Type::from_ref(t)));
                 let given = self.infer(&s.value, declared.as_ref());
                 if let Some(declared) = &declared {

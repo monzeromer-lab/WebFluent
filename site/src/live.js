@@ -53,6 +53,7 @@ function wfPaint(text, language) {
  * @param {string} label its accessible name
  * @param {string} language how to highlight it: `wf`, `json`, `css`
  * @param {(text: string) => void} changed called with the text after every edit
+ * @returns {{ set(text: string, language: string): void }}
  */
 function wfEditor(node, text, label, language, changed) {
   const box = document.createElement("div");
@@ -231,6 +232,16 @@ function wfPreviewSrc(base, slot, run) {
 }
 
 /**
+ * One finding of a build in the page, as the compiler reports it.
+ * @typedef {{ key: string, code: string, severity: string, title: string, printed: string, to: string, file: string, fix: string, fixed: string }} BuildFinding
+ */
+
+/**
+ * What a build in the page came to.
+ * @typedef {{ ok: boolean, ms: number, slot: string, errors: number, warnings: number, findings: BuildFinding[], html: string, css: string, js: string, pdf: string, document: boolean }} BuildResult
+ */
+
+/**
  * Build a project in the page, a moment after the last edit, and hand what
  * came of it to `done`: `{ ok, ms, slot, errors, warnings, findings, html,
  * css, js, pdf, document }`, each finding `{ key, code, severity, title,
@@ -239,9 +250,9 @@ function wfPreviewSrc(base, slot, run) {
  * not leaves the last good one there.
  * @param {string} base `/wasm/<release>/`
  * @param {string} slot from `wfSlot()`
- * @param {Object} files path → text: `src/pages/Home.wf`, `webfluent.app.json`
+ * @param {Object<string, string>} files path → text: `src/pages/Home.wf`, `webfluent.app.json`
  * @param {string} config the `webfluent.app.json` text
- * @param {(result: Object) => void} done
+ * @param {(result: BuildResult) => void} done
  * @param {number} [wait] milliseconds to wait for the next keystroke
  */
 function wfBuild(base, slot, files, config, done, wait = 150) {
@@ -277,7 +288,7 @@ async function wfSqueeze(bytes, how) {
 /**
  * The address of this page with the project in its hash, compressed — and
  * put on the clipboard. Nothing is sent anywhere.
- * @param {Object} files path → text
+ * @param {Object<string, string>} files path → text
  * @returns {Promise<string>}
  */
 async function wfShare(files) {
@@ -292,7 +303,7 @@ async function wfShare(files) {
 /**
  * Open a program in the Playground, carried in the address as Share
  * carries one; the Playground builds it when it arrives.
- * @param {Object} files path → text: `src/pages/Home.wf`
+ * @param {Object<string, string>} files path → text: `src/pages/Home.wf`
  */
 async function wfOpenInPlayground(files) {
   const json = new TextEncoder().encode(JSON.stringify(files));
@@ -303,7 +314,7 @@ async function wfOpenInPlayground(files) {
 /**
  * The project a shared address carries, handed to `found`; nothing when the
  * address has none, or one that cannot be read.
- * @param {(files: Object) => void} found
+ * @param {(files: Object<string, string>) => void} found
  */
 function wfShared(found) {
   const m = /[#&]p=([A-Za-z0-9_-]+)/.exec(location.hash);
@@ -336,7 +347,7 @@ function wfCrc(bytes) {
  * Save the project as a zip the reader can `wf build`: its files, stored
  * as they are, under a folder named `name`.
  * @param {string} name
- * @param {Object} files path → text
+ * @param {Object<string, string>} files path → text
  */
 function wfDownload(name, files) {
   const enc = new TextEncoder();

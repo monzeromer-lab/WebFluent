@@ -107,9 +107,12 @@ Changes that need no edit, which it states:
 - Every answer is held to its declared type, deployed too: a server that
   does not keep its contract now fails as `.decode(at, message)`.
 
-`lints` and `// wf-allow` cannot lower or accept the typing codes or the
-request codes that are errors, and `T20` — a list or a record shown as
-text — is an error now. A service described by an OpenAPI spec is best kept
+`Any` and `Map` are no longer types: written as one, each is an error
+(`T23`, `T24`), and `wf migrate` writes `Json` in its place — a record or a
+dictionary says more, where you know what it holds. `lints` and
+`// wf-allow` cannot lower or accept the typing codes or the request codes
+that are errors, and `T20` — a list or a record shown as text — is an error
+now. A service described by an OpenAPI spec is best kept
 as files: `wf api add openapi.json` (see
 [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)).
 

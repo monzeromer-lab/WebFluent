@@ -14,19 +14,26 @@ paste it into a new project, or replace the starter's `src/pages/Home.wf`
 with it.
 
 ```wf
+/// What one tab tells the others.
+type CartNews { items: Number }
+
 store Cart {
     state count = 0
     action add() { count = count + 1 }
-    action merge(m: Map) { count = m.items }
+    action merge(m: CartNews) { count = m.items }
 }
 
 page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") {
     use Cart
-    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+    channel cart = broadcast("cart") {
+        send CartNews
+        receive CartNews
+        on message(m) { Cart.merge(m) }
+    }
 
     Heading("Shop").h1
     Text("{Cart.count} in the cart")
-    Button("Add to cart") { on click { Cart.add()  cart.post({ items: Cart.count }) } }
+    Button("Add to cart") { on click { Cart.add()  cart.post(CartNews(items: Cart.count)) } }
 }
 ```
 

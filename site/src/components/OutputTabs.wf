@@ -1,7 +1,7 @@
 /// What a build wrote, a tab per output; the same project as a PDF, built
 /// by the compiler's PDF build only when the tab asks for it; and what the
 /// compiler found, as `wf` prints it.
-component OutputTabs(html: String = "", css: String = "", js: String = "", findings: [Map] = [], pdfStage: String = "", pdfRun: Number = 0, pdf: String = "", pdfFindings: [Map] = [], pdfBusy: Bool = false) {
+component OutputTabs(html: String = "", css: String = "", js: String = "", findings: [BuildFinding] = [], pdfStage: String = "", pdfRun: Number = 0, pdf: String = "", pdfFindings: [BuildFinding] = [], pdfBusy: Bool = false) {
     event wantPdf()
     state tab = "html"
     derived shown = if tab == "css" { css } else if tab == "js" { js } else { html }

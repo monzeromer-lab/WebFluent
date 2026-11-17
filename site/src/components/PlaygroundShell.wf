@@ -10,18 +10,18 @@ component PlaygroundShell(examples: [Project] = PLAYGROUND_EXAMPLES, other: Stri
     state picked = examples[0]?.name ?? ""
     state stage = ""
     state run = 0
-    state result: Map? = null
+    state result: BuildResult? = null
     state pdfStage = ""
     state pdfRun = 0
-    state pdfResult: Map? = null
+    state pdfResult: BuildResult? = null
     state pdfBusy = false
     state shared = false
     derived file = files.find(f => f.name == current)
-    derived findings: [Map] = result?.findings ?? []
+    derived findings: [BuildFinding] = result?.findings ?? []
     derived fixable = findings.find(f => f.fixed != "" && f.file == current)
 
     action project() -> [String: String] {
-        let m = {}
+        let m: [String: String] = {}
         for f in files { m[f.name] = f.code }
         return m
     }
@@ -31,7 +31,7 @@ component PlaygroundShell(examples: [Project] = PLAYGROUND_EXAMPLES, other: Stri
         let m = project()
         wfBuild(WASM, stage, m, m["webfluent.app.json"] ?? "{}", (r) => heard(r))
     }
-    action heard(r: Map) {
+    action heard(r: BuildResult) {
         result = r
         if r.ok { run = run + 1 }
     }
@@ -41,7 +41,7 @@ component PlaygroundShell(examples: [Project] = PLAYGROUND_EXAMPLES, other: Stri
         let m = project()
         wfBuild(WASM, pdfStage, m, wfAsDocument(m["webfluent.app.json"] ?? "{}"), (r) => heardPdf(r), 0)
     }
-    action heardPdf(r: Map) {
+    action heardPdf(r: BuildResult) {
         pdfResult = r
         pdfBusy = false
         if r.ok { pdfRun = pdfRun + 1 }
@@ -68,16 +68,16 @@ component PlaygroundShell(examples: [Project] = PLAYGROUND_EXAMPLES, other: Stri
     action pick(key: String) {
         if let p = examples.find(x => x.name == key) { open(p) }
     }
-    action arrived(given: Map) {
-        let names = Object.keys(given).sort()
-        files = names.map(n => CodeFile(name: n, code: given[n], language: if n.endsWith(".json") { "json" } else { "wf" }))
+    action arrived(given: [String: String]) {
+        let names = given.keys().sort()
+        files = names.map(n => CodeFile(name: n, code: given[n] ?? "", language: if n.endsWith(".json") { "json" } else { "wf" }))
         name = "shared"
         picked = ""
         current = names.find(n => n.startsWith("src/pages/")) ?? names[0] ?? ""
         build()
     }
     action addFile(path: String) {
-        let stem = path.split("/").pop().replace(/\.(wf|wfx)$/, "")
+        let stem = (path.split("/").pop() ?? "").replace(/\.(wf|wfx)$/, "")
         let code = if path.endsWith(".json") { "{}\n" } else if path.endsWith(".wf") || path.endsWith(".wfx") { "component {stem}() {\n    Text(\"{stem}\")\n}\n" } else { "" }
         let language = if path.endsWith(".json") { "json" } else if path.endsWith(".css") { "css" } else { "wf" }
         files = files.concat([CodeFile(name: path, code: code, language: language)])

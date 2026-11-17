@@ -1,6 +1,6 @@
 /// The project's tests in the Playground: each by name, passed or failed,
 /// and Run.
-component TestPanel(tests: [Map] = []) {
+component TestPanel(tests: [TestOutcome] = []) {
     event run()
     derived passed = tests.filter(x => x.passed).length
 

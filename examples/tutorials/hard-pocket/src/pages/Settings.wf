@@ -27,17 +27,23 @@ page Settings(path: "/settings", title: "Settings", description: "Language, appe
     // One line of CSV back into an entry — a list of one, or of none when the
     // line is not an entry, so `flatMap` keeps only the lines that were.
     action parseLine(line: String) -> [Entry] {
-        let cells: [Any] = line.split(",")
+        let cells: [String] = line.split(",")
         if cells.length < 7 || !/^\d{4}-\d{2}-\d{2}$/.test(cells[1]) { return [] }
         let note = cells.slice(6).join(",").replace(/^"|"$/g, "").replaceAll(QUOTE + QUOTE, QUOTE)
-        return [Entry(
-                id: cells[0] ?? "",
-                date: cells[1] ?? "",
-                amount: ONE.times(Number(cells[4])),
-                kind: if cells[2] == "income" { .income } else { .expense },
-                category: cells[3] ?? "",
-                note: note,
-            )]
+        // A line is text: `decode` holds it to what an entry is — an id, a
+        // date — as the page runs, and a line that is not one is dropped.
+        let read = Entry.decode({
+            id: cells[0] ?? "",
+            date: cells[1] ?? "",
+            amount: ONE.times(Number(cells[4] ?? "")),
+            kind: if cells[2] == "income" { "income" } else { "expense" },
+            category: cells[3] ?? "",
+            note: note,
+        })
+        match read {
+            .ok(entry) { return [entry] }
+            .err(_) { return [] }
+        }
     }
 
     action importCsv(text: String) {

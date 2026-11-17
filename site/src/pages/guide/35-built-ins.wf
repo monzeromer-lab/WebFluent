@@ -558,7 +558,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ice`") }
-                    Table.Cell { Markdown("`[Map]`") }
+                    Table.Cell { Markdown("`[Json]`") }
                     Table.Cell("The servers that help readers on different networks connect; none by default")
                 }
             }

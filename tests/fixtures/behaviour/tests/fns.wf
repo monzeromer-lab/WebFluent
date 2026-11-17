@@ -3,7 +3,7 @@ test "a derived or state holding a function is called" {
     state pick = (x) => x + 1
     state out = 0
     derived scale = (x) => x * factor
-    action run(cb: Any) { let f = (y) => y * 100  out = cb(1) + f(1) }
+    action run(cb: (Number) -> Number) { let f = (y) => y * 100  out = cb(1) + f(1) }
     Text("s {scale(3)} p {pick(3)} o {out}")
     Button("Swap") { on click { pick = (x) => x * 10 } }
     Button("More") { on click { factor = factor + 1 } }

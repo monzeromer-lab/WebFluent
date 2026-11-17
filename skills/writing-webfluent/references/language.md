@@ -352,7 +352,7 @@ UserCard("Monzer", role: "Developer")
 UserCard("Sam", role: "Designer").active
 ```
 
-- Prop types: `String`, `Number`, `Bool`, `Map`, `Any`, `[T]` (a list), `T?`
+- Prop types: `String`, `Number`, `Bool`, `[T]` (a list), `T?`
   (may be null), `[K: V]` (a dictionary), `(A) -> R` (a function), `Json`,
   or a declared `type` or `enum`
 - `_ name: Type` — the one prop a call may pass positionally; it must be first
@@ -560,9 +560,9 @@ A record is built with named fields, `Todo(id: "1", title: "x")`, and one
 whose fields all have defaults with none, `Offers()` — a prop's default
 too, `offers: Offers = Offers()`; a case is written `.calm`. The type checker reads every declared type and infers the
 rest (literals, records, lists, the built-in methods of strings, numbers and
-lists, store members, lambdas). Anything unresolved is `Any`, which agrees
-with everything, so a program that declares no types checks as it always
-did; every annotation narrows what the checker can say. See
+lists, store members, lambdas). A value's type is always one the program
+can name: a signature says its types, a body's are inferred, and `Any` and
+`Map` are not types (`T23`, `T24`) — JSON whose shape is open is `Json`. See
 [Compiler diagnostics](#compiler-diagnostics) for what it reports.
 
 A record may extend another, and a case may carry a payload:
@@ -874,13 +874,15 @@ store Boot(eager: true) { … }         // built at boot, for set-up that must r
 ```
 
 ```wf
+type Product { name: String, price: Number }
+
 store CartStore {
-    state items: [Map] = []
+    state items: [Product] = []
     state total = 0
 
     derived count = items.length
 
-    action add(product: Map) {
+    action add(product: Product) {
         items = items.concat([product])
         total = total + product.price
     }
@@ -1683,7 +1685,8 @@ body, and keeps `http(error: HttpError)` for the rest (`N12` otherwise):
 ```wf
 type User { id: String, name: String }
 type NewUser { name: String }
-type ValidationProblem = Problem { errors: [Map] }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
 
 enum CreateUserError {
     unprocessableContent(problem: ValidationProblem) on 422
@@ -2110,7 +2113,7 @@ in the config, used from your own scripts:
 
 Each is linked `defer` in the order listed, before the project's scripts; a
 module is imported by a generated `externals.js` and its exports put on
-`window.<as>`; `globals` are names `.wf` may call directly, each `Any`, and a
+`window.<as>`; `globals` are names `.wf` may call directly, each taking and giving `Json`, and a
 class among them is constructed when called. `"async": true` loads one
 nothing waits for (analytics, a tag manager) with `<script async>`, so it
 never holds up the page's code; `"load": "after"` goes further and has no
@@ -2147,7 +2150,7 @@ or element — is gone; `wf migrate` rewrites it.
 `PriceTag` becomes `<price-tag>`; a one-word component is prefixed so its
 tag has the hyphen a custom element needs (`<wf-rating>`). The build writes
 `elements.js`, `styles.css` and a page listing the tags. An attribute is a
-prop — a `Number` read as a number, a `Map` or list as JSON, a `Bool` true
+prop — a `Number` read as a number, a record, a dictionary or a list as JSON, a `Bool` true
 when present and false when `="false"` — read again whenever it changes; an
 event the component declares is a bubbling `CustomEvent`; what the
 component made goes when the element leaves the document. React, Vue,
@@ -3788,6 +3791,8 @@ And what the type checker finds:
 | `T28` | A `Json` value read as if it were something else — `raw.name`, `raw[0]`, `raw + 1`, a method — rather than matched or decoded (`User.decode(raw)`) |
 | `T29` | A condition — `if`, `show`, `!`, `&&`, `\|\|` — on something that is not a `Bool` (a `Bool?` is one, its `null` false): `if count` is `count != 0`, `!name` is `name == ""`, `user \|\| x` is `user ?? x`; the fix writes the comparison |
 | `T30` | A browser global, or a member of an element, an event or a browser object, the language does not type — `navigator.bluetooth`, `e.kye`; reach it from a project script with JSDoc |
+| `T23` | `Any` written as a type, which 7.0 took out of the language; the fix writes `Json` |
+| `T24` | `Map` written as a type, which 7.0 took out of the language — a `type` with its fields, `[String: T]`, or `Json`; the fix writes `Json` |
 | `T25` | A `state` or `persist` whose first value does not say what it holds — `[]`, `{}`, `null`, open JSON; the fix writes the type the body assigns it |
 | `T31` | A project script's function called from `.wf` with no JSDoc, or a JSDoc type the language cannot say (a union, a bare `Array`); the fix writes JSDoc from the call |
 | `T32` | A parameter written with no type — an action's, an event's, a slot's — or a lambda's that nothing it is passed to types; the fix writes what every call passes |
@@ -3827,8 +3832,9 @@ And what the type checker finds:
 An endpoint a service does not have is `T06`, and an argument it does not
 take is `T10`.
 
-A value whose type the checker cannot work out is `Any`, which agrees with
-everything; a *name* nothing declares is `T13`. `T04` also covers an item at a
+There is no value of unknown type in a program that checks: `Any` and
+`Map` written as types are `T23` and `T24` (the fix writes `Json`), and a
+*name* nothing declares is `T13`. `T04` also covers an item at a
 fixed index (`todos[0]`, which is nothing when the list is empty, unless a
 condition like `todos.length > 0` encloses it) and a field that may be null
 read after a `?.` (`sel?.note.length`). A check for `null` narrows in the
@@ -3937,8 +3943,9 @@ until none is left — the request forms (`fetch` → `http.get`, `ready(v)` →
 `middleware [header(…)]`), what each `state` holds, each action returns and
 fails with, each parameter takes, a condition's comparison, a splice or a
 unit, `try` for a result's value, an error enum's `http` case — then lists
-what a person decides. `lints` and `// wf-allow` cannot lower an error, and
-`T20` is one.
+what a person decides. `Any` and `Map` are no longer types (`T23`, `T24`;
+the step writes `Json`). `lints` and `// wf-allow` cannot lower an error,
+and `T20` is one.
 
 `wf migrate [path] [--check] [--stdout]` does four things.
 
@@ -3960,7 +3967,7 @@ site's other tabs, and `WF.store`/`WF.host` were renamed.
 
 **WebFluent 4 → 4.2** runs first, since 4.2 refuses `external`: a remote
 module becomes a `meta.scripts` entry (`module: true, as:`, its integrity
-moved to `meta.integrity`; its calls keep working, typed `Any`), a local one
+moved to `meta.integrity`; its calls keep working, typed `Json`), a local one
 a plain script under `src/` with its `export`s off and its declared
 signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element`
 call `Element("tag", …)`. It lists every `.js` already under `src/`, which
@@ -4249,9 +4256,8 @@ out — and a `class:` from the data is escaped.
 <!-- core -->
 ## For agents
 
-What a model writing WebFluent for the first time needs before anything
-else: the grammar in a few lines, the idioms it will reach for, and the
-mistakes it is most likely to make. The rest of this file is the reference.
+The grammar, the idioms a model reaches for, and the mistakes it makes
+most; the rest of this file is the reference.
 
 ### The grammar in brief
 
@@ -4275,7 +4281,9 @@ mistakes it is most likely to make. The rest of this file is the reference.
 A list with an empty state:
 
 ```wf
-store Todos { state items: [Map] = [] }
+type Todo { id: String, title: String }
+
+store Todos { state items: [Todo] = [] }
 
 page List(path: "/todos", title: "Todos") {
     use Todos
@@ -4370,8 +4378,10 @@ page Keys(path: "/keys", title: "Keys") {
 A value worked out from a store:
 
 ```wf
+type Deploy { id: String, service: String, status: String }
+
 store Deploys {
-    state items: [Map] = []
+    state items: [Deploy] = []
     derived live = items.filter(d => d.status == "live").length
 }
 
@@ -4409,11 +4419,10 @@ component Banner(tone: Tone = .calm) {
 
 ### The mistakes made most
 
-- **T06, a member the store does not have.** `Cart.total` when the store
-  declares `sum`. Read the store, or ask for its members, before you
-  call one; never guess a name.
-- **C02, a prop the component does not declare.** Read the component's
-  entry in the registry before you pass it a prop you are not sure of.
+- **T06, a member the store does not have** (`Cart.total` for `sum`): read
+  the store before you call one; never guess a name.
+- **C02, a prop the component does not declare**: read its entry in the
+  registry first.
 - **X05, `use` of a store nothing declares**, and **T13, a name nothing
   declares**: a store or a value is named exactly as it is declared, with
   its capital.
@@ -4423,19 +4432,20 @@ component Banner(tone: Tone = .calm) {
 - **T17, an async result used before it is awaited**: an action that
   fetches is awaited where its result is read.
 
-When a diagnostic comes back, its code is in the reference's
-"Compiler diagnostics" and the guide's diagnostics chapter, with the fix.
+A diagnostic's code is in "Compiler diagnostics", with its fix.
 
 ### A page, whole
 
 ```wf
+type Deploy { id: String, service: String, status: String }
+
 store Deploys {
-    state items: [Map] = []
+    state items: [Deploy] = []
     state search = ""
     derived shown = items.filter(d => d.service.includes(search))
 
     action add(service: String) {
-        items = items.concat([{ id: service, service: service, status: "queued" }])
+        items = items.concat([Deploy(id: service, service: service, status: "queued")])
     }
 }
 

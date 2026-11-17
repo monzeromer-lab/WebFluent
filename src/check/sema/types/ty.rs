@@ -484,7 +484,7 @@ pub(super) fn disjoint(a: &Type, b: &Type) -> bool {
 }
 
 /// The plain types a program writes, beside its own and [`Scalar::ALL`].
-pub const PRIMITIVE_TYPES: &[&str] = &["String", "Number", "Bool", "Map", "Any"];
+pub const PRIMITIVE_TYPES: &[&str] = &["String", "Number", "Bool", "Json"];
 
 /// Why `given` does not fit `wanted` when the language would once have
 /// converted it: a date or a time where text is wanted — it has many

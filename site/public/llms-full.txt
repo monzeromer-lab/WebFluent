@@ -6049,7 +6049,7 @@ page Typed(path: "/", title: "Typed", description: "State with declared types.")
     state count: Number = 0
     state tags: [String] = []
     state picked: String? = null
-    state profile: Map = {}
+    state profile: [String: String] = {}
     action greet(who: String, times: Number) { log("hi {who} × {times}") }
     derived pick = picked ?? "none"
     Heading("Typed").h1
@@ -18837,19 +18837,26 @@ paste it into a new project, or replace the starter's `src/pages/Home.wf`
 with it.
 
 ```wf
+/// What one tab tells the others.
+type CartNews { items: Number }
+
 store Cart {
     state count = 0
     action add() { count = count + 1 }
-    action merge(m: Map) { count = m.items }
+    action merge(m: CartNews) { count = m.items }
 }
 
 page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") {
     use Cart
-    channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
+    channel cart = broadcast("cart") {
+        send CartNews
+        receive CartNews
+        on message(m) { Cart.merge(m) }
+    }
 
     Heading("Shop").h1
     Text("{Cart.count} in the cart")
-    Button("Add to cart") { on click { Cart.add()  cart.post({ items: Cart.count }) } }
+    Button("Add to cart") { on click { Cart.add()  cart.post(CartNews(items: Cart.count)) } }
 }
 ```
 
@@ -22366,10 +22373,12 @@ The operators, by kind:
 This page uses most of them:
 
 ```wf
+type Player { name: String }
+
 page Scores(path: "/scores", title: "Scores", description: "Two numbers compared.") {
     state home = 7
     state away = 2
-    state player: Map? = null
+    state player: Player? = null
     Heading("Scores").h1
     Text("{home + away} {home - away} {home * away} {home / away} {home % away}")
     Text(if home > away && away != 0 { "Home leads" } else { "Away leads" })
@@ -23550,7 +23559,7 @@ Signature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) { on 
 |---|---|---|
 | `signal` | a lambda, required | How what this side must tell the other reaches it |
 | `initiator` | `Bool` | Whether this side makes the offer; one side must |
-| `ice` | `[Map]` | The servers that help readers on different networks connect; none by default |
+| `ice` | `[Json]` | The servers that help readers on different networks connect; none by default |
 
 Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what
 the other side sent), `.state`, `.messages` and `.close()`. Where: only after
@@ -26299,6 +26308,8 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T15](/errors/T15) — A `match` that misses a case, or has one twice
 - [T22](/errors/T22) — A handler that names more values than its event sends
 - [T21](/errors/T21) — A read's `match` with no `.failed` arm
+- [T23](/errors/T23) — `Any` written as a type
+- [T24](/errors/T24) — `Map` written as a type
 - [T25](/errors/T25) — A state whose first value does not say what it holds
 - [T26](/errors/T26) — An action that returns a value and does not say what
 - [T27](/errors/T27) — Two values with no type in common

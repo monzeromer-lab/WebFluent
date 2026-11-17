@@ -140,12 +140,22 @@ fn read(text: &str, problems: &mut Vec<String>) -> Type {
             .filter(|f| !f.trim().is_empty())
             .map(|f| {
                 let f = f.trim();
+                // `stop(): void`, `set(text: string): void`: a method, read
+                // as the function it is.
                 if let Some(paren) = f.find('(')
+                    && paren > 0
                     && f[..paren]
                         .chars()
                         .all(|c| c.is_alphanumeric() || c == '_' || c == '$')
+                    && let Some(close) = close_of(&f[paren..])
                 {
-                    return (f[..paren].to_string(), Type::Any);
+                    let params = &f[paren + 1..paren + close - 1];
+                    let ret = f[paren + close..]
+                        .trim()
+                        .strip_prefix(':')
+                        .map_or("void", str::trim);
+                    let as_function = format!("({params}) => {ret}");
+                    return (f[..paren].to_string(), read(&as_function, problems));
                 }
                 let (name, optional, ty) = field(f, problems);
                 (name, if optional { Type::optional(ty) } else { ty })

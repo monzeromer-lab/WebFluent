@@ -740,7 +740,11 @@ pub fn check_sources_with<'s>(
                 for event in &c.events {
                     cx.current_span = event.span;
                     for p in &event.params {
-                        cx.written_param(&p.param_type, &format!("{}({})", event.name, p.name));
+                        cx.written_param(
+                            &p.param_type,
+                            &format!("{}({})", event.name, p.name),
+                            p.untyped,
+                        );
                         if p.untyped {
                             cx.error_at_current(
                                 "T32",
@@ -759,7 +763,7 @@ pub fn check_sources_with<'s>(
                 cx.current_span = c.header_span;
                 for slot in &c.slots {
                     for p in &slot.params {
-                        cx.written_param(&p.param_type, &p.name);
+                        cx.written_param(&p.param_type, &p.name, p.untyped);
                         if p.untyped {
                             cx.error_at_current(
                                 "T32",
@@ -847,7 +851,9 @@ pub fn check_sources_with<'s>(
                     }
                     cx.endpoint_form(a, endpoint);
                     for p in &endpoint.params {
-                        cx.written_param(&p.prop_type, &format!("{what}({})", p.name));
+                        cx.at_boundary = true;
+                        cx.written_param(&p.prop_type, &format!("{what}({})", p.name), false);
+                        cx.at_boundary = false;
                     }
                     for t in endpoint
                         .returns
@@ -964,6 +970,11 @@ struct Checker<'a, 'p> {
     /// declares nothing it returns: said once, at the action, with the
     /// `-> ! E` that says so.
     untyped_tries: Vec<Vec<Type>>,
+    /// Where a service meets the program, whose `N11` says what `T23` and
+    /// `T24` would.
+    at_boundary: bool,
+    /// What an `if` value read next is wanted as, for its arms.
+    if_wanted: Option<Type>,
     /// The span of the statement or argument being checked: where an
     /// expression's error lands, since expressions carry no span.
     current_span: Span,
@@ -1044,6 +1055,8 @@ impl<'a, 'p> Checker<'a, 'p> {
             returns: Vec::new(),
             declared_returns: Vec::new(),
             untyped_tries: Vec::new(),
+            at_boundary: false,
+            if_wanted: None,
             current_span: Span::dummy(),
             in_args: false,
             async_ok: false,
@@ -1436,7 +1449,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.read_options(r);
                     let inner = match &r.ty {
                         Some(t) => {
+                            self.at_boundary = true;
                             self.written(t, &r.name);
+                            self.at_boundary = false;
                             self.world.resolve(Type::from_ref(t))
                         }
                         // An endpoint says what it returns, so a resource
@@ -1552,7 +1567,11 @@ impl<'a, 'p> Checker<'a, 'p> {
             if let StatementKind::Action(a) = &stmt.kind {
                 self.own_actions.insert(a.name.clone(), &a.body);
                 for (index, p) in a.params.iter().enumerate() {
-                    self.written_param(&p.param_type, &format!("{}({})", a.name, p.name));
+                    self.written_param(
+                        &p.param_type,
+                        &format!("{}({})", a.name, p.name),
+                        p.untyped,
+                    );
                     if p.untyped {
                         self.info.untyped_params.push(signature::UntypedParam {
                             decl: self.decl,

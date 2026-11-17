@@ -317,7 +317,7 @@ The rules:
 - **The JSDoc is the type.**
   - `@param {string}` is `String` and `@returns {Promise<string>}` is what
     `await` gives. `?string` is `String?`.
-  - A wrapper with no JSDoc is `Any` and checks nothing. Write the comment.
+  - A wrapper with no JSDoc is `T31`: write the comment, which is its signature.
 - **Names.** A Rust command is `area_verb` in snake case (`notes_save`), and
   its wrapper is camelCase (`saveNote`).
 - **Plugins too.** A plugin's command goes through the same wrapper:

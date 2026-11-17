@@ -311,7 +311,8 @@ page P(path: "/") { Loop(n: 0) }"#;
 
 #[test]
 fn a_component_that_places_itself_as_deep_as_its_data_draws() {
-    let src = r#"component Node(item: Map) {
+    let src = r#"type Tree { name: String, children: [Tree] }
+component Node(item: Tree) {
     Stack {
         Text(item.name)
         for c in item.children { Node(item: c) }

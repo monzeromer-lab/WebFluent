@@ -2,7 +2,53 @@
 // number on a slide is worked out from review.json when the deck is built;
 // the four incident slides are one component, placed by a `for`.
 
-data review = "review.json"
+data review: Review = "review.json"
+
+/// The quarter, as review.json records it.
+type Review {
+    regions: [Region]
+    weeks: [Week]
+    deploys: [Deploy]
+    incidents: [Incident]
+    causes: [CauseCount]
+}
+
+/// One edge region: its traffic, its speed and its health.
+type Region {
+    code: String
+    city: String
+    p95: Number
+    requests: Number
+    errors: Number
+    status: String
+    uptime: Number
+}
+
+/// One week's latency (ms) and requests (billions).
+type Week {
+    week: String
+    p50: Number
+    p95: Number
+    p99: Number
+    requests: Number
+}
+
+/// One deployment.
+type Deploy {
+    hash: String
+    message: String
+    branch: String
+    author: String
+    duration: String
+    status: String
+    date: String
+}
+
+/// How many incidents a cause made, all year.
+type CauseCount {
+    cause: String
+    count: Number
+}
 
 const QUARTER = "Q3 2026"
 const TOTAL = 16
@@ -46,8 +92,19 @@ component Status(_ status: String) {
     }
 }
 
+/// One incident of the quarter, as review.json records it.
+type Incident {
+    id: String
+    severity: String
+    title: String
+    start: String
+    duration: String
+    summary: String
+    cause: String
+}
+
 /// One incident, a slide of its own.
-component IncidentSlide(_ inc: Map, n: Number) {
+component IncidentSlide(_ inc: Incident, n: Number) {
     Slide {
         Stack(class: ["stripe", "stripe-{inc.severity}"]) { }
         Head(inc.title, over: "{inc.id} · {inc.start}")

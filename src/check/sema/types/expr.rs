@@ -425,7 +425,15 @@ impl Checker<'_, '_> {
             Expr::BinaryOp(l, op, r) => {
                 // A case on one side is read against the other side's enum:
                 // `tone == .quiet` asks the `Tone` enum about `.quiet`.
-                let lt = self.infer(l, None);
+                // `a ?? b`: what is wanted of the whole is wanted of each
+                // side, and `b` stands in for `a` — so `result?.items ?? []`
+                // is a list of what `items` holds.
+                let side_wanted = if matches!(op, BinOp::NullCoalesce) {
+                    expected
+                } else {
+                    None
+                };
+                let lt = self.infer(l, side_wanted);
                 let rt = match (op, lt.unwrapped()) {
                     (BinOp::Eq | BinOp::Neq, Type::Enum(_)) if matches!(**r, Expr::EnumCase(_)) => {
                         Type::Case(match &**r {
@@ -433,7 +441,18 @@ impl Checker<'_, '_> {
                             _ => unreachable!(),
                         })
                     }
-                    _ => self.infer(r, None),
+                    // An empty list or map, or a bare case, says nothing of its
+                    // own: it is what the left side is.
+                    (BinOp::NullCoalesce, left)
+                        if side_wanted.is_none()
+                            && !left.is_any()
+                            && matches!(&**r, Expr::ListLiteral(i) if i.is_empty())
+                                | matches!(&**r, Expr::MapLiteral(i) if i.is_empty())
+                                | matches!(&**r, Expr::EnumCase(_)) =>
+                    {
+                        self.infer(r, Some(&left))
+                    }
+                    _ => self.infer(r, side_wanted),
                 };
                 match op {
                     BinOp::Add => {
@@ -502,6 +521,14 @@ impl Checker<'_, '_> {
             }
             Expr::MethodCall(obj, method, args) if in_optional_chain(obj) => {
                 Type::optional(self.method_call_on(obj, method, args, true))
+            }
+            // `if c { .open } else { .all }` where a `Filter` is wanted: each
+            // arm is read as one, so two cases join to the enum.
+            Expr::MethodCall(obj, method, args) if method == "__if" || method == "__iflet" => {
+                let was = std::mem::replace(&mut self.if_wanted, expected.cloned());
+                let ty = self.method_call(obj, method, args);
+                self.if_wanted = was;
+                ty
             }
             Expr::MethodCall(obj, method, args) => self.method_call(obj, method, args),
             // `Offers()`: a record whose fields all have defaults, built

@@ -1550,7 +1550,7 @@ fn unresolvable_lists_still_defer_to_the_client() {
     .unwrap();
     std::fs::write(
         root.join("src/pages/Home.wf"),
-        "page Home(path: \"/\", title: \"D\") {\n  state rows: [Map] = []\n  action loadRows(r: [Map]) -> [Map] { return r }\n  Container {\n    Heading(\"D\").h1\n    for row in loadRows(rows) { Text(row.name) }\n  }\n}\n",
+        "type Row { name: String }\npage Home(path: \"/\", title: \"D\") {\n  state rows: [Row] = []\n  action loadRows(r: [Row]) -> [Row] { return r }\n  Container {\n    Heading(\"D\").h1\n    for row in loadRows(rows) { Text(row.name) }\n  }\n}\n",
     )
     .unwrap();
 

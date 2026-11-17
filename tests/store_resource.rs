@@ -37,7 +37,7 @@ store Feed {
     derived loaded = rows.isLoaded
     action next() { page = page + 1 }
     action again() { rows.reload() }
-    action peek(rows: Map) { page = rows.data }
+    action peek(rows: [String: Number]) { page = rows.data ?? 1 }
 }
 page P(path: \"/\", title: \"T\") {
     Heading(\"Feed\").h1
@@ -82,7 +82,7 @@ fn a_store_makes_its_resource_and_reads_it_in_its_own_terms() {
 fn a_parameter_named_like_the_resource_is_the_parameter() {
     let js = spa_generated(FEED);
     assert!(
-        js.contains("store.page = rows.data;"),
+        js.contains("store.page = (rows.data ?? 1);"),
         "`peek(rows)`'s `rows` is its argument: {js}"
     );
 }

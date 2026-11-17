@@ -103,13 +103,15 @@ Don't silence a finding by deleting what it's about. Fix it, or say why not.
 - Commas separate arguments. New lines separate statements.
 
 ```wf
+type Deploy { id: String, service: String, status: String }
+
 store Deploys {
-    state items: [Map] = []
+    state items: [Deploy] = []
     state search = ""
     derived shown = items.filter(d => d.service.includes(search))
 
     action add(service: String) {
-        items = items.concat([{ id: service, service: service, status: "queued" }])
+        items = items.concat([Deploy(id: service, service: service, status: "queued")])
     }
 }
 
@@ -191,8 +193,9 @@ The full version, with the review checklist, is
 [references/code-quality.md](references/code-quality.md).
 
 - **Types first.** A `type` for every record and an `enum` for every closed
-  set of words. Use `Money`, `Date`, `Uuid` and `Email` over strings, and
-  avoid `Map` and `Any` once you know the shape.
+  set of words. Use `Money`, `Date`, `Uuid` and `Email` over strings, a
+  dictionary `[String: T]` for keys you do not know, and `Json` only for
+  JSON whose shape is open (`Any` and `Map` are not types).
 - **Variants are enum props.** A component writes them on its root as
   `data-<prop>`, so CSS styles each case and the component holds no colour
   logic.

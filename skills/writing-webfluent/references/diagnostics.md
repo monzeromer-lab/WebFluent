@@ -15,7 +15,7 @@ Read the message: it names what's wrong and, usually, the nearest right
 thing ("did you mean `.center`?", "its fields are `id`, `name`"). Fix the
 cause, never the symptom.
 - **Don't delete what a finding is about** to make it go away.
-- **Don't cast to `Any`** to get past a type error.
+- **Don't reach for `Json`** to get past a type error: name the type.
 - **Accepting one finding.** If a finding is understood and must stay,
   write `// wf-allow(CODE)` on the line, with a comment saying why. Only what
   `lints` could lower may be allowed, and an allow that covers nothing is

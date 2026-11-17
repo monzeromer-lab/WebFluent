@@ -1,9 +1,6 @@
-//! `wf types --holes` over the docs site and every example: how many
-//! places of each kind leave a value's type unknown. The count is the
-//! measure of how much of the language is not yet typed; a change that
-//! moves it shows here first, project by project.
-//!
-//!     UPDATE_GOLDEN=1 cargo test --test it -- holes::
+//! `wf types --holes` over the docs site and every example: in 7.0 a
+//! program that checks has no place a value's type is unknown, and these
+//! are held to it — a hole that comes back fails here, by place.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -33,10 +30,9 @@ fn projects(root: &Path) -> Vec<PathBuf> {
 }
 
 #[test]
-fn the_places_a_type_is_unknown_are_counted() {
+fn the_site_and_every_example_have_no_place_a_type_is_unknown() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let mut counts: BTreeMap<String, BTreeMap<&str, usize>> = BTreeMap::new();
-    let mut total: BTreeMap<&str, usize> = BTreeMap::new();
+    let mut found: BTreeMap<String, Vec<String>> = BTreeMap::new();
     for project in projects(root) {
         let holes = holes_of(&project).unwrap_or_else(|e| panic!("{}: {e}", project.display()));
         let name = project
@@ -44,31 +40,30 @@ fn the_places_a_type_is_unknown_are_counted() {
             .expect("under the repository")
             .to_string_lossy()
             .replace('\\', "/");
-        let mut kinds = BTreeMap::new();
-        for kind in HoleKind::ALL {
-            let n = holes.iter().filter(|h| h.kind == kind).count();
-            if n > 0 {
-                kinds.insert(kind.name(), n);
-                *total.entry(kind.name()).or_default() += n;
-            }
+        if !holes.is_empty() {
+            found.insert(
+                name,
+                holes
+                    .iter()
+                    .map(|h| {
+                        format!(
+                            "{}:{}:{} {} {}",
+                            h.file,
+                            h.line,
+                            h.column,
+                            h.kind.name(),
+                            h.what
+                        )
+                    })
+                    .collect(),
+            );
         }
-        counts.insert(name, kinds);
     }
-    let mut actual = serde_json::to_string_pretty(&serde_json::json!({
-        "total": total,
-        "projects": counts,
-    }))
-    .expect("serialises");
-    actual.push('\n');
-    let path = root.join("tests/holes.json");
-    if std::env::var_os("UPDATE_GOLDEN").is_some() {
-        std::fs::write(&path, &actual).expect("writes the snapshot");
-        return;
-    }
-    let expected = std::fs::read_to_string(&path).unwrap_or_default();
     assert!(
-        expected == actual,
-        "the count of places a type is unknown changed:\n{actual}\nIf the change is meant, run \
-         `UPDATE_GOLDEN=1 cargo test --test it -- holes::` and commit tests/holes.json"
+        found.is_empty(),
+        "7.0 has no place a type is unknown, and these have some — give each the type it holds:\n{found:#?}"
     );
+    // Every kind is still one the checker can name, so a hole that comes
+    // back is said in words.
+    assert!(HoleKind::ALL.iter().all(|k| !k.name().is_empty()));
 }

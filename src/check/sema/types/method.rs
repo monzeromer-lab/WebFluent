@@ -36,12 +36,16 @@ impl Checker<'_, '_> {
             let value_ty = self.infer(obj, None);
             self.push_scope();
             self.narrow(name, value_ty.unwrapped());
+            let wanted = self.if_wanted.take();
             let was = std::mem::replace(&mut self.in_chain, false);
-            let then_ty = self.infer(then_expr, None);
+            let then_ty = self.infer(then_expr, wanted.as_ref());
             self.pop_scope();
             self.in_chain = match_arm(&args[1]).is_some();
-            let else_ty = self.infer(&args[1], None);
+            let else_ty = self.infer(&args[1], wanted.as_ref());
             self.in_chain = was;
+            if let Some(t) = cases_of(&then_ty, &else_ty, wanted.as_ref()) {
+                return t;
+            }
             return self.join_at(then_ty, else_ty, &|| {
                 format!("if let {name} = {} {{ … }}", expr_text(obj))
             });
@@ -134,12 +138,16 @@ impl Checker<'_, '_> {
                     self.narrow(&name, *inner);
                 }
             }
+            let wanted = self.if_wanted.take();
             let was = std::mem::replace(&mut self.in_chain, false);
-            let then_ty = self.infer(&args[0], None);
+            let then_ty = self.infer(&args[0], wanted.as_ref());
             self.pop_scope();
             self.in_chain = match_arm(&args[1]).is_some();
-            let else_ty = self.infer(&args[1], None);
+            let else_ty = self.infer(&args[1], wanted.as_ref());
             self.in_chain = was;
+            if let Some(t) = cases_of(&then_ty, &else_ty, wanted.as_ref()) {
+                return t;
+            }
             return self.join_at(then_ty, else_ty, &|| {
                 format!("if {} {{ … }}", expr_text(obj))
             });
@@ -646,9 +654,11 @@ impl Checker<'_, '_> {
                         self.infer_arg(args, 0, Some(&lambda(Type::Any)));
                         Type::list(item)
                     }
+                    // A dictionary from each key the function gives to the
+                    // items that gave it.
                     "groupBy" => {
                         self.infer_arg(args, 0, Some(&lambda(Type::Any)));
-                        Type::Map
+                        Type::Dict(Box::new(Type::String), Box::new(Type::list(item)))
                     }
                     "unique" | "take" => {
                         for (i, _) in args.iter().enumerate() {
@@ -657,6 +667,23 @@ impl Checker<'_, '_> {
                         Type::list(item)
                     }
                     "first" | "last" => Type::optional(item),
+                    // What comes off an end: nothing when the list is empty.
+                    "pop" | "shift" => Type::optional(item),
+                    "at" => {
+                        self.infer_arg(args, 0, Some(&Type::Number));
+                        Type::optional(item)
+                    }
+                    "lastIndexOf" => {
+                        self.infer_arg(args, 0, Some(&item));
+                        Type::Number
+                    }
+                    "unshift" => {
+                        for (i, _) in args.iter().enumerate() {
+                            self.infer_arg(args, i, Some(&item));
+                        }
+                        Type::Number
+                    }
+                    "toReversed" => Type::list(item),
                     "flatMap" => {
                         let f = self.infer_arg(args, 0, Some(&lambda(Type::Any)));
                         match f {
@@ -925,4 +952,16 @@ impl Checker<'_, '_> {
             }
         }
     }
+}
+
+/// Two arms that are each a case of the enum wanted — or that enum — are
+/// that enum: `if c { .open } else { .all }` where a `Filter` is wanted.
+fn cases_of(a: &Type, b: &Type, wanted: Option<&Type>) -> Option<Type> {
+    let wanted = wanted?;
+    let target = wanted.unwrapped();
+    if !matches!(target, Type::Enum(_)) {
+        return None;
+    }
+    let fits = |t: &Type| matches!(t.unwrapped(), Type::Case(_)) || t.unwrapped() == target;
+    (fits(a) && fits(b)).then(|| target.clone())
 }

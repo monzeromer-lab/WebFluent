@@ -76,7 +76,7 @@ page Typed(path: "/", title: "Typed", description: "State with declared types.")
     state count: Number = 0
     state tags: [String] = []
     state picked: String? = null
-    state profile: Map = {}
+    state profile: [String: String] = {}
     action greet(who: String, times: Number) { log("hi {who} × {times}") }
     derived pick = picked ?? "none"
     Heading("Typed").h1

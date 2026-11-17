@@ -374,9 +374,11 @@ impl Checker<'_, '_> {
         match ty {
             TypeRef::Any => {
                 self.hole(HoleKind::WrittenAny, what);
+                self.gone("T23", "Any", what);
             }
             TypeRef::Map => {
                 self.hole(HoleKind::WrittenMap, what);
+                self.gone("T24", "Map", what);
             }
             TypeRef::List(inner) | TypeRef::Optional(inner) | TypeRef::Refined(inner, _) => {
                 self.written(inner, what);
@@ -407,12 +409,44 @@ impl Checker<'_, '_> {
 
     /// A parameter's type: none written is a hole of its own; `Map` or
     /// `Any` inside one that is written are the written kinds.
-    pub(super) fn written_param(&mut self, ty: &TypeRef, what: &str) {
-        if matches!(ty, TypeRef::Any) {
+    pub(super) fn written_param(&mut self, ty: &TypeRef, what: &str, untyped: bool) {
+        if untyped {
             self.hole(HoleKind::UntypedParameter, what);
         } else {
             self.written(ty, what);
         }
+    }
+
+    /// `T23`, `T24`: `Any` or `Map` written as a type, which 7.0 took out of
+    /// the language — said where it is written, with `Json` as the fix. Where
+    /// a service meets the program `N11` says it, so it is said once.
+    fn gone(&mut self, code: &'static str, word: &str, what: &str) {
+        if self.at_boundary {
+            return;
+        }
+        let (message, hint) = if word == "Map" {
+            (
+                format!(
+                    "`{what}` is written `Map`, which 7.0 took out of the language: it says nothing of the keys or what they hold"
+                ),
+                "Write a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open",
+            )
+        } else {
+            (
+                format!(
+                    "`{what}` is written `Any`, which 7.0 took out of the language: every value has a type the program can name"
+                ),
+                "Write the type it holds, or `Json` for JSON whose shape is open",
+            )
+        };
+        self.error(self.current_span, code, message, hint);
+        self.plan_last(
+            "Write `Json`".to_string(),
+            crate::diagnostics::fixes::Plan::Rename {
+                from: word.to_string(),
+                to: "Json".to_string(),
+            },
+        );
     }
 
     /// Whether a value of `given` reaches `wanted` only by a loose rule,

@@ -178,10 +178,12 @@ The operators, by kind:
 This page uses most of them:
 
 ```wf
+type Player { name: String }
+
 page Scores(path: "/scores", title: "Scores", description: "Two numbers compared.") {
     state home = 7
     state away = 2
-    state player: Map? = null
+    state player: Player? = null
     Heading("Scores").h1
     Text("{home + away} {home - away} {home * away} {home / away} {home % away}")
     Text(if home > away && away != 0 { "Home leads" } else { "Away leads" })

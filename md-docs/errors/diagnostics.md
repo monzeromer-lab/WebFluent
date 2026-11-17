@@ -258,6 +258,8 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [T15](T15.md) — A `match` that misses a case, or has one twice
 - [T22](T22.md) — A handler that names more values than its event sends
 - [T21](T21.md) — A read's `match` with no `.failed` arm
+- [T23](T23.md) — `Any` written as a type
+- [T24](T24.md) — `Map` written as a type
 - [T25](T25.md) — A state whose first value does not say what it holds
 - [T26](T26.md) — An action that returns a value and does not say what
 - [T27](T27.md) — Two values with no type in common
