@@ -18,7 +18,7 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
 
         Markdown("This is the output for the project `wf init -t spa` makes, measured with 7.0.0 and trimmed (the exact numbers move a little from release to release):")
 
-        CodeBlock(#"  What it weighs
+        DocsCodeBlock(#"  What it weighs
     app.js                               69.0 kB  (22.8 kB gzipped)
     styles.css                           30.7 kB  (5.8 kB gzipped)
     pages/Settings.js                     9.0 kB  (2.2 kB gzipped)
@@ -50,7 +50,7 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
 
         Markdown("To be warned when a file grows past a size, name its gzipped limit in `build.budget`:")
 
-        CodeBlock(#"{ "build": { "budget": { "app.js": "40 kB", "styles.css": "30 kB", "pages/Home.js": "10 kB" } } }"#, title: "json")
+        DocsCodeBlock(#"{ "build": { "budget": { "app.js": "40 kB", "styles.css": "30 kB", "pages/Home.js": "10 kB" } } }"#, title: "json")
 
         Markdown("Any output may have a budget, including a page's chunk and one of your own scripts under `js/`. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.")
 

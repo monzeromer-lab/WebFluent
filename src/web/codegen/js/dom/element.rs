@@ -435,10 +435,14 @@ impl JsCodegen {
         // Emit children
         {
             let was_in_thead = self.in_thead;
+            let was_in_text = self.in_text;
             if name == "Thead" {
                 self.in_thead = true;
             } else if name == "Tbody" {
                 self.in_thead = false;
+            }
+            if name == "Text" {
+                self.in_text = true;
             }
             for child in &ui.children {
                 if slot_in_select
@@ -450,6 +454,7 @@ impl JsCodegen {
                 self.emit_statement_dom(child, var);
             }
             self.in_thead = was_in_thead;
+            self.in_text = was_in_text;
         }
 
         // A `Navbar.Links` group collapses behind a toggle on a narrow
@@ -627,6 +632,16 @@ impl JsCodegen {
         for arg in &ui.args {
             if let Arg::Named(k, v) = arg {
                 if matches!(k.as_str(), "to" | "active") {
+                    continue;
+                }
+                // `Card.Body(ref: panel)`: the handle takes the part, as it
+                // takes any element. It was skipped with the other special
+                // props, so `panel` stayed empty and a `Portal(into: panel)`
+                // drew nothing.
+                if k == "ref" {
+                    if let Expr::Identifier(handle) = v {
+                        attrs.push(format!("ref: {}", bare(handle)));
+                    }
                     continue;
                 }
                 // What the shared tail below draws — a lifetime, a drag,
@@ -1249,6 +1264,8 @@ impl JsCodegen {
         // reach the tag; a class cannot express it.
         let tag = if name == "Tcell" && self.in_thead {
             "th"
+        } else if name == "Text" && self.in_text {
+            "span"
         } else if name == "Host" {
             // The library asked for a canvas, or a div by default.
             crate::project::builtin::host_tag(ui.args.iter().find_map(|a| match a {

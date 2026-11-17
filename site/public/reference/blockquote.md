@@ -10,6 +10,15 @@ Quotation: the text, or its block as the quoted content.
 Blockquote(_ content: String or Number or Bool) { … }
 ```
 
+## Example
+
+```wf
+Blockquote {
+    Text("We moved the whole docs site over in a weekend, and the compiler caught every broken link.").italic
+    Text("Ada Lovelace, platform team").muted.sm
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,12 +30,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Blockquote { Text("Make it work, make it right, make it fast.") }
-```
 
 ## What it can raise
 

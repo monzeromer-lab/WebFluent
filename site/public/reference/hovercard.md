@@ -10,6 +10,25 @@ A preview card at a link or a button: shown after delay: ms of hover, at once on
 HoverCard(delay: Number) { … }
 ```
 
+## Example
+
+```wf
+Text("Reviewed by") {
+    HoverCard(delay: 300) {
+        Link("@ada", to: "/showcase")
+        HoverCard.Content {
+            Row(gap: .sm, align: .center) {
+                Avatar(initials: "AL").primary
+                Stack(gap: .xs) {
+                    Text("Ada Lovelace").bold
+                    Text("Wrote the first program.").muted.sm
+                }
+            }
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,18 +43,14 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `HoverCard.HoverCard.Content`
+Written under its name, inside `HoverCard`.
 
-## Example
+### HoverCard.Content
+
+What the card shows. The rest of the block is what it is at.
 
 ```wf
-HoverCard(delay: 300) {
-    Link("@ada", to: "/")
-    HoverCard.Content {
-        Text("Ada Lovelace").bold
-        Text("Wrote the first program.").muted
-    }
-}
+HoverCard.Content { … }
 ```
 
 ## What it can raise

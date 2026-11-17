@@ -28,7 +28,7 @@ page Products(path: "/products", title: "Products", description: "Everything we 
 }
 "# }) {
         code {
-            CodeBlock(#"const PRODUCTS = [
+            DocsCodeBlock(#"const PRODUCTS = [
     { name: "Kettle", price: 39 },
     { name: "Apron", price: 18 },
     { name: "Mug", price: 9 },

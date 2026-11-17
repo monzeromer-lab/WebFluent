@@ -10,6 +10,17 @@ Inline notice; a danger or warning one is announced as an alert.
 Alert(_ message: String, tone: Enum) { … }
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    Alert("Your changes were saved.").success
+    Alert("Your trial ends in 3 days.").warning
+    Alert("The server is not answering. We will try again in a minute.").danger
+    Alert("A new version of the editor is available.").info
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,13 +37,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Alert("Your changes were saved.").success
-Alert("The server is not answering.").danger
-```
 
 ## What it can raise
 

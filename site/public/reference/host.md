@@ -10,6 +10,19 @@ A bare node handed to somebody else's code, with a lifetime. mount: runs with th
 Host(tag: String)
 ```
 
+## Example
+
+```wf
+state level = 40
+Slider(bind: level, min: 0, max: 100, label: "Level")
+Host(tag: "canvas", aria-label: "A bar at {level}%",
+     mount: (node) => node.getBoundingClientRect(),
+     update: (box) => console.log("redraw at {level}% across {box.width}px"),
+     cleanup: (box) => console.log("canvas gone")) {
+    style { width: 100%; height: 120px; border: 1px dashed $color-border }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -17,12 +30,6 @@ Host(tag: String)
 | `tag:` | `String` | The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Host(tag: "canvas", aria-label: "Chart", mount: (node) => node.getBoundingClientRect(), cleanup: (box) => log("gone"))
-```
 
 ## What it can raise
 

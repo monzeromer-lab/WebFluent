@@ -8,7 +8,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
 
         Markdown("Every finding is printed in the same layout. This one reports a misspelt field:")
 
-        CodeBlock(#"error[T05]: `User` has no field `nmae`
+        DocsCodeBlock(#"error[T05]: `User` has no field `nmae`
  --> src/pages/Profile.wf:3:18
   |
 3 |     Heading(user.nmae).h1
@@ -57,7 +57,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
 
         Markdown("`lints` in `webfluent.app.json` sets what a finding counts as for the whole project, by code or by family — `\"off\"`, `\"warn\"` or `\"error\"`. A code's setting wins over its family's:")
 
-        CodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
+        DocsCodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
 
         Markdown("You can turn any warning off or raise it to an error. You can lower an error only when it cannot ship a broken page: `R01`, `C02`, `S04`, `I01`, `I02` and `I04`. Lowering any other error is refused ([Configuration](/reference/config#lints)).")
 

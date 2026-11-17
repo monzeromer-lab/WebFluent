@@ -247,8 +247,10 @@ impl Checker<'_, '_> {
                     // `await ask(…)`: the answer, yes or no.
                     "ask" => Type::Bool,
                     // What returns nothing.
+                    // `toast(…)` shows a message: what a page writes is the
+                    // call, never its handle.
                     "log" | "navigate" | "setLocale" | "beacon" | "replayAnimation"
-                    | "optimistic" | "announce" => Type::Null,
+                    | "optimistic" | "announce" | "toast" => Type::Null,
                     // The allow-listed markup.
                     "sanitize" => Type::String,
                     _ if unresolved => Type::Error,

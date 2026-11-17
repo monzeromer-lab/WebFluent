@@ -10,6 +10,21 @@ Words for a screen reader only: Link(…) { Text("Docs")  VisuallyHidden("(opens
 VisuallyHidden(_ text: String) { … }
 ```
 
+## Example
+
+```wf
+Row(gap: .md, align: .center) {
+    Link(to: "/reference") {
+        Text("Read more")
+        VisuallyHidden("about the reference")
+    }
+    Row {
+        Text("★★★★☆", aria-hidden: "true")
+        VisuallyHidden("Rated 4 out of 5")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,12 +36,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Link(to: "/docs") { Text("Docs")  VisuallyHidden("(the reference)") }
-```
 
 ## What it can raise
 

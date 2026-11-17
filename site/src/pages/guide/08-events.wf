@@ -8,7 +8,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("A handler is written inside an element's block: `on <event> \{ … \}`, or `on <event>(name) \{ … \}` when the body reads the event object. This page counts clicks and logs what happens in a text field:")
 
-        CodeBlock(#"page Clicks(path: "/", title: "Clicks", description: "Handlers on a button and a field.") {
+        DocsCodeBlock(#"page Clicks(path: "/", title: "Clicks", description: "Handlers on a button and a field.") {
     state n = 0
     state last = ""
     Heading("Clicks").h1
@@ -24,7 +24,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("A handler may name any DOM event. The common ones are `click`, `input`, `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and `mouseleave`. The rest — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `animationend`, `ended` and the others — work the same way. The [components reference](/reference#on-every-element) lists every one. On a call of your own component, the events it declares ([Components](/learn/10-components#events)) join them.\n\nA handler's body is an imperative block, so it may assign state, call actions, `await` and `navigate`.")
 
-        Callout("**Coming from React or Svelte?** A handler is not a prop: there is no `onClick=\{…\}` and no `on:click=\{…\}`. Write `on click \{ … \}` inside the element's block. `onclick:` as an argument is an inline handler, and the compiler refuses it (`E106`). See [Coming from React](/coming-from/react#the-map).", kind: .note)
+        DocsCallout("**Coming from React or Svelte?** A handler is not a prop: there is no `onClick=\{…\}` and no `on:click=\{…\}`. Write `on click \{ … \}` inside the element's block. `onclick:` as an argument is an inline handler, and the compiler refuses it (`E106`). See [Coming from React](/coming-from/react#the-map).", kind: .note)
 
         Markdown("A handler on a component call — `UserCard(\"Sam\") \{ on click \{ … \} \}` — attaches to the component's root element, so a styled button component is clickable wherever it is used.")
 
@@ -32,7 +32,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("To read the event, name a parameter: `on keydown(e) \{ … \}`. It is the browser's own event object, typed by the event: `on keydown(e)` is a `KeyboardEvent` (`e.key`, `e.shiftKey`), `on click(e)` a `MouseEvent` (`e.clientX`), and `e.target` an `Element` (`e.target.value`), with `e.preventDefault()` and `e.stopPropagation()` on every one. A member the event does not have, `e.kye`, is `T30`, with the nearest name.\n\nWithout a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.\n\nA DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).\n\nThis drop zone uses the event object twice — to allow the drop, and to read the dropped files:")
 
-        CodeBlock(#"page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
+        DocsCodeBlock(#"page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
     state names: [String] = []
     Heading("Drop files here").h1
     Card {
@@ -49,7 +49,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("An event can come far more often than its handler needs to run: a key per letter, a scroll per pixel. Say how often in the handler's parentheses:")
 
-        CodeBlock(#"page Reader(path: "/", title: "Reader", description: "A search box and a long page.") {
+        DocsCodeBlock(#"page Reader(path: "/", title: "Reader", description: "A search box and a long page.") {
     state typed = ""
     state q = ""
     state read = 0
@@ -73,7 +73,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("`on key(\"…\")` answers to one key, with modifiers. On an element it fires while that element has focus; at the top of a page or component it fires anywhere on the page:")
 
-        CodeBlock(#"page Keys(path: "/", title: "Keys", description: "Keys on a field and on the page.") {
+        DocsCodeBlock(#"page Keys(path: "/", title: "Keys", description: "Keys on a field and on the page.") {
     state open = false
     state q = ""
     Heading("Keys").h1
@@ -92,7 +92,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("To give an app shortcuts that work on every page, write them with `mod` and declare them on `app`:\n\n- **`mod`** is ⌘ on a Mac and Ctrl everywhere else.\n- On **`app`**, a shortcut is heard on every page for as long as the app runs.\n- A **chord** is its steps with a space between: `mod+k mod+s`. The second step must come within a second and a half of the first, and on its own it does not fire a shortcut of its own.\n\nThis app drives its shortcuts and its **View** menu from one table of commands:")
 
-        CodeBlock(#"store Commands {
+        DocsCodeBlock(#"store Commands {
     state said = ""
     state table: [Command] = [
         { id: "palette", keys: "mod+shift+p", title: "Commands" },
@@ -129,7 +129,7 @@ app {
 
         Markdown("A tab strip, a toolbar or a row of choices is one stop for Tab: Tab enters it and leaves it, and the arrow keys move inside it. `Tabs` and `Menu` work that way already. `roving:` gives any element of yours the same:")
 
-        CodeBlock(#"page Editor(path: "/", title: "Editor", description: "Format the text.") {
+        DocsCodeBlock(#"page Editor(path: "/", title: "Editor", description: "Format the text.") {
     state bold = false
     state italic = false
     Heading("Editor").h1
@@ -145,7 +145,7 @@ app {
 
         Markdown("A component declares the events it fires with `event`, and fires them with `emit`. The caller handles them like DOM events, with a name for each value the event sends — `on change(v)`, `on menu(key, x, y)`. [Components](/learn/10-components#events) covers the details. This counter tells its page every time it changes:")
 
-        CodeBlock(#"component Counter(_ start: Number) {
+        DocsCodeBlock(#"component Counter(_ start: Number) {
     event change(value: Number)
     state n = start
     Row(gap: .sm) {
@@ -166,7 +166,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 
         Markdown("An *overlay* is something a page opens over itself: a modal that asks a question, a toast that confirms, a menu of actions, a tooltip. Most are opened by a state, so the page decides when they show. This page has one of each:")
 
-        CodeBlock(#"page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
+        DocsCodeBlock(#"page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
     state confirm = false
     state deleted = false
     Heading("Overlays").h1
@@ -193,7 +193,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 
         Markdown("`dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:")
 
-        CodeBlock(#"page Profile(path: "/", title: "Profile", description: "A modal that starts in a field.") {
+        DocsCodeBlock(#"page Profile(path: "/", title: "Profile", description: "A modal that starts in a field.") {
     state editing = false
     state name = ""
     Heading("Profile").h1
@@ -206,7 +206,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 
         Markdown("An **`AlertDialog`** asks before something that cannot be undone. A screen reader hears an alert dialog, read with its body; Escape answers it, and a press beside it does not. Put the answer that loses nothing first in its footer.\n\nA **`Sheet`** is a modal that comes in from an edge: `side: .bottom` (the default), `.start` or `.end`, which swap in a right-to-left page. Dragged by its handle or heading toward that edge, past 30% of its size, it closes; a bottom sheet with `snap:` points opens at the first and settles at the nearest one it is let go near:")
 
-        CodeBlock(#"page Shop(path: "/", title: "Shop", description: "Filters in a bottom sheet.") {
+        DocsCodeBlock(#"page Shop(path: "/", title: "Shop", description: "Filters in a bottom sheet.") {
     state filters = false
     state sort = "new"
     Heading("Shop").h1
@@ -224,7 +224,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 
         Markdown("Three functions open an overlay from code rather than from state:")
 
-        CodeBlock(#"store Mail {
+        DocsCodeBlock(#"store Mail {
     state archived: [String] = []
     action archive(id: String) {
         archived = archived.concat([id])
@@ -255,7 +255,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's *top layer*, above everything else on the page, so a box with `overflow: hidden` cannot clip them. Each is placed against its *anchor*, the element it belongs to, and flips or slides to stay on screen.\n\nThis page opens a popover at a button and a context menu at the pointer:")
 
-        CodeBlock(#"page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
+        DocsCodeBlock(#"page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
     state branches = false
     state asked = false
     state point = { x: 0, y: 0 }
@@ -289,7 +289,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("The runtime turns what the pointer does over time into one event that says what it means. A mouse, a pen and a finger run the same code. A finger picks a drag up with a long press, so a plain swipe still scrolls the page.\n\nThis list reorders its items by drag and drop:")
 
-        CodeBlock(#"page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
+        DocsCodeBlock(#"page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
     state tabs = ["App.wf", "Home.wf", "Shell.wf"]
 
     action move(what: String, near: String, position: String) {
@@ -314,13 +314,13 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("- **`drag: value`** picks an element up: a mouse moved a few pixels, or a finger held still. Escape puts it back, and the click a drag ends with is not a click.\n- **`on receive(d)`** takes a drop: `d.value` is what was dropped — as `Json`, since any element may have carried it, so match it for the kind you dragged (`if let .string(what) = d.value`) — and `d.position` is `\"before\"` or `\"after\"` along `dropAxis:` (`.y`, down the page, unless you say `.x`), or `\"inside\"` on a target with `dropInside: true`.\n- **`dragGroup:`** on a drag and its targets keeps groups apart, such as tabs and tree rows.\n- **`on longpress(p)`** is half a second held still; **`on swipe(s)`** is a finger or a pen swept across, with `s.direction`.\n- **`Splitter(bind: side, min: 160, max: 480, reset: 240, label: \"Sidebar width\")`** sizes the region beside it, by drag or by the arrow keys. A drag or a key starts from the region's size as it is drawn.\n\n[On every element](/reference#on-every-element) lists the drag props and the gesture events in full, `dropValue:` and `on dragmove(d)` among them; [`Splitter`](/reference/splitter) lists its props.\n\nOn a call of your own component, the drag, the drop and the gestures apply to the one element it draws. A component whose body is an `if`, a `for` or several elements has no one element for them, and the build says so (`C07`): wrap what it draws in a `Stack` or a `Row`.")
 
-        Callout("A drag has no keyboard of its own. Give what it does a menu item or a command too (`Move left`, `Move to…`), as the platform's accessibility rules ask of every pointer action.", kind: .important)
+        DocsCallout("A drag has no keyboard of its own. Give what it does a menu item or a command too (`Move left`, `Move to…`), as the platform's accessibility rules ask of every pointer action.", kind: .important)
 
         Heading("Listening outside the page's elements", id: "listening-outside-the-page-s-elements").h2
 
         Markdown("A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#shortcuts-for-an-app)). It listens for as long as its owner shows:")
 
-        CodeBlock(#"page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
+        DocsCodeBlock(#"page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
     on scroll { y = window.scrollY }
     Heading("Scrolled").h1
@@ -329,7 +329,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("For any other target or event, use an `effect` with a `cleanup`, which removes the listener when the page leaves. An action named without parentheses is the function itself, so you can hand it to the browser:")
 
-        CodeBlock(#"page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
+        DocsCodeBlock(#"page Selection(path: "/", title: "Selection", description: "What the reader has selected.") {
     state picked = ""
     action track() { picked = document.getSelection()?.toString() ?? "" }
     effect {
@@ -432,7 +432,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("**Naming more values than a DOM event sends.** A DOM event sends one value, the event, so a second name has nothing to hold:")
 
-        CodeBlock(#"page Spot(path: "/", title: "Spot", description: "Where the pointer clicked.") {
+        DocsCodeBlock(#"page Spot(path: "/", title: "Spot", description: "Where the pointer clicked.") {
     state at = ""
     Heading("Spot").h1
     Button("Click me") { on click(e, x) { at = "{x}" } }
@@ -441,7 +441,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("Name the event alone and read from it: `on click(e) \{ at = \"\{e.clientX\}\" \}` ([T22](/errors/T22)).\n\n**A misspelled event.** A handler for an event the element never fires never runs, so the compiler warns:")
 
-        CodeBlock(#"page Clicks(path: "/", title: "Clicks", description: "A misspelled event.") {
+        DocsCodeBlock(#"page Clicks(path: "/", title: "Clicks", description: "A misspelled event.") {
     state n = 0
     Heading("Clicks").h1
     Button("+1") { on clik { n = n + 1 } }
@@ -450,7 +450,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("Spell the event as the browser does, `on click` ([V09](/errors/V09)).\n\n**A key combination no keyboard sends.** Modifiers have fixed names, and a word that is not one stops the build:")
 
-        CodeBlock(#"page Search(path: "/", title: "Search", description: "A shortcut no keyboard sends.") {
+        DocsCodeBlock(#"page Search(path: "/", title: "Search", description: "A shortcut no keyboard sends.") {
     state q = ""
     Heading("Search").h1
     Input(bind: q, ref: box, placeholder: "Search")

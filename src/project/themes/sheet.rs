@@ -289,6 +289,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-card__header { padding: var(--spacing-md); }
 /*@both*/
 .wf-card__body { padding: var(--spacing-md); }
+/* A card that holds its content straight, with no part to pad it, pads it
+   itself: `Card { Text("…") }` was drawn flush against its border. */
+.wf-card:not(:has(> .wf-card__header, > .wf-card__body, > .wf-card__footer)) { padding: var(--spacing-md); }
 /*@full*/
 .wf-card__footer { padding: var(--spacing-md); border-top: 1px solid var(--color-border); display: flex; gap: var(--spacing-sm); justify-content: flex-end; }
 /*@structural*/
@@ -307,7 +310,11 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* ─── List ──────────────────────────────────────────── */
 .wf-list { list-style: none; }
-ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
+/* An item is a flex row (an icon beside its text), and a flex item draws no
+   list marker: an ordered list numbers its items with a counter instead. */
+ol.wf-list { counter-reset: wf-list; padding-inline-start: 0; }
+ol.wf-list > .wf-list__item { counter-increment: wf-list; }
+ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 1.5em; color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
 /*@full*/
 .wf-list__item { padding: var(--spacing-sm) var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; align-items: center; gap: var(--spacing-sm); }
 .wf-list__item:last-child { border-bottom: none; }
@@ -1290,6 +1297,8 @@ textarea[data-autosize="true"] { field-sizing: content; min-height: 3lh; resize:
 .wf-nav-menu__trigger > svg { order: 1; transition: transform var(--transition-fast); }
 .wf-nav-menu__trigger[aria-expanded="true"] > svg { transform: rotate(180deg); }
 .wf-nav-menu__panel { position: absolute; inset-inline: 0; top: 100%; z-index: var(--z-dropdown); padding: var(--spacing-md); }
+/* What a panel holds, written straight in its block — links, usually — one under another, as a mega menu lists them. */
+.wf-nav-menu__panel { display: flex; flex-direction: column; align-items: flex-start; gap: var(--spacing-xs); }
 .wf-nav-menu__panel[hidden] { display: none; }
 /*@full*/
 .wf-nav-menu__trigger { border-radius: var(--radius-sm); }

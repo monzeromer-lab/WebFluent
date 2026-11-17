@@ -4,7 +4,7 @@ page RuntimeGuide(path: "/reference/runtime", title: "Runtime API", description:
     Stack(gap: .lg) {
         Markdown("This chapter is the reference for `window.WF`, the runtime every compiled page calls. Look up a function here when a script of your own, a library's callback or the browser's console needs to do what a page does — navigate, show a toast, read a store.\n\n`app.js` opens with the runtime, and the page reaches it as `window.WF`. This plain script, in `src/`, moves to a route, shows a toast and logs what a store holds:")
 
-        CodeBlock(#"// src/support.js
+        DocsCodeBlock(#"// src/support.js
 function openHelp() {
   WF.navigate("/about");
   WF.toast("Saved", { tone: "success" });
@@ -19,7 +19,7 @@ function openHelp() {
 
         Markdown("`wf:render` is dispatched on `document` once a drawing lands: the first mount, the takeover of a pre-rendered page, and every route change. Its `detail` is `\{ route, params \}`. A script that finds elements itself listens for it:")
 
-        CodeBlock(#"// src/highlight-tables.js
+        DocsCodeBlock(#"// src/highlight-tables.js
 document.addEventListener("wf:render", (e) => {
   for (const t of document.querySelectorAll("table.sortable")) t.dataset.route = e.detail.route;
 });"#, title: "js")

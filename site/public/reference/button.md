@@ -10,6 +10,18 @@ A button: its label or block is what it shows, on click what it does.
 Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }
 ```
 
+## Example
+
+```wf
+state saved = 0
+Row(gap: .sm, justify: .end) {
+    Button("Cancel").outlined
+    Button("Save draft") { on click { saved = saved + 1 } }
+    Button("Publish").primary { on click { toast("Published", tone: .success) } }
+}
+Text("Saved {saved} times").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -40,14 +52,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Button("Save").primary { on click { log("saved") } }
-Button("Delete").danger.outlined.sm
-Button("Send", type: .submit).primary.full
-```
 
 ## What it can raise
 

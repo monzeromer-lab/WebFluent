@@ -39,7 +39,7 @@ page AboutContributing(path: "/about/contributing", title: "Contributing", descr
 
         Markdown("Each part of the project has its own folder. Under `src/`, the compiler is in layers, bottom first; a module uses only its own layer and the ones above it in this list, which `tests/module_layers.rs` holds it to:")
 
-        CodeBlock(#"src/
+        DocsCodeBlock(#"src/
   base/                      spans, text helpers, the file systems a build reads and writes
   diagnostics/               every finding's code (codes.rs), fixes and output; the error types
   syntax/                    lexer/, parser/, the .wfx layout/, the printers and the formatter
@@ -71,7 +71,7 @@ spec/                        design notes and plans"#, title: "text")
 
         Markdown("A source file passes through these stages, in order:")
 
-        CodeBlock(#".wf / .wfx → lexer → parser → lower → semantic checks → type checker → linters → code generators
+        DocsCodeBlock(#".wf / .wfx → lexer → parser → lower → semantic checks → type checker → linters → code generators
                                                                                  ├─ JavaScript + HTML + CSS
                                                                                  └─ PDF / slides"#, title: "text")
 

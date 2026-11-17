@@ -24,7 +24,7 @@ page RecipeCopyToTheClipboard(path: "/recipes/copy-to-the-clipboard", title: "Co
 }
 "# }) {
         code {
-            CodeBlock(#"page Share(path: "/share", title: "Share", description: "Copy the link.") {
+            DocsCodeBlock(#"page Share(path: "/share", title: "Share", description: "Copy the link.") {
     state copied = false
     state failed = false
     action copy(text: String) {

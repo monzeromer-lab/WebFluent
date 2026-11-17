@@ -37,7 +37,7 @@ function initTilt(node, max = 15) {
 "# }) {
         code {
             Markdown("**Needs:** the script `src/tilt.js`, shown below.")
-            CodeBlock(#"page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
+            DocsCodeBlock(#"page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
     state max = 15
 
     Heading("Gallery").h1
@@ -50,7 +50,7 @@ function initTilt(node, max = 15) {
     Slider(bind: max, min: 0, max: 45, label: "How far")
 }"#, title: "wf")
             Markdown("This script tilts an element toward the pointer, and returns a handle the page can update and destroy. Write it the way you would write any file a `<script src>` loads:")
-            CodeBlock(#"// src/tilt.js
+            DocsCodeBlock(#"// src/tilt.js
 /**
  * Tilt an element toward the pointer.
  * @param {HTMLElement} node
@@ -132,7 +132,7 @@ function initTilt(node, max = 15) {
 
         Markdown("The JSDoc is the function's signature, so a function called from `.wf` with none is `T31`; the editor's quick fix and `wf fix --code T31` write one from the call. A function with JSDoc and no `@returns` gives nothing back.\n\nWhat `@returns` says is held at the other end too: every call checks what the function gives back (or what its promise settles to) as it returns, in every build, and a mismatch throws a `DecodeError` naming the function and the place — `` `rows` returned what its @returns does not say: $[0].title is missing``. A value typed `Row` is a `Row`.\n\nA `@typedef` names a record the program can use:")
 
-        CodeBlock(#"// src/rows.js
+        DocsCodeBlock(#"// src/rows.js
 /** @typedef {{ id: string, title: string, done?: boolean }} Row */
 
 /**
@@ -143,7 +143,7 @@ function search(q) {
   return [{ id: "1", title: q }];
 }"#, title: "js")
 
-        CodeBlock(#"page Search(path: "/search", title: "Search", description: "Rows a script finds.") {
+        DocsCodeBlock(#"page Search(path: "/search", title: "Search", description: "Rows a script finds.") {
     state rows: [Row] = []
     Heading("Search").h1
     Button("Find milk") { on click { rows = search("milk") } }
@@ -156,7 +156,7 @@ function search(q) {
 
         Markdown("When the way an element looks depends on something only a script can see (an intersection, a scroll position, a library's event), hand the script an action. An action is a plain function at run time. The script calls it, and the class stays in a `class:` the compiler can read.\n\nThis page sets `is-visible` on the card while it is on screen:")
 
-        CodeBlock(#"page Story(path: "/story", title: "Story", description: "It fades in.") {
+        DocsCodeBlock(#"page Story(path: "/story", title: "Story", description: "It fades in.") {
     state visible = false
     action setVisible(v: Bool) { visible = v }
 
@@ -170,7 +170,7 @@ function search(q) {
 
         Markdown("This script reports whether an element is on screen:")
 
-        CodeBlock(#"// src/visible.js
+        DocsCodeBlock(#"// src/visible.js
 /**
  * Say whether `node` is on screen, each time that changes.
  * @param {HTMLElement} node

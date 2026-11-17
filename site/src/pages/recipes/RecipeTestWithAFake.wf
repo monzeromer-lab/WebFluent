@@ -57,7 +57,7 @@ test "says when removing fails"(fakes: [TwoPeople]) {
 "# }) {
         code {
             Markdown("**Needs:** the page in `src/`, the fake and the tests under `tests/`; run them with `wf test`. Here they are one file, for the sake of the example.")
-            CodeBlock(#"type Person { id: String, name: String }
+            DocsCodeBlock(#"type Person { id: String, name: String }
 
 api Backend(base: "/api") { }
 

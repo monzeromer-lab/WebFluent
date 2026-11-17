@@ -10,6 +10,34 @@ CSS grid with a fixed number of columns.
 Grid(columns: Number, gap: Enum, align: Enum, …) { … }
 ```
 
+## Example
+
+```wf
+Grid(columns: { base: 1, sm: 2, md: 3 }, gap: .md) {
+    Card.elevated {
+        Card.Body {
+            Text("Visitors").muted.sm
+            Heading("12,480").h3
+            Badge("+8%").success
+        }
+    }
+    Card.elevated {
+        Card.Body {
+            Text("Sign-ups").muted.sm
+            Heading("342").h3
+            Badge("+3%").success
+        }
+    }
+    Card.elevated {
+        Card.Body {
+            Text("Churn").muted.sm
+            Heading("1.2%").h3
+            Badge("-0.4%").danger
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -29,16 +57,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Grid(columns: { base: 1, md: 3 }, gap: .lg) {
-    Card { Text("One") }
-    Card { Text("Two") }
-    Card { Text("Three") }
-}
-```
 
 ## What it can raise
 

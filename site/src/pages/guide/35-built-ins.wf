@@ -148,7 +148,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: a render block — a page, a component, a branch, a list item. The timer is cancelled when the block that holds it leaves. See [Timers](/learn/07-state-and-reactivity#timers).")
 
-        CodeBlock(#"after(3000) { banner = null }"#, title: "wf")
+        DocsCodeBlock(#"after(3000) { banner = null }"#, title: "wf")
 
         Heading("ago", id: "ago").h3
 
@@ -178,7 +178,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns `now` under 45 seconds, then `5 minutes ago`, `yesterday`, `in 2 weeks`, and so on. An unreadable date gives `\"\"`. Where: anywhere. It is the same as `format(date, .relative)`.")
 
-        CodeBlock(#"Text("Posted {ago(post.published)}").muted"#, title: "wf")
+        DocsCodeBlock(#"Text("Posted {ago(post.published)}").muted"#, title: "wf")
 
         Heading("animate", id: "animate").h3
 
@@ -213,7 +213,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a handle with `play()`, `cancel()` and `finished` (a promise). It plays as soon as it is made. Where: handlers and actions. See [Motion](/recipes/drive-an-animation).")
 
-        CodeBlock(#"Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }"#, title: "wf")
+        DocsCodeBlock(#"Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }"#, title: "wf")
 
         Heading("announce", id: "announce").h3
 
@@ -243,7 +243,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](/learn/08-events#toasts-questions-and-announcements-from-a-handler).")
 
-        CodeBlock(#"announce("{results.length} results")"#, title: "wf")
+        DocsCodeBlock(#"announce("{results.length} results")"#, title: "wf")
 
         Heading("ask", id: "ask").h3
 
@@ -283,7 +283,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns `true` for yes, and `false` for no or Escape. The focus starts on no. Where: `await` in an action or a handler. `confirm` is the browser's own.")
 
-        CodeBlock(#"Button("Delete") { on click { if await ask("Delete the project?", yes: "Delete", danger: true) { remove() } } }"#, title: "wf")
+        DocsCodeBlock(#"Button("Delete") { on click { if await ask("Delete the project?", yes: "Delete", danger: true) { remove() } } }"#, title: "wf")
 
         Heading("beacon", id: "beacon").h3
 
@@ -313,7 +313,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns whether the browser accepted the send. Where: anywhere, usually a handler. See [Send a message as the page unloads](/recipes/send-on-unload).")
 
-        CodeBlock(#"beacon("/analytics", { event: "checkout", value: total })"#, title: "wf")
+        DocsCodeBlock(#"beacon("/analytics", { event: "checkout", value: total })"#, title: "wf")
 
         Heading("broadcast", id: "broadcast").h3
 
@@ -338,7 +338,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`, `.state` and `.close()`. Where: only after `channel name =`, in a page, a component or a store. The channel closes when its scope leaves. See [Talk to the site's other tabs](/recipes/talk-between-tabs).")
 
-        CodeBlock(#"channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }"#, title: "wf")
+        DocsCodeBlock(#"channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }"#, title: "wf")
 
         Heading("every", id: "every").h3
 
@@ -363,7 +363,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: a render block. The timer stops when its page, branch or list item leaves. See [Timers](/learn/07-state-and-reactivity#timers).")
 
-        CodeBlock(#"every(1000) { elapsed = elapsed + 1 }"#, title: "wf")
+        DocsCodeBlock(#"every(1000) { elapsed = elapsed + 1 }"#, title: "wf")
 
         Heading("format", id: "format").h3
 
@@ -403,7 +403,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns the text. The locale is the i18n locale when the project has one, and the document's language otherwise; a change of locale redraws it. A `Money` value needs no style. In a string, `\{value:.style(option)\}` is the same call. Where: anywhere. See [`format` and `ago`](/reference/expressions#format-and-ago).")
 
-        CodeBlock(#"Text(format(price, .currency, "EUR"))"#, title: "wf")
+        DocsCodeBlock(#"Text(format(price, .currency, "EUR"))"#, title: "wf")
 
         Heading("http", id: "http").h3
 
@@ -448,7 +448,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).")
 
-        CodeBlock(#"let rows: [Row] = try await http.get("/api/rows?page={page}")"#, title: "wf")
+        DocsCodeBlock(#"let rows: [Row] = try await http.get("/api/rows?page={page}")"#, title: "wf")
 
         Heading("keyIs", id: "keyis").h3
 
@@ -478,7 +478,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns `true` when the event is that combination. `mod` is ⌘ on a Mac and Ctrl elsewhere. Where: handlers. See [Keys](/learn/08-events#keys).")
 
-        CodeBlock(#"Input(bind: draft, label: "Note") { on keydown(e) { if keyIs(e, "mod+s") { save() } } }"#, title: "wf")
+        DocsCodeBlock(#"Input(bind: draft, label: "Note") { on keydown(e) { if keyIs(e, "mod+s") { save() } } }"#, title: "wf")
 
         Heading("keyLabel", id: "keylabel").h3
 
@@ -503,7 +503,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns `⇧⌘P` on a Mac and `Ctrl+Shift+P` elsewhere for `\"mod+shift+p\"`. Where: anywhere. A `Menu.Item`'s or a `Tooltip`'s `shortcut:` is written this way for you.")
 
-        CodeBlock(#"Text("Search: {keyLabel("mod+k")}").muted"#, title: "wf")
+        DocsCodeBlock(#"Text("Search: {keyLabel("mod+k")}").muted"#, title: "wf")
 
         Heading("log", id: "log").h3
 
@@ -528,7 +528,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: actions, handlers, effects and timers. A `Secret` passed to it is a `T12`.")
 
-        CodeBlock(#"log("saved {items.length} items")"#, title: "wf")
+        DocsCodeBlock(#"log("saved {items.length} items")"#, title: "wf")
 
         Heading("navigate", id: "navigate").h3
 
@@ -553,7 +553,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. In a single-page build the router draws the new page; in a static build it loads the page's own HTML file. A literal path no page matches is an `R01`, and a scheme a browser would run is refused. Where: actions and handlers. See [Links and navigation](/learn/05-pages-and-routing#links-and-navigation).")
 
-        CodeBlock(#"Button("Open") { on click { navigate("/orders/{order.id}") } }"#, title: "wf")
+        DocsCodeBlock(#"Button("Open") { on click { navigate("/orders/{order.id}") } }"#, title: "wf")
 
         Heading("optimistic", id: "optimistic").h3
 
@@ -583,7 +583,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](/learn/15-data#show-a-change-before-the-server-agrees).")
 
-        CodeBlock(#"optimistic(Todos.items, items => items.filter(i => i.id != id))"#, title: "wf")
+        DocsCodeBlock(#"optimistic(Todos.items, items => items.filter(i => i.id != id))"#, title: "wf")
 
         Heading("replayAnimation", id: "replayanimation").h3
 
@@ -613,7 +613,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: handlers. See [Motion](/recipes/drive-an-animation).")
 
-        CodeBlock(#"Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }"#, title: "wf")
+        DocsCodeBlock(#"Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }"#, title: "wf")
 
         Heading("rtc", id: "rtc").h3
 
@@ -648,7 +648,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what the other side sent), `.state`, `.messages` and `.close()`. Where: only after `peer name =`. See [Connect two readers' pages](/recipes/connect-two-readers).")
 
-        CodeBlock(#"peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { receive Wave  on message(m) { heard = m.text } }"#, title: "wf")
+        DocsCodeBlock(#"peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { receive Wave  on message(m) { heard = m.text } }"#, title: "wf")
 
         Heading("sanitize", id: "sanitize").h3
 
@@ -673,7 +673,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#one-door-for-markup).")
 
-        CodeBlock(#"Unsafe.Html(sanitize(post.body))"#, title: "wf")
+        DocsCodeBlock(#"Unsafe.Html(sanitize(post.body))"#, title: "wf")
 
         Heading("setLocale", id: "setlocale").h3
 
@@ -698,7 +698,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL locale sets `dir=\"rtl\"`. A literal locale the config does not list is an `I04`. Where: actions, handlers and effects. See [i18n](/recipes/translate-a-site#switch-the-locale).")
 
-        CodeBlock(#"Button("العربية") { on click { setLocale("ar") } }"#, title: "wf")
+        DocsCodeBlock(#"Button("العربية") { on click { setLocale("ar") } }"#, title: "wf")
 
         Heading("setTheme", id: "settheme").h3
 
@@ -723,7 +723,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. The browser value `theme` reads the choice. Any other number of arguments is a `T10`. Where: actions and handlers. See [Dark mode](/learn/13-styling#dark-mode).")
 
-        CodeBlock(#"Button("Dark") { on click { setTheme("dark") } }"#, title: "wf")
+        DocsCodeBlock(#"Button("Dark") { on click { setTheme("dark") } }"#, title: "wf")
 
         Heading("spawn", id: "spawn").h3
 
@@ -763,7 +763,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a worker handle with `.request(method, params, options)`, `.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`. Where: only after `worker name =`, in a page, a component or a store. See [Run a script in a worker](/recipes/run-a-worker).")
 
-        CodeBlock(#"worker css = spawn("/workers/css.js", restart: 1) { receive CssMessage  on message(m) { problems = m.items } }"#, title: "wf")
+        DocsCodeBlock(#"worker css = spawn("/workers/css.js", restart: 1) { receive CssMessage  on message(m) { problems = m.items } }"#, title: "wf")
 
         Heading("sse", id: "sse").h3
 
@@ -793,7 +793,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a stream handle with `.messages`, `.last(kind)`, `.state`, `.error` and `.close()`. Where: only after `stream name =`. See [Listen to server-sent events](/recipes/server-sent-events).")
 
-        CodeBlock(#"stream ticks = sse("/events", events: ["price", "status"])"#, title: "wf")
+        DocsCodeBlock(#"stream ticks = sse("/events", events: ["price", "status"])"#, title: "wf")
 
         Heading("t", id: "t").h3
 
@@ -823,7 +823,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns the message. A literal key no locale has is an `I01`; a value the message does not use, or a placeholder the call does not pass, is an `I02`. Where: anywhere. See [`t(\"key\")`](/recipes/translate-a-site#translate-text-with-t).")
 
-        CodeBlock(#"Text(t("cart.items", { count: Cart.count }))"#, title: "wf")
+        DocsCodeBlock(#"Text(t("cart.items", { count: Cart.count }))"#, title: "wf")
 
         Heading("toast", id: "toast").h3
 
@@ -868,13 +868,13 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a handle with `close()` and `update(…)`. It waits while the pointer is on it or the focus is in it, and no more than three show at once (a fourth closes the oldest). `toast.promise` shows `loading:` while the promise runs, then `done:` or `failed:`. Where: actions and handlers.")
 
-        CodeBlock(#"toast("Conversation archived", action: "Undo", onAction: restore)"#, title: "wf")
+        DocsCodeBlock(#"toast("Conversation archived", action: "Undo", onAction: restore)"#, title: "wf")
 
         Heading("uuid", id: "uuid").h3
 
         Markdown("A fresh random identifier.\n\nSignature: `uuid()` → `Uuid`\n\nIt takes no parameters. Where: anywhere, usually an action that makes a record.")
 
-        CodeBlock(#"items = items.concat([Todo(id: uuid(), title: draft)])"#, title: "wf")
+        DocsCodeBlock(#"items = items.concat([Todo(id: uuid(), title: draft)])"#, title: "wf")
 
         Heading("ws", id: "ws").h3
 
@@ -909,7 +909,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. `send T` is what `.send` takes and `receive T` what `.messages` holds and `on message(m)` is given; a socket, stream, channel, peer or worker that declares neither sends and hears `Json`, which is matched or decoded rather than read as a record (`T28`). Where: only after `socket name =`. See [Open a socket](/recipes/open-a-socket).")
 
-        CodeBlock(#"socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { send Outgoing  receive Incoming  on message(m) { Feed.add(m) } }"#, title: "wf")
+        DocsCodeBlock(#"socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { send Outgoing  receive Incoming  on message(m) { Feed.add(m) } }"#, title: "wf")
 
         Heading("Browser values", id: "browser-values").h2
 
@@ -990,31 +990,31 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("It follows `matchMedia`, so a breakpoint field changes once when its answer changes, not on every pixel of a resize.")
 
-        CodeBlock(#"if viewport.md { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } } }"#, title: "wf")
+        DocsCodeBlock(#"if viewport.md { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } } }"#, title: "wf")
 
         Heading("query", id: "query").h3
 
         Markdown("The address's query string, a `[String: String]` from each key to its value.\n\nA key the address lacks reads as `null`, so `query.tab ?? \"all\"` gives a default.")
 
-        CodeBlock(#"Text("Showing {query.tab ?? "all"}")"#, title: "wf")
+        DocsCodeBlock(#"Text("Showing {query.tab ?? "all"}")"#, title: "wf")
 
         Heading("hash", id: "hash").h3
 
         Markdown("The address's fragment, without the `#`. It is `\"\"` when there is none.")
 
-        CodeBlock(#"if hash == "pricing" { Text("You followed a link to pricing.") }"#, title: "wf")
+        DocsCodeBlock(#"if hash == "pricing" { Text("You followed a link to pricing.") }"#, title: "wf")
 
         Heading("theme", id: "theme").h3
 
         Markdown("The reader's choice: `\"light\"`, `\"dark\"` or `\"system\"`. `setTheme` changes it.")
 
-        CodeBlock(#"Button("Light", outlined: theme != "light") { on click { setTheme("light") } }"#, title: "wf")
+        DocsCodeBlock(#"Button("Light", outlined: theme != "light") { on click { setTheme("light") } }"#, title: "wf")
 
         Heading("now", id: "now").h3
 
         Markdown("The current moment, as a `DateTime` that keeps itself current — every minute by default.\n\nSignature: `now`, `now(every: interval)` → `DateTime`\n\nRead it where it is shown or in a `derived` value. A `state` takes it once, so `state opened = now` keeps the moment the page opened (`X06`). See [`now`](/learn/12-types#now).")
 
-        CodeBlock(#"Text("It is {now(every: 1.seconds).time()}")"#, title: "wf")
+        DocsCodeBlock(#"Text("It is {now(every: 1.seconds).time()}")"#, title: "wf")
 
         Heading("network", id: "network").h3
 
@@ -1057,7 +1057,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        CodeBlock(#"if !network.online { Alert("You are offline — changes are queued.").warning }"#, title: "wf")
+        DocsCodeBlock(#"if !network.online { Alert("You are offline — changes are queued.").warning }"#, title: "wf")
 
         Heading("update", id: "update").h3
 
@@ -1085,19 +1085,19 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        CodeBlock(#"if update.available { Button("Reload for the new version") { on click { update.apply() } } }"#, title: "wf")
+        DocsCodeBlock(#"if update.available { Button("Reload for the new version") { on click { update.apply() } } }"#, title: "wf")
 
         Heading("locale and dir", id: "locale-and-dir").h3
 
         Markdown("The reader's current locale (`\"en\"`, `\"ar\"`) and its direction (`\"ltr\"` or `\"rtl\"`). Both follow `setLocale`.")
 
-        CodeBlock(#"Text("Reading in {locale}, {dir}")"#, title: "wf")
+        DocsCodeBlock(#"Text("Reading in {locale}, {dir}")"#, title: "wf")
 
         Heading("params", id: "params").h3
 
         Markdown("The current route's parameters, by name. A page also receives each one as a typed parameter of its own, which is usually the better way to read it.")
 
-        CodeBlock(#"Text("Order {params.id}")"#, title: "wf")
+        DocsCodeBlock(#"Text("Order {params.id}")"#, title: "wf")
 
         Heading("String methods", id: "string-methods").h2
 
@@ -1136,7 +1136,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("The browser's: `length`, `trim()`, `trimStart()`, `trimEnd()`, `toLowerCase()`, `toUpperCase()`, `toLocaleLowerCase()`, `toLocaleUpperCase()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`, `lastIndexOf(s)`, `search(re)`, `slice(a, b)`, `substring(a, b)`, `substr(a, n)`, `charAt(i)`, `charCodeAt(i)`, `codePointAt(i)`, `at(i)`, `replace(a, b)`, `replaceAll(a, b)`, `split(sep)`, `match(re)`, `matchAll(re)`, `concat(s)`, `padStart(n, c)`, `padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`, `isWellFormed()`, `toWellFormed()`, `toString()`, `valueOf()`.\n\n`contains(s)` is accepted for `includes(s)`, and `toUpper()` and `toLower()` for `toUpperCase()` and `toLowerCase()`.")
 
-        CodeBlock("derived preview = post.body.dedent().lines().first() ?? \"\"", title: "wf")
+        DocsCodeBlock("derived preview = post.body.dedent().lines().first() ?? \"\"", title: "wf")
 
         Heading("List methods", id: "list-methods").h2
 
@@ -1183,7 +1183,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("The browser's: `length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `findLast(f)`, `findLastIndex(f)`, `some(f)`, `every(f)`, `includes(x)`, `indexOf(x)`, `lastIndexOf(x)`, `join(sep)`, `slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `reduce(f, init)`, `reduceRight(f, init)`, `forEach(f)`, `flat()`, `flatMap(f)`, `fill(x)`, `copyWithin(t, a, b)`, `entries()`, `keys()`, `values()`, `at(i)`, `with(i, x)`, `toReversed()`, `toSorted(f)`, `toSpliced(…)`, `toString()`, `toLocaleString()`; and, in an action or a handler, `push(x)`, `pop()`, `shift()`, `unshift(x)` and `splice(i, n)`. `contains(x)` is accepted for `includes(x)`.\n\nHow the methods treat a state:\n\n- `sort` and `reverse` read in an expression work on a copy, so reading a sorted list never changes it.\n- `push(x)`, `remove(i)` and `sort(f)` as a statement give the state a new list, so whatever reads it repaints and a `persist` writes it.")
 
-        CodeBlock(#"derived leaders = players.sortBy(p => -p.score).take(3)"#, title: "wf")
+        DocsCodeBlock(#"derived leaders = players.sortBy(p => -p.score).take(3)"#, title: "wf")
 
         Markdown("Every one of WebFluent's own helpers also runs at build time, so the pre-rendered page shows its result. A member something declares wins over a helper of its name: a store's own `action first(n: Number)` or `action preview(path: String)` is the store's, called with its arguments, and a worker's `css.last(kind)` is the worker's.")
 
@@ -1191,7 +1191,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("`toFixed(n)`, `toPrecision(n)`, `toExponential(n)`, `toLocaleString()`, `toString()`, `valueOf()`.\n\nTo convert, use `Number(\"12\")` and `String(n)`, or `\"\{n\}\"`. To round, use `Math.round`, `Math.floor`, `Math.ceil`, `Math.max` and the rest of `Math`. For text a reader sees, prefer [`format`](#format).")
 
-        CodeBlock(#"derived share = (part / whole * 100).toFixed(1)"#, title: "wf")
+        DocsCodeBlock(#"derived share = (part / whole * 100).toFixed(1)"#, title: "wf")
 
         Heading("The built-in types", id: "the-built-in-types").h2
 
@@ -1266,12 +1266,12 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](/learn/12-types#the-types-the-language-brings-with-it) has the rest.")
 
-        CodeBlock(#"derived checkout = arrival.plus(days: nights)"#, title: "wf")
+        DocsCodeBlock(#"derived checkout = arrival.plus(days: nights)"#, title: "wf")
 
         Heading("Browser globals", id: "browser-globals").h2
 
         Markdown("The browser's names compile to themselves, with no prefix, and a table of the browser's types says what each is: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date` (`Date.now()`), `Object` (`Object.keys`), `Array` (`Array.isArray`), `Number` (`Number.isInteger`, …), `navigator` and its `clipboard`, `location`, `history`, `performance`, `screen`, `Infinity`, `NaN`, `undefined`, and the functions `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `requestAnimationFrame`, `cancelAnimationFrame`, `queueMicrotask`, `structuredClone`, `matchMedia`, `getComputedStyle`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`, `encodeURIComponent`, `decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `alert`, `confirm` and `prompt`. `JSON.parse` hands back `Json`; `getItem` a `String?`; an element's `getBoundingClientRect()` a `Rect`.\n\nA handler's event, an element a `ref:` names and the value `catch` binds are typed by the same table: a `KeyboardEvent`, an `Element`, an `Error`. A global or a member it does not list — `crypto`, `navigator.bluetooth`, `e.kye` — is [`T30`](/errors/T30), with the nearest name; reach it from a [project script](/recipes/call-your-own-script) whose JSDoc says its types. A name the program declares itself wins over a global, and unlike the language's own names, a global may be the name of a state, a prop or a parameter.")
 
-        CodeBlock(#"localStorage.setItem("last-seen", "{now.date()}")"#, title: "wf")
+        DocsCodeBlock(#"localStorage.setItem("last-seen", "{now.date()}")"#, title: "wf")
     }
 }

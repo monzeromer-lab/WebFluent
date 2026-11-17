@@ -10,6 +10,18 @@ A date field: the reader picks a day, and the bound state holds a Date.
 DatePicker(bind: State, label: String, min: String, …)
 ```
 
+## Example
+
+```wf
+state start: Date? = @2026-11-17
+DatePicker(bind: start, label: "Start date", min: "2026-01-01", max: "2026-12-31")
+if let d = start {
+    Text("Starts {d:.date(long)}").muted
+} else {
+    Text("No date chosen").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -31,13 +43,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on change`: The value was committed
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state start: Date? = null
-DatePicker(bind: start, label: "Start date", min: "2026-01-01")
-```
 
 ## What it can raise
 

@@ -10,6 +10,28 @@ Steps taken in order — an account, then billing, then a summary — with each 
 Stepper(bind: State, linear: Bool) { … }
 ```
 
+## Example
+
+```wf
+state step = 0
+state billed = false
+Stepper(bind: step) {
+    Stepper.Step("Account", done: step > 0) {
+        Text("Your name and email.")
+        Button("Next").primary { on click { step = 1 } }
+    }
+    Stepper.Step("Billing", done: billed) {
+        Text("A card, or an invoice each month.")
+        Button("Add a card").primary { on click { billed = true  step = 2 } }
+    }
+    Stepper.Step("Confirm") {
+        Text("Check it over, then start.")
+        Button("Start the trial").success
+    }
+}
+Text("Step {step + 1} of 3").muted.sm
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -29,20 +51,30 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Stepper.Stepper.Step`
-- `Stepper.Stepper.List`
-- `Stepper.Stepper.Item`
+Written under its name, inside `Stepper`.
 
-## Example
+### Stepper.Step
+
+One step: its title in the list, its block shown while it is the current one.
 
 ```wf
-state step = 0
-Stepper(bind: step) {
-    Stepper.Step("Account") { Text("Your name and email.") }
-    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
-    Stepper.Step("Confirm") { Text("Check and send.") }
-}
+Stepper.Step(_ title: String, done: Bool, error: Bool) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | Its title |
+| `done:` | `Bool` | Passed: drawn with a check |
+| `error:` | `Bool` | Something in it needs fixing |
+
+Flags: `.done` `.error`
+
+## Drawn for it
+
+What `Stepper` draws itself, by its class; not written.
+
+- `Stepper.List` (`.`): The steps, in order.
+- `Stepper.Item` (`.`): A step in the list.
 
 ## What it can raise
 

@@ -4,7 +4,7 @@ page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "ال�
     Stack(gap: .lg) {
         Markdown("يثبّت هذا الفصل `wf`، مُصرِّف WebFluent، ويشغّل أول مشروع في متصفحك. في نحو عشر دقائق تنشئ المشروع، وتغيّر سطرًا واحدًا، وترى الصفحة تتبعه. بقية الفصل إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما يكتبه البناء.")
 
-        Callout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
+        DocsCallout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
 
         Heading("قبل أن تبدأ", id: "قبل-أن-تبدأ").h2
 
@@ -24,9 +24,9 @@ page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "ال�
 
         Heading("Windows (PowerShell)", id: "windows-powershell").h3
 
-        CodeBlock(#"irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex"#, title: "powershell")
+        DocsCodeBlock(#"irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex"#, title: "powershell")
 
-        Callout("على Windows، اكتب `webfluent` حيثما يكتب هذا الدليل `wf`.", kind: .important)
+        DocsCallout("على Windows، اكتب `webfluent` حيثما يكتب هذا الدليل `wf`.", kind: .important)
 
         Markdown("في Windows أمر اسمه `wf` أصلًا: `C:\\Windows\\System32\\WF.msc`، وهو وحدة تحكم جدار حماية Windows. يأتي System32 أولًا في `PATH`، و`.MSC` من الامتدادات التي يجرّبها Windows للاسم المجرّد، فكتابة `wf` تفتح جدار الحماية بدل WebFluent. لهذا يثبّت ملف zip الخاص بالإصدار و`install.ps1` وملف `.msi` المُصرِّفَ باسم `webfluent.exe` بجانب `wf.exe`، ويضع `.msi` مجلدهما على `PATH`. تعمل `webfluent build` و`webfluent serve` و`wf.exe build` كلها. بعد `cargo install webfluent`، استخدم `wf.exe`.")
 
@@ -52,7 +52,7 @@ page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "ال�
 
         Markdown("**ترى** الإصدار الذي ثبّته:")
 
-        CodeBlock(#"wf 7.0.0"#, title: "text")
+        DocsCodeBlock(#"wf 7.0.0"#, title: "text")
 
         Markdown("إن قالت الصدفة إنها لا تجد `wf`، فافتح طرفية جديدة. يضيف المثبّت مجلده إلى `PATH` في ملف بدء تشغيل الصدفة، والطرفية التي شغّلته فيها قرأت ذلك الملف قبل التغيير.")
 
@@ -67,7 +67,7 @@ page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "ال�
 
         Markdown("**ترى:**")
 
-        CodeBlock(#"Created new WebFluent project: hello (template: spa)
+        DocsCodeBlock(#"Created new WebFluent project: hello (template: spa)
   AGENTS.md is the language reference, for you and your coding agent
   .agents/skills/ and .claude/skills/ teach your coding agent to write it well
 
@@ -87,7 +87,7 @@ page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "ال�
 
         Markdown("**ترى:**")
 
-        CodeBlock(#"Building hello...
+        DocsCodeBlock(#"Building hello...
   4 pages, 3 components, 2 stores
   Output: ./build/
 Build complete.
@@ -183,7 +183,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
 
         Markdown("لترى أصغر موقع كامل، استبدل كل ملف في `src/` عدا `theme.wf` بالملفين أدناه، واحذف اختبارات القالب تحت `tests/`، فهي تختبر الصفحات التي أزلتها. أبقِ `src/theme.wf`: ملف `webfluent.app.json` في المشروع يسمّي السمات التي يعلنها (`Day` و`Night`)، ويتوقف البناء إن غابت.\n\n`src/App.wf` هو الهيكل الذي تتشاركه كل الصفحات، وفيه الموجّه:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Text("Hello").heading }
         Navbar.Links {
@@ -196,7 +196,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
 
         Markdown("`src/pages/Home.wf` يحمل الصفحات، وكل صفحة تسمّي مسارها:")
 
-        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
     state count = 0
     Container {
         Heading("Hello, world").h1
@@ -214,13 +214,13 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Markdown("احفظ، فيعرض خادم التطوير شريط تنقل فيه **Home** و**About**. ويعدّ **Click me** نقراتك. هذا ما يفعله كل جزء:\n\n- `app \{ … \}` هو الهيكل: ما تقع داخله كل صفحة. و`Router` هو المكان الذي تُرسم فيه الصفحة الحالية. لا جدول مسارات؛ كل `page` تسمّي `path:` الخاص بها.\n- `page Home(path: \"/\", title: …, description: …)` يعلن صفحة. يصير `title` و`description` وسم `<title>`، ووصف meta، وبطاقات Open Graph وTwitter، وJSON-LD. إن أغفلتهما، ينبّهك البناء.\n- `state count = 0` إشارة (signal). يقرؤها `Text(\"… \{count\} …\")`، فيتحدّث النص حين تتغيّر.\n- في `Button(\"Click me\").primary \{ on click \{ … \} \}`، التسمية هي الوسيط الموضعي الوحيد، و`.primary` علم (حالة من حالات الخاصية `tone` للزر)، والكتلة تحمل معالج النقر.\n- `Container` و`Heading` و`Text` و`Paragraph` و`Navbar` و`Link` عناصر مدمجة. يسردها كلها [مرجع المكوّنات](/reference).")
 
-        Callout("**قادم من React؟** لا جدول مسارات ولا `import`. كل `page` تسمّي `path:` الخاص بها، وكل ملف تحت `src/` جزء من برنامج واحد، فيضع `App.wf` صفحات ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](/ar/coming-from/react).", kind: .note)
+        DocsCallout("**قادم من React؟** لا جدول مسارات ولا `import`. كل `page` تسمّي `path:` الخاص بها، وكل ملف تحت `src/` جزء من برنامج واحد، فيضع `App.wf` صفحات ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](/ar/coming-from/react).", kind: .note)
 
         Heading("ما ينتجه البناء", id: "ما-ينتجه-البناء").h2
 
         Markdown("يكتب `wf build` الموقع النهائي في `build/`. بناء ثابت فيه صفحتان وصفحة `path: \"*\"` يكتب ملفات مثل هذه:")
 
-        CodeBlock(#"build/
+        DocsCodeBlock(#"build/
   index.html          the page, pre-rendered (static) or the app shell (spa)
   about/index.html    one directory per route in a static build
   404.html            the `path: "*"` page, which a host serves for unknown paths
@@ -240,7 +240,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Markdown("تُرتَّب ملفات المشروع هكذا:")
 
-        CodeBlock(#"AGENTS.md             the language reference, for you and a coding agent
+        DocsCodeBlock(#"AGENTS.md             the language reference, for you and a coding agent
 webfluent.app.json    the config
 src/
   App.wf              the app shell (optional)
@@ -254,20 +254,20 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
 
         Markdown("يقرأ المُصرِّف كل ملف `.wf` أو `.wfx` تحت `src/` ويدمجها في برنامج واحد، فتستخدم صفحة في ملف مكوّنًا من ملف آخر دون استيراده. المجلدات عُرف، لا قاعدة. يغطي [هيكل المشروع](/reference/project) التسمية والتنظيم والإعدادات، ويسرد [مرجع الإعدادات](/reference/config) كل مفتاح.\n\nلا تحتاج الإعدادات إلا إلى اسم:")
 
-        CodeBlock(#"{ "name": "hello" }"#, title: "json")
+        DocsCodeBlock(#"{ "name": "hello" }"#, title: "json")
 
         Heading("أخطاء شائعة", id: "أخطاء-شائعة").h2
 
         Markdown("علم فيه خطأ إملائي. يُفحص العلم مقابل العنصر الذي يأخذه، فيكون `.mutd` خطأً، لا نمطًا لا يفعل شيئًا بصمت:")
 
-        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
     Heading("Hello").h1
     Text("Welcome back.").mutd
 }"#, title: "wf · draws E103")
 
         Markdown("استخدم أحد الأعلام التي تسردها الرسالة، وهنا `.muted` ([E103](/errors/E103)).\n\n`app` بلا `Router`. يُرسم الهيكل، لكن لا تُرسم أي صفحة أبدًا:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Text("Hello").heading }
     }
@@ -279,7 +279,7 @@ page Home(path: "/", title: "Hello", description: "A first site.") {
 
         Markdown("ضع `Router` في `app` حيث يجب أن تظهر الصفحة الحالية ([R03](/errors/R03)).\n\nرابط إلى صفحة لم تكتبها بعد. يفحص المُصرِّف كل `to:` مقابل مسارات الصفحات:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Links {
             Link("Home", to: "/")

@@ -48,14 +48,14 @@ page Report(path: "/", title: "Q1 report", description: "Sales for the first qua
 "# }) {
         code {
             Markdown("**Needs:** `\"output_type\": \"pdf\"` in `webfluent.app.json`, as below. `wf init q1 -t pdf` makes a project with it; replace its `src/pages/Report.wf` with the page.")
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
   "name": "Q1 report",
   "build": {
     "output_type": "pdf",
     "pdf": { "page_size": "A4", "output_filename": "q1-report.pdf" }
   }
 }"#, title: "json")
-            CodeBlock(#"const MONTHS = [
+            DocsCodeBlock(#"const MONTHS = [
     { month: "Jan", web: 41, store: 22 },
     { month: "Feb", web: 48, store: 25 },
     { month: "Mar", web: 55, store: 24 },

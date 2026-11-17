@@ -10,6 +10,14 @@ The reader's say over the scripts that track them: shown until they choose, Decl
 ConsentBanner(_ text: String, accept: String, decline: String, label: String) { … }
 ```
 
+## Example
+
+```wf
+ConsentBanner("We would like to count visits to improve the site. Nothing is shared.", accept: "Allow", decline: "No thanks") {
+    Link("How we count", to: "/learn")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,14 +32,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") {
-    Link("How we count", to: "/")
-}
-```
 
 ## What it can raise
 

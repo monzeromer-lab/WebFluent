@@ -111,6 +111,12 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 .bp-prose a, .bp-prose .wf-markdown a { color: var(--link); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 .bp-prose :not(pre) > code:not(.wf-code--block) { padding: 1px 5px; border: 1px solid var(--line); border-radius: var(--radius-label); background: var(--raised); font-family: var(--font-family-mono); font-size: max(0.86em, 12.5px); color: var(--ink); overflow-wrap: anywhere; }
 .bp-prose table { width: 100%; border-collapse: collapse; font-size: 14px; }
+/* Code in a table breaks at a word boundary on a wide screen (see Tables). */
+.bp-prose table :not(pre) > code:not(.wf-code--block), .bp-prose .wf-table :not(pre) > code:not(.wf-code--block) { overflow-wrap: break-word; }
+.bp-prose th, .bp-prose td { overflow-wrap: break-word; }
+@media (max-width: 599.98px) {
+  .bp-prose table :not(pre) > code:not(.wf-code--block), .bp-prose .wf-table :not(pre) > code:not(.wf-code--block) { overflow-wrap: anywhere; }
+}
 .bp-prose th, .bp-prose td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--line); text-align: start; vertical-align: top; }
 .bp-prose th { font-weight: 600; color: var(--muted); }
 .bp-prose .wf-table-wrapper, .bp-prose .wf-table { overflow-x: auto; }
@@ -302,14 +308,18 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 
 /* Tables. Headers are sentence case, as every label is: the engine's
    default capitalises them. A table is an ordinary table at every width,
-   its rows as wide as its box: a cell's text, code included, breaks where
-   it must, so a table fits a phone without scrolling. (It used to be a
-   scrolling block below 1024px, where its rows shrank to their text and
-   stopped short of their own border.) */
+   its rows as wide as its box. A cell's text breaks between words, and a
+   word or a piece of code too long for its column breaks inside itself —
+   `break-word`, which, unlike `anywhere`, never lets a column shrink below
+   its longest word, so `The contract` is never drawn a letter a line. On a
+   phone, code may break anywhere too, so a table fits without scrolling. */
 .wf-table th { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 600; }
 .bp-main .wf-table, .docs-article .wf-table, .props-table.wf-table { display: table; width: 100%; max-width: 100%; }
-.bp-main .wf-table th, .bp-main .wf-table td { overflow-wrap: anywhere; }
-.bp-main .wf-table code, .bp-main .wf-table .wf-markdown code { white-space: normal; overflow-wrap: anywhere; }
+.bp-main .wf-table th, .bp-main .wf-table td { overflow-wrap: break-word; word-break: normal; }
+.bp-main .wf-table code, .bp-main .wf-table .wf-markdown code { white-space: normal; overflow-wrap: break-word; }
+@media (max-width: 599.98px) {
+  .bp-main .wf-table code, .bp-main .wf-table .wf-markdown code { overflow-wrap: anywhere; }
+}
 
 /* The header's square controls never give up their width to the search. */
 .bp-header .bp-icon-button, .bp-header .bp-search { flex-shrink: 0; }
@@ -397,3 +407,17 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 
 /* A cheat sheet's cells wrap rather than scroll: each is a line or two. */
 [role="row"] .bp-console__code, [role="row"] .bp-console__code code { white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: hidden; }
+
+/* A stage's text and number fields: small, beside their prop's name. */
+.bp-stage-field { width: 12rem; min-block-size: 28px; padding: 2px 8px; font-size: 13px; }
+.bp-stage-field--number { width: 6rem; }
+/* What a stage draws keeps to the stage; a bar or a rule with no width of
+   its own (a Progress, a Meter, a Divider) takes a reasonable one rather than
+   collapsing to nothing in the centred column. */
+/* What a stage draws stays in it: a bar fixed to the screen (a
+   BottomNavigation, a Fab) is fixed to the stage instead. */
+.bp-stage__subject { align-self: stretch; position: relative; contain: layout; }
+.bp-stage__subject > * { max-width: 100%; }
+.bp-stage__subject > :is(progress, meter, hr, .wf-progress, .wf-meter, .wf-divider, .wf-skeleton, .wf-spacer, .wf-aspect-ratio, .wf-aspect) { width: min(100%, 420px); }
+/* A grid, a masonry or a gallery spans the stage: its cells size from it. */
+.bp-stage__subject > :is(.wf-grid, .wf-masonry, .wf-gallery) { width: min(100%, 720px); }

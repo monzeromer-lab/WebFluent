@@ -8,7 +8,7 @@ page AboutWhy(path: "/about/why", title: "Why WebFluent", description: "Why WebF
 
         Markdown("Here is a page with a counter, the smallest program that has every part a site has: an address, text, state, and something the reader does.")
 
-        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
     state count = 0
     Container {
         Heading("Hello, world").h1
@@ -19,7 +19,7 @@ page AboutWhy(path: "/about/why", title: "Why WebFluent", description: "Why WebF
 
         Markdown("Now count the ways the same page goes wrong in a typical stack. A class name misspelled in the markup does nothing. A prop a component does not take is ignored. A field read from a record that does not have it is `undefined`, and the page shows `undefined`. A value that may be `null` crashes the page only for the reader whose data has a gap. A link to a route that was renamed is a 404 that nobody sees until a reader follows it. None of these is a hard problem. Each one is a problem the toolchain had all the information to report, and did not.\n\nWebFluent starts from the other end. Every word in a program resolves to one declaration the compiler knows: a built-in in the registry, or a component, store, type or page the project declares. A word that resolves to nothing is an error, not a no-op.")
 
-        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
     Button("Save").primry
 }"#, title: "wf · draws E103")
 
@@ -37,7 +37,7 @@ page AboutWhy(path: "/about/why", title: "Why WebFluent", description: "Why WebF
 
         Markdown("The server is where most of a page's data comes from, and the place a typed program usually stops being typed. In WebFluent a service is described once, in an `api` block — or written for you from its OpenAPI spec by `wf api add` — and every call of it is checked against that contract:")
 
-        CodeBlock(#"type User { id: String, name: String }
+        DocsCodeBlock(#"type User { id: String, name: String }
 
 api Backend(base: "/api") {
     get users() at "users" -> [User]!

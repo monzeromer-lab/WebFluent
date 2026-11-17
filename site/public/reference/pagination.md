@@ -10,6 +10,14 @@ Pages of a list: Previous, the first and last pages, those around the current on
 Pagination(bind: State, pages: Number, siblings: Number, …)
 ```
 
+## Example
+
+```wf
+state page = 4
+Pagination(bind: page, pages: 12, siblings: 1, label: "Results")
+Text("Showing page {page} of 12").muted.sm
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,19 +29,14 @@ Pagination(bind: State, pages: Number, siblings: Number, …)
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
-## Parts
+## Drawn for it
 
-- `Pagination.Pagination.Prev`
-- `Pagination.Pagination.Next`
-- `Pagination.Pagination.Page`
-- `Pagination.Pagination.Gap`
+What `Pagination` draws itself, by its class; not written.
 
-## Example
-
-```wf
-state page = 5
-Pagination(bind: page, pages: 12, siblings: 1)
-```
+- `Pagination.Prev` (`.`): The previous page.
+- `Pagination.Next` (`.`): The next page.
+- `Pagination.Page` (`.`): A page.
+- `Pagination.Gap` (`.`): The pages left out.
 
 ## What it can raise
 

@@ -22,7 +22,7 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 "# }) {
         code {
             Markdown("**Needs:** a server that answers `/api/items?page=…` with a list of items.")
-            CodeBlock(#"type Item { id: String, name: String }
+            DocsCodeBlock(#"type Item { id: String, name: String }
 
 api Catalog(base: "/api") {
     get items(page: Number = 1) at "items" -> [Item]!

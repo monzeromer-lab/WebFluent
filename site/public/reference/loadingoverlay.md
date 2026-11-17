@@ -10,6 +10,20 @@ A region covered while it is busy: aria-busy on it, its content out of reach, an
 LoadingOverlay(visible: Bool, label: String) { … }
 ```
 
+## Example
+
+```wf
+state saving = false
+state name = "Ada Lovelace"
+LoadingOverlay(visible: saving, label: "Saving your profile") {
+    Card {
+        Input(bind: name, label: "Name")
+        Button("Save").primary { on click { saving = true } }
+    }
+}
+Button("Finish saving") { on click { saving = false } }
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -27,20 +41,12 @@ Every element also takes the props, events and attribute families listed [on eve
 
 - `children`
 
-## Parts
+## Drawn for it
 
-- `LoadingOverlay.LoadingOverlay.Content`
-- `LoadingOverlay.LoadingOverlay.Cover`
+What `LoadingOverlay` draws itself, by its class; not written.
 
-## Example
-
-```wf
-state saving = false
-Button("Save") { on click { saving = !saving } }
-LoadingOverlay(visible: saving, label: "Saving") {
-    Card { Text("Your profile") }
-}
-```
+- `LoadingOverlay.Content` (`.`): The region.
+- `LoadingOverlay.Cover` (`.`): What covers it while it is busy.
 
 ## What it can raise
 

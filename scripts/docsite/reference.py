@@ -34,7 +34,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
-from examples import EXAMPLES  # noqa: E402
+from examples import EXAMPLES  # noqa: E402,F401
+import example_set  # noqa: E402
 
 # `WF_REFERENCE_OUT` writes into a scratch directory (`cargo xtask site
 # --check`); `WF_BIN` names the `wf` to ask.
@@ -98,7 +99,11 @@ def modern_of(c: dict, by_name: dict) -> tuple:
     declaration for `Route`."""
     m = re.search(r"original spelling of `([\w.]+)`", c["summary"])
     if m and m.group(1) in by_name:
-        return m.group(1), "/reference/" + slug_of(by_name[m.group(1)])
+        target = by_name[m.group(1)]
+        # A part is a section of its owner's page.
+        if target.get("owner") and target["owner"] in by_name:
+            return m.group(1), "/reference/" + slug_of(by_name[target["owner"]]) + "#" + slug_of(target)
+        return m.group(1), "/reference/" + slug_of(target)
     if "original grammar" in c["summary"]:
         return "page", "/learn/05-pages-and-routing"
     return "", ""
@@ -151,8 +156,10 @@ def control(p: dict) -> dict | None:
         return {"name": p["name"], "kind": "enum", "options": cases[:5], "value": chosen, "sink": p.get("sink") or ""}
     if p["type"] == "Bool":
         return {"name": p["name"], "kind": "bool", "options": [], "value": "", "sink": p.get("sink") or ""}
-    if p["type"] == "String":
+    if p["type"] in ("String", "String?"):
         return {"name": p["name"], "kind": "string", "options": [], "value": ""}
+    if p["type"] in ("Number", "Number?"):
+        return {"name": p["name"], "kind": "number", "options": [], "value": ""}
     return None
 
 
@@ -231,8 +238,16 @@ def components(reg: dict) -> dict:
         pos = c.get("positional")
         props = ([prop_row(pos, True)] if pos else []) + [prop_row(p) for p in c["props"]]
         controls = [k for k in (control(p) for p in ([pos] if pos else []) + c["props"]) if k][:CONTROLS]
+        # The positional one is written first and without its name.
+        if pos and controls and controls[0]["name"] == pos["name"]:
+            controls[0]["positional"] = True
         parts = [by_name[f"{c['qualified']}.{p}"] for p in c["parts"] if f"{c['qualified']}.{p}" in by_name]
-        example = EXAMPLES.get(c["qualified"]) or (EXAMPLES.get(owner["qualified"], "") if owner else "")
+        shown = example_set.entry(c["qualified"])
+        if owner:
+            # A part's example is its own, when its owner's does not show it.
+            example = example_set.entry(owner["qualified"])["parts"].get(c["qualified"], "") or shown["code"]
+        else:
+            example = shown["code"]
         items.append({
             "name": c["qualified"],
             "slug": slug_of(c),
@@ -257,6 +272,8 @@ def components(reg: dict) -> dict:
             "attributes": c.get("attributes") or [],
             "cssClass": c.get("class") or "",
             "example": example,
+            "variations": [] if owner else shown["variations"],
+            "drawn": bool(shown["preview"]) and not owner,
             "preview": c["qualified"] in PREVIEWS or bool(owner and owner["qualified"] in PREVIEWS),
             "outputs": outputs_of(owner or c),
             "since": since[c["qualified"]],
@@ -475,6 +492,11 @@ def prop_rows(items: list) -> str:
     return "[" + ", ".join(f"PropRow(name: {q(r['name'])}, kind: {q(r['kind'])}, detail: {q(r['detail'])})" for r in items) + "]"
 
 
+def spec(k: dict) -> str:
+    """A control as the `StageControlSpec` the page passes."""
+    return wf_map({x: k[x] for x in ("name", "kind", "options", "value", "sink") if x in k})
+
+
 def wf_map(v) -> str:
     if isinstance(v, list):
         return "[" + ", ".join(wf_map(x) for x in v) + "]"
@@ -497,6 +519,7 @@ REFERENCE_PAGES = [
     ("Expressions", "/reference/expressions", "Language"),
     ("Built-in functions and values", "/reference/built-ins", "Language"),
     ("Grammar", "/reference/grammar", "Language"),
+    ("Services and requests", "/reference/requests", "Language"),
     ("Runtime API", "/reference/runtime", "Language"),
     ("Command line", "/reference/cli", "Tools"),
     ("Configuration", "/reference/config", "Tools"),
@@ -521,8 +544,15 @@ def live_preview(c: dict, src: str) -> tuple:
     name, so pressing a control changes the element. A control whose prop is
     neither a class nor an attribute stays as it is drawn. Returns the
     states, the preview and the controls made live."""
-    live = [k for k in c["controls"] if k["kind"] in ("enum", "bool")
-            and (k.get("sink") in ("class", "attr") or k["name"] in ("gap", "align", "justify"))]
+    live = [k for k in c["controls"] if (k["kind"] in ("enum", "bool")
+            and (k.get("sink") in ("class", "attr") or k["name"] in ("gap", "align", "justify")))
+            or k["kind"] in ("string", "number")]
+    # Drawn when the page is built (`E109` for a value only the browser
+    # knows): its look stays as written.
+    if c["name"] in ("QrCode", "Sparkline", "Chart"):
+        live = []
+    # What a frame may do is written out, never read from a value (`V03`).
+    live = [k for k in live if k["name"] not in ("sandbox", "allow")]
     if c["owner"] or not live:
         return [], src, []
     m = re.search(r"(?<![\w.\"])" + re.escape(c["name"]) + r"(?=[(.{\s]|$)", src)
@@ -555,37 +585,156 @@ def live_preview(c: dict, src: str) -> tuple:
             values[owner["name"]] = f if owner["kind"] == "enum" else "true"
         else:
             kept.append(f)
-    for k in live:
+    literal = r'("(?:[^"\\{}]|\\.)*"|-?\d+(?:\.\d+)?)'
+    first = None
+    for k in list(live):
+        if k["kind"] in ("string", "number"):
+            # A text or a number the example writes as a literal: the field
+            # starts at it, and the element reads the field. One the example
+            # leaves out, or writes as an expression, has no field.
+            want = literal if k["kind"] == "string" else r"(-?\d+(?:\.\d+)?)"
+            if k.get("positional"):
+                m2 = re.match(r"\s*" + want + r"\s*(,|$)", args)
+                if m2 and (k["kind"] == "number" or m2.group(1).startswith('"')):
+                    values[k["name"]] = m2.group(1)
+                    args = args[m2.end():].strip()
+                    first = k
+                    continue
+            else:
+                m2 = re.search(r"(^|,)\s*" + k["name"] + r":\s*" + want + r"\s*(?=,|$)", args)
+                if m2 and (k["kind"] == "number" or m2.group(2).startswith('"')):
+                    values[k["name"]] = m2.group(2)
+                    args = (args[:m2.start()] + args[m2.end():]).strip().strip(",").strip()
+                    continue
+            live.remove(k)
+            continue
         named = re.search(r"(^|,)\s*" + k["name"] + r":\s*\.(\w+)\s*(?=,|$)", args)
         if named:
             values[k["name"]] = named.group(2)
             args = (args[:named.start()] + args[named.end():]).strip().strip(",").strip()
+    if not live:
+        return [], src, []
     states, passed = [], []
     for k in live:
         name = stage_state(k)
         if k["kind"] == "enum":
             states.append(f"state {name} = {q(values[k['name']])}")
-        else:
+        elif k["kind"] == "bool":
             states.append(f"state {name} = {'true' if values[k['name']] == 'true' else 'false'}")
+        else:
+            states.append(f"state {name} = {values[k['name']]}")
+        if k is first:
+            continue
         passed.append(f"{k['name']}: {name}")
-    given = ", ".join([a for a in [args.strip()] if a] + passed)
+    given = ", ".join(([stage_state(first)] if first else []) + [a for a in [args.strip()] if a] + passed)
     out = src[:m.start()] + c["name"] + "(" + given + ")" + "".join("." + f for f in kept) + src[i:]
     return states, out, live
 
 
-def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
+# Built-ins a reader weighs against each other: each page links the others
+# of every group it is in. A page names only a built-in that has a page.
+RELATED = [
+    ["Modal", "Dialog", "AlertDialog", "Sheet", "Popconfirm", "Popover", "HoverCard", "Tooltip"],
+    ["Menu", "ContextMenu", "Menubar", "Dropdown", "NavigationMenu", "CommandPalette"],
+    ["Input", "Textarea", "NumberInput", "InputOTP", "TagInput", "InputGroup", "Editable", "Combobox"],
+    ["Select", "Listbox", "Combobox", "RadioGroup", "Radio", "CheckboxGroup", "Checkbox", "Switch", "ToggleGroup", "TransferList"],
+    ["DatePicker", "DateRangePicker", "Calendar", "RelativeTime"],
+    ["Table", "DataTable", "List", "Tree", "VirtualList", "DescriptionList", "Timeline"],
+    ["Card", "Item", "Callout", "EmptyState", "Stat", "Accordion"],
+    ["Row", "Stack", "Grid", "Column", "Container", "Center", "Masonry", "AspectRatio"],
+    ["Spacer", "Divider", "ScrollArea", "Sticky", "PanelGroup", "Splitter"],
+    ["Navbar", "Sidebar", "AppShell", "BottomNavigation", "Breadcrumb", "Tabs", "Link"],
+    ["Pagination", "Stepper", "PrevNext", "OnThisPage", "Tabs"],
+    ["Alert", "Toast", "Callout", "LoadingOverlay", "Tour", "ConsentBanner"],
+    ["Progress", "CircularProgress", "Meter", "Spinner", "Skeleton"],
+    ["Button", "IconButton", "ButtonGroup", "Toggle", "ToggleGroup", "CopyButton", "Fab", "BackToTop"],
+    ["Image", "Gallery", "Lightbox", "Carousel", "Video", "Audio", "Frame"],
+    ["Text", "Heading", "Code", "CodeBlock", "Kbd", "Blockquote", "Markdown", "Highlight", "VisuallyHidden"],
+    ["Badge", "Tag", "Chip", "Avatar", "AvatarGroup"],
+    ["Form", "Field", "Fieldset", "InputGroup"],
+    ["Document", "Header", "Footer", "Background", "Watermark", "PageBreak", "TableOfContents", "Section", "Paragraph"],
+    ["Chart", "Sparkline", "QrCode", "Stat"],
+    ["Presentation", "Slide", "TitleSlide", "SectionSlide", "TwoColumn", "ImageSlide"],
+    ["Host", "Element", "Portal", "ClientOnly"],
+    ["ConsentBanner", "ConsentSettings"],
+    ["ThemeToggle", "LocaleSwitch"],
+]
+HAS_PAGE: set = set()
+
+
+def related(name: str) -> list:
+    out = []
+    for group in RELATED:
+        if name in group:
+            out += [n for n in group if n != name and n not in out and n in HAS_PAGE]
+    return out[:10]
+
+
+def part_section(p: dict, owner: dict) -> list:
+    """One part, as a section of its owner's page: what it is, how it is
+    written, what it takes, and how it is used when its owner's example does
+    not already show it."""
+    out = [f'        Heading({q(p["name"])}, id: {q(p["slug"])}).h3',
+           f'        Text({q(p["plain"])})',
+           f'        Code({q(p["signature"])}).block']
+    if p["props"]:
+        out.append(f'        PropsTable(rows: {rows(p["props"])}, caption: {q("Props of " + p["name"])})')
+    if p["flags"]:
+        out.append("        Row(gap: .sm) {")
+        out.append("            style { gap: 8px; flex-wrap: wrap }")
+        for f in p["flags"]:
+            out.append(f'            Text({q(f)}, class: "bp-label bp-mono")')
+        out.append("        }")
+    if p["events"]:
+        out.append(f'        EventsTable(rows: {prop_rows(p["events"])}, caption: {q("Events of " + p["name"])})')
+    if p["example"] and p["example"].strip() != (owner["example"] or "").strip():
+        out.append(f'        DocsCodeBlock({guide.wf_raw(p["example"])}, title: "wf")')
+    return out
+
+
+def moved_page(c: dict, to: str, label: str, how: str) -> list:
+    """The page a part or an older spelling had: it sends the reader on to
+    where it is described now, so a link or a search result that names it
+    still lands. A guard that never holds is a redirect, as the site's other
+    moved pages are."""
+    return [
+        f'page Builtin{pascal(c["slug"])}(path: "/reference/{c["slug"]}", title: {q(c["name"] + " — Reference")}, '
+        f'description: {q(describe(c["name"] + ": " + c["plain"]))}, guard: false, redirect: {q(to)}, noindex: true) {{',
+        f'    ReferenceItemShell({q(c["name"])}, summary: {q(c["plain"])}, group: {q(c["family"])}, entries: BUILTIN_INDEX, source: "src/registry/builtins.rs") {{',
+        f'        Markdown(t({q(how)}, {{ name: {q(c["name"])}, owner: {q(label)}, to: {q(to)} }}), class: "bp-prose")',
+        f'        Link({q(label)}, to: {q(to)}, class: "bp-button")',
+        "    }",
+        "}",
+    ]
+
+
+def builtin_page(c: dict, by_slug: dict, universal: list, parts: list = ()) -> list:
     out = [f'page Builtin{pascal(c["slug"])}(path: "/reference/{c["slug"]}", title: {q(c["name"] + " — Reference")}, '
            f'description: {q(describe(c["name"] + ": " + c["plain"]))}) {{']
-    preview = PREVIEWS.get(c["name"]) or PREVIEWS.get(c["owner"])
+    preview = None
+    if c.get("drawn") and c["example"]:
+        # The example is the preview: what it declares, the page declares.
+        own_states, body = example_set.split_states(c["example"])
+        preview = (body, own_states)
+    elif PREVIEWS.get(c["name"]):
+        code, names = PREVIEWS[c["name"]]
+        preview = (code, [f"state {st} = {STATES[st]}" for st in names])
     live = []
     if preview:
         for st in preview[1]:
-            out.append(f"    state {st} = {STATES[st]}")
+            # A declaration over several lines keeps its own indentation,
+            # one level in.
+            out += ["    " + line if line.strip() else "" for line in st.split("\n")]
         states, code, live = live_preview(c, preview[0])
         preview = (code, preview[1])
         out += [f"    {st}" for st in states]
-    sections = anchors([("props", 't("ref.tab.props")'), ("flags", 't("ref.tab.flags")'), ("events", 't("ref.tab.events")'),
-                        ("slots", 't("ref.slotsparts")'), ("example", 't("ref.example")')])
+    sections = anchors([("example", 't("ref.example")'), ("props", 't("ref.tab.props")'), ("flags", 't("ref.tab.flags")'),
+                        ("events", 't("ref.tab.events")'), ("slots", 't("ref.slots")')]
+                       + ([("parts", 't("ref.parts")')] + [(p["slug"], q(p["name"])) for p in parts
+                          if not p["plain"].rstrip().endswith("Drawn for it.")]
+                          if any(not p["plain"].rstrip().endswith("Drawn for it.") for p in parts) else [])
+                       + ([("drawn-parts", 't("ref.drawnparts")')]
+                          if any(p["plain"].rstrip().endswith("Drawn for it.") for p in parts) else []))
     outputs = "[" + ", ".join(q(o) for o in c["outputs"]) + "]"
     codes = "[" + ", ".join(
         f'RelatedLink(kind: {q(k["kind"])}, title: {q(k["title"])}, to: {q(k["to"])})' for k in c["codes"]) + "]"
@@ -599,27 +748,49 @@ def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
     out.append("                controls {")
     for k in c["controls"]:
         st = stage_state(k)
-        if k in live and k["kind"] == "enum":
-            out.append(f"                    StageControl({wf_map(k)}, live: true, current: {st}) {{ on pick(v) {{ {st} = v }} }}")
+        if k in live and k["kind"] == "string":
+            out.append(f"                    StageControl({spec(k)}, live: true, current: {st}) {{ on pick(v) {{ {st} = v }} }}")
+        elif k in live and k["kind"] == "number":
+            out.append(f'                    StageControl({spec(k)}, live: true, current: "{{{st}}}") {{ on pick(v) {{ {st} = parseFloat(v) }} }}')
+        elif k in live and k["kind"] == "enum":
+            out.append(f"                    StageControl({spec(k)}, live: true, current: {st}) {{ on pick(v) {{ {st} = v }} }}")
         elif k in live:
-            out.append(f"                    StageControl({wf_map(k)}, live: true, pressed: {st}) {{ on pick(v) {{ {st} = !{st} }} }}")
+            out.append(f"                    StageControl({spec(k)}, live: true, pressed: {st}) {{ on pick(v) {{ {st} = !{st} }} }}")
         else:
-            out.append(f"                    StageControl({wf_map(k)})")
+            out.append(f"                    StageControl({spec(k)})")
     if not c["controls"]:
         out.append('                    Text(t("stage.nocontrols"), class: "bp-small")')
     out.append("                }")
     if preview:
-        out.append(f"                {preview[0]}")
+        for line in preview[0].split("\n"):
+            # `Unsafe.Html` is drawn to show it: its `V03` is the point.
+            if "Unsafe.Html(" in line:
+                out.append("                // wf-allow(V03)")
+            # A blank line stays blank: in a block string its spaces would
+            # be the string's.
+            out.append(f"                {line}" if line.strip() else "")
     else:
         out.append('                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }')
     out.append("            }")
     out.append("        }")
     if not live:
         out.append('        notes { Text(t("stage.static"), class: "bp-small") }')
-    if c["owner"]:
-        out.append(f'        Markdown(t("ref.partof", {{ owner: {q(c["owner"])}, to: "/reference/{c["ownerSlug"]}" }}), class: "bp-prose")')
-    if c["modern"][0]:
-        out.append(f'        Markdown(t("ref.legacy", {{ modern: {q(c["modern"][0])}, to: {q(c["modern"][1])} }}), class: "bp-prose")')
+    out.append('        Heading(t("ref.example"), id: "example").h2')
+    if c["example"]:
+        out.append(f'        DocsCodeBlock({guide.wf_raw(c["example"])}, title: "wf")')
+    else:
+        out.append('        Text(t("ref.noexample"), class: "bp-small")')
+    for title, code in c.get("variations", []):
+        out.append(f'        Text({q(title)}) {{ style {{ margin: 8px 0 0; font-weight: 600 }} }}')
+        out.append(f'        DocsCodeBlock({guide.wf_raw(code)}, title: "wf")')
+    near = related(c["name"])
+    if near:
+        out.append('        Row(gap: .sm, align: .center) {')
+        out.append('            style { gap: 8px; flex-wrap: wrap; margin-top: 8px }')
+        out.append('            Text(t("ref.related"), class: "bp-small")')
+        for n in near:
+            out.append(f'            Link({q(n)}, to: "/reference/{n.lower().replace(".", "-")}", class: "bp-label bp-mono")')
+        out.append("        }")
     out.append('        Heading(t("ref.tab.props"), id: "props").h2')
     if c["props"]:
         out.append(f'        PropsTable(rows: {rows(c["props"])}, caption: {q("Props of " + c["name"])})')
@@ -644,21 +815,23 @@ def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
         out.append('        Markdown(t("ref.domevents"), class: "bp-prose")')
         out.append(f'        EventsTable(rows: {prop_rows(c["domEvents"])}, caption: {q("DOM events " + c["name"] + " answers")})')
     out.append('        Markdown(t("ref.universal.link"), class: "bp-prose")')
-    out.append('        Heading(t("ref.slotsparts"), id: "slots").h2')
-    out.append(f'        SlotsAndParts(slots: {prop_rows(c["slots"])}, parts: {prop_rows(c["parts"])})')
-    if c["parts"]:
-        out.append("        Row(gap: .sm) {")
-        out.append("            style { gap: 8px; flex-wrap: wrap }")
-        for p in c["parts"]:
-            out.append(f'            Link({q(p["name"])}, to: "/reference/{p["kind"]}", class: "bp-button")')
-        out.append("        }")
-    out.append('        Heading(t("ref.example"), id: "example").h2')
-    if c["example"]:
-        out.append(f'        CodeBlock({guide.wf_raw(c["example"])}, title: "wf")')
-    elif c["modern"][0]:
-        out.append(f'        Markdown(t("ref.legacy.example", {{ modern: {q(c["modern"][0])}, to: {q(c["modern"][1])} }}), class: "bp-small")')
-    else:
-        out.append('        Text(t("ref.noexample"), class: "bp-small")')
+    out.append('        Heading(t("ref.slots"), id: "slots").h2')
+    out.append(f'        SlotsTable(slots: {prop_rows(c["slots"])})')
+    # A part the owner draws itself ("… Drawn for it.") is not written: it
+    # is listed for a stylesheet, by its class, and not given a section.
+    drawn_parts = [p for p in parts if p["plain"].rstrip().endswith("Drawn for it.")]
+    written = [p for p in parts if p not in drawn_parts]
+    if written:
+        out.append('        Heading(t("ref.parts"), id: "parts").h2')
+        out.append(f'        Markdown(t("ref.parts.body", {{ name: {q(c["name"])} }}), class: "bp-prose")')
+        for p in written:
+            out += part_section(p, c)
+    if drawn_parts:
+        out.append('        Heading(t("ref.drawnparts"), id: "drawn-parts").h2')
+        out.append(f'        Markdown(t("ref.drawnparts.body", {{ name: {q(c["name"])} }}), class: "bp-prose")')
+        rows_ = ", ".join("{ name: " + q(p["name"]) + ", type: " + q("." + p["cssClass"] if p["cssClass"] else "—")
+                          + ", meaning: " + q(p["plain"].replace(" Drawn for it.", "")) + " }" for p in drawn_parts)
+        out.append(f'        PropsTable(rows: [{rows_}], caption: t("ref.drawnparts"), nameLabel: t("ref.part"), typeLabel: t("ref.class"))')
     if c["cssClass"]:
         out.append(f'        Markdown(t("ref.renders", {{ cls: {q(c["cssClass"])} }}), class: "bp-prose")')
     out.append("    }")
@@ -673,23 +846,34 @@ def builtins_file(comps: dict) -> str:
     out.append("/// The reference's pages that are not one built-in, in the order the index\n/// and the sidebars list them.")
     out.append(entries_const("REFERENCE_PAGES", REFERENCE_PAGES))
     out.append("/// Every built-in, by family: the sidebar of each built-in's page.")
-    out.append(entries_const("BUILTIN_INDEX", [(i["name"], f"/reference/{i['slug']}", i["family"]) for i in items]))
+    # What a reader looks up: a component, never one of its parts (they are
+    # sections of its page) or an older spelling (listed once, below).
+    shown = [i for i in items if not i["owner"] and not i["legacy"]]
+    HAS_PAGE.update(i["name"] for i in shown)
+    parts_of = {}
+    for i in items:
+        if i["owner"]:
+            parts_of.setdefault(i["owner"], []).append(i)
+    out.append(entries_const("BUILTIN_INDEX", [(i["name"], f"/reference/{i['slug']}", i["family"]) for i in shown]))
     fam_id = lambda f: f.lower().replace(" ", "-")
-    sections = anchors([("pages", 't("ref.pages")')] + [(fam_id(f), f) for f in comps["families"]]
-                       + [("on-every-element", 't("ref.universal.title")')])
+    families = [f for f in comps["families"] if any(i["family"] == f for i in shown)]
+    older = [i for i in items if i["legacy"]]
+    sections = anchors([("pages", 't("ref.pages")')] + [(fam_id(f), f) for f in families]
+                       + [("on-every-element", 't("ref.universal.title")')]
+                       + ([("older-spellings", 't("ref.older.title")')] if older else []))
     index = [
         'page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language\'s reference pages.") {',
-        f'    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", {{ count: {comps["count"]} }}), entries: REFERENCE_PAGES, sections: {sections}, source: "scripts/docsite/reference.py") {{',
+        f'    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", {{ count: {len(shown)} }}), entries: REFERENCE_PAGES, sections: {sections}, source: "scripts/docsite/reference.py") {{',
         '        Heading(t("ref.pages"), id: "pages").h2',
         "        Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {",
     ]
     for label, to, group in REFERENCE_PAGES:
         index.append(f'            Link(to: "{to}", class: "bp-card") {{ Text({q(label)}) {{ style {{ font-weight: 600 }} }}  Text({q(group)}, class: "bp-small") }}')
     index.append("        }")
-    for fam in comps["families"]:
+    for fam in families:
         index.append(f'        Heading({q(fam)}, id: "{fam_id(fam)}").h2')
         index.append("        Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {")
-        for c in items:
+        for c in shown:
             if c["family"] == fam:
                 index.append(f'            Link(to: "/reference/{c["slug"]}", class: "bp-card") {{')
                 index.append(f'                Text({q(c["name"])}, class: "bp-mono") {{ style {{ font-size: 14px; color: $link }} }}')
@@ -709,44 +893,145 @@ def builtins_file(comps: dict) -> str:
     ]
     for icon in comps["icons"]:
         index.append(f'            Row(align: .center, gap: .xs, class: "bp-label") {{ Icon({q(icon)})  Text({q(icon)}) }}')
-    index += ["        }", "    }", "}"]
+    index.append("        }")
+    if older:
+        index += [
+            '        Heading(t("ref.older.title"), id: "older-spellings").h2',
+            '        Markdown(t("ref.older.body"), class: "bp-prose")',
+            f'        PropsTable(rows: [{", ".join("{ name: " + q(i["name"]) + ", type: " + q(i["modern"][0] or "—") + ", meaning: " + q(i["plain"]) + " }" for i in older)}], caption: t("ref.older.title"), nameLabel: t("ref.older.was"), typeLabel: t("ref.older.now"))',
+        ]
+    index += ["    }", "}"]
     out.append("\n".join(index) + "\n")
     for c in items:
-        out.append("\n".join(builtin_page(c, by_slug, comps["universal"]["names"])) + "\n")
+        if c["owner"]:
+            owner = by_slug[c["ownerSlug"]]
+            page = moved_page(c, f"/reference/{owner['slug']}#{c['slug']}", owner["name"], "ref.moved.part")
+        elif c["legacy"]:
+            to = c["modern"][1] or "/reference#older-spellings"
+            page = moved_page(c, to, c["modern"][0] or "the reference", "ref.moved.older")
+        else:
+            page = builtin_page(c, by_slug, comps["universal"]["names"], parts_of.get(c["name"], []))
+        out.append("\n".join(page) + "\n")
     return "\n".join(out)
 
 
-def prose_block(route: str) -> tuple[list, list]:
+def prose_block(route: str, keep=lambda md: md) -> tuple[list, list]:
     """The chapter at `route`, as the lines of a `notes { }` fill, and its
     sections."""
-    sections, body = guide.prose(route)
+    sections, body = guide.prose(route, keep)
     lines = ["        notes {", "            Stack(gap: .lg) {"] + body + ["            }", "        }"]
     return sections, lines
 
 
+CLI_MD = ROOT / "md-docs" / "reference" / "cli.md"
+
+
+def cli_sections() -> tuple[dict, dict]:
+    """`md-docs/reference/cli.md`, cut by command: each command's `### `wf X``
+    section, and the `##` group each sits under (`Checking and testing`)."""
+    text = CLI_MD.read_text()
+    own, group = {}, {}
+    current_group, name, buf = "", None, []
+
+    def flush():
+        if name:
+            own[name] = "\n".join(buf).strip("\n")
+
+    for line in text.split("\n"):
+        m = re.match(r"^### `wf ([a-z-]+)`\s*$", line)
+        if m:
+            flush()
+            name, buf = m.group(1), []
+            group[name] = current_group
+            continue
+        if line.startswith("## "):
+            flush()
+            name, buf = None, []
+            current_group = line[3:].strip()
+            continue
+        if name:
+            buf.append(line)
+    flush()
+    return own, group
+
+
+def without_options_table(md: str) -> str:
+    """A command's section with its hand-written options table and its
+    `**Usage:**` line left out: the page draws both from the compiler, so
+    they are always the ones `wf` has."""
+    out, lines, i = [], md.split("\n"), 0
+    while i < len(lines):
+        line = lines[i]
+        if line.startswith("**Usage:**"):
+            while i < len(lines) and lines[i].strip():
+                i += 1
+            continue
+        head = re.match(r"^\|\s*(Option|Subcommand|Argument|Flag)", line)
+        if head and i + 1 < len(lines) and re.match(r"^\|[-| :]+\|$", lines[i + 1].strip()):
+            while i < len(lines) and lines[i].startswith("|"):
+                i += 1
+            continue
+        out.append(line)
+        i += 1
+    return re.sub(r"\n{3,}", "\n\n", "\n".join(out)).strip("\n")
+
+
+def cli_index_md(md: str) -> str:
+    """The CLI chapter as its index page shows it: the conventions and the
+    rest, without the summary table and each command's section — every
+    command has its own page, listed by group below them."""
+    keep, skipping = [], False
+    for line in md.split("\n"):
+        if line.startswith("## "):
+            skipping = line[3:].strip() == "Command summary"
+        if re.match(r"^### `wf [a-z-]+`\s*$", line):
+            skipping = True
+        elif line.startswith("## ") and line[3:].strip() != "Command summary":
+            skipping = False
+        if not skipping:
+            keep.append(line)
+    # A group heading left with nothing under it goes too.
+    text = "\n".join(keep)
+    return re.sub(r"\n## [^\n]+\n+(?=## |\Z)", "\n", text)
+
+
 def cli_file(cmds: dict) -> str:
     out = [HEAD.format(what="The command line's reference: every command, then a page per command", source="wf commands --json")]
+    guide.CLI_COMMANDS[:] = [c["name"] for c in cmds["items"]]
+    own, group_of = cli_sections()
     out.append("/// Every command: the sidebar of each command's page.")
-    out.append(entries_const("CLI_INDEX", [(f"wf {c['name']}", f"/reference/cli/{c['slug']}", "Commands") for c in cmds["items"]]))
-    prose_sections, prose = prose_block("/reference/cli")
+    out.append(entries_const("CLI_INDEX", [(f"wf {c['name']}", f"/reference/cli/{c['slug']}", group_of.get(c["name"], "Commands") or "Commands") for c in cmds["items"]]))
+    prose_sections, prose = prose_block("/reference/cli", cli_index_md)
     page = [
         'page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", description: "Every wf command and its options, from init, build and serve to render, migrate and verify, and the language server in each editor.") {',
         f'    ReferenceItemShell(t("cli.title"), summary: t("cli.lede", {{ count: {cmds["count"]} }}), signature: "wf <command> [options]", group: t("cli.title"), '
         f'entries: REFERENCE_PAGES.concat(CLI_INDEX), sections: {anchors([("commands", "t(\"cli.commands\")")] + prose_sections)}, source: "md-docs/reference/cli.md") {{',
         *prose,
         '        Heading(t("cli.commands"), id: "commands").h2',
-        '        Stack(class: "bp-sheet") {',
-        "            style { gap: 0 }",
     ]
+    groups: list = []
     for c in cmds["items"]:
+        g = group_of.get(c["name"], "") or "Other commands"
+        if g not in groups:
+            groups.append(g)
+    for g in groups:
         page += [
-            f'            Link(to: "/reference/cli/{c["slug"]}") {{',
-            "                style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }",
-            f'                Text({q("wf " + c["name"])}, class: "bp-mono") {{ style {{ flex-shrink: 0; width: 140px; font-size: 13px; color: $link }} }}',
-            f'                Text({q(c["summary"])}, class: "bp-small")',
-            "            }",
+            f'        Heading({q(g)}, id: {q(guide.slug(g))}).h3',
+            '        Stack(class: "bp-sheet") {',
+            "            style { gap: 0 }",
         ]
-    page += ["        }", "    }", "}"]
+        for c in cmds["items"]:
+            if (group_of.get(c["name"], "") or "Other commands") != g:
+                continue
+            page += [
+                f'            Link(to: "/reference/cli/{c["slug"]}") {{',
+                "                style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }",
+                f'                Text({q("wf " + c["name"])}, class: "bp-mono") {{ style {{ flex-shrink: 0; width: 140px; font-size: 13px; color: $link }} }}',
+                f'                Text({q(c["summary"])}, class: "bp-small")',
+                "            }",
+            ]
+        page += ["        }"]
+    page += ["    }", "}"]
     out.append("\n".join(page) + "\n")
     for c in cmds["items"]:
         p = [
@@ -759,6 +1044,13 @@ def cli_file(cmds: dict) -> str:
             p.append(f'        Markdown(t("cli.writes", {{ what: {q(c["writes"])} }}), class: "bp-prose")')
         if c["preview"]:
             p.append(f'        Markdown(t("cli.preview", {{ flag: {q(c["preview"])} }}), class: "bp-prose")')
+        # What the command is for, its examples and its details: the
+        # command's section of md-docs/reference/cli.md.
+        if c["name"] in own:
+            _, lines = guide.fragment("/reference/cli", without_options_table(own[c["name"]]), "wf " + c["name"])
+            p.append('        Stack(gap: .lg, class: "bp-prose") {')
+            p += ["    " + l for l in lines]
+            p.append("        }")
         for sc in c["subcommands"]:
             p.append(f'        Heading({q("wf " + c["name"] + " " + sc["name"])}, id: {q(sc["name"])}).h2')
             p.append(f'        Text({q(sc["summary"])})')
@@ -771,7 +1063,6 @@ def cli_file(cmds: dict) -> str:
                 p.append(f'        PropsTable(rows: {rows(c["options"])}, caption: {q("Options of wf " + c["name"])}, nameLabel: t("cli.option"))')
             else:
                 p.append('        Text(t("cli.noopts"), class: "bp-small")')
-        p.append(f'        Markdown(t("cli.full", {{ name: {q(c["name"])} }}), class: "bp-prose")')
         p += ['        Link(t("cli.all"), to: "/reference/cli")', "    }", "}"]
         out.append("\n".join(p) + "\n")
     return "\n".join(out)

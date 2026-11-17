@@ -10,13 +10,17 @@ A button that switches the page between light and dark, over setTheme: a moon in
 ThemeToggle
 ```
 
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
 ## Example
 
 ```wf
-Row(gap: .sm) { ThemeToggle  LocaleSwitch }
+Row(gap: .sm, align: .center, justify: .between) {
+    Text("Appearance").bold
+    ThemeToggle
+}
+Text("The theme is {theme}.").muted
 ```
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## What it can raise
 

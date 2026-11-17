@@ -15,7 +15,7 @@ page RecipeExpandToContent(path: "/recipes/expand-to-content", title: "Open a bo
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
+            DocsCodeBlock(#"page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
     state open = false
     Heading("Details").h1
     Button("Details") { on click { open = !open } }

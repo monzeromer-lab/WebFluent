@@ -10,6 +10,16 @@ Audio player. transcript links what was said, which is what a reader who cannot 
 Audio(src: String, controls: Bool, autoplay: Bool, …)
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    Heading("Episode 12: Shipping 7.0").h3
+    Text("Forty minutes on types, results and what changed.").muted
+    Audio(src: "/media/episode-12.mp3", transcript: "/media/episode-12.txt").controls
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -34,12 +44,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on timeupdate`: A playing video or audio moved on
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Audio(src: "/episode-1.mp3", transcript: "/episode-1.txt").controls
-```
 
 ## What it can raise
 

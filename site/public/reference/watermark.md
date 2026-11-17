@@ -10,6 +10,16 @@ Large, faint, rotated text behind each PDF page's content.
 Watermark(_ text: String, on: Enum)
 ```
 
+## Example
+
+```wf
+Document(title: "Contract draft") {
+    Watermark("DRAFT")
+    Heading("Service agreement").h1
+    Paragraph("This draft is for review and is not binding.")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,12 +32,6 @@ Watermark(_ text: String, on: Enum)
 `.all` `.first` `.rest` `.odd` `.even`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Watermark("DRAFT")
-```
 
 ## What it can raise
 

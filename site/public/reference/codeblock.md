@@ -10,6 +10,18 @@ A block of code with a bar above it: a file name, a copy button (.copy), and lin
 CodeBlock(_ code: String, highlight: [Number], files: [CodeFile], language: String, …)
 ```
 
+## Example
+
+```wf
+CodeBlock("""
+    page Home(path: "/", title: "Home") \{
+        state count = 0
+        Heading("Welcome").h1
+        Button("+1").primary \{ on click \{ count = count + 1 \} \}
+    \}
+    """, language: "wf", title: "Home.wf", highlight: [2, 4]).copy.lines
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,16 +42,34 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `CodeBlock.CodeBlock.Bar`
-- `CodeBlock.CodeBlock.Lines`
-- `CodeBlock.CodeBlock.Marks`
-- `CodeBlock.CodeBlock.Mark`
+Written under its name, inside `CodeBlock`.
 
-## Example
+### CodeBlock.Bar
+
+The bar above the code.
 
 ```wf
-CodeBlock("page Home(path: \"/\") {\n    Text(\"Hello\")\n}", language: "wf", title: "Home.wf").copy.lines
+CodeBlock.Bar { … }
 ```
+
+### CodeBlock.Lines
+
+The line numbers.
+
+```wf
+CodeBlock.Lines(_ text: String)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | The numbers, a line each |
+
+## Drawn for it
+
+What `CodeBlock` draws itself, by its class; not written.
+
+- `CodeBlock.Marks` (`.`): The marks over the lines highlight: names.
+- `CodeBlock.Mark` (`.`): One line's mark.
 
 ## What it can raise
 

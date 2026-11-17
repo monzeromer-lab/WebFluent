@@ -10,20 +10,27 @@ Groups content with spacing; on the web, a <section>.
 Section { … }
 ```
 
+## Example
+
+```wf
+Document(title: "Service agreement") {
+    Section {
+        Heading("1. Payment").h2
+        Paragraph("Invoices are due within 30 days of issue.")
+    }
+    Section {
+        style { break-inside: avoid }
+        Heading("2. Signatures").h2
+        Paragraph("Signed for Northwind Ltd: ______________________")
+    }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Section {
-    Heading("Terms").h2
-    Text("Payment within 30 days.")
-}
-```
 
 ## What it can raise
 

@@ -10,6 +10,27 @@ Card surface with optional header, body and footer sections.
 Card(surface: Enum) { … }
 ```
 
+## Example
+
+```wf
+Card.elevated {
+    Card.Header {
+        Row(justify: .between, align: .center) {
+            Heading("Pro").h3
+            Badge("Popular").primary.pill
+        }
+    }
+    Card.Body {
+        Text("Everything in Free, and more.").muted
+        List {
+            List.Item { Text("Unlimited projects") }
+            List.Item { Text("Priority support") }
+        }
+    }
+    Card.Footer { Button("Choose Pro").primary.full }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -28,18 +49,30 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Card.Card.Header`
-- `Card.Card.Body`
-- `Card.Card.Footer`
+Written under its name, inside `Card`.
 
-## Example
+### Card.Header
+
+The card's heading area.
 
 ```wf
-Card.elevated {
-    Card.Header { Heading("Pro").h3 }
-    Card.Body { Text("Everything in Free, and more.") }
-    Card.Footer { Button("Choose Pro").primary }
-}
+Card.Header { … }
+```
+
+### Card.Body
+
+The card's content area.
+
+```wf
+Card.Body { … }
+```
+
+### Card.Footer
+
+The card's action area.
+
+```wf
+Card.Footer { … }
 ```
 
 ## What it can raise

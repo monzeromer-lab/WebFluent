@@ -10,6 +10,19 @@ A list of options always shown, one chosen (selection follows the arrow keys) or
 Listbox(bind: State, label: String, multiple: Bool) { … }
 ```
 
+## Example
+
+```wf
+state fruit = "apple"
+Listbox(bind: fruit, label: "Fruit") {
+    Listbox.Option("Apple", value: "apple")
+    Listbox.Option("Banana", value: "banana")
+    Listbox.Option("Cherry", value: "cherry")
+    Listbox.Option("Mango", value: "mango")
+}
+Text("Chosen: {fruit}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,18 +43,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Listbox.Listbox.Option`
+Written under its name, inside `Listbox`.
 
-## Example
+### Listbox.Option
+
+One option: its words, and the value bind: holds when it is chosen.
 
 ```wf
-state fruit = "apple"
-Listbox(bind: fruit, label: "Fruit") {
-    Listbox.Option("Apple", value: "apple")
-    Listbox.Option("Banana", value: "banana")
-    Listbox.Option("Cherry", value: "cherry")
-}
+Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, aria-disabled: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | Its words |
+| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
+| `icon:` | `String` | An icon before the words |
+| `aria-disabled:` | `String` | `"true"`: shown, passed over, never chosen |
 
 ## What it can raise
 

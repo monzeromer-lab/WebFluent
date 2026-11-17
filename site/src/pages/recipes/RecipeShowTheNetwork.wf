@@ -11,7 +11,7 @@ page RecipeShowTheNetwork(path: "/recipes/show-the-network", title: "Show what t
 }
 "# }) {
         code {
-            CodeBlock(#"page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
+            DocsCodeBlock(#"page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
     Heading("Inbox").h1
     if !network.online { Alert("You are offline.").warning }
     if network.saveData { Text("Data saver is on.").muted }

@@ -8,7 +8,7 @@ page Learn11Stores(path: "/learn/11-stores", title: "Stores", description: "Stor
 
         Markdown("This program declares a `Cart` store and reads it from two pages:")
 
-        CodeBlock(#"type Item { id: String, name: String, price: Number, qty: Number = 1 }
+        DocsCodeBlock(#"type Item { id: String, name: String, price: Number, qty: Number = 1 }
 
 store Cart {
     state items: [Item] = []
@@ -39,13 +39,13 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
 
         Markdown("Clicking **Add a pen** changes **Cart: 0, $0.00** to **Cart: 1, $2.50**, and the `/cart` page lists the pen.\n\n- `store Cart \{ … \}` declares the store and its members.\n- `use Cart` in a page says the page reads the store. The page then reads members as `Cart.items` and `Cart.count`, and calls actions as `Cart.add(…)`.\n- Everything that reads `Cart.count`, on any page, updates when it changes.\n\nThe checker knows every member and its type. `Cart.cont` is an error (`T06`, with the nearest member it does have), and `Cart.add(\"pen\")` is an error because `add` takes an `Item` (`T01`).")
 
-        Callout("**Coming from React?** There is no context provider to wrap the tree in, and no selector to write. Declare the store once and read `Cart.count` anywhere; only what reads `count` updates when it changes. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** There is no context provider to wrap the tree in, and no selector to write. Declare the store once and read `Cart.count` anywhere; only what reads `count` updates when it changes. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("Store members", id: "store-members").h2
 
         Markdown("A store holds the same members a page does: `state`, `persist`, `derived` values and actions. This fuller `Cart` adds a coupon kept across visits and an action that raises the quantity of an item already in the cart:")
 
-        CodeBlock(#"type Item { id: String, name: String, price: Number, qty: Number = 1 }
+        DocsCodeBlock(#"type Item { id: String, name: String, price: Number, qty: Number = 1 }
 
 store Cart {
     state items: [Item] = []
@@ -69,7 +69,7 @@ store Cart {
 
         Markdown("`add` changes `items` itself: it assigns a new list with that one item's quantity raised. Writing `let found = items.find(…)` and then `found.qty = found.qty + 1` would change only the local copy that `let` made ([chapter 7](/learn/07-state-and-reactivity#actions-and-locals)), and the cart would stay as it was.\n\nInside the store you read its members by their bare names: `items`, `count`. Outside it, a page or component reads them through the store's name: `Cart.items`, `Cart.count`.")
 
-        Callout("**Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()` and makes no copy; there is no `$cart` prefix either. Every reader gets the one instance, by the store's name. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
+        DocsCallout("**Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()` and makes no copy; there is no `$cart` prefix either. Every reader gets the one instance, by the store's name. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
 
         Markdown("You may declare a store in any `.wf` file the build reads. By convention it goes in `src/stores/`, and `wf generate store Cart` writes it there. A page reaches a store by name from anywhere. `use` says which stores a page reads, for the person reading the code and for the editor; it does not limit what the page can reach, and a page that reads `Cart.count` without it reads the same store.")
 
@@ -77,7 +77,7 @@ store Cart {
 
         Markdown("A store's *scope* says how long it lives. You set it in the declaration; these three stores live for the page, the tab and the route:")
 
-        CodeBlock(#"store Cart(scope: .app) { state items: [String] = [] }        // the default: as long as the page is open
+        DocsCodeBlock(#"store Cart(scope: .app) { state items: [String] = [] }        // the default: as long as the page is open
 store Session(scope: .session) { state step = 1 }             // this tab's
 store Filters(scope: .route) { state search = "" }            // this route's"#, title: "wf")
 
@@ -114,7 +114,7 @@ store Filters(scope: .route) { state search = "" }            // this route's"#,
 
         Markdown("A store's actions are its interface: pages change the store by calling them. An action may be asynchronous — it uses `await` — and an async action exposes `pending`, which is `true` while a call of it runs:")
 
-        CodeBlock(#"type Account { name: String }
+        DocsCodeBlock(#"type Account { name: String }
 type SignedIn { user: Account }
 type SignIn { email: String, password: String }
 
@@ -158,7 +158,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
         Markdown("`persist` declares a member whose value is kept in the browser's storage and read back on the next visit. It is stored under the store's name and the member's name, so a page and a store may each persist a `theme`. `persist` works the same way at the top of a page or a component.")
 
-        CodeBlock(#"store Prefs {
+        DocsCodeBlock(#"store Prefs {
     persist scheme = "system"
     persist density = "comfortable"
     persist recent: [String] = []
@@ -173,7 +173,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
         Markdown("A block after the declaration changes where and how the value is kept:")
 
-        CodeBlock(#"type Item { id: String, qty: Number = 1 }
+        DocsCodeBlock(#"type Item { id: String, qty: Number = 1 }
 
 store Cart {
     persist items: [Item] = [] {
@@ -219,13 +219,13 @@ store Cart {
 
         Markdown("A version is a promise to returning readers. Once you declare a shape with `version:`, the page brings a value written by an older build forward one step at a time. Each `migrate n -> n+1` step reads the old value as `old` and returns the new one. A reader who last visited two deploys ago keeps their cart instead of finding it empty.\n\nThe build checks the chain:\n\n- A gap in the chain is a `P01` warning: an older value would be discarded.\n- A step above the declared version is a `P02` warning: it never runs.\n- A value written by a *newer* build is left alone, and the page uses the initial value. This build cannot know what a later shape means.\n\nWhat storage hands back is held to the value's type as it is read — its declared type, or what a plain first value says it is. A value that does not fit (a record missing a field, text where a number is kept, something typed into the devtools) is not this value: the page uses the initial value instead, and a development build says so in the console. A reader's storage never stops a page from loading.\n\nThe build also remembers the shape of every persisted value, in `.wf-cache/persist.json`. When a shape changes and `version:` was not raised, it warns (`D04`): a returning reader's browser still holds the old shape, which the page would read as the new one.")
 
-        Callout("A `persist` inside a `store(scope: .route)` does not reset with the route. The route change drops the store, and the next read builds it again — from storage, so the value comes straight back. The build reports this as `P03`. Use `state` for what the route owns, and a wider scope for what outlives it.", kind: .warning)
+        DocsCallout("A `persist` inside a `store(scope: .route)` does not reset with the route. The route change drops the store, and the next read builds it again — from storage, so the value comes straight back. The build reports this as `P03`. Use `state` for what the route owns, and a wider scope for what outlives it.", kind: .warning)
 
         Heading("One stored value per instance", id: "one-stored-value-per-instance").h3
 
         Markdown("A `persist` in a component uses one stored value for every place the component is drawn. Three `Panel`s that each persist `open` share one value, so opening one opens them all. `key:` names what tells the instances apart, and each key gets its own stored value:")
 
-        CodeBlock(#"component Panel(_ title: String) {
+        DocsCodeBlock(#"component Panel(_ title: String) {
     persist open = false { key: title }
     Button(title) { on click { open = !open } }
     if open { children }
@@ -237,7 +237,7 @@ store Cart {
 
         Markdown("`key:` is read as state. When what it reads changes, the member takes the value kept under the new key, and writes go there. A desktop app keeps its layout per project this way. A store's key may read the store itself, or another store:")
 
-        CodeBlock(#"store Layout {
+        DocsCodeBlock(#"store Layout {
     state project = "halyard"
     persist side = 240 {
         key: project
@@ -249,7 +249,7 @@ store Cart {
 
         Markdown("`in: .app` keeps the value somewhere other than the browser's two storages: a desktop app's store reached through its native bridge, or an extension's storage. It reads `window.wfStorage.app`, which a script of the project's under `src/` defines. The object has this shape: `\{ get(name), set(name, text), remove?(name), watch?(name, fn) \}`.\n\n- `get` answers at once or with a promise, so an IPC call is fine. Until it answers, the value is its declared initial value. A write made before the answer is not undone by it, and an answer for a key that has since changed is ignored.\n- `set` receives the JSON text to keep.\n- `watch(name, fn)`, when present, hears another writer, such as another window, and returns a function that stops it. `sync: false` turns it off.\n\nIf no `window.wfStorage.app` is defined, the value is kept in `localStorage`, and `wf serve` says so on the console.\n\nThis script connects `.app` to Tauri's IPC:")
 
-        CodeBlock(#"// src/app-store.js — Tauri's IPC, reached when a value is read or written
+        DocsCodeBlock(#"// src/app-store.js — Tauri's IPC, reached when a value is read or written
 const call = (command, args) => window.__TAURI__.core.invoke(command, args);
 window.wfStorage = {
   app: {
@@ -268,7 +268,7 @@ window.wfStorage = {
 
         Markdown("A store may hold a connection — a `socket`, a `stream`, a `channel`, a `peer` or a `worker` (see [Open a socket](/recipes/open-a-socket)) — for every page at once. The connection opens when the store is first read and closes with the store; a `.route` store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:")
 
-        CodeBlock(#"type Line { text: String }
+        DocsCodeBlock(#"type Line { text: String }
 
 store Live {
     state last = ""
@@ -293,7 +293,7 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 
         Markdown("A store can own a `resource` (see [Data and APIs](/learn/15-data)). It is asked for the first time something reads the store, and lives as long as the store does — not as long as the page that happened to read it first — so another page that reads the store finds what has already arrived, and nothing is asked for again. It is abandoned with the store: a `.route` store's when its route leaves, to be asked for afresh when the route comes back.\n\nInside the store it is `rows`, anywhere else `Deploys.rows`, and its `value`, `isLoading`, `isRefreshing`, `error` and `pending` follow it in both, and `match Deploys.rows \{ .loading … .failed(e) … .loaded(rows) … \}` draws it. Its address and options read the store's own state, so an action that moves one asks again:")
 
-        CodeBlock(#"type Deploy { id: String, status: String }
+        DocsCodeBlock(#"type Deploy { id: String, status: String }
 
 store Deploys {
     state page = 1
@@ -319,7 +319,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 
         Markdown("A resource over a service's endpoint is owned the same way — `resource list = Catalog.items()` — and when the endpoint says how it pages ([Load results a page at a time](/learn/15-data#load-results-a-page-at-a-time)), `Shelf.list.loadMore()` asks for the next page from any page that reads it. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.\n\nWhen an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a request instead, and call the action where the data is first wanted:")
 
-        CodeBlock(#"type Post { id: String, title: String }
+        DocsCodeBlock(#"type Post { id: String, title: String }
 type Page { items: [Post] }
 
 store Feed {
@@ -371,7 +371,7 @@ store Feed {
 
         Markdown("`wf test` renders a test with the project's stores at hand, and a test's `data` seeds a store by its name. This test seeds a cart with two of one item and reads what `CartSummary` shows:")
 
-        CodeBlock(#"type Item { id: String, qty: Number = 1 }
+        DocsCodeBlock(#"type Item { id: String, qty: Number = 1 }
 
 store Cart {
     state items: [Item] = []
@@ -494,7 +494,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 
         Markdown("**A member the store does not have.** A name guessed from what the store ought to hold, rather than read from what it declares:")
 
-        CodeBlock(#"store Cart {
+        DocsCodeBlock(#"store Cart {
     state items: [String] = []
     derived count = items.length
 }
@@ -507,7 +507,7 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("Read a member the store declares, `Cart.count`, or declare the one you need. See [T06](/errors/T06).\n\n**`use` with the store's name misspelled.** A store's name is capitalised, and `use` must name it exactly:")
 
-        CodeBlock(#"store Cart { state items: [String] = [] }
+        DocsCodeBlock(#"store Cart { state items: [String] = [] }
 
 page P(path: "/", title: "T", description: "D") {
     use cart
@@ -516,7 +516,7 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("Write `use Cart`. See [X05](/errors/X05).\n\n**Assigning a store's `derived` value.** A `derived` value is worked out from the state it reads, so nothing may set it:")
 
-        CodeBlock(#"store Cart {
+        DocsCodeBlock(#"store Cart {
     state items: [String] = []
     derived count = items.length
 }

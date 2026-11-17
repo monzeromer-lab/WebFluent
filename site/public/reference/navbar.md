@@ -10,6 +10,23 @@ Top navigation bar with brand, links and action areas.
 Navbar { … }
 ```
 
+## Example
+
+```wf
+Navbar {
+    Navbar.Brand { Link("WebFluent", to: "/") }
+    Navbar.Links {
+        Link("Learn", to: "/learn", active: .prefix)
+        Link("Reference", to: "/reference", active: .prefix)
+        Link("Recipes", to: "/recipes")
+    }
+    Navbar.Actions {
+        ThemeToggle
+        Button("Try it").primary.sm { on click { navigate("/playground") } }
+    }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,18 +35,30 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Navbar.Navbar.Brand`
-- `Navbar.Navbar.Links`
-- `Navbar.Navbar.Actions`
+Written under its name, inside `Navbar`.
 
-## Example
+### Navbar.Brand
+
+The brand area, usually a link home.
 
 ```wf
-Navbar {
-    Navbar.Brand { Link("Acme", to: "/") }
-    Navbar.Links { Link("Docs", to: "/docs")  Link("Pricing", to: "/pricing") }
-    Navbar.Actions { Button("Sign in").sm }
-}
+Navbar.Brand { … }
+```
+
+### Navbar.Links
+
+The navigation links; collapses behind a toggle on small screens.
+
+```wf
+Navbar.Links { … }
+```
+
+### Navbar.Actions
+
+Buttons at the end of the bar.
+
+```wf
+Navbar.Actions { … }
 ```
 
 ## What it can raise

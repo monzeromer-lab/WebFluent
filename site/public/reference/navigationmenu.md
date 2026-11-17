@@ -10,6 +10,28 @@ A site's main navigation whose entries open panels (a mega menu) as disclosures:
 NavigationMenu(label: String) { … }
 ```
 
+## Example
+
+```wf
+NavigationMenu(label: "Main") {
+    NavigationMenu.Item("Learn") {
+        Stack(gap: .sm) {
+            Link("The guide", to: "/learn")
+            Link("Data and requests", to: "/learn/15-data")
+            Link("Recipes", to: "/recipes")
+        }
+    }
+    NavigationMenu.Item("Reference") {
+        Stack(gap: .sm) {
+            Link("Components", to: "/reference")
+            Link("Diagnostics", to: "/errors")
+        }
+    }
+    NavigationMenu.Link("Playground", to: "/playground")
+    NavigationMenu.Link("Showcase", to: "/showcase")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,23 +46,43 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `NavigationMenu.NavigationMenu.Item`
-- `NavigationMenu.NavigationMenu.Link`
-- `NavigationMenu.NavigationMenu.List`
-- `NavigationMenu.NavigationMenu.Trigger`
-- `NavigationMenu.NavigationMenu.Panel`
+Written under its name, inside `NavigationMenu`.
 
-## Example
+### NavigationMenu.Item
+
+An entry that opens a panel: its words are its button, its block the panel.
 
 ```wf
-NavigationMenu(label: "Main") {
-    NavigationMenu.Item("Products") {
-        Link("Editor", to: "/")
-        Link("Compiler", to: "/")
-    }
-    NavigationMenu.Link("Pricing", to: "/")
-}
+NavigationMenu.Item(_ label: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | The button's words |
+
+### NavigationMenu.Link
+
+An entry that is a link, beside the ones that open panels.
+
+```wf
+NavigationMenu.Link(_ label: String, to: Path, active: Enum)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | The link's words |
+| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `active:` | `.prefix` | How the link decides it is the current one |
+
+Flags: `.prefix`
+
+## Drawn for it
+
+What `NavigationMenu` draws itself, by its class; not written.
+
+- `NavigationMenu.List` (`.`): Its entries.
+- `NavigationMenu.Trigger` (`.`): An entry's button.
+- `NavigationMenu.Panel` (`.`): An entry's panel.
 
 ## What it can raise
 

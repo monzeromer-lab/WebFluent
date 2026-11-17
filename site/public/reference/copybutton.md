@@ -10,6 +10,15 @@ A button that copies value: to the clipboard, says Copied for a moment, and tell
 CopyButton(_ label: String, value: String or Number, copied: String)
 ```
 
+## Example
+
+```wf
+Row(gap: .sm, align: .center) {
+    Code("https://ledger.example.com/invite/42")
+    CopyButton("Copy link", value: "https://ledger.example.com/invite/42", copied: "Link copied")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,13 +28,6 @@ CopyButton(_ label: String, value: String or Number, copied: String)
 | `copied:` | `String` | What it says once it has copied; unset, `Copied` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-CopyButton(value: "https://example.com/invite/42")
-CopyButton("Copy link", value: "https://example.com", copied: "Link copied")
-```
 
 ## What it can raise
 

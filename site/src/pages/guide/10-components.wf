@@ -8,7 +8,7 @@ page Learn10Components(path: "/learn/10-components", title: "Components", descri
 
         Markdown("This page declares a `Greeting` component and places it once:")
 
-        CodeBlock(#"component Greeting(_ name: String) {
+        DocsCodeBlock(#"component Greeting(_ name: String) {
     Text("Hello, {name}!")
 }
 
@@ -23,7 +23,7 @@ page Home(path: "/", title: "Home", description: "A greeting.") {
 
         Markdown("A *prop* is a value the caller hands to the component. This component takes four, with a type and, for three of them, a default:")
 
-        CodeBlock(#"/// A person, at a glance.
+        DocsCodeBlock(#"/// A person, at a glance.
 component UserCard(_ name: String, role: String, active: Bool = true, avatar: String? = null) {
     Card.elevated {
         Row(align: .center, gap: .md) {
@@ -46,7 +46,7 @@ page Team(path: "/", title: "Team", description: "Three people, three cards.") {
 
         Markdown("The rules for props:\n\n- `_ name: Type` marks the one prop a call may pass positionally. It must be the first prop. Every other prop is passed by name.\n- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a function), `Json`, or a declared `type` or `enum`. See [Types](/learn/12-types) for the whole type language.\n- `= expr` gives a prop a default, so a call may leave it out. A `T?` prop with no default defaults to `null`.\n- A `Bool` prop is set with a flag, `.active`, or by name, `active: false`.\n- A `///` comment above the component or above a prop is its documentation. The editor shows it on hover, and `wf docs` prints it.")
 
-        Callout("**Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("A prop that reads the caller's state stays live inside the component: a `Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass a callback or re-render anything yourself.\n\nThe checker holds every call to the declaration. Leaving out a prop that has no default is `C01`; passing a prop the component does not declare is `C02`; a second positional argument is `E113`. A positional argument to a component whose first prop is not marked `_` is bound to that first prop, with a `C06` warning asking you to add the `_`.")
 
@@ -54,7 +54,7 @@ page Team(path: "/", title: "Team", description: "Three people, three cards.") {
 
         Markdown("An *enum prop* takes one case of a declared `enum`. The caller picks the case with a flag or by name:")
 
-        CodeBlock(#"enum Tone { calm, loud }
+        DocsCodeBlock(#"enum Tone { calm, loud }
 
 component Note(_ text: String, tone: Tone = .calm) {
     Text(text, class: "note") {
@@ -75,7 +75,7 @@ page Notes(path: "/", title: "Notes", description: "One note in each tone.") {
 
         Markdown("An *event* is how a component tells its caller that something happened. The component declares it with `event name(param: Type)` and fires it with `emit name(value)`. The caller handles it with `on name(value) \{ \}`, as it handles a click:")
 
-        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+        DocsCodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
 component TodoRow(_ todo: Todo) {
     event toggle(id: String)
@@ -102,13 +102,13 @@ page Todos(path: "/", title: "Todos", description: "Rows that report back.") {
 
         Markdown("The checker holds each `emit` to the parameters its event declares (`T09`). A handler on a call must name a declared event or a DOM event; an `emit` outside a component is `E114`. A DOM event handler written on a component call, such as `on click`, attaches to the component's root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). For events in general, see [Events](/learn/08-events).")
 
-        Callout("**Coming from React?** A callback prop such as `onToggle=\{…\}` becomes a declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled on the call as `on toggle(id) \{ … \}`. The checker holds both ends to the declaration. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** A callback prop such as `onToggle=\{…\}` becomes a declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled on the call as `on toggle(id) \{ … \}`. The checker holds both ends to the declaration. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("An event with several values", id: "an-event-with-several-values").h3
 
         Markdown("An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it. In this example `key` is a `String`, and `x` and `y` are `Number`s:")
 
-        CodeBlock(#"component Entry(_ key: String) {
+        DocsCodeBlock(#"component Entry(_ key: String) {
     event menu(key: String, x: Number, y: Number)
     Button(key) {
         on contextmenu(e) {
@@ -131,7 +131,7 @@ page Files(path: "/", title: "Files", description: "A menu that knows where it o
 
         Markdown("A *slot* is a place in the component where the caller's content goes. The component places the caller's block with `children`, and may declare named slots that the caller fills with `name \{ … \}`:")
 
-        CodeBlock(#"component Panel(_ title: String) {
+        DocsCodeBlock(#"component Panel(_ title: String) {
     slot trailing
     Card {
         Row(justify: .between, align: .center) {
@@ -157,7 +157,7 @@ page Keys(path: "/", title: "Keys", description: "A panel with a slot.") {
 
         Markdown("A *scoped slot* hands values to its fill. The component declares what it hands over, places the slot with those values by name, and the caller's fill names them in order:")
 
-        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+        DocsCodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
 component TodoList(items: [Todo]) {
     slot row(item: Todo, index: Number)
@@ -184,7 +184,7 @@ page Use(path: "/", title: "Todos", description: "A list that hands each row to 
 
         Markdown("A *part* is a component of the component's own, called under its name — the way `Card.Header` is a part of `Card`:")
 
-        CodeBlock(#"component Panel(_ title: String) {
+        DocsCodeBlock(#"component Panel(_ title: String) {
     part Header(_ text: String) { Heading(text).h2 }
     part Footer { Divider  Text("End").muted.sm }
     Card { Text(title)  children }
@@ -206,7 +206,7 @@ page Parts(path: "/", title: "Parts", description: "A panel with parts of its ow
 
         Markdown("A component may have its own `state`, `derived` values, `effect`s, actions, timers and handles. Each placed instance gets its own copy, so the two `Counter`s on this page count separately:")
 
-        CodeBlock(#"component Counter(_ start: Number, step: Number = 1) {
+        DocsCodeBlock(#"component Counter(_ start: Number, step: Number = 1) {
     event change(value: Number)
     state n = start
     derived even = n % 2 == 0
@@ -233,7 +233,7 @@ page Counters(path: "/", title: "Counters", description: "Two counters, two coun
 
         Markdown("`use StoreName` brings a store into a component, as it does into a page. Every instance reads and writes the same store:")
 
-        CodeBlock(#"store Cart {
+        DocsCodeBlock(#"store Cart {
     state items: [String] = []
     action add(name: String) { items.push(name) }
 }
@@ -256,7 +256,7 @@ page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.")
 
         Markdown("A component's *root element* is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:\n\n- A DOM event handler: `Pill(\"x\") \{ on click \{ … \} \}` attaches to the root, so a styled button component is clickable wherever you place it.\n- `class:`, which is added to the root's own classes.\n- A `style \{ \}` block, which styles the root: `Tile(label: \"a\") \{ style \{ grid-column: 2 / span 2 \} \}` places that tile in its grid. Its rule's class joins the root's classes, as `class:` does.\n- An attribute the component takes no prop for: `aria-*`, `data-*`, `id`, `role`, `title` and `hidden`. You write it as you would on an element: `data-open: true` is `data-open=\"true\"`, and `false` writes no attribute, except for an ARIA state, which keeps `\"false\"`.\n- `mount:`, `update:` and `cleanup:` (see [Hand an element to a script](/recipes/hand-an-element-to-a-script)).\n- `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress` and `on swipe`. These need one root element: on a component whose body is an `if`, a `for` or several elements they are `C07`.\n\nWhen the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This `Pill` takes the class and the description as props and puts them on its `Badge`:")
 
-        CodeBlock(#"component Pill(_ label: String, extra: String = "", note: String = "") {
+        DocsCodeBlock(#"component Pill(_ label: String, extra: String = "", note: String = "") {
     Badge(label, class: extra, aria-description: note)
 }
 
@@ -275,7 +275,7 @@ page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
 
         Markdown("A component does not take `bind:`. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:")
 
-        CodeBlock(#"component Counter(_ value: Number, label: String, min: Number = 0) {
+        DocsCodeBlock(#"component Counter(_ value: Number, label: String, min: Number = 0) {
     event change(value: Number)
     Row(gap: .sm, align: .center) {
         Button("−", disabled: value <= min).sm { on click { emit change(value - 1) } }
@@ -292,7 +292,7 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 
         Markdown("Clicking **+** sets `seats` to 2, and the component shows **Seats: 2** because its `value` prop reads `seats`.")
 
-        Callout("**Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own component. Take the value as a prop and fire a `change` event; the caller assigns its state in the handler. `bind:` belongs to the built-in controls. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
+        DocsCallout("**Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own component. Take the value as a prop and fire a `change` event; the caller assigns its state in the handler. `bind:` belongs to the built-in controls. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
 
         Heading("Pick the right way in", id: "pick-the-right-way-in").h3
 
@@ -442,7 +442,7 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 
         Markdown("**A required prop left out.** A prop with no default must be passed on every call:")
 
-        CodeBlock(#"component UserCard(_ name: String, role: String) {
+        DocsCodeBlock(#"component UserCard(_ name: String, role: String) {
     Card { Text(name).bold  Text(role).muted }
 }
 
@@ -453,7 +453,7 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("Pass it, `UserCard(\"Ada\", role: \"Engineer\")`, or give it a default in the declaration, `role: String = \"\"`. See [C01](/errors/C01).\n\n**A prop the component does not declare.** Often a misspelling, or a prop written as though the component forwarded what it was given:")
 
-        CodeBlock(#"component Note(_ text: String, muted: Bool = false) { Text(text) }
+        DocsCodeBlock(#"component Note(_ text: String, muted: Bool = false) { Text(text) }
 
 page P(path: "/", title: "T", description: "D") {
     Heading("Notes").h1
@@ -462,7 +462,7 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("Declare the prop, or correct its name. See [C02](/errors/C02).\n\n**A handler that names more values than its event sends.** An event sends what it declares, and nothing else:")
 
-        CodeBlock(#"component Counter(_ value: Number) {
+        DocsCodeBlock(#"component Counter(_ value: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(value + 1) } }
 }

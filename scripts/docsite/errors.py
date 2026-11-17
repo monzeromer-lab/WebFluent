@@ -267,8 +267,8 @@ def page_file(entries: list) -> str:
         )
         if example:
             # The broken program beside the fixed one, what the fix is under them.
-            out.append(f'        broken {{ CodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])}) }}')
-            out.append(f'        fixed {{ CodeBlock({guide.wf_raw(e["fixed"])}, title: {q(e["lang"])}) }}')
+            out.append(f'        broken {{ DocsCodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])}) }}')
+            out.append(f'        fixed {{ DocsCodeBlock({guide.wf_raw(e["fixed"])}, title: {q(e["lang"])}) }}')
             out.append("        note {")
             out.append(f'            Markdown({q(e["fix"])})')
             out.append(f'            Markdown({q(TRY_IT)}) {{ style {{ font-size: 14px; color: $muted }} }}')
@@ -278,7 +278,7 @@ def page_file(entries: list) -> str:
             out.append("            Stack(gap: .sm) {")
             if e["broken"]:
                 out.append('                Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }')
-                out.append(f'                CodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])})')
+                out.append(f'                DocsCodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])})')
             out.append(f'                Markdown({q(e["fix"])})')
             out.append("            }")
             out.append("        }")

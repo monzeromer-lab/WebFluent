@@ -10,21 +10,23 @@ Buttons joined into one row.
 ButtonGroup { … }
 ```
 
+## Example
+
+```wf
+state range = "Week"
+ButtonGroup {
+    Button("Day", outlined: range != "Day") { on click { range = "Day" } }
+    Button("Week", outlined: range != "Week") { on click { range = "Week" } }
+    Button("Month", outlined: range != "Month") { on click { range = "Month" } }
+}
+Text("Showing one {range}").muted
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-ButtonGroup {
-    Button("Day")
-    Button("Week")
-    Button("Month")
-}
-```
 
 ## What it can raise
 

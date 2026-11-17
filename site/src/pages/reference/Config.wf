@@ -7,13 +7,13 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
             Stack(gap: .lg) {
                 Markdown("This chapter is the reference for `webfluent.app.json`, the file beside `src/` that holds a project's settings. Look up a key here to find its type, its default and what it changes.\n\nEvery key is optional except `name`, so the smallest config is one line:")
 
-                CodeBlock(#"{ "name": "my-site" }"#, title: "json")
+                DocsCodeBlock(#"{ "name": "my-site" }"#, title: "json")
 
                 Markdown("A key the build does not know draws the `E112` warning, with the key it most likely meant — `\"defaultLocale\"` says to write `default_locale` — instead of being ignored (since **4.1**).")
 
                 Heading("Reading and changing the config", id: "reading-and-changing-the-config").h2
 
-                Markdown("`wf config` lists every setting and edits the file without reformatting it ([Command line](/reference/cli#wf-config)):\n\n- `wf config schema` lists every setting with its type, the values it takes, its default and what it does. `--json` prints the same for a tool; an editor's settings window is built from it.\n- `wf config get PATH` prints what the project sets at a dotted path, or the default.\n- `wf config set PATH VALUE` checks the value against the setting's type before it writes anything. It replaces a value in place, and adds a new key at the end of its section, in the section's own style.\n- `wf config unset PATH` removes a setting, so its default applies, and removes a section it leaves empty.")
+                Markdown("`wf config` lists every setting and edits the file without reformatting it ([Command line](/reference/cli/config)):\n\n- `wf config schema` lists every setting with its type, the values it takes, its default and what it does. `--json` prints the same for a tool; an editor's settings window is built from it.\n- `wf config get PATH` prints what the project sets at a dotted path, or the default.\n- `wf config set PATH VALUE` checks the value against the setting's type before it writes anything. It replaces a value in place, and adds a new key at the end of its section, in the section's own style.\n- `wf config unset PATH` removes a setting, so its default applies, and removes a section it leaves empty.")
 
                 Terminal(lines: [
                 Line(command: "wf config set build.base_path /Docs"),
@@ -28,7 +28,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Markdown("This block is what a config holding only a name means. The compiler's test suite checks it against the compiler's own defaults. `i18n`, `offline` and `apis` are absent unless you add them.")
 
-                CodeBlock(#"{
+                DocsCodeBlock(#"{
   "name": "my-site",
   "version": "0.1.0",
   "author": "",
@@ -170,7 +170,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`output`") }
                             Table.Cell("string")
                             Table.Cell { Markdown("`\"./build\"`") }
-                            Table.Cell { Markdown("Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` ([CLI](/reference/cli#wf-build)).") }
+                            Table.Cell { Markdown("Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` ([CLI](/reference/cli/build)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`output_type`") }
@@ -444,7 +444,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Heading("dev", id: "dev").h2
 
-                Markdown("The development server, `wf serve` ([Command line](/reference/cli#wf-serve)).")
+                Markdown("The development server, `wf serve` ([Command line](/reference/cli/serve)).")
 
                 Table(caption: "dev") {
                     Table.Head {
@@ -743,7 +743,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Markdown("The project's translations. Absent, the project has one language.")
 
-                CodeBlock(#"{ "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#, title: "json")
+                DocsCodeBlock(#"{ "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#, title: "json")
 
                 Table(caption: "i18n") {
                     Table.Head {
@@ -819,7 +819,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Markdown("The service worker that stores the site for when the network is gone. Added in **4.1**. Absent, no service worker is written.")
 
-                CodeBlock(#"{ "offline": { "precache": ["/", "/docs/*"], "fallback": "/offline", "cache": { "/api/*": "network-first" }, "sync": true } }"#, title: "json")
+                DocsCodeBlock(#"{ "offline": { "precache": ["/", "/docs/*"], "fallback": "/offline", "cache": { "/api/*": "network-first" }, "sync": true } }"#, title: "json")
 
                 Table(caption: "offline") {
                     Table.Head {
@@ -864,7 +864,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Markdown("The services `wf api` keeps from an OpenAPI spec, by name. Added in **7.0**. `wf api add` writes an entry; `wf api sync` rewrites each service's `generated/` folder from its spec; `wf api check` and `wf check` (`N07`) say when that folder is behind.")
 
-                CodeBlock(#"{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } } }"#, title: "json")
+                DocsCodeBlock(#"{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } } }"#, title: "json")
 
                 Table(caption: "apis") {
                     Table.Head {
@@ -903,9 +903,9 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Markdown("What a finding counts as, by its code or its family: `\"off\"`, `\"warn\"` or `\"error\"`. A code's setting wins over its family's.")
 
-                CodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
+                DocsCodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
 
-                Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop the component does not declare;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused (`E111`), and so is a key that is not a code or a family. There is no loose mode: what 7.0 refuses — `Any` and `Map` (`T23`, `T24`), an untyped `state` or parameter, a `match` with no `.failed` arm (`T21`), a removed request form (`N08`) — stays an error, and [`wf migrate`](/reference/cli#wf-migrate) carries a 6.x project across. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/errors).")
+                Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop the component does not declare;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused (`E111`), and so is a key that is not a code or a family. There is no loose mode: what 7.0 refuses — `Any` and `Map` (`T23`, `T24`), an untyped `state` or parameter, a `match` with no `.failed` arm (`T21`), a removed request form (`N08`) — stays an error, and [`wf migrate`](/reference/cli/migrate) carries a 6.x project across. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/errors).")
 
             }
         }

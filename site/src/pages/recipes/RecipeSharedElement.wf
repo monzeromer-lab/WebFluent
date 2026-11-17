@@ -31,7 +31,7 @@ page Article(path: "/p/:slug", title: "Post", description: "One post.", slug: St
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"type Post { id: String, slug: String, title: String, cover: String }
+            DocsCodeBlock(#"type Post { id: String, slug: String, title: String, cover: String }
 
 const posts: [Post] = [
     Post(id: "1", slug: "slow-roasting", title: "Slow roasting", cover: "/roast.jpg"),

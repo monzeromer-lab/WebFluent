@@ -53,7 +53,7 @@ page Join(path: "/", title: "Join", description: "Add yourself to the team.") {
 "# }) {
         code {
             Markdown("**Needs:** a server that answers `POST /api/people` with the person it made, or `422` and `\{ \"errors\": [\{ \"field\": \"email\", \"message\": \"…\" \}] \}`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"type Person { id: String, name: String, email: String }
+            DocsCodeBlock(#"type Person { id: String, name: String, email: String }
 type NewPerson { name: String, email: String }
 type FieldError { field: String, message: String }
 type ValidationProblem = Problem { errors: [FieldError] }

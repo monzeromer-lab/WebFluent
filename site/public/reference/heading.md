@@ -10,6 +10,16 @@ Heading; level picks the tag (h2 when none is given).
 Heading(_ content: String or Number or Bool, level: Enum, align: Enum, muted: Bool)
 ```
 
+## Example
+
+```wf
+Stack(gap: .xs) {
+    Heading("Pricing").h1
+    Heading("Plans for every team").h2.muted
+    Heading("What every plan has").h3
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,13 +34,6 @@ Heading(_ content: String or Number or Bool, level: Enum, align: Enum, muted: Bo
 `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Heading("Pricing").h1
-Heading("Frequently asked").h2
-```
 
 ## What it can raise
 

@@ -737,12 +737,57 @@ impl Checker<'_, '_> {
                         &format!("`{prop_name}:` on `{name}`"),
                     );
                 }
+                // `tone: if ok { .success } else { .danger }`: a choice of
+                // the prop's own cases, each held to them. Read as a value
+                // with no enum to name, the two cases joined to nothing.
+                (PropType::Enum(cases), prop_name) if is_case_choice(value) => {
+                    self.check_case_choice(
+                        value,
+                        cases,
+                        at,
+                        &format!("`{prop_name}:` on `{name}`"),
+                    );
+                }
                 (_, _) => {
                     self.infer(value, None);
                 }
             }
         }
         self.in_args = false;
+    }
+
+    /// A choice between a built-in enum prop's cases, checked case by case;
+    /// its conditions are conditions.
+    fn check_case_choice(
+        &mut self,
+        value: &Expr,
+        cases: &[crate::registry::CaseSig],
+        at: Span,
+        what: &str,
+    ) {
+        match value {
+            Expr::EnumCase(case) => {
+                if !cases.iter().any(|c| c.name == case) {
+                    let known: Vec<String> =
+                        cases.iter().map(|c| format!("`.{}`", c.name)).collect();
+                    self.error(
+                        at,
+                        "T02",
+                        format!("{what} has no case `.{case}`"),
+                        &format!("Its cases are {}", known.join(", ")),
+                    );
+                }
+            }
+            Expr::MethodCall(cond, method, args) if method == "__if" && args.len() == 2 => {
+                let ty = self.infer(cond, Some(&Type::Bool));
+                self.condition(&ty, cond, at, "if");
+                self.check_case_choice(&args[0], cases, at, what);
+                self.check_case_choice(&args[1], cases, at, what);
+            }
+            other => {
+                self.infer(other, None);
+            }
+        }
     }
 
     /// What `mount:` on `el` hands back: the handle `update:` and
@@ -912,5 +957,16 @@ fn place(t: Type, item: Option<&Type>, handle: Option<&Type>) -> Type {
         Type::Func(ps, r) => Type::Func(ps.into_iter().map(go).collect(), Box::new(go(*r))),
         Type::Result(v, e) => Type::Result(Box::new(go(*v)), Box::new(go(*e))),
         other => other,
+    }
+}
+
+/// Whether a value is a choice between bare cases: `.loud`, or an `if`
+/// whose arms are such choices.
+fn is_case_choice(value: &Expr) -> bool {
+    match value {
+        Expr::MethodCall(_, method, args) if method == "__if" && args.len() == 2 => args
+            .iter()
+            .all(|a| matches!(a, Expr::EnumCase(_)) || is_case_choice(a)),
+        _ => false,
     }
 }

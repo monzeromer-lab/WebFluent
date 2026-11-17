@@ -10,6 +10,14 @@ Stars, as radio buttons a screen reader hears as a choice of one to max:: the ar
 Rating(bind: State, max: Number, label: String, …)
 ```
 
+## Example
+
+```wf
+state stars = 4
+Rating(bind: stars, max: 5, label: "Your rating")
+Text("You gave it {stars} of 5").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,14 +33,6 @@ Rating(bind: State, max: Number, label: String, …)
 `.half` `.readonly`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state stars = 4
-Rating(bind: stars, max: 5, label: "Your rating").half
-Rating(bind: stars, label: "Average").readonly
-```
 
 ## What it can raise
 

@@ -4,27 +4,4 @@
 
 The page: https://webfluent.monzeromer.dev/reference/route
 
-Maps a path to a page (the original grammar; pages now declare their paths).
-
-```wf
-Route(path: Path, page: Declaration)
-```
-
-Use [`page`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md) in new code: it is the current spelling, and its page has the example.
-
-## Props
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `path:` | `Path` | URL pattern |
-| `page:` | `Declaration` | The page to render |
-
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## What it can raise
-
-- [E103](https://webfluent.monzeromer.dev/errors/E103.md): A flag, case, part, event or slot the component does not have
-- [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
-- [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
-
-Before WebFluent 5.0.
+`Route` is an older spelling of [`page`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md), which new code uses.

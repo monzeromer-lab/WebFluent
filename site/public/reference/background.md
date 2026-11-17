@@ -10,6 +10,21 @@ Drawn behind each PDF page's content, the size of the page: a cover, a band, a f
 Background(on: Enum) { … }
 ```
 
+## Example
+
+```wf
+Document(title: "Q3 report") {
+    Background(on: .first) {
+        Stack { style { height: 100%; background: linear-gradient(160deg, #0B1220, #1E3A8A) } }
+    }
+    Stack {
+        style { color: #ffffff; padding-top: 240px }
+        Heading("Q3 report").h1
+        Text("Northwind Ltd · October 2026")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,12 +40,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Background(on: .first) { Stack { style { height: 100%; background: linear-gradient(160deg, #1d4ed8, #0f172a) } } }
-```
 
 ## What it can raise
 

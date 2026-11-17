@@ -10,6 +10,22 @@ Temporary notification.
 Toast(_ message: String, tone: Enum)
 ```
 
+## Example
+
+```wf
+state archived = 0
+Row(gap: .sm) {
+    Button("Archive conversation") {
+        on click {
+            archived = archived + 1
+            toast("Conversation archived", action: "Undo", onAction: () => toast("Restored"))
+        }
+    }
+    Button("Save draft").primary { on click { toast("Draft saved", tone: .success) } }
+}
+Text("{archived} archived").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,13 +38,6 @@ Toast(_ message: String, tone: Enum)
 `.success` `.danger` `.warning` `.info`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state saved = false
-if saved { Toast("Saved").success }
-```
 
 ## What it can raise
 

@@ -28,7 +28,7 @@ page Shop(path: "/", title: "Shop", description: "A cart every tab agrees on.") 
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page; open it in two tabs. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"/// What one tab tells the others.
+            DocsCodeBlock(#"/// What one tab tells the others.
 type CartNews { items: Number }
 
 store Cart {

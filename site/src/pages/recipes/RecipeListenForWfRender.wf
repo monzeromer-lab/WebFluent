@@ -26,7 +26,7 @@ page Notes(path: "/notes", title: "Notes", description: "Links in Markdown that 
 "# }) {
         code {
             Markdown("**Needs:** the script `src/new-tab.js`, shown below.")
-            CodeBlock(#"const NOTES = """
+            DocsCodeBlock(#"const NOTES = """
     Read the [WebFluent guide](https://webfluent.monzeromer.dev/docs), or
     the [MDN page on links](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/a).
     """
@@ -36,7 +36,7 @@ page Notes(path: "/notes", title: "Notes", description: "Links in Markdown that 
     Markdown(NOTES, class: "notes")
 }"#, title: "wf")
             Markdown("The script is a plain file under `src/` ([Call your own JavaScript](/recipes/call-your-own-script)):")
-            CodeBlock(#"// src/new-tab.js
+            DocsCodeBlock(#"// src/new-tab.js
 document.addEventListener("wf:render", (e) => {
   // e.detail.route is the route that was drawn, e.detail.params its parameters.
   for (const a of document.querySelectorAll(".notes a")) {

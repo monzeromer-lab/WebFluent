@@ -1,0 +1,824 @@
+/// Chapter 46 of the guide, written from md-docs/reference/requests.md by
+/// scripts/docsite/guide.py; edit the guide, not this file.
+page RequestsGuide(path: "/reference/requests", title: "Services and requests", description: "Lookup tables for api, endpoints, http calls and resources: settings, options, members, HttpError, caching, retry, middleware, fakes and codes.", layout: DocsShell("Services and requests", kind: .reference, chapter: t("nav.group.reference"), blurb: "Every setting of a service, the endpoint grammar, call options, a read's members, HttpError, caching, retries, middleware, fakes and the N codes.", source: "md-docs/reference/requests.md", sections: [Anchor(id: "service-settings", label: "Service settings"), Anchor(id: "endpoint-grammar", label: "Endpoint grammar"), Anchor(id: "call-options", label: "Call options"), Anchor(id: "a-read-s-cases-and-members", label: "A read's cases and members"), Anchor(id: "a-call-s-members", label: "A call's members"), Anchor(id: "httperror", label: "HttpError"), Anchor(id: "caching", label: "Caching"), Anchor(id: "retries", label: "Retries"), Anchor(id: "middleware", label: "Middleware"), Anchor(id: "fakes", label: "Fakes"), Anchor(id: "the-codes", label: "The codes")], prevTo: "/reference/editors", prevLabel: t("ch.42"))) {
+    Stack(gap: .lg) {
+        Markdown("Lookup tables for `api`, `http` and `resource`. [Fetching data](/learn/15-data) teaches them in order.")
+
+        Heading("Service settings", id: "service-settings").h2
+
+        Markdown("What `api Backend(…) \{ … \}` takes, in its parentheses or at the top of its block, before the endpoints; a group (`api Backend.users \{ … \}`) takes none of them.")
+
+        Table(caption: "Service settings") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Setting").header
+                    Table.Cell("Values").header
+                    Table.Cell("Unset").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`base:`") }
+                    Table.Cell { Markdown("The address every path is below: `\"/api/v1\"`, `env.PUBLIC_API`") }
+                    Table.Cell("—")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`timeout:`") }
+                    Table.Cell { Markdown("A duration, after which a call fails `.timeout(limit)`: `10.seconds`") }
+                    Table.Cell { Markdown("`30.seconds`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`retry:`") }
+                    Table.Cell { Markdown("A count (`3`), `.never`, or `.backoff(times: 3, on: […], delay: 300, max: 30000, jitter: true)` ([Retries](#retries))") }
+                    Table.Cell("no retries")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cache:`") }
+                    Table.Cell { Markdown("`.maxAge(d)`, `.swr(d)`, `.forever`, `.none`, for every `GET` of the service ([Caching](#caching))") }
+                    Table.Cell("what the server's headers allow")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`credentials:`") }
+                    Table.Cell { Markdown("`.omit`, `.sameOrigin`, `.include` — whether cookies go with a call") }
+                    Table.Cell { Markdown("`.sameOrigin`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`mode:`") }
+                    Table.Cell { Markdown("`.cors`, `.noCors`, `.sameOrigin`") }
+                    Table.Cell { Markdown("`.cors`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`redirect:`") }
+                    Table.Cell { Markdown("`.follow`, `.error`, `.manual`") }
+                    Table.Cell { Markdown("`.follow`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`referrer:`") }
+                    Table.Cell { Markdown("A referrer policy: `.noReferrer`, `.origin`, …") }
+                    Table.Cell("the page's")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`middleware [ … ]`") }
+                    Table.Cell { Markdown("The steps every request passes through, in order ([Middleware](#middleware))") }
+                    Table.Cell("none")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`invalidations \{ … \}`") }
+                    Table.Cell { Markdown("`people.deletePerson(id) invalidates [people.listPeople, people.getPerson(id)]`, one line a write, checked as if written on the endpoint (`N05`)") }
+                    Table.Cell("—")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`pagination \{ … \}`") }
+                    Table.Cell { Markdown("`people.listPeople pages .cursor(…)`, one line a read, checked as if written on the endpoint (`N14`)") }
+                    Table.Cell("—")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`from \"openapi.json\"`") }
+                    Table.Cell { Markdown("`api Backend from \"openapi.json\" (base: …)`: the contract read from a spec") }
+                    Table.Cell("—")
+                }
+            }
+        }
+
+        Heading("Endpoint grammar", id: "endpoint-grammar").h2
+
+        Markdown("One line an endpoint: `verb name(parameters) at \"path\" -> result`, then its modifiers.")
+
+        Table(caption: "Endpoint grammar") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Part").header
+                    Table.Cell("Written").header
+                    Table.Cell("Means").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Verb")
+                    Table.Cell { Markdown("`get` `post` `put` `patch` `delete` `head` `options`") }
+                    Table.Cell("The HTTP method")
+                }
+                Table.Row {
+                    Table.Cell("Path")
+                    Table.Cell { Markdown("`at \"users/\{id\}\"`") }
+                    Table.Cell { Markdown("Required; below `base`. Every `\{name\}` is a parameter (`N01`)") }
+                }
+                Table.Row {
+                    Table.Cell("Path parameter")
+                    Table.Cell { Markdown("`id: String`, named in the path") }
+                    Table.Cell { Markdown("Filled in, URL-encoded. `null`, `\"\"`, `.` or `..` is not sent: the call ends `.cancelled`") }
+                }
+                Table.Row {
+                    Table.Cell("Body")
+                    Table.Cell { Markdown("`body: NewUser`") }
+                    Table.Cell("The request body, as JSON")
+                }
+                Table.Row {
+                    Table.Cell("File")
+                    Table.Cell { Markdown("`avatar: File`") }
+                    Table.Cell { Markdown("The call is sent as a form; `Backend.x.progress` follows the upload") }
+                }
+                Table.Row {
+                    Table.Cell("Query parameter")
+                    Table.Cell { Markdown("any other parameter; `pageSize: Number in query \"page-size\"`") }
+                    Table.Cell { Markdown("The query string under its own name, or the one written; `null` is left out") }
+                }
+                Table.Row {
+                    Table.Cell("Header parameter")
+                    Table.Cell { Markdown("`token: String in header \"X-Token\"`") }
+                    Table.Cell("Sent as that header")
+                }
+                Table.Row {
+                    Table.Cell("Cookie parameter")
+                    Table.Cell { Markdown("`theme: String? in cookie`, `sid: String in cookie \"session_id\"`") }
+                    Table.Cell("Set as that cookie")
+                }
+                Table.Row {
+                    Table.Cell("Default")
+                    Table.Cell { Markdown("`page: Number = 1`") }
+                    Table.Cell("Sent when the call leaves it out")
+                }
+                Table.Row {
+                    Table.Cell("Optional")
+                    Table.Cell { Markdown("`q: String?`") }
+                    Table.Cell { Markdown("May be left out; a parameter with neither must be given (`C01`)") }
+                }
+                Table.Row {
+                    Table.Cell("Result")
+                    Table.Cell { Markdown("`-> User!`") }
+                    Table.Cell { Markdown("A `User`, or an `HttpError`") }
+                }
+                Table.Row {
+                    Table.Cell("Result with an error enum")
+                    Table.Cell { Markdown("`-> User ! CreateUserError`") }
+                    Table.Cell { Markdown("A `User`, or a case of the enum (below)") }
+                }
+                Table.Row {
+                    Table.Cell("No value")
+                    Table.Cell { Markdown("`-> !` · `-> ! E`") }
+                    Table.Cell { Markdown("Nothing (a `204`), but it may fail") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`idempotent`") }
+                    Table.Cell("after the result")
+                    Table.Cell { Markdown("Safe to send twice: one `Idempotency-Key` on every try; retried, and kept offline, as a `PUT` is") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`invalidates [list, byId(id)]`") }
+                    Table.Cell("on a write")
+                    Table.Cell { Markdown("Reads of the same group a success makes stale; arguments are the write's parameters (`N05`)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`pages .number(param: page)`") }
+                    Table.Cell("on a read")
+                    Table.Cell("Next page: the parameter, one more; ends at an empty page")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`pages .cursor(param: after, next: p => p.next, items: p => p.items)`") }
+                    Table.Cell("on a read")
+                    Table.Cell { Markdown("Next page: the cursor `next:` gives; ends at `null`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`pages .link`") }
+                    Table.Cell("on a read")
+                    Table.Cell { Markdown("Next page: the `Link` header's `rel=\"next\"` (RFC 8288)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`streamed`") }
+                    Table.Cell { Markdown("on a `get` returning a list") }
+                    Table.Cell("One JSON value a line, each held to the item type")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`as: .text` · `.blob` · `.arrayBuffer` · `.none`") }
+                    Table.Cell("after the result")
+                    Table.Cell("How a success's body is read; JSON unset")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`errorAs:`") }
+                    Table.Cell { Markdown("as `as:`") }
+                    Table.Cell("How a failure's body is read")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cache:`") }
+                    Table.Cell { Markdown("`.maxAge(d)` · `.swr(d)` · `.forever` · `.none`") }
+                    Table.Cell("This endpoint's cache policy")
+                }
+            }
+        }
+
+        Markdown("The cases of an error enum, what an endpoint's `-> T ! E` names (`N12`).")
+
+        Table(caption: "Endpoint grammar") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Case").header
+                    Table.Cell("Written").header
+                    Table.Cell("Holds").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("A status")
+                    Table.Cell { Markdown("`conflict(problem: Problem) on 409`") }
+                    Table.Cell("That status's body, held to its type")
+                }
+                Table.Row {
+                    Table.Cell("A class")
+                    Table.Cell { Markdown("`clientError(problem: Problem?) on 4XX`") }
+                    Table.Cell("Every status of the class no other case names")
+                }
+                Table.Row {
+                    Table.Cell("The rest")
+                    Table.Cell { Markdown("`http(error: HttpError)`") }
+                    Table.Cell("Required, once: every other failure")
+                }
+            }
+        }
+
+        Heading("Call options", id: "call-options").h2
+
+        Markdown("Named arguments a call takes beside the endpoint's parameters; `http.get(url, …)` takes the same.")
+
+        Table(caption: "Call options") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Option").header
+                    Table.Cell("Values").header
+                    Table.Cell("Where").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`body:`") }
+                    Table.Cell { Markdown("What is sent, as JSON (a `File`, `FormData`, `Blob`, `ArrayBuffer`, `URLSearchParams` as it is)") }
+                    Table.Cell { Markdown("`http.post`/`put`/`patch`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`headers:`") }
+                    Table.Cell { Markdown("A map: `\{ \"X-Api-Key\": key \}`") }
+                    Table.Cell("any call")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`timeout:`") }
+                    Table.Cell("A duration")
+                    Table.Cell("any call")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`retry:`") }
+                    Table.Cell { Markdown("As the service setting (`N09` on a write that is not `idempotent`)") }
+                    Table.Cell("any call")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cache:`") }
+                    Table.Cell { Markdown("`.maxAge(d)`, `.swr(d)`, `.forever`, `.none`") }
+                    Table.Cell("any call")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`as:`") }
+                    Table.Cell { Markdown("`.text`, `.blob`, `.arrayBuffer`") }
+                    Table.Cell("any call")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`refresh:`") }
+                    Table.Cell { Markdown("`.onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never`, or a list") }
+                    Table.Cell { Markdown("a `resource`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`placeholder:`") }
+                    Table.Cell { Markdown("`.previous`: the last value stays shown, refreshing, while another request loads") }
+                    Table.Cell { Markdown("a `resource`") }
+                }
+            }
+        }
+
+        Heading("A read's cases and members", id: "a-read-s-cases-and-members").h2
+
+        Markdown("What `resource name = …` is. A `match` over it takes each case.")
+
+        Table(caption: "A read's cases and members") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Case").header
+                    Table.Cell("When").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`.loading`") }
+                    Table.Cell("Nothing to show: a first load, or a request whose address changed")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.failed(e)`") }
+                    Table.Cell { Markdown("The first load failed; `e` is an `HttpError`, or the endpoint's error enum") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.loaded(value, refreshing, stale)`") }
+                    Table.Cell { Markdown("Something to show; `refreshing` while it is asked again; `stale` a refresh's failure, else `null`") }
+                }
+            }
+        }
+
+        Table(caption: "A read's cases and members") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Member").header
+                    Table.Cell("What it is").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`name.value`") }
+                    Table.Cell { Markdown("The value while `.loaded`, else `null`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.isLoading` · `isLoaded` · `isFailed`") }
+                    Table.Cell("Which case it is in")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.isRefreshing`") }
+                    Table.Cell { Markdown("`.loaded` and asking again") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.error`") }
+                    Table.Cell { Markdown("The first load's failure, or the last refresh's, else `null`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.pending`") }
+                    Table.Cell("Any request of it running, the first load included")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.reload()`") }
+                    Table.Cell("Asks again: a refresh when a value is shown")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.invalidate()`") }
+                    Table.Cell("Drops what the cache holds for it, and asks again")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.cancel()`") }
+                    Table.Cell("Aborts the request that is running")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.items`") }
+                    Table.Cell("A paged read: every item loaded so far, in order")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.hasMore`") }
+                    Table.Cell("A paged read: whether there is a next page")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`name.loadMore()`") }
+                    Table.Cell("A paged read: the next page, as a refresh; nothing while a request runs")
+                }
+            }
+        }
+
+        Heading("A call's members", id: "a-call-s-members").h2
+
+        Markdown("What an endpoint and an action carry, beside being called.")
+
+        Table(caption: "A call's members") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Member").header
+                    Table.Cell("Of").header
+                    Table.Cell("What it is").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Backend.users.invalidate()`") }
+                    Table.Cell("an endpoint")
+                    Table.Cell("Drops its cache; every read of it on the page asks again. With arguments, one call's")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Backend.users.update(change)`") }
+                    Table.Cell("a read")
+                    Table.Cell { Markdown("Changes what every read of it shows, at once; returns what takes it back (`N02` on a write)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Backend.users.prefetch(args)`") }
+                    Table.Cell("an endpoint")
+                    Table.Cell("Asks now, into the cache")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Backend.users.url(args)`") }
+                    Table.Cell("an endpoint")
+                    Table.Cell("The address a call would ask")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Backend.users.key(args)`") }
+                    Table.Cell("an endpoint")
+                    Table.Cell("The key its cache holds a call's answer under")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Backend.avatar.progress`") }
+                    Table.Cell { Markdown("an endpoint with a `File`") }
+                    Table.Cell("The upload's progress, 0 to 1")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`save.pending`") }
+                    Table.Cell("an action")
+                    Table.Cell { Markdown("`true` while a call of it runs") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`save.result`") }
+                    Table.Cell("an action that may fail")
+                    Table.Cell { Markdown("Its last outcome, `.ok(v)` or `.err(e)`; `null` before it has run") }
+                }
+            }
+        }
+
+        Heading("HttpError", id: "httperror").h2
+
+        Markdown("What goes wrong between the page and the server. Every case has `.message`.")
+
+        Table(caption: "HttpError") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Case").header
+                    Table.Cell("When").header
+                    Table.Cell.header { Markdown("Its `.message`") }
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`.offline(queued)`") }
+                    Table.Cell { Markdown("The request reached no server: no network, a server down, a CORS refusal; `queued` is `true` when a write was kept to send later") }
+                    Table.Cell("the browser's words, or says so")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.timeout(limit)`") }
+                    Table.Cell { Markdown("No answer within `limit`, a `Duration`") }
+                    Table.Cell("says so")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.cancelled`") }
+                    Table.Cell { Markdown("The scope left, the request changed, `.cancel()`, or an empty path parameter") }
+                    Table.Cell("says so")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.transport(message)`") }
+                    Table.Cell("Anything else that stopped it: a middleware that threw")
+                    Table.Cell { Markdown("`message`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.decode(at, message)`") }
+                    Table.Cell("The answer is not the declared type, or not JSON")
+                    Table.Cell { Markdown("names the address and the place, `$[1].name is missing`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.status(code, problem)`") }
+                    Table.Cell { Markdown("An error status; `problem` is the body when it is `application/problem+json`, else `null`") }
+                    Table.Cell { Markdown("the body's `detail`, else its `title`, else `HTTP 503`") }
+                }
+            }
+        }
+
+        Markdown("`Problem`, RFC 9457's account of a failure; a project extends it like any record, `type ValidationProblem = Problem \{ errors: [FieldError] \}`.")
+
+        Table(caption: "HttpError") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Field").header
+                    Table.Cell("Type").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`type`") }
+                    Table.Cell { Markdown("`Url?`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`title`") }
+                    Table.Cell { Markdown("`String?`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`status`") }
+                    Table.Cell { Markdown("`Number?`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`detail`") }
+                    Table.Cell { Markdown("`String?`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`instance`") }
+                    Table.Cell { Markdown("`Url?`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`extensions`") }
+                    Table.Cell { Markdown("`Json`") }
+                }
+            }
+        }
+
+        Heading("Caching", id: "caching").h2
+
+        Markdown("A `GET` is kept as a private HTTP cache keeps it (RFC 9111), unless a `cache:` policy overrides the server.")
+
+        Table(caption: "Caching") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Server says").header
+                    Table.Cell("What is kept").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("No caching headers")
+                    Table.Cell("Nothing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Cache-Control: max-age=n`") }
+                    Table.Cell { Markdown("Fresh for `n` seconds, less its `Age`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Expires`") }
+                    Table.Cell { Markdown("Fresh until then, when there is no `max-age`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`stale-while-revalidate=n`") }
+                    Table.Cell { Markdown("Served stale for `n` more seconds, asked again behind it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`no-cache`") }
+                    Table.Cell("Kept, and asked again before every use")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`no-store`") }
+                    Table.Cell("Nothing")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ETag` · `Last-Modified`") }
+                    Table.Cell { Markdown("Asked again with `If-None-Match` · `If-Modified-Since`; a `304` serves what is held") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Vary`") }
+                    Table.Cell { Markdown("Kept apart by those request headers; `Vary: *` never reused") }
+                }
+                Table.Row {
+                    Table.Cell("—")
+                    Table.Cell("Kept apart by the credentials a request carries; at most 256 answers, the one read least recently dropped first")
+                }
+            }
+        }
+
+        Table(caption: "Caching") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Policy").header
+                    Table.Cell("Means").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`.maxAge(d)`") }
+                    Table.Cell { Markdown("Fresh for `d`, whatever the server says") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.swr(d)`") }
+                    Table.Cell { Markdown("Served at once; once older than `d`, asked again behind it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.forever`") }
+                    Table.Cell("The first answer, for good")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.none`") }
+                    Table.Cell("Nothing kept; every call asks")
+                }
+            }
+        }
+
+        Markdown("Two readers of one address make one request, cached or not; each keeps its own abort.")
+
+        Heading("Retries", id: "retries").h2
+
+        Markdown("What `retry:` does.")
+
+        Table(caption: "Retries") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Rule").header
+                    Table.Cell("").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Methods retried")
+                    Table.Cell { Markdown("`GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`; a `POST` or `PATCH` only when its endpoint is `idempotent`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("Failures retried, unset `on:`") }
+                    Table.Cell { Markdown("`.network`, `.timeout`, `.status5xx`, `.status429`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on:` takes") }
+                    Table.Cell { Markdown("`.network`, `.timeout`, `.status5xx`, `.status4xx`, one status (`.status503`)") }
+                }
+                Table.Row {
+                    Table.Cell("Never retried")
+                    Table.Cell("A cancelled call")
+                }
+                Table.Row {
+                    Table.Cell("Wait")
+                    Table.Cell { Markdown("`delay` (300 ms) doubled each try, up to `max` (30 s), times a jitter of 0.5–1 (`jitter: false` for none)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Retry-After`") }
+                    Table.Cell("The server's wait, in seconds or as a date, wins")
+                }
+            }
+        }
+
+        Heading("Middleware", id: "middleware").h2
+
+        Markdown("A step is handed the request and the rest of the chain, `next`, and returns a result: `.ok(json)` or `.err(httpError)`.")
+
+        Table(caption: "Middleware") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Step").header
+                    Table.Cell("What it does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`bearer(token)`") }
+                    Table.Cell { Markdown("`Authorization: Bearer …`, read as the request passes; nothing when empty") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`header(name, value)`") }
+                    Table.Cell("One header, read as the request passes")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`refreshOn401(action)`") }
+                    Table.Cell { Markdown("On a `401`, runs the action once for every request that heard it, then sends the request again through the steps after it; put it before `bearer`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`requestId`") }
+                    Table.Cell { Markdown("A fresh `X-Request-Id`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`log`") }
+                    Table.Cell("Each request and how it ended, in the console")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`middleware name(req, next) \{ … \}`") }
+                    Table.Cell { Markdown("A step of the project's own; one that throws fails the call `.transport`") }
+                }
+            }
+        }
+
+        Table(caption: "Middleware") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell.header { Markdown("`Request` field") }
+                    Table.Cell("Type").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`url`") }
+                    Table.Cell { Markdown("`String`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`method`") }
+                    Table.Cell { Markdown("`String`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`headers`") }
+                    Table.Cell { Markdown("`[String: String]`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`body`") }
+                    Table.Cell { Markdown("`Json?`") }
+                }
+            }
+        }
+
+        Heading("Fakes", id: "fakes").h2
+
+        Markdown("`fake Name for Backend.group \{ endpoint(params) \{ .ok(…) \} \}`, as `N06` holds it.")
+
+        Table(caption: "Fakes") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Rule").header
+                    Table.Cell("").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Endpoints")
+                    Table.Cell("Each one it answers is one the group has, answered once")
+                }
+                Table.Row {
+                    Table.Cell("Parameters")
+                    Table.Cell("Each name it binds is one of that endpoint's; one the call left out is its default")
+                }
+                Table.Row {
+                    Table.Cell("Answers")
+                    Table.Cell { Markdown("`.ok(v)` of the endpoint's result, or `.err(e)` of its error: an `HttpError` case or a case of its error enum") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`from examples`") }
+                    Table.Cell("Every endpoint it does not answer is answered with the spec's example of a success")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A test's `fakes: [A, B]`") }
+                    Table.Cell("Each names a fake; no two answer one endpoint")
+                }
+                Table.Row {
+                    Table.Cell("A call no fake answers")
+                    Table.Cell("Fails the test, naming the endpoint")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A write's `invalidates`") }
+                    Table.Cell("Asks its reads again, as it does live")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("Pages · `streamed`") }
+                    Table.Cell("A paged endpoint is answered a page at a time; a streamed one with the whole list")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`expect called Backend.group.endpoint`") }
+                    Table.Cell("Names an endpoint the group has")
+                }
+                Table.Row {
+                    Table.Cell("Builds")
+                    Table.Cell { Markdown("Leave fakes out; `wf verify --fakes FILE` builds a copy with them") }
+                }
+            }
+        }
+
+        Heading("The codes", id: "the-codes").h2
+
+        Table(caption: "The codes") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Code").header
+                    Table.Cell("What it means").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("[N01](/errors/N01)") }
+                    Table.Cell { Markdown("A path's `\{name\}` that no parameter fills, or a parameter in the path and in a header or cookie") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N02](/errors/N02)") }
+                    Table.Cell { Markdown("A `resource` over a write, or `.update` on one") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N03](/errors/N03)") }
+                    Table.Cell { Markdown("`try` in an action that declares no error, or one that cannot hold it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N04](/errors/N04)") }
+                    Table.Cell("A call's result awaited on its own, so a failure is never heard")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N05](/errors/N05)") }
+                    Table.Cell { Markdown("An `invalidates` naming no read of the group, or an argument that is not the write's") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N06](/errors/N06)") }
+                    Table.Cell("A fake that does not match its group's contract")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N07](/errors/N07)") }
+                    Table.Cell { Markdown("A service's `generated/` files behind its spec") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N08](/errors/N08)") }
+                    Table.Cell { Markdown("A 6.x form: `fetch(…)`, `-> T`, `errors \{ \}`, `loading`/`error`/`ready` arms, `headers \{ \}`, `paginate:`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N09](/errors/N09)") }
+                    Table.Cell { Markdown("`retry:` on a `POST` or `PATCH` that is not `idempotent`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N11](/errors/N11)") }
+                    Table.Cell { Markdown("`Any` or `Map` in a contract, or an `http.get` with no type for its answer") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N12](/errors/N12)") }
+                    Table.Cell { Markdown("An error enum without one `http(error: HttpError)` case, or a case with no status") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[N14](/errors/N14)") }
+                    Table.Cell { Markdown("A `pages` or `streamed` an endpoint cannot have, or `for await` over a call that is not streamed") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[T17](/errors/T17)") }
+                    Table.Cell { Markdown("An async result used before it is awaited, or `await` where it cannot run") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[T21](/errors/T21)") }
+                    Table.Cell { Markdown("A `match` over a read with no `.failed` arm and no `else`") }
+                }
+            }
+        }
+    }
+}

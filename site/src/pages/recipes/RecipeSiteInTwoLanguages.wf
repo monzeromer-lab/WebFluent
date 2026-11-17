@@ -22,12 +22,12 @@ page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
 "# }) {
         code {
             Markdown("**Needs:** the settings below in `webfluent.app.json`. It claims `/` and the name `Home`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
     "build": { "ssg": true },
     "meta": { "lang": "ar", "site_url": "https://example.com" }
 }"#, title: "json")
             Markdown("Then the pages:")
-            CodeBlock(#"page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {
+            DocsCodeBlock(#"page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {
     Heading("مرحباً").h1
 }
 

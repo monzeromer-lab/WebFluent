@@ -10,6 +10,18 @@ Terms and what they are (<dl>): a column of pairs, or .grid, each term beside it
 DescriptionList(grid: Bool) { … }
 ```
 
+## Example
+
+```wf
+DescriptionList.grid {
+    DescriptionList.Item("Service", value: "checkout-api")
+    DescriptionList.Item("Region", value: "eu-west-1")
+    DescriptionList.Item("Replicas", value: 3)
+    DescriptionList.Item("Status") { Badge("Live").success }
+    DescriptionList.Item("Last deploy") { RelativeTime(@2026-11-14T16:05Z) }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -28,18 +40,27 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `DescriptionList.DescriptionList.Item`
-- `DescriptionList.DescriptionList.Term`
-- `DescriptionList.DescriptionList.Details`
+Written under its name, inside `DescriptionList`.
 
-## Example
+### DescriptionList.Item
+
+One pair: its term, and value: or its block.
 
 ```wf
-DescriptionList.grid {
-    DescriptionList.Item("Region", value: "eu-west")
-    DescriptionList.Item("Status") { Badge("Live").success }
-}
+DescriptionList.Item(_ term: String, value: String or Number or Bool) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `term` | `String  (positional)` | What it is |
+| `value:` | `String or Number or Bool` | Its value, as text; unset, its block |
+
+## Drawn for it
+
+What `DescriptionList` draws itself, by its class; not written.
+
+- `DescriptionList.Term` (`.`): A term.
+- `DescriptionList.Details` (`.`): A value.
 
 ## What it can raise
 

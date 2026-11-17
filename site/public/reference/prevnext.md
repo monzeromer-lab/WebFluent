@@ -10,6 +10,15 @@ The pages before and after this one in an ordered set — a guide's chapters: ea
 PrevNext(label: String) { … }
 ```
 
+## Example
+
+```wf
+PrevNext {
+    PrevNext.Prev("Forms", to: "/learn")
+    PrevNext.Next("Data and requests", to: "/learn/15-data")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,17 +33,35 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `PrevNext.PrevNext.Prev`
-- `PrevNext.PrevNext.Next`
+Written under its name, inside `PrevNext`.
 
-## Example
+### PrevNext.Prev
+
+The page before: its title, and where it is.
 
 ```wf
-PrevNext {
-    PrevNext.Prev("Forms", to: "/")
-    PrevNext.Next("Stores", to: "/")
-}
+PrevNext.Prev(_ title: String, to: Path, label: String)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | The page's title |
+| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `label:` | `String` | The word above the title (unset, `Previous`) |
+
+### PrevNext.Next
+
+The page after: its title, and where it is.
+
+```wf
+PrevNext.Next(_ title: String, to: Path, label: String)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | The page's title |
+| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `label:` | `String` | The word above the title (unset, `Next`) |
 
 ## What it can raise
 

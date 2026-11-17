@@ -10,6 +10,19 @@ Avatars overlapping in a row: past max: the rest are one +3.
 AvatarGroup(max: Number, label: String) { … }
 ```
 
+## Example
+
+```wf
+AvatarGroup(max: 4, label: "Reviewers") {
+    Avatar(src: "/icon-512.png", alt: "Ada Lovelace")
+    Avatar(initials: "GH").primary
+    Avatar(initials: "AT")
+    Avatar(initials: "ED")
+    Avatar(initials: "KJ")
+    Avatar(initials: "MH")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,17 +35,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-AvatarGroup(max: 3, label: "Team") {
-    Avatar(initials: "AL")
-    Avatar(initials: "GH")
-    Avatar(initials: "AT")
-    Avatar(initials: "ED")
-}
-```
 
 ## What it can raise
 

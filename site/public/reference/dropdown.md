@@ -10,6 +10,19 @@ Button that opens a menu of Dropdown.Items.
 Dropdown(_ label: String) { … }
 ```
 
+## Example
+
+```wf
+state said = "Nothing chosen"
+Dropdown("Actions") {
+    Dropdown.Item { Button("Duplicate") { on click { said = "Duplicated" } } }
+    Dropdown.Item { Button("Rename") { on click { said = "Renamed" } } }
+    Dropdown.Divider
+    Dropdown.Item { Button("Archive").danger { on click { said = "Archived" } } }
+}
+Text(said).muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,17 +37,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Dropdown.Dropdown.Item`
-- `Dropdown.Dropdown.Divider`
+Written under its name, inside `Dropdown`.
 
-## Example
+### Dropdown.Item
+
+One entry of the menu.
 
 ```wf
-Dropdown(label: "Actions") {
-    Dropdown.Item { Text("Duplicate") }
-    Dropdown.Divider
-    Dropdown.Item { Text("Archive") }
-}
+Dropdown.Item { … }
+```
+
+### Dropdown.Divider
+
+A rule between groups of entries.
+
+```wf
+Dropdown.Divider
 ```
 
 ## What it can raise

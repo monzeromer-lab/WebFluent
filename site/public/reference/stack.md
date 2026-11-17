@@ -10,6 +10,18 @@ Vertical flex layout.
 Stack(gap: Enum, align: Enum, justify: Enum) { … }
 ```
 
+## Example
+
+```wf
+Stack(gap: .md) {
+    style { max-width: 22rem; padding: 1rem; border: 1px solid $color-border; border-radius: $radius-md }
+    Heading("Sign in").h3
+    Text("Use the address you signed up with.").muted
+    Button("Continue with email").primary.full
+    Button("Continue with a passkey").full
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -27,15 +39,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Stack(gap: .sm) {
-    Text("First")
-    Text("Second")
-}
-```
 
 ## What it can raise
 

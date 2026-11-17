@@ -27,7 +27,7 @@ page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page; open it in two tabs of one browser.")
-            CodeBlock(#"type Wave { text: String }
+            DocsCodeBlock(#"type Wave { text: String }
 
 page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
     state heard = ""
@@ -53,7 +53,7 @@ page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
 
             Markdown("Between two readers on different machines, the signal rides the app's own socket or `api` instead of a `broadcast` channel, and `ice:` names a STUN server so readers behind different networks can find each other:")
 
-            CodeBlock(#"type Wave { text: String }
+            DocsCodeBlock(#"type Wave { text: String }
 
 page Call(path: "/call", title: "Call", description: "Two readers, two machines.") {
     state heard = ""

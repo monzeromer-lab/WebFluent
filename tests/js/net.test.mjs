@@ -62,6 +62,17 @@ test("offline is its own error, not a network failure", async () => {
   assert.equal(error[0], "offline");
 });
 
+test("a request that could not be made is tried again under the default policy, which names the network", async () => {
+  let calls = 0;
+  const { WF } = load(async () => {
+    calls += 1;
+    if (calls < 2) throw new TypeError("Failed to fetch");
+    return response({ ok: true });
+  });
+  assert.deepEqual(await WF.send("/api/x", { retry: { times: 3, delay: 1 } }), { ok: true });
+  assert.equal(calls, 2, "the dropped connection, then the answer");
+});
+
 test("a failed request is tried again, and the tries stop where the policy says", async () => {
   let calls = 0;
   const { WF } = load(async () => {

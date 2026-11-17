@@ -14,7 +14,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
-from examples import EXAMPLES  # noqa: E402
+import example_set  # noqa: E402
 # The page is `md-docs/reference/components.md`; its front matter is its own,
 # kept as it is.
 TARGET = ROOT / "md-docs" / "reference" / "components.md"
@@ -94,7 +94,7 @@ for g in groups:
         if c["children"] == "elements":
             sig += " { … }"
         out.append(f"```\n{sig}\n```\n")
-        example = EXAMPLES.get(name)
+        example = example_set.entry(name)["code"] or None
         if example is None:
             sys.exit(f"scripts/docsite/examples.py has no example of {name}")
         out.append(f"```wf\n{example}\n```\n")

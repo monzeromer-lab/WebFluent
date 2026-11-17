@@ -28,7 +28,7 @@ page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
 "# }) {
         code {
             Markdown("**Needs:** a WebSocket server; change `wss://example.com/chat` to yours.")
-            CodeBlock(#"type Outgoing { text: String }
+            DocsCodeBlock(#"type Outgoing { text: String }
 type Incoming { id: String, text: String }
 
 page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
@@ -55,7 +55,7 @@ page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
 
             Markdown("The types may be declared beside the page, and the socket's block need hold nothing else:")
 
-            CodeBlock(#"type Incoming { id: String, text: String }
+            DocsCodeBlock(#"type Incoming { id: String, text: String }
 type Outgoing { text: String }
 
 page Room(path: "/room", title: "Room", description: "A typed conversation.") {

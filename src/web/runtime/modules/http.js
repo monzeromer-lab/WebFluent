@@ -1,7 +1,7 @@
   // ─── HTTP ────────────────────────────────────────────
   //
   // One request engine, under `api` declarations, `resource`, and `await
-  // fetch(…)` in an action. What it adds over the browser's `fetch` is
+  // http.get(…)` in an action. What it adds over the browser's `fetch` is
   // everything a page actually needs and had to hand-write: a timeout, an
   // abort that follows the scope, retries with backoff, a cache with
   // revalidation, request dedupe, progress, and errors that say what went
@@ -159,6 +159,10 @@
     const on = policy.on || ["network", "timeout", "status5xx", "status429"];
     if (error.kind === "aborted") return false;
     if (on.includes(error.kind)) return true;
+    // A request that could not be made (`offline`: the server unreachable,
+    // the connection dropped) is what `.network` names; a write kept to
+    // send later is not tried again now.
+    if (error.kind === "offline" && on.includes("network") && !error.queued) return true;
     if (error.kind === "status") {
       if (on.includes("status" + error.status)) return true;
       if (on.includes("status5xx") && error.status >= 500) return true;

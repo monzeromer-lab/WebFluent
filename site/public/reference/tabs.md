@@ -10,6 +10,24 @@ Tab strip switching between its pages: the arrow keys move between the tabs (the
 Tabs(bind: State, value: String or Number, orientation: Enum, …) { … }
 ```
 
+## Example
+
+```wf
+state tab = "profile"
+Tabs(bind: tab, label: "Account") {
+    Tabs.Page("Profile", value: "profile") {
+        Text("Your name, photo and the email we write to.")
+    }
+    Tabs.Page("Billing", value: "billing") {
+        Text("Pro plan, renews on 1 March.")
+    }
+    Tabs.Page("Danger zone", value: "danger", disabled: true) {
+        Text("Only an owner can delete the account.")
+    }
+}
+Text("Open: {tab}").muted.sm
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -36,16 +54,23 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Tabs.Tabs.Page`
+Written under its name, inside `Tabs`.
 
-## Example
+### Tabs.Page
+
+One tab and its panel.
 
 ```wf
-Tabs {
-    Tabs.Page("Profile") { Text("Your details") }
-    Tabs.Page("Billing") { Text("Your plan") }
-}
+Tabs.Page(_ label: String, value: String or Number, disabled: Bool) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | The tab's label |
+| `value:` | `String or Number` | What the Tabs' `bind:` holds while this tab is open |
+| `disabled:` | `Bool` | Shown, but not opened: the arrow keys pass over it |
+
+Flags: `.disabled`
 
 ## What it can raise
 

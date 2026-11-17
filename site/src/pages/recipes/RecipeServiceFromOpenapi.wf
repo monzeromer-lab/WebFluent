@@ -46,7 +46,7 @@ page People(path: "/", title: "People", description: "Everyone on the team.") {
                         Line(command: "wf api add openapi.json --name Backend")
                     ])
             Markdown("`add` records the service in `webfluent.app.json`, writes `src/api/backend/service.wf` once — yours, where the base and the middleware go — and writes the contract into `src/api/backend/generated/`, one file a tag and `types.wf`. Call it like any `api`:")
-            CodeBlock(#"// What `wf api sync` writes, for a spec with a `people` tag:
+            DocsCodeBlock(#"// What `wf api sync` writes, for a spec with a `people` tag:
 type Person { id: String, name: String }
 type PersonPage { items: [Person], nextCursor: String? }
 

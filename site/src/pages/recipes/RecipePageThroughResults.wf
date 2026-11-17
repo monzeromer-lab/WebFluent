@@ -28,7 +28,7 @@ page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.")
 "# }) {
         code {
             Markdown("**Needs:** a server that answers `/api/rows?page=…&per=…` with a list of rows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"type Row { id: String, name: String }
+            DocsCodeBlock(#"type Row { id: String, name: String }
 type RowPage { items: [Row], pages: Number }
 
 page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {

@@ -10,6 +10,22 @@ Where the current page renders. May sit at any depth inside app; pages declare t
 Router(transition: Enum, duration: String) { … }
 ```
 
+## Example
+
+```wf
+Stack {
+    Navbar {
+        Navbar.Brand { Link("Ledger", to: "/") }
+        Navbar.Links {
+            Link("Learn", to: "/learn")
+            Link("Reference", to: "/reference")
+        }
+    }
+    Router(transition: .fade, duration: "200ms")
+    Text("© 2026 Ledger").muted.sm
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,15 +42,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-app {
-    Navbar { Navbar.Brand { Link("Acme", to: "/") } }
-    Router(transition: .fade, duration: "200ms")
-}
-```
 
 ## What it can raise
 

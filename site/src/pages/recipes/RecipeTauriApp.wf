@@ -3,7 +3,7 @@
 page RecipeTauriApp(path: "/recipes/tauri-app", title: "Make a desktop or phone app with Tauri — Recipes", description: "Make a WebFluent project a Tauri app for the desktop or a phone: set it up, run it while you work, call Rust from a page, hear its events, package it.") {
     RecipeShell("Make a desktop or phone app with Tauri", summary: "This recipe ships a WebFluent project as a Tauri app: the build runs in the system's own web view, and a page calls a Rust side for what a browser cannot do — read a file on disk, open a folder dialog, show a notification. Nothing in the language changes; a page reaches Rust through a plain script under `src/`, with one typed function per command ([Call your own JavaScript](/recipes/call-your-own-script)). For a native side in JavaScript on Node.js instead, see [Make a desktop app with Electron](/recipes/electron-app).  You need a WebFluent project that builds with `wf build`, Rust, and the system libraries listed in Tauri's [prerequisites](https://tauri.app/start/prerequisites/).  These are the settings a Tauri app needs. In `webfluent.app.json`:", outputs: ["desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Make a desktop app with Electron", to: "/recipes/electron-app"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script")], source: "md-docs/recipes/tauri-app.md", how: true, hasVariations: true, project: {}) {
         code {
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
     "build": { "compress": false },
     "meta": { "sitemap": false, "connect": ["ipc:", "http://ipc.localhost"] }
 }"#, title: "json")
@@ -16,7 +16,7 @@ page RecipeTauriApp(path: "/recipes/tauri-app", title: "Make a desktop or phone 
                         Line(command: "cargo tauri dev")
                     ])
             Markdown("And two keys in the `src-tauri/tauri.conf.json` that `cargo tauri init` writes:")
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
     "identifier": "com.example.notes",
     "app": { "withGlobalTauri": true }
 }"#, title: "json")
@@ -58,7 +58,7 @@ page RecipeTauriApp(path: "/recipes/tauri-app", title: "Make a desktop or phone 
 
         Markdown("A *command* is a Rust function a page may call. Write it in `src-tauri/src/lib.rs` and list it in `run()`. This file has two commands: `greet` returns a value, and `start_sync` returns at once and reports its progress as events:")
 
-        CodeBlock(#"use tauri::Emitter;
+        DocsCodeBlock(#"use tauri::Emitter;
 
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -80,7 +80,7 @@ fn start_sync(app: tauri::AppHandle) {
 
         Markdown("A page calls a command through a script that names it. Write one function per command, typed with JSDoc, so `.wf` code calls `greet(name)` like any other function and the checker holds every call to its types:")
 
-        CodeBlock(#"// src/native.js
+        DocsCodeBlock(#"// src/native.js
 /**
  * Whether the page is inside the app, rather than a browser tab.
  * @returns {boolean}
@@ -117,7 +117,7 @@ function startSync() {
 
         Markdown("Three rules hold for every command:\n\n- **Arguments are named.** A command's parameters are the keys of the object, in camelCase: a Rust `note_id` is `\{ noteId \}`.\n- **A result is a promise.** A command that returns `Result<T, E>` resolves with the `T`. Its `Err` rejects, and `invoke` turns it into an `Error`, so a page's `catch e` reads `e.message`.\n- **`inApp()` is false in a browser tab** — `wf serve` opened in a browser, `wf test`, `wf verify` — where there is no native side. Each function answers there instead of throwing, so every page still loads.\n\nThe page awaits the function in an action and shows the reply:")
 
-        CodeBlock(#"page Hello(path: "/", title: "Hello", description: "Says hello from Rust.") {
+        DocsCodeBlock(#"page Hello(path: "/", title: "Hello", description: "Says hello from Rust.") {
     state name = ""
     state reply = ""
 
@@ -144,7 +144,7 @@ function startSync() {
 
         Markdown("`start_sync` returns at once and reports as it goes, with `app.emit(…)`. A page hears an event for as long as it shows, so tie the listener to the page's lifetime: `mount:` starts it, and `cleanup:` stops it when the page, branch or item leaves. First, wrap Tauri's `listen` in a script:")
 
-        CodeBlock(#"// src/events.js
+        DocsCodeBlock(#"// src/events.js
 /**
  * Hear a number the native side emits — how far a sync has got — until the
  * function it returns is called.
@@ -160,7 +160,7 @@ function onEvent(name, handler) {
 
         Markdown("Then hand the listener an action. This page shows a progress bar that fills as the events arrive:")
 
-        CodeBlock(#"page Sync(path: "/sync", title: "Sync", description: "How far the sync has got.") {
+        DocsCodeBlock(#"page Sync(path: "/sync", title: "Sync", description: "How far the sync has got.") {
     state done = 0
     state problem = ""
 
@@ -196,7 +196,7 @@ function onEvent(name, handler) {
 
         Markdown("With `withGlobalTauri` on, the plugin's API is on `window.__TAURI__.dialog`. Wrap what a page uses, as with a command:")
 
-        CodeBlock(#"// src/dialogs.js
+        DocsCodeBlock(#"// src/dialogs.js
 /**
  * Ask for a folder; `null` when the reader cancels.
  * @returns {Promise<?string>}
@@ -208,7 +208,7 @@ function pickFolder() {
 
         Markdown("This page asks for a folder and shows the one the reader picked:")
 
-        CodeBlock(#"page Library(path: "/library", title: "Library", description: "Where the notes are kept.") {
+        DocsCodeBlock(#"page Library(path: "/library", title: "Library", description: "Where the notes are kept.") {
     state folder = ""
 
     action choose() {
@@ -233,7 +233,7 @@ function pickFolder() {
 
         Markdown("With `build.csp` on — as it is for a project `wf init` makes — every page says where it may send requests ([Security](/about/security)). Tauri sends each call as a request: to `http://ipc.localhost` on Windows and Android, and to `ipc://localhost` on macOS, Linux and iOS. Name both in `meta.connect`, the second as its scheme alone, which is how a policy names an app's own scheme:")
 
-        CodeBlock(#"{ "meta": { "connect": ["ipc:", "http://ipc.localhost"] } }"#, title: "json")
+        DocsCodeBlock(#"{ "meta": { "connect": ["ipc:", "http://ipc.localhost"] } }"#, title: "json")
 
         Markdown("Other settings follow the same pattern:\n\n- **A protocol of your own** (`register_uri_scheme_protocol`) is named the same way. For a frame the app fills from it, write `\"frame\": [\"myapp:\", \"http://myapp.localhost\"]`; a frame's `src` may then use that scheme.\n- **WebAssembly**: a page that compiles it adds `\"wasm\": true`.\n- **Style elements**: a page whose scripts write `<style>` elements adds `\"style_elements\": true`.")
 

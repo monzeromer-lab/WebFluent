@@ -20,4 +20,22 @@ wf generate KIND NAME [options]
 
 **Writes:** a new source file
 
-The [full entry for wf generate](https://webfluent.monzeromer.dev/reference/cli.md#wf-generate) has its examples and the details this page leaves out.
+Writes a starter page, component or store.
+
+```bash
+wf generate page Pricing
+wf generate component PriceCard
+wf generate store Cart
+```
+
+A page gets a path from its name (`/pricing`), a title, a description and an
+`h1`. The file is `.wfx` when the project is written in that layout.
+
+`wf generate block NAME` writes a whole page instead — `sign-in` (a form
+that checks what is typed), `pricing` (three plans, monthly or yearly),
+`dashboard` (figures, a trend and a table) or `settings` (a profile,
+notifications and the account, in tabs) — into `src/pages/`. It is
+ordinary source, the project's own to change; it builds with nothing to
+report.
+`wf generate` never overwrites a file: when one exists, it says so and
+writes nothing.

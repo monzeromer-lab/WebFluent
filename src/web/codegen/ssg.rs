@@ -342,6 +342,7 @@ pub fn render_page_html_studio(
             owners: vec![page.name.clone(), "App".to_string()],
             scope,
             in_thead: false,
+            in_text: false,
             current_path: page.path.clone(),
             locales: config
                 .i18n
@@ -615,6 +616,9 @@ pub(crate) struct PaintState {
     pub(crate) scope: Scope,
     /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
     pub(crate) in_thead: bool,
+    /// Inside a `Text`, a `Text` is a run of its line (`<span>`), as on the
+    /// live page.
+    pub(crate) in_text: bool,
     /// The route of the page being painted, so a link to it can be marked
     /// current in the static HTML as the runtime marks it after hydration.
     pub(crate) current_path: String,
@@ -2664,6 +2668,8 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 Arg::Named(k, Expr::StringLiteral(t)) if k == "tag" => Some(t.as_str()),
                 _ => None,
             }))
+        } else if name == "Text" && ctx.in_text {
+            "span"
         } else {
             element_tag(name, &ui.modifiers)
         };
@@ -2869,13 +2875,18 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
 
     ctx.indent += 1;
     let was_in_thead = ctx.in_thead;
+    let was_in_text = ctx.in_text;
     if name == "Thead" {
         ctx.in_thead = true;
     } else if name == "Tbody" {
         ctx.in_thead = false;
     }
+    if name == "Text" {
+        ctx.in_text = true;
+    }
     result.push_str(&ctx.statements(&ui.children));
     ctx.in_thead = was_in_thead;
+    ctx.in_text = was_in_text;
     ctx.indent -= 1;
 
     result.push_str(&format!("{indent}</{actual_tag}>\n"));

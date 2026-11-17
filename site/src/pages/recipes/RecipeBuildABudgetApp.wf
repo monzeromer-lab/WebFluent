@@ -17,7 +17,7 @@ page RecipeBuildABudgetApp(path: "/recipes/build-a-budget-app", title: "Build a 
 
         Markdown("The project's `webfluent.app.json`:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "pocket",
   "version": "1.0.0",
   "author": "WebFluent tutorials",
@@ -49,7 +49,7 @@ page RecipeBuildABudgetApp(path: "/recipes/build-a-budget-app", title: "Build a 
 
         Markdown("The ledger's types use four of the types the language brings:")
 
-        CodeBlock(#"// src/types.wf
+        DocsCodeBlock(#"// src/types.wf
 /// Which way the money went.
 enum Kind { income, expense }
 
@@ -74,7 +74,7 @@ type Entry {
 
         Markdown("`Money`, `Date`, `Color` and `Uuid` are each a plain JSON value at run time ([Types](/learn/12-types)). Money is kept in minor units, `\{ amount: 1299, currency: \"USD\" \}`, so a sum never drifts by a fraction of a cent. You write it `$12.99` and show it with `format(m)`. What the language works out is a call — `a.plus(b)`, `a.minus(b)`, `ONE.times(12.5)` — and what the value carries is a field: `m.amount`. Two constants give every sum a starting point:")
 
-        CodeBlock(#"// src/types.wf
+        DocsCodeBlock(#"// src/types.wf
 /// Nothing yet: the starting point every sum adds to.
 const ZERO: Money = $0.00
 
@@ -87,7 +87,7 @@ const ONE: Money = $1.00"#, title: "wf")
 
         Markdown("Every figure on every page is a `derived` value of the `Ledger` store:")
 
-        CodeBlock(#"// src/stores/Ledger.wf
+        DocsCodeBlock(#"// src/stores/Ledger.wf
     derived today = now.date()
     derived newestFirst = entries.sortBy(e => e.date).reverse()
 
@@ -103,7 +103,7 @@ const ONE: Money = $1.00"#, title: "wf")
 
         Markdown("Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step ([Stores](/learn/11-stores)). `now` is the browser's clock as a value, so `today` turns over at midnight. `sum` is an action that only returns a value, which a derived value may call:")
 
-        CodeBlock(#"// src/stores/Ledger.wf
+        DocsCodeBlock(#"// src/stores/Ledger.wf
     // The money in a list of entries, added up.
     action sum(list: [Entry]) -> Money {
         return list.reduce((total, e) => total.plus(e.amount), ZERO)
@@ -115,7 +115,7 @@ const ONE: Money = $1.00"#, title: "wf")
 
         Markdown("What a `persist` keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. The entries declare which version of the shape this build writes, and how to bring an older one forward:")
 
-        CodeBlock(#"// src/stores/Ledger.wf
+        DocsCodeBlock(#"// src/stores/Ledger.wf
     // Version 1 of Pocket kept an amount as a plain, signed number of
     // dollars (`-52.4` was money out). Version 2 keeps a `Money` and a
     // `Kind`, so `migrate 1 -> 2` turns what a returning reader's browser
@@ -147,7 +147,7 @@ const ONE: Money = $1.00"#, title: "wf")
 
         Markdown("The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a drawer when it does not. This is the drawer:")
 
-        CodeBlock(#"// src/App.wf
+        DocsCodeBlock(#"// src/App.wf
             if Ui.menuOpen {
                 Host(tag: "div", class: "scrim") { on click { Ui.closeAll() } }
                 Stack(gap: .md, class: "drawer", animate: .slideRight, exit: .fadeOut) {
@@ -163,7 +163,7 @@ const ONE: Money = $1.00"#, title: "wf")
 
         Markdown("The built-in `Chart` draws at build time, from data the build can see. This ledger exists only in the reader's browser, so the chart is made of plain elements whose heights follow the store:")
 
-        CodeBlock(#"// src/components/MonthChart.wf
+        DocsCodeBlock(#"// src/components/MonthChart.wf
 /// Six months of money in and money out, as pairs of bars.
 ///
 /// The built-in `Chart` draws at build time, from data the build can see.
@@ -186,7 +186,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
 
         Markdown("- A `\{…\}` in a style value reads state, and the property follows it ([Styling](/learn/13-styling)).\n- The chart is one `role=\"img\"` with a label, so a screen reader hears what it shows rather than twelve unnamed boxes ([Accessibility](/about/accessibility)).\n\nThe figures above the chart are one component, placed four times:")
 
-        CodeBlock(#"// src/pages/Dashboard.wf
+        DocsCodeBlock(#"// src/pages/Dashboard.wf
     Grid(columns: { base: 2, xl: 4 }, gap: .md) {
         KpiCard(t("kpi.balance"), value: Ledger.balance, note: t("kpi.balanceNote"))
         KpiCard(t("kpi.income"), value: Ledger.monthIncome, note: t("kpi.thisMonth"), lean: .good)
@@ -201,7 +201,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
 
         Markdown("The Entries page reads its filters from the address:")
 
-        CodeBlock(#"// src/pages/Entries.wf
+        DocsCodeBlock(#"// src/pages/Entries.wf
     // The filters live in the address — `/entries?month=2026-09&category=dining` —
     // so they survive a reload, a shared link and the back button.
     derived month = query.month ?? ""
@@ -214,7 +214,7 @@ component MonthChart(months: [MonthTotal], top: Number) {
 
         Markdown("`EntryForm` adds an entry or, given one, changes it:")
 
-        CodeBlock(#"// src/components/EntryForm.wf
+        DocsCodeBlock(#"// src/components/EntryForm.wf
 /// The form for a new entry — or, given one, for changing it. It checks what
 /// the reader typed, writes it to the ledger, and says so with `saved`.
 component EntryForm(entry: Entry? = null) {
@@ -241,7 +241,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("- A `validate` block sits beside the state it guards. The control bound to that state shows what the rules say — the message, `aria-invalid` and the link between them — with nothing more written ([Forms](/learn/14-forms)).\n- A rule with no message of its own shows the translation of `form.<rule>`, so `en.json` and `ar.json` each say \"that date has not happened yet\" once.\n- The form says it is done with an event, `saved`. The caller decides what that means: close the dialog, or go back to the entry.\n\nThe submit button follows the form:")
 
-        CodeBlock(#"// src/components/EntryForm.wf
+        DocsCodeBlock(#"// src/components/EntryForm.wf
         Row(justify: .end, gap: .sm) {
             Button(if entry != null { t("action.save") } else { t("action.add") }, type: .submit, disabled: !form.valid).primary
         }"#, title: "wf")
@@ -252,7 +252,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("The app listens for two keys at the top of `src/App.wf`:")
 
-        CodeBlock(#"// src/App.wf
+        DocsCodeBlock(#"// src/App.wf
     // `n` opens a new entry from anywhere. A key with no modifier is left to
     // the field the reader is typing in, so an `n` in a note is just a letter.
     on key("n") { Ui.compose() }
@@ -260,7 +260,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("`on key` at the top of the app listens on the document for as long as the page shows ([Events](/learn/08-events)). The dialog is a `Modal` whose `title:` is its accessible name. It keeps focus inside while it is open, and Escape closes it:")
 
-        CodeBlock(#"// src/App.wf
+        DocsCodeBlock(#"// src/App.wf
     Modal(visible: Ui.composing, title: t("compose.title")) {
         if Ui.composing {
             EntryForm {
@@ -278,7 +278,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("Every word on screen is `t(\"key\")`, read from `src/translations/en.json` or `ar.json`. A message with plural forms is several keys:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "entries.zero": "No entries",
   "entries.one": "{count} entry",
   "entries.other": "{count} entries"
@@ -290,7 +290,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("The Settings page writes the ledger out as a CSV file:")
 
-        CodeBlock(#"// src/pages/Settings.wf
+        DocsCodeBlock(#"// src/pages/Settings.wf
     action exportCsv() {
         let lines = Ledger.newestFirst.map(e => csvLine(e))
         saveTextFile("pocket-{Ledger.today}.csv", [CSV_HEADER, ...lines].join("\n"), "text/csv")
@@ -298,7 +298,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a plain browser script that the build links on every page. Its JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([Call your own JavaScript](/recipes/call-your-own-script)).\n\nImporting reads a file from a `FileUpload` with `await f.text()`, parses each line and merges what is new. Then it tells every other open tab:")
 
-        CodeBlock(#"// src/pages/Settings.wf
+        DocsCodeBlock(#"// src/pages/Settings.wf
         let added = Ledger.merge(parsed)
         news.post({ count: added })"#, title: "wf")
 
@@ -308,7 +308,7 @@ component EntryForm(entry: Entry? = null) {
 
         Markdown("A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale ([Testing](/learn/16-testing)):")
 
-        CodeBlock("// tests/pocket.wf\ntest \"an entry added through the form moves the balance\" \{\n    use Ledger\n    Text(\"Balance \{format(Ledger.balance)\}\")\n    EntryForm\n\n    expect \"Balance $16,533.56\"\n    click \"Money in\"\n    type \"250\" into \"Amount\"\n    click \"Add entry\"\n    expect \"Balance $16,783.56\"", title: "wf")
+        DocsCodeBlock("// tests/pocket.wf\ntest \"an entry added through the form moves the balance\" \{\n    use Ledger\n    Text(\"Balance \{format(Ledger.balance)\}\")\n    EntryForm\n\n    expect \"Balance $16,533.56\"\n    click \"Money in\"\n    type \"250\" into \"Amount\"\n    click \"Add entry\"\n    expect \"Balance $16,783.56\"", title: "wf")
 
         Markdown("Pocket has eight tests: the cards and rows draw what they should, a blank amount is refused, `n` opens the dialog and Escape closes it, and removing an entry takes it out of every total. Run them and the checks:")
 

@@ -87,7 +87,7 @@ component HomeShell(other: String = "", lang: String = "en") {
                                 on edit(next) { edited(next) }
                             }
                         } else {
-                            CodeBlock(HOME_EXAMPLE, title: "Home.wf")
+                            DocsCodeBlock(HOME_EXAMPLE, title: "Home.wf")
                         }
                     }
                     if run > 0 {
@@ -202,7 +202,7 @@ component HomeShell(other: String = "", lang: String = "en") {
                     style { gap: 16px; max-width: 760px }
                     Heading(t("home.install"), class: "bp-h2").h2
                     Text(t("home.install.body"), class: "bp-lede")
-                    CodeBlock(INSTALL_AND_START, title: "bash")
+                    DocsCodeBlock(INSTALL_AND_START, title: "bash")
                 }
             }
         }

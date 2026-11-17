@@ -16,4 +16,14 @@ wf registry [options]
 |---|---|
 | `--json` | Print JSON, for tools |
 
-The [full entry for wf registry](https://webfluent.monzeromer.dev/reference/cli.md#wf-registry) has its examples and the details this page leaves out.
+Describes every built-in component: props, cases, flags, events, slots and
+parts.
+
+```bash
+wf registry --json | jq '.components[] | select(.name == "Button") | .props[].name'
+```
+
+The registry is the compiler's own table: what it prints is exactly what the
+checker accepts.
+
+See also: [Built-in components](components.md).

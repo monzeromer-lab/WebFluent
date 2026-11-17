@@ -10,6 +10,17 @@ A paragraph of text. {…} in the string reads state and stays live.
 Text(_ content: String or Number or Bool, tone: Enum, size: Enum, align: Enum, …)
 ```
 
+## Example
+
+```wf
+Stack(gap: .xs) {
+    Text("Billing").uppercase.sm.muted
+    Text("Your plan renews on 1 December.").lg
+    Text("Payment failed: the card was declined.").danger.bold
+    Text("Updated 3 minutes ago").muted.sm.italic
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,14 +41,6 @@ Text(_ content: String or Number or Bool, tone: Enum, size: Enum, align: Enum, �
 `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Text("Hello, world")
-Text("Last updated today").muted.sm
-Text("Important").bold.danger
-```
 
 ## What it can raise
 

@@ -21,7 +21,7 @@ page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the code. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"store Cart { state count = 0 }
+            DocsCodeBlock(#"store Cart { state count = 0 }
 
 component CartBadge(count: Number) {
     if count > 0 { Badge("{count}").primary }

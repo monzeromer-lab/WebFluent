@@ -94,8 +94,33 @@ def source(path: Path):
     return meta, title, rest
 
 
-def component(c) -> str:
+def part(p, owner) -> list:
+    """A part, as a section of its owner's twin."""
+    out = [f"### {p['name']}", "", p["plain"], "", "```wf", p["signature"], "```", ""]
+    if p["props"]:
+        out += ["| Prop | Type | Meaning |", "|---|---|---|"]
+        out += [f"| `{r['name']}` | `{r['type']}` | {r['meaning']} |" for r in p["props"]] + [""]
+    if p["flags"]:
+        out += ["Flags: " + " ".join(f"`{f}`" for f in p["flags"]), ""]
+    if p["events"]:
+        out += ["Events: " + ", ".join(f"`{e['name']}`" for e in p["events"]), ""]
+    if p.get("example") and p["example"].strip() != (owner.get("example") or "").strip():
+        out += ["```wf", p["example"], "```", ""]
+    return out
+
+
+def moved(c, to: str, label: str, older: bool) -> str:
+    """The twin of a page that sends the reader on: a part's, or an older
+    spelling's."""
+    if older:
+        return f"`{c['name']}` is an older spelling of [`{label}`]({to}), which new code uses.\n"
+    return f"`{c['name']}` is a part of [`{label}`]({to}), and is described on its page.\n"
+
+
+def component(c, parts=()) -> str:
     out = [c["plain"], "", "```wf", c["signature"], "```", ""]
+    if c.get("example"):
+        out += ["## Example", "", "```wf", c["example"], "```", ""]
     if c.get("modern", ("", ""))[0]:
         modern, to = c["modern"]
         out += [f"Use [`{modern}`]({to}) in new code: it is the current spelling, and its page has the example.", ""]
@@ -114,10 +139,15 @@ def component(c) -> str:
             "[on every element](/reference#on-every-element).", ""]
     if c["slots"]:
         out += ["## Slots", ""] + [f"- `{s['name']}`{': ' + s['detail'] if s.get('detail') else ''}" for s in c["slots"]] + [""]
-    if c["parts"]:
-        out += ["## Parts", ""] + [f"- `{c['name']}.{p['name'] if isinstance(p, dict) else p}`" for p in c["parts"]] + [""]
-    if c.get("example"):
-        out += ["## Example", "", "```wf", c["example"], "```", ""]
+    drawn = [p for p in parts if p["plain"].rstrip().endswith("Drawn for it.")]
+    written = [p for p in parts if p not in drawn]
+    if written:
+        out += ["## Parts", "", f"Written under its name, inside `{c['name']}`.", ""]
+        for p in written:
+            out += part(p, c)
+    if drawn:
+        out += ["## Drawn for it", "", f"What `{c['name']}` draws itself, by its class; not written.", ""]
+        out += [f"- `{p['name']}` (`.{p['cssClass']}`): {p['plain'].replace(' Drawn for it.', '')}" for p in drawn] + [""]
     if c["codes"]:
         out += ["## What it can raise", ""] + [f"- [{k['kind']}]({k['to']}): {k['title']}" for k in c["codes"]] + [""]
     if c.get("since") == reference.OLDER:
@@ -144,8 +174,9 @@ def command(c) -> str:
         out += [f"**Writes:** {c['writes']}", ""]
     if c.get("preview"):
         out += [f"**Preview:** `{c['preview']}` says what it would do without doing it.", ""]
-    out += [f"The [full entry for wf {c['name']}](/reference/cli#wf-{c['name']}) has its examples and the "
-            "details this page leaves out.", ""]
+    own, _ = reference.cli_sections()
+    if c["name"] in own:
+        out += [reference.without_options_table(own[c["name"]]), ""]
     return "\n".join(out)
 
 
@@ -177,8 +208,17 @@ def main():
         twins.add(route, title, "", body, "Learn" if part == "learn" else "About")
     # The reference's built-ins and commands, from the compiler's data.
     # A legacy name has a page of its own too (it says what replaced it).
-    for c in reference.components(ask("registry"))["items"]:
-        twins.add(f"/reference/{c['slug']}", c["name"], c["plain"], component(c), "Reference")
+    items = reference.components(ask("registry"))["items"]
+    by_slug = {c["slug"]: c for c in items}
+    for c in items:
+        if c["owner"]:
+            o = by_slug[c["ownerSlug"]]
+            body = moved(c, f"/reference/{o['slug']}#{c['slug']}", o["name"], False)
+        elif c["legacy"]:
+            body = moved(c, c["modern"][1] or "/reference#older-spellings", c["modern"][0] or "the reference", True)
+        else:
+            body = component(c, [p for p in items if p["owner"] == c["name"]])
+        twins.add(f"/reference/{c['slug']}", c["name"], c["plain"], body, "Reference")
     for c in reference.commands(ask("commands"))["items"]:
         twins.add(f"/reference/cli/{c['slug']}", f"wf {c['name']}", c["summary"], command(c), "Reference")
     # The pages written in WebFluent rather than Markdown.

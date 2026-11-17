@@ -8,7 +8,7 @@ page BrowserSupportGuide(path: "/reference/browser-support", title: "Browser sup
 
         Markdown("A WebFluent site targets the current versions of **Chrome, Edge, Firefox and Safari**, on desktop and mobile — the browsers that update themselves.\n\n- **The output** is plain HTML, CSS and modern JavaScript (ES2021). There is no polyfill and no legacy build.\n- **Without JavaScript**, a static build's pages are readable: the HTML the build pre-renders for each page carries its text ([Static sites and SPAs](/about/static-or-single-page)). Everything interactive needs JavaScript.")
 
-        Callout("`wf verify` loads every page of a build in a headless Chrome and reports uncaught errors, failed requests and pages that drew no text ([CLI](/reference/cli)).", kind: .tip)
+        DocsCallout("`wf verify` loads every page of a build in a headless Chrome and reports uncaught errors, failed requests and pages that drew no text ([CLI](/reference/cli)).", kind: .tip)
 
         Heading("Features with a fallback", id: "features-with-a-fallback").h2
 

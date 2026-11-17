@@ -17,7 +17,7 @@ page Front(path: "/", title: "Front", description: "The front page.") {
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. A static build (`\"ssg\": true`) also writes it to `build/404.html`, which the host must serve for an unknown path: the host recipes below show how.")
-            CodeBlock(#"page NotFound(path: "*", title: "Page not found", description: "There is no page at this address.", noindex: true) {
+            DocsCodeBlock(#"page NotFound(path: "*", title: "Page not found", description: "There is no page at this address.", noindex: true) {
     Heading("We couldn't find that page").h1
     Text("The address may be mistyped, or the page may have moved.")
     Link("Go to the front page", to: "/")

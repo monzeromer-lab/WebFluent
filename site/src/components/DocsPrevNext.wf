@@ -1,6 +1,6 @@
 /// The pages either side, as two sheets: the previous one quiet, the next
 /// one the action.
-component PrevNext(prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
+component DocsPrevNext(prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
     if prevLabel != "" || nextLabel != "" {
         Row(gap: .md, role: "navigation", aria-label: t("docs.either")) {
             style { gap: 12px; flex-wrap: wrap; max-width: $prose-max; padding-top: 24px; border-top: 1px solid $line }

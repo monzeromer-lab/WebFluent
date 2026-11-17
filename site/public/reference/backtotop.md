@@ -10,6 +10,17 @@ A button that appears once the page has scrolled past after: px, and takes the r
 BackToTop(label: String, after: Number)
 ```
 
+## Example
+
+```wf
+Stack(gap: .md) {
+    for n in 1..=12 {
+        Text("Chapter {n}: what the page says, long enough to scroll past.")
+    }
+}
+BackToTop(after: 600, label: "Back to the top")
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -18,12 +29,6 @@ BackToTop(label: String, after: Number)
 | `after:` | `Number` | How far down it appears, in px (unset, 400) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-BackToTop(after: 600)
-```
 
 ## What it can raise
 

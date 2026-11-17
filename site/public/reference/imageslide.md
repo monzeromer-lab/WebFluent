@@ -10,6 +10,14 @@ Image slide with an optional caption.
 ImageSlide(src: String, caption: String)
 ```
 
+## Example
+
+```wf
+Presentation {
+    ImageSlide(src: "/og.png", caption: "The card every shared link shows")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -18,12 +26,6 @@ ImageSlide(src: String, caption: String)
 | `caption:` | `String` | Caption under the image |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Presentation { ImageSlide(src: "chart.png", caption: "Revenue by month") }
-```
 
 ## What it can raise
 

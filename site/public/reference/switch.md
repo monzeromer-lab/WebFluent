@@ -10,6 +10,18 @@ On/off toggle bound to a boolean state.
 Switch(bind: State, checked: Bool, label: String, …)
 ```
 
+## Example
+
+```wf
+state replies = true
+state digest = false
+Stack(gap: .sm) {
+    Switch(bind: replies, label: "Email me when someone replies")
+    Switch(bind: digest, label: "Send a weekly digest")
+    Text("Replies {if replies { "on" } else { "off" }}, digest {if digest { "on" } else { "off" }}").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,13 +42,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on change`: The value was committed
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state notify = true
-Switch(bind: notify, label: "Email me about replies")
-```
 
 ## What it can raise
 

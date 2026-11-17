@@ -21,7 +21,7 @@ page RecipeKeyboardAndScreenReader(path: "/recipes/keyboard-and-screen-reader", 
 }
 "# }) {
         code {
-            CodeBlock(#"page Plans(path: "/plans", title: "Plans", description: "Choose a plan.") {
+            DocsCodeBlock(#"page Plans(path: "/plans", title: "Plans", description: "Choose a plan.") {
     state q = ""
     state chosen = ""
     Heading("Plans").h1

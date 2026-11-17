@@ -48,9 +48,9 @@ page Notes(path: "/notes", title: "Notes", description: "Notes that save offline
 "# }) {
         code {
             Markdown("**Needs:** `offline` with `\"sync\": true` in `webfluent.app.json`, below, and a site served over HTTPS ([Make a site work offline](/recipes/work-offline)).")
-            CodeBlock(#"{ "offline": { "precache": ["/"], "sync": true } }"#, title: "json")
+            DocsCodeBlock(#"{ "offline": { "precache": ["/"], "sync": true } }"#, title: "json")
             Markdown("This page saves a note, says when the save is waiting for the connection, and lists any the server refused once they were sent:")
-            CodeBlock(#"type Note { id: String, text: String }
+            DocsCodeBlock(#"type Note { id: String, text: String }
 
 api Backend(base: "/api") { }
 

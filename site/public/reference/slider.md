@@ -10,6 +10,14 @@ Range input. aria-* and its other attributes reach the input; with aria-valuetex
 Slider(bind: State, min: Number, max: Number, …)
 ```
 
+## Example
+
+```wf
+state volume = 60
+Slider(bind: volume, min: 0, max: 100, step: 5, label: "Volume")
+Text("Volume: {volume}%").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -34,13 +42,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on change`: The value was committed
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state volume = 50
-Slider(bind: volume, min: 0, max: 100, step: 5, label: "Volume")
-```
 
 ## What it can raise
 

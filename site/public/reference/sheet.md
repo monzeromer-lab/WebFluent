@@ -10,6 +10,22 @@ A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a sh
 Sheet(visible: State, title: String, closable: Bool, …) { … }
 ```
 
+## Example
+
+```wf
+state filters = false
+state sort = "new"
+state inStock = true
+Button("Filters") { on click { filters = true } }
+Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+    Radio(bind: sort, value: "new", label: "Newest first")
+    Radio(bind: sort, value: "price", label: "Lowest price")
+    Switch(bind: inStock, label: "In stock only")
+    Sheet.Footer { Button("Show results").primary.full { on click { filters = false } } }
+}
+Text("Sorted by {sort}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -39,22 +55,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Sheet.Sheet.Title`
-- `Sheet.Sheet.Footer`
+Written under its name, inside `Sheet`.
 
-## Example
+### Sheet.Title
+
+What the sheet's heading draws, in place of its title:'s words, which stay its name.
 
 ```wf
-state filters = false
-state sort = "new"
-Button("Filters") { on click { filters = true } }
-Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
-    Radio(bind: sort, value: "new", label: "Newest")
-    Radio(bind: sort, value: "price", label: "Price")
-    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
-}
-state details = false
-Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }
+Sheet.Title { … }
+```
+
+### Sheet.Footer
+
+The sheet's action row, kept in view below what scrolls.
+
+```wf
+Sheet.Footer { … }
 ```
 
 ## What it can raise

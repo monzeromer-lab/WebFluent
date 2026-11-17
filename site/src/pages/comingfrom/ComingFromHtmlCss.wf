@@ -9,7 +9,7 @@ page ComingFromHtmlCss(path: "/coming-from/html-css", title: "WebFluent for HTML
         port {
             Markdown("A card that shows a person, in HTML and CSS and in WebFluent.")
 
-            CodeBlock(#"<div class="card">
+            DocsCodeBlock(#"<div class="card">
   <img class="avatar" src="/ada.jpg" alt="Ada Lovelace">
   <div>
     <h2>Ada Lovelace</h2>
@@ -24,7 +24,7 @@ page ComingFromHtmlCss(path: "/coming-from/html-css", title: "WebFluent for HTML
   .muted { color: #666; }
 </style>"#, title: "html")
 
-            CodeBlock(#"page Team(path: "/", title: "Team", description: "Who we are.") {
+            DocsCodeBlock(#"page Team(path: "/", title: "Team", description: "Who we are.") {
     Heading("Team").h1
     Person("Ada Lovelace", role: "Analyst", photo: "/ada.jpg")
 }

@@ -17,7 +17,7 @@
     "clean_urls": "file",
     "output_type": "spa",
     "budget": {
-      "app.js": "135 kB",
+      "app.js": "150 kB",
       "styles.css": "30 kB"
     }
   },

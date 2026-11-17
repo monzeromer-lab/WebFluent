@@ -8,7 +8,7 @@ page Learn04LanguageBasics(path: "/learn/04-language-basics", title: "Language b
 
         Markdown("A `.wf` file holds top-level declarations and nothing else. You cannot put an element or a statement loose in a file; it belongs in the body of a declaration. This file uses all fifteen kinds:")
 
-        CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
+        DocsCodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
 component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
 store Cart { state items: [String] = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
@@ -114,7 +114,7 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
 
         Markdown("All the files under `src/` merge into one program. A component declared in `components/Pill.wf` is usable from every page without an import. The compiler reads `App.wf` (or `App.wfx`) first, then the other files in name order, so a build is the same on every machine.")
 
-        Callout("**Coming from React?** There is no `import` or `export` between `.wf` files. A component, a store or a type declared in any file under `src/` is in scope in every other one. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** There is no `import` or `export` between `.wf` files. A component, a store or a type declared in any file under `src/` is in scope in every other one. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("Naming", id: "naming").h2
 
@@ -124,7 +124,7 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
 
         Markdown("WebFluent has three kinds of comment. A `//` comment runs to the end of the line, a `/* … */` comment may span lines, and a `///` comment documents the declaration that follows it:")
 
-        CodeBlock(#"// A line comment.
+        DocsCodeBlock(#"// A line comment.
 /* A block
    comment. */
 /// A person's initials, in a circle.
@@ -136,7 +136,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("A body is one of two kinds of block, and each holds different statements:\n\n- A **render block** is the body of a page, a component or `app`. It holds elements, and the statements that shape them: `state`, `derived`, `if`, `for` and the like.\n- An **imperative block** is the body of a handler or an action. It holds statements that do something: assignments, calls, `let`, `if`, `for`, `try`.\n\nThe two blocks have separate grammars. In this page, the `Text` is an element in the render block, and the assignment sits inside an `on click` handler:")
 
-        CodeBlock(#"page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
+        DocsCodeBlock(#"page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
     state clicks = 0
     Heading("Counter").h1
     Text("Clicked {clicks} times")
@@ -145,13 +145,13 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
     }
 }"#, title: "wf")
 
-        Callout("An assignment written loose in a page body, such as `clicks = clicks + 1` next to the `Text`, is error `E105`. Its hint says where the line belongs: *\"Code that does something goes in `on click \{ … \}`, an `action` or an `effect`\"*.", kind: .warning)
+        DocsCallout("An assignment written loose in a page body, such as `clicks = clicks + 1` next to the `Text`, is error `E105`. Its hint says where the line belongs: *\"Code that does something goes in `on click \{ … \}`, an `action` or an `effect`\"*.", kind: .warning)
 
         Heading("Separating statements", id: "separating-statements").h3
 
         Markdown("Statements need no separator. You usually put one per line. To put two on one line, separate them with `;` or with whitespace. Two spaces is the house style, because it reads well:")
 
-        CodeBlock(#"page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
+        DocsCodeBlock(#"page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
     state home = 1  state away = 2
     Heading("Score").h1
     Text("{home} – {away}")
@@ -162,7 +162,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("You can write the same grammar with braces or with indentation. A `.wf` file opens a block with `\{` and closes it with `\}`. A `.wfx` file opens a block with a line indented deeper than the one before it, and closes it when the indentation returns.\n\nThis page is written in the braced layout:")
 
-        CodeBlock(#"page Home(path: "/", title: "Home", description: "A panel that opens and closes.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Home", description: "A panel that opens and closes.") {
     state open = true
     Heading("Home").h1
     Row(gap: .sm) {
@@ -182,7 +182,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("The same page in the indented layout:")
 
-        CodeBlock(#"page Home(path: "/", title: "Home", description: "A panel that opens and closes.")
+        DocsCodeBlock(#"page Home(path: "/", title: "Home", description: "A panel that opens and closes.")
     state open = true
     Heading("Home").h1
     Row(gap: .sm)
@@ -203,7 +203,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("A string is written in double quotes and splices in a value with `\{expr\}`:")
 
-        CodeBlock(#"page Greeting(path: "/", title: "Greeting", description: "A greeting that knows your age.") {
+        DocsCodeBlock(#"page Greeting(path: "/", title: "Greeting", description: "A greeting that knows your age.") {
     state user = { name: "Sam", age: 41 }
     Heading("Hello, {user.name}!").h1
     Text("You are {user.age * 12} months old.")
@@ -217,7 +217,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("A plain `\"…\"` string reads the escapes `\\n`, `\\t`, `\\r`, `\\\"`, `\\\\`, `\\\{` and `\\\}`, and splices `\{…\}`. For text that a plain string makes you escape over and over, there are two other forms:")
 
-        CodeBlock("// Raw: no escapes, no splices. The text is what is written.\nconst SAMPLE = #\"page Home(path: \"/\") \{ state n = 0 \}\"#\n\n// As many # as the text needs, when it holds a `\"#` of its own.\nconst TRICKY = ##\"a raw string ends with \"# — like that\"##\n\n// Block: over as many lines as it likes, escapes and splices on, and\n// the indentation the source gave it removed.\nconst name = \"Ada\"\nconst LETTER = \"\"\"\n    Dear \{name\},\n      thank you.\n    \"\"\"                       // \"Dear Ada,\\n  thank you.\"", title: "wf")
+        DocsCodeBlock("// Raw: no escapes, no splices. The text is what is written.\nconst SAMPLE = #\"page Home(path: \"/\") \{ state n = 0 \}\"#\n\n// As many # as the text needs, when it holds a `\"#` of its own.\nconst TRICKY = ##\"a raw string ends with \"# — like that\"##\n\n// Block: over as many lines as it likes, escapes and splices on, and\n// the indentation the source gave it removed.\nconst name = \"Ada\"\nconst LETTER = \"\"\"\n    Dear \{name\},\n      thank you.\n    \"\"\"                       // \"Dear Ada,\\n  thank you.\"", title: "wf")
 
         Markdown("Use each form for a different kind of text:\n\n- A **raw string** (`#\"…\"#`) suits a sample of code, a regular expression or a Windows path: anything full of quotes, braces or backslashes.\n- A **block string** (`\"\"\"…\"\"\"`) suits a paragraph, a template or a query. The closing `\"\"\"` sets how far the text was indented, and the compiler removes that much from every line.")
 
@@ -282,7 +282,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("An assignment loose in a page body. A render block holds elements; code that changes something belongs in a handler, an action or an effect:")
 
-        CodeBlock(#"page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
+        DocsCodeBlock(#"page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
     state clicks = 0
     Heading("Counter").h1
     clicks = clicks + 1
@@ -291,7 +291,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("Move the line into `Button(\"Add one\") \{ on click \{ clicks = clicks + 1 \} \}` ([E105](/errors/E105)).\n\nA comma between two statements. Commas separate arguments, never statements:")
 
-        CodeBlock(#"page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
+        DocsCodeBlock(#"page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
     state home = 1, away = 2
     Heading("Score").h1
     Text("{home} – {away}")
@@ -299,7 +299,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
         Markdown("Write each statement on its own line, or separate them with `;` or two spaces: `state home = 1  state away = 2` ([E002](/errors/E002)).\n\nA name the language already has. `query`, `env`, `format`, `now` and the other built-in names cannot be a program's own:")
 
-        CodeBlock(#"page Search(path: "/", title: "Search", description: "Find a book.") {
+        DocsCodeBlock(#"page Search(path: "/", title: "Search", description: "Find a book.") {
     state query = ""
     Heading("Search").h1
     Input(bind: query, label: "Search")

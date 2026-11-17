@@ -59,6 +59,6 @@ component ReferenceItemShell(_ name: String, summary: String = "", signature: St
             }
         }
 
-        OnThisPage(sections: sections, source: source)
+        DocsOnThisPage(sections: sections, source: source)
     }
 }

@@ -62,4 +62,20 @@ wf config unset PATH [options]
 | `PATH` | A dotted path: `build.base_path`, `meta.site_url` |
 | `--dir, -d DIR` | The project's folder (default `.`) |
 
-The [full entry for wf config](https://webfluent.monzeromer.dev/reference/cli.md#wf-config) has its examples and the details this page leaves out.
+Reads and changes `webfluent.app.json`, and lists every setting it can hold.
+
+```bash
+wf config schema
+wf config schema --json
+wf config get build.base_path
+wf config set build.ssg true
+wf config set meta.lang ar
+wf config unset build.ssg
+```
+
+`set` checks the value against the setting's type before it writes
+anything. `set` and `unset` keep the rest of the file as it was written.
+Under a map, the rest of the path is one key: `build.budget.app.js` sets the
+`app.js` entry of `build.budget`.
+
+See also: [Configuration](configuration.md).

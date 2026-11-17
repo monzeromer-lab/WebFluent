@@ -10,6 +10,14 @@ A number with − and + beside it: the arrow keys step it, PageUp and PageDown b
 NumberInput(bind: State, min: Number, max: Number, …)
 ```
 
+## Example
+
+```wf
+state tickets = 2
+NumberInput(bind: tickets, min: 1, max: 10, step: 1, label: "Tickets", hint: "Ten at most per order.")
+Text("Total: ${tickets * 45}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -23,17 +31,12 @@ NumberInput(bind: State, min: Number, max: Number, …)
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
-## Parts
+## Drawn for it
 
-- `NumberInput.NumberInput.Decrease`
-- `NumberInput.NumberInput.Increase`
+What `NumberInput` draws itself, by its class; not written.
 
-## Example
-
-```wf
-state qty = 1
-NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")
-```
+- `NumberInput.Decrease` (`.`): Its − button.
+- `NumberInput.Increase` (`.`): Its + button.
 
 ## What it can raise
 

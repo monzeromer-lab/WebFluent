@@ -10,6 +10,18 @@ Check boxes under a legend whose bind: is the list of the values ticked, with al
 CheckboxGroup(bind: State, label: String, all: String) { … }
 ```
 
+## Example
+
+```wf
+state channels: [String] = ["email"]
+CheckboxGroup(bind: channels, label: "Notify me by", all: "Every channel") {
+    CheckboxGroup.Option("Email", value: "email")
+    CheckboxGroup.Option("Text message", value: "sms")
+    CheckboxGroup.Option("Push notification", value: "push")
+}
+Text("Chosen: {channels.join(", ")}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,18 +38,26 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `CheckboxGroup.CheckboxGroup.Option`
-- `CheckboxGroup.CheckboxGroup.Legend`
+Written under its name, inside `CheckboxGroup`.
 
-## Example
+### CheckboxGroup.Option
+
+One box: its words and its value.
 
 ```wf
-state toppings: [String] = []
-CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
-    CheckboxGroup.Option("Olives", value: "olives")
-    CheckboxGroup.Option("Onions", value: "onions")
-}
+CheckboxGroup.Option(_ label: String, value: String or Number or Bool)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | Its words |
+| `value:` | `String or Number or Bool` | What the list holds while it is ticked; unset, its words |
+
+## Drawn for it
+
+What `CheckboxGroup` draws itself, by its class; not written.
+
+- `CheckboxGroup.Legend` (`.`): Its legend.
 
 ## What it can raise
 

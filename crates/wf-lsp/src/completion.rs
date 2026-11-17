@@ -605,7 +605,7 @@ fn inside_child_body(stmt: &Statement, offset: usize) -> bool {
 /// endpoint takes. Those already written are left out.
 fn call_options(project: &Project, owner: &ParenOwner, previous: &[&Token]) -> Vec<CompletionItem> {
     let items = match owner {
-        ParenOwner::Fetch => args(reference::RESOURCE_OPTIONS, "fetch option"),
+        ParenOwner::Fetch => args(reference::RESOURCE_OPTIONS, "request option"),
         ParenOwner::Opener(name) => reference::CONNECTION_OPTIONS
             .iter()
             .find(|(opener, _)| opener == name)
@@ -684,7 +684,10 @@ fn open_paren_owner(previous: &[&Token]) -> Option<ParenOwner> {
                     .map(|t| &t.token_type);
                 let after_dot = matches!(before, Some(TokenType::Dot));
                 return Some(match (name.as_str(), before) {
-                    ("fetch", _) if !after_dot => ParenOwner::Fetch,
+                    // `http.get(url, …)` and the other verbs: the request's options.
+                    ("get" | "post" | "put" | "patch" | "delete", Some(TokenType::Dot)) if matches!(before2, Some(TokenType::Identifier(s)) if s == "http") => {
+                        ParenOwner::Fetch
+                    }
                     (opener, _)
                         if !after_dot
                             && reference::CONNECTION_OPTIONS
@@ -2967,7 +2970,7 @@ fn keyword_snippet(name: &str) -> String {
         "effect" => "effect {\n\t$0\n}".into(),
         "action" => "action ${1:name}(${2}) {\n\t$0\n}".into(),
         "use" => "use ${1:Store}".into(),
-        "resource" => "resource ${1:data} = fetch(\"${2:/api/}\")\nmatch $1 {\n\tloading { Spinner }\n\terror(e) { Alert(e.message).danger }\n\tready(${3:value}) {\n\t\t$0\n\t}\n}".into(),
+        "resource" => "resource ${1:data}: ${2:[Row]} = http.get(\"${3:/api/}\")\nmatch $1 {\n\t.loading { Spinner }\n\t.failed(e) { Alert(e.message).danger }\n\t.loaded(${4:value}) {\n\t\t$0\n\t}\n}".into(),
         "match" => "match ${1:value} {\n\t$0\n}".into(),
         "if" => "if ${1:condition} {\n\t$0\n}".into(),
         "else" => "else {\n\t$0\n}".into(),

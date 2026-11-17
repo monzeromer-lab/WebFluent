@@ -10,6 +10,21 @@ Pictures in a grid of columns: (unset, as many as fit), each cropped to one shap
 Gallery(columns: Number, ratio: Number) { … }
 ```
 
+## Example
+
+```wf
+Gallery(columns: { base: 2, md: 4 }, ratio: 1) {
+    Image(src: "/og.png", alt: "The sharing card")
+    Image(src: "/icon-512.png", alt: "The app icon")
+    Image(src: "/og.png", alt: "The sharing card, its left edge") {
+        style { object-position: 0% 50% }
+    }
+    Image(src: "/og.png", alt: "The sharing card, its right edge") {
+        style { object-position: 100% 50% }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,15 +37,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Gallery(columns: 2, ratio: 4 / 3) {
-    Image(src: "/favicon.svg", alt: "The logo")
-    Image(src: "/favicon.svg", alt: "The logo again")
-}
-```
 
 ## What it can raise
 

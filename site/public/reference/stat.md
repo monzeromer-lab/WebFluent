@@ -10,6 +10,16 @@ A figure with its label — revenue, sign-ups — and how it moved: Stat("Revenu
 Stat(_ label: String, value: Number or Money or String, format: Enum, change: Number, …) { … }
 ```
 
+## Example
+
+```wf
+Grid(columns: { base: 1, md: 3 }, gap: .md) {
+    Stat("Revenue", value: 48210, format: .currency, change: 0.124, trend: [31, 40, 28, 44, 52, 48])
+    Stat("Active users", value: 18400, format: .compact, change: 0.031, trend: [15, 16, 16, 17, 18, 18])
+    Stat("Churn", value: 0.021, format: .percent, change: -0.004)
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -32,16 +42,43 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Stat.Stat.Label`
-- `Stat.Stat.Value`
-- `Stat.Stat.Change`
+Written under its name, inside `Stat`.
 
-## Example
+### Stat.Label
+
+Its label.
 
 ```wf
-Stat("Revenue", value: 48210, format: .currency, change: 0.124)
-Stat("Churn", value: 0.031, format: .percent, change: -0.02)
+Stat.Label(_ text: String)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | The label |
+
+### Stat.Value
+
+Its figure.
+
+```wf
+Stat.Value(_ text: String or Number)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String or Number  (positional)` | The figure |
+
+### Stat.Change
+
+How it moved, with its direction.
+
+```wf
+Stat.Change(_ text: String)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | The change |
 
 ## What it can raise
 

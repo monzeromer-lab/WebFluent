@@ -9,7 +9,7 @@ page ComingFromLatex(path: "/coming-from/latex", title: "WebFluent for LaTeX and
         port {
             Markdown("A short report with a footer and a table, in LaTeX and in WebFluent.")
 
-            CodeBlock(#"\documentclass[a4paper]{article}
+            DocsCodeBlock(#"\documentclass[a4paper]{article}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \cfoot{Page \thepage}
@@ -26,7 +26,7 @@ South & \$1.9M \\
 \end{tabular}
 \end{document}"#, title: "latex")
 
-            CodeBlock(#"page Report(path: "/", title: "Quarterly report", description: "Sales for the quarter.") {
+            DocsCodeBlock(#"page Report(path: "/", title: "Quarterly report", description: "Sales for the quarter.") {
     Document(size: "A4", title: "Quarterly report", author: "Acme Studio") {
         Footer { Text("Page {page} of {pages}").muted.sm.center }
         Heading("Quarterly report").h1

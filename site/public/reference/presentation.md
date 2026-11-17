@@ -10,20 +10,32 @@ Root of a slide deck; its children must be slides.
 Presentation { … }
 ```
 
+## Example
+
+```wf
+Presentation {
+    TitleSlide("Q3 review", subtitle: "Northwind Ltd · October 2026")
+    SectionSlide("The numbers").primary
+    Slide {
+        Heading("Highlights").h1
+        List {
+            List.Item { Text("Revenue up 15%") }
+            List.Item { Text("Three new enterprise customers") }
+        }
+    }
+    TwoColumn {
+        Container { Heading("Wins").h2  Text("Self-serve plan launched") }
+        Container { Heading("Risks").h2  Text("Hiring behind plan") }
+    }
+    ImageSlide(src: "/og.png", caption: "The launch card")
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Presentation {
-    TitleSlide("Q1 review", subtitle: "March 2026")
-    Slide { Heading("Highlights").h1 }
-}
-```
 
 ## What it can raise
 

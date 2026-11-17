@@ -1,0 +1,16 @@
+/// The slots an entry takes: the blocks a caller fills, each with what it
+/// holds. Its parts are sections of the page of their own.
+component SlotsTable(slots: [PropRow] = []) {
+    Stack(gap: .sm, class: "bp-card") {
+        if slots.length == 0 {
+            Text(t("ref.noslots"), class: "bp-small")
+        }
+        for s in slots by s.name {
+            Stack(gap: .xs) {
+                style { gap: 2px }
+                Code(s.name) { style { color: $link } }
+                Text(s.detail, class: "bp-small")
+            }
+        }
+    }
+}

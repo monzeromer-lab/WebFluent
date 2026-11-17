@@ -10,6 +10,24 @@ A tour of the page while open: holds: each step in a card at its target: (a ref:
 Tour(open: State, back: String, next: String, …) { … }
 ```
 
+## Example
+
+```wf
+state touring = false
+state toured = "Not toured yet"
+Row(gap: .sm) {
+    Button("New project", ref: newBtn).primary
+    Button("Import", ref: importBtn)
+    Button("Take the tour") { on click { touring = true } }
+}
+Tour(open: touring) {
+    on finish { toured = "Tour finished" }
+    Tour.Step(target: newBtn, title: "Start here") { Text("Make a project from a template.") }
+    Tour.Step(target: importBtn, title: "Bring your work") { Text("Import a folder you already have.") }
+}
+Text(toured).muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -34,18 +52,20 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Tour.Tour.Step`
+Written under its name, inside `Tour`.
 
-## Example
+### Tour.Step
+
+One step: what it points at, its title, and its block.
 
 ```wf
-state touring = false
-Button("New", ref: newBtn)
-Button("Take the tour") { on click { touring = true } }
-Tour(open: touring) {
-    Tour.Step(target: newBtn, title: "New") { Text("Start a project here.") }
-}
+Tour.Step(target: Element, title: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `target:` | `Element  (required)` | The element it points at: a `ref:` |
+| `title:` | `String` | Its heading |
 
 ## What it can raise
 

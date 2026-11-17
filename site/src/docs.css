@@ -52,6 +52,10 @@ button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mo
 /* A long run of code with nowhere to break — `a/b/c/d` — breaks anywhere
    rather than pushing a phone's page sideways. */
 .wf-markdown :not(pre) > code { overflow-wrap: anywhere; }
+/* …but not in a table, where `anywhere` would let a column shrink to a
+   letter (see blueprint.css). */
+.wf-table .wf-markdown :not(pre) > code { overflow-wrap: break-word; }
+@media (max-width: 599.98px) { .wf-table .wf-markdown :not(pre) > code { overflow-wrap: anywhere; } }
 .wf-markdown a { color: var(--brand-ink); text-decoration: underline; text-underline-offset: 2px; }
 .wf-markdown a:hover { color: var(--color-primary); }
 .wf-markdown ul, .wf-markdown ol { padding-inline-start: 1.4em; }
@@ -74,7 +78,8 @@ button.site-button-outlined { padding: 0 10px; font-family: var(--font-family-mo
 .wf-table code { white-space: nowrap; font-size: 12px; }
 /* In the guide's tables a cell's code may break, so a table of long values
    fits the article instead of widening the page. */
-.docs-article .wf-table code { white-space: normal; overflow-wrap: anywhere; }
+.docs-article .wf-table code { white-space: normal; overflow-wrap: break-word; }
+@media (max-width: 599.98px) { .docs-article .wf-table code { overflow-wrap: anywhere; } }
 
 /* Code blocks: no wrapping, the block scrolls. */
 .code-block pre.wf-code, .code-block .wf-code--block { white-space: pre; }

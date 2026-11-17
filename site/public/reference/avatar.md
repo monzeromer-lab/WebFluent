@@ -10,6 +10,16 @@ A picture of a person, or their initials.
 Avatar(src: String, alt: String, initials: String, …)
 ```
 
+## Example
+
+```wf
+Row(gap: .md, align: .center) {
+    Avatar(src: "/icon-512.png", alt: "Ada Lovelace").lg
+    Avatar(initials: "GH").primary
+    Avatar(initials: "AT").sm
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,13 +35,6 @@ Avatar(src: String, alt: String, initials: String, …)
 `.sm` `.md` `.lg` `.primary`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Avatar(src: "/ada.jpg", alt: "Ada Lovelace")
-Avatar(initials: "AL").primary.lg
-```
 
 ## What it can raise
 

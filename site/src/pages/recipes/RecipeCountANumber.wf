@@ -13,7 +13,7 @@ page RecipeCountANumber(path: "/recipes/count-a-number", title: "Count a number 
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
+            DocsCodeBlock(#"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
     state revenue = 0
     Heading("Revenue").h1
     Text(format(revenue, .currency), count: "600ms")

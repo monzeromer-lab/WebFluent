@@ -352,16 +352,16 @@ fn a_type_with_a_condition_reads_as_written() {
 
 #[test]
 fn a_request_s_options_and_their_cases_are_offered() {
-    let fetch = "    resource r = fetch(\"/x\", method: \"GET\")";
+    let get = "    resource r: [String] = http.get(\"/x\", headers: {})";
     offers(
-        &in_page(fetch, &fetch.replace("method: \"GET\"", "‸")),
-        &["method", "body", "refresh", "placeholder", "cache"],
+        &in_page(get, &get.replace("headers: {}", "‸")),
+        &["headers", "body", "refresh", "placeholder", "cache", "as"],
     );
     offers(
-        &in_page(fetch, &fetch.replace("method: \"GET\"", "refresh: .‸")),
+        &in_page(get, &get.replace("headers: {}", "refresh: .‸")),
         &["onFocus", "onReconnect", "every", "never"],
     );
-    let api = "api Backend(base: \"/api\") {\n    get users(page: Number = 1, q: String?) at \"users\" -> [Map]\n}\n";
+    let api = "api Backend(base: \"/api\") {\n    get users(page: Number = 1, q: String?) at \"users\" -> [Json]!\n}\n";
     let v = format!("{api}{HEAD}    resource r = Backend.users(page: 1)\n}}\n");
     let call = offered(&v, &v.replace("page: 1", "‸"));
     offers(

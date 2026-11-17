@@ -10,6 +10,18 @@ Checkbox bound to a boolean state.
 Checkbox(bind: State, checked: Bool, label: String, …)
 ```
 
+## Example
+
+```wf
+state terms = false
+state newsletter = true
+Stack(gap: .sm) {
+    Checkbox(bind: terms, label: "I accept the terms of service")
+    Checkbox(bind: newsletter, label: "Send me the monthly newsletter")
+    Text(if terms { "Ready to sign up." } else { "Accept the terms to go on." }).muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,13 +42,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on change`: The value was committed
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state agree = false
-Checkbox(bind: agree, label: "I agree to the terms")
-```
 
 ## What it can raise
 

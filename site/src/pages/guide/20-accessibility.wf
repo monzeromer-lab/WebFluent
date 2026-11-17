@@ -81,7 +81,7 @@ page AboutAccessibility(path: "/about/accessibility", title: "Accessibility", de
 
         Markdown("For example, this button's `aria-label` does not contain the word it shows, so a voice-control user who says \"click Save\" may not reach it:")
 
-        CodeBlock(#"page Editor(path: "/", title: "Editor", description: "Write a note.") {
+        DocsCodeBlock(#"page Editor(path: "/", title: "Editor", description: "Write a note.") {
     Heading("Editor").h1
     Button("Save", aria-label: "Submit the form")
 }"#, title: "wf · draws A15")

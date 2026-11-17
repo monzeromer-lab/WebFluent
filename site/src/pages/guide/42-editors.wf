@@ -1,6 +1,6 @@
 /// Chapter 42 of the guide, written from md-docs/reference/editors.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Editor support for WebFluent: what wf-lsp answers, what the VS Code and Zed extensions and the Tree-sitter grammars support, and how to install each.", layout: DocsShell("Editors", kind: .reference, chapter: t("nav.group.reference"), blurb: "The language server, wf-lsp, and what the VS Code and Zed extensions and the Tree-sitter grammars each support.", source: "md-docs/reference/editors.md", sections: [Anchor(id: "the-language-server-wf-lsp", label: "The language server: wf-lsp"), Anchor(id: "vs-code", label: "VS Code"), Anchor(id: "zed", label: "Zed"), Anchor(id: "tree-sitter-grammars", label: "Tree-sitter grammars"), Anchor(id: "other-editors", label: "Other editors")], prevTo: "/reference/library", prevLabel: t("ch.41"))) {
+page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Editor support for WebFluent: what wf-lsp answers, what the VS Code and Zed extensions and the Tree-sitter grammars support, and how to install each.", layout: DocsShell("Editors", kind: .reference, chapter: t("nav.group.reference"), blurb: "The language server, wf-lsp, and what the VS Code and Zed extensions and the Tree-sitter grammars each support.", source: "md-docs/reference/editors.md", sections: [Anchor(id: "the-language-server-wf-lsp", label: "The language server: wf-lsp"), Anchor(id: "vs-code", label: "VS Code"), Anchor(id: "zed", label: "Zed"), Anchor(id: "tree-sitter-grammars", label: "Tree-sitter grammars"), Anchor(id: "other-editors", label: "Other editors")], prevTo: "/reference/library", prevLabel: t("ch.41"), nextTo: "/reference/requests", nextLabel: t("ch.46"))) {
     Stack(gap: .lg) {
         Markdown("This page is the reference for WebFluent's editor support: the language server, `wf-lsp`, and the three repositories built around it. It lists what each one supports and how to install it.")
 
@@ -156,7 +156,7 @@ page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Ed
 
         Markdown("This user setting runs a server you installed yourself:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "webfluent.server.path": "/home/me/.cargo/bin/wf-lsp"
 }"#, title: "json")
 
@@ -164,7 +164,7 @@ page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Ed
 
         Markdown("The extension highlights `.wf` and `.wfx` files with the Tree-sitter grammars and runs `wf-lsp`. From the grammars it also has bracket matching, auto-indent, folding, the outline panel and breadcrumbs, Vim text objects, and highlighting of ` ```wf ` fences in Markdown. Its snippets cover pages, components, stores, state, actions, control flow, resources, style rules, the common built-ins, `persist`, `validate`, `on key`, `api` and `test`.\n\nIt is not in Zed's extension registry yet. To install it, clone [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed), run **zed: install dev extension** and pick the clone. Zed compiles the extension and the grammars the first time, which takes about a minute.\n\nThe extension looks for the server in this order:\n\n1. `lsp.wf-lsp.binary.path` in your **user** `settings.json`;\n2. `wf-lsp` on your `PATH`;\n3. the WebFluent release this version of the extension pins, downloaded on first use and checked against the release's `SHA256SUMS`;\n4. a copy it downloaded and checked before, when the release cannot be reached.\n\nThis user setting runs a server you installed yourself:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "lsp": {
     "wf-lsp": {
       "binary": { "path": "/home/me/.cargo/bin/wf-lsp", "arguments": [] }
@@ -210,7 +210,7 @@ page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Ed
 
         Markdown("Neovim 0.11 or later configures the server with `vim.lsp.config`:")
 
-        CodeBlock(#"vim.filetype.add({ extension = { wf = "webfluent", wfx = "webfluent" } })
+        DocsCodeBlock(#"vim.filetype.add({ extension = { wf = "webfluent", wfx = "webfluent" } })
 vim.lsp.config("wf_lsp", {
   cmd = { "wf-lsp" },
   filetypes = { "webfluent" },
@@ -222,13 +222,13 @@ vim.lsp.enable("wf_lsp")"#, title: "lua")
 
         Markdown("Add the language and its server to `languages.toml`:")
 
-        CodeBlock("[[language]]\nname = \"webfluent\"\nscope = \"source.webfluent\"\nfile-types = [\"wf\", \"wfx\"]\nroots = [\"webfluent.app.json\"]\ncomment-token = \"//\"\nindent = \{ tab-width = 4, unit = \"    \" \}\nlanguage-servers = [\"wf-lsp\"]\n\n[language-server.wf-lsp]\ncommand = \"wf-lsp\"", title: "toml")
+        DocsCodeBlock("[[language]]\nname = \"webfluent\"\nscope = \"source.webfluent\"\nfile-types = [\"wf\", \"wfx\"]\nroots = [\"webfluent.app.json\"]\ncomment-token = \"//\"\nindent = \{ tab-width = 4, unit = \"    \" \}\nlanguage-servers = [\"wf-lsp\"]\n\n[language-server.wf-lsp]\ncommand = \"wf-lsp\"", title: "toml")
 
         Heading("Emacs", id: "emacs").h3
 
         Markdown("With Eglot, define a mode and register the server:")
 
-        CodeBlock(#"(define-derived-mode webfluent-mode prog-mode "WebFluent")
+        DocsCodeBlock(#"(define-derived-mode webfluent-mode prog-mode "WebFluent")
 (add-to-list 'auto-mode-alist '("\\.wfx?\\'" . webfluent-mode))
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))"#, title: "elisp")

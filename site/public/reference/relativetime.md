@@ -10,6 +10,15 @@ A moment as 3 minutes ago, kept current, with the exact time on hover (<time>).
 RelativeTime(_ when: Date or DateTime or String, datetime: String)
 ```
 
+## Example
+
+```wf
+Stack(gap: .xs) {
+    Row(gap: .xs) { Text("Deployed")  RelativeTime(@2026-11-01T09:30Z) }
+    Row(gap: .xs) { Text("Created")  RelativeTime(@2026-01-15) }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -18,12 +27,6 @@ RelativeTime(_ when: Date or DateTime or String, datetime: String)
 | `datetime:` | `String` | The moment, as a machine reads it. Written for it |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-RelativeTime("2026-01-01T09:00:00Z")
-```
 
 ## What it can raise
 

@@ -10,6 +10,25 @@ Another page, shown inside this one: an iframe — the page at src:, or the HTML
 Frame(src: String, srcdoc: String, title: String, …)
 ```
 
+## Example
+
+```wf
+state version = 2
+state heard = "nothing yet"
+Stack(gap: .sm) {
+    Row(gap: .sm) {
+        Button("Version 1") { on click { version = 1 } }
+        Button("Version 2") { on click { version = 2 } }
+    }
+    Frame(srcdoc: "<p style='font-family:sans-serif'>Release notes, version {version}</p>",
+          title: "Release notes preview", sandbox: "") {
+        style { width: 100%; height: 120px; border: 1px solid $color-border; border-radius: 8px }
+        on load { heard = "version {version} loaded" }
+    }
+    Text("Frame says: {heard}").muted.sm
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -31,18 +50,6 @@ Frame(src: String, srcdoc: String, title: String, …)
 - `load`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
-state heard = ""
-Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-    on message(m) { heard = JSON.stringify(m.data) }
-}
-state version = 1
-Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
-```
 
 ## What it can raise
 

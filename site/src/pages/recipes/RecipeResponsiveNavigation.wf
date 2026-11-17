@@ -34,7 +34,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") 
 "# }) {
         code {
             Markdown("**Needs:** nothing besides this code. It is a whole project's `app` and pages: paste it into a new project, replacing `src/App.wf` and the starter's pages.")
-            CodeBlock(#"app {
+            DocsCodeBlock(#"app {
     state open = false
     if viewport.md {
         Row(gap: .md) {

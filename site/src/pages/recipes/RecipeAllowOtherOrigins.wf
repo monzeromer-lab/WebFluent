@@ -3,7 +3,7 @@
 page RecipeAllowOtherOrigins(path: "/recipes/allow-other-origins", title: "Allow other origins in the security policy — Recipes", description: "Widen the content security policy a build ships: requests, images and frames from other origins, an app's own schemes, WebAssembly, and pinned files.") {
     RecipeShell("Allow other origins in the security policy", summary: "With `\"build\": \{ \"csp\": true \}` (on for a project `wf init` creates), every page carries a Content-Security-Policy that is `'self'` throughout. A page that talks to an API on another domain, loads images from a CDN or embeds a video names those origins in `webfluent.app.json`, and the build widens the policy by exactly them. This config loads Google's tag manager after the page and allows what it sends and draws:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Review a site's security before you deploy", to: "/recipes/review-security"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Make a desktop or phone app with Tauri", to: "/recipes/tauri-app")], source: "md-docs/recipes/allow-other-origins.md", how: true, hasVariations: true, project: {}) {
         code {
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
   "meta": {
     "scripts": [{ "src": "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX", "load": "after" }],
     "connect": ["https://*.google-analytics.com", "https://*.analytics.google.com",

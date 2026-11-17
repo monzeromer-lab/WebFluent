@@ -33,7 +33,7 @@ page LibraryGuide(path: "/reference/library", title: "Library", description: "Th
 
         Markdown("This Rust program renders a template to HTML:")
 
-        CodeBlock(##"// Cargo.toml: webfluent = { version = "7", default-features = false }
+        DocsCodeBlock(##"// Cargo.toml: webfluent = { version = "7", default-features = false }
 //             serde_json = "1"
 use webfluent::Template;
 
@@ -52,7 +52,7 @@ fn main() -> webfluent::Result<()> {
 
         Heading("Add it", id: "add-it").h3
 
-        CodeBlock(#"[dependencies]
+        DocsCodeBlock(#"[dependencies]
 webfluent = { version = "7", default-features = false }"#, title: "toml")
 
         Markdown("`default-features = false` leaves out the `wf` command's own dependencies (its argument parser and the development server). A program that only renders templates or builds projects needs neither.")
@@ -143,7 +143,7 @@ webfluent = { version = "7", default-features = false }"#, title: "toml")
 
         Markdown("`Template` parses and checks once, is `Send + Sync`, and is cheap to clone, so a server loads its templates at start-up and renders from any thread. Data is any `serde::Serialize` value. This program renders one page of a directory of templates to PDF:")
 
-        CodeBlock(#"use serde::Serialize;
+        DocsCodeBlock(#"use serde::Serialize;
 use webfluent::Template;
 
 #[derive(Serialize)]
@@ -185,7 +185,7 @@ fn main() -> webfluent::Result<()> {
 
         Markdown("`build::build` is `wf build`, and `build::check` is `wf check`. Both read the project through a `Vfs` and return a `BuildReport`: every line the command prints, every finding as a `Diagnostic`, every page's route, and where the site was written. A build that stops returns a `BuildFailure` holding the report so far and the error:")
 
-        CodeBlock(#"use std::path::Path;
+        DocsCodeBlock(#"use std::path::Path;
 use webfluent::build::{BuildOptions, build};
 use webfluent::vfs::FsVfs;
 
@@ -212,7 +212,7 @@ fn main() {
 
         Markdown("Everything that reads a project reads it through `vfs::Vfs`:\n\n- `FsVfs` is the disk, and what every command uses.\n- `OverlayVfs::over_disk()` is the disk with an editor's unsaved buffers over it. `set` lays text over a path, `set_bytes` a picture or a font, and `delete` hides a file as though it were gone.\n\nThis function checks a project as an editor holds it, before the file is saved:")
 
-        CodeBlock(#"use std::path::Path;
+        DocsCodeBlock(#"use std::path::Path;
 use webfluent::build::{BuildOptions, check};
 use webfluent::vfs::OverlayVfs;
 
@@ -236,7 +236,7 @@ fn main() {
 
         Markdown("`memory::compile_files` builds a project given as a map of path to contents and returns what it wrote as a map, with every finding. It reads no disk and writes none, which is how the browser build works, and it runs natively too:")
 
-        CodeBlock(##"use webfluent::memory::{Contents, Options, compile_files};
+        DocsCodeBlock(##"use webfluent::memory::{Contents, Options, compile_files};
 
 fn main() {
     let files = [(
@@ -305,7 +305,7 @@ fn main() {
 
         Markdown("`IoError`, `ConfigError`, `CodegenError`, `EditError` and `NotFound` each hold a message and, where there is one, the error beneath it, which `std::error::Error::source` returns. `WebFluentError::io(message)` and `io_with(message, cause)` make one. The enum is `#[non_exhaustive]`, so a `match` on it needs a `_` arm:")
 
-        CodeBlock(#"use webfluent::{Template, WebFluentError};
+        DocsCodeBlock(#"use webfluent::{Template, WebFluentError};
 
 fn main() {
     match Template::from_file("templates/missing.wf") {
@@ -320,7 +320,7 @@ fn main() {
 
         Markdown("The modules and items in [The documented API](#the-documented-api) are covered: a change that breaks them waits for a major version. A minor version may add a case to a `#[non_exhaustive]` enum (`WebFluentError`, the tree's `Declaration`, `Expr` and `StatementKind`, `OutputType`, `memory::Contents`, …), which is why a `match` on one needs a `_` arm.\n\nThe rest of the compiler — the checker, the code generator, the runtime, the PDF engine, the registry and the tools behind the other commands — is the crate's own. The `internals` feature makes it public again for a tool that needs it, hidden from the docs and outside semver: anything there may change in any release. A crate that turns it on pins an exact version:")
 
-        CodeBlock(#"[dependencies]
+        DocsCodeBlock(#"[dependencies]
 webfluent = { version = "=7.0.0", default-features = false, features = ["internals"] }"#, title: "toml")
 
         Heading("Node: the webfluent package", id: "node-the-webfluent-package").h2
@@ -334,7 +334,7 @@ webfluent = { version = "=7.0.0", default-features = false, features = ["interna
 
         Markdown("This script renders one page of a directory of templates in a request handler, without blocking the event loop:")
 
-        CodeBlock(#"const http = require("node:http");
+        DocsCodeBlock(#"const http = require("node:http");
 const { Template } = require("webfluent");
 
 const receipt = Template.fromDir("templates").page("Receipt").withLang("en");
@@ -382,7 +382,7 @@ http.createServer(async (req, res) => {
 
         Markdown("The compiler also builds for WebAssembly ([`crates/wf-wasm`](https://github.com/monzeromer-lab/WebFluent/tree/master/crates/wf-wasm)). A page imports `wf.js` and compiles a project with nothing sent to a server: sites and apps, every check `wf check` makes, pictures sized to WebP, PDFs and slide decks. This module compiles a page and shows it in a frame:")
 
-        CodeBlock(#"import { compile, preview, previewConfig } from "./wf.js";
+        DocsCodeBlock(#"import { compile, preview, previewConfig } from "./wf.js";
 
 const home = `page Home(path: "/", title: "Home", description: "The front page.") {
     Heading("Hello").h1

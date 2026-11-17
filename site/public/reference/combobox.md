@@ -10,6 +10,20 @@ A text field that offers what matches as the reader types: from options:, or sea
 Combobox(bind: State, options: [Item], search: (String) -> [Item] or (String) -> [Item]!, …)
 ```
 
+## Example
+
+```wf
+state city = "lis"
+Combobox(bind: city, options: [
+    { id: "ams", name: "Amsterdam" },
+    { id: "ber", name: "Berlin" },
+    { id: "lis", name: "Lisbon" },
+    { id: "mad", name: "Madrid" },
+    { id: "par", name: "Paris" },
+], text: c => c.name, key: c => c.id, label: "City", placeholder: "Type a city")
+Text("Chosen: {city}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -29,17 +43,6 @@ Combobox(bind: State, options: [Item], search: (String) -> [Item] or (String) ->
 `.multiple`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state city = ""
-state cities = [{ id: "par", name: "Paris", country: "France" }, { id: "por", name: "Porto", country: "Portugal" }]
-Combobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: "City") {
-    option(c) { Text(c.name)  Text(c.country).muted }
-    empty { Text("No city by that name") }
-}
-```
 
 ## What it can raise
 

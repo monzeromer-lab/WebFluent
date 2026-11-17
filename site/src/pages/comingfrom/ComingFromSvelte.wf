@@ -9,7 +9,7 @@ page ComingFromSvelte(path: "/coming-from/svelte", title: "WebFluent for Svelte 
         port {
             Markdown("The same counter, in Svelte and in WebFluent. It starts at a number the caller passes, counts up on a click, shows a badge when the count is even, and tells the caller about each change.")
 
-            CodeBlock(#"<script>
+            DocsCodeBlock(#"<script>
   let { start = 0, onchange } = $props();
   let n = $state(start);
   let even = $derived(n % 2 === 0);
@@ -22,7 +22,7 @@ page ComingFromSvelte(path: "/coming-from/svelte", title: "WebFluent for Svelte 
   {#if even}<span class="badge">even</span>{/if}
 </div>"#, title: "svelte")
 
-            CodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
+            DocsCodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
     state last = 0
     Heading("Scores").h1
     Counter(start: 2) { on change(value) { last = value } }

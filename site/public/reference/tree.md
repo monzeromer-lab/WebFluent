@@ -10,6 +10,28 @@ Nested items — files and folders, an outline — as a tree a keyboard can work
 Tree(items: [Item], children: (Item) -> [Item]?, key: (Item) -> String or (Item) -> Number, …)
 ```
 
+## Example
+
+```wf
+state file = "src/pages/Home.wf"
+Tree(items: [
+    { path: "src", name: "src", children: [
+        { path: "src/App.wf", name: "App.wf" },
+        { path: "src/pages", name: "pages", children: [
+            { path: "src/pages/Home.wf", name: "Home.wf" },
+            { path: "src/pages/About.wf", name: "About.wf" },
+        ] },
+    ] },
+    { path: "webfluent.app.json", name: "webfluent.app.json" },
+], children: f => f.children ?? [], key: f => f.path, bind: file, open: ["src", "src/pages"], label: "Files") {
+    row(f) {
+        Icon(if f.children != null { "folder" } else { "file" })
+        Text(f.name)
+    }
+}
+Text("Open: {file}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -27,15 +49,6 @@ Tree(items: [Item], children: (Item) -> [Item]?, key: (Item) -> String or (Item)
 `.multiple`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state file = ""
-Tree(items: [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }], children: f => f.children, key: f => f.path, bind: file, label: "Files") {
-    row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
-}
-```
 
 ## What it can raise
 

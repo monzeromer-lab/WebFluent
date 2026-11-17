@@ -1,5 +1,5 @@
 //! What a request and a connection take, and what each hears: the options
-//! of `fetch(…)`, of an endpoint's call and of the functions that open a
+//! of `http.get(…)` and its verbs, of an endpoint's call and of the functions that open a
 //! connection, the cases those options take, the events a connection's
 //! block handles, and what each event a page handles outside any element
 //! is. The language server offers them from here; the tests below hold
@@ -21,11 +21,12 @@ pub const fn arg(name: &'static str, doc: &'static str) -> ArgDoc {
     ArgDoc { name, doc }
 }
 
-/// The options `fetch(url, …)` takes, in a `resource` or after `await`.
+/// The options `http.get(url, …)` — and `.post`, `.put`, `.patch`,
+/// `.delete` — take after the address, in a `resource` or after `await`.
+/// The verb is the method.
 pub const RESOURCE_OPTIONS: &[ArgDoc] = &[
-    arg("method", "HTTP method, e.g. `\"POST\"`"),
-    arg("headers", "Map of request headers; quote hyphenated keys"),
-    arg("body", "Request body, sent as JSON"),
+    arg("headers", "Map of request headers; quote hyphenated keys (`{ \"X-Api-Key\": key }`)"),
+    arg("body", "Request body, sent as JSON (a `File` as a form)"),
     arg(
         "refresh",
         "When a read asks again besides an argument changing: `.onReconnect` (unset), `.onFocus`, `.every(30.seconds)`, `.never`, or a list. Asking again is a refresh — the value stays on the page while it runs",
@@ -36,8 +37,9 @@ pub const RESOURCE_OPTIONS: &[ArgDoc] = &[
     ),
     arg(
         "cache",
-        "How long an answer stands: `.swr(60.seconds)` (served, then revalidated), `.none`, `.forever`",
+        "How long an answer stands, over what the server says: `.maxAge(60.seconds)`, `.swr(60.seconds)` (served, then revalidated), `.none`, `.forever`",
     ),
+    arg("as", "How the response is read: JSON by default, or `.text`, `.blob`, `.arrayBuffer`"),
 ];
 
 /// What a call of a service's endpoint (`Backend.users(…)`) takes beside the

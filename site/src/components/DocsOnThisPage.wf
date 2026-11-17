@@ -2,7 +2,7 @@
 /// them — the codes a reader may meet here; the page as Markdown, to copy
 /// or open (its twin, `/learn/07-state.md`, which an agent reads too); and
 /// the page's source.
-component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes: [RelatedLink] = []) {
+component DocsOnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes: [RelatedLink] = []) {
     state copied = false
     // The section the reader is in, followed as they scroll.
     state current = ""

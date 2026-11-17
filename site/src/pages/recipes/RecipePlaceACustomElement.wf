@@ -27,7 +27,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
 "# }) {
         code {
             Markdown("**Needs:** the `meta.scripts` setting below, which loads the element's library.")
-            CodeBlock(#"// Your publishable key, from the Stripe dashboard.
+            DocsCodeBlock(#"// Your publishable key, from the Stripe dashboard.
 const STRIPE_KEY = "pk_test_123"
 
 page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
@@ -40,7 +40,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
     }
 }"#, title: "wf")
             Markdown("The script that defines the element loads from `meta.scripts` in `webfluent.app.json`:")
-            CodeBlock(#"{ "meta": {
+            DocsCodeBlock(#"{ "meta": {
     "scripts": [{ "src": "https://js.stripe.com/v3/pricing-table.js", "async": true }]
 } }"#, title: "json")
         }

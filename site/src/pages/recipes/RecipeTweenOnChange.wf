@@ -17,7 +17,7 @@ page RecipeTweenOnChange(path: "/recipes/tween-on-change", title: "Tween a prope
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
+            DocsCodeBlock(#"page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
     state open = false
     Heading("Tween").h1
     Card {

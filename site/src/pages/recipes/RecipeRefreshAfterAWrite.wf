@@ -57,7 +57,7 @@ page Todos(path: "/", title: "Todos", description: "Todos that stay current.") {
 "# }) {
         code {
             Markdown("**Needs:** a server with `GET /api/todos`, `POST /api/todos` and `DELETE /api/todos/<id>`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"type Todo { id: String, title: String }
+            DocsCodeBlock(#"type Todo { id: String, title: String }
 type NewTodo { title: String }
 
 api Backend(base: "/api") { }

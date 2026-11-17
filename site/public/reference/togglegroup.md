@@ -10,6 +10,17 @@ Buttons of which one is chosen — a view switcher, a segmented control — or, 
 ToggleGroup(bind: State, label: String, multiple: Bool) { … }
 ```
 
+## Example
+
+```wf
+state view = "grid"
+ToggleGroup(bind: view, label: "View") {
+    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+    ToggleGroup.Item("List", value: "list", icon: "list")
+}
+Text("Showing the {view} view").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,22 +41,24 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `ToggleGroup.ToggleGroup.Item`
+Written under its name, inside `ToggleGroup`.
 
-## Example
+### ToggleGroup.Item
+
+One choice: its words, and the value bind: holds when it is chosen.
 
 ```wf
-state view = "grid"
-ToggleGroup(bind: view, label: "View") {
-    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
-    ToggleGroup.Item("List", value: "list", icon: "list")
-}
-state styles: [String] = []
-ToggleGroup(bind: styles, label: "Text style").multiple {
-    ToggleGroup.Item("Bold", value: "b")
-    ToggleGroup.Item("Italic", value: "i")
-}
+ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String, disabled: Bool)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | Its words |
+| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
+| `icon:` | `String` | An icon before the words |
+| `disabled:` | `Bool` | Whether the control is inert |
+
+Flags: `.disabled`
 
 ## What it can raise
 

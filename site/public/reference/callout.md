@@ -10,6 +10,14 @@ A note set apart from the text around it — .note, .tip, .important, .warning, 
 Callout(_ text: String, kind: Enum, title: String) { … }
 ```
 
+## Example
+
+```wf
+Callout("Every finding has a code, and a page that says how to fix it.", title: "Before you push").tip {
+    Link("Read about the checks", to: "/errors")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,13 +38,14 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Callout.Callout.Title`
+Written under its name, inside `Callout`.
 
-## Example
+### Callout.Title
+
+Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.
 
 ```wf
-Callout("Run `wf check` before you push.").tip
-Callout("Deleting a project deletes its builds too.", title: "Before you delete").caution
+Callout.Title { … }
 ```
 
 ## What it can raise

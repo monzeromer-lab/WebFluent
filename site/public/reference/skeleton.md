@@ -10,6 +10,19 @@ Placeholder shape shown while content loads.
 Skeleton(height: String, width: String, size: String, …)
 ```
 
+## Example
+
+```wf
+Row(gap: .md, align: .center) {
+    Skeleton(size: "48px").circle
+    Stack(gap: .sm) {
+        Skeleton(height: "16px", width: "180px")
+        Skeleton(height: "12px", width: "260px")
+        Skeleton(height: "12px", width: "220px")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,13 +37,6 @@ Skeleton(height: String, width: String, size: String, …)
 `.circle`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Skeleton(height: "20px", width: "200px")
-Skeleton(size: "48px").circle
-```
 
 ## What it can raise
 

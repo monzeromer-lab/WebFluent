@@ -10,6 +10,16 @@ Small status label.
 Badge(_ label: String, tone: Enum, pill: Bool)
 ```
 
+## Example
+
+```wf
+Row(gap: .sm, align: .center) {
+    Heading("Billing").h3
+    Badge("Beta").info
+    Badge("3 overdue").danger.pill
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -23,13 +33,6 @@ Badge(_ label: String, tone: Enum, pill: Bool)
 `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.pill`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Badge("Beta").info
-Badge("3 new").danger.pill
-```
 
 ## What it can raise
 

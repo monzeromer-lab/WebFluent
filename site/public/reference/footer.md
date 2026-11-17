@@ -10,6 +10,20 @@ Repeated at the bottom of every PDF page (or those on: names), where page and pa
 Footer(on: Enum) { … }
 ```
 
+## Example
+
+```wf
+Document(title: "Invoice INV-2041") {
+    Footer {
+        Row(justify: .between) {
+            Text("Northwind Ltd · VAT GB123456789").muted.sm
+            Text("Page {page} of {pages}").muted.sm
+        }
+    }
+    Heading("Invoice INV-2041").h1
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,12 +39,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Footer { Text("© Company Inc.").muted.sm }
-```
 
 ## What it can raise
 

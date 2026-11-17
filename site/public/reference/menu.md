@@ -10,6 +10,37 @@ A menu above everything: opened by its trigger: button, or by visible: at an anc
 Menu(trigger: String, label: String, visible: State, …) { … }
 ```
 
+## Example
+
+```wf
+state said = "Nothing chosen yet"
+state pinned = false
+Menu(trigger: "File actions").bottomStart {
+    Menu.Item(shortcut: "F2") {
+        on click { said = "Rename" }
+        Text("Rename")
+    }
+    Menu.Item(shortcut: "mod+d") {
+        on click { said = "Duplicate" }
+        Text("Duplicate")
+    }
+    Menu.Item(checked: pinned) {
+        on click { pinned = !pinned }
+        Text("Pinned")
+    }
+    Menu.Sub(label: "Move to") {
+        Menu.Item { on click { said = "Moved to Archive" }  Text("Archive") }
+        Menu.Item { on click { said = "Moved to Drafts" }  Text("Drafts") }
+    }
+    Menu.Divider
+    Menu.Item(shortcut: "mod+backspace").danger {
+        on click { said = "Delete" }
+        Text("Delete")
+    }
+}
+Text(said).muted.sm
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -38,22 +69,43 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Menu.Menu.Item`
-- `Menu.Menu.Divider`
-- `Menu.Menu.Sub`
+Written under its name, inside `Menu`.
 
-## Example
+### Menu.Item
+
+One entry of the menu; on click is what choosing it does.
 
 ```wf
-Menu(trigger: "Options") {
-    Menu.Item(shortcut: "F2") { Text("Rename") }
-    Menu.Sub(label: "Move to") { Menu.Item { Text("Archive") } }
-    Menu.Divider
-    Menu.Item(disabled: true) { Text("Delete") }
-}
-state asked = false
-state point = { x: 0, y: 0 }
-Menu(visible: asked, at: point) { Menu.Item { Text("Copy") } }
+Menu.Item(shortcut: String, checked: Bool, disabled: Bool, …) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `shortcut:` | `String` | The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`) |
+| `checked:` | `Bool` | A check mark: the item turns something on and off |
+| `disabled:` | `Bool` | Shown, skipped by the arrow keys, and cannot be chosen |
+| `danger:` | `Bool` | What it does cannot be taken back — Delete, Discard: drawn in the danger colour |
+
+Flags: `.checked` `.disabled` `.danger`
+
+### Menu.Sub
+
+An entry that opens a menu of its own beside it.
+
+```wf
+Menu.Sub(label: String) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | What the entry says |
+
+### Menu.Divider
+
+A rule between groups of entries.
+
+```wf
+Menu.Divider
 ```
 
 ## What it can raise

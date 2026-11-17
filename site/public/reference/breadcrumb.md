@@ -10,6 +10,16 @@ Breadcrumb trail. An item without to is the current page.
 Breadcrumb { … }
 ```
 
+## Example
+
+```wf
+Breadcrumb {
+    Breadcrumb.Item(to: "/") { Text("Home") }
+    Breadcrumb.Item(to: "/reference") { Text("Reference") }
+    Breadcrumb.Item { Text("Breadcrumb") }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,17 +28,19 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Breadcrumb.Breadcrumb.Item`
+Written under its name, inside `Breadcrumb`.
 
-## Example
+### Breadcrumb.Item
+
+One step of the trail.
 
 ```wf
-Breadcrumb {
-    Breadcrumb.Item(to: "/") { Text("Home") }
-    Breadcrumb.Item(to: "/docs") { Text("Docs") }
-    Breadcrumb.Item { Text("Components") }
-}
+Breadcrumb.Item(to: Path) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
 
 ## What it can raise
 

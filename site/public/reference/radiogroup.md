@@ -10,6 +10,18 @@ One choice of several, as native radio buttons under a legend: the arrow keys mo
 RadioGroup(bind: State, label: String, cards: Bool) { … }
 ```
 
+## Example
+
+```wf
+state plan = "team"
+RadioGroup(bind: plan, label: "Plan").cards {
+    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+    RadioGroup.Option("Team", value: "team", hint: "Up to 20 people, $12 each")
+    RadioGroup.Option("Scale", value: "scale", hint: "Unlimited people, single sign-on")
+}
+Text("Chosen: {plan}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,19 +42,28 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `RadioGroup.RadioGroup.Option`
-- `RadioGroup.RadioGroup.Legend`
-- `RadioGroup.RadioGroup.Hint`
+Written under its name, inside `RadioGroup`.
 
-## Example
+### RadioGroup.Option
+
+One choice: its words, its value, and a hint said with it.
 
 ```wf
-state plan = "free"
-RadioGroup(bind: plan, label: "Plan").cards {
-    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
-    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
-}
+RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | Its words |
+| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
+| `hint:` | `String` | A line beneath it, read with it |
+
+## Drawn for it
+
+What `RadioGroup` draws itself, by its class; not written.
+
+- `RadioGroup.Legend` (`.`): Its legend.
+- `RadioGroup.Hint` (`.`): An option's hint.
 
 ## What it can raise
 

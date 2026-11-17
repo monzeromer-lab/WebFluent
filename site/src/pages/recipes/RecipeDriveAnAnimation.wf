@@ -14,7 +14,7 @@ page RecipeDriveAnAnimation(path: "/recipes/drive-an-animation", title: "Drive a
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
+            DocsCodeBlock(#"page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
     Heading("Hover").h1
     Card(ref: panel) {
         on mouseenter { animate(panel, "pulse", "400ms") }
@@ -27,7 +27,7 @@ page RecipeDriveAnAnimation(path: "/recipes/drive-an-animation", title: "Drive a
 
             Markdown("A flag plays once, when the element arrives. To play an animation the element already carries again, from the start, call `replayAnimation(element, name)`:")
 
-            CodeBlock(#"page Replay(path: "/", title: "Replay", description: "A card that fades in again on hover.") {
+            DocsCodeBlock(#"page Replay(path: "/", title: "Replay", description: "A card that fades in again on hover.") {
     Heading("Replay").h1
     Card.outlined.fadeIn {
         on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }

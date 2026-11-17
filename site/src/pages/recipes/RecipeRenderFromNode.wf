@@ -3,7 +3,7 @@
 page RecipeRenderFromNode(path: "/recipes/render-from-node", title: "Render templates from Node — Recipes", description: "Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF.") {
     RecipeShell("Render templates from Node", summary: "The Node binding is a small wrapper around `wf render`: it renders a template with your data as HTML, a fragment, a PDF or slides. This Express server answers with an invoice in either form. You need Node.js, npm and the `wf` command, and a template like the one in [Render a template with data](/recipes/render-a-template). This one is `templates/invoice.wf`:", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Render templates from Rust", to: "/recipes/render-from-rust"), RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template")], source: "md-docs/recipes/render-from-node.md", how: true, hasVariations: false, project: {}) {
         code {
-            CodeBlock(#"type Customer { name: String }
+            DocsCodeBlock(#"type Customer { name: String }
 type Item { name: String, qty: Number, price: Number }
 
 page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
@@ -31,7 +31,7 @@ page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
                         Line(command: "npm install ./WebFluent/bindings/node express")
                     ])
             Markdown("This is the server, `server.js`:")
-            CodeBlock(#"// server.js
+            DocsCodeBlock(#"// server.js
 const path = require("node:path");
 const express = require("express");
 const { Template } = require("webfluent");

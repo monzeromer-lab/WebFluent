@@ -10,6 +10,19 @@ Two lists side by side — what can be chosen and what is — with buttons that 
 TransferList(bind: State, options: [Item], text: (Item) -> String, …)
 ```
 
+## Example
+
+```wf
+state picked: [String] = ["ada"]
+TransferList(bind: picked, options: [
+    { id: "ada", name: "Ada Lovelace" },
+    { id: "grace", name: "Grace Hopper" },
+    { id: "alan", name: "Alan Turing" },
+    { id: "katherine", name: "Katherine Johnson" },
+], text: p => p.name, key: p => p.id, label: "Reviewers", from: "Everyone")
+Text("Reviewers: {picked.join(", ")}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -23,13 +36,6 @@ TransferList(bind: State, options: [Item], text: (Item) -> String, …)
 | `to:` | `String` | The second list's heading (unset, `Chosen`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state picked: [String] = ["b"]
-TransferList(bind: picked, options: [{ id: "a", name: "Ada" }, { id: "b", name: "Grace" }, { id: "c", name: "Alan" }], text: p => p.name, key: p => p.id, label: "Reviewers")
-```
 
 ## What it can raise
 

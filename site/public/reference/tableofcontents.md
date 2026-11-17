@@ -10,6 +10,19 @@ The document's headings with the page each lands on, each a link to it.
 TableOfContents(levels: Number, title: String)
 ```
 
+## Example
+
+```wf
+Document(title: "Employee handbook") {
+    Heading("Employee handbook").h1
+    TableOfContents(levels: 2, title: "Contents")
+    PageBreak
+    Heading("Your first week").h2
+    Heading("Equipment").h3
+    Heading("Time off").h2
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -18,12 +31,6 @@ TableOfContents(levels: Number, title: String)
 | `title:` | `String` | A heading above the list |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-TableOfContents(levels: 2)
-```
 
 ## What it can raise
 

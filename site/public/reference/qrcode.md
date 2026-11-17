@@ -10,6 +10,20 @@ A QR code for a URL or any text, drawn as vector graphics when the page is built
 QrCode(_ value: String, color: String, background: String)
 ```
 
+## Example
+
+```wf
+Card.outlined {
+    Row(gap: .md, align: .center) {
+        QrCode("https://example.com/tickets/QX-4821")
+        Stack(gap: .xs) {
+            Text("Ticket QX-4821").bold
+            Text("Show this at the door.").muted
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,12 +33,6 @@ QrCode(_ value: String, color: String, background: String)
 | `background:` | `String` | The colour behind them |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-QrCode("https://example.com/report/q1")
-```
 
 ## What it can raise
 

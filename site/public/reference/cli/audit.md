@@ -17,4 +17,22 @@ wf audit [PATH] [options]
 | `[PATH]` | Project directory (default: current directory) |
 | `--json` | Print JSON, for tools |
 
-The [full entry for wf audit](https://webfluent.monzeromer.dev/reference/cli.md#wf-audit) has its examples and the details this page leaves out.
+Prints what a security review asks about the project. It reports and never
+fails.
+
+```bash
+wf audit
+wf audit --json
+```
+
+The report lists:
+
+- every `Unsafe.*` and whether its input is sanitised;
+- the project's own scripts and what each declares;
+- every other origin the pages load from;
+- everything kept on the reader's machine;
+- every `env` name and whether it is public;
+- the policy the build ships;
+- what the compiler depends on.
+
+See also: [Review a site's security](../recipes/review-security.md) and [Security](../about/security.md).

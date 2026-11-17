@@ -4441,6 +4441,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.1-tests-act-as-a-reader-can", label: #"Tests act as a reader can"#), Anchor(id: "7.0.1-the-runtime-and-the-checker", label: #"The runtime and the checker"#), Anchor(id: "7.0.1-docs-the-agent-reference-and-the-skill", label: #"Docs, the agent reference and the skill"#)], source: "RELEASE_NOTES.md")
+        DocsOnThisPage(sections: [Anchor(id: "7.0.1-tests-act-as-a-reader-can", label: #"Tests act as a reader can"#), Anchor(id: "7.0.1-the-runtime-and-the-checker", label: #"The runtime and the checker"#), Anchor(id: "7.0.1-docs-the-agent-reference-and-the-skill", label: #"Docs, the agent reference and the skill"#)], source: "RELEASE_NOTES.md")
     }
 }

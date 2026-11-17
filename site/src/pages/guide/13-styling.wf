@@ -4,7 +4,7 @@ page Learn13Styling(path: "/learn/13-styling", title: "Styling", description: "T
     Stack(gap: .lg) {
         Markdown("This chapter covers styling in WebFluent: a theme for the whole site, a `style \{ \}` block for one element, and your own stylesheets for what sits between. Every built-in element already ships styled, so you write styles only for what you want to change.\n\nThis page sets the brand colour for the whole site, then gives one card a border of that colour and a deeper shadow on hover:")
 
-        CodeBlock(#"theme Brand {
+        DocsCodeBlock(#"theme Brand {
     color-primary: #0F766E
     radius-md: 14px
 }
@@ -58,7 +58,7 @@ page Home(path: "/", title: "Home", description: "A themed page.") {
 
         Markdown("To change the colours, fonts, spacing or corner radius of everything at once, declare a `theme`. A theme sets *design tokens* — named values such as `color-primary` or `radius-md` that every built-in reads.\n\nThis theme gives the site a teal brand colour, the Inter font and rounder corners:")
 
-        CodeBlock(#"theme Brand {
+        DocsCodeBlock(#"theme Brand {
     color-primary: #0F766E
     color-secondary: #134E4A
     color-background: #FFFFFF
@@ -79,7 +79,7 @@ page Home(path: "/", title: "Home", description: "A themed page.") {
 
         Markdown("The built-ins draw their colours, sizes, radii, fonts and motion from the tokens and nothing else, so a theme restyles all of them. Three kinds of token are worth knowing when you change the colours:\n\n- **What is written on a tone.** `color-on-primary` is the colour of a label on `color-primary`: a primary button's text, a badge's, a pressed toggle's, the selected day in a calendar. `color-on-secondary`, `color-on-success`, `color-on-danger`, `color-on-warning` and `color-on-info` do the same for the other tones.\n- **What dims the page.** `color-backdrop` is drawn behind a `Modal`, a `Dialog`, a `Sheet` and a drawer.\n- **What is worked out for you.** An alert's tint, a focus ring and a highlighted match are mixed from the tone and the page's colours, so a dark theme gets dark alerts without naming any.\n\nA theme with a light primary names a dark label. Without `color-on-primary` here, every primary button would write white on pale yellow, and `A13` would say so:")
 
-        CodeBlock(#"theme Ink {
+        DocsCodeBlock(#"theme Ink {
     color-background: #0B1220
     color-surface: #111827
     color-text: #E5E7EB
@@ -100,7 +100,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("If the project declares one theme, the build uses it. If it declares several, choose one in `webfluent.app.json`:")
 
-        CodeBlock(#"{ "theme": { "name": "Brand" } }"#, title: "json")
+        DocsCodeBlock(#"{ "theme": { "name": "Brand" } }"#, title: "json")
 
         Markdown("The contrast lint, `A13`, checks the colour pairs your theme changes — text on the background and the surfaces, and each tone's label on its tone — and warns when one falls below the WCAG AA contrast ratio. Run `wf theme` to see every token, where it comes from and which pairs it checked.\n\nTo keep the built-ins' layout and mechanics but drop their look — for a site that brings its whole design — set `theme.builtin` in `webfluent.app.json`:")
 
@@ -127,7 +127,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("To change one element, give it a `style \{ \}` block. The block holds CSS declarations, and they apply to that element only.\n\nThis card uses tokens for its spacing and colours, a live value for its accent border and width, a hover rule, a rule for its paragraphs and a media query:")
 
-        CodeBlock(##"page Styled(path: "/styled", title: "Styled card", description: "A card with its own style.") {
+        DocsCodeBlock(##"page Styled(path: "/styled", title: "Styled card", description: "A card with its own style.") {
     state accent = "#D97706"
     state wide = false
 
@@ -153,7 +153,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("The card gets a deeper shadow on hover. **Widen** lets it fill the page, and **Make it blue** recolours its left border at once.")
 
-        Callout("**Coming from HTML and CSS?** There is no `style=\"…\"` attribute: `style:` as an argument is `E106`. The declarations go in the element's `style \{ \}` block, and the build turns the parts that never change into a stylesheet rule, so a strict content security policy still holds. See [Coming from HTML and CSS](/coming-from/html-css).", kind: .note)
+        DocsCallout("**Coming from HTML and CSS?** There is no `style=\"…\"` attribute: `style:` as an argument is `E106`. The declarations go in the element's `style \{ \}` block, and the build turns the parts that never change into a stylesheet rule, so a strict content security policy still holds. See [Coming from HTML and CSS](/coming-from/html-css).", kind: .note)
 
         Heading("Write declarations", id: "write-declarations").h3
 
@@ -208,7 +208,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("A nested rule styles the element while it is in some state. `&` is the element itself, as in CSS nesting:\n\n- `&:hover`, `&:focus-visible` (the keyboard focus ring), `&:active`, `&:disabled`, `&::placeholder`, `&:focus-within`;\n- `&.active`, `& > p`;\n- the ARIA states a control keeps in its attributes: `&[aria-current=\"page\"]`, which the router sets on the current `Link`, and `&[aria-pressed=\"true\"]`, `&[aria-selected=\"true\"]`, `&[aria-checked=\"true\"]`, `&[aria-expanded=\"true\"]`, `&[aria-invalid=\"true\"]`.\n\n`@media (…) \{ \}` and `@container (…) \{ \}` nest the same way.\n\nA nested rule is compiled into the stylesheet, so its values must be known at build time: literals and tokens, not state. To make a hover colour follow state, set a custom property on the element and read it in the rule:")
 
-        CodeBlock(##"page Swatch(path: "/swatch", title: "Swatch", description: "A hover colour that follows state.") {
+        DocsCodeBlock(##"page Swatch(path: "/swatch", title: "Swatch", description: "A hover colour that follows state.") {
     state hoverColor = "#0F766E"
 
     Heading("Swatch").h1
@@ -231,7 +231,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("To make a property change smoothly instead of jumping, add a `transition \{ \}` block. Each line names a property, a duration and an optional easing.\n\nThis card fades and grows when you press **Toggle**:")
 
-        CodeBlock(#"page Fade(path: "/fade", title: "Fade", description: "A card that fades in and out.") {
+        DocsCodeBlock(#"page Fade(path: "/fade", title: "Fade", description: "A card that fades in and out.") {
     state active = false
 
     Heading("Fade").h1
@@ -253,13 +253,13 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("Every `.css` file anywhere under `src/` is part of the build. You can keep one global file, or put a file beside the component it styles:")
 
-        CodeBlock(#"src/
+        DocsCodeBlock(#"src/
 ├── styles.css            # global rules
 └── components/
     ├── Card.wf
     └── card.css          # beside the component it styles"#, title: "text")
 
-        CodeBlock(#"/* src/components/card.css */
+        DocsCodeBlock(#"/* src/components/card.css */
 .feature {
   container-type: inline-size;
 }
@@ -274,7 +274,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("`class: \"name\"` adds a class to the element. It does not replace the element's own classes: `Container(class: \"hero\")` renders `class=\"wf-container hero\"`.\n\nThe value may be an expression, so a class can follow state:")
 
-        CodeBlock(#"page Welcome(path: "/welcome", title: "Welcome", description: "A heading whose class follows state.") {
+        DocsCodeBlock(#"page Welcome(path: "/welcome", title: "Welcome", description: "A heading whose class follows state.") {
     state active = true
 
     Container(class: "hero") {
@@ -285,7 +285,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("When several classes each have their own condition, pass a map or a list:\n\n- In a **map**, each key is a class, and it is on while its value is true.\n- A **list** joins strings and maps, and skips anything that is `null`.")
 
-        CodeBlock(#"page Chores(path: "/chores", title: "Chores", description: "Classes that follow state.") {
+        DocsCodeBlock(#"page Chores(path: "/chores", title: "Chores", description: "Classes that follow state.") {
     state done = false
     state urgent = true
     state tone = "calm"
@@ -296,7 +296,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
     Button("Done") { on click { done = !done } }
 }"#, title: "wf")
 
-        Callout("**Coming from React?** `className` is a string you assemble, often with `clsx`. `class:` *adds* to the element's own classes, and takes the map `clsx` would build: `class: \{ \"is-done\": done \}`. For one element's look, reach for a flag or a `style \{ \}` block before a class. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** `className` is a string you assemble, often with `clsx`. `class:` *adds* to the element's own classes, and takes the map `clsx` would build: `class: \{ \"is-done\": done \}`. For one element's look, reach for a flag or a `style \{ \}` block before a class. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("The rules for a class value:\n\n- A map's values must be conditions (`Bool`).\n- A bare condition is not a class: `class: active` is `T01`. Write `\{ \"is-active\": active \}`, which says what `active` turns on.\n- When the value changes, only the classes that `class:` itself named come off. A class a script added with `classList.add` stays.")
 
@@ -312,17 +312,17 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
         Markdown("To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a `data-<prop>` attribute, such as `data-tone=\"loud\"`, so one rule styles one variant. The `Note` component of [Components](/learn/10-components#enum-props) gives its root `class: \"note\"`, so this rule styles its loud notes and nothing else:")
 
-        CodeBlock(#".note[data-tone="loud"] { font-weight: 700; color: var(--color-danger) }"#, title: "css")
+        DocsCodeBlock(#".note[data-tone="loud"] { font-weight: 700; color: var(--color-danger) }"#, title: "css")
 
         Heading("Dark mode", id: "dark-mode").h2
 
         Markdown("To add dark mode, declare a second theme with the tokens that change, and name both themes in `webfluent.app.json`:")
 
-        CodeBlock(#"{ "theme": { "name": "Light", "dark": "Night" } }"#, title: "json")
+        DocsCodeBlock(#"{ "theme": { "name": "Light", "dark": "Night" } }"#, title: "json")
 
         Markdown("The dark theme's tokens replace the light theme's in two cases:\n\n- when the reader's system prefers dark (`prefers-color-scheme: dark`) and the reader has not chosen light;\n- whenever the reader chose dark with `setTheme(\"dark\")`.\n\nThis page declares both themes and lets the reader choose:")
 
-        CodeBlock(#"theme Light {
+        DocsCodeBlock(#"theme Light {
     color-background: #FFFFFF
     color-text: #0F172A
 }
@@ -347,13 +347,13 @@ page Prefs(path: "/prefs", title: "Appearance", description: "Choose light or da
 
         Markdown("The text under the heading reads `You are on the dark theme` after you press **Dark**.\n\n- `setTheme(\"light\")` forces light, `setTheme(\"dark\")` forces dark, and `setTheme(\"system\")` follows the system again.\n- `theme` reads the reader's choice: `\"light\"`, `\"dark\"` or `\"system\"`.\n- The choice is kept in the browser's storage across visits. The page's script applies it before it draws the page. The system preference needs no script: it is a media query in the stylesheet, so it applies from the first paint.\n\nEvery built-in reads tokens, so the dark theme reaches all of them; the built-in `ThemeToggle` is a button that switches between the two with `setTheme`.")
 
-        Callout("Only what reads tokens switches with the theme. A colour written raw, such as `background: #FFFFFF`, stays the same in dark mode. Use tokens such as `$surface` and `$text` for anything that should change.", kind: .warning)
+        DocsCallout("Only what reads tokens switches with the theme. A colour written raw, such as `background: #FFFFFF`, stays the same in dark mode. Use tokens such as `$surface` and `$text` for anything that should change.", kind: .warning)
 
         Heading("Lay out a page without CSS", id: "lay-out-a-page-without-css").h2
 
         Markdown("Most layout needs no `style` at all. `Stack`, `Row`, `Grid`, `Container`, `Spacer` and `Divider` take `gap:`, `align:`, `justify:` and `columns:` props ([Elements](/learn/06-elements#layout-elements)).\n\nThis page puts a title and a button on one line, with a grid of cards below that has one, two or three columns depending on the screen:")
 
-        CodeBlock(#"page Layout(path: "/projects", title: "Projects", description: "A grid of projects.") {
+        DocsCodeBlock(#"page Layout(path: "/projects", title: "Projects", description: "A grid of projects.") {
     Container {
         Stack(gap: .lg) {
             Row(justify: .between, align: .center) {
@@ -371,17 +371,17 @@ page Prefs(path: "/prefs", title: "Appearance", description: "Choose light or da
 
         Markdown("To make a layout prop change with the screen width, give it one value per breakpoint instead of one value:")
 
-        CodeBlock(#"Grid(columns: { base: 1, md: 2, lg: 3 }, gap: { base: .sm, lg: .lg }) { … }
+        DocsCodeBlock(#"Grid(columns: { base: 1, md: 2, lg: 3 }, gap: { base: .sm, lg: .lg }) { … }
 Row(direction: { base: .column, md: .row }) { … }
 Column(span: { base: 12, md: 6 }) { … }"#, title: "wf")
 
         Markdown("The build compiles each step to a class and a media query. No JavaScript runs and no resize listener is added, so the first paint already has the right layout. A `viewport` test, by contrast, paints one branch and swaps it after the page's script starts.\n\n- The steps are `base`, `sm`, `md`, `lg` and `xl`.\n- A step you leave out keeps the value of the step below it, so `\{ base: 1, lg: 3 \}` is one column until `lg`.\n- Each step is a design token, `screen-sm` to `screen-xl`. Move one in your theme and every media query moves with it, `viewport.md` included:")
 
-        CodeBlock(#"theme Brand { screen-md: 900px }"#, title: "wf")
+        DocsCodeBlock(#"theme Brand { screen-md: 900px }"#, title: "wf")
 
         Markdown("The same names work inside a `style \{ \}` block: `@md \{ … \}` means `@media (min-width: $screen-md)`.")
 
-        CodeBlock(#"Heading("Title").h1 {
+        DocsCodeBlock(#"Heading("Title").h1 {
     style {
         font-size: 24px
         @md { font-size: 34px }
@@ -392,7 +392,7 @@ Column(span: { base: 12, md: 6 }) { … }"#, title: "wf")
 
         Markdown("A `Row`, `Grid` or `Column` stays as you write it at every width. To make one reflow on a narrow screen, add the `.stacks` flag, or say what it does at each width with a responsive value:")
 
-        CodeBlock(#"Row.stacks { … }                          // a column on a narrow screen
+        DocsCodeBlock(#"Row.stacks { … }                          // a column on a narrow screen
 Grid.stacks { … }                         // one column on a narrow screen
 Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width"#, title: "wf")
 
@@ -484,7 +484,7 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
 
         Markdown("**A comma between two declarations.** A `style \{ \}` block is CSS, not a map, so a comma after a value does not build:")
 
-        CodeBlock(#"page P(path: "/", title: "Card", description: "A styled card.") {
+        DocsCodeBlock(#"page P(path: "/", title: "Card", description: "A styled card.") {
     Heading("Card").h1
     Card {
         style { padding: $lg, border-radius: $radius-md }
@@ -494,7 +494,7 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
 
         Markdown("Put each declaration on its own line, or separate them with `;` ([E002](/errors/E002)).\n\n**A number spliced as a length.** A splice puts in the value as it is, and a length with no unit is one the browser drops:")
 
-        CodeBlock(#"page P(path: "/", title: "Progress", description: "A bar that fills.") {
+        DocsCodeBlock(#"page P(path: "/", title: "Progress", description: "A bar that fills.") {
     state pct = 40
     Heading("Progress").h1
     Stack {
@@ -505,7 +505,7 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
 
         Markdown("Write the unit after the splice: `width: \{pct\}%` ([V07](/errors/V07)).\n\n**A condition as a class.** `class:` wants class names, and a `Bool` says nothing about which class it turns on:")
 
-        CodeBlock(#"page P(path: "/", title: "Chores", description: "A class that follows state.") {
+        DocsCodeBlock(#"page P(path: "/", title: "Chores", description: "A class that follows state.") {
     state done = false
     Heading("Chores").h1
     Text("Water the plants", class: done)

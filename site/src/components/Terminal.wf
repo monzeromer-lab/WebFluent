@@ -3,5 +3,5 @@
 /// a line that starts with `#` is a comment.
 component Terminal(lines: [Line], title: String = "bash") {
     derived text = lines.map(l => if l.command.startsWith("#") { l.command } else if l.output != "" { "$ {l.command}\n{l.output}" } else { "$ {l.command}" }).join("\n")
-    CodeBlock(text, title: title)
+    DocsCodeBlock(text, title: title)
 }

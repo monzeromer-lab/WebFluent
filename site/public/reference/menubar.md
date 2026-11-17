@@ -10,6 +10,31 @@ File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it;
 Menubar(label: String) { … }
 ```
 
+## Example
+
+```wf
+state said = "Pick a command"
+Menubar(label: "Editor") {
+    Menubar.Menu("File") {
+        Menu.Item(shortcut: "mod+n") { on click { said = "New file" }  Text("New file") }
+        Menu.Item(shortcut: "mod+o") { on click { said = "Open…" }  Text("Open…") }
+        Menu.Divider
+        Menu.Item(shortcut: "mod+s") { on click { said = "Saved" }  Text("Save") }
+    }
+    Menubar.Menu("Edit") {
+        Menu.Item(shortcut: "mod+z") { on click { said = "Undo" }  Text("Undo") }
+        Menu.Item(shortcut: "mod+shift+z") { on click { said = "Redo" }  Text("Redo") }
+    }
+    Menubar.Menu("View") {
+        Menu.Sub(label: "Zoom") {
+            Menu.Item(shortcut: "mod+=") { on click { said = "Zoom in" }  Text("Zoom in") }
+            Menu.Item(shortcut: "mod+-") { on click { said = "Zoom out" }  Text("Zoom out") }
+        }
+    }
+}
+Text(said).muted.sm
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,23 +49,19 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Menubar.Menubar.Menu`
+Written under its name, inside `Menubar`.
 
-## Example
+### Menubar.Menu
+
+One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.
 
 ```wf
-state said = ""
-Menubar(label: "Editor") {
-    Menubar.Menu("File") {
-        Menu.Item(shortcut: "mod+n") { on click { said = "new" }  Text("New") }
-        Menu.Item { on click { said = "open" }  Text("Open…") }
-    }
-    Menubar.Menu("Edit") {
-        Menu.Item(shortcut: "mod+z") { on click { said = "undo" }  Text("Undo") }
-    }
-}
-Text(said)
+Menubar.Menu(_ label: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | The button's words |
 
 ## What it can raise
 

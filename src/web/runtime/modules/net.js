@@ -8,9 +8,9 @@
   // when it changes, and an answer to an older request is ignored. Asking
   // again for what is already shown is a refresh: it stays loaded, with the
   // value, while it runs.
-  // `let r = await fetch(url, opts)` in an action or a handler: the parsed
-  // JSON body, or a thrown `Error` on a failed response — the request a
-  // `resource` makes, made once. The browser's own is `window.fetch`.
+  // `let r: Row! = await http.get(url, opts)` in an action or a handler: a
+  // result — `.ok` of the parsed body, or `.err` of an `HttpError` — the
+  // request a `resource` makes, made once (`httpCall`).
   /// What a mutation shows before the server has answered, and takes back
   /// when it refuses.
   ///
@@ -158,12 +158,12 @@
   /// A request is a first load, or a refresh. A first load — nothing has
   /// arrived yet, or the request changed (an address or an argument that
   /// reads state now names something else, so what is shown would be
-  /// wrong) — is "loading" until it answers, and "error" if it fails. A
+  /// wrong) — is `.loading` until it answers, and `.failed` if it fails. A
   /// refresh — the same request asked again, by `reload()`, `invalidate()`,
-  /// `on:` or the next page of `paginate` — keeps "ready" and the data
-  /// while it runs, with `refreshing()` true; what it brings replaces the
-  /// data in place, sharing what did not change (`reconcile`). A refresh
-  /// that fails keeps the data and "ready", and sets `error()` — until the
+  /// `refresh:` or the next page of an endpoint's `pages` — stays `.loaded`
+  /// with the data while it runs, `refreshing()` true; what it brings
+  /// replaces the data in place, sharing what did not change (`reconcile`).
+  /// A refresh that fails stays `.loaded` and sets `error()` — until the
   /// next answer clears it — so a page can say the data is stale. A first
   /// load for another request drops what the last one brought: `data()` is
   /// null (and a paged resource's `items()` empty) until it answers, and

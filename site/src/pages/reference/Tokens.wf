@@ -7,7 +7,7 @@ page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference",
             Stack(gap: .lg) {
                 Markdown("This chapter lists every design token of the baseline theme with its value, and how a style reads one. A *design token* is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.\n\nA `theme` declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on `:root`:")
 
-                CodeBlock(#"theme Brand {
+                DocsCodeBlock(#"theme Brand {
     color-primary: #0F766E
     radius-md: 14px
     screen-md: 900px
@@ -49,7 +49,7 @@ page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference",
 
                 Markdown("This page reads the tokens of the theme above — one the theme adds, one it changes, one it keeps, and a breakpoint it moves:")
 
-                CodeBlock(#"theme Brand {
+                DocsCodeBlock(#"theme Brand {
     color-primary: #0F766E
     radius-md: 14px
     screen-md: 900px
@@ -70,7 +70,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
     }
 }"#, title: "wf")
 
-                Markdown("The card's background is `#F1F5F9`, its radius `14px` and its border the baseline `color-border`. Its padding grows to `spacing-xl` from `900px` wide, because `@md` reads `screen-md`.\n\nA `$token` the resolved theme does not declare draws the `V06` warning, since the property would fall back to nothing. `wf theme` lists every token the build uses, where each is read, and the contrast of the colour pairs ([Command line](/reference/cli#wf-theme)).")
+                Markdown("The card's background is `#F1F5F9`, its radius `14px` and its border the baseline `color-border`. Its padding grows to `spacing-xl` from `900px` wide, because `@md` reads `screen-md`.\n\nA `$token` the resolved theme does not declare draws the `V06` warning, since the property would fall back to nothing. `wf theme` lists every token the build uses, where each is read, and the contrast of the colour pairs ([Command line](/reference/cli/theme)).")
 
                 Heading("Every built-in follows the theme", id: "every-built-in-follows-the-theme").h2
 

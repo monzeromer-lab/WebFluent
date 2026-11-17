@@ -10,6 +10,18 @@ Text field. With label, hint or error it is a labelled field.
 Input(reveal: Bool, bind: State, label: String, …)
 ```
 
+## Example
+
+```wf
+state name = "Ada Lovelace"
+state email = ""
+Stack(gap: .md) {
+    Input(bind: name, label: "Full name", placeholder: "Ada Lovelace").text
+    Input(bind: email, label: "Work email", hint: "We send the invoice here.", placeholder: "ada@example.com").email.required
+    Text(if email == "" { "Hello, {name}" } else { "Hello, {name}: we write to {email}" }).muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -46,13 +58,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on blur`: The element lost focus
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state email = ""
-Input(bind: email, label: "Email", hint: "We never share it").email.required
-```
 
 ## What it can raise
 

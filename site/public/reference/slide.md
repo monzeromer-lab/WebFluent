@@ -10,22 +10,24 @@ One slide, one PDF page; content is top-aligned and clipped at the bottom margin
 Slide { … }
 ```
 
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Slots
-
-- `children`
-
 ## Example
 
 ```wf
 Presentation {
     Slide {
+        style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #ffffff }
         Heading("Revenue").h1
-        Text("Up 18% on last quarter.")
+        Text("Up 15% on last quarter, to €2.4M.").lg
+        Text("Source: finance, unaudited").sm
     }
 }
 ```
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
+
+## Slots
+
+- `children`
 
 ## What it can raise
 

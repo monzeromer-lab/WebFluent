@@ -9,7 +9,7 @@ page ComingFromReact(path: "/coming-from/react", title: "WebFluent for React dev
         port {
             Markdown("The same counter, in React and in WebFluent. It starts at a number the caller passes, counts up on a click, shows a badge when the count is even, and tells the caller about each change.")
 
-            CodeBlock(#"function Counter({ start = 0, onChange }) {
+            DocsCodeBlock(#"function Counter({ start = 0, onChange }) {
   const [n, setN] = useState(start);
   const even = useMemo(() => n % 2 === 0, [n]);
   return (
@@ -21,7 +21,7 @@ page ComingFromReact(path: "/coming-from/react", title: "WebFluent for React dev
   );
 }"#, title: "jsx")
 
-            CodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
+            DocsCodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
     state last = 0
     Heading("Scores").h1
     Counter(start: 2) { on change(value) { last = value } }

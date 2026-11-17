@@ -8,7 +8,7 @@ page ProjectGuide(path: "/reference/project", title: "Project structure", descri
 
         Markdown("This is the layout `wf init` starts from, with every kind of file a project can hold:")
 
-        CodeBlock(#"my-site/
+        DocsCodeBlock(#"my-site/
 ├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
 ├── .agents/skills/, .claude/skills/
 │                           the writing-webfluent skill, where agents look for one (`wf init` writes it)
@@ -38,7 +38,7 @@ page ProjectGuide(path: "/reference/project", title: "Project structure", descri
 
         Markdown("The compiler reads every `.wf` and `.wfx` file under `src/` and merges them into a single program. A page uses a component declared in another file, and a component uses a store, by name. There is nothing to import.\n\nFor example, a component declared in `src/components/PriceCard.wf` and a page in `src/pages/Pricing.wf` work together with no import between them. Here they are in one block:")
 
-        CodeBlock(#"// In src/components/PriceCard.wf
+        DocsCodeBlock(#"// In src/components/PriceCard.wf
 component PriceCard(_ plan: String, price: Number) {
     Card {
         Text(plan).bold
@@ -159,7 +159,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
 
         Markdown("Commit the sources and the config:\n\n- `webfluent.app.json`\n- `src/`\n- `public/`\n- `tests/`, with its `__snapshots__/`\n- `AGENTS.md` and the skill folders, so every agent on the project reads the same reference\n- a service's `generated/` folder: `wf api check` in CI says when it is behind its spec\n\nLeave out what the build writes and what is private. Add these lines to `.gitignore`:")
 
-        CodeBlock(#"build/
+        DocsCodeBlock(#"build/
 .wf-cache/
 .wf-sizes.json
 .env"#, title: "text")

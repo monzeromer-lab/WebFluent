@@ -4,7 +4,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
     Stack(gap: .lg) {
         Markdown("يبني هذا الدرس **Shelf**، موقعًا صغيرًا يسرد كتبًا تستحق القراءة، ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة، وتنتهي بما يجب أن تراه.")
 
-        Callout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
+        DocsCallout("لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.", kind: .note)
 
         Heading("ما ستبنيه", id: "ما-ستبنيه").h2
 
@@ -25,7 +25,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
 
         Markdown("ستكتب كل ملف بنفسك، لذا احذف ما وضعه القالب في `src/` واختباراته في `tests/` (فهي تختبر صفحات القالب). ثم استبدل `webfluent.app.json` بما يلي:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "shelf",
   "build": { "ssg": true, "csp": true },
   "meta": {
@@ -41,7 +41,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
 
         Markdown("الكتب بيانات، لا شيفرة. ضعها في `src/books.json`:")
 
-        CodeBlock(#"[
+        DocsCodeBlock(#"[
   { "slug": "notes-on-the-analytical-engine", "title": "Notes on the Analytical Engine",
     "author": "Ada Lovelace", "year": 1843, "pages": 66,
     "summary": "The first published algorithm, and a view of what a machine might do beyond arithmetic.",
@@ -58,7 +58,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
 
         Markdown("ثم صِف شكل البيانات واقرأ الملف، في `src/types.wf`:")
 
-        CodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
+        DocsCodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
 
         Markdown("`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة `book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل الصفحة. ([الأنواع](/learn/12-types)، [جلب البيانات](/learn/15-data#read-a-file-at-build-time-with-data).)\n\n**تحقّق:** شغّل `wf check`. يطبع `No problems in shelf.`")
 
@@ -66,7 +66,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
 
         Markdown("ما يحتفظ به القارئ يجب أن يبقى بعد إعادة التحميل وأن يكون هو نفسه في كل صفحة، لذا يوضع في مخزن، وتحفظ `persist` قيمته. أنشئ `src/stores/Shelf.wf`:")
 
-        CodeBlock(#"/// The books the reader wants to read, kept across visits.
+        DocsCodeBlock(#"/// The books the reader wants to read, kept across visits.
 store Shelf {
     persist saved: [String] = []
     derived count = saved.length
@@ -82,7 +82,7 @@ store Shelf {
 
         Markdown("`persist` حالة (`state`) تُحفظ في تخزين المتصفح وتُقرأ من جديد في الزيارة التالية؛ والتغيير الذي يحدث في تبويب آخر يصل إلى هنا أيضًا. ويُعاد حساب `derived count` كلما تغيّر `saved`. ([المخازن](/learn/11-stores).)")
 
-        Callout("**قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ`store` باسمه حيثما استُخدم، و`persist` تتولّى الحفظ. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
+        DocsCallout("**قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ`store` باسمه حيثما استُخدم، و`persist` تتولّى الحفظ. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
 
         Markdown("**تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`: `` `Shelf.count` is declared but never read `` ومثله لـ`Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول التحذيران.")
 
@@ -90,7 +90,7 @@ store Shelf {
 
         Markdown("كل كتاب يُعرض بالطريقة نفسها، لذا هو مكوّن. أنشئ `src/components/BookCard.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 /// A book at a glance, with the button that puts it on the shelf.
 component BookCard(_ book: Book) {
     use Shelf
@@ -115,7 +115,7 @@ component BookCard(_ book: Book) {
 
         Markdown("تسرد الصفحة الرئيسية الكتب مع مربع بحث. أنشئ `src/pages/Home.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 page Home(path: "/", title: "Shelf", description: "Books worth reading, and the ones you want to.") {
     state q = ""
     derived needle = q.trim().toLowerCase()
@@ -136,11 +136,11 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 
         Markdown("- يُبقي `bind: q` الحقل والحالة متطابقين، في الاتجاهين.\n- `found` مشتقة من `q`، فالكتابة تضيّق القائمة وأنت تكتب.\n- `for … by book.slug` حلقة ذات مفاتيح: البطاقة التي تبقى في القائمة تحتفظ بعنصرها بدل أن يُعاد بناؤه.\n- `Grid(columns: \{ base: 1, md: 2 \})` عمود واحد على الهاتف وعمودان ابتداءً من نقطة التوقف `md`. يحمل HTML المُصيَّر مسبقًا هذا التخطيط أصلًا، فلا حاجة إلى سكربت.")
 
-        Callout("**قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
+        DocsCallout("**قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
 
         Markdown("ثم أضف صفحة لكل كتاب، `src/pages/BookPage.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book on the shelf.", type: "article", paths: books.map(b => b.slug)) {
     derived book = books.find(b => b.slug == slug)
     head {
@@ -168,7 +168,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 
         Markdown("تعرض صفحة الرفّ الكتب التي حفظها القارئ. أنشئ `src/pages/ShelfPage.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you want to read.") {
     use Shelf
     derived mine = books.filter(b => Shelf.saved.includes(b.slug))
@@ -187,7 +187,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 
         Markdown("أضف صفحة للعناوين التي لا تطالب بها صفحة أخرى، `src/pages/NotFound.wf`. يطابق `path: \"*\"` أي شيء، ويكتبها البناء الثابت باسم `404.html`:")
 
-        CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
+        DocsCodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
     Container {
         Heading("Nothing lives here").h1
         Link("Back to the books", to: "/")
@@ -196,7 +196,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 
         Markdown("أخيرًا، الإطار الذي تتشاركه كل الصفحات، `src/App.wf`. `Router` هو حيث تُرسم الصفحة الحالية:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 app {
     Navbar {
         Navbar.Brand { Link("Shelf", to: "/") }
@@ -215,7 +215,7 @@ app {
 
         Markdown("يستطيع القرّاء اقتراح كتب. أنشئ `src/pages/Suggest.wf`:")
 
-        CodeBlock(#"page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
+        DocsCodeBlock(#"page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
     state title = ""
     state author = ""
     state why = ""
@@ -245,7 +245,7 @@ app {
 
         Markdown("تقع كتلة `validate` بجانب الحالة التي تحرسها، ويعرض عنصر التحكم المربوط بتلك الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`، وتُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل فيه مشكلة ولا يشغّل `on submit`. ([النماذج](/learn/14-forms).)\n\nثم اربط الصفحة من الإطار. أضف الرابط الثالث إلى `src/App.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 app {
     Navbar {
         Navbar.Brand { Link("Shelf", to: "/") }
@@ -261,14 +261,14 @@ app {
 
         Markdown("**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.\n\nالموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،")
 
-        CodeBlock(#"// … in src/api.wf, beside the pages
+        DocsCodeBlock(#"// … in src/api.wf, beside the pages
 api Suggestions(base: "/api") {
     post suggest(body: Json) at "suggest" -> !
 }"#, title: "wf")
 
         Markdown("واستدعها من معالج النموذج:")
 
-        CodeBlock(#"// … in src/pages/Suggest.wf; the rest of the page is as above
+        DocsCodeBlock(#"// … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
     try await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
@@ -281,7 +281,7 @@ on submit {
 
         Markdown("تغيّر السمة رموز التصميم (design tokens) التي يُرسم بها كل عنصر مدمج. أنشئ `src/theme.wf`:")
 
-        CodeBlock(#"theme Paper {
+        DocsCodeBlock(#"theme Paper {
     color-primary: #6D28D9
     font-family: Charter, Georgia, serif
     radius-md: 10px
@@ -297,7 +297,7 @@ theme Ink {
 
         Markdown("ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً و`Ink` سمةً داكنة:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "shelf",
   "build": { "ssg": true, "csp": true },
   "theme": { "name": "Paper", "dark": "Ink" },
@@ -314,7 +314,7 @@ theme Ink {
 
         Markdown("تعيش الاختبارات في `tests/`. أنشئ `tests/BookCard.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 test "a card shows who wrote the book, and when" {
     BookCard(Book(slug: "x", title: "X", author: "Ada Lovelace", year: 1843, pages: 66, summary: "Notes."))
     expect "Ada Lovelace · 1843"
@@ -337,7 +337,7 @@ test "a book goes on the shelf, and comes off again" {
 
         Markdown("يُصيِّر الاختبار الأول البطاقة ويقرأ ما تعرضه. ويكتب أيضًا لقطة (snapshot) تقارن بها المرة التالية. أما الاختبار الثاني **فينقر**، لذا يعمل في Chrome بلا واجهة (headless)، بالمُصرِّف ووقت التشغيل نفسيهما اللذين يحصل عليهما القارئ. تُوجد الأزرار بنصها، كما يجدها القارئ. ([الاختبار](/learn/16-testing).)\n\n**تحقّق:** ينتهي التشغيل الأول بما يلي:")
 
-        CodeBlock(#"  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
+        DocsCodeBlock(#"  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
   ok    tests/BookCard.wf — a book goes on the shelf, and comes off again (in a browser)
 2 passed, 0 failed, 1 snapshot(s) written"#, title: "text")
 
@@ -358,14 +358,14 @@ test "a book goes on the shelf, and comes off again" {
 
         Markdown("أي مضيف ثابت يقدّم `build/`. على GitHub Pages، يعيش موقع المشروع تحت `https://<you>.github.io/shelf/`، لذا أخبر البناء بمساره الفرعي وعنوانه. أضف هذه المفاتيح إلى `webfluent.app.json`، مع إبقاء البقية:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "build": { "ssg": true, "csp": true, "base_path": "/shelf" },
   "meta": { "site_url": "https://you.github.io/shelf" }
 }"#, title: "json")
 
         Markdown("يضيف `base_path` بادئة إلى كل رابط وملف. ويفعّل `site_url` الروابط القانونية (canonical)، وخريطة الموقع، وعناوين Open Graph المطلقة.\n\nثم أضف سير عمل (workflow) يبني الموقع وينشره مع كل دفع (push) إلى `main`، `.github/workflows/pages.yml`:")
 
-        CodeBlock(#"name: Deploy
+        DocsCodeBlock(#"name: Deploy
 on:
   push:
     branches: [main]
@@ -395,7 +395,7 @@ jobs:
 
         Markdown("كل ملف `.wf` مما سبق، في قائمة واحدة. هذا هو البرنامج الذي بنته الخطوات، مع أول الاختبارين:")
 
-        CodeBlock(#"type Book {
+        DocsCodeBlock(#"type Book {
     slug: String
     title: String
     author: String
@@ -632,7 +632,7 @@ test "a card shows who wrote the book, and when" {
 
         Markdown("قراءة قيمة قد تكون مفقودة. لا يجد `books.find(…)` شيئًا حين لا يحمل أي كتاب هذا الـ slug، لذا `book` من النوع `Book?`:")
 
-        CodeBlock(#"type Book { slug: String, title: String }
+        DocsCodeBlock(#"type Book { slug: String, title: String }
 
 const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Language")]
 
@@ -643,7 +643,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 
         Markdown("اربطه بـ`if let b = book \{ Heading(b.title).h1 \}`، كما تفعل الخطوة 5، أو اقرأه بـ`book?.title ?? \"Book\"` ([T04](/errors/T04)).\n\nحقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي خطأ في الموضع الذي يُكتب فيه:")
 
-        CodeBlock(#"type Book { slug: String, title: String }
+        DocsCodeBlock(#"type Book { slug: String, title: String }
 
 const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Language")]
 
@@ -656,7 +656,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 
         Markdown("استخدم الاسم الذي تقترحه الرسالة، `book.title` ([T05](/errors/T05)).\n\nعضو مخزن لا يعلنه المخزن. لدى `Shelf` الأعضاء `saved` و`count` و`toggle`، ولا شيء غيرها:")
 
-        CodeBlock(#"store Shelf {
+        DocsCodeBlock(#"store Shelf {
     persist saved: [String] = []
     action toggle(slug: String) {
         saved = if saved.includes(slug) { saved.filter(s => s != slug) } else { [...saved, slug] }

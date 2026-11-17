@@ -10,6 +10,20 @@ Every picture in its block opens, on a press or Enter, full screen: the arrow ke
 Lightbox(label: String, previous: String, next: String, …) { … }
 ```
 
+## Example
+
+```wf
+Lightbox(label: "Launch week", previous: "Previous photo", next: "Next photo", close: "Close", zoom: "Zoom", of: "of") {
+    Gallery(columns: 3, ratio: 4 / 3) {
+        Image(src: "/og.png", alt: "The launch card, as it was shared")
+        Image(src: "/icon-512.png", alt: "The app icon on a white tile")
+        Image(src: "/og.png", alt: "The launch card, cropped to its title") {
+            style { object-position: 20% 50% }
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,14 +40,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Lightbox(label: "Trip") {
-    Image(src: "/favicon.svg", alt: "The logo")
-}
-```
 
 ## What it can raise
 

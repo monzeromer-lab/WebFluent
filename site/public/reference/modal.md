@@ -10,6 +10,23 @@ Modal <dialog>, opened by a state flag; the browser supplies focus trapping and 
 Modal(visible: State, title: String, closable: Bool, …) { … }
 ```
 
+## Example
+
+```wf
+state open = false
+state name = "Q3 report"
+Button("Rename") { on click { open = true } }
+Modal(visible: open, title: "Rename the report").closable {
+    on close { open = false }
+    Input(bind: name, label: "Name")
+    Modal.Footer {
+        Button("Cancel") { on click { open = false } }
+        Button("Save").primary { on click { open = false } }
+    }
+}
+Text("Report: {name}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -36,19 +53,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Modal.Modal.Title`
-- `Modal.Modal.Footer`
+Written under its name, inside `Modal`.
 
-## Example
+### Modal.Title
+
+What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { "Rename "  Code(name) } }.
 
 ```wf
-state open = false
-Button("Delete") { on click { open = true } }
-Modal(visible: open, title: "Delete deploys.wf?").closable {
-    Modal.Title { Markdown("Delete `deploys.wf`?") }
-    Text("This cannot be undone.")
-    Modal.Footer { Button("Cancel") { on click { open = false } } }
-}
+Modal.Title { … }
+```
+
+### Modal.Footer
+
+The modal's action row.
+
+```wf
+Modal.Footer { … }
 ```
 
 ## What it can raise

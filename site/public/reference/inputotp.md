@@ -10,6 +10,15 @@ A one-time code typed a digit to a box: the focus moves on as each is typed and 
 InputOTP(bind: State, length: Number, label: String)
 ```
 
+## Example
+
+```wf
+state code = ""
+derived left = 6 - code.length
+InputOTP(bind: code, length: 6, label: "Code from your authenticator app")
+Text(if code.length == 6 { "Checking {code}…" } else { "{left} digit(s) to go" }).muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,13 +28,6 @@ InputOTP(bind: State, length: Number, label: String)
 | `label:` | `String  (required)` | What the code is, for a screen reader |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state code = ""
-InputOTP(bind: code, length: 6, label: "Code from your app")
-```
 
 ## What it can raise
 

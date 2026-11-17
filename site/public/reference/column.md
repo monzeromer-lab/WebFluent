@@ -10,6 +10,29 @@ A child of the 12-column grid, spanning span columns.
 Column(span: Number, stacks: Bool) { … }
 ```
 
+## Example
+
+```wf
+Row(gap: .md) {
+    Column(span: { base: 12, md: 8 }) {
+        Card {
+            Card.Body {
+                Heading("Article").h3
+                Text("The main column takes eight of the twelve on a wide screen.")
+            }
+        }
+    }
+    Column(span: { base: 12, md: 4 }) {
+        Card.outlined {
+            Card.Body {
+                Heading("Related").h3
+                Link("Layout", to: "/learn")
+            }
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,15 +49,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Row {
-    Column(span: 8) { Text("Main") }
-    Column(span: 4) { Text("Aside") }
-}
-```
 
 ## What it can raise
 

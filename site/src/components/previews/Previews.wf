@@ -18,7 +18,7 @@ component PreviewChapter(ar: Bool = false) {
         Heading(if ar { "ما الذي يُعاد رسمه" } else { "What redraws" }, id: "what-redraws").h2
         Markdown(if ar { "لا شيء يعيد تشغيل الصفحة كلها. يرى المترجم أن `Text` يقرأ `count`، فيربط عقدة النص تلك به." } else { "Nothing re-runs the whole page. The compiler sees that `Text(\"Clicked \{count\} times\")` reads `count`, and ties that one text node to it." })
         Aside(if ar { "`useState` هو `state`، ولا دالة للتعيين: أسند إليه مباشرة." } else { "`useState` is `state`, and there is no setter: assign to it. [The cheat sheet](/blueprint/coming-from)." }, label: if ar { "قادم من React؟" } else { "Coming from React?" })
-        Callout("A `state` that reads `now` and is never assigned holds the moment the page opened.", kind: .warning)
+        DocsCallout("A `state` that reads `now` and is never assigned holds the moment the page opened.", kind: .warning)
         // wf-allow(A16)
         Heading(if ar { "تحقق من فهمك" } else { "Check your understanding" }, id: "check").h2
         Quiz("A page has `state n = 0` and `derived d = n * 2`, and shows `Text(\"\{d\}\")`. You set `n = 5`. What redraws?", choices: [
@@ -67,7 +67,7 @@ component PreviewReference(ar: Bool = false) {
         // wf-allow(A16)
         Heading("Events", id: "events").h2
         EventsTable(rows: [PropRow(name: "click", kind: "MouseEvent", detail: "Pressed, by pointer or keyboard.")])
-        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "What the button shows beside its label.")])
+        SlotsTable(slots: [PropRow(name: "children", kind: "", detail: "What the button shows beside its label.")])
         // wf-allow(A16)
         Heading("Examples", id: "examples").h2
         ExampleRow("Submit a form", body: "Inside a Form, type: .submit sends it; every other button never does.", code: "Button(\"Join\", type: .submit).primary") {
@@ -79,8 +79,8 @@ component PreviewReference(ar: Bool = false) {
 /// T5.
 component PreviewError(ar: Bool = false) {
     ErrorShell("T05", title: if ar { "حقل أو دالة غير موجودة" } else { "A field or method that does not exist" }, family: "Types", summary: if ar { "قرأت حقلًا لا يعلنه نوع السجل." } else { "You read a field the record's type does not declare. In the browser it would quietly be undefined, so the compiler stops here instead." }, printed: SAMPLE_PRINTED, lowerable: false, families: SAMPLE_FAMILIES, related: [RelatedLink(kind: "T04", title: "A value that may be null", to: "/errors/T04"), RelatedLink(kind: "Learn", title: "Types and records", to: "/learn/15-data")], sections: [Anchor(id: "printed", label: "What the compiler said"), Anchor(id: "why", label: "Why"), Anchor(id: "fix", label: "The fix")], other: if ar { "/blueprint/error" } else { "/ar/blueprint/error" }, lang: if ar { "ar" } else { "en" }) {
-        broken { CodeBlock("Heading(user.nmae).h1", title: "Profile.wf") }
-        fixed { CodeBlock("Heading(user.name).h1", title: "Profile.wf") }
+        broken { DocsCodeBlock("Heading(user.nmae).h1", title: "Profile.wf") }
+        fixed { DocsCodeBlock("Heading(user.name).h1", title: "Profile.wf") }
         Markdown(if ar { "خطأ إملائي في اسم حقل هو أكثر ما يلتقطه مدقق الأنواع." } else { "A typo in a field name is the most common bug a type checker can catch before a reader sees it." })
     }
 }

@@ -33,7 +33,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
+            DocsCodeBlock(#"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
     event cancel()
     slot
@@ -66,7 +66,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 
         Markdown("When the question is asked once, from one handler, `await ask(…)` draws the alert dialog itself and is the answer:")
 
-        CodeBlock(#"page Account(path: "/", title: "Account", description: "Close your account.") {
+        DocsCodeBlock(#"page Account(path: "/", title: "Account", description: "Close your account.") {
     state gone = false
     Heading("Account").h1
     Button("Delete account").danger {

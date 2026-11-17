@@ -8,7 +8,7 @@ page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages a
 
         Markdown("A page is a `page` declaration with a name, a `path:` and a body. This page answers `/about`:")
 
-        CodeBlock(#"page About(path: "/about", title: "About us", description: "Who we are and why we build this.") {
+        DocsCodeBlock(#"page About(path: "/about", title: "About us", description: "Who we are and why we build this.") {
     Container {
         Heading("About us").h1
         Paragraph("We are three people and a dog.")
@@ -101,13 +101,13 @@ page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages a
 
         Markdown("A page without a `title:` builds with warning `S01`, and one without a `description:` with warning `S02`. The compiler cannot write those for you, and a page without them looks bare when someone shares or searches for it.")
 
-        Callout("**Coming from React Router, Vue Router or SvelteKit?** There is no route table and no `routes/` folder. Each `page` names its own `path:`, and the compiler builds the router from every page. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
+        DocsCallout("**Coming from React Router, Vue Router or SvelteKit?** There is no route table and no `routes/` folder. Each `page` names its own `path:`, and the compiler builds the router from every page. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
 
         Heading("The app shell", id: "the-app-shell").h2
 
         Markdown("The `app` declaration is the shell: what every page renders inside, such as a navbar and a footer. The `Router` marks where the current page goes:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Link("Acme", to: "/") }
         Navbar.Links {
@@ -126,7 +126,7 @@ page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages a
 
         Markdown("A `Link` is an `<a>` whose clicks the router handles. To move from code, for example after a button press, call `navigate(path)`:")
 
-        CodeBlock(#"page Start(path: "/", title: "Start", description: "Where the tour begins.") {
+        DocsCodeBlock(#"page Start(path: "/", title: "Start", description: "Where the tour begins.") {
     Heading("Start here").h1
     Link("Home", to: "/")
     Link("Guide", to: "/docs").prefix           // also active on /docs/anything
@@ -152,7 +152,7 @@ page About(path: "/about", title: "About", description: "Who we are.") { Heading
 
         Markdown("A `:name` segment in the path is a typed parameter of the page. You read it as a plain name, or as `params.name`:")
 
-        CodeBlock(#"type Post { slug: String, title: String, body: String }
+        DocsCodeBlock(#"type Post { slug: String, title: String, body: String }
 
 store Posts {
     state all: [Post] = [
@@ -179,7 +179,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
         Markdown("`query` is the URL's query string, a `[String: String]`, and `hash` is its `#fragment`. Reading a key gives a `String?`, since the address may not carry it, so a page gives it a default with `??`. The runtime keeps both current, so a page that reads them follows the address:")
 
-        CodeBlock(#"page Products(path: "/products", title: "Products", description: "Everything we sell.") {
+        DocsCodeBlock(#"page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived tab = query.tab ?? "all"
     derived sort = query.sort ?? "name"
     Heading("Products").h1
@@ -196,7 +196,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
         Markdown("A layout is a component that frames a page. You name it with `layout:`, and the page renders in its default slot. Use a layout for one section's chrome, such as a docs sidebar or an app rail; the `app` shell is for the whole site's.\n\nIn this example, two docs pages share one sidebar and breadcrumb:")
 
-        CodeBlock(#"component DocsShell(_ crumb: String) {
+        DocsCodeBlock(#"component DocsShell(_ crumb: String) {
     slot
     Row(gap: .lg) {
         Sidebar {
@@ -227,7 +227,7 @@ page Reference(path: "/docs/reference", title: "Reference", description: "The re
 
         Markdown("A guard keeps a route from rendering until a condition holds. `guard:` names an expression, usually a store's derived value. When it is false, the reader is sent to `redirect:` (by default, `/`):")
 
-        CodeBlock(#"type User { name: String }
+        DocsCodeBlock(#"type User { name: String }
 
 store Auth {
     state user: User? = null
@@ -250,13 +250,13 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
         Markdown("The browser evaluates the guard on every navigation.")
 
-        Callout("A guard is a gate in the browser, not a secret. A static build still pre-renders the guarded page's HTML, so keep anything private behind an API that the page asks, and that checks who is asking.", kind: .caution)
+        DocsCallout("A guard is a gate in the browser, not a secret. A static build still pre-renders the guarded page's HTML, so keep anything private behind an API that the page asks, and that checks who is asking.", kind: .caution)
 
         Heading("Per-page head tags", id: "per-page-head-tags").h2
 
         Markdown("A `head \{ \}` block adds tags of the page's own to the document's `<head>`. The build writes them into the static paint where it knows the value, the live page keeps them current, and they are removed when the reader leaves the page:")
 
-        CodeBlock(#"page Share(path: "/share", title: "Share", description: "A page with its own tags.") {
+        DocsCodeBlock(#"page Share(path: "/share", title: "Share", description: "A page with its own tags.") {
     state image = "/og-share.png"
     head {
         meta(property: "og:image", content: image)
@@ -272,7 +272,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
         Markdown("A page written in a language other than the site's says so with `lang:`, and names the page it translates with `translates:`. This site is in English, with its home page in Arabic at `/ar`:")
 
-        CodeBlock(#"page Home(path: "/", title: "Home", description: "What we make.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Home", description: "What we make.") {
     Heading("Welcome").h1
 }
 
@@ -286,7 +286,7 @@ page HomeAr(path: "/ar", title: "الرئيسية", description: "ما نصنع�
 
         Markdown("A page with `path: \"*\"` answers every route no other page claims. The router shows it in the browser, and a static host serves it as `404.html`:")
 
-        CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives here.", noindex: true) {
+        DocsCodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives here.", noindex: true) {
     Container {
         Heading("Nothing here").h1
         Link("Back home", to: "/")
@@ -297,7 +297,7 @@ page HomeAr(path: "/ar", title: "الرئيسية", description: "ما نصنع�
 
         Markdown("A page's body is a render block: it declares state, derived values and actions, and lists what to show. The top of the body runs once, when the page renders. A call written there, such as `Deploys.load(id)`, is *set-up code*: it runs once as the page opens.")
 
-        CodeBlock(#"type Run { id: String, ok: Bool }
+        DocsCodeBlock(#"type Run { id: String, ok: Bool }
 
 store Deploys {
     state rows: [Run] = []
@@ -317,7 +317,7 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
 
         Markdown("A page goes through these stages, in order:\n\n1. The route matches. In a split build, the page's chunk loads, and its stylesheet with it.\n2. The body runs **once**: each `state` takes its initial value, set-up calls run, and the elements are created. Nothing re-renders after this; whatever reads a state updates on its own.\n3. Each `effect` runs, and runs again when what it reads changes. Timers start.\n4. The page is placed. In a single-page app, focus moves to its heading, the scroll goes to the top and the title is announced.\n5. When the route changes, everything the page created is disposed of: effects, timers, listeners, connections and `.route` stores. Their `cleanup \{ \}` blocks run.\n\nThere is no `onMount` to write. Set-up code runs at stage 2, an `effect` at stage 3, and `after(0) \{ … \}` once the page is on screen.")
 
-        Callout("**Coming from React?** A page's body is not a function called on every render; it runs once. Set-up code does what `useEffect(…, [])` did, and nothing re-renders after it. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
+        DocsCallout("**Coming from React?** A page's body is not a function called on every render; it runs once. Set-up code does what `useEffect(…, [])` did, and nothing re-renders after it. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
 
         Heading("Quick reference", id: "quick-reference").h2
 
@@ -382,20 +382,20 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
 
         Markdown("**A route names a parameter the page does not declare.** Each `:name` in the path is a parameter of the page, and the page must declare it:")
 
-        CodeBlock(#"page Post(path: "/posts/:slug", title: "Post", description: "One post.") {
+        DocsCodeBlock(#"page Post(path: "/posts/:slug", title: "Post", description: "One post.") {
     Heading("A post").h1
 }"#, title: "wf · draws R02")
 
         Markdown("Add `slug: String` to the page's header, beside `path:`, and read it as `slug` ([R02](/errors/R02)).\n\n**A link to a page that does not exist.** The compiler knows every route, so a `Link` or a `navigate()` to a path no page answers stops the build:")
 
-        CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") {
     Heading("Home").h1
     Link("About us", to: "/about")
 }"#, title: "wf · draws R01")
 
         Markdown("Declare the page, `page About(path: \"/about\", …)`, or fix the path ([R01](/errors/R01)).\n\n**A layout with nowhere to put the page.** A `layout:` component must declare a default `slot` and place `children` where the page goes:")
 
-        CodeBlock(#"component Shell(_ crumb: String) {
+        DocsCodeBlock(#"component Shell(_ crumb: String) {
     Stack {
         Text(crumb)
     }

@@ -10,6 +10,19 @@ Compact chip.
 Tag(_ label: String)
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    Heading("Slow roasting, explained").h3
+    Row(gap: .xs) {
+        Tag("Cooking")
+        Tag("Technique")
+        Tag("Long read")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -17,12 +30,6 @@ Tag(_ label: String)
 | `label` | `String  (positional)` | The tag text |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Tag("design")
-```
 
 ## What it can raise
 

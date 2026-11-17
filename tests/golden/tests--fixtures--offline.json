@@ -3,8 +3,8 @@
   "files": {
     "about/index.html": "1fa40364be85bead69bd0f0ab6e0f0da6e065e726d960d6f93bcddd5215386d1",
     "about/index.html.gz": "d2d94bcb4b9f488188c471d634d8487343c52d7cb059377b969cc580d718b94d",
-    "app.js": "5f787995795f6abd2f3ec2da6810b57c15be2d87c64929550010bf1f0da760a8",
-    "app.js.gz": "ede7f6273a067c5f41da62fd9cea0ddae92b9282ae682ba0e2f3710fd7dfadcf",
+    "app.js": "9bf01e74ef6b5677e5639e7bc07e60c5629cab74723f25f58d9c5632bc2f0df6",
+    "app.js.gz": "26ec7490fca949d00bda5cc997c5b80858a529fc2d2c69fffa7ccb7cb8e9d9e1",
     "contact/index.html": "206e6294292b4a3e9d9b0bfb88d010497da2771ee44671b25ec72b390631ef20",
     "contact/index.html.gz": "259f58053c53a35d46f789e3daccccc613718fd4d12810723181ccc0547a9122",
     "index.html": "77486598e65373b3ad65e6fdacc390dd965b6d21f5c844ee1f08a877b1f074e4",
@@ -19,7 +19,7 @@
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "df1e880187e795a31f1b8c897f08f178f0dfe6c24cb45c677d6a91d044318914",
     "styles.css.gz": "2de45659e5c3992f53dd598c624d07662dcb3167b172238c5c06276987a565c9",
-    "sw.js": "c9fd40e82e7fac4e3e6c159dfd8bec1bbdbd2aba2882d426ce459fb4f1f912b2",
-    "sw.js.gz": "eeac191ed5ebe189bf0bcad2fa758bda2c2d5eaf7653628e5bfc3102476a42cd"
+    "sw.js": "7abf8ac23cb3807a6747ec5d931330b174fd785e64a123915e62c7d19fe309c0",
+    "sw.js.gz": "f38c62f98a3fe3a58e237aef8a02ddd110e148e585dff8b2eb55f0cbfb37753b"
   }
 }

@@ -10,6 +10,32 @@ An app's frame: AppShell.Header across the top, a Sidebar down the start (a draw
 AppShell { … }
 ```
 
+## Example
+
+```wf
+AppShell {
+    style { min-height: 320px; border: 1px solid $color-border }
+    AppShell.Header {
+        Row(justify: .between, align: .center) {
+            style { flex: 1 }
+            Text("Ledger").bold
+            Button("Sign out").sm
+        }
+    }
+    Sidebar {
+        style { height: auto }
+        Sidebar.Item(to: "/learn", icon: "book") { Text("Learn") }
+        Sidebar.Item(to: "/reference", icon: "list") { Text("Reference") }
+    }
+    Stack(gap: .sm) {
+        style { padding: 1rem }
+        Heading("Dashboard").h3
+        Text("The page the router draws sits here.")
+    }
+    AppShell.Footer { Text("© 2026 Ledger").muted.sm }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,17 +44,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `AppShell.AppShell.Header`
-- `AppShell.AppShell.Footer`
+Written under its name, inside `AppShell`.
 
-## Example
+### AppShell.Header
+
+The bar across the top.
 
 ```wf
-AppShell {
-    AppShell.Header { Text("Ledger").bold  Spacer  ThemeToggle }
-    Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } }
-    Router
-}
+AppShell.Header { … }
+```
+
+### AppShell.Footer
+
+The bar along the bottom.
+
+```wf
+AppShell.Footer { … }
 ```
 
 ## What it can raise

@@ -4,40 +4,4 @@
 
 The page: https://webfluent.monzeromer.dev/reference/radiogroup-option
 
-One choice: its words, its value, and a hint said with it.
-
-```wf
-RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) { … }
-```
-
-## Props
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
-| `hint:` | `String` | A line beneath it, read with it |
-
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Slots
-
-- `children`
-
-## Example
-
-```wf
-state plan = "free"
-RadioGroup(bind: plan, label: "Plan").cards {
-    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
-    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
-}
-```
-
-## What it can raise
-
-- [E103](https://webfluent.monzeromer.dev/errors/E103.md): A flag, case, part, event or slot the component does not have
-- [C03](https://webfluent.monzeromer.dev/errors/C03.md): A part outside the component it belongs to
-- [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
-
-Since WebFluent 6.2.0.
+`RadioGroup.Option` is a part of [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup.md#radiogroup-option), and is described on its page.

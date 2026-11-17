@@ -41,9 +41,9 @@ page Settings(path: "/settings", title: "Settings", description: "How the site l
 "# }) {
         code {
             Markdown("**Needs:** the `theme` setting below in `webfluent.app.json`. The `spa` starter already has it, declares these two themes in `src/theme.wf`, and places a `DarkModeSwitch` component in its header (its `Night` names no `color-on-primary`; add the line below). This page replaces the starter's `src/pages/Settings.wf`. In a new project, put the themes in `src/theme.wf`.")
-            CodeBlock(#"{ "theme": { "name": "Day", "dark": "Night" } }"#, title: "json")
+            DocsCodeBlock(#"{ "theme": { "name": "Day", "dark": "Night" } }"#, title: "json")
             Markdown("This program declares both themes and a settings page with three buttons, the current choice drawn solid and the others outlined:")
-            CodeBlock(#"/// The look by day. Every token not named here keeps its baseline value.
+            DocsCodeBlock(#"/// The look by day. Every token not named here keeps its baseline value.
 theme Day {
     color-primary: #2563EB
     color-on-primary: #FFFFFF
@@ -79,7 +79,7 @@ page Settings(path: "/settings", title: "Settings", description: "How the site l
 
             Markdown("The built-in `ThemeToggle` is a single button that switches between the two: a moon on a light page, a sun on a dark one, named for the theme it switches to. Put it in a header:")
 
-            CodeBlock(#"app {
+            DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Text("Ledger").bold }
         Navbar.Actions { ThemeToggle }

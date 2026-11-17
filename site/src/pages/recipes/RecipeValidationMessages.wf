@@ -25,7 +25,7 @@ page RecipeValidationMessages(path: "/recipes/validation-messages", title: "Show
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Signup(path: "/", title: "Sign up", description: "Make an account.") {
+            DocsCodeBlock(#"page Signup(path: "/", title: "Sign up", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""

@@ -84,9 +84,9 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
 
             // The end of the chapter: reaching it marks the chapter read.
             Host(tag: "div", aria-hidden: "true", mount: (n) => wfWhenSeen(n, () => finished()), cleanup: (h) => h.stop())
-            PrevNext(prevTo: prevTo, prevLabel: prevLabel, nextTo: nextTo, nextLabel: nextLabel)
+            DocsPrevNext(prevTo: prevTo, prevLabel: prevLabel, nextTo: nextTo, nextLabel: nextLabel)
         }
 
-        OnThisPage(sections: sections, source: source, codes: codes)
+        DocsOnThisPage(sections: sections, source: source, codes: codes)
     }
 }

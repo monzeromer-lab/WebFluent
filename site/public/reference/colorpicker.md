@@ -10,6 +10,15 @@ A colour, chosen from swatches: (each a button, the chosen one pressed), with th
 ColorPicker(bind: State, label: String, swatches: [String])
 ```
 
+## Example
+
+```wf
+state accent = "#0f766e"
+ColorPicker(bind: accent, label: "Accent colour", swatches: ["#0f766e", "#1d4ed8", "#7c3aed", "#b91c1c", "#c2410c"])
+Button("Preview").primary { style { background: {accent} } }
+Text("Chosen: {accent}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,13 +28,6 @@ ColorPicker(bind: State, label: String, swatches: [String])
 | `swatches:` | `[String]` | The colours offered first: a list of `#rrggbb` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state accent = "#0f766e"
-ColorPicker(bind: accent, label: "Accent", swatches: ["#0f766e", "#b91c1c", "#1d4ed8"])
-```
 
 ## What it can raise
 

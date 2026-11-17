@@ -12,7 +12,7 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
 
         Markdown("To keep a control and a state in step, give the control `bind:` and the state's name. Typing in the control writes the state, and changing the state updates the control.\n\nThis sign-up page binds one of each kind of control:")
 
-        CodeBlock(#"page Signup(path: "/signup", title: "Sign up", description: "Every control, bound to state.") {
+        DocsCodeBlock(#"page Signup(path: "/signup", title: "Sign up", description: "Every control, bound to state.") {
     state name = ""
     state email = ""
     state plan = "free"
@@ -37,11 +37,11 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
     if let start = when { Text("Starting {start}") }
 }"#, title: "wf")
 
-        Callout("**Coming from React?** A controlled input needs `value=\{q\}` and an `onChange` that calls the setter. `bind: q` is both directions at once, and the control holds the state's type, so a `Slider` writes a `Number`, not the string `e.target.value` would give you. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** A controlled input needs `value=\{q\}` and an `onChange` that calls the setter. `bind: q` is both directions at once, and the control holds the state's type, so a `Slider` writes a `Number`, not the string `e.target.value` would give you. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("The last lines repeat what you type and pick. The `Select` and the two `Radio`s share `plan`, so choosing in one moves the others.\n\nFor several lines of text, use a `Textarea`. With `maxLength:` it shows how many characters are left, and tells a screen reader politely (without interrupting):")
 
-        CodeBlock(#"Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)"#, title: "wf")
+        DocsCodeBlock(#"Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)"#, title: "wf")
 
         Heading("What each control holds", id: "what-each-control-holds").h3
 
@@ -88,7 +88,7 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
 
         Markdown("`bind:` takes anything that can be written:\n\n- a state;\n- a store's member, such as `bind: Cart.note`;\n- a field of a loop's item.\n\nThis list lets the reader rename and tick off each todo in place:")
 
-        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+        DocsCodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
 page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place.") {
     state todos: [Todo] = [Todo(id: "1", title: "Water the plants"), Todo(id: "2", title: "Post the letter")]
@@ -107,7 +107,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
 
         Markdown("Every control takes `label:`, `hint:` and `error:`. With any of them, the control is wrapped in a field:\n\n- the label is a real `<label for>`;\n- the hint and the error are linked to the control with `aria-describedby`;\n- the error is a string, empty when there is none. When it appears, it is announced, and it sets `aria-invalid` on the control.\n\nThis page shows an error while the handle is too short:")
 
-        CodeBlock(#"page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
+        DocsCodeBlock(#"page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
     state handle = ""
     derived problem = if handle.length > 0 && handle.length < 3 { "At least three characters" } else { "" }
 
@@ -121,7 +121,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
 
         Markdown("To submit several controls together, put them in a `Form`. Its `on submit` handler runs when the form is submitted, and the page never navigates away. `Form(bind: form)` gives you a handle, named `form` here, that knows the state of the whole form.\n\nThis contact form sends its fields, disables **Send** until every field is valid, and thanks the reader:")
 
-        CodeBlock(#"page Contact(path: "/contact", title: "Contact", description: "Send us a message.") {
+        DocsCodeBlock(#"page Contact(path: "/contact", title: "Contact", description: "Send us a message.") {
     state name = ""
     state email = ""
     state message = ""
@@ -149,7 +149,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
     if sent { Alert("Thanks — we will be in touch.").success }
 }"#, title: "wf")
 
-        Callout("**Coming from React?** A submit handler there starts with `event.preventDefault()`. A `Form`'s `on submit` never reloads or leaves the page, so the handler holds only what the submit does. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** A submit handler there starts with `event.preventDefault()`. A `Form`'s `on submit` never reloads or leaves the page, so the handler holds only what the submit does. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("The form handle", id: "the-form-handle").h3
 
@@ -208,7 +208,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
 
         Markdown("To say what a value must be, put a `validate` block beside the state it guards. Each rule is one line. The control bound to that state shows the rules' messages itself: you write no `error:` and no `derived` value.\n\nThis page requires an email, a password of at least eight characters with a number in it, and a matching confirmation:")
 
-        CodeBlock(#"page Join(path: "/join", title: "Join", description: "Make an account.") {
+        DocsCodeBlock(#"page Join(path: "/join", title: "Join", description: "Make an account.") {
     state email = ""
     state password = ""
     state confirm = ""
@@ -289,7 +289,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
 
         Markdown("How the rules behave:\n\n- **Messages.** Each rule takes an optional message after it: a string, or `t(\"key\")`, which is read in the reader's language. Without one, the rule uses its own message. A project with translations replaces those by naming the keys `form.required`, `form.email`, `form.minLength` and so on ([Translate a site](/recipes/translate-a-site), [Show validation messages](/recipes/validation-messages)).\n- **Arguments that read state.** An argument such as `max(Ledger.today)` is read again each time the rule is checked.\n- **Types.** A rule is checked against the type of what it guards: `minLength` on a `Number` is `T01`.\n- **Empty values.** Every rule but `required` passes an empty value, so a blank optional field shows one message rather than two.\n- **Async rules.** An `async` rule is asked only once the other rules pass, and once per value. A server is not asked about every keystroke of an address that is not valid yet. While it waits, `form.pending` is `true`.\n\nThis rule asks the server whether an address is free. The rule passes when the check's answer is `true`, so ask the question whose answer you want to be yes:")
 
-        CodeBlock(#"api Backend(base: "/api") {
+        DocsCodeBlock(#"api Backend(base: "/api") {
     get emailFree(email: String) at "emailFree" -> Bool!
 }
 
@@ -345,7 +345,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
 
         Markdown("To see a form as a failed submit would leave it, without filling it in, set `data-wf-validation=\"shown\"` on the page's root element:")
 
-        CodeBlock(#"document.documentElement.setAttribute("data-wf-validation", "shown")"#, title: "js")
+        DocsCodeBlock(#"document.documentElement.setAttribute("data-wf-validation", "shown")"#, title: "js")
 
         Markdown("Every field then shows what its rules say about its value now. Remove the attribute and the messages go again. An editor's preview sets this attribute to show a form as *Invalid*.")
 
@@ -353,7 +353,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
 
         Markdown("A *refined type* is a type with a condition, such as `Number(1..=30)`. The condition is already a rule, so you only write the rules the type does not say:")
 
-        CodeBlock(#"state nights: Number(1..=30) = 2
+        DocsCodeBlock(#"state nights: Number(1..=30) = 2
 validate nights { required }"#, title: "wf")
 
         Markdown("- A range's open end is excluded: `Number(0..10)` does not take `10`.\n- A date's `after:` and `before:` are checked as the reader types, like `min` and `max`.\n\nSee [Types](/learn/12-types#a-condition-on-a-type) for every condition a type can carry.")
@@ -366,7 +366,7 @@ validate nights { required }"#, title: "wf")
 
         Markdown("When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to `form.apply`:")
 
-        CodeBlock(#"enum SignUpError {
+        DocsCodeBlock(#"enum SignUpError {
     unprocessableContent(problem: FieldErrors) on 422
     http(error: HttpError)
 }
@@ -389,7 +389,7 @@ action join() {
 
         Markdown("To let the reader pick a file, place a `FileUpload` and bind it: `bind:` holds the `File` chosen (`File?`, `null` until one is), or with `.multiple` the list of them (`[File]`). Its `change` event carries the same files, for a page that wants them as they arrive. Each is a `File`, with:\n\n- `.name`, `.size` (in bytes) and `.type`;\n- `.preview()`, an object URL that shows an image before it is uploaded. It is revoked when the page leaves.\n\nThis page shows the picture the reader picks, then uploads it with a progress bar:")
 
-        CodeBlock(#"api Backend(base: "/api") {
+        DocsCodeBlock(#"api Backend(base: "/api") {
     post avatar(id: String, file: File) at "users/{id}/avatar" -> !
 }
 
@@ -417,13 +417,13 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 
         Markdown("- An endpoint with a `File` parameter sends a multipart form.\n- `Backend.avatar.progress` follows the upload from 0 to 1.\n- `FileUpload(bind: files).multiple` lets the reader pick several files, held in a `[File]`.")
 
-        Callout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads-are-checked-on-the-server)).", kind: .important)
+        DocsCallout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads-are-checked-on-the-server)).", kind: .important)
 
         Heading("Send a form to a server", id: "send-a-form-to-a-server").h2
 
         Markdown("To send a form, describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form.")
 
-        CodeBlock(#"type SignUp { email: String, password: String }
+        DocsCodeBlock(#"type SignUp { email: String, password: String }
 type FieldErrors = Problem { errors: [String: String] }
 
 /// Why an account can be refused.
@@ -468,7 +468,7 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 
         Markdown("An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to show a spinner, or to keep a button busy with `loading:`. On a store's action, read it as `Store.action.pending`:")
 
-        CodeBlock(#"store Api {
+        DocsCodeBlock(#"store Api {
     state saved = 0
     action save(payload: Json) -> ! {
         try await http.post("/api/save", body: payload)
@@ -493,7 +493,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
         Markdown("Some choices are not a text field. These built-ins draw them, each with the keyboard a reader expects:")
 
-        CodeBlock(#"page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
+        DocsCodeBlock(#"page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
     state view = "grid"
     state plan = "free"
     state qty = 1
@@ -572,7 +572,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
         Markdown("**A text field bound to a number.** An `Input` with no type flag holds a `String`, so it cannot write a `Number` state:")
 
-        CodeBlock(#"page P(path: "/", title: "Seats", description: "Pick a number of seats.") {
+        DocsCodeBlock(#"page P(path: "/", title: "Seats", description: "Pick a number of seats.") {
     state seats = 1
     Heading("Seats").h1
     Input(bind: seats, label: "Seats")
@@ -581,7 +581,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
         Markdown("Add `.number`, which holds a `Number`, or use a `Slider` ([F02](/errors/F02)).\n\n**A `validate` block for a state no control binds.** The rules check the state, and nothing the reader types reaches it:")
 
-        CodeBlock(#"page P(path: "/", title: "Join", description: "Make an account.") {
+        DocsCodeBlock(#"page P(path: "/", title: "Join", description: "Make an account.") {
     state email = ""
     validate email { required  email }
     Heading("Join").h1
@@ -591,7 +591,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
         Markdown("Bind the control to the state the rules guard: `Input(bind: email, label: \"Email\")` ([F03](/errors/F03)).\n\n**A `bind:` to a derived value.** A control writes back to what it binds, and a `derived` value is worked out, never assigned:")
 
-        CodeBlock(#"page P(path: "/", title: "Handle", description: "Pick a handle.") {
+        DocsCodeBlock(#"page P(path: "/", title: "Handle", description: "Pick a handle.") {
     state first = ""
     derived handle = first.toLowerCase()
     Heading("Handle").h1

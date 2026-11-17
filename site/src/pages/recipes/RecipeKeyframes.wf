@@ -26,7 +26,7 @@ page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"animation Pulse {
+            DocsCodeBlock(#"animation Pulse {
     from { opacity: 1 }
     50% { opacity: 0.4; transform: scale(0.98) }
     to { opacity: 1 }
@@ -51,7 +51,7 @@ page Custom(path: "/", title: "Custom", description: "Keyframes of your own.") {
 
             Markdown("You can also name your keyframes in a style, as CSS does, to set how often they repeat. A hand-written `animation:` has no reduced-motion path, so wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}` ([Respect reduced motion](/recipes/motion-defaults#respect-reduced-motion)):")
 
-            CodeBlock(#"animation Pulse {
+            DocsCodeBlock(#"animation Pulse {
     from { opacity: 1 }
     50% { opacity: 0.4 }
     to { opacity: 1 }

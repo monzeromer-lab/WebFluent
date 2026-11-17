@@ -15,7 +15,7 @@ page RecipeShowACarousel(path: "/recipes/show-a-carousel", title: "Show a carous
 "# }) {
         code {
             Markdown("**Needs:** `one.jpg`, `two.jpg` and `three.jpg` in `public/`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
+            DocsCodeBlock(#"page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
     Heading("Gallery").h1
     Carousel(label: "Recent work", autoplay: true, interval: 5000) {
         Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }

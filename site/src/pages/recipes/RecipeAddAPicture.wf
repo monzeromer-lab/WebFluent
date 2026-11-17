@@ -18,7 +18,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 "# }) {
         code {
             Markdown("**Needs:** `hero.jpg`, `office.jpg` and `deco.png` in `public/` (any pictures will do); without them the build stops at `image hero`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"image hero = "hero.jpg"
+            DocsCodeBlock(#"image hero = "hero.jpg"
 
 page Home(path: "/", title: "Home", description: "The front page.") {
     Heading("Home").h1
@@ -42,7 +42,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 
         Markdown("To change which formats and widths the build writes, set `build.media` in `webfluent.app.json`. These are the defaults:")
 
-        CodeBlock(#"{ "build": { "media": {
+        DocsCodeBlock(#"{ "build": { "media": {
     "formats": ["webp"],
     "widths": [480, 960, 1440, 1920],
     "quality": 78,

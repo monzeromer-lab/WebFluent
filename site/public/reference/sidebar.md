@@ -10,6 +10,29 @@ Side navigation. A Sidebar.Item whose to matches the current route is marked .ac
 Sidebar { … }
 ```
 
+## Example
+
+```wf
+Row {
+    style { height: 360px; border: 1px solid $color-border }
+    Sidebar {
+        style { height: 100% }
+        Sidebar.Header { Text("Docs").bold }
+        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+        Sidebar.Item(to: "/learn", icon: "book", active: .prefix) { Text("Learn") }
+        Sidebar.Item(to: "/reference", icon: "list", active: .prefix) { Text("Reference") }
+        Sidebar.Item(to: "/recipes", icon: "layers") { Text("Recipes") }
+        Sidebar.Divider
+        Sidebar.Item(to: "/playground", icon: "play") { Text("Playground") }
+    }
+    Stack(gap: .sm) {
+        style { flex: 1; padding: 24px }
+        Heading("Reference").h3
+        Text("Every built-in, with its props and an example.").muted
+    }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,19 +41,38 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Sidebar.Sidebar.Header`
-- `Sidebar.Sidebar.Item`
-- `Sidebar.Sidebar.Divider`
+Written under its name, inside `Sidebar`.
 
-## Example
+### Sidebar.Header
+
+The sidebar's heading area.
 
 ```wf
-Sidebar {
-    Sidebar.Header { Text("Console").bold }
-    Sidebar.Item(to: "/", icon: "home") { Text("Overview") }
-    Sidebar.Divider
-    Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
-}
+Sidebar.Header { … }
+```
+
+### Sidebar.Item
+
+One navigation entry.
+
+```wf
+Sidebar.Item(to: Path, icon: String, active: Enum) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `icon:` | `String` | Icon shown before the label |
+| `active:` | `.prefix` | How the link decides it is the current one |
+
+Flags: `.prefix`
+
+### Sidebar.Divider
+
+A rule between groups of items.
+
+```wf
+Sidebar.Divider
 ```
 
 ## What it can raise

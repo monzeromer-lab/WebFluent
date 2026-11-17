@@ -10,6 +10,24 @@ Its children in columns: columns, each placed under the last in its column, keep
 Masonry(columns: Number) { … }
 ```
 
+## Example
+
+```wf
+Masonry(columns: { base: 1, sm: 2, md: 3 }) {
+    Card { Card.Body { Heading("Shipping").h3  Text("Free over $50.") } }
+    Card {
+        Card.Body {
+            Heading("Returns").h3
+            Text("Thirty days, no questions. Keep the box and the receipt, and send it back from any post office.")
+        }
+    }
+    Card { Card.Body { Heading("Support").h3  Text("Every day, 8–8.") } }
+    Card { Image(src: "/og.png", alt: "The WebFluent card") }
+    Card { Card.Body { Heading("Gift cards").h3  Text("Sent by email, any amount.") } }
+    Card { Card.Body { Heading("Warranty").h3  Text("Two years on everything we make.") } }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,16 +39,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Masonry(columns: 2) {
-    Card { Text("A short note") }
-    Card { Text("A longer note, which runs to more than one line of text.") }
-    Card { Text("Another") }
-}
-```
 
 ## What it can raise
 

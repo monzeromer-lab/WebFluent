@@ -10,6 +10,19 @@ A ring that fills to value: of max:, announced as a progress bar; with no value:
 CircularProgress(value: Number, max: Number, label: String) { … }
 ```
 
+## Example
+
+```wf
+state done = 40
+Row(gap: .lg, align: .center) {
+    CircularProgress(value: done, max: 100, label: "Upload") { Text("{done}%").sm }
+    Stack(gap: .xs) {
+        Text("Uploading photos.zip").bold
+        Button("Add 20%").sm { on click { done = if done >= 80 { 100 } else { done + 20 } } }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -23,14 +36,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-state done = 40
-CircularProgress(value: done, label: "Upload") { Text("{done}%").sm }
-Button("More") { on click { done = done + 20 } }
-```
 
 ## What it can raise
 

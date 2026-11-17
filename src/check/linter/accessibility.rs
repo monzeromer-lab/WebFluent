@@ -1300,11 +1300,15 @@ fn draws_text(body: &[Statement], tracker: &HeadingTracker<'_>, depth: usize) ->
     let within = |body: &[Statement]| draws_text(body, tracker, depth + 1);
     body.iter().any(|stmt| match &stmt.kind {
         StatementKind::UIElement(el) => match &el.component {
-            ComponentRef::BuiltIn(n) if n == "Text" => el.args.iter().any(|a| match a {
-                Arg::Positional(Expr::StringLiteral(s)) => !s.trim().is_empty(),
-                Arg::Positional(_) => true,
-                Arg::Named(..) => false,
-            }),
+            // `VisuallyHidden("Delete the draft")` names what holds it, for
+            // a screen reader, as `Text` does on screen.
+            ComponentRef::BuiltIn(n) if n == "Text" || n == "VisuallyHidden" => {
+                el.args.iter().any(|a| match a {
+                    Arg::Positional(Expr::StringLiteral(s)) => !s.trim().is_empty(),
+                    Arg::Positional(_) => true,
+                    Arg::Named(..) => false,
+                })
+            }
             ComponentRef::UserDefined(name) => {
                 tracker.component(name).is_some_and(|c| within(&c.body)) || within(&el.children)
             }

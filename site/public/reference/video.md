@@ -10,6 +10,13 @@ Video player. Without captions it draws an A09 warning: a video nobody can hear 
 Video(src: String, controls: Bool, autoplay: Bool, …)
 ```
 
+## Example
+
+```wf
+Video(src: "/media/launch.mp4", poster: "/og.png", captions: "/media/launch.en.vtt",
+      width: 1280, height: 720).controls.playsinline
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -39,12 +46,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on timeupdate`: A playing video or audio moved on
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
-```
 
 ## What it can raise
 

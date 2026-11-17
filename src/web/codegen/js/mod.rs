@@ -263,6 +263,11 @@ pub struct JsCodegen {
     /// Whether the element being emitted sits inside a `Thead`, where a
     /// `Tcell` is a column header (`<th scope="col">`), not a data cell.
     in_thead: bool,
+    /// Whether the element being emitted sits inside a `Text`, where a
+    /// `Text` is a run of its line (`<span>`), not a paragraph of its own:
+    /// a `<p>` inside a `<p>` is closed by the browser, and the words that
+    /// were one line broke onto three.
+    in_text: bool,
     /// Studio mode: stamp `data-wf-node` ids on rendered elements. Off for
     /// export/release builds, which must contain no debug attributes.
     studio: bool,
@@ -478,6 +483,7 @@ impl JsCodegen {
             page_langs: HashMap::new(),
             site_lang: String::new(),
             in_thead: false,
+            in_text: false,
             studio: false,
             external_callers: String::new(),
             node_ids: NodeMap::default(),

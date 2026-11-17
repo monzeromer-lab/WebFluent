@@ -10,6 +10,22 @@ A layer at a control: drawn above everything, placed against its anchor:, closed
 Popover(visible: State, anchor: Element or Point, at: Point, …) { … }
 ```
 
+## Example
+
+```wf
+state open = false
+state branch = "main"
+Button("Branch: {branch}", ref: branchBtn) { on click { open = !open } }
+Popover(visible: open, anchor: branchBtn, placement: .bottomStart, label: "Branches").arrow {
+    on close(reason) { open = false }
+    Stack(gap: .xs) {
+        Button("main") { on click { branch = "main"  open = false } }
+        Button("release-7.0") { on click { branch = "release-7.0"  open = false } }
+        Button("fix-login") { on click { branch = "fix-login"  open = false } }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -37,17 +53,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-state open = false
-Button("Branches", ref: branches) { on click { open = !open } }
-Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches").arrow {
-    on close(reason) { log(reason) }
-    Text("main")
-}
-```
 
 ## What it can raise
 

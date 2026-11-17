@@ -10,6 +10,16 @@ Loading indicator, announced as a status.
 Spinner(size: Enum)
 ```
 
+## Example
+
+```wf
+Row(gap: .lg, align: .center) {
+    Spinner.sm
+    Spinner
+    Spinner.lg
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,13 +31,6 @@ Spinner(size: Enum)
 `.sm` `.md` `.lg`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Spinner
-Spinner.lg
-```
 
 ## What it can raise
 

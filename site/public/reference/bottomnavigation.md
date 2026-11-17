@@ -10,6 +10,22 @@ A phone's tab bar along the bottom of the screen: each entry an icon over its wo
 BottomNavigation(label: String) { … }
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    style { width: 360px; height: 240px; padding: 16px; contain: layout; overflow: hidden; border: 1px solid $color-border; border-radius: 24px }
+    Heading("Inbox").h3
+    Text("Three new replies since this morning.").muted
+    BottomNavigation(label: "Sections") {
+        BottomNavigation.Item("Home", to: "/", icon: "home")
+        BottomNavigation.Item("Learn", to: "/learn", icon: "book").prefix
+        BottomNavigation.Item("Reference", to: "/reference", icon: "list").prefix
+        BottomNavigation.Item("Play", to: "/playground", icon: "play")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,17 +40,24 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `BottomNavigation.BottomNavigation.Item`
+Written under its name, inside `BottomNavigation`.
 
-## Example
+### BottomNavigation.Item
+
+One entry: its words, where it goes, and its icon.
 
 ```wf
-BottomNavigation(label: "Sections") {
-    BottomNavigation.Item("Home", to: "/", icon: "home")
-    BottomNavigation.Item("Search", to: "/", icon: "search")
-    BottomNavigation.Item("Me", to: "/", icon: "user")
-}
+BottomNavigation.Item(_ label: String, to: Path, active: Enum, icon: String)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | Its words |
+| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `active:` | `.prefix` | How the link decides it is the current one |
+| `icon:` | `String` | The icon over its words |
+
+Flags: `.prefix`
 
 ## What it can raise
 

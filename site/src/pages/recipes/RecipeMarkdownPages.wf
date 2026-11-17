@@ -21,7 +21,7 @@ app {
 "# }) {
         code {
             Markdown("**Needs:** the two `.md` pages shown under [How it works](#how-it-works), in `src/guide/`.")
-            CodeBlock(#"component DocsShell {
+            DocsCodeBlock(#"component DocsShell {
     slot
     Row(gap: .lg) {
         Sidebar {
@@ -38,7 +38,7 @@ app {
         }
         Markdown("Each page of the site is a `.md` file. This one, `src/guide/install.md`, is the docs page at `/guide/install`:")
 
-        CodeBlock(#"---
+        DocsCodeBlock(#"---
 path: /guide/install
 title: Installing
 description: Get wf on your machine in a minute.
@@ -60,7 +60,7 @@ Then `wf init my-site`."#, title: "markdown")
 
         Markdown("The sidebar's second link is `src/guide/pages.md`, the page at `/guide/pages`:")
 
-        CodeBlock(#"---
+        DocsCodeBlock(#"---
 path: /guide/pages
 title: Pages
 description: One file per page, and the route it answers.

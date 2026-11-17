@@ -10,6 +10,27 @@ Panels side by side (or .vertical, one above another) with a handle between each
 PanelGroup(bind: State, vertical: Bool, label: String) { … }
 ```
 
+## Example
+
+```wf
+state sizes: [Number] = [30, 70]
+Text("Sizes: {sizes[0] ?? 0}% and {sizes[1] ?? 0}%").muted.sm
+PanelGroup(bind: sizes, label: "Resize the sidebar") {
+    style { height: 200px; border: 1px solid $color-border; border-radius: $radius-md }
+    PanelGroup.Panel(min: 15) {
+        Stack(gap: .xs) {
+            style { padding: 0.75rem }
+            Text("Inbox").bold
+            Text("Archive")
+            Text("Spam")
+        }
+    }
+    PanelGroup.Panel(min: 40) {
+        Text("Drag the handle, or use the arrow keys on it.") { style { padding: 0.75rem } }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -34,18 +55,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `PanelGroup.PanelGroup.Panel`
+Written under its name, inside `PanelGroup`.
 
-## Example
+### PanelGroup.Panel
+
+One panel.
 
 ```wf
-state sizes: [Number] = [30, 70]
-PanelGroup(bind: sizes, label: "Resize the panels") {
-    style { height: 160px }
-    PanelGroup.Panel(min: 20) { Text("Files") }
-    PanelGroup.Panel { Text("Editor") }
-}
+PanelGroup.Panel(min: Number, collapsible: Bool) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `min:` | `Number` | The least it may be, in percent (unset, 10) |
+| `collapsible:` | `Bool` | Enter or a double press on the handle after it folds it away, and again brings it back |
+
+Flags: `.collapsible`
 
 ## What it can raise
 

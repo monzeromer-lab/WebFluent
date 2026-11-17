@@ -7,7 +7,7 @@ page RecipeDeployToCloudflarePages(path: "/recipes/deploy-to-cloudflare-pages", 
                         Line(command: "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash && ~/.webfluent/bin/wf build")
                     ])
             Markdown("and set the build output directory to `build`.\n\nFor a single-page build, also add `public/_redirects` with this line:")
-            CodeBlock(#"/*  /index.html  200"#, title: "text")
+            DocsCodeBlock(#"/*  /index.html  200"#, title: "text")
         }
         Markdown("1. The build command installs `wf` and builds the site, the same command [Deploy to Netlify](/recipes/deploy-to-netlify) uses. Cloudflare Pages serves the `build` folder.\n2. The build copies `public/_redirects` to the root of `build/`. Its line answers every path with `index.html`, so a reload on a deep link reaches the single-page build's router.\n3. Cloudflare Pages reads `_headers` and `_redirects` the same way Netlify does, so the security headers apply with no further setting.")
 

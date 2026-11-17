@@ -10,6 +10,26 @@ Root of a PDF document: the paper, the margins and what the file says about itse
 Document(page_size: Enum, size: String, landscape: Bool, …) { … }
 ```
 
+## Example
+
+```wf
+Document(size: "A4", margin: 56, title: "Invoice INV-2041", author: "Northwind Ltd",
+         subject: "Invoice", keywords: "invoice, november", lang: "en") {
+    Header { Text("Northwind Ltd · Invoice INV-2041").muted.sm.right }
+    Footer { Text("Northwind Ltd · 12 Harbour Street · Bristol").muted.sm.center }
+    Heading("Invoice INV-2041").h1
+    Text("Issued 17 November 2026 · Due in 30 days").muted
+    Table(caption: "Items") {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Amount") } }
+        Table.Body {
+            Table.Row { Table.Cell("Design review")  Table.Cell("€1,200.00") }
+            Table.Row { Table.Cell("Hosting, November")  Table.Cell("€90.00") }
+        }
+    }
+    Text("Total: €1,290.00").bold.right
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -33,14 +53,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Document(page_size: "A4") {
-    Section { Heading("Report").h1  Paragraph("Revenue grew.") }
-}
-```
 
 ## What it can raise
 

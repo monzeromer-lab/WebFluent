@@ -17,7 +17,7 @@ page About(path: "/about", title: "About", description: "Who we are.") { Heading
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the code, which is a whole project's `app` and pages: paste it into a new project, replacing `src/App.wf` and `src/pages/Home.wf`.")
-            CodeBlock(#"app {
+            DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Link("Motion", to: "/") }
         Navbar.Links { Link("Home", to: "/")  Link("About", to: "/about") }
@@ -33,7 +33,7 @@ page About(path: "/about", title: "About", description: "Who we are.") { Heading
 
             Markdown("`.slide` slides the old page out and the new one in:")
 
-            CodeBlock(#"app {
+            DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Link("Motion", to: "/") }
         Navbar.Links { Link("Home", to: "/")  Link("About", to: "/about") }

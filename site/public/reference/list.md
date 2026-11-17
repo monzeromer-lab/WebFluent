@@ -10,6 +10,23 @@ List of its children; ordered for a numbered list.
 List(ordered: Bool) { … }
 ```
 
+## Example
+
+```wf
+Stack(gap: .md) {
+    List {
+        List.Item { Text("Unlimited projects") }
+        List.Item { Text("Custom domains") }
+        List.Item { Text("Priority support").bold }
+    }
+    List.ordered {
+        List.Item { Code("wf init shop") }
+        List.Item { Text("Write your first page") }
+        List.Item { Code("wf serve") }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -28,16 +45,14 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `List.List.Item`
+Written under its name, inside `List`.
 
-## Example
+### List.Item
+
+One entry (<li>).
 
 ```wf
-List {
-    List.Item { Text("Milk") }
-    List.Item { Text("Eggs") }
-}
-List.ordered { List.Item { Text("First") } }
+List.Item { … }
 ```
 
 ## What it can raise

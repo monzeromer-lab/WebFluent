@@ -10,6 +10,17 @@ One of the built-in SVG icons, rendered inline.
 Icon(_ name: String, size: Enum, tone: Enum, muted: Bool)
 ```
 
+## Example
+
+```wf
+Row(gap: .lg, align: .center) {
+    Row(gap: .xs, align: .center) { Icon("check").success  Text("Deployed") }
+    Row(gap: .xs, align: .center) { Icon("warning").warning  Text("2 warnings") }
+    Row(gap: .xs, align: .center) { Icon("alert-circle").danger  Text("1 failed") }
+    Row(gap: .xs, align: .center) { Icon("clock").muted  Text("Queued") }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,13 +35,6 @@ Icon(_ name: String, size: Enum, tone: Enum, muted: Bool)
 `.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Icon("search")
-Icon("check").lg.success
-```
 
 ## What it can raise
 

@@ -82,7 +82,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "component",
-        summary: "A reusable component with typed props: `String`, `Number`, `Bool`, `[T]`, `Map`, `T?`, or an enum or type you declare; `= value` gives a default and `_ name` marks the one positional prop. It may declare `event`s and `slot`s.",
+        summary: "A reusable component with typed props: `String`, `Number`, `Bool`, `[T]`, `[K: V]`, `T?`, a function type, `Json`, or an enum or type you declare; `= value` gives a default and `_ name` marks the one positional prop. It may declare `event`s and `slot`s.",
         example: "component UserCard(_ name: String, active: Bool = true) {\n    Card { Text(name).bold }\n}",
         place: Place::TopLevel,
     },
@@ -160,13 +160,13 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "resource",
-        summary: "An async value: `resource rows = fetch(url, method: \"POST\")`. Render its states with `match`; the request repeats when a URL that reads state changes.",
-        example: "resource users = fetch(\"/api/users\")\nmatch users {\n    loading { Spinner }\n    error(e) { Alert(e.message).danger }\n    ready(list) { for u in list by u.id { Text(u.name) } }\n}",
+        summary: "A read: `resource rows: [Row] = http.get(url)` or `resource rows = Backend.rows()`. One value in three cases — `.loading`, `.failed(e)`, `.loaded(rows)` — drawn with `match`; it asks again when what its address reads changes.",
+        example: "resource users: [User] = http.get(\"/api/users\")\nmatch users {\n    .loading { Spinner }\n    .failed(e) { Alert(e.message).danger }\n    .loaded(list) { for u in list by u.id { Text(u.name) } }\n}",
         place: Place::Body,
     },
     KeywordDoc {
         name: "match",
-        summary: "Renders one arm by the value: a resource's `loading`, `error(e)`, `ready(v)`, or an enum's `.case`, with `else` as the rest. As an expression, `match t { .a { 1 } else { 2 } }`.",
+        summary: "Renders one arm by the value: a read's `.loading`, `.failed(e)`, `.loaded(v)`, a result's `.ok(v)` and `.err(e)`, or an enum's `.case`, with `else` as the rest. As an expression, `match t { .a { 1 } else { 2 } }`.",
         example: "match users {\n    .loading { Spinner }\n    .failed(e) { Text(e.message) }\n    .loaded(list) { Text(\"{list.length} users\") }\n}",
         place: Place::Body,
     },
@@ -268,8 +268,8 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "await",
-        summary: "Waits for a promise inside an action or handler, which becomes async: `let r = await fetch(url)`.",
-        example: "action load() {\n    let r = await fetch(\"/api\")\n    items = r.items\n}",
+        summary: "Waits for a promise inside an action or handler, which becomes async: `let r: Row! = await http.get(url)`, or `try await` to pass a failure up.",
+        example: "action load() -> ! {\n    let r: Page = try await http.get(\"/api\")\n    items = r.items\n}",
         place: Place::Imperative,
     },
     KeywordDoc {
@@ -401,7 +401,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     KeywordDoc {
         name: "try",
         summary: "Run the block; if anything in it throws, run the `catch` block with what was thrown.",
-        example: "try {\n    let r = await fetch(\"/api/sync\")\n} catch e {\n    error = e.message\n}",
+        example: "try {\n    saveDraft(items)\n} catch e {\n    error = e.message\n}",
         place: Place::Imperative,
     },
     KeywordDoc {
@@ -762,13 +762,13 @@ pub const BUILTINS: &[(&str, &str, &str)] = &[
     ),
     (
         "fetch",
-        "fetch(url, method: \"POST\", body: …)",
-        "A request through the language's engine — timeouts, retries, the cache — in a `resource` or after `await`.",
+        "fetch(…)",
+        "Gone in 7.0 (`N08`): a request is `http.get(url)`, `http.post(url, body: …)` — a result, typed by where it goes — or a call of an `api`'s endpoint.",
     ),
     (
         "optimistic",
         "optimistic(holder, change)",
-        "Shows a change at once; if the action throws later, it is taken back.",
+        "Shows a change at once; if the action fails later — a throw, or a `try` passing a failure up — it is taken back.",
     ),
     (
         "beacon",

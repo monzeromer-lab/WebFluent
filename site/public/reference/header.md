@@ -10,6 +10,22 @@ Repeated at the top of every PDF page (or those on: names), where page and pages
 Header(on: Enum) { … }
 ```
 
+## Example
+
+```wf
+Document(title: "Annual report 2026") {
+    Header(on: .rest) {
+        Row(justify: .between) {
+            Text("Northwind Ltd").bold.sm
+            Text("Annual report 2026").muted.sm
+        }
+    }
+    Heading("Annual report 2026").h1
+    PageBreak
+    Heading("The year").h2
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,12 +41,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Header { Text("Company Inc.").muted.sm }
-```
 
 ## What it can raise
 

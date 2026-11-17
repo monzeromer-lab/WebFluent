@@ -23,4 +23,29 @@ wf fmt [PATH] [options]
 
 **Preview:** `--check` says what it would do without doing it.
 
-The [full entry for wf fmt](https://webfluent.monzeromer.dev/reference/cli.md#wf-fmt) has its examples and the details this page leaves out.
+Formats every `.wf` and `.wfx` file under a path, or one file, in place.
+
+```bash
+wf fmt
+wf fmt --check
+wf fmt src/pages/Home.wf --stdout
+wf fmt --to wfx
+```
+
+The formatter applies these rules:
+
+- four spaces for each level, and a line that closes a block one level out;
+- trailing spaces removed, and tabs turned into spaces;
+- runs of blank lines folded to one;
+- a brace one space from what it opens (`Row{` → `Row {`, `}else` →
+  `} else`).
+
+A line carried on by a trailing comma stays as written, and comments stay
+where they are. The result is checked against the file's own tokens, so
+formatting never changes what a file says.
+
+`--to wfx` rewrites the project's `.wf` files in the indented layout, and
+`--to wf` goes the other way. It changes the layout and nothing else, and
+refuses a file whose indentation does not already follow its braces.
+
+See also: [Two layouts: `.wf` and `.wfx`](../learn/04-language-basics.md#two-layouts-wf-and-wfx).

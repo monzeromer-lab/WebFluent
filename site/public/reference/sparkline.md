@@ -10,6 +10,21 @@ A tiny chart in a line of text — a line, or .bar — of a list of numbers, dra
 Sparkline(_ data: [Number], bar: Bool, width: Number, height: Number, …)
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    Row(gap: .sm, align: .center) {
+        Text("Sign-ups this week")
+        Sparkline([12, 18, 9, 24, 31, 27, 40], label: "Sign-ups this week")
+    }
+    Row(gap: .sm, align: .center) {
+        Text("Errors by day")
+        Sparkline([4, 2, 7, 1, 0, 3, 2], label: "Errors by day").bar
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,14 +41,6 @@ Sparkline(_ data: [Number], bar: Bool, width: Number, height: Number, …)
 `.bar`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Text("Sign-ups ")
-Sparkline([3, 5, 2, 8, 6], label: "Sign-ups this week")
-Sparkline([3, 5, 2, 8, 6], label: "By day").bar
-```
 
 ## What it can raise
 

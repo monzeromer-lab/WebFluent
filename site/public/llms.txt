@@ -29,7 +29,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Types](https://webfluent.monzeromer.dev/learn/12-types.md): The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.
 - [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md): Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.
 - [Forms and validation](https://webfluent.monzeromer.dev/learn/14-forms.md): Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.
-- [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md): Describe an API once with retries, caching and typed errors; show a resource with match; ask with http in an action; update optimistically; read data files.
+- [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md): Show a request with resource and match, ask with http in an action, describe a service once with api, handle each failure, and read data files.
 - [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md): How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.
 - [PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md): Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.
 
@@ -360,6 +360,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [RadioGroup.Option](https://webfluent.monzeromer.dev/reference/radiogroup-option.md): One choice: its words, its value, and a hint said with it.
 - [Rating](https://webfluent.monzeromer.dev/reference/rating.md): Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.
 - [RelativeTime](https://webfluent.monzeromer.dev/reference/relativetime.md): A moment as 3 minutes ago, kept current, with the exact time on hover (<time>).
+- [Services and requests](https://webfluent.monzeromer.dev/reference/requests.md): Lookup tables for api, endpoints, http calls and resources: settings, options, members, HttpError, caching, retry, middleware, fakes and codes.
 - [Route](https://webfluent.monzeromer.dev/reference/route.md): Maps a path to a page (the original grammar; pages now declare their paths).
 - [Router](https://webfluent.monzeromer.dev/reference/router.md): Where the current page renders. May sit at any depth inside app; pages declare their own paths.
 - [Row](https://webfluent.monzeromer.dev/reference/row.md): Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.

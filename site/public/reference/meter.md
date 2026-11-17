@@ -10,6 +10,17 @@ A level against its range (<meter>): a disk's use, a password's strength. Past h
 Meter(value: Number, min: Number, max: Number, …)
 ```
 
+## Example
+
+```wf
+state used = 0.72
+Stack(gap: .sm) {
+    Text("Disk: {used:.percent} used")
+    Meter(value: used, max: 1, high: 0.9, optimum: 0, label: "Disk")
+    Slider(bind: used, min: 0, max: 1, step: 0.01, label: "Used")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -23,12 +34,6 @@ Meter(value: Number, min: Number, max: Number, …)
 | `label:` | `String` | What it measures, for a screen reader |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Meter(value: 0.92, high: 0.9, label: "Disk")
-```
 
 ## What it can raise
 

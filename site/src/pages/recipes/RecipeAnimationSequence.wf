@@ -14,7 +14,7 @@ page RecipeAnimationSequence(path: "/recipes/animation-sequence", title: "Run a 
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {
+            DocsCodeBlock(#"page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {
     sequence {
         step { Heading("Welcome").h1.fadeIn }
         step(after: "120ms") { Text("What we do.").slideUp }

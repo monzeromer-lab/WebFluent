@@ -10,6 +10,27 @@ What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10
 ContextMenu { … }
 ```
 
+## Example
+
+```wf
+state said = "Right-click the file, or focus it and press Shift+F10"
+ContextMenu {
+    Card.outlined {
+        Row(gap: .sm, align: .center) {
+            Icon("file")
+            Text("quarterly-report.pdf")
+        }
+    }
+    ContextMenu.Items(label: "File actions") {
+        Menu.Item(shortcut: "mod+o") { on click { said = "Opened" }  Text("Open") }
+        Menu.Item(shortcut: "F2") { on click { said = "Renamed" }  Text("Rename") }
+        Menu.Divider
+        Menu.Item.danger { on click { said = "Deleted" }  Text("Delete") }
+    }
+}
+Text(said).muted.sm
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,21 +39,19 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `ContextMenu.ContextMenu.Items`
+Written under its name, inside `ContextMenu`.
 
-## Example
+### ContextMenu.Items
+
+The menu: Menu.Items, Menu.Subs and Menu.Dividers.
 
 ```wf
-state said = ""
-ContextMenu {
-    Card { Text("Right-click here, or long-press") }
-    ContextMenu.Items(label: "File actions") {
-        Menu.Item(shortcut: "F2") { on click { said = "rename" }  Text("Rename") }
-        Menu.Item.danger { on click { said = "delete" }  Text("Delete") }
-    }
-}
-Text(said)
+ContextMenu.Items(label: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | The menu's name for a screen reader |
 
 ## What it can raise
 

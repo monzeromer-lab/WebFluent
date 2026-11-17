@@ -10,17 +10,25 @@ Its block drawn in the browser alone, never in the static paint, a template or a
 ClientOnly { … }
 ```
 
+## Example
+
+```wf
+Card {
+    Card.Body {
+        Text("Your local time").muted.sm
+        ClientOnly {
+            placeholder { Skeleton(height: "28px", width: "120px") }
+            Heading("{now(every: 1.seconds):.time}").h3
+        }
+    }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-ClientOnly { Text("Drawn in your browser only") }
-```
 
 ## What it can raise
 

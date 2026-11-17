@@ -10,6 +10,22 @@ Its block, drawn into a node somebody else's code owns: an element a script hand
 Portal(into: Element?) { … }
 ```
 
+## Example
+
+```wf
+state count = 0
+Stack(gap: .sm, ref: panel) {
+    style { padding: 1rem; border: 1px dashed $color-border; border-radius: $radius-md }
+    Text("A node somebody else's code owns:").muted.sm
+}
+Portal(into: panel) {
+    Row(gap: .sm, align: .center) {
+        Text("Clicked {count} times")
+        Button("Click").primary.sm { on click { count = count + 1 } }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,13 +37,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Stack(ref: panel)
-Portal(into: panel) { Text("Drawn inside the stack") }
-```
 
 ## What it can raise
 

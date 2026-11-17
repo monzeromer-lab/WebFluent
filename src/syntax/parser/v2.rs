@@ -2060,6 +2060,14 @@ impl ParserV2 {
             "resource" => self.parse_resource(),
             // `validate email { required  email }`: what the value must be
             // for a form to accept it, said beside the state it guards.
+            // It belongs to the body that owns the state: inside an
+            // element's block it would guard nothing, so it is refused there.
+            "validate" if matches!(self.kind_at(2), TokenType::OpenBrace) && matches!(body, Body::Nested) => Err(self
+                .error_with_hint(
+                    "`validate` goes at the top of a page or a component, beside the state it guards, not inside an element's block".to_string(),
+                    "Move it up, next to the `state` it guards; the control bound to that state shows its messages wherever it is",
+                )
+                .with_code("E105")),
             "validate" if matches!(self.kind_at(2), TokenType::OpenBrace) => self.parse_validate(),
             // A connection the page holds open, and the scope closes.
             "socket" if matches!(self.kind_at(2), TokenType::Equals) => {

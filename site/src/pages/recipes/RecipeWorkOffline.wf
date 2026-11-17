@@ -4,14 +4,14 @@ page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work o
     RecipeShell("Make a site work offline", summary: "Keep a site working when the network is gone: the build writes a service worker, `sw.js`, that stores the site's pages on the reader's device, and a page that was not stored shows a fallback page of your own.  Before you start:  - **Serve the site over HTTPS**, or from `localhost`. Browsers run service workers only from a secure origin. - **Serve `sw.js` fresh.** The page registers the worker with `updateViaCache: \"none\"`, so the browser asks for it on every visit — but a CDN in front can still hold a copy. Give `sw.js` the header `Cache-Control: no-cache` ([Cache and security headers](/recipes/cache-and-security-headers#set-cache-headers)). - **Deploy everything in `build/` together.** The worker's version is a hash of every file the build wrote, so deploying half a build confuses it.  Add `offline` to `webfluent.app.json`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "what-the-worker-keeps", label: "What the worker keeps"), Anchor(id: "test-it-offline", label: "Test it offline"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Set cache and security headers", to: "/recipes/cache-and-security-headers"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version")], source: "md-docs/recipes/work-offline.md", how: true, hasVariations: false, project: {}) {
         code {
             Markdown("**Needs:** the `offline` setting below, a site served over HTTPS (or from `localhost`), and a page at `/` for the fallback page to link to.")
-            CodeBlock(#"{ "offline": {
+            DocsCodeBlock(#"{ "offline": {
     "precache": ["/", "/docs/*"],
     "fallback": "/offline",
     "cache": { "/api/*": "network-first" },
     "sync": true
 } }"#, title: "json")
             Markdown("The `fallback` is an ordinary page of your site. This one tells the reader what happened:")
-            CodeBlock(#"page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
+            DocsCodeBlock(#"page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
     Heading("You are offline").h1
     Text("This page was not saved for offline use. It will load when you are back online.")
     Link("Go to the home page", to: "/")
@@ -52,7 +52,7 @@ page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work o
 
         Markdown("What a `cache` entry fetches is kept in the worker's runtime store, the 200 most recently fetched answers, for the next reader of the device — so an answer that is one reader's is never kept: one the server marks `Cache-Control: no-store` or `private`, one asked for with an `Authorization` header, and one that varies by `Cookie` or `Authorization`. Mark what is personal `private` and it stays off the device.\n\nTwo sites on one origin under different `base_path`s keep apart: each has its own stores, kept writes and `persist` values (`wf:/shop:cart`), and neither deletes, serves or sends the other's. A site at the root keeps the names it always had, and one under a base path reads a value kept under the old name once and keeps it under the new one.")
 
-        Callout("Under `wf serve` the worker removes itself. A page answered from its own store would hide every edit you make.", kind: .note)
+        DocsCallout("Under `wf serve` the worker removes itself. A page answered from its own store would hide every edit you make.", kind: .note)
 
         Heading("Test it offline", id: "test-it-offline").h2
 

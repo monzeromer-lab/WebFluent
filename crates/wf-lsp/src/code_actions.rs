@@ -533,8 +533,10 @@ fn type_text(ty: &Type) -> String {
         Type::Record(name) | Type::Enum(name) => name.clone(),
         // `Date`, `Money`, `Url`: the language's own types, by name.
         Type::Scalar(scalar) => scalar.name().to_string(),
-        Type::Map | Type::Shape(_) => "Map".to_string(),
-        _ => "Any".to_string(),
+        // JSON whose shape is open: `Map` and `Any` are not types in 7.0
+        // (`T24`, `T23`), so a fix never writes them.
+        Type::Map | Type::Shape(_) | Type::Any => "Json".to_string(),
+        other => other.to_string(),
     }
 }
 

@@ -24,7 +24,7 @@ page RecipeBuildANotebookSite(path: "/recipes/build-a-notebook-site", title: "Bu
 
         Markdown("The project's `webfluent.app.json`:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "field-notes",
   "version": "1.0.0",
   "author": "Field Notes",
@@ -48,7 +48,7 @@ page RecipeBuildANotebookSite(path: "/recipes/build-a-notebook-site", title: "Bu
 
         Markdown("- `\"ssg\": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](/about/static-or-single-page)).\n- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n\nThe dark theme names only the tokens that change:")
 
-        CodeBlock(#"// src/theme.wf
+        DocsCodeBlock(#"// src/theme.wf
 /// The dark theme: only the tokens that change.
 theme Dusk {
     color-primary: #86C9A6
@@ -69,7 +69,7 @@ theme Dusk {
 
         Markdown("The notes are data, and a `type` says what each one holds:")
 
-        CodeBlock("// src/types.wf\n/// One note in the notebook.\ntype Note \{\n    slug: String\n    title: String\n    date: Date\n    tags: [String]\n    summary: String\n    minutes: Number\n    body: String\n\}\n\n/// Every note, read from `notes.json` when the site is built.\ndata notes: [Note] = \"notes.json\"", title: "wf")
+        DocsCodeBlock("// src/types.wf\n/// One note in the notebook.\ntype Note \{\n    slug: String\n    title: String\n    date: Date\n    tags: [String]\n    summary: String\n    minutes: Number\n    body: String\n\}\n\n/// Every note, read from `notes.json` when the site is built.\ndata notes: [Note] = \"notes.json\"", title: "wf")
 
         Markdown("- `data` reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page ([Fetching data](/learn/15-data)).\n- The checker holds the program to `Note`: a page that reads `note.titel` is an error where it is written.\n- `date` is a `Date`: a plain `\"2026-03-08\"` string the language knows how to format. `\{note.date:.date(long)\}` shows `March 8, 2026`.\n\n`src/notes.json` holds seven notes, each with a Markdown `body`.\n\n**Check it:** `wf check` ends with `no problems`. (It also prints one `V11` note: the project's own `Sheet`, the layout of Step 3, takes the place of the built-in `Sheet`.) If one note in `notes.json` has a field that `Note` does not declare, the check reports `T05` at the `data` line and names the field; if a note leaves out a field `Note` requires, it reports `T33` there and names the place (`$[0].summary is missing`).")
 
@@ -77,7 +77,7 @@ theme Dusk {
 
         Markdown("The `app` declaration wraps every page. The current page is drawn where `Router` stands, inside `<main>`, so the skip link each page carries jumps past the navigation ([Pages and routing](/learn/05-pages-and-routing)). The start of `src/App.wf`:")
 
-        CodeBlock(#"// src/App.wf
+        DocsCodeBlock(#"// src/App.wf
 app {
     use Saved
 
@@ -105,7 +105,7 @@ app {
 
         Markdown("- The link whose `to:` is the page shown is marked `aria-current=\"page\"`.\n- `ThemeToggle` is one button: a moon in a light page and a sun in a dark one, named for the theme it switches to. It calls `setTheme`, and the reader's choice is kept across visits.\n- `Router(transition: .fade, duration: \"160ms\")` fades one page out and the next in.\n\nEach page names the column it is set in with `layout:` — a component whose default slot is the page:")
 
-        CodeBlock(#"// src/components/Sheet.wf
+        DocsCodeBlock(#"// src/components/Sheet.wf
 /// The column a page is set in, and the frame every page names with
 /// `layout: Sheet`. A narrow sheet is for reading; a wide one holds a grid.
 component Sheet(wide: Bool = false) {
@@ -121,7 +121,7 @@ component Sheet(wide: Bool = false) {
 
         Markdown("A card shows a note at a glance:")
 
-        CodeBlock(#"// src/components/NoteCard.wf
+        DocsCodeBlock(#"// src/components/NoteCard.wf
 /// A note at a glance: when it was written, its title, a summary, its tags
 /// and the button that saves it.
 component NoteCard(
@@ -150,7 +150,7 @@ component NoteCard(
 
         Markdown("The front page lists every note, narrowed by a search box and by the tag in the address. `NoteFinder` works the list out:")
 
-        CodeBlock(#"// src/components/NoteFinder.wf
+        DocsCodeBlock(#"// src/components/NoteFinder.wf
     state q = ""
 
     derived needle = q.trim().toLowerCase()
@@ -165,7 +165,7 @@ component NoteCard(
 
         Markdown("`q` is bound to the search box, and everything else follows it. `sortBy`, `flatMap` and `unique` are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list ([State and reactivity](/learn/07-state-and-reactivity)).\n\nA static site adds one idea here. Its HTML is written once, before any reader arrives, so the HTML cannot depend on what only the browser knows, such as the address's query or what is in storage. So the finder draws every note and hides the ones that do not match:")
 
-        CodeBlock(#"// src/components/NoteFinder.wf
+        DocsCodeBlock(#"// src/components/NoteFinder.wf
             // Every note is drawn, and the ones that do not match are hidden.
             // A pre-rendered page cannot know the URL's query, so a list
             // filtered by it would be missing from the HTML; this way the
@@ -176,7 +176,7 @@ component NoteCard(
 
         Markdown("The HTML then holds every note, for a reader without script and for a search engine, and the filter applies the moment the page is live. The front page hands the finder the address's tag:")
 
-        CodeBlock(#"// src/pages/Home.wf
+        DocsCodeBlock(#"// src/pages/Home.wf
         // `query.tag` is the URL's `?tag=…`; it is missing when the URL has
         // none, and `?? ""` turns that into the finder's "every note".
         NoteFinder(notes, tag: query.tag ?? "")"#, title: "wf")
@@ -187,7 +187,7 @@ component NoteCard(
 
         Markdown("Each note gets a page at `/notes/<slug>`:")
 
-        CodeBlock(#"// src/pages/NotePage.wf
+        DocsCodeBlock(#"// src/pages/NotePage.wf
 page NotePage(path: "/notes/:slug", slug: String,
     title: "{notes.find(n => n.slug == slug)?.title ?? slug} — Field Notes",
     description: "{notes.find(n => n.slug == slug)?.summary ?? slug}",
@@ -199,7 +199,7 @@ page NotePage(path: "/notes/:slug", slug: String,
 
         Markdown("- `:slug` in the path is a typed parameter of the page.\n- `paths:` names the values a static build renders the page for: one `notes/<slug>/index.html` per note, each listed in the sitemap ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n- `title:` and `description:` may be worked out from the parameters, so each note's search result shows its own title and summary.\n\nThe body of the page is the note's Markdown:")
 
-        CodeBlock(#"// src/pages/NotePage.wf
+        DocsCodeBlock(#"// src/pages/NotePage.wf
             Markdown(n.body)"#, title: "wf")
 
         Markdown("`Markdown` renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run ([Elements](/learn/06-elements)). Below the note, `related` lists the three newest notes that share a tag with it — a `derived` value like any other.\n\n**Check it:** click a note's title. Its page shows the whole note, and the browser tab shows its title followed by `— Field Notes`. After `wf build`, `build/notes/` holds seven folders, one per note.")
@@ -208,14 +208,14 @@ page NotePage(path: "/notes/:slug", slug: String,
 
         Markdown("The Tags page groups the notes under each tag:")
 
-        CodeBlock(#"// src/pages/Tags.wf
+        DocsCodeBlock(#"// src/pages/Tags.wf
         Grid(columns: { base: 1, md: 2 }, gap: .md, align: .start) {
             for tag in allTags by tag {
                 derived filed = notes.filter(n => n.tags.includes(tag)).sortBy(n => n.date).reverse()"#, title: "wf")
 
         Markdown("- A layout prop takes one value per breakpoint: one column on a phone, two from `md` up. It compiles to a media query, so the first paint is already right ([Styling](/learn/13-styling)).\n- A `derived` value inside a `for` is worked out for each item.\n\nThe About page is not a `.wf` file at all. `src/about.md` is a page: its front matter names its path, title, description and layout, and the rest is its Markdown:")
 
-        CodeBlock(#"---
+        DocsCodeBlock(#"---
 path: /about
 title: About — Field Notes
 description: Who keeps this notebook, why it exists, and how the site is built.
@@ -229,7 +229,7 @@ layout: Sheet
 
         Markdown("A store keeps the notes this reader saves:")
 
-        CodeBlock(#"// src/stores/Saved.wf
+        DocsCodeBlock(#"// src/stores/Saved.wf
 /// The notes this reader has saved for later, kept in their browser.
 store Saved {
     persist slugs: [String] = []
@@ -238,7 +238,7 @@ store Saved {
 
         Markdown("`persist` keeps the list in the browser across visits. There is no account, and nothing is sent anywhere ([Stores](/learn/11-stores)).\n\nThe button that saves a note says whether it is pressed, the way assistive technology reads it:")
 
-        CodeBlock(#"// src/components/SaveButton.wf
+        DocsCodeBlock(#"// src/components/SaveButton.wf
 /// Saves a note for later, or takes it off the saved list.
 component SaveButton(_ slug: String, title: String) {
     use Saved
@@ -257,7 +257,7 @@ component SaveButton(_ slug: String, title: String) {
 
         Markdown("A test reads the project's `data` file, as any page does ([Testing](/learn/16-testing)):")
 
-        CodeBlock(#"// tests/NoteFinder.wf
+        DocsCodeBlock(#"// tests/NoteFinder.wf
 test "a search that matches nothing says so, and clears" {
     NoteFinder(notes)
     type "zeppelin" into "Search the notes"

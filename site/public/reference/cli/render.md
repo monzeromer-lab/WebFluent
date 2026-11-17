@@ -25,4 +25,16 @@ wf render TEMPLATE [options]
 
 **Writes:** the file `--output` names
 
-The [full entry for wf render](https://webfluent.monzeromer.dev/reference/cli.md#wf-render) has its examples and the details this page leaves out.
+Renders one template with JSON data, to HTML, a PDF or a slide deck.
+
+```bash
+wf render invoice.wf --data invoice.json -f pdf -o invoice.pdf
+echo '{"name":"Ada"}' | wf render greeting.wf
+wf render templates/ --page Receipt --lang ar --data receipt.json
+```
+
+A template is held to the same checks as a build: a component nothing
+declares, or a flag a component does not take, stops the render. The one
+difference is that the names a template reads come from its data.
+
+See also: [Render a template](../recipes/render-a-template.md).

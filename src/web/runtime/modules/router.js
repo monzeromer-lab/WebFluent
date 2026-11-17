@@ -140,6 +140,7 @@
     // scroll position the browser restores itself.
     let fromHistory = false;
     let rendered = false;
+    let redirected = false;
     // What the page on show created, disposed of before the next one.
     let disposePage = null;
 
@@ -174,6 +175,10 @@
           const to = match.route.redirect || "/";
           if (to !== path) {
             window.history.replaceState(null, "", _basePath + to);
+            // The page it lands on settles as a route change does: on the
+            // section `to` names (`/reference/card#card-footer`), else at
+            // the top — even when the redirect is the first thing drawn.
+            redirected = true;
             currentPath.set(to);
           }
           return;
@@ -238,8 +243,10 @@
         // does what the page load does: focus moves to the new page's heading
         // (or the main landmark when it has none), the viewport returns to the
         // top, and the title is announced.
-        if (rendered) {
-          settleOnNewPage(into(), !fromHistory);
+        if (rendered || redirected) {
+          const wasRedirect = redirected;
+          redirected = false;
+          settleOnNewPage(into(), !fromHistory || wasRedirect);
         } else if (!_tookOver) {
           // The first paint replaced a pre-rendered page, and with it the
           // browser's jump to the address's `#fragment`. A page taken over

@@ -741,8 +741,19 @@ fn element(ui: &UIElement, cx: &mut Ctx<'_>, ancestors: &[&UIElement], in_compon
         );
     }
 
-    // R01: a link to a route no page has.
-    if let Some(target) = named(ui, "to") {
+    // R01: a link to a route no page has — where `to:` is a route. A
+    // built-in whose `to:` is something else (a `TransferList`'s heading)
+    // is not a link.
+    let is_route = match &ui.component {
+        ComponentRef::BuiltIn(n) => crate::registry::component(n).is_none_or(|sig| {
+            sig.props
+                .iter()
+                .find(|p| p.name == "to")
+                .is_none_or(|p| matches!(p.ty, crate::registry::PropType::Path))
+        }),
+        _ => true,
+    };
+    if is_route && let Some(target) = named(ui, "to") {
         link(target, ui.span, cx);
     }
 

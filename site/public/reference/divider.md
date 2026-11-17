@@ -10,15 +10,23 @@ Horizontal rule.
 Divider
 ```
 
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
 ## Example
 
 ```wf
-Text("Section one")
-Divider
-Text("Section two")
+Card {
+    Card.Body {
+        Heading("Billing").h3
+        Text("Pro plan, billed yearly.")
+        Divider
+        Row(justify: .between) {
+            Text("Next invoice").muted
+            Text("$240.00").bold
+        }
+    }
+}
 ```
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## What it can raise
 

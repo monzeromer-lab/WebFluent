@@ -10,6 +10,19 @@ Image; alt is required for accessibility (rule A01). Given an image the program 
 Image(_ source: Picture or String, src: String, sizes: String, placeholder: Enum, …)
 ```
 
+## Example
+
+```wf
+Stack(gap: .md) {
+    Image(src: "/og.png", alt: "WebFluent's sharing card: the name over a dark field",
+          sizes: "(max-width: 768px) 100vw, 640px", placeholder: .blur).rounded
+    Row(gap: .md, align: .center) {
+        Image(src: "/icon-512.png", alt: "The app icon", width: 64, height: 64).circle
+        Text("Pictures from public/ are resized to WebP at every width a page asks for.").muted.sm
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -36,13 +49,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on error`: An image, video or script failed to load
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Image(src: "/team.jpg", alt: "The team at the launch", width: 1200, height: 630)
-Image(src: "/flourish.svg", alt: "")
-```
 
 ## What it can raise
 

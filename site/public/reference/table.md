@@ -10,6 +10,26 @@ Data table. Cells inside Table.Head render as <th scope="col">; caption is the t
 Table(caption: String) { … }
 ```
 
+## Example
+
+```wf
+state regions = [{ name: "fra1", latency: 42, status: "Healthy" }, { name: "iad1", latency: 88, status: "Healthy" }, { name: "sin1", latency: 190, status: "Degraded" }]
+Table(caption: "Regions") {
+    Table.Head {
+        Table.Row { Table.Cell("Region")  Table.Cell("Latency")  Table.Cell("Status") }
+    }
+    Table.Body {
+        for r in regions by r.name {
+            Table.Row {
+                Table.Cell(r.name).header
+                Table.Cell("{r.latency} ms")
+                Table.Cell { Badge(r.status, tone: if r.status == "Healthy" { .success } else { .warning }) }
+            }
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,19 +44,46 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Table.Table.Head`
-- `Table.Table.Body`
-- `Table.Table.Row`
-- `Table.Table.Cell`
+Written under its name, inside `Table`.
 
-## Example
+### Table.Head
+
+Header section; its cells become <th scope="col">.
 
 ```wf
-Table(caption: "Deploys") {
-    Table.Head { Table.Row { Table.Cell("Region")  Table.Cell("Status") } }
-    Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("Healthy") } }
-}
+Table.Head { … }
 ```
+
+### Table.Body
+
+The body of a table: its rows of data.
+
+```wf
+Table.Body { … }
+```
+
+### Table.Row
+
+A row of cells.
+
+```wf
+Table.Row { … }
+```
+
+### Table.Cell
+
+A cell. header makes it a <th> anywhere, as Table.Head does for its cells.
+
+```wf
+Table.Cell(_ content: String or Number or Bool, header: Bool) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `content` | `String or Number or Bool  (positional)` | The cell's content |
+| `header:` | `Bool` | Render as a `<th>` |
+
+Flags: `.header`
 
 ## What it can raise
 

@@ -321,6 +321,16 @@ impl JsCodegen {
                     || name.starts_with('_')
                 {
                     name.clone()
+                } else if matches!(name.as_str(), "page" | "pages")
+                    && !self.body.own_names.contains(name)
+                    && !self.body.body_signals.contains(name)
+                {
+                    // A `Header`'s or a `Footer`'s page number (the checker
+                    // allows the names nowhere else). A PDF numbers its
+                    // pages; on a web page a `Document` is one, so both
+                    // read 1 — they used to compile to `_page()`, which
+                    // nothing declares, and the page threw as it drew.
+                    "1".to_string()
                 } else {
                     // State variable (signal) — access via _name()
                     format!("{}()", sig(name))
@@ -746,6 +756,17 @@ impl JsCodegen {
                 if name == "now" && !self.body.own_names.contains(name) {
                     let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                     return format!("WF.now({})", args_str.join(", "));
+                }
+                // `log(x)` as a value — in a lambda, a `mount:` — is what the
+                // statement is: the console's. It compiled to a bare
+                // `log(…)`, which nothing declares, and threw where it ran.
+                if name == "log"
+                    && !self.body.own_names.contains(name)
+                    && !self.body.own_actions.contains(name)
+                    && !self.script_names.contains(name)
+                {
+                    let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("console.log({})", args_str.join(", "));
                 }
                 // WF runtime functions
                 if name == "replayAnimation" {

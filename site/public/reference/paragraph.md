@@ -10,6 +10,17 @@ Block of text with paragraph spacing.
 Paragraph(_ content: String or Number or Bool, tone: Enum, size: Enum, align: Enum, …)
 ```
 
+## Example
+
+```wf
+Document(title: "Q3 report") {
+    Heading("Summary").h1
+    Paragraph("Revenue grew 15% on the quarter, led by the new self-serve plan.")
+    Paragraph("Churn held at 2.1%; support response times halved.").muted
+    Paragraph("Figures are unaudited.").sm.italic
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,12 +41,6 @@ Paragraph(_ content: String or Number or Bool, tone: Enum, size: Enum, align: En
 `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Paragraph("A block of prose, with the spacing a paragraph has.")
-```
 
 ## What it can raise
 

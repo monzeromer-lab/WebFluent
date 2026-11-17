@@ -66,7 +66,7 @@ page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: To
 
         Markdown("Delete everything the template put in `src/` and in `tests/`: you write every file yourself, and the template's tests would fail without its pages. Then replace `webfluent.app.json` with this:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "todos",
   "version": "1.0.0",
   "theme": { "name": "Paper", "dark": "Night" },
@@ -92,7 +92,7 @@ page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: To
 
         Markdown("The config names a theme, so declare it first. A theme names only the design tokens it changes; every other token keeps its default ([Styling](/learn/13-styling)). `Night` is the theme named as `\"dark\"` in the config, and the page uses it when the reader's system is set to dark:")
 
-        CodeBlock(#"// src/theme.wf
+        DocsCodeBlock(#"// src/theme.wf
 /// Warm paper and ink, with one teal for what you can act on.
 theme Paper {
     color-primary: #0F766E
@@ -118,7 +118,7 @@ theme Night {
 
         Markdown("The dark teal is light enough that white text on it is hard to read, so `Night` also sets `color-on-primary`, the colour of a primary button's label, to the dark background. `wf check` reports a pair like that as `A13` in either theme.\n\nThe page you write in step 6 names classes — `card`, `todo`, `is-done`, `filters` — and `src/todos.css` styles them. The build bundles every `.css` file under `src/`, so the file needs no link. These are four of its rules; copy the whole file from the [finished project](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):")
 
-        CodeBlock(#".todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
+        DocsCodeBlock(#".todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
 .todo__title { flex: 1; }
 .todo.is-done .todo__title { text-decoration: line-through; color: var(--color-text-muted); }
 .filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }"#, title: "css")
@@ -129,7 +129,7 @@ theme Night {
 
         Markdown("A `type` names the fields a value has, and the checker holds every use to them ([Types](/learn/12-types)). An `enum` is a fixed set of cases:")
 
-        CodeBlock(#"// src/types.wf
+        DocsCodeBlock(#"// src/types.wf
 /// One thing to do.
 type Todo {
     id: Uuid
@@ -146,7 +146,7 @@ enum Filter { all, open, done }"#, title: "wf")
 
         Markdown("A store holds state that any page or component can read ([Stores](/learn/11-stores)). This one keeps the list:")
 
-        CodeBlock(#"// src/stores/Todos.wf
+        DocsCodeBlock(#"// src/stores/Todos.wf
 /// The list, kept in the browser between visits.
 store Todos {
     persist items: [Todo] = []
@@ -181,7 +181,7 @@ store Todos {
 
         Markdown("- `persist` is a `state` kept in the browser's storage. The list is still there after a reload, and a second tab follows the first, with no storage code written.\n- A `derived` value follows what it reads: `open` is always the todos not yet done.\n- An action is the one place state changes. `\{ ...todo, done: !todo.done \}` is the todo with one field changed.\n- `rename`, `remove` and `clearDone` change the list in the same way.")
 
-        Callout("**Coming from Vue?** A `derived` value is a `computed` with no function to write and no `.value` to read: `Todos.open` is the list itself. See [Coming from Vue](/coming-from/vue).", kind: .note)
+        DocsCallout("**Coming from Vue?** A `derived` value is a `computed` with no function to write and no `.value` to read: `Todos.open` is the list itself. See [Coming from Vue](/coming-from/vue).", kind: .note)
 
         Markdown("**Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]: `Todos.open` is declared but never read``. That is expected: nothing reads the store yet. The page in step 6 reads every member, and the warnings go.")
 
@@ -189,7 +189,7 @@ store Todos {
 
         Markdown("A component is an element of your own ([Components](/learn/10-components)). This one draws a single todo, and lets the reader rename it in place:")
 
-        CodeBlock(#"// src/components/TodoRow.wf
+        DocsCodeBlock(#"// src/components/TodoRow.wf
 /// One row of the list: a box to tick, the title, and buttons to rename and
 /// remove it.
 component TodoRow(_ todo: Todo) {
@@ -231,7 +231,7 @@ component TodoRow(_ todo: Todo) {
 
         Markdown("The page holds the box for a new todo, the filters and the list. Here is its first half:")
 
-        CodeBlock(#"// src/pages/Home.wf
+        DocsCodeBlock(#"// src/pages/Home.wf
 page Home(path: "/", title: "Todos", description: "A small list of things to do, kept in your browser.") {
     use Todos
     state draft = ""
@@ -267,7 +267,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
 
         Markdown("- `bind: draft` ties the input to the state both ways: typing changes `draft`, and `draft = \"\"` empties the box.\n- `query` is the address's query string as a value, kept current. So `filter` follows the address, and `shown` follows `filter`.\n- A `match` over an enum must cover every case. If you add a fourth case to `Filter`, this `match` is an error until it handles it.\n\nThe second half draws the filters and the list, and closes the page. Add it below the first, after a blank line:")
 
-        CodeBlock(#"// src/pages/Home.wf
+        DocsCodeBlock(#"// src/pages/Home.wf
         Row(class: "filters", gap: .xs, align: .center) {
             Link("All", to: "/?show=all", class: { "is-on": filter == .all })
             Link("Open", to: "/?show=open", class: { "is-on": filter == .open })
@@ -294,11 +294,11 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
 
         Markdown("- `for … by todo.id` is a keyed list. When a todo is renamed, or the filter hides it, only its row changes; the other rows keep their elements, and the row being edited keeps its cursor ([Control flow](/learn/09-control-flow)).\n- `animate:` and `exit:` fade a row in and out.\n- A class map, `\{ \"is-on\": filter == .all \}`, turns a class on while its condition holds.")
 
-        Callout("**Coming from React?** The key goes on the loop, `by todo.id`, not as a `key` prop on the row. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** The key goes on the loop, `by todo.id`, not as a `key` prop on the row. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("Last, the `app` declaration is the frame every page sits in. `Router` marks where the current page is drawn:")
 
-        CodeBlock(#"// src/App.wf
+        DocsCodeBlock(#"// src/App.wf
 // The frame every page sits in: a narrow column, centred.
 app {
     Container(class: "shell") {
@@ -318,7 +318,7 @@ app {
 
         Markdown("A test draws what it declares, then follows its steps in order. It types into the control named **New todo** and clicks the button named **Add**, the way a reader would ([Testing](/learn/16-testing)). Create `tests/todos.wf` with this test:")
 
-        CodeBlock(#"// tests/todos.wf
+        DocsCodeBlock(#"// tests/todos.wf
 test "adding a todo puts it in the list" {
     use Todos
     state draft = ""
@@ -362,7 +362,7 @@ test "adding a todo puts it in the list" {
 
         Markdown("A `match` that misses a case. A `match` over an enum must name every case, so leaving out `.all` is an error:")
 
-        CodeBlock(#"enum Filter { all, open, done }
+        DocsCodeBlock(#"enum Filter { all, open, done }
 
 page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
     state filter: Filter = .all
@@ -376,7 +376,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 
         Markdown("Add the missing arm, `.all \{ \"All\" \}`, or an `else` arm ([T15](/errors/T15)).\n\nA list with no `by`. Without a key, a row that holds a control is drawn again whenever the list changes, and a box the reader was using loses its place:")
 
-        CodeBlock(#"type Todo { id: String, title: String }
+        DocsCodeBlock(#"type Todo { id: String, title: String }
 
 page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
     state items: [Todo] = [Todo(id: "1", title: "Buy bread")]
@@ -388,7 +388,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 
         Markdown("Key the list by what identifies each item: `for todo in items by todo.id` ([U09](/errors/U09)).\n\nA control bound to a `derived` value. `bind:` writes back to what it names, and a derived value is worked out, never assigned:")
 
-        CodeBlock(#"store Todos {
+        DocsCodeBlock(#"store Todos {
     state items: [String] = []
     derived open = items.length
 }

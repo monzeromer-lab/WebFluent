@@ -10,6 +10,17 @@ Text with every match of query: marked (<mark>), as a search's results show what
 Highlight(_ text: String, query: String)
 ```
 
+## Example
+
+```wf
+state q = "state"
+Stack(gap: .sm) {
+    Input(bind: q, label: "Search the guide").search
+    Highlight("Pages, components and stores hold state; a derived value reads it.", query: q)
+    Highlight("A state change repaints only what reads it.", query: q)
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -18,14 +29,6 @@ Highlight(_ text: String, query: String)
 | `query:` | `String` | What to mark |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state q = "ea"
-Input(bind: q, label: "Search")
-Highlight("Search near and far: each area is clear.", query: q)
-```
 
 ## What it can raise
 

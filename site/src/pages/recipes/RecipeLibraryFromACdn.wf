@@ -23,12 +23,12 @@ function celebrate() {
 "# }) {
         code {
             Markdown("**Needs:** the script `src/celebrate.js` and the `meta.scripts` setting, both shown below.")
-            CodeBlock(#"page Launch(path: "/launch", title: "Launch", description: "A button that celebrates.") {
+            DocsCodeBlock(#"page Launch(path: "/launch", title: "Launch", description: "A button that celebrates.") {
     Heading("We shipped").h1
     Button("Celebrate").primary { on click { celebrate() } }
 }"#, title: "wf")
             Markdown("This script calls the library:")
-            CodeBlock(#"// src/celebrate.js
+            DocsCodeBlock(#"// src/celebrate.js
 /** Throw confetti up from the bottom of the window. */
 function celebrate() {
   if (typeof confetti === "undefined") return; // not arrived yet
@@ -36,7 +36,7 @@ function celebrate() {
   fire({ particleCount: 120, spread: 70, origin: { y: 0.9 } });
 }"#, title: "js")
             Markdown("This config, in `webfluent.app.json`, loads the library:")
-            CodeBlock(#"{ "meta": {
+            DocsCodeBlock(#"{ "meta": {
     "scripts": ["https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"]
 } }"#, title: "json")
         }

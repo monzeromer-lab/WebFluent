@@ -13,7 +13,7 @@ page RecipeRenderMarkdown(path: "/recipes/render-markdown", title: "Render Markd
 "# }) {
         code {
             Markdown("**Needs:** a picture `img.png` in `public/`, which the last line shows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(###"page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
+            DocsCodeBlock(###"page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
     state body = "## Version 3.3\n\nThis release adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
     Heading("Release notes").h1
     Markdown(body)
@@ -25,7 +25,7 @@ page RecipeRenderMarkdown(path: "/recipes/render-markdown", title: "Render Markd
 
             Markdown("Documentation from a language server, a `///` comment or a package's readme is text somebody else wrote. It often has HTML entities in it, and links and pictures that should not be followed or fetched from where you show it. To show it, add `.inert`:")
 
-            CodeBlock(#"page Hover(path: "/", title: "Hover", description: "Documentation from a language server.") {
+            DocsCodeBlock(#"page Hover(path: "/", title: "Hover", description: "Documentation from a language server.") {
     state docs = "Returns a list of &lt;T&gt; &mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)"
     Heading("Hover").h1
     Markdown(docs).inert
@@ -61,7 +61,7 @@ page RecipeRenderMarkdown(path: "/recipes/render-markdown", title: "Render Markd
 
         Markdown("To write a table, give a header row, a delimiter row with as many cells, then the rows, as in GitHub's Markdown:")
 
-        CodeBlock(#"| Function | Does | Where |
+        DocsCodeBlock(#"| Function | Does | Where |
 |---|:-:|--:|
 | `log(x)` | Prints to the console | anywhere |
 | `t("key")` | A translation \| a plural | anywhere |"#, title: "markdown")

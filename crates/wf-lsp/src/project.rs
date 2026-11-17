@@ -283,7 +283,7 @@ impl Project {
         };
         let mut stylesheet_files: Vec<(PathBuf, Arc<str>)> = Vec::new();
         let mut script_paths: Vec<PathBuf> = Vec::new();
-        // What `meta.scripts` says its libraries define, in scope as `Any`.
+        // What `meta.scripts` says its libraries define, in scope, each taking and giving `Json`.
         let mut library_globals: Vec<String> = Vec::new();
         let mut messages: Vec<String> = Vec::new();
         let mut env_names: Vec<String> = Vec::new();

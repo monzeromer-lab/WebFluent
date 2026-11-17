@@ -12,7 +12,7 @@ page RecipeVideoAndAudio(path: "/recipes/video-and-audio", title: "Add video and
 "# }) {
         code {
             Markdown("**Needs:** `demo.mp4`, `demo.en.vtt`, `demo.jpg`, `talk.mp3` and `talk.txt` in `public/`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Media(path: "/", title: "Media", description: "The demo and the launch talk.") {
+            DocsCodeBlock(#"page Media(path: "/", title: "Media", description: "The demo and the launch talk.") {
     Heading("Media").h1
     Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
     Audio(src: "/talk.mp3", transcript: "/talk.txt").controls

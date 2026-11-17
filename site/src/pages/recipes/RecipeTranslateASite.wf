@@ -42,7 +42,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 "# }) {
         code {
             Markdown("**Needs:** the `i18n` setting and the translation files that [Set up the translation files](#set-up-the-translation-files) shows. The code is a whole project's `app` and home page, and declares `type User`, as the starter does: paste it into a new project, replacing `src/App.wf` and `src/pages/Home.wf`.")
-            CodeBlock(#"type User { name: String }
+            DocsCodeBlock(#"type User { name: String }
 
 app {
     state chosen = locale
@@ -82,7 +82,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Markdown("List the site's locales in `webfluent.app.json` under `i18n`. `default_locale` names the language the site is written in, and `dir` the directory that holds the files:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "i18n": {
     "default_locale": "en",
     "locales": ["en", "ar", "es"],
@@ -92,7 +92,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Markdown("Then put one file per locale in that directory — `en.json`, `ar.json`, `es.json`. Each is a flat map of keys to messages; by convention a key has dots in it to group related messages. This is `src/translations/en.json`:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "nav.home": "Home",
   "nav.about": "About",
   "nav.language": "Language",
@@ -104,7 +104,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Markdown("And this is `src/translations/ar.json`, with the six plural forms Arabic uses:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "nav.home": "الرئيسية",
   "nav.about": "حول",
   "nav.language": "اللغة",
@@ -120,7 +120,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Markdown("And `src/translations/es.json`. Spanish has a third form, `many`, for a round million and more (`1 000 000 de elementos`):")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "nav.home": "Inicio",
   "nav.about": "Acerca de",
   "nav.language": "Idioma",
@@ -137,7 +137,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Markdown("To show a message in the reader's language, call `t(\"key\")` wherever a string goes, as `Home` does above. Pass a map as the second argument to fill placeholders and to pick a plural form.\n\nIn English the home page reads **Welcome, Sam!**, **3 items** and a **Save** button; in Arabic, **أهلاً، Sam!**, **3 عناصر** and **حفظ**.\n\nHow `t()` behaves:\n\n- **It follows the locale.** `t(\"key\")` is the message for the current locale, and every call is evaluated again when the locale changes.\n- **It fills placeholders.** `t(\"key\", \{ name: value \})` replaces each `\{name\}` in the message with the map's value.\n- **A `count` picks the plural form.** The form comes from the locale's CLDR plural rules, which the browser's `Intl.PluralRules` follows too: Arabic has `zero`, `one`, `two`, `few`, `many` and `other`; English has `one` and `other`; Japanese has only `other`. A count of exactly 0 uses `key.zero` wherever the file has one, in any language, so English can say \"No files\" rather than \"0 files\". Without the form it wants, `t()` falls back to `key.other`, then to `key`.\n- **A key's forms all come from one language** — the reader's, when its file has the key at all, otherwise the default locale's. It never mixes one form from each.\n- **The pre-rendered page is already translated.** The build resolves `t` for the default locale when it pre-renders a page, by the same rules, so the HTML is in the default language, its counts in that language's forms.")
 
-        Callout("Never build a sentence from pieces (`t(\"greeting\") + name`). Word order differs between languages. Put a placeholder in the message, so a translator can move it.", kind: .warning)
+        DocsCallout("Never build a sentence from pieces (`t(\"greeting\") + name`). Word order differs between languages. Put a placeholder in the message, so a translator can move it.", kind: .warning)
 
         Heading("Switch the locale", id: "switch-the-locale").h3
 
@@ -147,7 +147,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
 
         Markdown("A page opens in `default_locale`, with two exceptions:\n\n1. **The address names a locale.** `?lang=<code>`, for one of the configured locales, opens the page in it: `/about?lang=ar` is the Arabic page, for a link you share. It does not change the reader's kept choice. It is not an address a search engine indexes: its HTML, and its canonical link, are the default locale's, so the build lists no `?lang=` address as an `hreflang` alternate. To have each language found, give it pages of its own ([A page in its own language](/recipes/site-in-two-languages)).\n2. **The reader chose a locale before.** `setLocale(code)` keeps the code in the reader's `localStorage`, under `wf:locale`, and every page loaded after that opens in it, on this visit and the next. Choosing `default_locale` again forgets it.\n\nSo a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch can be a pair of buttons:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Link("i18n", to: "/") }
         Navbar.Actions {

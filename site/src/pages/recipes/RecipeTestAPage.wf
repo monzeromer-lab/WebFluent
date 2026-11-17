@@ -52,7 +52,7 @@ test "an empty item is not added" {
 "# }) {
         code {
             Markdown("**Needs:** a `tests/` folder beside `src/`, and a Chrome or Chromium on the machine for the tests that click (or `WF_CHROME` naming one). The block holds three files; the comment above each says where it goes.")
-            CodeBlock(#"// src/components/Count.wf
+            DocsCodeBlock(#"// src/components/Count.wf
 component Count(_ n: Number) {
     Text(if n == 1 { "1 thing to buy" } else { "{n} things to buy" })
 }
@@ -101,7 +101,7 @@ test "an empty item is not added" {
             Terminal(lines: [
                         Line(command: "wf test")
                     ])
-            CodeBlock(#"  new   tests/shopping.wf — one thing reads in the singular (snapshot written)
+            DocsCodeBlock(#"  new   tests/shopping.wf — one thing reads in the singular (snapshot written)
   ok    tests/shopping.wf — adding an item lists it and counts it (in a browser)
   ok    tests/shopping.wf — an empty item is not added (in a browser)
 3 passed, 0 failed, 1 snapshot(s) written"#, title: "text")

@@ -54,6 +54,15 @@ jobs:
       - name: Build the site
         run: target/release/wf build -d site --allow-output-outside
 
+      # In a browser: every built-in's preview draws, and no table breaks
+      # a word across lines.
+      - name: Install the browser tests' tools
+        working-directory: tests/browser
+        run: npm ci --no-audit --no-fund
+
+      - name: What a reader sees
+        run: node scripts/docsite/check-site.mjs docs
+
       # libwebp is C, compiled for wasm32 by clang against crates/wf-wasm/libc.
       - name: Point the C build at clang and llvm-ar
         run: |

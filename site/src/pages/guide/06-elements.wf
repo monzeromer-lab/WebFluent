@@ -8,11 +8,11 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("Every element call has the same five pieces, each optional except the name:")
 
-        CodeBlock(#"Name(positional, prop: value, prop: value).flag.flag { block }"#, title: "text")
+        DocsCodeBlock(#"Name(positional, prop: value, prop: value).flag.flag { block }"#, title: "text")
 
         Markdown("- **`Name`** is PascalCase: a built-in (`Card`), a part of one (`Card.Header`), or a component of the project (`UserCard`, `Panel.Footer`).\n- **One positional argument** comes first, unnamed. It is the element's main value: a button's label, a heading's text, an icon's name. You pass every other value by name.\n- **Named props**, `name: value`, come in any order, and the value may be any expression.\n- **Flags**, `.name`, are written tight against the closing parenthesis, or against the name when there are no parentheses: `Button(\"Save\").primary.lg`, `Spacer.sm`, `Card.elevated \{ … \}`. An element or a component called with no arguments needs no parentheses: `Spinner` and `Spinner()` are the same call, and this book writes the shorter one.\n- **The block**, `\{ … \}`, holds its contents in a fixed order: `style \{ \}`, then `transition \{ \}`, then `on … \{ \}` handlers, then slot fills, then children.\n\nThis button uses all five pieces, with its block in that order:")
 
-        CodeBlock(#"page Editor(path: "/", title: "Editor", description: "A save button, fully dressed.") {
+        DocsCodeBlock(#"page Editor(path: "/", title: "Editor", description: "A save button, fully dressed.") {
     Heading("Editor").h1
     Button("Save", disabled: false).primary.lg {
         style { min-width: 120px }
@@ -22,13 +22,13 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
     }
 }"#, title: "wf")
 
-        Callout("**Coming from JSX or a Vue template?** There are no tags and no string attributes: `<Button variant=\"primary\" size=\"lg\">Save</Button>` is `Button(\"Save\").primary.lg`. A prop's value is an expression, never a string to be parsed, and children go in the block. See [Coming from React](/coming-from/react#the-map).", kind: .note)
+        DocsCallout("**Coming from JSX or a Vue template?** There are no tags and no string attributes: `<Button variant=\"primary\" size=\"lg\">Save</Button>` is `Button(\"Save\").primary.lg`. A prop's value is an expression, never a string to be parsed, and children go in the block. See [Coming from React](/coming-from/react#the-map).", kind: .note)
 
         Heading("Props, cases and flags", id: "props-cases-and-flags").h2
 
         Markdown("Each prop has a type the compiler knows: `String`, `Number`, `Bool`, a state binding, a path, or an **enum**, which is a fixed set of named cases. You pass an enum prop a case, written with a leading dot:")
 
-        CodeBlock(#"page Toolbar(path: "/", title: "Toolbar", description: "Two labels, spaced apart.") {
+        DocsCodeBlock(#"page Toolbar(path: "/", title: "Toolbar", description: "Two labels, spaced apart.") {
     Heading("Toolbar").h1
     Row(gap: .md, align: .center, justify: .between) {
         Text("Drafts")
@@ -38,7 +38,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("A **flag** is a short way to write one of two things: a `Bool` prop set to `true`, or a case of one of the element's enum props. Each comment shows the long spelling of the flags on its line:")
 
-        CodeBlock(#"page Search(path: "/", title: "Search", description: "A search box and two buttons.") {
+        DocsCodeBlock(#"page Search(path: "/", title: "Search", description: "A search box and two buttons.") {
     state term = ""
     Heading("Search").h1
     Button("Delete").danger                                // tone: .danger
@@ -120,7 +120,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("A named argument that is not a prop becomes an HTML attribute. These families are declared, so they draw no warning:\n\n- the global attributes: `id`, `title`, `role`, `tabindex`, `lang`, `dir`, `hidden`;\n- `aria-*` and `data-*`;\n- the attributes of the element's kind: input, anchor, media, form and table attributes on the elements that take them.\n\nAny other name is still written to the element, with warning `C04`. You write a hyphenated name as it is:")
 
-        CodeBlock(#"page Signup(path: "/", title: "Sign up", description: "A name field and a menu button.") {
+        DocsCodeBlock(#"page Signup(path: "/", title: "Sign up", description: "A name field and a menu button.") {
     state name = ""
     Heading("Sign up").h1
     Button("More", aria-expanded: "false", aria-controls: "panel", data-track: "more")
@@ -135,7 +135,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("A built-in places your attributes and `on` handlers on the element it draws:\n\n- On its root, for most built-ins: the scrolling box of a `VirtualList`, the handle of a `Splitter`, the box of a `Tabs` or a `Carousel`, the panel of a `Sidebar`, the `<nav>` of a `Breadcrumb`, the `<dialog>` of a `Modal`.\n- On its input, for a control drawn inside a box (`Switch`, `Checkbox`, `Radio`, `Slider`, `DatePicker`, `FileUpload`). The input is the control, and its own handlers are already there. `hidden`, `lang` and `dir` belong to the whole control, so they stay on its box.\n\nA `role:` or `aria-label:` you write takes the place of the one the built-in gives itself: a `Splitter`'s `separator`, a `Switch`'s `switch`, a `Breadcrumb`'s name. A `Sidebar`'s `id:` is the one its toggle points at.\n\nThis list box puts `role`, `tabindex` and `aria-activedescendant` on the `VirtualList`'s scrolling box, and a `role` and `id` on each row:")
 
-        CodeBlock(#"page References(path: "/", title: "References", description: "A list box of references.") {
+        DocsCodeBlock(#"page References(path: "/", title: "References", description: "A list box of references.") {
     state refs = [{ id: "a" }, { id: "b" }, { id: "c" }]
     state current = 0
     Heading("References").h1
@@ -152,7 +152,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("Some built-ins are made of parts. You write a part under its owner's name, inside its owner:")
 
-        CodeBlock(#"page Regions(path: "/", title: "Regions", description: "A card, a table, a select and tabs.") {
+        DocsCodeBlock(#"page Regions(path: "/", title: "Regions", description: "A card, a table, a select and tabs.") {
     state region = "fra1"
     Heading("Regions").h1
     Card.elevated {
@@ -176,7 +176,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("A part belongs inside its owner. `Card.Body` outside a `Card` is error `C03`. Your own components may declare parts too ([Components](/learn/10-components)).\n\nA `Tabs` keeps the open tab in a state of yours with `bind:`, holding the open page's `value:`. Only the open tab is in the Tab order; the arrow keys move between tabs, the other way round in a right-to-left page:")
 
-        CodeBlock(#"page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
+        DocsCodeBlock(#"page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     state tab = "profile"
     Heading("Account").h1
     Tabs(bind: tab, label: "Account") {
@@ -192,7 +192,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("The typography elements cover inline text, headings, paragraphs, code, quotations and Markdown:")
 
-        CodeBlock(#"page Article(path: "/", title: "Article", description: "Every kind of text.") {
+        DocsCodeBlock(#"page Article(path: "/", title: "Article", description: "Every kind of text.") {
     state count = 3
     Heading("Release notes").h1                // a real <h1>; .h2 is the default
     Text("{count} changes").bold.muted         // a run of text
@@ -208,7 +208,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("The layout elements arrange what is inside them. Each comment says what the element is:")
 
-        CodeBlock(#"page Dashboard(path: "/", title: "Dashboard", description: "Every layout element at once.") {
+        DocsCodeBlock(#"page Dashboard(path: "/", title: "Dashboard", description: "Every layout element at once.") {
     Header { Heading("Dashboard").h1 }
     Container {                                  // centred, with a max width
         Row(gap: .md, align: .center) {          // horizontal flex
@@ -248,7 +248,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Data display")
-                    Table.Cell { Markdown("`Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search))") }
+                    Table.Cell { Markdown("`Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime`") }
                 }
                 Table.Row {
                     Table.Cell("Content")
@@ -293,7 +293,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("The content built-ins are the pieces a page of text and figures is made of. Each is drawn the same on the live page, in the static paint and in a PDF:")
 
-        CodeBlock(#"page Report(path: "/", title: "Report", description: "The month, at a glance.") {
+        DocsCodeBlock(#"page Report(path: "/", title: "Report", description: "The month, at a glance.") {
     state tags = ["Rust", "Go"]
     Heading("Report").h1
     Callout("Figures are for the month to date.").note
@@ -321,7 +321,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("Each built-in renders real, semantic HTML. A `Button` is a `<button>`, a `Link` an `<a>`, a `Heading(…).h2` an `<h2>`, and a `Table` a `<table>` with `<th scope=\"col\">` cells in its head.\n\nEach also carries a stable class named after it, with a modifier class for each flag. For example, `Button(\"Save\").primary.lg` renders:")
 
-        CodeBlock(#"<button class="wf-btn wf-btn--primary wf-btn--large" type="button">Save</button>"#, title: "html")
+        DocsCodeBlock(#"<button class="wf-btn wf-btn--primary wf-btn--large" type="button">Save</button>"#, title: "html")
 
         Markdown("These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](/learn/13-styling#classes-and-your-own-stylesheet)). The reference names each element's class.")
 
@@ -423,21 +423,21 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("**A second positional argument.** Only the first argument may go without a name, so a tone passed after the label does not build:")
 
-        CodeBlock(#"page Trash(path: "/", title: "Trash", description: "Empty the trash.") {
+        DocsCodeBlock(#"page Trash(path: "/", title: "Trash", description: "Empty the trash.") {
     Heading("Trash").h1
     Button("Empty the trash", "danger")
 }"#, title: "wf · draws E113")
 
         Markdown("Write the tone as a flag, `Button(\"Empty the trash\").danger`, or name it, `tone: .danger` ([E113](/errors/E113)).\n\n**A flag the element does not have.** Flags are not a shared vocabulary; each element takes its own, and a word it does not declare stops the build:")
 
-        CodeBlock(#"page Save(path: "/", title: "Save", description: "A save button.") {
+        DocsCodeBlock(#"page Save(path: "/", title: "Save", description: "A save button.") {
     Heading("Save").h1
     Button("Save").huge
 }"#, title: "wf · draws E103")
 
         Markdown("The finding lists the flags `Button` takes; `.lg` is its largest size ([E103](/errors/E103)).\n\n**A part outside its owner.** A part only means something inside the element it belongs to:")
 
-        CodeBlock(#"page Profile(path: "/", title: "Profile", description: "A profile card.") {
+        DocsCodeBlock(#"page Profile(path: "/", title: "Profile", description: "A profile card.") {
     Heading("Profile").h1
     Card.Body { Text("Sam, designer") }
 }"#, title: "wf · draws C03")

@@ -10,6 +10,17 @@ A box that scrolls within height:, with a thin scrollbar, its edges fading where
 ScrollArea(height: String, label: String, horizontal: Bool) { … }
 ```
 
+## Example
+
+```wf
+ScrollArea(height: "200px", label: "Build log") {
+    style { border: 1px solid $color-border; border-radius: $radius-md; padding: 0.5rem 0.75rem }
+    for line in (1..=40).map(i => "[{i}] compiled src/pages/Page{i}.wf") by line {
+        Text(line).sm
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -27,14 +38,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-ScrollArea(height: "120px", label: "Log") {
-    for n in 1..=20 { Text("Line {n}") }
-}
-```
 
 ## What it can raise
 

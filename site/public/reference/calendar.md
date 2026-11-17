@@ -10,6 +10,16 @@ A month as a grid of days, chosen with a press or the keyboard — the arrows by
 Calendar(bind: State, mode: Enum, min: Date, …)
 ```
 
+## Example
+
+```wf
+state delivery: Date? = @2026-11-17
+Calendar(bind: delivery, min: @2026-11-17, disabled: d => d.weekday() >= 6, label: "Delivery day").single
+if let d = delivery {
+    Text("Delivered on {d:.date(long)}").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,13 +36,6 @@ Calendar(bind: State, mode: Enum, min: Date, …)
 `.single` `.range` `.multiple`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state day: Date? = null
-Calendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")
-```
 
 ## What it can raise
 

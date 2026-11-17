@@ -2,7 +2,7 @@
 /// file or language and Copy, then the code coloured by the compiler's
 /// highlighter. `title` names the file or the language; one the
 /// highlighter knows colours the block.
-component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
+component DocsCodeBlock(_ code: String, title: String = "wf", note: String = "") {
     state copied = false
     derived language = if title == "wf" || title == "wfx" || title.endsWith(".wf") { "wf" } else if title == "json" || title == "css" { title } else if title == "shell" || title == "bash" { "bash" } else { "" }
 

@@ -19,4 +19,13 @@ wf docs [options]
 
 **Writes:** a gallery, in the folder `--out` names
 
-The [full entry for wf docs](https://webfluent.monzeromer.dev/reference/cli.md#wf-docs) has its examples and the details this page leaves out.
+Writes a self-contained component gallery.
+
+```bash
+wf docs
+wf docs -o gallery
+```
+
+The gallery shows every built-in — props, cases, flags, events, slots,
+parts — and every component, enum, type, store and page the project
+declares, with their `///` documentation.

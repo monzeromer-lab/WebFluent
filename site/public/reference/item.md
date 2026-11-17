@@ -10,6 +10,23 @@ A row of a list, a settings page or a search's results: Item.Media at its start,
 Item(title: String, description: String) { … }
 ```
 
+## Example
+
+```wf
+state push = true
+state digest = false
+Stack(gap: .sm) {
+    Item(title: "Push notifications", description: "Sent to your phone when a deploy fails") {
+        Item.Media { Icon("bell") }
+        Item.Actions { Switch(bind: push, aria-label: "Push notifications") }
+    }
+    Item(title: "Weekly digest", description: "A summary every Monday morning") {
+        Item.Media { Icon("mail") }
+        Item.Actions { Switch(bind: digest, aria-label: "Weekly digest") }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,19 +42,29 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Item.Item.Media`
-- `Item.Item.Content`
-- `Item.Item.Actions`
+Written under its name, inside `Item`.
 
-## Example
+### Item.Media
+
+What goes at its start: an icon, an avatar, a picture.
 
 ```wf
-state notify = true
-Item(title: "Notifications", description: "Sent to your phone") {
-    Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: notify, label: "On") }
-}
+Item.Media { … }
 ```
+
+### Item.Actions
+
+What goes at its end: a switch, a button, a menu.
+
+```wf
+Item.Actions { … }
+```
+
+## Drawn for it
+
+What `Item` draws itself, by its class; not written.
+
+- `Item.Content` (`.`): Its title, description and block.
 
 ## What it can raise
 

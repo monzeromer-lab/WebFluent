@@ -10,6 +10,20 @@ Inline code, or a code block with block; language: colours it.
 Code(_ content: String or Number or Bool, block: Bool, language: String)
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    Text { Text("Start the dev server with ")  Code("wf serve")  Text(", then open the page.") }
+    Code("""
+        page Home(path: "/", title: "Home") {
+            state count = 0
+            Button("+1") { on click { count = count + 1 } }
+        }
+        """, language: "wf").block
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -23,14 +37,6 @@ Code(_ content: String or Number or Bool, block: Bool, language: String)
 `.block`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Text("Run ")
-Code("wf serve")
-Code("page Home(path: \"/\") { Text(\"Hi\") }", language: "wf").block
-```
 
 ## What it can raise
 

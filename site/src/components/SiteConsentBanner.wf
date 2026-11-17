@@ -1,7 +1,7 @@
 /// The analytics question, at the foot of the screen until it is answered.
 /// It floats, so it never moves the page, and it is only drawn in the
 /// browser, where there is an answer to read.
-component ConsentBanner {
+component SiteConsentBanner {
     after(0) { Consent.check() }
 
     if Consent.asking {

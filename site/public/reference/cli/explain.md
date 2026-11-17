@@ -17,4 +17,13 @@ wf explain [CODE] [options]
 | `[CODE]` | The code: `T05`, `A01`, `E101` |
 | `--json` | Print JSON, for tools: one code, or every code without one |
 
-The [full entry for wf explain](https://webfluent.monzeromer.dev/reference/cli.md#wf-explain) has its examples and the details this page leaves out.
+Prints a diagnostic code's entry from [Diagnostics](../errors/diagnostics.md) in
+the terminal.
+
+```bash
+wf explain T05
+wf explain
+```
+
+An entry says what the code means, shows a program that draws it, what the
+compiler prints, the fix, and the link to the guide.

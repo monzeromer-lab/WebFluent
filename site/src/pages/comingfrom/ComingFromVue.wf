@@ -9,7 +9,7 @@ page ComingFromVue(path: "/coming-from/vue", title: "WebFluent for Vue developer
         port {
             Markdown("The same counter, in Vue and in WebFluent. It starts at a number the caller passes, counts up on a click, shows a badge when the count is even, and tells the caller about each change.")
 
-            CodeBlock(#"<script setup>
+            DocsCodeBlock(#"<script setup>
 import { ref, computed } from "vue";
 const props = defineProps({ start: { type: Number, default: 0 } });
 const emit = defineEmits(["change"]);
@@ -26,7 +26,7 @@ function inc() { n.value++; emit("change", n.value); }
   </div>
 </template>"#, title: "vue")
 
-            CodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
+            DocsCodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
     state last = 0
     Heading("Scores").h1
     Counter(start: 2) { on change(value) { last = value } }

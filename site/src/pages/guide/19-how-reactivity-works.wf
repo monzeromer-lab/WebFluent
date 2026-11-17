@@ -8,7 +8,7 @@ page AboutHowReactivityWorks(path: "/about/how-reactivity-works", title: "How re
 
         Markdown("This page has a value that changes, a value worked out from it, and a button that changes it.")
 
-        CodeBlock(#"page Home(path: "/", title: "Count", description: "A counter.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Count", description: "A counter.") {
     state count = 0
     derived double = count * 2
     Heading("Count").h1
@@ -18,7 +18,7 @@ page AboutHowReactivityWorks(path: "/about/how-reactivity-works", title: "How re
 
         Markdown("`wf build` turns it into one function that runs once, when the route is shown. Here it is, laid out for reading:")
 
-        CodeBlock(#"function Page_Home(params) {
+        DocsCodeBlock(#"function Page_Home(params) {
   const _count = WF.signal(0);
   const _root = document.createDocumentFragment();
   const _double = WF.computed(() => _count() * 2);
@@ -57,7 +57,7 @@ page AboutHowReactivityWorks(path: "/about/how-reactivity-works", title: "How re
 
         Markdown("This page has a list, a count worked out from it, and a branch.")
 
-        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+        DocsCodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
 page Todos(path: "/", title: "Todos", description: "A list that keeps its rows.") {
     state todos: [Todo] = [Todo(id: "1", title: "Milk"), Todo(id: "2", title: "Bread")]
@@ -82,7 +82,7 @@ page Todos(path: "/", title: "Todos", description: "A list that keeps its rows."
 
         Markdown("Data from a server makes the same promise harder to keep, because every response is new objects. A resource that asks again on an interval would otherwise hand the list a fresh array of fresh rows every 30 seconds.")
 
-        CodeBlock(#"type Server { id: String, name: String, status: String }
+        DocsCodeBlock(#"type Server { id: String, name: String, status: String }
 
 page Servers(path: "/", title: "Servers", description: "Every server, kept current.") {
     resource servers: [Server] = http.get("/api/servers", refresh: .every(30.seconds))

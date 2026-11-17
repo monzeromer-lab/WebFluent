@@ -10,15 +10,19 @@ Forces a new PDF page.
 PageBreak
 ```
 
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
 ## Example
 
 ```wf
-Text("End of chapter one.")
-PageBreak
-Heading("Chapter two").h2
+Document(title: "Report") {
+    Heading("Summary").h1
+    Paragraph("The quarter in one page.")
+    PageBreak
+    Heading("Appendix: the figures").h2
+    Paragraph("Every number, month by month.")
+}
 ```
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## What it can raise
 

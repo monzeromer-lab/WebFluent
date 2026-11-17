@@ -8,7 +8,7 @@ page Learn09ControlFlow(path: "/learn/09-control-flow", title: "Control flow", d
 
         Markdown("`if` shows a branch while its condition holds. This page shows one of three messages, by how many times the button was pressed:")
 
-        CodeBlock(#"page Status(path: "/", title: "Status", description: "A message chosen by a count.") {
+        DocsCodeBlock(#"page Status(path: "/", title: "Status", description: "A message chosen by a count.") {
     state count = 0
     Heading("Status").h1
     if count == 0 {
@@ -23,13 +23,13 @@ page Learn09ControlFlow(path: "/learn/09-control-flow", title: "Control flow", d
 
         Markdown("How it behaves:\n\n- A branch's elements are created when its condition turns true, and removed when it turns false.\n- State declared inside a component in the branch starts over each time the branch is created.\n- A condition must be a `Bool`. A `Bool?` counts, its `null` as `false`.\n- Anything else is an error, with the comparison it means as the fix: `if count` is `T29` (write `count != 0`), `if user` on a `User?` is `T29` (write `user != null`, or bind it with `if let`), and a list as a condition is `T07`, since it would always be true.")
 
-        Callout("**Coming from React?** `\{open && <Panel />\}` and `cond ? a : b` inside JSX become statements: `if open \{ Panel \}` and `if cond \{ a \} else \{ b \}`. A condition is a `Bool`, so test a list with `items.length > 0`. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** `\{open && <Panel />\}` and `cond ? a : b` inside JSX become statements: `if open \{ Panel \}` and `if cond \{ a \} else \{ b \}`. A condition is a `Bool`, so test a list with `items.length > 0`. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("if let", id: "if-let").h2
 
         Markdown("`if let name = value \{ \}` binds the value inside the branch when it is not null. It is the way to read a value of type `T?` (one that may be null) without the type checker objecting:")
 
-        CodeBlock(#"type User { name: String, email: String? }
+        DocsCodeBlock(#"type User { name: String, email: String? }
 
 page Profile(path: "/", title: "Profile", description: "A user who may not be signed in.") {
     state user: User? = null
@@ -48,7 +48,7 @@ page Profile(path: "/", title: "Profile", description: "A user who may not be si
 
         Markdown("`for` draws its block once for each item of a list. This page loops three ways — by key, with the index, and over a range:")
 
-        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+        DocsCodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
 page Checklist(path: "/", title: "Checklist", description: "Three kinds of loop.") {
     state todos: [Todo] = [Todo(id: "a", title: "Write"), Todo(id: "b", title: "Ship", done: true)]
@@ -67,15 +67,15 @@ page Checklist(path: "/", title: "Checklist", description: "Three kinds of loop.
 
         Markdown("`by expr` names the *key*: the value that tells one item from another. With a key:\n\n- An item that stays in the list keeps its nodes. Focus, scroll position and animation state survive an insert, a removal or a move, and moves slide.\n- An item keeps its nodes under a new value too — a refreshed response's rows are all new objects. Its body reads the item and the index live, so a changed row changes in place, and its components' state with it.\n- Keys must be unique. The runtime warns once when two items share one.\n- A key may read the index as well as the item (`for t, i in rows by \"\{t.id\}-\{i\}\"`).\n\nWithout a key, the list is rebuilt whenever it changes, and the build warns (`U09`) when its items hold state, a control or a stateful component. Looping over something that is not a list is an error (`T08`).")
 
-        Callout("**Coming from React or Vue?** The `key` prop and `:key` become `by`, written once on the loop rather than on the element it draws: `for todo in todos by todo.id \{ … \}`. See [Coming from React](/coming-from/react) and [Coming from Vue](/coming-from/vue).", kind: .note)
+        DocsCallout("**Coming from React or Vue?** The `key` prop and `:key` become `by`, written once on the loop rather than on the element it draws: `for todo in todos by todo.id \{ … \}`. See [Coming from React](/coming-from/react) and [Coming from Vue](/coming-from/vue).", kind: .note)
 
-        Callout("Do not key by the index alone. A key of the index moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item.", kind: .warning)
+        DocsCallout("Do not key by the index alone. A key of the index moves with the position, not the item: after an insert every item has another's key, and nothing is kept. Key by what identifies the item.", kind: .warning)
 
         Heading("Long lists", id: "long-lists").h3
 
         Markdown("A list of thousands of rows — a project's files, a search's results, a long diff — belongs inside a **`VirtualList`**. The box scrolls, and only the rows in view and a few either side are drawn; two spacers stand for the rest, so the scrollbar is the whole list's. Its body is one keyed `for`.\n\nThis page windows ten thousand file paths of a fixed height, and a list of search hits whose rows are measured:")
 
-        CodeBlock(#"type Hit { id: String, heading: Bool, text: String }
+        DocsCodeBlock(#"type Hit { id: String, heading: Bool, text: String }
 
 page Search(path: "/", title: "Search", description: "Results, a window at a time.") {
     state rows = (0..10000).map((i) => "src/file{i}.wf")
@@ -96,13 +96,13 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
 
         Markdown("- **`rowHeight:`** says every row is that tall, which is the fast path. Without it, each row is measured once drawn, and **`estimate:`** stands for the rows not yet drawn.\n- **`reveal:`** reads a row's key. When it changes, that row is scrolled into view — the selected file, the current match.\n- **`label:`** is the box's accessible name.\n\nA few rules keep it right:\n\n- Give rows no vertical margins: a row's height is its box's.\n- A tree is a list of the rows that are showing. Flatten it in a `derived` (each open folder followed by its children) and window that.\n- With anything else in its body, or a `for` with no `by`, it draws every row (`V12`).\n- The pre-rendered page paints the first 60 rows, and a list drawn before its box has a height waits for one, so its first frame shows the rows in view.\n\n[`VirtualList`](/reference/virtuallist) lists its props, and the box takes the attributes and handlers any element takes — a `role: \"listbox\"`, an `on keydown`.")
 
-        Callout("The box needs a height that does not come from its rows — `style \{ height: 400px \}`, a `max-height:`, or a grid cell or flex row that sets one. A box as tall as what it holds grows until every row is drawn.", kind: .important)
+        DocsCallout("The box needs a height that does not come from its rows — `style \{ height: 400px \}`, a `max-height:`, or a grid cell or flex row that sets one. A box as tall as what it holds grows until every row is drawn.", kind: .important)
 
         Heading("show", id: "show").h2
 
         Markdown("`show` keeps its elements in the page and toggles whether they are visible; `if` creates and destroys them. Use `show` for something expensive to rebuild, or whose state must survive being hidden. This panel keeps its card in the page while it is hidden:")
 
-        CodeBlock(#"page Panel(path: "/", title: "Panel", description: "A panel hidden, not removed.") {
+        DocsCodeBlock(#"page Panel(path: "/", title: "Panel", description: "A panel hidden, not removed.") {
     state open = true
     Heading("Panel").h1
     Button("Toggle") { on click { open = !open } }
@@ -115,7 +115,7 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
 
         Markdown("`match` shows one arm at a time. Over an **enum** it chooses by case, and a case with a *payload* — values carried by the case — hands them to its arm. This job moves through its cases as the buttons are pressed:")
 
-        CodeBlock(#"enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+        DocsCodeBlock(#"enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
 
 page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
     state s: Status = .idle
@@ -135,7 +135,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
 
         Markdown("`if` and `match` are also values, and `??` picks a fallback for a value that may be null:")
 
-        CodeBlock(#"page Choose(path: "/", title: "Choose", description: "Values picked by a condition.") {
+        DocsCodeBlock(#"page Choose(path: "/", title: "Choose", description: "Values picked by a condition.") {
     state n = 5
     state nick: String? = null
     derived size = if n > 10 { "big" } else { "small" }
@@ -150,7 +150,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
 
         Markdown("The same statements work in an imperative block — a handler or an action — on values rather than elements, plus `try`/`catch`. This action fetches rows, matches the answer, and keeps the first hundred:")
 
-        CodeBlock(#"type Row { id: String, title: String }
+        DocsCodeBlock(#"type Row { id: String, title: String }
 type Rows { items: [Row] }
 
 page Sync(path: "/", title: "Sync", description: "Control flow inside an action.") {
@@ -240,7 +240,7 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
 
         Markdown("**A list used as a condition.** In JavaScript an empty array is truthy too, so `if items` would always pass; WebFluent refuses it:")
 
-        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+        DocsCodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state items: [String] = []
     Heading("Items").h1
     if items { Text("{items.length} items") } else { Text("Nothing yet.") }
@@ -248,7 +248,7 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
 
         Markdown("Say what you mean: `if items.length > 0`. See [T07](/errors/T07).\n\n**A loop with no key over items that hold state.** Each `Input` starts again whenever the list changes, so a field being typed in loses what was typed:")
 
-        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+        DocsCodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = [{ id: 1, name: "Milk" }, { id: 2, name: "Eggs" }]
     Heading("Shopping").h1
     for r in rows { Input(bind: r.name, label: "Item") }
@@ -256,7 +256,7 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
 
         Markdown("Key the loop by what identifies the item: `for r in rows by r.id`. See [U09](/errors/U09).\n\n**A `match` that misses a case.** Adding a case to an enum makes every `match` on it without an `else` incomplete:")
 
-        CodeBlock(#"enum Status { idle, running, failed }
+        DocsCodeBlock(#"enum Status { idle, running, failed }
 
 page P(path: "/", title: "T", description: "D") {
     state s: Status = .idle

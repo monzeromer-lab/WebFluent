@@ -10,6 +10,27 @@ A handle that sets the size of a region beside it: dragged, between min: and max
 Splitter(bind: State, min: Number, max: Number, …)
 ```
 
+## Example
+
+```wf
+state side = 220
+Text("Sidebar: {side}px").muted.sm
+Row {
+    style { height: 180px; border: 1px solid $color-border; border-radius: $radius-md; overflow: hidden }
+    Stack(gap: .xs) {
+        style { width: {side}px; padding: 0.75rem; background: $color-surface }
+        Text("Files").bold
+        Text("App.wf")
+        Text("Home.wf")
+    }
+    Splitter(bind: side, min: 140, max: 400, reset: 220, label: "Sidebar width")
+    Stack {
+        style { flex: 1; padding: 0.75rem }
+        Text("Drag the handle, or focus it and use the arrow keys. Double-click puts it back.")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -27,17 +48,6 @@ Splitter(bind: State, min: Number, max: Number, …)
 `.horizontal` `.reverse`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state side = 240
-Row {
-    Container { style { width: {side}px } Text("Files") }
-    Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
-    Container { Text("Editor") }
-}
-```
 
 ## What it can raise
 

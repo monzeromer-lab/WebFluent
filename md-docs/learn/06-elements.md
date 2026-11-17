@@ -321,7 +321,7 @@ The built-ins fall into these families:
 |---|---|
 | Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
-| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](15-data.md#lists-of-data-a-table-a-tree-a-search)) |
+| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](14-forms.md)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](08-events.md#overlays-modals-dialogs-toasts-and-menus)) |

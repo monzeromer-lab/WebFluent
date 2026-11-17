@@ -10,6 +10,16 @@ A custom element a script defines, placed by its tag: Element("stripe-pricing-ta
 Element(_ tag: String) { … }
 ```
 
+## Example
+
+```wf
+state loaded = false
+Element("stripe-pricing-table", pricingTableId: "prctbl_1Pq", publishableKey: "pk_test_51Hx") {
+    on ready { loaded = true }
+    if !loaded { Text("Loading the prices…").muted }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,13 +31,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Element("relative-time", datetime: "2026-03-14T09:30:00Z") { Text("March 14") }
-Element("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log("prices shown") } }
-```
 
 ## What it can raise
 

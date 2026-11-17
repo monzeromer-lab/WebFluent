@@ -60,7 +60,7 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
                     Text(keyLabel("mod+k"), class: "bp-kbd bp-hide-sm")
                 }
 
-                ThemeToggle
+                SiteThemeToggle
                 LangSwitch(other: other, lang: lang, class: "bp-hide-sm")
 
                 Link(href: REPO, class: "bp-button bp-hide-md", data-tone: "quiet", aria-label: "GitHub") {

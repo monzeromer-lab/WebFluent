@@ -1,8 +1,8 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "ab101f4181d8121a6902c34ee3cec1f2d925ca54bfe0d2d2392480fbcf8c962b",
-    "app.js.gz": "475878fcf324b19fe0e4e00e7ca16ae769bd1eea5ecadb01bf5b3ac92c1184c7",
+    "app.js": "e6dc6df56127b799acd013008b0a62ca03236ae7130e6f8d74dc9c5b99ffd73b",
+    "app.js.gz": "0828691606a6e1547802883225bb4dc42d3f993cf4a4a128923c826b68d1bb14",
     "index.html": "169c70285b2d12692a1b1918022e7acc0ec71bb52d7eda6f3d7807ebfc1707eb",
     "index.html.gz": "3837384e63c1125d6655b97bf8c11b45bd1afc2d385b7a8400c969c39c4ff8b8",
     "pages/Home.css": "02fe616d7bd67dd8886e227a0aca59016ce7b6b9a46407e5adb8c3a955e66644",
@@ -14,7 +14,7 @@
     "pages/Pricing.js": "b5831b59dfa1b94791ca4d7593d13fc40db6496a5fae325655fc2484e50be9fd",
     "pages/Pricing.js.gz": "7c78b691be4da00091baeb20697b9a4f6e887b0016cb836cf6f6c21f7cb10886",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "2fbff9fc65100e94a68b82abe11342603ce05057ff7291ff1e4b63164e9b8993",
-    "styles.css.gz": "b66875280e5989d1d4bda20ddce5b91aaeb6fac12bce25f79255c5e815368473"
+    "styles.css": "e71835d87abc6f1d20dd8cb0d596a5a06edf035fd3fd8e4d07e958f6f2821ffd",
+    "styles.css.gz": "513f02c41c2561fbbedf9accc9e66a64fbce14193330e35e19babc1115fdd234"
   }
 }

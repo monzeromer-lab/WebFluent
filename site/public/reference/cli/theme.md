@@ -17,4 +17,21 @@ wf theme [options]
 | `--dir, -d DIR` | Project directory (default: current directory) |
 | `--json` | Print JSON, for tools |
 
-The [full entry for wf theme](https://webfluent.monzeromer.dev/reference/cli.md#wf-theme) has its examples and the details this page leaves out.
+Shows the theme the build uses, as an editor's theme panel shows it.
+
+```bash
+wf theme
+wf theme --json
+```
+
+It lists every token by group (colour, spacing, font size, line height,
+radius, shadow, transition, font, motion, and the tokens the theme adds)
+with its value, the baseline's value, whether the theme declares or
+inherits it, the dark theme's value when `theme.dark` names one, the
+properties that draw from it, and every place the project names it. It then
+lists the colour pairings the stylesheet composes, with their contrast and
+what WCAG AA asks of each — a pairing that falls short is the `A13` the
+build reports — and the tokens one theme of the dark pair declares and the
+other does not.
+
+See also: [Design tokens](design-tokens.md).

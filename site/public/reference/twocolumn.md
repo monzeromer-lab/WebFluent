@@ -10,22 +10,28 @@ Two equal columns; takes exactly two Container children.
 TwoColumn { … }
 ```
 
-Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Slots
-
-- `children`
-
 ## Example
 
 ```wf
 Presentation {
     TwoColumn {
-        Container { Heading("Wins").h3 }
-        Container { Heading("Risks").h3 }
+        Container {
+            Heading("Before").h2
+            Text("A build took four minutes.")
+        }
+        Container {
+            Heading("After").h2
+            Text("It takes forty seconds.")
+        }
     }
 }
 ```
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
+
+## Slots
+
+- `children`
 
 ## What it can raise
 

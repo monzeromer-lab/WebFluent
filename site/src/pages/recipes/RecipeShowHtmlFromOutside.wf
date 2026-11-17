@@ -22,7 +22,7 @@ page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: S
 }
 "# }) {
         code {
-            CodeBlock(#"type Post { title: String, body: String }
+            DocsCodeBlock(#"type Post { title: String, body: String }
 
 api Backend(base: "/api") {
     get post(slug: String) at "posts/{slug}" -> Post!
@@ -45,7 +45,7 @@ page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: S
         }
         Markdown("- `sanitize(html)` keeps only what an allow-list names: a fixed set of elements and, for each, a fixed set of attributes. It keeps no `<script>`, `<style>`, `<iframe>` or `<form>`, and no `on*` attribute, and every `href` and `src` goes through the same scheme check as every other URL. A dropped element keeps its text.\n- `Unsafe.Html(markup)` puts the result in as markup. The build prints a `V03` at each one, saying whether its markup went through `sanitize`, and `wf audit` lists them all.\n- `sanitize` runs at build time as well as in the browser, from the same allow-list, so a pre-rendered page shows the sanitised body at once.")
 
-        Callout("Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project produced**. Anything that arrived from outside goes through `sanitize`.", kind: .caution)
+        DocsCallout("Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project produced**. Anything that arrived from outside goes through `sanitize`.", kind: .caution)
 
         Markdown("[Security](/about/security#one-door-for-markup) says why markup has one door, and what the allow-list keeps out.")
 

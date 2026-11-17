@@ -8,7 +8,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("This page works out a total from state and shows it. It uses a list literal, a lambda, a method, arithmetic, an `if` expression and a formatted splice:")
 
-        CodeBlock(#"page Basket(path: "/basket", title: "Basket", description: "What the basket holds.") {
+        DocsCodeBlock(#"page Basket(path: "/basket", title: "Basket", description: "What the basket holds.") {
     state prices = [4.5, 12, 3.5]
     state member = true
     derived subtotal = prices.sum()
@@ -24,7 +24,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("A literal writes a value directly. This page declares one of each of the everyday kinds:")
 
-        CodeBlock(#"page Literals(path: "/literals", title: "Literals", description: "One value of each kind.") {
+        DocsCodeBlock(#"page Literals(path: "/literals", title: "Literals", description: "One value of each kind.") {
     state label = "Draft"                         // String
     state count = 42                              // Number
     state ratio = 3.14                            // Number
@@ -41,7 +41,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("How each kind behaves:\n\n- **Strings** are double-quoted and read the escapes `\\n`, `\\t`, `\\r`, `\\\\`, `\\\"`, `\\\{` and `\\\}`. A raw string `#\"…\"#` and a block string `\"\"\"…\"\"\"` are in [Language basics](/learn/04-language-basics#three-ways-to-write-one).\n- **Lists and maps** may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read `owner.name` and refuse a misspelled field.\n- **`null`** is the absence of a value. Only a type that ends in `?` holds it.\n\nThe language's own types have literals too ([Types](/learn/12-types#the-types-the-language-brings-with-it)):")
 
-        CodeBlock(#"page Typed(path: "/typed", title: "Typed", description: "Literals of the built-in types.") {
+        DocsCodeBlock(#"page Typed(path: "/typed", title: "Typed", description: "Literals of the built-in types.") {
     state due: Date = @2026-03-14             // a Date
     state opens: Time = @09:30                // a Time
     state at: DateTime = @2026-03-14T09:30Z   // a DateTime
@@ -56,7 +56,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("`\"\{expr\}\"` puts the value of an expression into a string. Anything that shows text accepts one, and the text follows the state it reads:")
 
-        CodeBlock(#"page Greeting(path: "/greeting", title: "Greeting", description: "Text built from state.") {
+        DocsCodeBlock(#"page Greeting(path: "/greeting", title: "Greeting", description: "Text built from state.") {
     state name = "Sam"
     state count = 3
     derived noun = if count == 1 { "item" } else { "items" }
@@ -72,7 +72,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("A splice may say how to show its value: `\{value:.style\}`, or `\{value:.style(option)\}`. It is `format(value, .style, option)` written where the value is read.")
 
-        CodeBlock(#"page Receipt(path: "/receipt", title: "Receipt", description: "An order, formatted.") {
+        DocsCodeBlock(#"page Receipt(path: "/receipt", title: "Receipt", description: "An order, formatted.") {
     state total = 1234.5
     state count = 1235
     state shipped = "2026-03-05T10:00:00Z"
@@ -86,7 +86,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("The styles and their options are those of `format`, listed under [`format` and `ago`](#format-and-ago). The value is an expression like any other, so `\{order.total:.currency\}` and `\{rows.sum():.compact\}` both work.")
 
-        Callout("A splice must open with a name, a `(` or a `[`, so `\"\{0.256:.percent\}\"` shows as written. Give the number a name first — `derived ratio = 0.256`, then `\{ratio:.percent\}` — or wrap it: `\{(0.256):.percent\}`.", kind: .warning)
+        DocsCallout("A splice must open with a name, a `(` or a `[`, so `\"\{0.256:.percent\}\"` shows as written. Give the number a name first — `derived ratio = 0.256`, then `\{ratio:.percent\}` — or wrap it: `\{(0.256):.percent\}`.", kind: .warning)
 
         Heading("Operators", id: "operators").h2
 
@@ -133,7 +133,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("This page uses most of them:")
 
-        CodeBlock(#"type Player { name: String }
+        DocsCodeBlock(#"type Player { name: String }
 
 page Scores(path: "/scores", title: "Scores", description: "Two numbers compared.") {
     state home = 7
@@ -152,7 +152,7 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
 
         Markdown("Every expression has one type the program can name, and the checker holds each place to it:\n\n- **A condition is a `Bool`.** `if`, `show`, `!`, `&&` and `||` read a `Bool`; `if count \{ … \}` is a `T29`, whose fix writes `if count != 0`.\n- **A value made of several has one type.** The branches of an `if` or a `match`, the items of a list and the two sides of `??` must agree: `if ok \{ 1 \} else \{ \"none\" \}` is a `T27`. `null` on one side makes the value `T?`.\n- **No conversion happens by itself.** A `Date`, `Time` or `DateTime` where a `String` is wanted is a `T34`, because it has more than one spelling: `Text(due)` becomes `Text(\"\{due\}\")` or `Text(\"\{due:.date(long)\}\")`. A `Duration` and a `Number` do not mix either: `3.seconds + 500` is a `T34`, and `3.seconds + 500.ms` adds.")
 
-        CodeBlock(#"page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.") {
+        DocsCodeBlock(#"page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.") {
     state count = 0
     Heading("Cart").h1
     if count { Text("{count} items") }
@@ -166,7 +166,7 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
 
         Markdown("`if` and `match` are expressions when they stand where a value is expected. Each arm's block is its value:")
 
-        CodeBlock(#"enum Level { low, mid, high }
+        DocsCodeBlock(#"enum Level { low, mid, high }
 
 page Grades(path: "/grades", title: "Grades", description: "A score, graded.") {
     state score = 72
@@ -184,7 +184,7 @@ page Grades(path: "/grades", title: "Grades", description: "A score, graded.") {
 
         Markdown("A field is read with `.`, an item with `[i]`, and a method is called with `.name(…)`. This page filters, maps and joins a list of records:")
 
-        CodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
+        DocsCodeBlock(#"type Todo { id: String, title: String, done: Bool = false }
 
 page Todos(path: "/todos", title: "Todos", description: "A list, filtered and joined.") {
     state todos: [Todo] = [Todo(id: "1", title: "milk"), Todo(id: "2", title: "eggs", done: true)]
@@ -217,7 +217,7 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 
         Markdown("`format(value, .style, option)` writes a number, a date or money as text in the reader's locale. The locale is the i18n locale when the project has one, and the document's language otherwise. This page shows each style:")
 
-        CodeBlock(#"page Formats(path: "/formats", title: "Formats", description: "Every style of format.") {
+        DocsCodeBlock(#"page Formats(path: "/formats", title: "Formats", description: "Every style of format.") {
     state price = 1234.5
     state ratio = 0.256
     state visitors = 1200000
@@ -299,7 +299,7 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 
         Markdown("`/…/flags` is a regular expression. This page checks an address as the reader types it:")
 
-        CodeBlock(#"page Signup(path: "/signup", title: "Sign up", description: "An address, checked as it is typed.") {
+        DocsCodeBlock(#"page Signup(path: "/signup", title: "Sign up", description: "An address, checked as it is typed.") {
     state email = ""
     derived valid = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)
     derived domain = email.split("@").last() ?? ""
@@ -315,7 +315,7 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 
         Markdown("`$name` names a design token from the theme ([Styling](/learn/13-styling)). In a style it becomes the token's CSS variable. As a value it is a reference to that variable, so a prop or a state that takes a colour takes a token:")
 
-        CodeBlock(#"page Callout(path: "/callout", title: "Callout", description: "A border coloured by a token.") {
+        DocsCodeBlock(#"page Callout(path: "/callout", title: "Callout", description: "A border coloured by a token.") {
     state accent = $primary
     Heading("Callout").h1
     Card {
@@ -330,7 +330,7 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 
         Markdown("`await` waits for a promise inside an action or a handler, and makes the action asynchronous. While a call of it runs, `name.pending` is `true`:")
 
-        CodeBlock(#"type Row { id: String }
+        DocsCodeBlock(#"type Row { id: String }
 type Note { text: String }
 
 page Report(path: "/report", title: "Report", description: "Rows loaded on request.") {
@@ -352,7 +352,7 @@ page Report(path: "/report", title: "Report", description: "Rows loaded on reque
 
         Markdown("`const` declares a value for the whole project. Every page, component and store reads it by name, and the build inlines it into the bundle:")
 
-        CodeBlock(#"const MAX_ROWS = 50
+        DocsCodeBlock(#"const MAX_ROWS = 50
 const PAGE_SIZE: Number = 20
 const API = env.PUBLIC_API_URL
 
@@ -363,7 +363,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
 
         Markdown("A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an `X01`. `env.NAME` reads a value fixed at build time — from the config's `env` map, a `.env` file or the shell — and `env` holds exactly the names the build knows, so one nothing sets is a `T05`:")
 
-        CodeBlock(#"{ "env": { "PUBLIC_API_URL": "/api" } }"#, title: "json")
+        DocsCodeBlock(#"{ "env": { "PUBLIC_API_URL": "/api" } }"#, title: "json")
 
         Markdown(" A page may read only a public name, one that begins `PUBLIC_` or that `public_env` lists; [Environments and secrets](/recipes/environments-and-secrets) has the rules.")
 

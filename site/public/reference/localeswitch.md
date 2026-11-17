@@ -10,6 +10,15 @@ One button for each of i18n.locales, each written in its own language (English, 
 LocaleSwitch(label: String)
 ```
 
+## Example
+
+```wf
+Row(gap: .sm, align: .center, justify: .between) {
+    Text("Language").bold
+    LocaleSwitch(label: "Language")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -17,12 +26,6 @@ LocaleSwitch(label: String)
 | `label:` | `String` | The group's name for a screen reader; unset, `Language` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-LocaleSwitch(label: "Language")
-```
 
 ## What it can raise
 

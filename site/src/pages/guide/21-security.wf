@@ -20,7 +20,7 @@ page AboutSecurity(path: "/about/security", title: "Security", description: "Wha
 
         Markdown("`persist` writes to `localStorage` or `sessionStorage`. **Neither is a place for a session token.** Any script that reaches your page can read both, and that is the whole payload of a cross-site scripting bug: without a readable token the bug is a defacement; with one it is an account takeover.\n\nA session belongs in an **httpOnly cookie** the server sets, and each of its flags closes one door:\n\n- `HttpOnly` puts the cookie out of reach of every script, including yours.\n- `SameSite=Lax` stops another site's form from riding on it.\n- `Secure` keeps it off plaintext connections.\n\nThe browser sends the cookie with each request, so the page needs no token at all: an `api` with `credentials: .sameOrigin` sends it with every call. [Sign in with a session cookie](/recipes/sign-in-with-a-session-cookie) builds the whole flow, including what to forget when the reader signs out.\n\nA write kept for later by `offline.sync` is stored without its credential: the `api`'s middleware (`bearer(…)`) adds it again when the write is sent, and a call that carries its own credential header is not kept at all.\n\nA page *may* keep what a page may show: a display name, a theme, a preference. If a value would matter to someone who stole it, it belongs behind a request.\n\nThe compiler enforces the part it can. Declare a token as a `Secret`, and keeping it with `persist` is a `T12`:")
 
-        CodeBlock(#"page Account(path: "/", title: "Account", description: "Your account.") {
+        DocsCodeBlock(#"page Account(path: "/", title: "Account", description: "Your account.") {
     persist _token: Secret = ""
     Heading("Account").h1
 }"#, title: "wf · draws T12")

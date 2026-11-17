@@ -49,7 +49,7 @@ function showSales(chart, values) {
 "# }) {
         code {
             Markdown("**Needs:** the script `src/sales-chart.js` and the `meta.scripts` setting, both shown below.")
-            CodeBlock(#"page Sales(path: "/sales", title: "Sales", description: "Sales by quarter, as a bar chart.") {
+            DocsCodeBlock(#"page Sales(path: "/sales", title: "Sales", description: "Sales by quarter, as a bar chart.") {
     state lastYear = false
     derived values: [Number] = if lastYear { [9, 14, 11, 13] } else { [12, 19, 7, 15] }
 
@@ -61,7 +61,7 @@ function showSales(chart, values) {
          cleanup: (chart) => chart.destroy())
 }"#, title: "wf")
             Markdown("The page calls two functions of a plain script under `src/`, typed with JSDoc:")
-            CodeBlock(#"// src/sales-chart.js
+            DocsCodeBlock(#"// src/sales-chart.js
 /**
  * A bar chart of `values`, one bar a quarter, drawn on `canvas`.
  * @param {HTMLCanvasElement} canvas
@@ -88,7 +88,7 @@ function showSales(chart, values) {
   chart.update();
 }"#, title: "js")
             Markdown("The library itself loads from a CDN, through `meta.scripts` in `webfluent.app.json`:")
-            CodeBlock(#"{ "meta": {
+            DocsCodeBlock(#"{ "meta": {
     "scripts": ["https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"]
 } }"#, title: "json")
         }

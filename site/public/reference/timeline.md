@@ -10,6 +10,22 @@ Events in order (<ol>), each a dot on a line, its title, its time and its block.
 Timeline { … }
 ```
 
+## Example
+
+```wf
+Timeline {
+    Timeline.Item("7.0 released", at: @2026-11-10) {
+        Text("Typed requests, results and error enums.")
+    }
+    Timeline.Item("6.1 released", at: @2026-09-02) {
+        Text("Charts and QR codes on a web page.")
+    }
+    Timeline.Item("Public beta", at: @2026-06-15) {
+        Text("The first hundred projects moved over.").muted
+    }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,17 +34,26 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Timeline.Timeline.Item`
-- `Timeline.Timeline.Time`
+Written under its name, inside `Timeline`.
 
-## Example
+### Timeline.Item
+
+One event: its title, at: its time, and its block.
 
 ```wf
-Timeline {
-    Timeline.Item("Released", at: "2026-11-14") { Text("Version 6.1") }
-    Timeline.Item("Planned") { Text("Version 7") }
-}
+Timeline.Item(_ title: String, at: Date or DateTime or String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | What happened |
+| `at:` | `Date or DateTime or String` | When: a `Date`, a `DateTime` or an ISO string, written as a date |
+
+## Drawn for it
+
+What `Timeline` draws itself, by its class; not written.
+
+- `Timeline.Time` (`.`): An event's time (<time>).
 
 ## What it can raise
 

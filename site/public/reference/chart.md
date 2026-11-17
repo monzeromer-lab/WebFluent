@@ -10,6 +10,17 @@ A chart drawn as vector graphics when the page is built: bars, lines, areas, a p
 Chart(kind: Enum, data: [Json], x: String, …)
 ```
 
+## Example
+
+```wf
+Chart(kind: .bar, data: [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+    { month: "Mar", web: 56, store: 24 },
+    { month: "Apr", web: 61, store: 30 },
+], x: "month", y: ["web", "store"], unit: "k").legend
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -33,12 +44,6 @@ Chart(kind: Enum, data: [Json], x: String, …)
 `.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
-```
 
 ## What it can raise
 

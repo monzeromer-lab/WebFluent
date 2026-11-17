@@ -10,6 +10,29 @@ Groups controls; on submit runs when it is submitted, and the page never navigat
 Form(bind: State, show: Enum) { … }
 ```
 
+## Example
+
+```wf
+state email = ""
+state password = ""
+state sent = ""
+validate email {
+    required "Enter your email"
+    email "That is not an email address"
+}
+validate password {
+    required
+    minLength(8) "Use at least 8 characters"
+}
+Form(bind: form, show: .onBlur) {
+    on submit { sent = "Signed in as {email}" }
+    Input(bind: email, label: "Email").email
+    Input(bind: password, label: "Password").password
+    Button("Sign in", type: .submit, disabled: !form.valid).primary
+}
+Text(if sent == "" { "Not signed in yet." } else { sent }).muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -33,17 +56,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-state name = ""
-Form(bind: form) {
-    on submit { log(name) }
-    Input(bind: name, label: "Name").required
-    Button("Save", type: .submit, disabled: !form.valid).primary
-}
-```
 
 ## What it can raise
 

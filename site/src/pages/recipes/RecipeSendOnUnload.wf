@@ -18,7 +18,7 @@ page RecipeSendOnUnload(path: "/recipes/send-on-unload", title: "Send a message 
 }
 "# }) {
         code {
-            CodeBlock(#"page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
+            DocsCodeBlock(#"page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
     state paid = false
 
     on visibilitychange {
@@ -37,7 +37,7 @@ page RecipeSendOnUnload(path: "/recipes/send-on-unload", title: "Send a message 
 
         Markdown("To record a step the reader takes, send the beacon from the handler. The request still arrives if the click also takes the reader away:")
 
-        CodeBlock(#"page Pay(path: "/pay", title: "Pay", description: "Pay for the order.") {
+        DocsCodeBlock(#"page Pay(path: "/pay", title: "Pay", description: "Pay for the order.") {
     Heading("Pay").h1
     Button("Pay").primary { on click { beacon("/analytics", { event: "checkout", value: 42 }) } }
 }"#, title: "wf")

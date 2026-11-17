@@ -26,7 +26,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card 
 }
 "# }) {
         code {
-            CodeBlock(#"// Your publishable key, from the Stripe dashboard.
+            DocsCodeBlock(#"// Your publishable key, from the Stripe dashboard.
 const STRIPE_KEY = "pk_test_123"
 
 page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card that leans.") {
@@ -35,7 +35,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card 
     Element("stripe-pricing-table", publishableKey: STRIPE_KEY)
 }"#, title: "wf")
             Markdown("The function it calls is the old local module, now a plain script under `src/`, its `export` taken off and the declaration's signature written above it as JSDoc:")
-            CodeBlock(#"// src/vendor/tilt.js
+            DocsCodeBlock(#"// src/vendor/tilt.js
 /**
  * @param {HTMLElement} node
  * @param {number} max
@@ -48,7 +48,7 @@ function initTilt(node, max) {
   });
 }"#, title: "js")
             Markdown("This is the same page as WebFluent 4.1 wrote it, with the module in `public/vendor/tilt.js`. It is not compiled here, because 4.2 refuses `external`:")
-            CodeBlock(#"external Tilt from "./vendor/tilt.js" {
+            DocsCodeBlock(#"external Tilt from "./vendor/tilt.js" {
     fn initTilt(node: Any, max: Number)
 }
 

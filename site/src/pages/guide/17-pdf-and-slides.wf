@@ -15,7 +15,7 @@ page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slide
 
         Markdown("Then run `wf build` in the project's folder. The build prints the page count and writes one file, `build/<name>.pdf`, named after the project unless `output_filename` says otherwise:")
 
-        CodeBlock(#"  PDF: 45763 bytes, 3 page(s)
+        DocsCodeBlock(#"  PDF: 45763 bytes, 3 page(s)
   Output: ./build/my-report.pdf
 Build complete."#, title: "text")
 
@@ -65,7 +65,7 @@ Build complete."#, title: "text")
 
         Markdown("To build a PDF, set `output_type` to `pdf`. The `pdf` key sets the paper, margins (in points) and default font for every document in the project:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "build": {
     "output_type": "pdf",
     "pdf": {
@@ -80,7 +80,7 @@ Build complete."#, title: "text")
 
         Markdown("A PDF page holds a `Document`, and everything inside it flows from page to page. This invoice has a header on every page but the first, a page number in the footer, a watermark, a table, and a totals card that is never split:")
 
-        CodeBlock(#"type Line { item: String, qty: Number, price: Number }
+        DocsCodeBlock(#"type Line { item: String, qty: Number, price: Number }
 
 const LINES: [Line] = [
     Line(item: "Design", qty: 12, price: 90),
@@ -128,7 +128,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 
         Markdown("The result is a two-page PDF: the invoice on the first page, ending with `Total: $5,480.00`, and the terms on the second, under the header.")
 
-        Callout("**Coming from LaTeX or Typst?** There is no document class and there are no TeX boxes: a document is laid out by CSS. `\\newpage` is `PageBreak`, a `minipage` that must not split is `style \{ break-inside: avoid \}`, and `fancyhdr` is a `Header` and a `Footer`. See [Coming from LaTeX and Typst](/coming-from/latex).", kind: .note)
+        DocsCallout("**Coming from LaTeX or Typst?** There is no document class and there are no TeX boxes: a document is laid out by CSS. `\\newpage` is `PageBreak`, a `minipage` that must not split is `style \{ break-inside: avoid \}`, and `fancyhdr` is a `Header` and a `Footer`. See [Coming from LaTeX and Typst](/coming-from/latex).", kind: .note)
 
         Heading("Set the paper, headers and footers", id: "set-the-paper-headers-and-footers").h3
 
@@ -179,7 +179,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 
         Markdown("This report draws a grouped bar chart, a donut chart and a QR code from a constant list of records:")
 
-        CodeBlock(#"const SALES = [
+        DocsCodeBlock(#"const SALES = [
     { month: "Jan", web: 41, store: 22 },
     { month: "Feb", web: 48, store: 25 },
     { month: "Mar", web: 55, store: 21 },
@@ -257,7 +257,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
         Markdown("To build a deck, set `output_type` to `slides`. The `slides` key sets the deck's size and its chrome:")
 
-        CodeBlock(##"{
+        DocsCodeBlock(##"{
   "build": {
     "output_type": "slides",
     "slides": {
@@ -271,7 +271,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
         Markdown("A deck is a `Presentation` inside a page. This deck uses every kind of slide, and restyles the last one with a gradient:")
 
-        CodeBlock(#"page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
+        DocsCodeBlock(#"page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") {
     Presentation {
         TitleSlide("Q4 review", subtitle: "Acme Studio, October 2026")
         SectionSlide("Numbers").primary
@@ -428,7 +428,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
         Markdown("**A page number outside a header or footer.** `page` and `pages` exist only inside a `Header`, a `Footer` or a `Background`, which are drawn once per page:")
 
-        CodeBlock(#"page Report(path: "/", title: "Report", description: "The quarter.") {
+        DocsCodeBlock(#"page Report(path: "/", title: "Report", description: "The quarter.") {
     Document(size: "A4", title: "Q1 report") {
         Heading("Q1 report").h1
         Text("Revenue grew 15% this quarter.")
@@ -438,7 +438,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
         Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already a built-in: the document's footer, drawn at the bottom of every page. A component you name `Footer` takes its place, so it is drawn once, where it is called, and no page gets a footer:")
 
-        CodeBlock(#"component Footer(_ note: String) {
+        DocsCodeBlock(#"component Footer(_ note: String) {
     Text(note).muted.sm.center
 }
 
@@ -452,7 +452,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 
         Markdown("For a line on every page, use the built-in: `Footer \{ Text(\"Acme Studio · invoice 2026-014\") \}`, and name your own component for what it is, such as `component InvoiceNote` ([V11](/errors/V11)).\n\n**A table with no header row.** Without `Table.Head`, a reader of the file has no column names, and a table that runs onto a second page has no header to draw again there:")
 
-        CodeBlock(#"page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+        DocsCodeBlock(#"page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
     Document(size: "A4", title: "Invoice 2026-014") {
         Heading("Invoice").h1
         Table {

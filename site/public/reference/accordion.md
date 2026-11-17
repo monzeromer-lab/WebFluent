@@ -10,6 +10,23 @@ Sections a reader opens one by one, each a native <details>: Accordion.Item("Shi
 Accordion(single: Bool) { … }
 ```
 
+## Example
+
+```wf
+Accordion.single {
+    Accordion.Item("How long does shipping take?") {
+        Text("Two to four working days in the EU, a week elsewhere.")
+    }
+    Accordion.Item("Can I return an order?", open: true) {
+        Text("Within thirty days, unused and in its box.")
+        Link("Start a return", to: "/learn")
+    }
+    Accordion.Item("Do you ship abroad?") {
+        Text("To 40 countries; the checkout lists them.")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -28,18 +45,30 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Accordion.Accordion.Item`
-- `Accordion.Accordion.Summary`
-- `Accordion.Accordion.Panel`
+Written under its name, inside `Accordion`.
 
-## Example
+### Accordion.Item
+
+One section: its title is what a reader presses, its block what opens.
 
 ```wf
-Accordion.single {
-    Accordion.Item("Shipping") { Text("Two to four days.") }
-    Accordion.Item("Returns", open: true) { Text("Thirty days.") }
-}
+Accordion.Item(_ title: String, open: Bool, name: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | What a reader presses |
+| `open:` | `Bool` | Open when it is drawn |
+| `name:` | `String` | Items of one name open one at a time: what `.single` writes |
+
+Flags: `.open`
+
+## Drawn for it
+
+What `Accordion` draws itself, by its class; not written.
+
+- `Accordion.Summary` (`.`): What a reader presses to open an item: its title.
+- `Accordion.Panel` (`.`): What opens: the item's block.
 
 ## What it can raise
 

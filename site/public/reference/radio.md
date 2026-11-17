@@ -10,6 +10,18 @@ One choice of a group; every radio bound to the same state is one group.
 Radio(bind: State, value: String or Number or Bool, checked: Bool, …)
 ```
 
+## Example
+
+```wf
+state shipping = "standard"
+Stack(gap: .sm) {
+    Radio(bind: shipping, value: "standard", label: "Standard — 5 to 7 days, free")
+    Radio(bind: shipping, value: "express", label: "Express — 2 days, $9")
+    Radio(bind: shipping, value: "overnight", label: "Overnight — $24")
+    Text("Chosen: {shipping}").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -31,14 +43,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on change`: The value was committed
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state size = "m"
-Radio(bind: size, value: "s", label: "Small")
-Radio(bind: size, value: "m", label: "Medium")
-```
 
 ## What it can raise
 

@@ -10,6 +10,23 @@ A question beside the button in its block before what it does: the button opens 
 Popconfirm(title: String, yes: String, no: String, …) { … }
 ```
 
+## Example
+
+```wf
+state files = ["notes.md", "draft.md", "todo.md"]
+Stack(gap: .sm) {
+    for f in files by f {
+        Row(gap: .sm, align: .center, justify: .between) {
+            Text(f)
+            Popconfirm(title: "Delete {f}?", yes: "Delete", no: "Keep").danger {
+                on confirm { files = files.filter(x => x != f) }
+                Button("Delete").sm.outlined
+            }
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -33,17 +50,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-state said = ""
-Popconfirm(title: "Delete this file?", yes: "Delete").danger {
-    on confirm { said = "deleted" }
-    Button("Delete")
-}
-Text(said)
-```
 
 ## What it can raise
 

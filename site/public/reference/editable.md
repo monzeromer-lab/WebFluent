@@ -10,6 +10,14 @@ Text that turns into a field when pressed: Enter or leaving keeps what was typed
 Editable(bind: State, label: String, placeholder: String)
 ```
 
+## Example
+
+```wf
+state project = "Quarterly report"
+Editable(bind: project, label: "Project name", placeholder: "Name the project")
+Text("Saved as “{project}”").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,13 +27,6 @@ Editable(bind: State, label: String, placeholder: String)
 | `placeholder:` | `String` | Shown while it is empty |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state title = "Untitled"
-Editable(bind: title, label: "Project name")
-```
 
 ## What it can raise
 

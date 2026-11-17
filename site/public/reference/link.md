@@ -10,6 +10,20 @@ Client-side navigation link; its label or its block is the link text.
 Link(_ label: String, to: Path, active: Enum) { … }
 ```
 
+## Example
+
+```wf
+Stack(gap: .sm) {
+    Link("Start the guide", to: "/learn")
+    Link("Every component", to: "/reference", active: .prefix)
+    Link(to: "/recipes") {
+        Icon("book")
+        Text("Recipes for common screens")
+    }
+    Link("The source on GitHub", to: "https://github.com/webfluent/webfluent", target: "_blank")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -33,14 +47,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Link("About us", to: "/about")
-Link("Guide", to: "/docs", active: .prefix)
-Link(to: "https://example.com", target: "_blank") { Text("Example") }
-```
 
 ## What it can raise
 

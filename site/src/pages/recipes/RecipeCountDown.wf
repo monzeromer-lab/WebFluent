@@ -14,7 +14,7 @@ page RecipeCountDown(path: "/recipes/count-down", title: "Count down — Recipes
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
+            DocsCodeBlock(#"page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
     state left = 10
     every(1000) { if left > 0 { left = left - 1 } }
     Heading("Countdown").h1

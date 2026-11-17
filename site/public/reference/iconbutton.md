@@ -10,6 +10,19 @@ Icon-only button. label is its accessible name, never visible text.
 IconButton(icon: String, label: String, size: Enum, …) { … }
 ```
 
+## Example
+
+```wf
+state stars = 0
+Row(gap: .sm, align: .center) {
+    IconButton(icon: "star", label: "Star this project").primary { on click { stars = stars + 1 } }
+    IconButton(icon: "edit", label: "Edit")
+    IconButton(icon: "copy", label: "Copy link")
+    IconButton(icon: "trash", label: "Delete").danger
+    Text("{stars} stars").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -36,13 +49,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-IconButton(icon: "close", label: "Close")
-IconButton(icon: "edit", label: "Edit the title").primary.sm
-```
 
 ## What it can raise
 

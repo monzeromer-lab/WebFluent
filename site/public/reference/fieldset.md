@@ -10,6 +10,22 @@ Controls that belong together — an address, a choice of plan — under a legen
 Fieldset(legend: String) { … }
 ```
 
+## Example
+
+```wf
+state street = ""
+state city = ""
+state postcode = ""
+Fieldset(legend: "Shipping address") {
+    Input(bind: street, label: "Street")
+    Row(gap: .md) {
+        Input(bind: city, label: "City")
+        Input(bind: postcode, label: "Postcode")
+    }
+}
+Text("{street}, {postcode} {city}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,20 +38,11 @@ Every element also takes the props, events and attribute families listed [on eve
 
 - `children`
 
-## Parts
+## Drawn for it
 
-- `Fieldset.Fieldset.Legend`
+What `Fieldset` draws itself, by its class; not written.
 
-## Example
-
-```wf
-state street = ""
-state city = ""
-Fieldset(legend: "Address") {
-    Input(bind: street, label: "Street")
-    Input(bind: city, label: "City")
-}
-```
+- `Fieldset.Legend` (`.`): Its legend.
 
 ## What it can raise
 

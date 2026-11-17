@@ -8,7 +8,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Markdown("You declare a state at the top of a page, component or store body, with an initial value. This counter shows the whole idea — one state, a text that reads it, and a button that writes it:")
 
-        CodeBlock(#"page Counter(path: "/", title: "Counter", description: "A state, read and written.") {
+        DocsCodeBlock(#"page Counter(path: "/", title: "Counter", description: "A state, read and written.") {
     state count = 0                  // inferred: Number
     state name: String = "Sam"       // declared
     state items: [String] = []       // a list of strings
@@ -22,7 +22,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Markdown("Each click sets `count`, and only the `Text` that reads it changes.")
 
-        Callout("**Coming from React?** `useState` returns a value and a setter, and a change runs the whole component again. A `state` is assigned directly, `count = count + 1`, and the body never runs again: only what reads `count` updates. A value that should follow a prop or a state is a `derived`. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
+        DocsCallout("**Coming from React?** `useState` returns a value and a setter, and a change runs the whole component again. A `state` is assigned directly, `count = count + 1`, and the body never runs again: only what reads `count` updates. A value that should follow a prop or a state is a `derived`. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
 
         Markdown("The type of a state is read off its initial value, or written after a colon. [Types](/learn/12-types) has the type language. Assigning a value of another type is an error (`T01`).\n\nYou write state only in an imperative block — a handler, an action or an effect. You can:\n\n- assign it: `count = count + 1`\n- change a place inside it: `user.name = \"Ann\"`, `items[0] = \"Pen\"`\n- call a method that changes it: `items.push(\"Pen\")`, `items.sort()`\n\nA change inside a value gives the state a new copy with that place changed, so everything that reads it repaints, and a `persist` value is written.\n\nThe *static paint* — the HTML the build pre-renders for a page — seeds every state with its initial value, so a pre-rendered page shows what the first paint in the browser would.")
 
@@ -30,7 +30,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Markdown("A derived value is computed from state, and computed again when any state it read changes. This cart works out its subtotal, total and whether it is empty:")
 
-        CodeBlock(#"page Cart(path: "/", title: "Cart", description: "Totals worked out from state.") {
+        DocsCodeBlock(#"page Cart(path: "/", title: "Cart", description: "Totals worked out from state.") {
     state items = [{ name: "Pen", price: 2.5, qty: 4 }, { name: "Pad", price: 6, qty: 1 }]
     state taxRate = 0.2
     derived subtotal = items.reduce((sum, i) => sum + i.price * i.qty, 0)
@@ -49,7 +49,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Markdown("An effect runs once, then again whenever a state it read changes. Its `cleanup \{ \}` block runs before the next run, and when the page — or the branch the effect lives in — leaves:")
 
-        CodeBlock(#"page Watch(path: "/", title: "Watch", description: "Effects that follow a search.") {
+        DocsCodeBlock(#"page Watch(path: "/", title: "Watch", description: "Effects that follow a search.") {
     state search = ""
     effect {
         log("search is now {search}")
@@ -64,13 +64,13 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Markdown("Use an effect for the world outside the page: the document title, a third-party widget, a subscription. Keep computation in `derived`.")
 
-        Callout("An effect that writes what it reads — `effect \{ n = n + 1 \}` — starts its own next run and never settles. The compiler refuses it (`X02`). Compute the value with `derived` instead.", kind: .warning)
+        DocsCallout("An effect that writes what it reads — `effect \{ n = n + 1 \}` — starts its own next run and never settles. The compiler refuses it (`X02`). Compute the value with `derived` instead.", kind: .warning)
 
         Heading("Actions and locals", id: "actions-and-locals").h2
 
         Markdown("An action is a named function of a page, component or store. Its body is an imperative block: assignments, `let` locals, calls, `if`, `for`, `try`, `return` and `await`. This to-do list adds, removes and loads items with three actions:")
 
-        CodeBlock(#"type TodoList { todos: [String] }
+        DocsCodeBlock(#"type TodoList { todos: [String] }
 
 page Todos(path: "/", title: "To-dos", description: "Actions that change a list.") {
     state items: [String] = []
@@ -106,7 +106,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("`persist` declares a state kept in the browser's storage across visits. It is read back on the next visit and written on every change. These two preferences survive a reload:")
 
-        CodeBlock(#"page Prefs(path: "/", title: "Preferences", description: "Settings kept across visits.") {
+        DocsCodeBlock(#"page Prefs(path: "/", title: "Preferences", description: "Settings kept across visits.") {
     persist scheme = "light"
     persist perPage = 20
     Heading("Preferences").h1
@@ -123,7 +123,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("`every(ms) \{ \}` repeats, and `after(ms) \{ \}` fires once. The interval is a number of milliseconds or a duration: `every(5.seconds)`, `after(2.minutes)`. This page counts the seconds it has been open and hides a welcome message after three:")
 
-        CodeBlock(#"page Clock(path: "/", title: "Clock", description: "A timer and a one-off delay.") {
+        DocsCodeBlock(#"page Clock(path: "/", title: "Clock", description: "A timer and a one-off delay.") {
     state seconds = 0
     state toast: String? = "Welcome"
     every(1000) { seconds = seconds + 1 }
@@ -143,7 +143,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("`ref: name` on an element gives you a *handle*: a name that reads as the element itself. Here a button and the `/` key both put the cursor in the search box:")
 
-        CodeBlock(#"page Search(path: "/", title: "Search", description: "A handle on an input.") {
+        DocsCodeBlock(#"page Search(path: "/", title: "Search", description: "A handle on an input.") {
     state q = ""
     Heading("Search").h1
     Input(bind: q, ref: box, placeholder: "Search")
@@ -212,7 +212,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("This page reads four of them:")
 
-        CodeBlock(#"page Where(path: "/", title: "Where", description: "The browser, read as values.") {
+        DocsCodeBlock(#"page Where(path: "/", title: "Where", description: "The browser, read as values.") {
     Heading("Where am I?").h1
     Text(if viewport.md { "A wide window" } else { "A narrow window" })
     derived tab = query.tab ?? "all"
@@ -312,7 +312,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("**A state that copies `now` once.** A `state` takes its initial value when the page opens and keeps it, so a clock or an \"… ago\" worked out from it never moves:")
 
-        CodeBlock(#"page Feed(path: "/", title: "Feed", description: "When this was posted.") {
+        DocsCodeBlock(#"page Feed(path: "/", title: "Feed", description: "When this was posted.") {
     state posted = @2026-03-14T09:30:00Z
     state clock = now(every: 1.seconds)
     Heading("Feed").h1
@@ -321,7 +321,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("Declare it `derived clock = now(every: 1.seconds)`. The same holds for `viewport`, `query`, `hash`, `theme`, `network` and `update` ([X06](/errors/X06)).\n\n**An effect that writes what it reads.** Each run changes `visits`, which starts the next run, so the page never settles:")
 
-        CodeBlock(#"page Visits(path: "/", title: "Visits", description: "A count that runs away.") {
+        DocsCodeBlock(#"page Visits(path: "/", title: "Visits", description: "A count that runs away.") {
     state visits = 0
     effect { visits = visits + 1 }
     Heading("Visits").h1
@@ -330,7 +330,7 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
         Markdown("Change the state in a handler or an action, or work the value out with `derived` ([X02](/errors/X02)).\n\n**Assigning a derived value.** A `derived` is worked out from what it reads, so nothing may set it:")
 
-        CodeBlock(#"page Cart(path: "/", title: "Cart", description: "A total you cannot set.") {
+        DocsCodeBlock(#"page Cart(path: "/", title: "Cart", description: "A total you cannot set.") {
     state items = [2.5, 6]
     derived total = items.sum()
     Heading("Cart").h1

@@ -10,6 +10,22 @@ Rows of records with their columns declared once: a column sorts when it is .sor
 DataTable(rows: [Item], key: (Item) -> String or (Item) -> Number, bind: State, …) { … }
 ```
 
+## Example
+
+```wf
+state deploys = [{ id: "d1", service: "checkout", region: "fra1", minutes: 4, status: "Live" }, { id: "d2", service: "search", region: "iad1", minutes: 11, status: "Failed" }, { id: "d3", service: "accounts", region: "sin1", minutes: 7, status: "Live" }]
+state chosen: [String] = []
+DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
+    DataTable.Column("Service", value: d => d.service).sortable
+    DataTable.Column("Region", value: d => d.region)
+    DataTable.Column("Minutes", value: d => d.minutes).sortable
+    DataTable.Column("Status") {
+        cell(d) { Badge(d.status, tone: if d.status == "Live" { .success } else { .danger }) }
+    }
+}
+Text("{chosen.length} chosen").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -34,19 +50,23 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `DataTable.DataTable.Column`
+Written under its name, inside `DataTable`.
 
-## Example
+### DataTable.Column
+
+One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.
 
 ```wf
-state deploys = [{ id: "1", service: "web", status: "live" }, { id: "2", service: "api", status: "failed" }]
-state chosen: [String] = []
-DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
-    empty { EmptyState(icon: "list", title: "No deploys yet") }
-    DataTable.Column("Service", value: d => d.service).sortable
-    DataTable.Column("Status") { cell(d) { Badge(d.status) } }
-}
+DataTable.Column(_ title: String, value: (Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money, sortable: Bool)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | Its header |
+| `value:` | `(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money` | What the column holds for a row: `r => r.service` |
+| `sortable:` | `Bool` | Its header sorts the rows by its `value:` |
+
+Flags: `.sortable`
 
 ## What it can raise
 

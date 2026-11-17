@@ -10,6 +10,17 @@ A label, a hint and an error around a control of your own: the first control in 
 Field(label: String, hint: String, error: String) { … }
 ```
 
+## Example
+
+```wf
+state color = "#0f766e"
+derived colorError = if color == "#ffffff" { "White disappears on the page." } else { "" }
+Field(label: "Brand colour", hint: "Used for buttons and links.", error: colorError) {
+    ColorPicker(bind: color, label: "Brand colour", swatches: ["#0f766e", "#1d4ed8", "#b91c1c", "#ffffff"])
+}
+Text("Chosen: {color}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,20 +35,13 @@ Every element also takes the props, events and attribute families listed [on eve
 
 - `children`
 
-## Parts
+## Drawn for it
 
-- `Field.Field.Label`
-- `Field.Field.Hint`
-- `Field.Field.Error`
+What `Field` draws itself, by its class; not written.
 
-## Example
-
-```wf
-state plan = "basic"
-Field(label: "Plan", hint: "You can change it later.") {
-    Select(bind: plan) { Select.Option("Basic", value: "basic")  Select.Option("Pro", value: "pro") }
-}
-```
+- `Field.Label` (`.`): Its label.
+- `Field.Hint` (`.`): Its hint.
+- `Field.Error` (`.`): Its error, announced as it appears.
 
 ## What it can raise
 

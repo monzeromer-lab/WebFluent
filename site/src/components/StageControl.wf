@@ -1,11 +1,14 @@
 /// One control of a Stage, drawn from a prop's kind: a segmented choice for
-/// an enum, a toggle for a `Bool`. With `live`, the page holds what is
+/// an enum, a toggle for a `Bool`, a field for a text or a number. With `live`, the page holds what is
 /// chosen (`current:`, `pressed:`) and passes it to the element on the stage, so
 /// a press changes the element. Without it (a prop the stage cannot set from
 /// a value) the control is drawn as its cases, not as buttons waiting to be
 /// pressed.
 component StageControl(_ control: StageControlSpec, live: Bool = false, current: String = "", pressed: Bool = false) {
     event pick(value: String)
+    // What a field holds, from what the page passed when it was drawn.
+    state typed = current
+    state count: Number = if current == "" { 0 } else { parseFloat(current) }
     if control.kind == "enum" {
         Row(align: .center, gap: .xs, role: "group", aria-label: control.name, class: "bp-stage-control") {
             Text(control.name, class: "bp-stage-control__name")
@@ -33,6 +36,22 @@ component StageControl(_ control: StageControlSpec, live: Bool = false, current:
             Row(align: .center, gap: .xs, class: "bp-stage-control bp-toggle") {
                 Icon("square", aria-hidden: "true")
                 Text(control.name)
+            }
+        }
+    }
+    if control.kind == "string" && live {
+        Row(align: .center, gap: .xs, class: "bp-stage-control") {
+            Text(control.name, class: "bp-stage-control__name")
+            Input(bind: typed, aria-label: control.name, class: "bp-stage-field") {
+                on input { emit pick(typed) }
+            }
+        }
+    }
+    if control.kind == "number" && live {
+        Row(align: .center, gap: .xs, class: "bp-stage-control") {
+            Text(control.name, class: "bp-stage-control__name")
+            Input(bind: count, aria-label: control.name, class: "bp-stage-field bp-stage-field--number").number {
+                on input { emit pick("{count}") }
             }
         }
     }

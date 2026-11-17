@@ -10,6 +10,17 @@ Vertical space; md when no size is given.
 Spacer(size: Enum)
 ```
 
+## Example
+
+```wf
+Heading("Before you deploy").h3
+Text("Run the checks, then the tests.")
+Spacer.lg
+Button("Deploy").primary
+Spacer.sm
+Text("Last deployed 3 hours ago.").muted.sm
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,14 +32,6 @@ Spacer(size: Enum)
 `.xs` `.sm` `.md` `.lg` `.xl`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Text("Above")
-Spacer.lg
-Text("Below")
-```
 
 ## What it can raise
 

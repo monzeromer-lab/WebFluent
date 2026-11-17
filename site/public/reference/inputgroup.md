@@ -10,6 +10,26 @@ An input drawn as one box with what goes beside it: an icon, InputGroup.Addon("h
 InputGroup { … }
 ```
 
+## Example
+
+```wf
+state search = ""
+state domain = "acme"
+Stack(gap: .md) {
+    InputGroup {
+        Icon("search")
+        Input(bind: search, placeholder: "Search the docs", aria-label: "Search the docs")
+        InputGroup.Clear
+    }
+    InputGroup {
+        InputGroup.Addon("https://")
+        Input(bind: domain, aria-label: "Subdomain")
+        InputGroup.Addon(".example.com")
+    }
+    Text("Searching for “{search}” on https://{domain}.example.com").muted
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
@@ -18,20 +38,26 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `InputGroup.InputGroup.Addon`
-- `InputGroup.InputGroup.Clear`
+Written under its name, inside `InputGroup`.
 
-## Example
+### InputGroup.Addon
+
+Text beside the input: https://, .com, kg.
 
 ```wf
-state q = ""
-InputGroup {
-    Icon("search")
-    Input(bind: q, aria-label: "Search")
-    InputGroup.Clear
-}
-state site = ""
-InputGroup { InputGroup.Addon("https://")  Input(bind: site, aria-label: "Site") }
+InputGroup.Addon(_ text: String) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | The text |
+
+### InputGroup.Clear
+
+A button that empties the input and puts the focus back in it; hidden while it is empty.
+
+```wf
+InputGroup.Clear
 ```
 
 ## What it can raise

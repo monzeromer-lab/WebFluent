@@ -8,7 +8,7 @@ enum CalloutKind { note, tip, important, warning, caution }
 /// `md-docs/` (`> [!TIP]`), written here by the site's generator. Drawn as
 /// Blueprint draws every aside — a dot and a leader line — with the kind as
 /// its label; a warning's and a caution's dot is the error colour.
-component Callout(_ body: String, kind: CalloutKind = .note) {
+component DocsCallout(_ body: String, kind: CalloutKind = .note) {
     derived label = match kind {
         .note { t("aside.note") }
         .tip { t("aside.tip") }

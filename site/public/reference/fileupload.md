@@ -10,6 +10,18 @@ File input; bind: holds what was chosen, and on change hears it.
 FileUpload(accept: String, label: String, multiple: Bool, …) { … }
 ```
 
+## Example
+
+```wf
+state photo: File? = null
+FileUpload(bind: photo, accept: "image/*", label: "Profile picture")
+if let p = photo {
+    Text("Chosen: {p.name}").muted
+} else {
+    Text("No picture chosen").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -36,14 +48,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-state photo: File? = null
-FileUpload(bind: photo, accept: "image/*", label: "Choose a picture")
-if let p = photo { Text(p.name) }
-```
 
 ## What it can raise
 

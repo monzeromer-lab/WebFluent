@@ -10,6 +10,24 @@ The page's headings as links, the one being read marked as the reader scrolls: a
 OnThisPage(levels: Number, label: String)
 ```
 
+## Example
+
+```wf
+Row(gap: .lg, align: .start) {
+    Stack {
+        Heading("Deploying").h1
+        Heading("Build the site").h2
+        Text("Run wf build; the output is in build/.")
+        Heading("Choose a host").h2
+        Heading("Static hosts").h3
+        Text("Any host that serves files.")
+        Heading("Set the base path").h2
+        Text("Under a folder, name it in the config.")
+    }
+    OnThisPage(levels: 2, label: "On this page")
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,15 +37,11 @@ OnThisPage(levels: Number, label: String)
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
-## Parts
+## Drawn for it
 
-- `OnThisPage.OnThisPage.Title`
+What `OnThisPage` draws itself, by its class; not written.
 
-## Example
-
-```wf
-OnThisPage(levels: 2)
-```
+- `OnThisPage.Title` (`.`): Its title.
 
 ## What it can raise
 

@@ -15,7 +15,7 @@ page RecipeActiveTabInTheAddress(path: "/recipes/active-tab-in-the-address", tit
 }
 "# }) {
         code {
-            CodeBlock(#"page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
+            DocsCodeBlock(#"page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
     Heading("Account").h1
     Tabs(value: tab, label: "Account") {

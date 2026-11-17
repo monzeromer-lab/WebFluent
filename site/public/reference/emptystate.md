@@ -10,6 +10,17 @@ What a list or a page shows when it has nothing yet: an icon, a title, a sentenc
 EmptyState(icon: String, title: String, text: String) { … }
 ```
 
+## Example
+
+```wf
+state count = 0
+EmptyState(icon: "folder", title: "No projects yet", text: "A project holds your pages, components and stores.") {
+    Button("New project").primary { on click { count = count + 1 } }
+    Link("Read the guide", to: "/learn")
+}
+if count > 0 { Text("{count} project(s) asked for").muted }
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,16 +37,38 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `EmptyState.EmptyState.Title`
-- `EmptyState.EmptyState.Text`
-- `EmptyState.EmptyState.Actions`
+Written under its name, inside `EmptyState`.
 
-## Example
+### EmptyState.Title
+
+Its title.
 
 ```wf
-EmptyState(icon: "folder", title: "No projects yet", text: "Create one to get started.") {
-    Button("New project").primary
-}
+EmptyState.Title(_ text: String)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | The title |
+
+### EmptyState.Text
+
+Its sentence.
+
+```wf
+EmptyState.Text(_ text: String)
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | The sentence |
+
+### EmptyState.Actions
+
+What to do: the block it was given.
+
+```wf
+EmptyState.Actions { … }
 ```
 
 ## What it can raise

@@ -10,6 +10,18 @@ A round button floating at the bottom of the screen for the page's main action; 
 Fab(icon: String, label: String) { … }
 ```
 
+## Example
+
+```wf
+state said = "Nothing made yet"
+Fab(icon: "plus", label: "Create") {
+    Fab.Action("Note", icon: "file") { on click { said = "A new note" } }
+    Fab.Action("Folder", icon: "folder") { on click { said = "A new folder" } }
+    Fab.Action("Upload", icon: "upload") { on click { said = "An upload" } }
+}
+Text(said).muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -25,19 +37,26 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Fab.Fab.Action`
-- `Fab.Fab.Trigger`
+Written under its name, inside `Fab`.
 
-## Example
+### Fab.Action
+
+One more action the button opens: its words and its icon; on click is what it does.
 
 ```wf
-state said = ""
-Fab(icon: "plus", label: "Create") {
-    Fab.Action("Note", icon: "file") { on click { said = "note" } }
-    Fab.Action("Folder", icon: "folder") { on click { said = "folder" } }
-}
-Text(said)
+Fab.Action(_ label: String, icon: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | What it does |
+| `icon:` | `String` | Its icon |
+
+## Drawn for it
+
+What `Fab` draws itself, by its class; not written.
+
+- `Fab.Trigger` (`.`): Its button.
 
 ## What it can raise
 

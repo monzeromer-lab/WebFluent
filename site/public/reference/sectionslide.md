@@ -10,6 +10,14 @@ Full-bleed coloured band with a centred label.
 SectionSlide(_ label: String, tone: Enum)
 ```
 
+## Example
+
+```wf
+Presentation {
+    SectionSlide("Part one: the numbers").primary
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,12 +30,6 @@ SectionSlide(_ label: String, tone: Enum)
 `.primary` `.success` `.danger` `.warning` `.info`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Presentation { SectionSlide("Numbers").primary }
-```
 
 ## What it can raise
 

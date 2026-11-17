@@ -10,6 +10,22 @@ A compact label — a filter, a tag, a person — that can carry an icon, be pre
 Chip(_ label: String, icon: String, selected: Bool, removable: Bool)
 ```
 
+## Example
+
+```wf
+state langs = ["Rust", "TypeScript", "Go", "Python"]
+state openOnly = false
+Stack(gap: .sm, align: .start) {
+    Row(gap: .xs) {
+        for l in langs by l {
+            Chip(l, icon: "code").removable { on remove { langs = langs.filter(x => x != l) } }
+        }
+    }
+    Chip("Open issues only", selected: openOnly) { on click { openOnly = !openOnly } }
+    Text("{langs.length} languages, open only: {openOnly}").muted
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -31,16 +47,38 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Chip.Chip.Action`
-- `Chip.Chip.Label`
-- `Chip.Chip.Remove`
+Written under its name, inside `Chip`.
 
-## Example
+### Chip.Action
+
+What pressing a chip presses: its icon and words, a toggle button when it can be selected:.
 
 ```wf
-state open = false
-Chip("Open only", selected: open) { on click { open = !open } }
-Chip("Rust", icon: "code").removable { on remove { log("removed") } }
+Chip.Action(_ text: String) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | Its words |
+
+### Chip.Label
+
+Its icon and words, when pressing it does nothing.
+
+```wf
+Chip.Label(_ text: String) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` | `String  (positional)` | Its words |
+
+### Chip.Remove
+
+Its remove button.
+
+```wf
+Chip.Remove { … }
 ```
 
 ## What it can raise

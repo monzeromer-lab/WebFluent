@@ -10,6 +10,18 @@ Shows text above everything when its child is hovered (after delay:) or focused 
 Tooltip(_ text: String, shortcut: String, placement: Enum, delay: Number) { … }
 ```
 
+## Example
+
+```wf
+Row(gap: .sm) {
+    Tooltip("Copy the link") { IconButton(icon: "copy", label: "Copy link") }
+    Tooltip("Edit the page", shortcut: "mod+e") { IconButton(icon: "edit", label: "Edit") }
+    Tooltip("Delete it for good", placement: .bottom, delay: 200) {
+        IconButton(icon: "trash", label: "Delete").danger
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -28,13 +40,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
-Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save") }
-```
 
 ## What it can raise
 

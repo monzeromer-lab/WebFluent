@@ -10,6 +10,18 @@ Drop-down of Select.Option children.
 Select(bind: State, value: String or Number, label: String, …) { … }
 ```
 
+## Example
+
+```wf
+state region = "eu-west"
+Select(bind: region, label: "Region", hint: "Where your data is stored.") {
+    Select.Option("Europe (Ireland)", value: "eu-west")
+    Select.Option("US East (Virginia)", value: "us-east")
+    Select.Option("Asia Pacific (Tokyo)", value: "ap-northeast")
+}
+Text("Chosen: {region}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -42,17 +54,20 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Select.Select.Option`
+Written under its name, inside `Select`.
 
-## Example
+### Select.Option
+
+One choice: the visible label, and the value sent with the form.
 
 ```wf
-state plan = "free"
-Select(bind: plan, label: "Plan") {
-    Select.Option("Free", value: "free")
-    Select.Option("Team", value: "team")
-}
+Select.Option(_ label: String, value: String or Number or Bool)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | The visible label |
+| `value:` | `String or Number or Bool` | The value `bind` takes when this one is chosen; the label when absent |
 
 ## What it can raise
 

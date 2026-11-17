@@ -10,6 +10,14 @@ Several lines of text. With label, hint or error it is a labelled field; with ma
 Textarea(bind: State, label: String, hint: String, …)
 ```
 
+## Example
+
+```wf
+state feedback = ""
+Textarea(bind: feedback, label: "What could we do better?", hint: "Be as specific as you like.", placeholder: "The export was slow when…", rows: 4, maxLength: 280)
+Text("{feedback.length} of 280 characters").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -40,13 +48,6 @@ Any other DOM event works too, in an `on … { }` handler.
 - `on blur`: The element lost focus
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state note = ""
-Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
-```
 
 ## What it can raise
 

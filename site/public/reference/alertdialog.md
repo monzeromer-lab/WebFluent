@@ -10,6 +10,22 @@ A <dialog> that asks before something that cannot be undone: role="alertdialog",
 AlertDialog(visible: State, title: String, dismiss: Enum, …) { … }
 ```
 
+## Example
+
+```wf
+state sure = false
+state said = "Draft: 3 unsaved edits"
+Button("Discard changes").danger.outlined { on click { sure = true } }
+AlertDialog(visible: sure, title: "Discard your changes?") {
+    Text("Your 3 edits to the pricing page will be lost.")
+    AlertDialog.Footer {
+        Button("Keep editing") { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false  said = "Draft discarded" } }
+    }
+}
+Text(said).muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -35,21 +51,22 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `AlertDialog.AlertDialog.Title`
-- `AlertDialog.AlertDialog.Footer`
+Written under its name, inside `AlertDialog`.
 
-## Example
+### AlertDialog.Title
+
+What the alert dialog's heading draws, in place of its title:'s words, which stay its name.
 
 ```wf
-state sure = false
-Button("Discard") { on click { sure = true } }
-AlertDialog(visible: sure, title: "Discard your changes?") {
-    Text("Your edits will be lost.")
-    AlertDialog.Footer {
-        Button("Keep editing") { on click { sure = false } }
-        Button("Discard").danger { on click { sure = false } }
-    }
-}
+AlertDialog.Title { … }
+```
+
+### AlertDialog.Footer
+
+Its answers: the button that loses nothing first.
+
+```wf
+AlertDialog.Footer { … }
 ```
 
 ## What it can raise

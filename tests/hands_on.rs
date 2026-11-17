@@ -375,3 +375,91 @@ fn a_structural_project_s_popover_has_its_theme_s_surface() {
     assert!(rule.contains("var(--color-surface)"), "{rule}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+// What writing an example for every built-in turned up, kept from coming
+// back: each was a page that compiled and then went wrong in the browser,
+// or a finding about nothing.
+
+fn home(body: &str) -> String {
+    format!(
+        "app {{ Router }}\npage Home(path: \"/\", title: \"H\", description: \"d\") {{\n    Heading(\"H\").h1\n{body}\n}}\n"
+    )
+}
+
+#[test]
+fn a_text_inside_a_text_is_a_run_of_its_line() {
+    let src = home("    Text { Text(\"Press \")  Kbd(\"mod+k\")  Text(\" to search\") }");
+    let html = crate::common::ssg_html(&src);
+    assert!(
+        html.contains("<span class=\"wf-text\">Press </span>"),
+        "the inner Text is a span in the static paint: {html}"
+    );
+    assert!(!html.contains("<p class=\"wf-text\">Press"), "{html}");
+    let js = spa_generated(&src);
+    assert!(js.contains("WF.el(\"span\""), "and on the live page: {js}");
+}
+
+#[test]
+fn log_as_a_value_is_the_consoles() {
+    let js = spa_generated(&home(
+        "    Host(tag: \"canvas\", mount: (n) => n.getBoundingClientRect(), update: (b) => log(\"moved\"))",
+    ));
+    assert!(js.contains("console.log(\"moved\")"), "{js}");
+    assert!(
+        !js.contains(" log(\"moved\")") && !js.contains("(log(\"moved\")"),
+        "{js}"
+    );
+}
+
+#[test]
+fn a_ref_on_a_part_takes_the_part() {
+    let js = spa_generated(&home(
+        "    Card { Card.Body(ref: panel) { Text(\"Inside\") } }\n    Portal(into: panel) { Text(\"Drawn in the body\") }",
+    ));
+    assert!(
+        js.contains("ref: panel"),
+        "the part hands itself to the handle: {js}"
+    );
+}
+
+#[test]
+fn a_page_number_on_a_web_page_is_one() {
+    let js = spa_generated(&home(
+        "    Document(title: \"Invoice\") {\n        Footer { Text(\"Page {page} of {pages}\") }\n        Heading(\"Invoice\").h2\n    }",
+    ));
+    assert!(!js.contains("_page()") && !js.contains("_pages()"), "{js}");
+}
+
+#[test]
+fn validate_inside_an_element_is_refused_where_it_is_written() {
+    let (_, errors) = webfluent::syntax::parse_source_recovering(
+        &home(
+            "    state email = \"\"\n    Stack {\n        validate email { email }\n        Input(bind: email, label: \"Email\").email\n    }",
+        ),
+        "t.wf",
+    );
+    let said: Vec<String> = errors.iter().map(|e| format!("{e:?}")).collect();
+    assert!(
+        said.iter()
+            .any(|e| e.contains("E105") && e.contains("validate")),
+        "{said:?}"
+    );
+}
+
+#[test]
+fn a_to_that_is_not_a_route_is_not_held_to_one() {
+    let errors = errors_of(&home(
+        "    state picked: [String] = []\n    TransferList(bind: picked, options: [\"a\", \"b\"], text: o => o, key: o => o, label: \"Reviewers\", to: \"Chosen reviewers\")",
+    ));
+    assert!(!errors.iter().any(|e| e.starts_with("[R01]")), "{errors:?}");
+}
+
+#[test]
+fn a_button_named_only_for_a_screen_reader_has_text() {
+    let (program, _) = webfluent::syntax::parse_source_recovering(
+        &home("    Button { Icon(\"trash\")  VisuallyHidden(\"Delete the draft\") }"),
+        "t.wf",
+    );
+    let found = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string());
+    assert!(!found.iter().any(|d| d.code == "A05"), "{found:?}");
+}

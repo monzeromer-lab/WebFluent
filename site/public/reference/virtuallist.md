@@ -10,6 +10,24 @@ A scrolling box that draws only the rows in view of the one keyed for inside it 
 VirtualList(rowHeight: Number, estimate: Number, reveal: String or Number, …) { … }
 ```
 
+## Example
+
+```wf
+state rows = (0..500).map(i => "Commit #{i + 1}")
+state picked = "Commit #250"
+Text("Picked: {picked}").muted
+VirtualList(rowHeight: 36, reveal: picked, label: "Commits") {
+    style { height: 260px; border: 1px solid $color-border; border-radius: $radius-md }
+    for r in rows by r {
+        Row(justify: .between, align: .center) {
+            style { height: 36px; padding: 0 0.75rem }
+            Text(r)
+            Button("Pick").sm { on click { picked = r } }
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -24,17 +42,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-state rows = (0..10000).map((i) => "row {i}")
-state picked = "row 0"
-VirtualList(rowHeight: 32, reveal: picked, label: "Rows") {
-    style { height: 320px }
-    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }
-}
-```
 
 ## What it can raise
 

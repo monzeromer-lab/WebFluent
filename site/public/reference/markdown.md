@@ -10,6 +10,24 @@ Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links
 Markdown(_ text: String, inert: Bool)
 ```
 
+## Example
+
+```wf
+Markdown("""
+    ## Getting started
+
+    Install `wf`, then:
+
+    - write a page in **src/pages**
+    - run `wf serve` and open it
+    - read [the guide](https://webfluent.monzeromer.dev/learn.md) when you are stuck
+
+    ```wf
+    page Home(path: "/", title: "Home") { Heading("Hello").h1 }
+    ```
+    """)
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -22,14 +40,6 @@ Markdown(_ text: String, inert: Bool)
 `.inert`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state docs = "Returns &lt;T&gt;, as [the guide](https://webfluent.monzeromer.dev/docs) says."
-Markdown("Some **bold** text and a [link](https://webfluent.monzeromer.dev/docs).")
-Markdown(docs).inert
-```
 
 ## What it can raise
 

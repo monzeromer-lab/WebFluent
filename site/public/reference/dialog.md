@@ -10,6 +10,20 @@ Confirmation <dialog>, opened by a state flag. on close runs when it closes, how
 Dialog(visible: State, title: String, closable: Bool, …) { … }
 ```
 
+## Example
+
+```wf
+state asking = false
+Button("Close the editor") { on click { asking = true } }
+Dialog(visible: asking, title: "Leave without saving?").closable {
+    Text("Your draft of notes.md has changes that are not saved.")
+    Row(gap: .sm, justify: .end) {
+        Button("Stay") { on click { asking = false } }
+        Button("Leave").danger { on click { asking = false } }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -36,16 +50,14 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Dialog.Dialog.Title`
+Written under its name, inside `Dialog`.
 
-## Example
+### Dialog.Title
+
+What the dialog's heading draws, in place of its title:'s words, which stay its name.
 
 ```wf
-state asking = false
-Dialog(visible: asking, title: "Leave without saving notes.md?") {
-    Dialog.Title { Markdown("Leave without saving `notes.md`?") }
-    Text("Your draft will be lost.")
-}
+Dialog.Title { … }
 ```
 
 ## What it can raise

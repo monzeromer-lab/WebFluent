@@ -34,8 +34,15 @@ Container(fluid: …) { … }
 ```
 
 ```wf
-Container { Heading("Pricing").h1 }
-Container.fluid { Text("Edge to edge") }
+Container {
+    style { background: $color-surface; border: 1px dashed $color-border; padding: 1rem }
+    Heading("Release notes").h3
+    Text("Version 7.0 makes the compiler strict: what 6.x accepted and 7.0 refuses is an error with its fix.").muted
+    Row(gap: .sm) {
+        Badge("Compiler").primary
+        Badge("Breaking").warning
+    }
+}
 ```
 
 Renders with the class `wf-container`.
@@ -60,10 +67,17 @@ Row(gap: …, align: …, justify: …) { … }
 
 ```wf
 Row(gap: .md, align: .center, justify: .between) {
-    Text("Left")
-    Button("Right")
+    style { padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: $radius-md }
+    Row(gap: .sm, align: .center) {
+        Avatar(initials: "AL").primary
+        Stack(gap: .xs) {
+            Text("Ada Lovelace").bold
+            Text("Owner").muted.sm
+        }
+    }
+    Badge("Active").success
+    Button("Manage").sm
 }
-Row(direction: { base: .column, md: .row }) { Text("a")  Text("b") }
 ```
 
 Renders with the class `wf-row`.
@@ -91,9 +105,23 @@ Column(span: …, stacks: …) { … }
 ```
 
 ```wf
-Row {
-    Column(span: 8) { Text("Main") }
-    Column(span: 4) { Text("Aside") }
+Row(gap: .md) {
+    Column(span: { base: 12, md: 8 }) {
+        Card {
+            Card.Body {
+                Heading("Article").h3
+                Text("The main column takes eight of the twelve on a wide screen.")
+            }
+        }
+    }
+    Column(span: { base: 12, md: 4 }) {
+        Card.outlined {
+            Card.Body {
+                Heading("Related").h3
+                Link("Layout", to: "/learn")
+            }
+        }
+    }
 }
 ```
 
@@ -119,10 +147,28 @@ Grid(columns: …, gap: …, align: …) { … }
 ```
 
 ```wf
-Grid(columns: { base: 1, md: 3 }, gap: .lg) {
-    Card { Text("One") }
-    Card { Text("Two") }
-    Card { Text("Three") }
+Grid(columns: { base: 1, sm: 2, md: 3 }, gap: .md) {
+    Card.elevated {
+        Card.Body {
+            Text("Visitors").muted.sm
+            Heading("12,480").h3
+            Badge("+8%").success
+        }
+    }
+    Card.elevated {
+        Card.Body {
+            Text("Sign-ups").muted.sm
+            Heading("342").h3
+            Badge("+3%").success
+        }
+    }
+    Card.elevated {
+        Card.Body {
+            Text("Churn").muted.sm
+            Heading("1.2%").h3
+            Badge("-0.4%").danger
+        }
+    }
 }
 ```
 
@@ -151,9 +197,12 @@ Stack(gap: …, align: …, justify: …) { … }
 ```
 
 ```wf
-Stack(gap: .sm) {
-    Text("First")
-    Text("Second")
+Stack(gap: .md) {
+    style { max-width: 22rem; padding: 1rem; border: 1px solid $color-border; border-radius: $radius-md }
+    Heading("Sign in").h3
+    Text("Use the address you signed up with.").muted
+    Button("Continue with email").primary.full
+    Button("Continue with a passkey").full
 }
 ```
 
@@ -180,9 +229,12 @@ Spacer(size: …)
 ```
 
 ```wf
-Text("Above")
+Heading("Before you deploy").h3
+Text("Run the checks, then the tests.")
 Spacer.lg
-Text("Below")
+Button("Deploy").primary
+Spacer.sm
+Text("Last deployed 3 hours ago.").muted.sm
 ```
 
 Renders with the class `wf-spacer`.
@@ -204,11 +256,18 @@ VirtualList(rowHeight: …, estimate: …, reveal: …) { … }
 ```
 
 ```wf
-state rows = (0..10000).map((i) => "row {i}")
-state picked = "row 0"
-VirtualList(rowHeight: 32, reveal: picked, label: "Rows") {
-    style { height: 320px }
-    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }
+state rows = (0..500).map(i => "Commit #{i + 1}")
+state picked = "Commit #250"
+Text("Picked: {picked}").muted
+VirtualList(rowHeight: 36, reveal: picked, label: "Commits") {
+    style { height: 260px; border: 1px solid $color-border; border-radius: $radius-md }
+    for r in rows by r {
+        Row(justify: .between, align: .center) {
+            style { height: 36px; padding: 0 0.75rem }
+            Text(r)
+            Button("Pick").sm { on click { picked = r } }
+        }
+    }
 }
 ```
 
@@ -234,11 +293,21 @@ Splitter(bind: …, min: …, max: …)
 ```
 
 ```wf
-state side = 240
+state side = 220
+Text("Sidebar: {side}px").muted.sm
 Row {
-    Container { style { width: {side}px } Text("Files") }
-    Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
-    Container { Text("Editor") }
+    style { height: 180px; border: 1px solid $color-border; border-radius: $radius-md; overflow: hidden }
+    Stack(gap: .xs) {
+        style { width: {side}px; padding: 0.75rem; background: $color-surface }
+        Text("Files").bold
+        Text("App.wf")
+        Text("Home.wf")
+    }
+    Splitter(bind: side, min: 140, max: 400, reset: 220, label: "Sidebar width")
+    Stack {
+        style { flex: 1; padding: 0.75rem }
+        Text("Drag the handle, or focus it and use the arrow keys. Double-click puts it back.")
+    }
 }
 ```
 
@@ -267,9 +336,17 @@ Divider
 ```
 
 ```wf
-Text("Section one")
-Divider
-Text("Section two")
+Card {
+    Card.Body {
+        Heading("Billing").h3
+        Text("Pro plan, billed yearly.")
+        Divider
+        Row(justify: .between) {
+            Text("Next invoice").muted
+            Text("$240.00").bold
+        }
+    }
+}
 ```
 
 Renders with the class `wf-divider`.
@@ -285,10 +362,18 @@ Masonry(columns: …) { … }
 ```
 
 ```wf
-Masonry(columns: 2) {
-    Card { Text("A short note") }
-    Card { Text("A longer note, which runs to more than one line of text.") }
-    Card { Text("Another") }
+Masonry(columns: { base: 1, sm: 2, md: 3 }) {
+    Card { Card.Body { Heading("Shipping").h3  Text("Free over $50.") } }
+    Card {
+        Card.Body {
+            Heading("Returns").h3
+            Text("Thirty days, no questions. Keep the box and the receipt, and send it back from any post office.")
+        }
+    }
+    Card { Card.Body { Heading("Support").h3  Text("Every day, 8–8.") } }
+    Card { Image(src: "/og.png", alt: "The WebFluent card") }
+    Card { Card.Body { Heading("Gift cards").h3  Text("Sent by email, any amount.") } }
+    Card { Card.Body { Heading("Warranty").h3  Text("Two years on everything we make.") } }
 }
 ```
 
@@ -311,8 +396,13 @@ AspectRatio(ratio: …) { … }
 ```
 
 ```wf
-AspectRatio(ratio: 16 / 9) {
-    Image(src: "/favicon.svg", alt: "The logo, wide")
+Grid(columns: 2, gap: .md) {
+    AspectRatio(ratio: 16 / 9) {
+        Image(src: "/og.png", alt: "The WebFluent card, in 16:9")
+    }
+    AspectRatio(ratio: 1) {
+        Image(src: "/icon-512.png", alt: "The WebFluent icon, square")
+    }
 }
 ```
 
@@ -335,8 +425,11 @@ ScrollArea(height: …, label: …, horizontal: …) { … }
 ```
 
 ```wf
-ScrollArea(height: "120px", label: "Log") {
-    for n in 1..=20 { Text("Line {n}") }
+ScrollArea(height: "200px", label: "Build log") {
+    style { border: 1px solid $color-border; border-radius: $radius-md; padding: 0.5rem 0.75rem }
+    for line in (1..=40).map(i => "[{i}] compiled src/pages/Page{i}.wf") by line {
+        Text(line).sm
+    }
 }
 ```
 
@@ -364,8 +457,11 @@ Center { … }
 
 ```wf
 Center {
-    style { height: 120px }
-    Spinner
+    style { height: 200px; background: $color-surface; border-radius: $radius-md }
+    Stack(gap: .sm, align: .center) {
+        Spinner
+        Text("Loading your projects…").muted
+    }
 }
 ```
 
@@ -384,7 +480,19 @@ Sticky(offset: …, bottom: …) { … }
 ```
 
 ```wf
-Sticky(offset: "8px") { Text("Stays in view").bold }
+ScrollArea(height: "240px", label: "Changelog") {
+    style { border: 1px solid $color-border; border-radius: $radius-md }
+    Sticky {
+        style { background: $color-background; padding: 0.5rem 0.75rem; border-bottom: 1px solid $color-border }
+        Row(justify: .between, align: .center) {
+            Text("Changelog").bold
+            Badge("7.0").primary
+        }
+    }
+    for v in (0..20).map(i => 19 - i).map(n => "7.0.{n}: fixes and small changes") by v {
+        Text(v) { style { padding: 0.5rem 0.75rem } }
+    }
+}
 ```
 
 Renders with the class `wf-sticky`.
@@ -410,10 +518,20 @@ PanelGroup(bind: …, vertical: …, label: …) { … }
 
 ```wf
 state sizes: [Number] = [30, 70]
-PanelGroup(bind: sizes, label: "Resize the panels") {
-    style { height: 160px }
-    PanelGroup.Panel(min: 20) { Text("Files") }
-    PanelGroup.Panel { Text("Editor") }
+Text("Sizes: {sizes[0] ?? 0}% and {sizes[1] ?? 0}%").muted.sm
+PanelGroup(bind: sizes, label: "Resize the sidebar") {
+    style { height: 200px; border: 1px solid $color-border; border-radius: $radius-md }
+    PanelGroup.Panel(min: 15) {
+        Stack(gap: .xs) {
+            style { padding: 0.75rem }
+            Text("Inbox").bold
+            Text("Archive")
+            Text("Spam")
+        }
+    }
+    PanelGroup.Panel(min: 40) {
+        Text("Drag the handle, or use the arrow keys on it.") { style { padding: 0.75rem } }
+    }
 }
 ```
 
@@ -449,7 +567,15 @@ ClientOnly { … }
 ```
 
 ```wf
-ClientOnly { Text("Drawn in your browser only") }
+Card {
+    Card.Body {
+        Text("Your local time").muted.sm
+        ClientOnly {
+            placeholder { Skeleton(height: "28px", width: "120px") }
+            Heading("{now(every: 1.seconds):.time}").h3
+        }
+    }
+}
 ```
 
 Renders with the class `wf-client-only`.
@@ -468,9 +594,25 @@ AppShell { … }
 
 ```wf
 AppShell {
-    AppShell.Header { Text("Ledger").bold  Spacer  ThemeToggle }
-    Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } }
-    Router
+    style { min-height: 320px; border: 1px solid $color-border }
+    AppShell.Header {
+        Row(justify: .between, align: .center) {
+            style { flex: 1 }
+            Text("Ledger").bold
+            Button("Sign out").sm
+        }
+    }
+    Sidebar {
+        style { height: auto }
+        Sidebar.Item(to: "/learn", icon: "book") { Text("Learn") }
+        Sidebar.Item(to: "/reference", icon: "list") { Text("Reference") }
+    }
+    Stack(gap: .sm) {
+        style { padding: 1rem }
+        Heading("Dashboard").h3
+        Text("The page the router draws sits here.")
+    }
+    AppShell.Footer { Text("© 2026 Ledger").muted.sm }
 }
 ```
 
@@ -494,7 +636,14 @@ Host(tag: …)
 ```
 
 ```wf
-Host(tag: "canvas", aria-label: "Chart", mount: (node) => node.getBoundingClientRect(), cleanup: (box) => log("gone"))
+state level = 40
+Slider(bind: level, min: 0, max: 100, label: "Level")
+Host(tag: "canvas", aria-label: "A bar at {level}%",
+     mount: (node) => node.getBoundingClientRect(),
+     update: (box) => console.log("redraw at {level}% across {box.width}px"),
+     cleanup: (box) => console.log("canvas gone")) {
+    style { width: 100%; height: 120px; border: 1px dashed $color-border }
+}
 ```
 
 Renders with the class `wf-host`.
@@ -514,8 +663,17 @@ Portal(into: …) { … }
 ```
 
 ```wf
-Stack(ref: panel)
-Portal(into: panel) { Text("Drawn inside the stack") }
+state count = 0
+Stack(gap: .sm, ref: panel) {
+    style { padding: 1rem; border: 1px dashed $color-border; border-radius: $radius-md }
+    Text("A node somebody else's code owns:").muted.sm
+}
+Portal(into: panel) {
+    Row(gap: .sm, align: .center) {
+        Text("Clicked {count} times")
+        Button("Click").primary.sm { on click { count = count + 1 } }
+    }
+}
 ```
 
 Renders with the class `wf-portal`.
@@ -537,8 +695,11 @@ Element(tag) { … }
 ```
 
 ```wf
-Element("relative-time", datetime: "2026-03-14T09:30:00Z") { Text("March 14") }
-Element("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log("prices shown") } }
+state loaded = false
+Element("stripe-pricing-table", pricingTableId: "prctbl_1Pq", publishableKey: "pk_test_51Hx") {
+    on ready { loaded = true }
+    if !loaded { Text("Loading the prices…").muted }
+}
 ```
 
 | Prop | Type | Meaning |
@@ -561,9 +722,16 @@ Navbar { … }
 
 ```wf
 Navbar {
-    Navbar.Brand { Link("Acme", to: "/") }
-    Navbar.Links { Link("Docs", to: "/docs")  Link("Pricing", to: "/pricing") }
-    Navbar.Actions { Button("Sign in").sm }
+    Navbar.Brand { Link("WebFluent", to: "/") }
+    Navbar.Links {
+        Link("Learn", to: "/learn", active: .prefix)
+        Link("Reference", to: "/reference", active: .prefix)
+        Link("Recipes", to: "/recipes")
+    }
+    Navbar.Actions {
+        ThemeToggle
+        Button("Try it").primary.sm { on click { navigate("/playground") } }
+    }
 }
 ```
 
@@ -588,11 +756,23 @@ Sidebar { … }
 ```
 
 ```wf
-Sidebar {
-    Sidebar.Header { Text("Console").bold }
-    Sidebar.Item(to: "/", icon: "home") { Text("Overview") }
-    Sidebar.Divider
-    Sidebar.Item(to: "/settings", icon: "settings") { Text("Settings") }
+Row {
+    style { height: 360px; border: 1px solid $color-border }
+    Sidebar {
+        style { height: 100% }
+        Sidebar.Header { Text("Docs").bold }
+        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+        Sidebar.Item(to: "/learn", icon: "book", active: .prefix) { Text("Learn") }
+        Sidebar.Item(to: "/reference", icon: "list", active: .prefix) { Text("Reference") }
+        Sidebar.Item(to: "/recipes", icon: "layers") { Text("Recipes") }
+        Sidebar.Divider
+        Sidebar.Item(to: "/playground", icon: "play") { Text("Playground") }
+    }
+    Stack(gap: .sm) {
+        style { flex: 1; padding: 24px }
+        Heading("Reference").h3
+        Text("Every built-in, with its props and an example.").muted
+    }
 }
 ```
 
@@ -621,9 +801,15 @@ Link(label, to: …, active: …) { … }
 ```
 
 ```wf
-Link("About us", to: "/about")
-Link("Guide", to: "/docs", active: .prefix)
-Link(to: "https://example.com", target: "_blank") { Text("Example") }
+Stack(gap: .sm) {
+    Link("Start the guide", to: "/learn")
+    Link("Every component", to: "/reference", active: .prefix)
+    Link(to: "/recipes") {
+        Icon("book")
+        Text("Recipes for common screens")
+    }
+    Link("The source on GitHub", to: "https://github.com/webfluent/webfluent", target: "_blank")
+}
 ```
 
 Renders with the class `wf-link`.
@@ -649,10 +835,19 @@ Tabs(bind: …, value: …, orientation: …) { … }
 ```
 
 ```wf
-Tabs {
-    Tabs.Page("Profile") { Text("Your details") }
-    Tabs.Page("Billing") { Text("Your plan") }
+state tab = "profile"
+Tabs(bind: tab, label: "Account") {
+    Tabs.Page("Profile", value: "profile") {
+        Text("Your name, photo and the email we write to.")
+    }
+    Tabs.Page("Billing", value: "billing") {
+        Text("Pro plan, renews on 1 March.")
+    }
+    Tabs.Page("Danger zone", value: "danger", disabled: true) {
+        Text("Only an owner can delete the account.")
+    }
 }
+Text("Open: {tab}").muted.sm
 ```
 
 Renders with the class `wf-tabs`.
@@ -692,8 +887,8 @@ Breadcrumb { … }
 ```wf
 Breadcrumb {
     Breadcrumb.Item(to: "/") { Text("Home") }
-    Breadcrumb.Item(to: "/docs") { Text("Docs") }
-    Breadcrumb.Item { Text("Components") }
+    Breadcrumb.Item(to: "/reference") { Text("Reference") }
+    Breadcrumb.Item { Text("Breadcrumb") }
 }
 ```
 
@@ -717,15 +912,32 @@ Menu(trigger: …, label: …, visible: …) { … }
 ```
 
 ```wf
-Menu(trigger: "Options") {
-    Menu.Item(shortcut: "F2") { Text("Rename") }
-    Menu.Sub(label: "Move to") { Menu.Item { Text("Archive") } }
+state said = "Nothing chosen yet"
+state pinned = false
+Menu(trigger: "File actions").bottomStart {
+    Menu.Item(shortcut: "F2") {
+        on click { said = "Rename" }
+        Text("Rename")
+    }
+    Menu.Item(shortcut: "mod+d") {
+        on click { said = "Duplicate" }
+        Text("Duplicate")
+    }
+    Menu.Item(checked: pinned) {
+        on click { pinned = !pinned }
+        Text("Pinned")
+    }
+    Menu.Sub(label: "Move to") {
+        Menu.Item { on click { said = "Moved to Archive" }  Text("Archive") }
+        Menu.Item { on click { said = "Moved to Drafts" }  Text("Drafts") }
+    }
     Menu.Divider
-    Menu.Item(disabled: true) { Text("Delete") }
+    Menu.Item(shortcut: "mod+backspace").danger {
+        on click { said = "Delete" }
+        Text("Delete")
+    }
 }
-state asked = false
-state point = { x: 0, y: 0 }
-Menu(visible: asked, at: point) { Menu.Item { Text("Copy") } }
+Text(said).muted.sm
 ```
 
 Renders with the class `wf-menu`.
@@ -770,11 +982,21 @@ NavigationMenu(label: …) { … }
 
 ```wf
 NavigationMenu(label: "Main") {
-    NavigationMenu.Item("Products") {
-        Link("Editor", to: "/")
-        Link("Compiler", to: "/")
+    NavigationMenu.Item("Learn") {
+        Stack(gap: .sm) {
+            Link("The guide", to: "/learn")
+            Link("Data and requests", to: "/learn/15-data")
+            Link("Recipes", to: "/recipes")
+        }
     }
-    NavigationMenu.Link("Pricing", to: "/")
+    NavigationMenu.Item("Reference") {
+        Stack(gap: .sm) {
+            Link("Components", to: "/reference")
+            Link("Diagnostics", to: "/errors")
+        }
+    }
+    NavigationMenu.Link("Playground", to: "/playground")
+    NavigationMenu.Link("Showcase", to: "/showcase")
 }
 ```
 
@@ -811,17 +1033,26 @@ Menubar(label: …) { … }
 ```
 
 ```wf
-state said = ""
+state said = "Pick a command"
 Menubar(label: "Editor") {
     Menubar.Menu("File") {
-        Menu.Item(shortcut: "mod+n") { on click { said = "new" }  Text("New") }
-        Menu.Item { on click { said = "open" }  Text("Open…") }
+        Menu.Item(shortcut: "mod+n") { on click { said = "New file" }  Text("New file") }
+        Menu.Item(shortcut: "mod+o") { on click { said = "Open…" }  Text("Open…") }
+        Menu.Divider
+        Menu.Item(shortcut: "mod+s") { on click { said = "Saved" }  Text("Save") }
     }
     Menubar.Menu("Edit") {
-        Menu.Item(shortcut: "mod+z") { on click { said = "undo" }  Text("Undo") }
+        Menu.Item(shortcut: "mod+z") { on click { said = "Undo" }  Text("Undo") }
+        Menu.Item(shortcut: "mod+shift+z") { on click { said = "Redo" }  Text("Redo") }
+    }
+    Menubar.Menu("View") {
+        Menu.Sub(label: "Zoom") {
+            Menu.Item(shortcut: "mod+=") { on click { said = "Zoom in" }  Text("Zoom in") }
+            Menu.Item(shortcut: "mod+-") { on click { said = "Zoom out" }  Text("Zoom out") }
+        }
     }
 }
-Text(said)
+Text(said).muted.sm
 ```
 
 Renders with the class `wf-menubar`.
@@ -848,15 +1079,22 @@ ContextMenu { … }
 ```
 
 ```wf
-state said = ""
+state said = "Right-click the file, or focus it and press Shift+F10"
 ContextMenu {
-    Card { Text("Right-click here, or long-press") }
+    Card.outlined {
+        Row(gap: .sm, align: .center) {
+            Icon("file")
+            Text("quarterly-report.pdf")
+        }
+    }
     ContextMenu.Items(label: "File actions") {
-        Menu.Item(shortcut: "F2") { on click { said = "rename" }  Text("Rename") }
-        Menu.Item.danger { on click { said = "delete" }  Text("Delete") }
+        Menu.Item(shortcut: "mod+o") { on click { said = "Opened" }  Text("Open") }
+        Menu.Item(shortcut: "F2") { on click { said = "Renamed" }  Text("Rename") }
+        Menu.Divider
+        Menu.Item.danger { on click { said = "Deleted" }  Text("Delete") }
     }
 }
-Text(said)
+Text(said).muted.sm
 ```
 
 Renders with the class `wf-context-menu`.
@@ -879,10 +1117,16 @@ BottomNavigation(label: …) { … }
 ```
 
 ```wf
-BottomNavigation(label: "Sections") {
-    BottomNavigation.Item("Home", to: "/", icon: "home")
-    BottomNavigation.Item("Search", to: "/", icon: "search")
-    BottomNavigation.Item("Me", to: "/", icon: "user")
+Stack(gap: .sm) {
+    style { width: 360px; height: 240px; padding: 16px; contain: layout; overflow: hidden; border: 1px solid $color-border; border-radius: 24px }
+    Heading("Inbox").h3
+    Text("Three new replies since this morning.").muted
+    BottomNavigation(label: "Sections") {
+        BottomNavigation.Item("Home", to: "/", icon: "home")
+        BottomNavigation.Item("Learn", to: "/learn", icon: "book").prefix
+        BottomNavigation.Item("Reference", to: "/reference", icon: "list").prefix
+        BottomNavigation.Item("Play", to: "/playground", icon: "play")
+    }
 }
 ```
 
@@ -915,8 +1159,8 @@ PrevNext(label: …) { … }
 
 ```wf
 PrevNext {
-    PrevNext.Prev("Forms", to: "/")
-    PrevNext.Next("Stores", to: "/")
+    PrevNext.Prev("Forms", to: "/learn")
+    PrevNext.Next("Data and requests", to: "/learn/15-data")
 }
 ```
 
@@ -950,7 +1194,19 @@ OnThisPage(levels: …, label: …)
 ```
 
 ```wf
-OnThisPage(levels: 2)
+Row(gap: .lg, align: .start) {
+    Stack {
+        Heading("Deploying").h1
+        Heading("Build the site").h2
+        Text("Run wf build; the output is in build/.")
+        Heading("Choose a host").h2
+        Heading("Static hosts").h3
+        Text("Any host that serves files.")
+        Heading("Set the base path").h2
+        Text("Under a folder, name it in the config.")
+    }
+    OnThisPage(levels: 2, label: "On this page")
+}
 ```
 
 Renders with the class `wf-on-this-page`.
@@ -976,8 +1232,9 @@ Pagination(bind: …, pages: …, siblings: …)
 ```
 
 ```wf
-state page = 5
-Pagination(bind: page, pages: 12, siblings: 1)
+state page = 4
+Pagination(bind: page, pages: 12, siblings: 1, label: "Results")
+Text("Showing page {page} of 12").muted.sm
 ```
 
 Renders with the class `wf-pagination`.
@@ -1014,11 +1271,22 @@ Stepper(bind: …, linear: …) { … }
 
 ```wf
 state step = 0
+state billed = false
 Stepper(bind: step) {
-    Stepper.Step("Account") { Text("Your name and email.") }
-    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
-    Stepper.Step("Confirm") { Text("Check and send.") }
+    Stepper.Step("Account", done: step > 0) {
+        Text("Your name and email.")
+        Button("Next").primary { on click { step = 1 } }
+    }
+    Stepper.Step("Billing", done: billed) {
+        Text("A card, or an invoice each month.")
+        Button("Add a card").primary { on click { billed = true  step = 2 } }
+    }
+    Stepper.Step("Confirm") {
+        Text("Check it over, then start.")
+        Button("Start the trial").success
+    }
 }
+Text("Step {step + 1} of 3").muted.sm
 ```
 
 Renders with the class `wf-stepper`.
@@ -1054,13 +1322,18 @@ CommandPalette(open: …, label: …, placeholder: …) { … }
 
 ```wf
 state palette = false
-Button("Commands") { on click { palette = true } }
-CommandPalette(open: palette) {
+state said = "Nothing run yet"
+Button("Search commands…") { on click { palette = true } }
+Text(said).muted.sm
+CommandPalette(open: palette, label: "Commands", placeholder: "Type a command or a page") {
     CommandPalette.Group("Pages") {
-        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
+        CommandPalette.Item("Reference", icon: "list") { on select { navigate("/reference") } }
+        CommandPalette.Item("Recipes", icon: "book") { on select { navigate("/recipes") } }
     }
     CommandPalette.Group("Actions") {
-        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
+        CommandPalette.Item("New file", icon: "file-plus", shortcut: "mod+n") { on select { said = "New file" } }
+        CommandPalette.Item("Copy link", icon: "copy", shortcut: "mod+shift+c") { on select { said = "Link copied" } }
+        CommandPalette.Item("Switch theme", icon: "moon") { on select { said = "Theme switched" } }
     }
 }
 ```
@@ -1098,11 +1371,18 @@ HoverCard(delay: …) { … }
 ```
 
 ```wf
-HoverCard(delay: 300) {
-    Link("@ada", to: "/")
-    HoverCard.Content {
-        Text("Ada Lovelace").bold
-        Text("Wrote the first program.").muted
+Text("Reviewed by") {
+    HoverCard(delay: 300) {
+        Link("@ada", to: "/showcase")
+        HoverCard.Content {
+            Row(gap: .sm, align: .center) {
+                Avatar(initials: "AL").primary
+                Stack(gap: .xs) {
+                    Text("Ada Lovelace").bold
+                    Text("Wrote the first program.").muted.sm
+                }
+            }
+        }
     }
 }
 ```
@@ -1131,10 +1411,14 @@ LoadingOverlay(visible: …, label: …) { … }
 
 ```wf
 state saving = false
-Button("Save") { on click { saving = !saving } }
-LoadingOverlay(visible: saving, label: "Saving") {
-    Card { Text("Your profile") }
+state name = "Ada Lovelace"
+LoadingOverlay(visible: saving, label: "Saving your profile") {
+    Card {
+        Input(bind: name, label: "Name")
+        Button("Save").primary { on click { saving = true } }
+    }
 }
+Button("Finish saving") { on click { saving = false } }
 ```
 
 Renders with the class `wf-loading-overlay`.
@@ -1165,11 +1449,18 @@ Tour(open: …, back: …, next: …) { … }
 
 ```wf
 state touring = false
-Button("New", ref: newBtn)
-Button("Take the tour") { on click { touring = true } }
-Tour(open: touring) {
-    Tour.Step(target: newBtn, title: "New") { Text("Start a project here.") }
+state toured = "Not toured yet"
+Row(gap: .sm) {
+    Button("New project", ref: newBtn).primary
+    Button("Import", ref: importBtn)
+    Button("Take the tour") { on click { touring = true } }
 }
+Tour(open: touring) {
+    on finish { toured = "Tour finished" }
+    Tour.Step(target: newBtn, title: "Start here") { Text("Make a project from a template.") }
+    Tour.Step(target: importBtn, title: "Bring your work") { Text("Import a folder you already have.") }
+}
+Text(toured).muted
 ```
 
 Renders with the class `wf-tour`.
@@ -1204,8 +1495,8 @@ ConsentBanner(text, accept: …, decline: …, label: …) { … }
 ```
 
 ```wf
-ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") {
-    Link("How we count", to: "/")
+ConsentBanner("We would like to count visits to improve the site. Nothing is shared.", accept: "Allow", decline: "No thanks") {
+    Link("How we count", to: "/learn")
 }
 ```
 
@@ -1231,8 +1522,12 @@ ConsentSettings(label)
 ```
 
 ```wf
-ConsentBanner("We would like to count visits.")
-ConsentSettings("Cookie settings")
+Row(gap: .md, align: .center) {
+    Text("© 2026 Ledger").muted.sm
+    Link("Privacy", to: "/learn")
+    ConsentSettings("Cookie settings")
+}
+ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks")
 ```
 
 Renders with the class `wf-consent-settings`.
@@ -1253,8 +1548,13 @@ CircularProgress(value: …, max: …, label: …) { … }
 
 ```wf
 state done = 40
-CircularProgress(value: done, label: "Upload") { Text("{done}%").sm }
-Button("More") { on click { done = done + 20 } }
+Row(gap: .lg, align: .center) {
+    CircularProgress(value: done, max: 100, label: "Upload") { Text("{done}%").sm }
+    Stack(gap: .xs) {
+        Text("Uploading photos.zip").bold
+        Button("Add 20%").sm { on click { done = if done >= 80 { 100 } else { done + 20 } } }
+    }
+}
 ```
 
 Renders with the class `wf-circular-progress`.
@@ -1278,7 +1578,12 @@ Meter(value: …, min: …, max: …)
 ```
 
 ```wf
-Meter(value: 0.92, high: 0.9, label: "Disk")
+state used = 0.72
+Stack(gap: .sm) {
+    Text("Disk: {used:.percent} used")
+    Meter(value: used, max: 1, high: 0.9, optimum: 0, label: "Disk")
+    Slider(bind: used, min: 0, max: 1, step: 0.01, label: "Used")
+}
 ```
 
 Renders with the class `wf-meter`.
@@ -1304,12 +1609,18 @@ Popconfirm(title: …, yes: …, no: …) { … }
 ```
 
 ```wf
-state said = ""
-Popconfirm(title: "Delete this file?", yes: "Delete").danger {
-    on confirm { said = "deleted" }
-    Button("Delete")
+state files = ["notes.md", "draft.md", "todo.md"]
+Stack(gap: .sm) {
+    for f in files by f {
+        Row(gap: .sm, align: .center, justify: .between) {
+            Text(f)
+            Popconfirm(title: "Delete {f}?", yes: "Delete", no: "Keep").danger {
+                on confirm { files = files.filter(x => x != f) }
+                Button("Delete").sm.outlined
+            }
+        }
+    }
 }
-Text(said)
 ```
 
 Renders with the class `wf-popconfirm`.
@@ -1338,8 +1649,12 @@ Alert(message, tone: …) { … }
 ```
 
 ```wf
-Alert("Your changes were saved.").success
-Alert("The server is not answering.").danger
+Stack(gap: .sm) {
+    Alert("Your changes were saved.").success
+    Alert("Your trial ends in 3 days.").warning
+    Alert("The server is not answering. We will try again in a minute.").danger
+    Alert("A new version of the editor is available.").info
+}
 ```
 
 Renders with the class `wf-alert`.
@@ -1364,8 +1679,17 @@ Toast(message, tone: …)
 ```
 
 ```wf
-state saved = false
-if saved { Toast("Saved").success }
+state archived = 0
+Row(gap: .sm) {
+    Button("Archive conversation") {
+        on click {
+            archived = archived + 1
+            toast("Conversation archived", action: "Undo", onAction: () => toast("Restored"))
+        }
+    }
+    Button("Save draft").primary { on click { toast("Draft saved", tone: .success) } }
+}
+Text("{archived} archived").muted
 ```
 
 Renders with the class `wf-toast`.
@@ -1389,12 +1713,17 @@ Modal(visible: …, title: …, closable: …) { … }
 
 ```wf
 state open = false
-Button("Delete") { on click { open = true } }
-Modal(visible: open, title: "Delete deploys.wf?").closable {
-    Modal.Title { Markdown("Delete `deploys.wf`?") }
-    Text("This cannot be undone.")
-    Modal.Footer { Button("Cancel") { on click { open = false } } }
+state name = "Q3 report"
+Button("Rename") { on click { open = true } }
+Modal(visible: open, title: "Rename the report").closable {
+    on close { open = false }
+    Input(bind: name, label: "Name")
+    Modal.Footer {
+        Button("Cancel") { on click { open = false } }
+        Button("Save").primary { on click { open = false } }
+    }
 }
+Text("Report: {name}").muted
 ```
 
 Renders with the class `wf-modal`.
@@ -1430,10 +1759,15 @@ Popover(visible: …, anchor: …, at: …) { … }
 
 ```wf
 state open = false
-Button("Branches", ref: branches) { on click { open = !open } }
-Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches").arrow {
-    on close(reason) { log(reason) }
-    Text("main")
+state branch = "main"
+Button("Branch: {branch}", ref: branchBtn) { on click { open = !open } }
+Popover(visible: open, anchor: branchBtn, placement: .bottomStart, label: "Branches").arrow {
+    on close(reason) { open = false }
+    Stack(gap: .xs) {
+        Button("main") { on click { branch = "main"  open = false } }
+        Button("release-7.0") { on click { branch = "release-7.0"  open = false } }
+        Button("fix-login") { on click { branch = "fix-login"  open = false } }
+    }
 }
 ```
 
@@ -1469,9 +1803,13 @@ Dialog(visible: …, title: …, closable: …) { … }
 
 ```wf
 state asking = false
-Dialog(visible: asking, title: "Leave without saving notes.md?") {
-    Dialog.Title { Markdown("Leave without saving `notes.md`?") }
-    Text("Your draft will be lost.")
+Button("Close the editor") { on click { asking = true } }
+Dialog(visible: asking, title: "Leave without saving?").closable {
+    Text("Your draft of notes.md has changes that are not saved.")
+    Row(gap: .sm, justify: .end) {
+        Button("Stay") { on click { asking = false } }
+        Button("Leave").danger { on click { asking = false } }
+    }
 }
 ```
 
@@ -1507,14 +1845,16 @@ AlertDialog(visible: …, title: …, dismiss: …) { … }
 
 ```wf
 state sure = false
-Button("Discard") { on click { sure = true } }
+state said = "Draft: 3 unsaved edits"
+Button("Discard changes").danger.outlined { on click { sure = true } }
 AlertDialog(visible: sure, title: "Discard your changes?") {
-    Text("Your edits will be lost.")
+    Text("Your 3 edits to the pricing page will be lost.")
     AlertDialog.Footer {
         Button("Keep editing") { on click { sure = false } }
-        Button("Discard").danger { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false  said = "Draft discarded" } }
     }
 }
+Text(said).muted
 ```
 
 Renders with the class `wf-dialog wf-alert-dialog`.
@@ -1550,14 +1890,15 @@ Sheet(visible: …, title: …, closable: …) { … }
 ```wf
 state filters = false
 state sort = "new"
+state inStock = true
 Button("Filters") { on click { filters = true } }
 Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
-    Radio(bind: sort, value: "new", label: "Newest")
-    Radio(bind: sort, value: "price", label: "Price")
-    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+    Radio(bind: sort, value: "new", label: "Newest first")
+    Radio(bind: sort, value: "price", label: "Lowest price")
+    Switch(bind: inStock, label: "In stock only")
+    Sheet.Footer { Button("Show results").primary.full { on click { filters = false } } }
 }
-state details = false
-Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }
+Text("Sorted by {sort}").muted
 ```
 
 Renders with the class `wf-sheet`.
@@ -1595,8 +1936,11 @@ Spinner(size: …)
 ```
 
 ```wf
-Spinner
-Spinner.lg
+Row(gap: .lg, align: .center) {
+    Spinner.sm
+    Spinner
+    Spinner.lg
+}
 ```
 
 Renders with the class `wf-spinner`.
@@ -1618,7 +1962,12 @@ Progress(value: …, max: …)
 ```
 
 ```wf
-Progress(value: 40, max: 100)
+state sent = 3
+Stack(gap: .sm) {
+    Text("Sending invitations: {sent} of 8")
+    Progress(value: sent, max: 8)
+    Button("Send one more") { on click { sent = if sent < 8 { sent + 1 } else { 0 } } }
+}
 ```
 
 Renders with the class `wf-progress`.
@@ -1639,8 +1988,14 @@ Skeleton(height: …, width: …, size: …)
 ```
 
 ```wf
-Skeleton(height: "20px", width: "200px")
-Skeleton(size: "48px").circle
+Row(gap: .md, align: .center) {
+    Skeleton(size: "48px").circle
+    Stack(gap: .sm) {
+        Skeleton(height: "16px", width: "180px")
+        Skeleton(height: "12px", width: "260px")
+        Skeleton(height: "12px", width: "220px")
+    }
+}
 ```
 
 Renders with the class `wf-skeleton`.
@@ -1667,8 +2022,14 @@ Lightbox(label: …, previous: …, next: …) { … }
 ```
 
 ```wf
-Lightbox(label: "Trip") {
-    Image(src: "/favicon.svg", alt: "The logo")
+Lightbox(label: "Launch week", previous: "Previous photo", next: "Next photo", close: "Close", zoom: "Zoom", of: "of") {
+    Gallery(columns: 3, ratio: 4 / 3) {
+        Image(src: "/og.png", alt: "The launch card, as it was shared")
+        Image(src: "/icon-512.png", alt: "The app icon on a white tile")
+        Image(src: "/og.png", alt: "The launch card, cropped to its title") {
+            style { object-position: 20% 50% }
+        }
+    }
 }
 ```
 
@@ -1696,9 +2057,15 @@ Gallery(columns: …, ratio: …) { … }
 ```
 
 ```wf
-Gallery(columns: 2, ratio: 4 / 3) {
-    Image(src: "/favicon.svg", alt: "The logo")
-    Image(src: "/favicon.svg", alt: "The logo again")
+Gallery(columns: { base: 2, md: 4 }, ratio: 1) {
+    Image(src: "/og.png", alt: "The sharing card")
+    Image(src: "/icon-512.png", alt: "The app icon")
+    Image(src: "/og.png", alt: "The sharing card, its left edge") {
+        style { object-position: 0% 50% }
+    }
+    Image(src: "/og.png", alt: "The sharing card, its right edge") {
+        style { object-position: 100% 50% }
+    }
 }
 ```
 
@@ -1722,8 +2089,14 @@ Image(source, src: …, sizes: …, placeholder: …)
 ```
 
 ```wf
-Image(src: "/team.jpg", alt: "The team at the launch", width: 1200, height: 630)
-Image(src: "/flourish.svg", alt: "")
+Stack(gap: .md) {
+    Image(src: "/og.png", alt: "WebFluent's sharing card: the name over a dark field",
+          sizes: "(max-width: 768px) 100vw, 640px", placeholder: .blur).rounded
+    Row(gap: .md, align: .center) {
+        Image(src: "/icon-512.png", alt: "The app icon", width: 64, height: 64).circle
+        Text("Pictures from public/ are resized to WebP at every width a page asks for.").muted.sm
+    }
+}
 ```
 
 Renders with the class `wf-image`.
@@ -1753,7 +2126,8 @@ Video(src: …, controls: …, autoplay: …)
 ```
 
 ```wf
-Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
+Video(src: "/media/launch.mp4", poster: "/og.png", captions: "/media/launch.en.vtt",
+      width: 1280, height: 720).controls.playsinline
 ```
 
 Renders with the class `wf-video`.
@@ -1784,7 +2158,11 @@ Audio(src: …, controls: …, autoplay: …)
 ```
 
 ```wf
-Audio(src: "/episode-1.mp3", transcript: "/episode-1.txt").controls
+Stack(gap: .sm) {
+    Heading("Episode 12: Shipping 7.0").h3
+    Text("Forty minutes on types, results and what changed.").muted
+    Audio(src: "/media/episode-12.mp3", transcript: "/media/episode-12.txt").controls
+}
 ```
 
 Renders with the class `wf-audio`.
@@ -1810,13 +2188,20 @@ Frame(src: …, srcdoc: …, title: …)
 ```
 
 ```wf
-Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
-state heard = ""
-Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-    on message(m) { heard = JSON.stringify(m.data) }
+state version = 2
+state heard = "nothing yet"
+Stack(gap: .sm) {
+    Row(gap: .sm) {
+        Button("Version 1") { on click { version = 1 } }
+        Button("Version 2") { on click { version = 2 } }
+    }
+    Frame(srcdoc: "<p style='font-family:sans-serif'>Release notes, version {version}</p>",
+          title: "Release notes preview", sandbox: "") {
+        style { width: 100%; height: 120px; border: 1px solid $color-border; border-radius: 8px }
+        on load { heard = "version {version} loaded" }
+    }
+    Text("Frame says: {heard}").muted.sm
 }
-state version = 1
-Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
 ```
 
 Renders with the class `wf-frame`.
@@ -1845,8 +2230,12 @@ Icon(name, size: …, tone: …, muted: …)
 ```
 
 ```wf
-Icon("search")
-Icon("check").lg.success
+Row(gap: .lg, align: .center) {
+    Row(gap: .xs, align: .center) { Icon("check").success  Text("Deployed") }
+    Row(gap: .xs, align: .center) { Icon("warning").warning  Text("2 warnings") }
+    Row(gap: .xs, align: .center) { Icon("alert-circle").danger  Text("1 failed") }
+    Row(gap: .xs, align: .center) { Icon("clock").muted  Text("Queued") }
+}
 ```
 
 Renders with the class `wf-icon`.
@@ -1871,9 +2260,21 @@ Carousel(label: …, autoplay: …, interval: …) { … }
 ```
 
 ```wf
-Carousel(label: "Recent work", autoplay: true, interval: 5000) {
-    Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
-    Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }
+Carousel(label: "Featured work", autoplay: true, interval: 6000) {
+    Carousel.Slide {
+        Image(src: "/og.png", alt: "The sharing card")
+    }
+    Carousel.Slide {
+        Image(src: "/og.png", alt: "The sharing card, its title in close-up") {
+            style { object-fit: cover; object-position: 15% 50%; aspect-ratio: 1200 / 630 }
+        }
+    }
+    Carousel.Slide {
+        Center {
+            style { aspect-ratio: 1200 / 630; background: $color-surface }
+            Image(src: "/icon-512.png", alt: "The app icon", width: 160, height: 160)
+        }
+    }
 }
 ```
 
@@ -1907,8 +2308,11 @@ DescriptionList(grid: …) { … }
 
 ```wf
 DescriptionList.grid {
-    DescriptionList.Item("Region", value: "eu-west")
+    DescriptionList.Item("Service", value: "checkout-api")
+    DescriptionList.Item("Region", value: "eu-west-1")
+    DescriptionList.Item("Replicas", value: 3)
     DescriptionList.Item("Status") { Badge("Live").success }
+    DescriptionList.Item("Last deploy") { RelativeTime(@2026-11-14T16:05Z) }
 }
 ```
 
@@ -1944,8 +2348,15 @@ Timeline { … }
 
 ```wf
 Timeline {
-    Timeline.Item("Released", at: "2026-11-14") { Text("Version 6.1") }
-    Timeline.Item("Planned") { Text("Version 7") }
+    Timeline.Item("7.0 released", at: @2026-11-10) {
+        Text("Typed requests, results and error enums.")
+    }
+    Timeline.Item("6.1 released", at: @2026-09-02) {
+        Text("Charts and QR codes on a web page.")
+    }
+    Timeline.Item("Public beta", at: @2026-06-15) {
+        Text("The first hundred projects moved over.").muted
+    }
 }
 ```
 
@@ -1973,11 +2384,13 @@ AvatarGroup(max: …, label: …) { … }
 ```
 
 ```wf
-AvatarGroup(max: 3, label: "Team") {
-    Avatar(initials: "AL")
-    Avatar(initials: "GH")
+AvatarGroup(max: 4, label: "Reviewers") {
+    Avatar(src: "/icon-512.png", alt: "Ada Lovelace")
+    Avatar(initials: "GH").primary
     Avatar(initials: "AT")
     Avatar(initials: "ED")
+    Avatar(initials: "KJ")
+    Avatar(initials: "MH")
 }
 ```
 
@@ -2001,10 +2414,17 @@ Item(title: …, description: …) { … }
 ```
 
 ```wf
-state notify = true
-Item(title: "Notifications", description: "Sent to your phone") {
-    Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: notify, label: "On") }
+state push = true
+state digest = false
+Stack(gap: .sm) {
+    Item(title: "Push notifications", description: "Sent to your phone when a deploy fails") {
+        Item.Media { Icon("bell") }
+        Item.Actions { Switch(bind: push, aria-label: "Push notifications") }
+    }
+    Item(title: "Weekly digest", description: "A summary every Monday morning") {
+        Item.Media { Icon("mail") }
+        Item.Actions { Switch(bind: digest, aria-label: "Weekly digest") }
+    }
 }
 ```
 
@@ -2034,9 +2454,16 @@ Sparkline(data, bar: …, width: …, height: …)
 ```
 
 ```wf
-Text("Sign-ups ")
-Sparkline([3, 5, 2, 8, 6], label: "Sign-ups this week")
-Sparkline([3, 5, 2, 8, 6], label: "By day").bar
+Stack(gap: .sm) {
+    Row(gap: .sm, align: .center) {
+        Text("Sign-ups this week")
+        Sparkline([12, 18, 9, 24, 31, 27, 40], label: "Sign-ups this week")
+    }
+    Row(gap: .sm, align: .center) {
+        Text("Errors by day")
+        Sparkline([4, 2, 7, 1, 0, 3, 2], label: "Errors by day").bar
+    }
+}
 ```
 
 Renders with the class `wf-sparkline`.
@@ -2063,7 +2490,10 @@ RelativeTime(when, datetime: …)
 ```
 
 ```wf
-RelativeTime("2026-01-01T09:00:00Z")
+Stack(gap: .xs) {
+    Row(gap: .xs) { Text("Deployed")  RelativeTime(@2026-11-01T09:30Z) }
+    Row(gap: .xs) { Text("Created")  RelativeTime(@2026-01-15) }
+}
 ```
 
 Renders with the class `wf-relative-time`.
@@ -2085,9 +2515,20 @@ Card(surface: …) { … }
 
 ```wf
 Card.elevated {
-    Card.Header { Heading("Pro").h3 }
-    Card.Body { Text("Everything in Free, and more.") }
-    Card.Footer { Button("Choose Pro").primary }
+    Card.Header {
+        Row(justify: .between, align: .center) {
+            Heading("Pro").h3
+            Badge("Popular").primary.pill
+        }
+    }
+    Card.Body {
+        Text("Everything in Free, and more.").muted
+        List {
+            List.Item { Text("Unlimited projects") }
+            List.Item { Text("Priority support") }
+        }
+    }
+    Card.Footer { Button("Choose Pro").primary.full }
 }
 ```
 
@@ -2118,9 +2559,20 @@ Table(caption: …) { … }
 ```
 
 ```wf
-Table(caption: "Deploys") {
-    Table.Head { Table.Row { Table.Cell("Region")  Table.Cell("Status") } }
-    Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("Healthy") } }
+state regions = [{ name: "fra1", latency: 42, status: "Healthy" }, { name: "iad1", latency: 88, status: "Healthy" }, { name: "sin1", latency: 190, status: "Degraded" }]
+Table(caption: "Regions") {
+    Table.Head {
+        Table.Row { Table.Cell("Region")  Table.Cell("Latency")  Table.Cell("Status") }
+    }
+    Table.Body {
+        for r in regions by r.name {
+            Table.Row {
+                Table.Cell(r.name).header
+                Table.Cell("{r.latency} ms")
+                Table.Cell { Badge(r.status, tone: if r.status == "Healthy" { .success } else { .warning }) }
+            }
+        }
+    }
 }
 ```
 
@@ -2153,11 +2605,18 @@ List(ordered: …) { … }
 ```
 
 ```wf
-List {
-    List.Item { Text("Milk") }
-    List.Item { Text("Eggs") }
+Stack(gap: .md) {
+    List {
+        List.Item { Text("Unlimited projects") }
+        List.Item { Text("Custom domains") }
+        List.Item { Text("Priority support").bold }
+    }
+    List.ordered {
+        List.Item { Code("wf init shop") }
+        List.Item { Text("Write your first page") }
+        List.Item { Code("wf serve") }
+    }
 }
-List.ordered { List.Item { Text("First") } }
 ```
 
 Renders with the class `wf-list`.
@@ -2185,8 +2644,11 @@ Badge(label, tone: …, pill: …)
 ```
 
 ```wf
-Badge("Beta").info
-Badge("3 new").danger.pill
+Row(gap: .sm, align: .center) {
+    Heading("Billing").h3
+    Badge("Beta").info
+    Badge("3 overdue").danger.pill
+}
 ```
 
 Renders with the class `wf-badge`.
@@ -2210,7 +2672,14 @@ Tag(label)
 ```
 
 ```wf
-Tag("design")
+Stack(gap: .sm) {
+    Heading("Slow roasting, explained").h3
+    Row(gap: .xs) {
+        Tag("Cooking")
+        Tag("Technique")
+        Tag("Long read")
+    }
+}
 ```
 
 Renders with the class `wf-tag`.
@@ -2230,8 +2699,11 @@ Avatar(src: …, alt: …, initials: …)
 ```
 
 ```wf
-Avatar(src: "/ada.jpg", alt: "Ada Lovelace")
-Avatar(initials: "AL").primary.lg
+Row(gap: .md, align: .center) {
+    Avatar(src: "/icon-512.png", alt: "Ada Lovelace").lg
+    Avatar(initials: "GH").primary
+    Avatar(initials: "AT").sm
+}
 ```
 
 Renders with the class `wf-avatar`.
@@ -2257,8 +2729,13 @@ Tooltip(text, shortcut: …, placement: …, delay: …) { … }
 ```
 
 ```wf
-Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
-Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save") }
+Row(gap: .sm) {
+    Tooltip("Copy the link") { IconButton(icon: "copy", label: "Copy link") }
+    Tooltip("Edit the page", shortcut: "mod+e") { IconButton(icon: "edit", label: "Edit") }
+    Tooltip("Delete it for good", placement: .bottom, delay: 200) {
+        IconButton(icon: "trash", label: "Delete").danger
+    }
+}
 ```
 
 Renders with the class `wf-tooltip`.
@@ -2285,10 +2762,23 @@ Tree(items: …, children: …, key: …)
 ```
 
 ```wf
-state file = ""
-Tree(items: [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }], children: f => f.children, key: f => f.path, bind: file, label: "Files") {
-    row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
+state file = "src/pages/Home.wf"
+Tree(items: [
+    { path: "src", name: "src", children: [
+        { path: "src/App.wf", name: "App.wf" },
+        { path: "src/pages", name: "pages", children: [
+            { path: "src/pages/Home.wf", name: "Home.wf" },
+            { path: "src/pages/About.wf", name: "About.wf" },
+        ] },
+    ] },
+    { path: "webfluent.app.json", name: "webfluent.app.json" },
+], children: f => f.children ?? [], key: f => f.path, bind: file, open: ["src", "src/pages"], label: "Files") {
+    row(f) {
+        Icon(if f.children != null { "folder" } else { "file" })
+        Text(f.name)
+    }
 }
+Text("Open: {file}").muted
 ```
 
 Renders with the class `wf-tree`.
@@ -2316,13 +2806,17 @@ DataTable(rows: …, key: …, bind: …) { … }
 ```
 
 ```wf
-state deploys = [{ id: "1", service: "web", status: "live" }, { id: "2", service: "api", status: "failed" }]
+state deploys = [{ id: "d1", service: "checkout", region: "fra1", minutes: 4, status: "Live" }, { id: "d2", service: "search", region: "iad1", minutes: 11, status: "Failed" }, { id: "d3", service: "accounts", region: "sin1", minutes: 7, status: "Live" }]
 state chosen: [String] = []
 DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
-    empty { EmptyState(icon: "list", title: "No deploys yet") }
     DataTable.Column("Service", value: d => d.service).sortable
-    DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+    DataTable.Column("Region", value: d => d.region)
+    DataTable.Column("Minutes", value: d => d.minutes).sortable
+    DataTable.Column("Status") {
+        cell(d) { Badge(d.status, tone: if d.status == "Live" { .success } else { .danger }) }
+    }
 }
+Text("{chosen.length} chosen").muted
 ```
 
 Renders with the class `wf-data-table`.
@@ -2360,7 +2854,12 @@ Chart(kind: …, data: …, x: …)
 ```
 
 ```wf
-Chart(kind: .bar, data: [{ month: "Jan", web: 12 }, { month: "Feb", web: 18 }], x: "month", y: "web", unit: "k")
+Chart(kind: .bar, data: [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+    { month: "Mar", web: 56, store: 24 },
+    { month: "Apr", web: 61, store: 30 },
+], x: "month", y: ["web", "store"], unit: "k").legend
 ```
 
 Renders with the class `wf-chart`.
@@ -2394,7 +2893,15 @@ QrCode(value, color: …, background: …)
 ```
 
 ```wf
-QrCode("https://example.com/report/q1")
+Card.outlined {
+    Row(gap: .md, align: .center) {
+        QrCode("https://example.com/tickets/QX-4821")
+        Stack(gap: .xs) {
+            Text("Ticket QX-4821").bold
+            Text("Show this at the door.").muted
+        }
+    }
+}
 ```
 
 Renders with the class `wf-qr`.
@@ -2419,7 +2926,9 @@ ColorPicker(bind: …, label: …, swatches: …)
 
 ```wf
 state accent = "#0f766e"
-ColorPicker(bind: accent, label: "Accent", swatches: ["#0f766e", "#b91c1c", "#1d4ed8"])
+ColorPicker(bind: accent, label: "Accent colour", swatches: ["#0f766e", "#1d4ed8", "#7c3aed", "#b91c1c", "#c2410c"])
+Button("Preview").primary { style { background: {accent} } }
+Text("Chosen: {accent}").muted
 ```
 
 Renders with the class `wf-color-picker`.
@@ -2441,8 +2950,14 @@ TransferList(bind: …, options: …, text: …)
 ```
 
 ```wf
-state picked: [String] = ["b"]
-TransferList(bind: picked, options: [{ id: "a", name: "Ada" }, { id: "b", name: "Grace" }, { id: "c", name: "Alan" }], text: p => p.name, key: p => p.id, label: "Reviewers")
+state picked: [String] = ["ada"]
+TransferList(bind: picked, options: [
+    { id: "ada", name: "Ada Lovelace" },
+    { id: "grace", name: "Grace Hopper" },
+    { id: "alan", name: "Alan Turing" },
+    { id: "katherine", name: "Katherine Johnson" },
+], text: p => p.name, key: p => p.id, label: "Reviewers", from: "Everyone")
+Text("Reviewers: {picked.join(", ")}").muted
 ```
 
 Renders with the class `wf-transfer-list`.
@@ -2468,8 +2983,9 @@ Editable(bind: …, label: …, placeholder: …)
 ```
 
 ```wf
-state title = "Untitled"
-Editable(bind: title, label: "Project name")
+state project = "Quarterly report"
+Editable(bind: project, label: "Project name", placeholder: "Name the project")
+Text("Saved as “{project}”").muted
 ```
 
 Renders with the class `wf-editable`.
@@ -2491,8 +3007,13 @@ Input(reveal: …, bind: …, label: …)
 ```
 
 ```wf
+state name = "Ada Lovelace"
 state email = ""
-Input(bind: email, label: "Email", hint: "We never share it").email.required
+Stack(gap: .md) {
+    Input(bind: name, label: "Full name", placeholder: "Ada Lovelace").text
+    Input(bind: email, label: "Work email", hint: "We send the invoice here.", placeholder: "ada@example.com").email.required
+    Text(if email == "" { "Hello, {name}" } else { "Hello, {name}: we write to {email}" }).muted
+}
 ```
 
 Renders with the class `wf-input`.
@@ -2529,11 +3050,13 @@ Select(bind: …, value: …, label: …) { … }
 ```
 
 ```wf
-state plan = "free"
-Select(bind: plan, label: "Plan") {
-    Select.Option("Free", value: "free")
-    Select.Option("Team", value: "team")
+state region = "eu-west"
+Select(bind: region, label: "Region", hint: "Where your data is stored.") {
+    Select.Option("Europe (Ireland)", value: "eu-west")
+    Select.Option("US East (Virginia)", value: "us-east")
+    Select.Option("Asia Pacific (Tokyo)", value: "ap-northeast")
 }
+Text("Chosen: {region}").muted
 ```
 
 Renders with the class `wf-select`.
@@ -2569,8 +3092,13 @@ Checkbox(bind: …, checked: …, label: …)
 ```
 
 ```wf
-state agree = false
-Checkbox(bind: agree, label: "I agree to the terms")
+state terms = false
+state newsletter = true
+Stack(gap: .sm) {
+    Checkbox(bind: terms, label: "I accept the terms of service")
+    Checkbox(bind: newsletter, label: "Send me the monthly newsletter")
+    Text(if terms { "Ready to sign up." } else { "Accept the terms to go on." }).muted
+}
 ```
 
 Renders with the class `wf-checkbox`.
@@ -2595,9 +3123,13 @@ Radio(bind: …, value: …, checked: …)
 ```
 
 ```wf
-state size = "m"
-Radio(bind: size, value: "s", label: "Small")
-Radio(bind: size, value: "m", label: "Medium")
+state shipping = "standard"
+Stack(gap: .sm) {
+    Radio(bind: shipping, value: "standard", label: "Standard — 5 to 7 days, free")
+    Radio(bind: shipping, value: "express", label: "Express — 2 days, $9")
+    Radio(bind: shipping, value: "overnight", label: "Overnight — $24")
+    Text("Chosen: {shipping}").muted
+}
 ```
 
 Renders with the class `wf-radio`.
@@ -2623,8 +3155,13 @@ Switch(bind: …, checked: …, label: …)
 ```
 
 ```wf
-state notify = true
-Switch(bind: notify, label: "Email me about replies")
+state replies = true
+state digest = false
+Stack(gap: .sm) {
+    Switch(bind: replies, label: "Email me when someone replies")
+    Switch(bind: digest, label: "Send a weekly digest")
+    Text("Replies {if replies { "on" } else { "off" }}, digest {if digest { "on" } else { "off" }}").muted
+}
 ```
 
 Renders with the class `wf-switch`.
@@ -2649,8 +3186,9 @@ Slider(bind: …, min: …, max: …)
 ```
 
 ```wf
-state volume = 50
+state volume = 60
 Slider(bind: volume, min: 0, max: 100, step: 5, label: "Volume")
+Text("Volume: {volume}%").muted
 ```
 
 Renders with the class `wf-slider`.
@@ -2678,8 +3216,13 @@ DatePicker(bind: …, label: …, min: …)
 ```
 
 ```wf
-state start: Date? = null
-DatePicker(bind: start, label: "Start date", min: "2026-01-01")
+state start: Date? = @2026-11-17
+DatePicker(bind: start, label: "Start date", min: "2026-01-01", max: "2026-12-31")
+if let d = start {
+    Text("Starts {d:.date(long)}").muted
+} else {
+    Text("No date chosen").muted
+}
 ```
 
 Renders with the class `wf-datepicker`.
@@ -2706,8 +3249,12 @@ FileUpload(accept: …, label: …, multiple: …) { … }
 
 ```wf
 state photo: File? = null
-FileUpload(bind: photo, accept: "image/*", label: "Choose a picture")
-if let p = photo { Text(p.name) }
+FileUpload(bind: photo, accept: "image/*", label: "Profile picture")
+if let p = photo {
+    Text("Chosen: {p.name}").muted
+} else {
+    Text("No picture chosen").muted
+}
 ```
 
 Renders with the class `wf-file-upload`.
@@ -2736,12 +3283,24 @@ Form(bind: …, show: …) { … }
 ```
 
 ```wf
-state name = ""
-Form(bind: form) {
-    on submit { log(name) }
-    Input(bind: name, label: "Name").required
-    Button("Save", type: .submit, disabled: !form.valid).primary
+state email = ""
+state password = ""
+state sent = ""
+validate email {
+    required "Enter your email"
+    email "That is not an email address"
 }
+validate password {
+    required
+    minLength(8) "Use at least 8 characters"
+}
+Form(bind: form, show: .onBlur) {
+    on submit { sent = "Signed in as {email}" }
+    Input(bind: email, label: "Email").email
+    Input(bind: password, label: "Password").password
+    Button("Sign in", type: .submit, disabled: !form.valid).primary
+}
+Text(if sent == "" { "Not signed in yet." } else { sent }).muted
 ```
 
 Renders with the class `wf-form`.
@@ -2766,8 +3325,9 @@ Textarea(bind: …, label: …, hint: …)
 ```
 
 ```wf
-state note = ""
-Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
+state feedback = ""
+Textarea(bind: feedback, label: "What could we do better?", hint: "Be as specific as you like.", placeholder: "The export was slow when…", rows: 4, maxLength: 280)
+Text("{feedback.length} of 280 characters").muted
 ```
 
 Renders with the class `wf-input wf-textarea`.
@@ -2798,10 +3358,12 @@ Field(label: …, hint: …, error: …) { … }
 ```
 
 ```wf
-state plan = "basic"
-Field(label: "Plan", hint: "You can change it later.") {
-    Select(bind: plan) { Select.Option("Basic", value: "basic")  Select.Option("Pro", value: "pro") }
+state color = "#0f766e"
+derived colorError = if color == "#ffffff" { "White disappears on the page." } else { "" }
+Field(label: "Brand colour", hint: "Used for buttons and links.", error: colorError) {
+    ColorPicker(bind: color, label: "Brand colour", swatches: ["#0f766e", "#1d4ed8", "#b91c1c", "#ffffff"])
 }
+Text("Chosen: {color}").muted
 ```
 
 Renders with the class `wf-field wf-field--custom`.
@@ -2836,10 +3398,15 @@ Fieldset(legend: …) { … }
 ```wf
 state street = ""
 state city = ""
-Fieldset(legend: "Address") {
+state postcode = ""
+Fieldset(legend: "Shipping address") {
     Input(bind: street, label: "Street")
-    Input(bind: city, label: "City")
+    Row(gap: .md) {
+        Input(bind: city, label: "City")
+        Input(bind: postcode, label: "Postcode")
+    }
 }
+Text("{street}, {postcode} {city}").muted
 ```
 
 Renders with the class `wf-fieldset`.
@@ -2866,14 +3433,21 @@ InputGroup { … }
 ```
 
 ```wf
-state q = ""
-InputGroup {
-    Icon("search")
-    Input(bind: q, aria-label: "Search")
-    InputGroup.Clear
+state search = ""
+state domain = "acme"
+Stack(gap: .md) {
+    InputGroup {
+        Icon("search")
+        Input(bind: search, placeholder: "Search the docs", aria-label: "Search the docs")
+        InputGroup.Clear
+    }
+    InputGroup {
+        InputGroup.Addon("https://")
+        Input(bind: domain, aria-label: "Subdomain")
+        InputGroup.Addon(".example.com")
+    }
+    Text("Searching for “{search}” on https://{domain}.example.com").muted
 }
-state site = ""
-InputGroup { InputGroup.Addon("https://")  Input(bind: site, aria-label: "Site") }
 ```
 
 Renders with the class `wf-input-group`.
@@ -2897,11 +3471,13 @@ RadioGroup(bind: …, label: …, cards: …) { … }
 ```
 
 ```wf
-state plan = "free"
+state plan = "team"
 RadioGroup(bind: plan, label: "Plan").cards {
     RadioGroup.Option("Free", value: "free", hint: "For trying it out")
-    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+    RadioGroup.Option("Team", value: "team", hint: "Up to 20 people, $12 each")
+    RadioGroup.Option("Scale", value: "scale", hint: "Unlimited people, single sign-on")
 }
+Text("Chosen: {plan}").muted
 ```
 
 Renders with the class `wf-radio-group`.
@@ -2938,8 +3514,9 @@ NumberInput(bind: …, min: …, max: …)
 ```
 
 ```wf
-state qty = 1
-NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")
+state tickets = 2
+NumberInput(bind: tickets, min: 1, max: 10, step: 1, label: "Tickets", hint: "Ten at most per order.")
+Text("Total: ${tickets * 45}").muted
 ```
 
 Renders with the class `wf-number-input`.
@@ -2973,8 +3550,11 @@ Calendar(bind: …, mode: …, min: …)
 ```
 
 ```wf
-state day: Date? = null
-Calendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")
+state delivery: Date? = @2026-11-17
+Calendar(bind: delivery, min: @2026-11-17, disabled: d => d.weekday() >= 6, label: "Delivery day").single
+if let d = delivery {
+    Text("Delivered on {d:.date(long)}").muted
+}
 ```
 
 Renders with the class `wf-calendar`.
@@ -3006,7 +3586,9 @@ Listbox(bind: fruit, label: "Fruit") {
     Listbox.Option("Apple", value: "apple")
     Listbox.Option("Banana", value: "banana")
     Listbox.Option("Cherry", value: "cherry")
+    Listbox.Option("Mango", value: "mango")
 }
+Text("Chosen: {fruit}").muted
 ```
 
 Renders with the class `wf-listbox`.
@@ -3040,12 +3622,15 @@ Combobox(bind: …, options: …, search: …)
 ```
 
 ```wf
-state city = ""
-state cities = [{ id: "par", name: "Paris", country: "France" }, { id: "por", name: "Porto", country: "Portugal" }]
-Combobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: "City") {
-    option(c) { Text(c.name)  Text(c.country).muted }
-    empty { Text("No city by that name") }
-}
+state city = "lis"
+Combobox(bind: city, options: [
+    { id: "ams", name: "Amsterdam" },
+    { id: "ber", name: "Berlin" },
+    { id: "lis", name: "Lisbon" },
+    { id: "mad", name: "Madrid" },
+    { id: "par", name: "Paris" },
+], text: c => c.name, key: c => c.id, label: "City", placeholder: "Type a city")
+Text("Chosen: {city}").muted
 ```
 
 Renders with the class `wf-combobox`.
@@ -3075,11 +3660,13 @@ CheckboxGroup(bind: …, label: …, all: …) { … }
 ```
 
 ```wf
-state toppings: [String] = []
-CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
-    CheckboxGroup.Option("Olives", value: "olives")
-    CheckboxGroup.Option("Onions", value: "onions")
+state channels: [String] = ["email"]
+CheckboxGroup(bind: channels, label: "Notify me by", all: "Every channel") {
+    CheckboxGroup.Option("Email", value: "email")
+    CheckboxGroup.Option("Text message", value: "sms")
+    CheckboxGroup.Option("Push notification", value: "push")
 }
+Text("Chosen: {channels.join(", ")}").muted
 ```
 
 Renders with the class `wf-checkbox-group`.
@@ -3112,7 +3699,9 @@ InputOTP(bind: …, length: …, label: …)
 
 ```wf
 state code = ""
-InputOTP(bind: code, length: 6, label: "Code from your app")
+derived left = 6 - code.length
+InputOTP(bind: code, length: 6, label: "Code from your authenticator app")
+Text(if code.length == 6 { "Checking {code}…" } else { "{left} digit(s) to go" }).muted
 ```
 
 Renders with the class `wf-otp`.
@@ -3134,8 +3723,9 @@ TagInput(bind: …, label: …, placeholder: …)
 ```
 
 ```wf
-state tags: [String] = ["rust"]
-TagInput(bind: tags, label: "Tags", placeholder: "Add a tag")
+state tags: [String] = ["design", "frontend"]
+TagInput(bind: tags, label: "Tags", placeholder: "Type a tag, then Enter")
+Text("{tags.length} tag(s): {tags.join(", ")}").muted
 ```
 
 Renders with the class `wf-tag-input`.
@@ -3158,8 +3748,8 @@ Rating(bind: …, max: …, label: …)
 
 ```wf
 state stars = 4
-Rating(bind: stars, max: 5, label: "Your rating").half
-Rating(bind: stars, label: "Average").readonly
+Rating(bind: stars, max: 5, label: "Your rating")
+Text("You gave it {stars} of 5").muted
 ```
 
 Renders with the class `wf-rating`.
@@ -3185,8 +3775,9 @@ DateRangePicker(bind: …, label: …, min: …)
 ```
 
 ```wf
-state stay = { start: null, end: null }
-DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])
+state period = { start: @2026-11-01, end: @2026-11-17 }
+DateRangePicker(bind: period, label: "Report period", presets: [.today, .last7, .last30, .thisMonth, .lastMonth])
+Text("{period.start:.date(medium)} to {period.end:.date(medium)}").muted
 ```
 
 Renders with the class `wf-date-range`.
@@ -3212,12 +3803,13 @@ Fab(icon: …, label: …) { … }
 ```
 
 ```wf
-state said = ""
+state said = "Nothing made yet"
 Fab(icon: "plus", label: "Create") {
-    Fab.Action("Note", icon: "file") { on click { said = "note" } }
-    Fab.Action("Folder", icon: "folder") { on click { said = "folder" } }
+    Fab.Action("Note", icon: "file") { on click { said = "A new note" } }
+    Fab.Action("Folder", icon: "folder") { on click { said = "A new folder" } }
+    Fab.Action("Upload", icon: "upload") { on click { said = "An upload" } }
 }
-Text(said)
+Text(said).muted
 ```
 
 Renders with the class `wf-fab`.
@@ -3247,7 +3839,12 @@ BackToTop(label: …, after: …)
 ```
 
 ```wf
-BackToTop(after: 600)
+Stack(gap: .md) {
+    for n in 1..=12 {
+        Text("Chapter {n}: what the page says, long enough to scroll past.")
+    }
+}
+BackToTop(after: 600, label: "Back to the top")
 ```
 
 Renders with the class `wf-back-to-top`.
@@ -3268,8 +3865,10 @@ CopyButton(label, value: …, copied: …)
 ```
 
 ```wf
-CopyButton(value: "https://example.com/invite/42")
-CopyButton("Copy link", value: "https://example.com", copied: "Link copied")
+Row(gap: .sm, align: .center) {
+    Code("https://ledger.example.com/invite/42")
+    CopyButton("Copy link", value: "https://ledger.example.com/invite/42", copied: "Link copied")
+}
 ```
 
 Renders with the class `wf-btn wf-copy-button`.
@@ -3291,7 +3890,11 @@ ThemeToggle
 ```
 
 ```wf
-Row(gap: .sm) { ThemeToggle  LocaleSwitch }
+Row(gap: .sm, align: .center, justify: .between) {
+    Text("Appearance").bold
+    ThemeToggle
+}
+Text("The theme is {theme}.").muted
 ```
 
 Renders with the class `wf-icon-btn wf-theme-toggle`.
@@ -3307,7 +3910,10 @@ LocaleSwitch(label: …)
 ```
 
 ```wf
-LocaleSwitch(label: "Language")
+Row(gap: .sm, align: .center, justify: .between) {
+    Text("Language").bold
+    LocaleSwitch(label: "Language")
+}
 ```
 
 Renders with the class `wf-locale-switch`.
@@ -3328,7 +3934,17 @@ Toggle(label, bind: …, icon: …)
 
 ```wf
 state bold = false
-Toggle("Bold", bind: bold, icon: "type")
+state italic = true
+Row(gap: .sm) {
+    Toggle("Bold", bind: bold, icon: "type")
+    Toggle("Italic", bind: italic)
+}
+Text("The quick brown fox") {
+    style {
+        font-weight: {if bold { "700" } else { "400" }}
+        font-style: {if italic { "italic" } else { "normal" }}
+    }
+}
 ```
 
 Renders with the class `wf-btn wf-toggle`.
@@ -3355,11 +3971,7 @@ ToggleGroup(bind: view, label: "View") {
     ToggleGroup.Item("Grid", value: "grid", icon: "grid")
     ToggleGroup.Item("List", value: "list", icon: "list")
 }
-state styles: [String] = []
-ToggleGroup(bind: styles, label: "Text style").multiple {
-    ToggleGroup.Item("Bold", value: "b")
-    ToggleGroup.Item("Italic", value: "i")
-}
+Text("Showing the {view} view").muted
 ```
 
 Renders with the class `wf-toggle-group`.
@@ -3394,9 +4006,13 @@ Button(label, tone: …, size: …, shape: …) { … }
 ```
 
 ```wf
-Button("Save").primary { on click { log("saved") } }
-Button("Delete").danger.outlined.sm
-Button("Send", type: .submit).primary.full
+state saved = 0
+Row(gap: .sm, justify: .end) {
+    Button("Cancel").outlined
+    Button("Save draft") { on click { saved = saved + 1 } }
+    Button("Publish").primary { on click { toast("Published", tone: .success) } }
+}
+Text("Saved {saved} times").muted
 ```
 
 Renders with the class `wf-btn`.
@@ -3429,8 +4045,14 @@ IconButton(icon: …, label: …, size: …) { … }
 ```
 
 ```wf
-IconButton(icon: "close", label: "Close")
-IconButton(icon: "edit", label: "Edit the title").primary.sm
+state stars = 0
+Row(gap: .sm, align: .center) {
+    IconButton(icon: "star", label: "Star this project").primary { on click { stars = stars + 1 } }
+    IconButton(icon: "edit", label: "Edit")
+    IconButton(icon: "copy", label: "Copy link")
+    IconButton(icon: "trash", label: "Delete").danger
+    Text("{stars} stars").muted
+}
 ```
 
 Renders with the class `wf-icon-btn`.
@@ -3459,11 +4081,13 @@ ButtonGroup { … }
 ```
 
 ```wf
+state range = "Week"
 ButtonGroup {
-    Button("Day")
-    Button("Week")
-    Button("Month")
+    Button("Day", outlined: range != "Day") { on click { range = "Day" } }
+    Button("Week", outlined: range != "Week") { on click { range = "Week" } }
+    Button("Month", outlined: range != "Month") { on click { range = "Month" } }
 }
+Text("Showing one {range}").muted
 ```
 
 Renders with the class `wf-btn-group`.
@@ -3481,11 +4105,14 @@ Dropdown(label) { … }
 ```
 
 ```wf
-Dropdown(label: "Actions") {
-    Dropdown.Item { Text("Duplicate") }
+state said = "Nothing chosen"
+Dropdown("Actions") {
+    Dropdown.Item { Button("Duplicate") { on click { said = "Duplicated" } } }
+    Dropdown.Item { Button("Rename") { on click { said = "Renamed" } } }
     Dropdown.Divider
-    Dropdown.Item { Text("Archive") }
+    Dropdown.Item { Button("Archive").danger { on click { said = "Archived" } } }
 }
+Text(said).muted
 ```
 
 Renders with the class `wf-dropdown`.
@@ -3514,9 +4141,12 @@ Highlight(text, query: …)
 ```
 
 ```wf
-state q = "ea"
-Input(bind: q, label: "Search")
-Highlight("Search near and far: each area is clear.", query: q)
+state q = "state"
+Stack(gap: .sm) {
+    Input(bind: q, label: "Search the guide").search
+    Highlight("Pages, components and stores hold state; a derived value reads it.", query: q)
+    Highlight("A state change repaints only what reads it.", query: q)
+}
 ```
 
 Renders with the class `wf-highlight`.
@@ -3537,9 +4167,12 @@ Text(content, tone: …, size: …, align: …)
 ```
 
 ```wf
-Text("Hello, world")
-Text("Last updated today").muted.sm
-Text("Important").bold.danger
+Stack(gap: .xs) {
+    Text("Billing").uppercase.sm.muted
+    Text("Your plan renews on 1 December.").lg
+    Text("Payment failed: the card was declined.").danger.bold
+    Text("Updated 3 minutes ago").muted.sm.italic
+}
 ```
 
 Renders with the class `wf-text`.
@@ -3570,8 +4203,11 @@ Heading(content, level: …, align: …, muted: …)
 ```
 
 ```wf
-Heading("Pricing").h1
-Heading("Frequently asked").h2
+Stack(gap: .xs) {
+    Heading("Pricing").h1
+    Heading("Plans for every team").h2.muted
+    Heading("What every plan has").h3
+}
 ```
 
 Renders with the class `wf-heading`.
@@ -3596,9 +4232,15 @@ Code(content, block: …, language: …)
 ```
 
 ```wf
-Text("Run ")
-Code("wf serve")
-Code("page Home(path: \"/\") { Text(\"Hi\") }", language: "wf").block
+Stack(gap: .sm) {
+    Text { Text("Start the dev server with ")  Code("wf serve")  Text(", then open the page.") }
+    Code("""
+        page Home(path: "/", title: "Home") {
+            state count = 0
+            Button("+1") { on click { count = count + 1 } }
+        }
+        """, language: "wf").block
+}
 ```
 
 Renders with the class `wf-code`.
@@ -3622,9 +4264,19 @@ Markdown(text, inert: …)
 ```
 
 ```wf
-state docs = "Returns &lt;T&gt;, as [the guide](https://webfluent.monzeromer.dev/docs) says."
-Markdown("Some **bold** text and a [link](https://webfluent.monzeromer.dev/docs).")
-Markdown(docs).inert
+Markdown("""
+    ## Getting started
+
+    Install `wf`, then:
+
+    - write a page in **src/pages**
+    - run `wf serve` and open it
+    - read [the guide](https://webfluent.monzeromer.dev/learn.md) when you are stuck
+
+    ```wf
+    page Home(path: "/", title: "Home") { Heading("Hello").h1 }
+    ```
+    """)
 ```
 
 Renders with the class `wf-markdown`.
@@ -3647,8 +4299,7 @@ Unsafe
 ```
 
 ```wf
-state body = "<p>From the CMS</p>"
-Unsafe.Html(sanitize(body))
+Unsafe.Html(sanitize("<p>From the <strong>CMS</strong>: <a href='/learn'>read the guide</a>.</p><script>alert(1)</script>"))
 ```
 
 **Parts:**
@@ -3667,7 +4318,10 @@ Blockquote(content) { … }
 ```
 
 ```wf
-Blockquote { Text("Make it work, make it right, make it fast.") }
+Blockquote {
+    Text("We moved the whole docs site over in a weekend, and the compiler caught every broken link.").italic
+    Text("Ada Lovelace, platform team").muted.sm
+}
 ```
 
 Renders with the class `wf-blockquote`.
@@ -3691,8 +4345,9 @@ Callout(text, kind: …, title: …) { … }
 ```
 
 ```wf
-Callout("Run `wf check` before you push.").tip
-Callout("Deleting a project deletes its builds too.", title: "Before you delete").caution
+Callout("Every finding has a code, and a page that says how to fix it.", title: "Before you push").tip {
+    Link("Read about the checks", to: "/errors")
+}
 ```
 
 Renders with the class `wf-callout`.
@@ -3722,7 +4377,10 @@ Kbd(keys)
 ```
 
 ```wf
-Text { Text("Press ")  Kbd("mod+k")  Text(" to search") }
+Stack(gap: .xs) {
+    Row(gap: .xs, align: .center) { Text("Press")  Kbd("mod+k")  Text("to search the docs.") }
+    Row(gap: .xs, align: .center) { Text("Send with")  Kbd("shift+Enter")  Text("and close with")  Kbd("Escape") }
+}
 ```
 
 Renders with the class `wf-kbd`.
@@ -3742,9 +4400,12 @@ EmptyState(icon: …, title: …, text: …) { … }
 ```
 
 ```wf
-EmptyState(icon: "folder", title: "No projects yet", text: "Create one to get started.") {
-    Button("New project").primary
+state count = 0
+EmptyState(icon: "folder", title: "No projects yet", text: "A project holds your pages, components and stores.") {
+    Button("New project").primary { on click { count = count + 1 } }
+    Link("Read the guide", to: "/learn")
 }
+if count > 0 { Text("{count} project(s) asked for").muted }
 ```
 
 Renders with the class `wf-empty-state`.
@@ -3776,8 +4437,11 @@ Stat(label, value: …, format: …, change: …) { … }
 ```
 
 ```wf
-Stat("Revenue", value: 48210, format: .currency, change: 0.124)
-Stat("Churn", value: 0.031, format: .percent, change: -0.02)
+Grid(columns: { base: 1, md: 3 }, gap: .md) {
+    Stat("Revenue", value: 48210, format: .currency, change: 0.124, trend: [31, 40, 28, 44, 52, 48])
+    Stat("Active users", value: 18400, format: .compact, change: 0.031, trend: [15, 16, 16, 17, 18, 18])
+    Stat("Churn", value: 0.021, format: .percent, change: -0.004)
+}
 ```
 
 Renders with the class `wf-stat`.
@@ -3814,7 +4478,13 @@ CodeBlock(code, highlight: …, files: …, language: …)
 ```
 
 ```wf
-CodeBlock("page Home(path: \"/\") {\n    Text(\"Hello\")\n}", language: "wf", title: "Home.wf").copy.lines
+CodeBlock("""
+    page Home(path: "/", title: "Home") \{
+        state count = 0
+        Heading("Welcome").h1
+        Button("+1").primary \{ on click \{ count = count + 1 \} \}
+    \}
+    """, language: "wf", title: "Home.wf", highlight: [2, 4]).copy.lines
 ```
 
 Renders with the class `wf-code-block`.
@@ -3850,9 +4520,17 @@ Chip(label, icon: …, selected: …, removable: …)
 ```
 
 ```wf
-state open = false
-Chip("Open only", selected: open) { on click { open = !open } }
-Chip("Rust", icon: "code").removable { on remove { log("removed") } }
+state langs = ["Rust", "TypeScript", "Go", "Python"]
+state openOnly = false
+Stack(gap: .sm, align: .start) {
+    Row(gap: .xs) {
+        for l in langs by l {
+            Chip(l, icon: "code").removable { on remove { langs = langs.filter(x => x != l) } }
+        }
+    }
+    Chip("Open issues only", selected: openOnly) { on click { openOnly = !openOnly } }
+    Text("{langs.length} languages, open only: {openOnly}").muted
+}
 ```
 
 Renders with the class `wf-chip`.
@@ -3887,7 +4565,16 @@ VisuallyHidden(text) { … }
 ```
 
 ```wf
-Link(to: "/docs") { Text("Docs")  VisuallyHidden("(the reference)") }
+Row(gap: .md, align: .center) {
+    Link(to: "/reference") {
+        Text("Read more")
+        VisuallyHidden("about the reference")
+    }
+    Row {
+        Text("★★★★☆", aria-hidden: "true")
+        VisuallyHidden("Rated 4 out of 5")
+    }
+}
 ```
 
 Renders with the class `wf-visually-hidden`.
@@ -3910,8 +4597,16 @@ Accordion(single: …) { … }
 
 ```wf
 Accordion.single {
-    Accordion.Item("Shipping") { Text("Two to four days.") }
-    Accordion.Item("Returns", open: true) { Text("Thirty days.") }
+    Accordion.Item("How long does shipping take?") {
+        Text("Two to four working days in the EU, a week elsewhere.")
+    }
+    Accordion.Item("Can I return an order?", open: true) {
+        Text("Within thirty days, unused and in its box.")
+        Link("Start a return", to: "/learn")
+    }
+    Accordion.Item("Do you ship abroad?") {
+        Text("To 40 countries; the checkout lists them.")
+    }
 }
 ```
 
@@ -3949,7 +4644,14 @@ TableOfContents(levels: …, title: …)
 ```
 
 ```wf
-TableOfContents(levels: 2)
+Document(title: "Employee handbook") {
+    Heading("Employee handbook").h1
+    TableOfContents(levels: 2, title: "Contents")
+    PageBreak
+    Heading("Your first week").h2
+    Heading("Equipment").h3
+    Heading("Time off").h2
+}
 ```
 
 Renders with the class `wf-toc`.
@@ -3970,8 +4672,20 @@ Document(page_size: …, size: …, landscape: …) { … }
 ```
 
 ```wf
-Document(page_size: "A4") {
-    Section { Heading("Report").h1  Paragraph("Revenue grew.") }
+Document(size: "A4", margin: 56, title: "Invoice INV-2041", author: "Northwind Ltd",
+         subject: "Invoice", keywords: "invoice, november", lang: "en") {
+    Header { Text("Northwind Ltd · Invoice INV-2041").muted.sm.right }
+    Footer { Text("Northwind Ltd · 12 Harbour Street · Bristol").muted.sm.center }
+    Heading("Invoice INV-2041").h1
+    Text("Issued 17 November 2026 · Due in 30 days").muted
+    Table(caption: "Items") {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Amount") } }
+        Table.Body {
+            Table.Row { Table.Cell("Design review")  Table.Cell("€1,200.00") }
+            Table.Row { Table.Cell("Hosting, November")  Table.Cell("€90.00") }
+        }
+    }
+    Text("Total: €1,290.00").bold.right
 }
 ```
 
@@ -4004,9 +4718,16 @@ Section { … }
 ```
 
 ```wf
-Section {
-    Heading("Terms").h2
-    Text("Payment within 30 days.")
+Document(title: "Service agreement") {
+    Section {
+        Heading("1. Payment").h2
+        Paragraph("Invoices are due within 30 days of issue.")
+    }
+    Section {
+        style { break-inside: avoid }
+        Heading("2. Signatures").h2
+        Paragraph("Signed for Northwind Ltd: ______________________")
+    }
 }
 ```
 
@@ -4025,7 +4746,12 @@ Paragraph(content, tone: …, size: …, align: …)
 ```
 
 ```wf
-Paragraph("A block of prose, with the spacing a paragraph has.")
+Document(title: "Q3 report") {
+    Heading("Summary").h1
+    Paragraph("Revenue grew 15% on the quarter, led by the new self-serve plan.")
+    Paragraph("Churn held at 2.1%; support response times halved.").muted
+    Paragraph("Figures are unaudited.").sm.italic
+}
 ```
 
 Renders with the class `wf-text`.
@@ -4056,7 +4782,17 @@ Header(on: …) { … }
 ```
 
 ```wf
-Header { Text("Company Inc.").muted.sm }
+Document(title: "Annual report 2026") {
+    Header(on: .rest) {
+        Row(justify: .between) {
+            Text("Northwind Ltd").bold.sm
+            Text("Annual report 2026").muted.sm
+        }
+    }
+    Heading("Annual report 2026").h1
+    PageBreak
+    Heading("The year").h2
+}
 ```
 
 Renders with the class `wf-header`.
@@ -4080,7 +4816,15 @@ Footer(on: …) { … }
 ```
 
 ```wf
-Footer { Text("© Company Inc.").muted.sm }
+Document(title: "Invoice INV-2041") {
+    Footer {
+        Row(justify: .between) {
+            Text("Northwind Ltd · VAT GB123456789").muted.sm
+            Text("Page {page} of {pages}").muted.sm
+        }
+    }
+    Heading("Invoice INV-2041").h1
+}
 ```
 
 Renders with the class `wf-footer`.
@@ -4104,7 +4848,16 @@ Background(on: …) { … }
 ```
 
 ```wf
-Background(on: .first) { Stack { style { height: 100%; background: linear-gradient(160deg, #1d4ed8, #0f172a) } } }
+Document(title: "Q3 report") {
+    Background(on: .first) {
+        Stack { style { height: 100%; background: linear-gradient(160deg, #0B1220, #1E3A8A) } }
+    }
+    Stack {
+        style { color: #ffffff; padding-top: 240px }
+        Heading("Q3 report").h1
+        Text("Northwind Ltd · October 2026")
+    }
+}
 ```
 
 Renders with the class `wf-background`.
@@ -4128,7 +4881,11 @@ Watermark(text, on: …)
 ```
 
 ```wf
-Watermark("DRAFT")
+Document(title: "Contract draft") {
+    Watermark("DRAFT")
+    Heading("Service agreement").h1
+    Paragraph("This draft is for review and is not binding.")
+}
 ```
 
 Renders with the class `wf-watermark`.
@@ -4151,9 +4908,13 @@ PageBreak
 ```
 
 ```wf
-Text("End of chapter one.")
-PageBreak
-Heading("Chapter two").h2
+Document(title: "Report") {
+    Heading("Summary").h1
+    Paragraph("The quarter in one page.")
+    PageBreak
+    Heading("Appendix: the figures").h2
+    Paragraph("Every number, month by month.")
+}
 ```
 
 Renders with the class `wf-page-break`.
@@ -4172,8 +4933,20 @@ Presentation { … }
 
 ```wf
 Presentation {
-    TitleSlide("Q1 review", subtitle: "March 2026")
-    Slide { Heading("Highlights").h1 }
+    TitleSlide("Q3 review", subtitle: "Northwind Ltd · October 2026")
+    SectionSlide("The numbers").primary
+    Slide {
+        Heading("Highlights").h1
+        List {
+            List.Item { Text("Revenue up 15%") }
+            List.Item { Text("Three new enterprise customers") }
+        }
+    }
+    TwoColumn {
+        Container { Heading("Wins").h2  Text("Self-serve plan launched") }
+        Container { Heading("Risks").h2  Text("Hiring behind plan") }
+    }
+    ImageSlide(src: "/og.png", caption: "The launch card")
 }
 ```
 
@@ -4194,8 +4967,10 @@ Slide { … }
 ```wf
 Presentation {
     Slide {
+        style { background: linear-gradient(135deg, #1E3A8A, #0F172A); color: #ffffff }
         Heading("Revenue").h1
-        Text("Up 18% on last quarter.")
+        Text("Up 15% on last quarter, to €2.4M.").lg
+        Text("Source: finance, unaudited").sm
     }
 }
 ```
@@ -4215,7 +4990,9 @@ TitleSlide(title, subtitle: …)
 ```
 
 ```wf
-Presentation { TitleSlide("Q1 review", subtitle: "Acme, March 2026") }
+Presentation {
+    TitleSlide("Shipping WebFluent 7", subtitle: "Platform team · 17 November 2026")
+}
 ```
 
 Renders with the class `wf-title-slide`.
@@ -4236,7 +5013,9 @@ SectionSlide(label, tone: …)
 ```
 
 ```wf
-Presentation { SectionSlide("Numbers").primary }
+Presentation {
+    SectionSlide("Part one: the numbers").primary
+}
 ```
 
 Renders with the class `wf-section-slide`.
@@ -4261,8 +5040,14 @@ TwoColumn { … }
 ```wf
 Presentation {
     TwoColumn {
-        Container { Heading("Wins").h3 }
-        Container { Heading("Risks").h3 }
+        Container {
+            Heading("Before").h2
+            Text("A build took four minutes.")
+        }
+        Container {
+            Heading("After").h2
+            Text("It takes forty seconds.")
+        }
     }
 }
 ```
@@ -4282,7 +5067,9 @@ ImageSlide(src: …, caption: …)
 ```
 
 ```wf
-Presentation { ImageSlide(src: "chart.png", caption: "Revenue by month") }
+Presentation {
+    ImageSlide(src: "/og.png", caption: "The card every shared link shows")
+}
 ```
 
 Renders with the class `wf-image-slide`.
@@ -4305,9 +5092,16 @@ Router(transition: …, duration: …) { … }
 ```
 
 ```wf
-app {
-    Navbar { Navbar.Brand { Link("Acme", to: "/") } }
+Stack {
+    Navbar {
+        Navbar.Brand { Link("Ledger", to: "/") }
+        Navbar.Links {
+            Link("Learn", to: "/learn")
+            Link("Reference", to: "/reference")
+        }
+    }
     Router(transition: .fade, duration: "200ms")
+    Text("© 2026 Ledger").muted.sm
 }
 ```
 

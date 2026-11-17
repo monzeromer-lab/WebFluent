@@ -71,7 +71,7 @@ function startEditor(node, opened, closed) {
 "# }) {
         code {
             Markdown("**Needs:** `src/editor.js`, a CodeMirror bundle in `public/vendor/`, and two settings in `webfluent.app.json`, each shown below.")
-            CodeBlock(#"page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
+            DocsCodeBlock(#"page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
     state tip: String? = null
     state words = ""
     action opened(id: String, text: String) {
@@ -91,7 +91,7 @@ function startEditor(node, opened, closed) {
     }
 }"#, title: "wf")
             Markdown("This script starts the editor. It calls CodeMirror as `CM`, which the next step provides:")
-            CodeBlock(#"// src/editor.js
+            DocsCodeBlock(#"// src/editor.js
 // CodeMirror places each tooltip and keeps its keys; the node it makes is
 // left empty, and the page draws what is in it.
 const tooltips = new Map();
@@ -136,7 +136,7 @@ function startEditor(node, opened, closed) {
                         Line(command: "npx esbuild vendor/codemirror.js --bundle --format=esm --minify --outfile=public/vendor/codemirror.js")
                     ])
             Markdown("Then load the bundle as a module named `CM`. CodeMirror writes its styles from script, which the page's Content-Security-Policy allows only with `style_elements`:")
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
   "meta": {
     "scripts": [{ "src": "/vendor/codemirror.js", "module": true, "as": "CM" }],
     "style_elements": true
@@ -146,7 +146,7 @@ function startEditor(node, opened, closed) {
         variations {
             Markdown("A list that the library keeps (an editor's completions, each row a node it made) is a keyed `for` of portals. A press on a row should leave the focus in the editor: `on mousedown(e) \{ e.preventDefault() \}` does that, and `on click` still runs. This fragment of a page draws one portal per row of a `Completions` store:")
 
-            CodeBlock(#"for row, i in Completions.rows by i {
+            DocsCodeBlock(#"for row, i in Completions.rows by i {
     Portal(into: editorHost(row.id), data-popup: "row") {
         Text(row.label) {
             on mousedown(e) { e.preventDefault() }

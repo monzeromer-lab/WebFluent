@@ -10,6 +10,19 @@ A box that keeps its shape as its width changes — ratio: 16 / 9 — its child 
 AspectRatio(ratio: Number) { … }
 ```
 
+## Example
+
+```wf
+Grid(columns: 2, gap: .md) {
+    AspectRatio(ratio: 16 / 9) {
+        Image(src: "/og.png", alt: "The WebFluent card, in 16:9")
+    }
+    AspectRatio(ratio: 1) {
+        Image(src: "/icon-512.png", alt: "The WebFluent icon, square")
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,14 +34,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-AspectRatio(ratio: 16 / 9) {
-    Image(src: "/favicon.svg", alt: "The logo, wide")
-}
-```
 
 ## What it can raise
 

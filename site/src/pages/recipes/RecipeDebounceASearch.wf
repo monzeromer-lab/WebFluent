@@ -25,7 +25,7 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
 "# }) {
         code {
             Markdown("**Needs:** a server that answers `/api/search?q=…` with a list of results. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"type Hit { id: String, title: String }
+            DocsCodeBlock(#"type Hit { id: String, title: String }
 
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""

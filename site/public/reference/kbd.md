@@ -10,6 +10,15 @@ A key or a combination, written as this system writes it: Kbd("mod+k") is ⌘K o
 Kbd(_ keys: String)
 ```
 
+## Example
+
+```wf
+Stack(gap: .xs) {
+    Row(gap: .xs, align: .center) { Text("Press")  Kbd("mod+k")  Text("to search the docs.") }
+    Row(gap: .xs, align: .center) { Text("Send with")  Kbd("shift+Enter")  Text("and close with")  Kbd("Escape") }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -17,12 +26,6 @@ Kbd(_ keys: String)
 | `keys` | `String  (positional)` | The combination, as `on key` names it: `mod+k`, `shift+Enter` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Text { Text("Press ")  Kbd("mod+k")  Text(" to search") }
-```
 
 ## What it can raise
 

@@ -22,4 +22,18 @@ wf fix [options]
 
 **Preview:** `--dry-run` says what it would do without doing it.
 
-The [full entry for wf fix](https://webfluent.monzeromer.dev/reference/cli.md#wf-fix) has its examples and the details this page leaves out.
+Applies every fix the compiler is certain of — the fix the editor offers
+first — and writes the files.
+
+```bash
+wf fix
+wf fix --code V07
+wf fix --dry-run
+```
+
+A fix that overlaps another, or that the first fixes make way for, is taken
+on a second pass, and passes repeat until nothing more changes. `wf fix`
+then lists what is left: findings with no certain fix, which a person
+decides. `wf check` lists them too.
+
+See also: [Diagnostics](../errors/diagnostics.md).

@@ -10,6 +10,23 @@ Horizontal flex layout. It stays a row at every width unless .stacks or a respon
 Row(gap: Enum, align: Enum, justify: Enum, …) { … }
 ```
 
+## Example
+
+```wf
+Row(gap: .md, align: .center, justify: .between) {
+    style { padding: 0.75rem 1rem; border: 1px solid $color-border; border-radius: $radius-md }
+    Row(gap: .sm, align: .center) {
+        Avatar(initials: "AL").primary
+        Stack(gap: .xs) {
+            Text("Ada Lovelace").bold
+            Text("Owner").muted.sm
+        }
+    }
+    Badge("Active").success
+    Button("Manage").sm
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -29,16 +46,6 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Row(gap: .md, align: .center, justify: .between) {
-    Text("Left")
-    Button("Right")
-}
-Row(direction: { base: .column, md: .row }) { Text("a")  Text("b") }
-```
 
 ## What it can raise
 

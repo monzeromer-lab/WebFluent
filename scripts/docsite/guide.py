@@ -109,6 +109,14 @@ def chapter_files() -> list[Path]:
     page family, not as a chapter."""
     pages = [p for p in sorted(GUIDE.rglob("*.md")) if p.parent != GUIDE]
     chapters = [p for p in pages if "chapter" in front_matter(p)[0]]
+    # A number is a page's file name too (`43-diagnostics.wf`): two pages of
+    # one number would write over each other.
+    seen = {}
+    for p in chapters:
+        n = front_matter(p)[0]["chapter"]
+        if n in seen:
+            raise SystemExit(f"guide.py: {p.relative_to(GUIDE)} and {seen[n].relative_to(GUIDE)} are both chapter {n}")
+        seen[n] = p
     return sorted(chapters, key=lambda p: front_matter(p)[0]["chapter"])
 
 
@@ -230,6 +238,22 @@ def snippet(text: str, limit: int = 160) -> str:
 CURRENT = {"dir": GUIDE}
 
 
+# The commands `wf` has, longest first, so `wf-api-add` is read as `api`'s
+# part `add`; `reference.py` fills it from `wf commands --json`.
+CLI_COMMANDS: list = []
+
+
+def cli_route(anchor: str) -> str:
+    """`wf-build` → `/reference/cli/build`; `wf-api-add` → `…/api#add`."""
+    rest = anchor[3:]
+    for name in sorted(CLI_COMMANDS, key=len, reverse=True):
+        if rest == name:
+            return f"/reference/cli/{name}"
+        if rest.startswith(name + "-"):
+            return f"/reference/cli/{name}#{rest[len(name) + 1:]}"
+    return f"/reference/cli#{anchor}"
+
+
 def rewrite_links(text: str) -> str:
     """Links between the guide's pages as site routes."""
 
@@ -240,6 +264,8 @@ def rewrite_links(text: str) -> str:
             target, anchor = target.split("#", 1)
             anchor = "#" + anchor
         if target == "":
+            if anchor.startswith("#wf-") and CURRENT["dir"] == GUIDE / "reference" and CLI_COMMANDS:
+                return f"[{label}]({cli_route(anchor[1:])})"
             return f"[{label}]({anchor})"
         if re.match(r"^[a-z]+:", target) or target.startswith("/"):
             return m.group(0)
@@ -254,6 +280,10 @@ def rewrite_links(text: str) -> str:
                 return f"[{label}](/recipes/show-an-icon#the-built-in-icons)"
             if (ROOT / "site" / "public" / "reference" / f"{name}.md").exists():
                 return f"[{label}](/reference/{name})"
+        # Each command has its own page: an anchor naming one (`#wf-build`)
+        # goes there, and one naming a part of it (`#wf-api-add`) to that part.
+        if resolved == (GUIDE / "reference" / "cli.md").resolve() and anchor.startswith("#wf-"):
+            return f"[{label}]({cli_route(anchor[1:])})"
         route = route_of(resolved)
         if route:
             return f"[{label}]({href(route)}{anchor})"
@@ -323,7 +353,7 @@ def emit_code(lang, code, out, ind, num="", info=""):
         fence = fences.parse(f"{lang} {info}")
         if fence.expect:
             title = f"{title} · draws {fence.expect}"
-        out.append(f"{ind}CodeBlock({wf_raw(code)}, title: \"{title}\")")
+        out.append(f"{ind}DocsCodeBlock({wf_raw(code)}, title: \"{title}\")")
     out.append("")
 
 
@@ -356,7 +386,7 @@ def emit_markdown(lines, out, ind):
 
 def emit_callout(kind, lines, out, ind):
     text = rewrite_links("\n".join(reflow(lines)).strip("\n"))
-    out.append(f'{ind}Callout("{wf_string(text)}", kind: .{kind})')
+    out.append(f'{ind}DocsCallout("{wf_string(text)}", kind: .{kind})')
     out.append("")
 
 
@@ -729,14 +759,15 @@ def contents_table() -> str:
     return "\n".join(rows)
 
 
-def prose(route: str) -> tuple[list, list]:
+def prose(route: str, keep=lambda md: md) -> tuple[list, list]:
     """The chapter at `route` converted, for a page another script writes:
-    its sections as `(id, label)` pairs, and its body's lines."""
+    its sections as `(id, label)` pairs, and its body's lines. `keep` is
+    handed the Markdown first, to leave out what another page shows."""
     if not META:
         for f in chapter_files():
             META[num_of(f)] = read_meta(f)
     num = next(n for n, m in META.items() if m["route"] == route)
-    header, body, _, _ = convert(num, front_matter(GUIDE / META[num]["path"])[1])
+    header, body, _, _ = convert(num, keep(front_matter(GUIDE / META[num]["path"])[1]))
     sections = re.findall(r'Anchor\(id: "([^"]+)", label: "((?:[^"\\]|\\.)*)"\)', header[2])
     return sections, body
 
@@ -819,3 +850,16 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+def fragment(route: str, md: str, title: str) -> tuple[list, list]:
+    """A piece of the chapter at `route` — a command's section of the CLI
+    chapter — as page lines, its `##` headings its sections, with links
+    resolved from that chapter's folder."""
+    if not META:
+        for f in chapter_files():
+            META[num_of(f)] = read_meta(f)
+    num = next(n for n, m in META.items() if m["route"] == route)
+    CURRENT["dir"] = (GUIDE / META[num]["path"]).parent
+    out, sections = body(md, title)
+    return sections, out

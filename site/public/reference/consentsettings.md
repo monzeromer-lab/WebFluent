@@ -10,6 +10,17 @@ A button that asks the reader again — a footer's "Cookie settings": it forgets
 ConsentSettings(_ label: String)
 ```
 
+## Example
+
+```wf
+Row(gap: .md, align: .center) {
+    Text("© 2026 Ledger").muted.sm
+    Link("Privacy", to: "/learn")
+    ConsentSettings("Cookie settings")
+}
+ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks")
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -17,13 +28,6 @@ ConsentSettings(_ label: String)
 | `label` | `String  (positional)` | What it says (unset, `Cookie settings`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-ConsentBanner("We would like to count visits.")
-ConsentSettings("Cookie settings")
-```
 
 ## What it can raise
 

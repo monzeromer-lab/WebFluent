@@ -39,7 +39,7 @@ page Preview(path: "/", title: "Preview", description: "The components this proj
 "# }) {
         code {
             Markdown("**Needs:** `build.elements` in `webfluent.app.json`, shown below. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"component PriceTag(label: String, amount: Number, sale: Bool = false) {
+            DocsCodeBlock(#"component PriceTag(label: String, amount: Number, sale: Bool = false) {
     Row(gap: .sm, align: .center) {
         Text(label).bold
         Text("${amount}")
@@ -65,9 +65,9 @@ page Preview(path: "/", title: "Preview", description: "The components this proj
     Stars(value: stars) { on rate(n) { stars = n } }
 }"#, title: "wf")
             Markdown("Name the components in `build.elements`, in `webfluent.app.json`:")
-            CodeBlock(#"{ "build": { "output_type": "elements", "elements": ["PriceTag", "Stars"] } }"#, title: "json")
+            DocsCodeBlock(#"{ "build": { "output_type": "elements", "elements": ["PriceTag", "Stars"] } }"#, title: "json")
             Markdown("This HTML places the published components on any page, and listens for a rating:")
-            CodeBlock(#"<script src="/elements.js" defer></script>
+            DocsCodeBlock(#"<script src="/elements.js" defer></script>
 <link rel="stylesheet" href="/styles.css">
 
 <price-tag label="Pro" amount="29" sale></price-tag>

@@ -23,7 +23,7 @@ page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Sh
 
         Markdown("You write every file yourself, so delete what the template put in `src/` and its tests under `tests/` (they test the starter's pages). Then replace `webfluent.app.json` with:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "shelf",
   "build": { "ssg": true, "csp": true },
   "meta": {
@@ -39,7 +39,7 @@ page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Sh
 
         Markdown("The books are data, not code. Put them in `src/books.json`:")
 
-        CodeBlock(#"[
+        DocsCodeBlock(#"[
   { "slug": "notes-on-the-analytical-engine", "title": "Notes on the Analytical Engine",
     "author": "Ada Lovelace", "year": 1843, "pages": 66,
     "summary": "The first published algorithm, and a view of what a machine might do beyond arithmetic.",
@@ -56,7 +56,7 @@ page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Sh
 
         Markdown("Then describe the data's shape and read the file, in `src/types.wf`:")
 
-        CodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
+        DocsCodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
 
         Markdown("`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](/learn/12-types), [Fetching data](/learn/15-data#read-a-file-at-build-time-with-data).)\n\n**Check it:** run `wf check`. It prints `No problems in shelf.`")
 
@@ -64,7 +64,7 @@ page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Sh
 
         Markdown("What the reader keeps must survive a reload and be the same on every page, so it goes in a store, with its value kept by `persist`. Create `src/stores/Shelf.wf`:")
 
-        CodeBlock(#"/// The books the reader wants to read, kept across visits.
+        DocsCodeBlock(#"/// The books the reader wants to read, kept across visits.
 store Shelf {
     persist saved: [String] = []
     derived count = saved.length
@@ -80,7 +80,7 @@ store Shelf {
 
         Markdown("`persist` is a `state` that is kept in the browser's storage and read back on the next visit; a change made in another tab arrives here too. `derived count` recomputes whenever `saved` changes. ([Stores](/learn/11-stores).)")
 
-        Callout("**Coming from React?** Shared state is not a context provider wrapped around the app, and saving it is not a `useEffect` that writes `localStorage`. A `store` is read by name wherever it is used, and `persist` does the saving. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** Shared state is not a context provider wrapped around the app, and saving it is not a `useEffect` that writes `localStorage`. A `store` is read by name wherever it is used, and `persist` does the saving. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("**Check it:** run `wf check`. It prints two `U04` warnings: `` `Shelf.count` is declared but never read `` and the same for `Shelf.toggle`. Nothing uses the store yet; the next steps do, and the warnings go away.")
 
@@ -88,7 +88,7 @@ store Shelf {
 
         Markdown("Every book is shown the same way, so it is a component. Create `src/components/BookCard.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 /// A book at a glance, with the button that puts it on the shelf.
 component BookCard(_ book: Book) {
     use Shelf
@@ -113,7 +113,7 @@ component BookCard(_ book: Book) {
 
         Markdown("The home page lists the books with a search box. Create `src/pages/Home.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 page Home(path: "/", title: "Shelf", description: "Books worth reading, and the ones you want to.") {
     state q = ""
     derived needle = q.trim().toLowerCase()
@@ -134,11 +134,11 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 
         Markdown("- `bind: q` keeps the input and the state in step, both ways.\n- `found` is derived from `q`, so typing narrows the list as you go.\n- `for … by book.slug` is a keyed loop: a card that stays in the list keeps its element instead of being rebuilt.\n- `Grid(columns: \{ base: 1, md: 2 \})` is one column on a phone and two from the `md` breakpoint. The pre-rendered HTML already has this layout, so no script is needed.")
 
-        Callout("**Coming from React?** A controlled input needs no `value` and no `onChange` that copies `e.target.value` back: `bind: q` does both. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** A controlled input needs no `value` and no `onChange` that copies `e.target.value` back: `bind: q` does both. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("Then add a page for each book, `src/pages/BookPage.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book on the shelf.", type: "article", paths: books.map(b => b.slug)) {
     derived book = books.find(b => b.slug == slug)
     head {
@@ -166,7 +166,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 
         Markdown("The shelf page shows the books the reader saved. Create `src/pages/ShelfPage.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you want to read.") {
     use Shelf
     derived mine = books.filter(b => Shelf.saved.includes(b.slug))
@@ -185,7 +185,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 
         Markdown("Add a page for addresses no other page claims, `src/pages/NotFound.wf`. `path: \"*\"` matches anything, and the static build writes it as `404.html`:")
 
-        CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
+        DocsCodeBlock(#"page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
     Container {
         Heading("Nothing lives here").h1
         Link("Back to the books", to: "/")
@@ -194,7 +194,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 
         Markdown("Last, the shell every page shares, `src/App.wf`. `Router` is where the current page is drawn:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 app {
     Navbar {
         Navbar.Brand { Link("Shelf", to: "/") }
@@ -213,7 +213,7 @@ app {
 
         Markdown("Readers can suggest books. Create `src/pages/Suggest.wf`:")
 
-        CodeBlock(#"page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
+        DocsCodeBlock(#"page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us what belongs on the shelf.") {
     state title = ""
     state author = ""
     state why = ""
@@ -243,7 +243,7 @@ app {
 
         Markdown("A `validate` block sits beside the state it guards, and the control bound to that state shows its messages accessibly: the field gets `aria-invalid`, and the message is announced. A submit that fails moves focus to the first field with a problem and does not run `on submit`. ([Forms](/learn/14-forms).)\n\nThen link the page from the shell. Add the third link to `src/App.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 app {
     Navbar {
         Navbar.Brand { Link("Shelf", to: "/") }
@@ -259,14 +259,14 @@ app {
 
         Markdown("**Check it:** click **Suggest a book**, then **Send the suggestion** with the form empty. The form does not send: **Which book?** appears under **Title**, and **Who wrote it?** under **Author**. Fill in both and send again. You see **Thank you — we will take a look.**, and the form is empty.\n\nA real site sends the suggestion somewhere. You do not need a backend for this tutorial, so this part is for later: describe the service once, in a file of its own,")
 
-        CodeBlock(#"// … in src/api.wf, beside the pages
+        DocsCodeBlock(#"// … in src/api.wf, beside the pages
 api Suggestions(base: "/api") {
     post suggest(body: Json) at "suggest" -> !
 }"#, title: "wf")
 
         Markdown("and call it from the form's handler:")
 
-        CodeBlock(#"// … in src/pages/Suggest.wf; the rest of the page is as above
+        DocsCodeBlock(#"// … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
     try await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
@@ -279,7 +279,7 @@ on submit {
 
         Markdown("A theme changes the design tokens that every built-in is drawn with. Create `src/theme.wf`:")
 
-        CodeBlock(#"theme Paper {
+        DocsCodeBlock(#"theme Paper {
     color-primary: #6D28D9
     font-family: Charter, Georgia, serif
     radius-md: 10px
@@ -295,7 +295,7 @@ theme Ink {
 
         Markdown("Then name the themes in `webfluent.app.json` — `Paper` as the theme and `Ink` as the dark one:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "name": "shelf",
   "build": { "ssg": true, "csp": true },
   "theme": { "name": "Paper", "dark": "Ink" },
@@ -312,7 +312,7 @@ theme Ink {
 
         Markdown("Tests live in `tests/`. Create `tests/BookCard.wf`:")
 
-        CodeBlock(#"// … reads what the other steps declare
+        DocsCodeBlock(#"// … reads what the other steps declare
 test "a card shows who wrote the book, and when" {
     BookCard(Book(slug: "x", title: "X", author: "Ada Lovelace", year: 1843, pages: 66, summary: "Notes."))
     expect "Ada Lovelace · 1843"
@@ -335,7 +335,7 @@ test "a book goes on the shelf, and comes off again" {
 
         Markdown("The first test renders the card and reads what it shows. It also writes a snapshot that the next run compares against. The second test **clicks**, so it runs in a headless Chrome, with the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. ([Testing](/learn/16-testing).)\n\n**Check it:** the first run ends:")
 
-        CodeBlock(#"  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
+        DocsCodeBlock(#"  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
   ok    tests/BookCard.wf — a book goes on the shelf, and comes off again (in a browser)
 2 passed, 0 failed, 1 snapshot(s) written"#, title: "text")
 
@@ -356,14 +356,14 @@ test "a book goes on the shelf, and comes off again" {
 
         Markdown("Any static host serves `build/`. On GitHub Pages, a project site lives under `https://<you>.github.io/shelf/`, so tell the build its sub-path and its address. Add these keys to `webfluent.app.json`, keeping the others:")
 
-        CodeBlock(#"{
+        DocsCodeBlock(#"{
   "build": { "ssg": true, "csp": true, "base_path": "/shelf" },
   "meta": { "site_url": "https://you.github.io/shelf" }
 }"#, title: "json")
 
         Markdown("`base_path` prefixes every link and asset. `site_url` turns on canonical links, the sitemap and absolute Open Graph URLs.\n\nThen add a workflow that builds and publishes the site on every push to `main`, `.github/workflows/pages.yml`:")
 
-        CodeBlock(#"name: Deploy
+        DocsCodeBlock(#"name: Deploy
 on:
   push:
     branches: [main]
@@ -393,7 +393,7 @@ jobs:
 
         Markdown("Every `.wf` file above, as one listing. This is the program the steps built, with the first of the two tests:")
 
-        CodeBlock(#"type Book {
+        DocsCodeBlock(#"type Book {
     slug: String
     title: String
     author: String
@@ -630,7 +630,7 @@ test "a card shows who wrote the book, and when" {
 
         Markdown("Reading a value that may be missing. `books.find(…)` finds nothing when no book has the slug, so `book` is a `Book?`:")
 
-        CodeBlock(#"type Book { slug: String, title: String }
+        DocsCodeBlock(#"type Book { slug: String, title: String }
 
 const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Language")]
 
@@ -641,7 +641,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 
         Markdown("Bind it with `if let b = book \{ Heading(b.title).h1 \}`, as step 5 does, or read it as `book?.title ?? \"Book\"` ([T04](/errors/T04)).\n\nA field the type does not have. `type Book` names every field, so a typo is an error where it is written:")
 
-        CodeBlock(#"type Book { slug: String, title: String }
+        DocsCodeBlock(#"type Book { slug: String, title: String }
 
 const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Language")]
 
@@ -654,7 +654,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 
         Markdown("Use the name the message suggests, `book.title` ([T05](/errors/T05)).\n\nA store member the store does not declare. `Shelf` has `saved`, `count` and `toggle`, and nothing else:")
 
-        CodeBlock(#"store Shelf {
+        DocsCodeBlock(#"store Shelf {
     persist saved: [String] = []
     action toggle(slug: String) {
         saved = if saved.includes(slug) { saved.filter(s => s != slug) } else { [...saved, slug] }

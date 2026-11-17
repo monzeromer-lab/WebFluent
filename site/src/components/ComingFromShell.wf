@@ -60,6 +60,6 @@ component ComingFromShell(_ title: String, summary: String = "", from: String = 
             }
         }
 
-        OnThisPage(sections: sections, source: source)
+        DocsOnThisPage(sections: sections, source: source)
     }
 }

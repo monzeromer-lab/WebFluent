@@ -10,20 +10,23 @@ Its children in the middle of it, across and down.
 Center { … }
 ```
 
+## Example
+
+```wf
+Center {
+    style { height: 200px; background: $color-surface; border-radius: $radius-md }
+    Stack(gap: .sm, align: .center) {
+        Spinner
+        Text("Loading your projects…").muted
+    }
+}
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
 - `children`
-
-## Example
-
-```wf
-Center {
-    style { height: 120px }
-    Spinner
-}
-```
 
 ## What it can raise
 

@@ -107,6 +107,6 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
             Related(links: related)
         }
 
-        OnThisPage(sections: sections, source: source)
+        DocsOnThisPage(sections: sections, source: source)
     }
 }

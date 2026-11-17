@@ -10,6 +10,14 @@ Words typed into a field, each a chip once Enter or a comma ends it; Backspace i
 TagInput(bind: State, label: String, placeholder: String)
 ```
 
+## Example
+
+```wf
+state tags: [String] = ["design", "frontend"]
+TagInput(bind: tags, label: "Tags", placeholder: "Type a tag, then Enter")
+Text("{tags.length} tag(s): {tags.join(", ")}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -19,13 +27,6 @@ TagInput(bind: State, label: String, placeholder: String)
 | `placeholder:` | `String` | Shown while the field is empty |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state tags: [String] = ["rust"]
-TagInput(bind: tags, label: "Tags", placeholder: "Add a tag")
-```
 
 ## What it can raise
 

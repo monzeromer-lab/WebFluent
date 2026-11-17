@@ -4,7 +4,7 @@ page RecipeSignInWithASessionCookie(path: "/recipes/sign-in-with-a-session-cooki
     RecipeShell("Sign in with a session cookie", summary: "A token kept in the page can be read by any script that reaches it. To sign a reader in without holding a token at all, let the server set a session cookie, describe the service with `credentials: .sameOrigin`, and keep the signed-in user in a store:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates")], source: "md-docs/recipes/sign-in-with-a-session-cookie.md", how: true, hasVariations: false, project: {}) {
         code {
             Markdown("**Needs:** a server that answers the `/api` endpoints the `api` block names and sets the session cookie. The code declares `type User` and an `app`, as the starter does: paste it into a new project, replacing `src/App.wf` and the starter's `src/stores/auth.wf`, and deleting `src/pages/Profile.wf`, which reads the starter's `AuthStore`.")
-            CodeBlock(#"type User { id: String, name: String }
+            DocsCodeBlock(#"type User { id: String, name: String }
 type Credentials { email: String, password: String }
 
 /// Why signing in can be refused.
@@ -80,7 +80,7 @@ page Account(path: "/account", title: "Your account", description: "Your account
     }
 }"#, title: "wf")
             Markdown("The app asks the server who is signed in once, when the site opens, in `src/App.wf`:")
-            CodeBlock(#"app {
+            DocsCodeBlock(#"app {
     use Session
     Session.load()
     Router

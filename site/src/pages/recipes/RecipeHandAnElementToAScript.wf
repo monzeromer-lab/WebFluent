@@ -37,7 +37,7 @@ function startTypewriter(node, text) {
 "# }) {
         code {
             Markdown("**Needs:** the script `src/typewriter.js`, shown below.")
-            CodeBlock(#"page Welcome(path: "/welcome", title: "Welcome", description: "A greeting a script types out, letter by letter.") {
+            DocsCodeBlock(#"page Welcome(path: "/welcome", title: "Welcome", description: "A greeting a script types out, letter by letter.") {
     state name = "reader"
     state typing = true
 
@@ -52,7 +52,7 @@ function startTypewriter(node, text) {
     }
 }"#, title: "wf")
             Markdown("The script is a plain file under `src/` ([Call your own JavaScript](/recipes/call-your-own-script)):")
-            CodeBlock(#"// src/typewriter.js
+            DocsCodeBlock(#"// src/typewriter.js
 /**
  * Type `text` into `node`, one letter every 60 ms.
  * @param {HTMLElement} node

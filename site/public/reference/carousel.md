@@ -10,6 +10,27 @@ Slide track with named controls and dots; optional autoplay.
 Carousel(label: String, autoplay: Bool, interval: Number) { … }
 ```
 
+## Example
+
+```wf
+Carousel(label: "Featured work", autoplay: true, interval: 6000) {
+    Carousel.Slide {
+        Image(src: "/og.png", alt: "The sharing card")
+    }
+    Carousel.Slide {
+        Image(src: "/og.png", alt: "The sharing card, its title in close-up") {
+            style { object-fit: cover; object-position: 15% 50%; aspect-ratio: 1200 / 630 }
+        }
+    }
+    Carousel.Slide {
+        Center {
+            style { aspect-ratio: 1200 / 630; background: $color-surface }
+            Image(src: "/icon-512.png", alt: "The app icon", width: 160, height: 160)
+        }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -30,15 +51,14 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `Carousel.Carousel.Slide`
+Written under its name, inside `Carousel`.
 
-## Example
+### Carousel.Slide
+
+One slide of a carousel.
 
 ```wf
-Carousel(label: "Recent work", autoplay: true, interval: 5000) {
-    Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
-    Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }
-}
+Carousel.Slide { … }
 ```
 
 ## What it can raise

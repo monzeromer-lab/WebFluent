@@ -22,9 +22,9 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
 
         Heading("Windows (PowerShell)", id: "windows-powershell").h3
 
-        CodeBlock(#"irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex"#, title: "powershell")
+        DocsCodeBlock(#"irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex"#, title: "powershell")
 
-        Callout("On Windows, type `webfluent` wherever this guide types `wf`.", kind: .important)
+        DocsCallout("On Windows, type `webfluent` wherever this guide types `wf`.", kind: .important)
 
         Markdown("Windows already has a `wf`: `C:\\Windows\\System32\\WF.msc`, the Windows Firewall console. System32 comes first on `PATH`, and `.MSC` is one of the extensions Windows tries for a bare name, so typing `wf` opens the firewall instead of WebFluent. For that reason the release zip, `install.ps1` and the `.msi` install the compiler as `webfluent.exe` beside `wf.exe`, and the `.msi` puts their folder on `PATH`. `webfluent build`, `webfluent serve` and `wf.exe build` all work. After `cargo install webfluent`, use `wf.exe`.")
 
@@ -50,7 +50,7 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
 
         Markdown("**You see** the release you installed:")
 
-        CodeBlock(#"wf 7.0.0"#, title: "text")
+        DocsCodeBlock(#"wf 7.0.0"#, title: "text")
 
         Markdown("If the shell says it cannot find `wf`, open a new terminal. The installer adds its directory to your `PATH` in your shell's startup file, and the terminal you ran it in read that file before the change.")
 
@@ -65,7 +65,7 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
 
         Markdown("**You see:**")
 
-        CodeBlock(#"Created new WebFluent project: hello (template: spa)
+        DocsCodeBlock(#"Created new WebFluent project: hello (template: spa)
   AGENTS.md is the language reference, for you and your coding agent
   .agents/skills/ and .claude/skills/ teach your coding agent to write it well
 
@@ -85,7 +85,7 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
 
         Markdown("**You see:**")
 
-        CodeBlock(#"Building hello...
+        DocsCodeBlock(#"Building hello...
   4 pages, 3 components, 2 stores
   Output: ./build/
 Build complete.
@@ -181,7 +181,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
 
         Markdown("To see the smallest whole site, replace every file in `src/` except `theme.wf` with the two below, and delete the starter's tests under `tests/`, which test the pages you removed. Keep `src/theme.wf`: the project's `webfluent.app.json` names the themes it declares (`Day` and `Night`), and the build stops if they are gone.\n\n`src/App.wf` is the shell every page shares, with the router in it:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Text("Hello").heading }
         Navbar.Links {
@@ -194,7 +194,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
 
         Markdown("`src/pages/Home.wf` holds the pages, and each page names its own route:")
 
-        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
     state count = 0
     Container {
         Heading("Hello, world").h1
@@ -212,13 +212,13 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Markdown("Save, and the dev server shows a navigation bar with **Home** and **About**. **Click me** counts your clicks. Here is what each part does:\n\n- `app \{ … \}` is the shell: what every page sits inside. `Router` is where the current page renders. There is no route table; each `page` names its own `path:`.\n- `page Home(path: \"/\", title: …, description: …)` declares a page. `title` and `description` become the `<title>`, the meta description, the Open Graph and Twitter cards and the JSON-LD. If you leave them out, the build warns you.\n- `state count = 0` is a signal. `Text(\"… \{count\} …\")` reads it, so the text updates when it changes.\n- In `Button(\"Click me\").primary \{ on click \{ … \} \}`, the label is the one positional argument, `.primary` is a flag (a case of the button's `tone` prop), and the block holds the click handler.\n- `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are built-ins. The [components reference](/reference) lists all of them.")
 
-        Callout("**Coming from React?** There is no route table and no `import`. Each `page` names its own `path:`, and every file under `src/` is part of one program, so `App.wf` places pages and components it never imports. See [Coming from React](/coming-from/react).", kind: .note)
+        DocsCallout("**Coming from React?** There is no route table and no `import`. Each `page` names its own `path:`, and every file under `src/` is part of one program, so `App.wf` places pages and components it never imports. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("What a build produces", id: "what-a-build-produces").h2
 
         Markdown("`wf build` writes the finished site to `build/`. A static build with two pages and a `path: \"*\"` page writes files like these:")
 
-        CodeBlock(#"build/
+        DocsCodeBlock(#"build/
   index.html          the page, pre-rendered (static) or the app shell (spa)
   about/index.html    one directory per route in a static build
   404.html            the `path: "*"` page, which a host serves for unknown paths
@@ -238,7 +238,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Markdown("A project's files are laid out like this:")
 
-        CodeBlock(#"AGENTS.md             the language reference, for you and a coding agent
+        DocsCodeBlock(#"AGENTS.md             the language reference, for you and a coding agent
 webfluent.app.json    the config
 src/
   App.wf              the app shell (optional)
@@ -252,20 +252,20 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
 
         Markdown("The compiler reads every `.wf` or `.wfx` file under `src/` and merges them into one program, so a page in one file uses a component from another without importing it. The folders are a convention, not a rule. [Project structure](/reference/project) covers naming, organisation and the config, and the [configuration reference](/reference/config) lists every key.\n\nThe config needs only a name:")
 
-        CodeBlock(#"{ "name": "hello" }"#, title: "json")
+        DocsCodeBlock(#"{ "name": "hello" }"#, title: "json")
 
         Heading("Common mistakes", id: "common-mistakes").h2
 
         Markdown("A flag with a typo. A flag is checked against the element that takes it, so `.mutd` is an error, not a style that quietly does nothing:")
 
-        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
+        DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
     Heading("Hello").h1
     Text("Welcome back.").mutd
 }"#, title: "wf · draws E103")
 
         Markdown("Use one of the flags the message lists, here `.muted` ([E103](/errors/E103)).\n\nAn `app` with no `Router`. The shell is drawn, but no page ever is:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Brand { Text("Hello").heading }
     }
@@ -277,7 +277,7 @@ page Home(path: "/", title: "Hello", description: "A first site.") {
 
         Markdown("Put `Router` in the `app` where the current page should appear ([R03](/errors/R03)).\n\nA link to a page you have not written yet. The compiler checks every `to:` against the pages' paths:")
 
-        CodeBlock(#"app {
+        DocsCodeBlock(#"app {
     Navbar {
         Navbar.Links {
             Link("Home", to: "/")

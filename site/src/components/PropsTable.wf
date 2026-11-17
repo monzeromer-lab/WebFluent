@@ -1,7 +1,8 @@
 /// The props of one entry, as the reference lists them: the name in mono
 /// link ink, the type or the cases in mono, and one line of meaning.
-/// `nameLabel` heads the first column when its rows are not props.
-component PropsTable(rows: [PropsRow], caption: String = "Props", nameLabel: String = "") {
+/// `nameLabel` and `typeLabel` head the first two columns when its rows are
+/// not props.
+component PropsTable(rows: [PropsRow], caption: String = "Props", nameLabel: String = "", typeLabel: String = "") {
     DataTable(rows: rows, key: r => r.name, label: caption, class: "props-table") {
         style {
             width: 100%
@@ -31,7 +32,7 @@ component PropsTable(rows: [PropsRow], caption: String = "Props", nameLabel: Str
                 }
             }
         }
-        DataTable.Column(t("ref.type"), value: r => r.type)
+        DataTable.Column(if typeLabel != "" { typeLabel } else { t("ref.type") }, value: r => r.type)
         DataTable.Column(t("ref.meaning")) { cell(row) { Markdown(row.meaning) } }
     }
 }

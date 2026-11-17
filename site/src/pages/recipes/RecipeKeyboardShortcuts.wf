@@ -61,7 +61,7 @@ page Notes(path: "/notes", title: "Notes", description: "Notes, with a command p
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. Paste it into a file under `src/pages/` and open `/notes`.")
-            CodeBlock(#"type Command { id: String, label: String, keys: String }
+            DocsCodeBlock(#"type Command { id: String, label: String, keys: String }
 
 const COMMANDS: [Command] = [
     Command(id: "new", label: "New note", keys: "mod+n"),

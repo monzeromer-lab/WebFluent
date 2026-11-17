@@ -10,6 +10,14 @@ A first and a last day, chosen in two months side by side that a button opens, o
 DateRangePicker(bind: State, label: String, min: Date, …)
 ```
 
+## Example
+
+```wf
+state period = { start: @2026-11-01, end: @2026-11-17 }
+DateRangePicker(bind: period, label: "Report period", presets: [.today, .last7, .last30, .thisMonth, .lastMonth])
+Text("{period.start:.date(medium)} to {period.end:.date(medium)}").muted
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -21,13 +29,6 @@ DateRangePicker(bind: State, label: String, min: Date, …)
 | `presets:` | `[RangePreset]` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-state stay = { start: null, end: null }
-DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])
-```
 
 ## What it can raise
 

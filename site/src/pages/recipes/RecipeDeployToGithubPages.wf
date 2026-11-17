@@ -3,12 +3,12 @@
 page RecipeDeployToGithubPages(path: "/recipes/deploy-to-github-pages", title: "Deploy to GitHub Pages — Recipes", description: "Deploy a WebFluent site to GitHub Pages with a GitHub Actions workflow, under the repository's sub-path and with no trailing-slash redirects.") {
     RecipeShell("Deploy to GitHub Pages", summary: "This recipe publishes a WebFluent site to GitHub Pages from a GitHub Actions workflow, which builds the site on every push to `main`. GitHub serves a project site under `https://<you>.github.io/<repo>/`, so the build must know that sub-path.  You need the project in a GitHub repository; the workflow installs `wf` as [Install wf on a build machine](/recipes/install-wf-in-ci) shows.  Set the sub-path, the site's address, `clean_urls` and `ssg` in `webfluent.app.json`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "check-it", label: "Check it")], related: [RelatedLink(kind: "Recipe", title: "Deploy to Netlify", to: "/recipes/deploy-to-netlify"), RelatedLink(kind: "Recipe", title: "Install wf on a build machine", to: "/recipes/install-wf-in-ci"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews")], source: "md-docs/recipes/deploy-to-github-pages.md", how: true, hasVariations: false, project: {}) {
         code {
-            CodeBlock(#"{
+            DocsCodeBlock(#"{
     "build": { "ssg": true, "base_path": "/<repo>", "clean_urls": "file" },
     "meta": { "site_url": "https://<you>.github.io/<repo>" }
 }"#, title: "json")
             Markdown("GitHub Pages serves files and nothing else: it has no rewrite that sends every address to `index.html`. `\"ssg\": true` writes a file for every page, so a reader who reloads `/<repo>/tasks`, or opens a link to it, gets that page. A project made with `wf init -t spa` has `\"ssg\": false`; keep it that way only if you also add the `404.html` step below.\n\nThen add `.github/workflows/pages.yml`:")
-            CodeBlock(#"name: Deploy
+            DocsCodeBlock(#"name: Deploy
 on:
   push:
     branches: [main]

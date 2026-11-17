@@ -10,6 +10,17 @@ Progress bar; a value that reads state moves with it.
 Progress(value: Number, max: Number)
 ```
 
+## Example
+
+```wf
+state sent = 3
+Stack(gap: .sm) {
+    Text("Sending invitations: {sent} of 8")
+    Progress(value: sent, max: 8)
+    Button("Send one more") { on click { sent = if sent < 8 { sent + 1 } else { 0 } } }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -18,12 +29,6 @@ Progress(value: Number, max: Number)
 | `max:` | `Number` | Value at 100% |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
-
-## Example
-
-```wf
-Progress(value: 40, max: 100)
-```
 
 ## What it can raise
 

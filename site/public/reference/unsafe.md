@@ -10,18 +10,29 @@ The one door for markup a page did not write. It has a single part, Unsafe.Html.
 Unsafe
 ```
 
+## Example
+
+```wf
+Unsafe.Html(sanitize("<p>From the <strong>CMS</strong>: <a href='/learn'>read the guide</a>.</p><script>alert(1)</script>"))
+```
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Parts
 
-- `Unsafe.Unsafe.Html`
+Written under its name, inside `Unsafe`.
 
-## Example
+### Unsafe.Html
+
+Markup, put in as markup. It is **not** sanitised — the name says so — and sanitize(…) is one call away for anything the project did not write itself.
 
 ```wf
-state body = "<p>From the CMS</p>"
-Unsafe.Html(sanitize(body))
+Unsafe.Html(_ markup: String)
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `markup` | `String  (positional)` | The HTML to insert |
 
 ## What it can raise
 

@@ -10,6 +10,26 @@ A dialog of everything a reader can do or go to, filtered as they type: the arro
 CommandPalette(open: State, label: String, placeholder: String) { … }
 ```
 
+## Example
+
+```wf
+state palette = false
+state said = "Nothing run yet"
+Button("Search commands…") { on click { palette = true } }
+Text(said).muted.sm
+CommandPalette(open: palette, label: "Commands", placeholder: "Type a command or a page") {
+    CommandPalette.Group("Pages") {
+        CommandPalette.Item("Reference", icon: "list") { on select { navigate("/reference") } }
+        CommandPalette.Item("Recipes", icon: "book") { on select { navigate("/recipes") } }
+    }
+    CommandPalette.Group("Actions") {
+        CommandPalette.Item("New file", icon: "file-plus", shortcut: "mod+n") { on select { said = "New file" } }
+        CommandPalette.Item("Copy link", icon: "copy", shortcut: "mod+shift+c") { on select { said = "Link copied" } }
+        CommandPalette.Item("Switch theme", icon: "moon") { on select { said = "Theme switched" } }
+    }
+}
+```
+
 ## Props
 
 | Prop | Type | Meaning |
@@ -26,24 +46,41 @@ Every element also takes the props, events and attribute families listed [on eve
 
 ## Parts
 
-- `CommandPalette.CommandPalette.Group`
-- `CommandPalette.CommandPalette.Item`
-- `CommandPalette.CommandPalette.List`
+Written under its name, inside `CommandPalette`.
 
-## Example
+### CommandPalette.Group
+
+Items under a heading.
 
 ```wf
-state palette = false
-Button("Commands") { on click { palette = true } }
-CommandPalette(open: palette) {
-    CommandPalette.Group("Pages") {
-        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
-    }
-    CommandPalette.Group("Actions") {
-        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
-    }
-}
+CommandPalette.Group(_ title: String) { … }
 ```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title` | `String  (positional)` | Its heading |
+
+### CommandPalette.Item
+
+One thing to do or go to; on select is what it does.
+
+```wf
+CommandPalette.Item(_ label: String, icon: String, shortcut: String) { … }
+```
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` | `String  (positional)` | Its words, which the typing matches |
+| `icon:` | `String` | An icon before the words |
+| `shortcut:` | `String` | Its keys, shown at its end as this system writes them |
+
+Events: `select`
+
+## Drawn for it
+
+What `CommandPalette` draws itself, by its class; not written.
+
+- `CommandPalette.List` (`.`): What matches.
 
 ## What it can raise
 

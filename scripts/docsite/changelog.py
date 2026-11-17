@@ -314,7 +314,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
 
 PAGE_TAIL = """        }
 
-        OnThisPage(sections: RAIL, source: "RELEASE_NOTES.md")
+        DocsOnThisPage(sections: RAIL, source: "RELEASE_NOTES.md")
     }
 }
 """

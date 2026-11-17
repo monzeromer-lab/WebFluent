@@ -28,7 +28,7 @@ page Tasks(path: "/", title: "Tasks", description: "A list that animates.") {
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/` and the name `Tasks`, as two of the starter's pages do: paste it into a new project, or replace `src/pages/Home.wf` and remove `src/pages/Tasks.wf`.")
-            CodeBlock(#"type Item { id: Number, text: String }
+            DocsCodeBlock(#"type Item { id: Number, text: String }
 
 page Tasks(path: "/", title: "Tasks", description: "A list that animates.") {
     state items: [Item] = [Item(id: 1, text: "First"), Item(id: 2, text: "Second")]

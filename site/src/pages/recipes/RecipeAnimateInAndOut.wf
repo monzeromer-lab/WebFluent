@@ -25,7 +25,7 @@ page RecipeAnimateInAndOut(path: "/recipes/animate-in-and-out", title: "Animate 
 "# }) {
         code {
             Markdown("**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.")
-            CodeBlock(#"page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
+            DocsCodeBlock(#"page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
     state open = false
     state toast: String? = "Saved"
     Heading("Notices").h1
@@ -49,7 +49,7 @@ page RecipeAnimateInAndOut(path: "/recipes/animate-in-and-out", title: "Animate 
 
             Markdown("To hold an animation until the reader has scrolled to the element, add `on: .enterView`. It plays once. `on: .mount`, the default, plays it when the element appears.")
 
-            CodeBlock(#"page Story(path: "/", title: "Story", description: "Sections that arrive as you read.") {
+            DocsCodeBlock(#"page Story(path: "/", title: "Story", description: "Sections that arrive as you read.") {
     Heading("Our story").h1
     Text("Scroll down.")
     Section(animate: .fadeIn, on: .enterView) { Heading("Further down").h2 }
@@ -59,7 +59,7 @@ page RecipeAnimateInAndOut(path: "/recipes/animate-in-and-out", title: "Animate 
 
             Markdown("`show` toggles whether its content is visible, so that content animates with `animate:` and `exit:` as an `if` branch does. A `match` arm's elements animate as one arm replaces another. This wizard slides each step in:")
 
-            CodeBlock(#"enum Step { one, two, three }
+            DocsCodeBlock(#"enum Step { one, two, three }
 
 page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
     state step: Step = .one
