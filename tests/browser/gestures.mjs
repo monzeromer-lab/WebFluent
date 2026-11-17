@@ -191,6 +191,10 @@ async function scenario(label, ssg, port) {
 
     // ── a swipe, by a finger ──
     const cdp = await page.createCDPSession();
+    // The card is the page's last: a touch lands only on what is in view,
+    // so the page is scrolled to its end, and given a moment to get there.
+    await page.evaluate(() => window.scrollTo(0, document.scrollingElement.scrollHeight));
+    await wait(200);
     const sw = await box("#swipe");
     const touch = (type, x, y) => cdp.send("Input.dispatchTouchEvent", { type, touchPoints: type === "touchEnd" ? [] : [{ x, y }] });
     await touch("touchStart", sw.cx + 60, sw.cy);
