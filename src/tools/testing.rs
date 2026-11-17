@@ -1286,7 +1286,11 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             let name = text(target);
             let done = page.eval(&step_script("click", &name, ""))?;
             if done.as_str() != Some("ok") {
-                return Ok(Err(cannot_act(done.as_str(), &format!("nothing to click called {name:?}"), &name)));
+                return Ok(Err(cannot_act(
+                    done.as_str(),
+                    &format!("nothing to click called {name:?}"),
+                    &name,
+                )));
             }
             page.settle(120)?;
         }
@@ -1302,7 +1306,11 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
                     return Ok(Err(format!("{into:?} has no option {what:?}")));
                 }
                 other => {
-                    return Ok(Err(cannot_act(other, &format!("no control called {into:?} to type into"), &into)));
+                    return Ok(Err(cannot_act(
+                        other,
+                        &format!("no control called {into:?} to type into"),
+                        &into,
+                    )));
                 }
             }
             page.settle(120)?;

@@ -147,7 +147,10 @@ pub fn resolve_dark_tokens(
 ///
 /// [`WebFluentError::ConfigError`] when `config.name` names no declared
 /// theme, or is unset and several are declared.
-pub fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option<&'a ThemeDecl>> {
+pub fn select_theme<'a>(
+    program: &'a Program,
+    config: &ThemeConfig,
+) -> Result<Option<&'a ThemeDecl>> {
     // The dark theme is the other one: it never stands for the build's own.
     let dark = config.dark.as_deref().filter(|n| !n.is_empty());
     // A theme declared twice is one name (the second is `E102`'s to

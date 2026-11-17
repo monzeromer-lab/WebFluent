@@ -2665,6 +2665,7 @@ pub webfluent::syntax::parser::ast::ApiDecl::doc: core::option::Option<alloc::st
 pub webfluent::syntax::parser::ast::ApiDecl::endpoints: alloc::vec::Vec<webfluent::syntax::parser::Endpoint>
 pub webfluent::syntax::parser::ast::ApiDecl::from: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::ApiDecl::headers: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
+pub webfluent::syntax::parser::ast::ApiDecl::headers_span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::ApiDecl::hooks: alloc::vec::Vec<webfluent::syntax::parser::EventHandler>
 pub webfluent::syntax::parser::ast::ApiDecl::invalidations: alloc::vec::Vec<webfluent::syntax::parser::Invalidation>
 pub webfluent::syntax::parser::ast::ApiDecl::name: alloc::string::String
@@ -2930,6 +2931,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EventHa
 pub struct webfluent::syntax::parser::ast::FakeAnswer
 pub webfluent::syntax::parser::ast::FakeAnswer::body: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::FakeAnswer::endpoint: alloc::string::String
+pub webfluent::syntax::parser::ast::FakeAnswer::example: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::FakeAnswer::params: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::ast::FakeAnswer::span: webfluent::syntax::parser::Span
 impl core::clone::Clone for webfluent::syntax::parser::FakeAnswer
@@ -4255,6 +4257,7 @@ pub webfluent::syntax::parser::ApiDecl::doc: core::option::Option<alloc::string:
 pub webfluent::syntax::parser::ApiDecl::endpoints: alloc::vec::Vec<webfluent::syntax::parser::Endpoint>
 pub webfluent::syntax::parser::ApiDecl::from: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ApiDecl::headers: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
+pub webfluent::syntax::parser::ApiDecl::headers_span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ApiDecl::hooks: alloc::vec::Vec<webfluent::syntax::parser::EventHandler>
 pub webfluent::syntax::parser::ApiDecl::invalidations: alloc::vec::Vec<webfluent::syntax::parser::Invalidation>
 pub webfluent::syntax::parser::ApiDecl::name: alloc::string::String
@@ -4520,6 +4523,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EventHa
 pub struct webfluent::syntax::parser::FakeAnswer
 pub webfluent::syntax::parser::FakeAnswer::body: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::FakeAnswer::endpoint: alloc::string::String
+pub webfluent::syntax::parser::FakeAnswer::example: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::FakeAnswer::params: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::FakeAnswer::span: webfluent::syntax::parser::Span
 impl core::clone::Clone for webfluent::syntax::parser::FakeAnswer

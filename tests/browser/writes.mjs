@@ -127,7 +127,7 @@ async function scenario(label, port) {
       await shows(page, "list", "Oat milk,Bread,Ghost"), await text(page, "list"));
     check("and the undo takes it back when the server answers 500",
       await shows(page, "list", "Oat milk,Bread"), await text(page, "list"));
-    check("the action heard why", (await text(page, "said")).startsWith("undone: HTTP 500"), await text(page, "said"));
+    check("the action heard why, in the server's words", (await text(page, "said")).startsWith("undone: no"), await text(page, "said"));
     check("nothing threw", thrown.length === 0, thrown.join(" | "));
   } finally {
     await browser.close();
