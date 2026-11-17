@@ -2,7 +2,7 @@
 /// scripts/docsite/guide.py; edit the guide, not this file.
 page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", description: "Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.", layout: DocsShell("Expressions", kind: .reference, chapter: t("nav.group.reference"), blurb: "The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await.", source: "md-docs/reference/expressions.md", sections: [Anchor(id: "a-first-example", label: "A first example"), Anchor(id: "literals", label: "Literals"), Anchor(id: "interpolation", label: "Interpolation"), Anchor(id: "operators", label: "Operators"), Anchor(id: "choosing-a-value", label: "Choosing a value"), Anchor(id: "fields-calls-and-methods", label: "Fields, calls and methods"), Anchor(id: "format-and-ago", label: "format and ago"), Anchor(id: "regular-expressions", label: "Regular expressions"), Anchor(id: "tokens-as-values", label: "Tokens as values"), Anchor(id: "await", label: "await"), Anchor(id: "constants", label: "Constants"), Anchor(id: "built-in-functions", label: "Built-in functions"), Anchor(id: "summary", label: "Summary")], nextTo: "/reference/project", nextLabel: t("ch.31"))) {
     Stack(gap: .lg) {
-        Markdown("An expression is anything that has a value: a prop's value, a condition, the right side of a `state` or a `derived`, or the inside of `\{…\}` in a string. Remember one thing: wherever WebFluent wants a value, any expression in this chapter can stand there, and it stays live when it reads state.\n\nIn this chapter:\n\n- literals, including the literals of the language's own types;\n- interpolation, and how a splice formats its value;\n- operators and their precedence;\n- `if` and `match` used as values;\n- fields, calls, lambdas and the methods of strings, lists and numbers;\n- `format` and `ago`, regular expressions, design tokens as values;\n- `await`, constants, and the functions the language adds.")
+        Markdown("An expression is anything that has a value: a prop's value, a condition, the right side of a `state` or a `derived`, or the inside of `\{…\}` in a string. Remember one thing: wherever WebFluent wants a value, any expression in this chapter can stand there, and it stays live when it reads state.\n\nIn this chapter:\n\n- literals, including the literals of the language's own types;\n- interpolation, and how a splice formats its value;\n- operators, the types they take, and their precedence;\n- `if` and `match` used as values;\n- fields, calls, lambdas and the methods of strings, lists and numbers;\n- `format` and `ago`, regular expressions, design tokens as values;\n- `await`, constants, and the functions the language adds.")
 
         Heading("A first example", id: "a-first-example").h2
 
@@ -66,7 +66,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
     Text("Next: {count + 1}")
 }"#, title: "wf")
 
-        Markdown("The page shows `Hello, Sam`, `You have 3 items`, `Total: $29.97` and `Next: 4`.\n\nAny expression may go inside `\{…\}`: a call, a method chain, an `if`, even a string of its own. `\"\{n ?? \"none\"\}\"` and `\"\{if ok \{ \"yes\" \} else \{ \"no\" \}\}\"` both work. The rules:\n\n- The group must close on the same line.\n- A splice opens with a name, a `(` or a `[`. Anything else in braces — `\"\{key: value\}\"` in prose, a fragment of code, `\"\{\"` alone — stays text.\n- For a long expression, declare a `derived` value and splice its name, as `noun` above. It reads better and the checker names it in a message.")
+        Markdown("The page shows `Hello, Sam`, `You have 3 items`, `Total: $29.97` and `Next: 4`.\n\nAny expression may go inside `\{…\}`: a call, a method chain, an `if`, even a string of its own. `\"\{nickname ?? \"none\"\}\"` and `\"\{if ok \{ \"yes\" \} else \{ \"no\" \}\}\"` both work. The rules:\n\n- The group must close on the same line.\n- A splice opens with a name, a `(` or a `[`. Anything else in braces — `\"\{key: value\}\"` in prose, a fragment of code, `\"\{\"` alone — stays text.\n- For a long expression, declare a `derived` value and splice its name, as `noun` above. It reads better and the checker names it in a message.")
 
         Heading("Showing a value a particular way", id: "showing-a-value-a-particular-way").h3
 
@@ -146,7 +146,21 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
     for round in 1..=3 { Badge("Round {round}") }
 }"#, title: "wf")
 
-        Markdown("How they behave:\n\n- `+` joins strings when either side is a `String`, and adds numbers otherwise. Arithmetic on anything else is a `T18`.\n- `==` compares values. Two records with the same fields are not `==` unless they are the same object, so compare their ids.\n- Against a `null` literal, `==` and `!=` also match a value that is absent, such as a query key the address does not have.\n- `a ?? b` is `b` when `a` is `null`. `a?.b`, `a?.m()` and `a?.[i]` read through a `null` and give `null` instead of failing.\n- A range is the whole numbers from `a` up to `b`, without `b` for `..` and with it for `..=`.\n\nPrecedence, strongest first: `!`, unary `-` and `await`; then `* / %`; `+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. The full table is in [Grammar](/reference/grammar#expressions).")
+        Markdown("How they behave:\n\n- `+` adds two numbers or joins two strings. A string and a number are not joined: `\"Total: \" + n` is a `T18`, and a splice says how the number shows, `\"Total: \{n\}\"`. Arithmetic on anything but numbers is a `T18` too.\n- `!`, `&&` and `||` take a `Bool` (a `Bool?` counts, its `null` false). A number, a string or a value that may be null is a `T29`: write what the condition asks — `count != 0`, `name != \"\"`, `user != null` — and use `??`, not `||`, for a fallback.\n- `==` compares values. Two records with the same fields are not `==` unless they are the same object, so compare their ids.\n- Against a `null` literal, `==` and `!=` also match a value that is absent, such as a query key the address does not have.\n- `a ?? b` is `b` when `a` is `null`. `a?.b`, `a?.m()` and `a?.[i]` read through a `null` and give `null` instead of failing.\n- A range is the whole numbers from `a` up to `b`, without `b` for `..` and with it for `..=`.")
+
+        Heading("The types an expression must have", id: "the-types-an-expression-must-have").h3
+
+        Markdown("Every expression has one type the program can name, and the checker holds each place to it:\n\n- **A condition is a `Bool`.** `if`, `show`, `!`, `&&` and `||` read a `Bool`; `if count \{ … \}` is a `T29`, whose fix writes `if count != 0`.\n- **A value made of several has one type.** The branches of an `if` or a `match`, the items of a list and the two sides of `??` must agree: `if ok \{ 1 \} else \{ \"none\" \}` is a `T27`. `null` on one side makes the value `T?`.\n- **No conversion happens by itself.** A `Date`, `Time` or `DateTime` where a `String` is wanted is a `T34`, because it has more than one spelling: `Text(due)` becomes `Text(\"\{due\}\")` or `Text(\"\{due:.date(long)\}\")`. A `Duration` and a `Number` do not mix either: `3.seconds + 500` is a `T34`, and `3.seconds + 500.ms` adds.")
+
+        CodeBlock(#"page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.") {
+    state count = 0
+    Heading("Cart").h1
+    if count { Text("{count} items") }
+}"#, title: "wf · draws T29")
+
+        Heading("Precedence", id: "precedence").h3
+
+        Markdown("Precedence, strongest first: `!`, unary `-` and `await`; then `* / %`; `+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. The full table is in [Grammar](/reference/grammar#expressions).")
 
         Heading("Choosing a value", id: "choosing-a-value").h2
 
@@ -164,7 +178,7 @@ page Grades(path: "/grades", title: "Grades", description: "A score, graded.") {
     Badge(grade, tone: if score >= 70 { .success } else { .danger })
 }"#, title: "wf")
 
-        Markdown("The rules:\n\n- An `if` with no `else` is `null` when its condition fails.\n- `if let x = v \{ a \} else \{ b \}` binds `x` when `v` is not `null`.\n- A `match` on an enum, as a value or as a statement, needs an arm for every case or an `else` (`T15`). One that covers every case needs no `else`.\n- A case with a payload binds one name in a `match` expression: `match status \{ .failed(reason) \{ reason \} else \{ \"\" \} \}`.")
+        Markdown("The rules:\n\n- Every arm gives the same type, or `null` (`T27`).\n- An `if` with no `else` is `null` when its condition fails.\n- `if let x = v \{ a \} else \{ b \}` binds `x` when `v` is not `null`.\n- A `match` on an enum, as a value or as a statement, needs an arm for every case or an `else` (`T15`). One that covers every case needs no `else`.\n- A case with a payload binds one name in a `match` expression: `match status \{ .failed(reason) \{ reason \} else \{ \"\" \} \}`.")
 
         Heading("Fields, calls and methods", id: "fields-calls-and-methods").h2
 
@@ -414,6 +428,10 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                     Table.Cell { Markdown("Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it))") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`toast(message, …)`, `await ask(question, …)`, `announce(text)`") }
+                    Table.Cell { Markdown("Shows a toast, asks a yes-or-no question, says something to a screen reader ([Events](/learn/08-events#toasts-questions-and-announcements-from-a-handler))") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`http.get(url, options)`") }
                     Table.Cell { Markdown("Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#ask-on-demand-with-http))") }
                 }
@@ -424,7 +442,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
             }
         }
 
-        Markdown("The browser's own globals need no prefix and compile to themselves: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `parseInt`, `parseFloat`, `Array`, `Object`, `String`, `Number`, `Boolean`, `Promise`, `Error`, `Map`, `Set`, `RegExp`, `Infinity`, `NaN`, `undefined`, `encodeURIComponent`, `decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `fetch`, `alert`, `confirm`, `prompt`, `requestAnimationFrame`, `cancelAnimationFrame`, `navigator`, `location`, and the other platform names that [Built-ins](/reference/built-ins#browser-globals) lists.")
+        Markdown("The browser's own globals need no prefix and compile to themselves, typed by the language's table of the browser: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `Object`, `Array`, `Number`, `navigator`, `location`, `history`, `performance`, `screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and the other names [Built-ins](/reference/built-ins#browser-globals) lists. A global the table does not type — `crypto`, `Promise`, `Map`, `URL` — is a `T30`; reach it from a project script whose JSDoc types it. `fetch(…)` is gone (`N08`): a request is `http.get(…)`.")
 
         Heading("Summary", id: "summary").h2
 

@@ -69,7 +69,7 @@ internal! {
 
 pub use components::component_css;
 pub use prune::{Usage, prune_css};
-pub use resolve::{apply_motion, resolve_dark_tokens, resolve_tokens};
+pub use resolve::{apply_motion, resolve_dark_tokens, resolve_tokens, select_theme};
 pub use structural::structural_css;
 
 /// How much of the engine's built-in stylesheet a build emits.

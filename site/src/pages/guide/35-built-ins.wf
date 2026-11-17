@@ -29,6 +29,14 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                     Table.Cell("Plays an animation on an element handle")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("[`announce(text)`](#announce)") }
+                    Table.Cell("Says something to a screen reader")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[`ask(question)`](#ask)") }
+                    Table.Cell("Asks a yes-or-no question in an alert dialog")
+                }
+                Table.Row {
                     Table.Cell { Markdown("[`beacon(url, data)`](#beacon)") }
                     Table.Cell("Sends a small post that survives the page unloading")
                 }
@@ -101,6 +109,10 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                     Table.Cell("A translation")
                 }
                 Table.Row {
+                    Table.Cell { Markdown("[`toast(message)`](#toast)") }
+                    Table.Cell("Shows a short message above everything")
+                }
+                Table.Row {
                     Table.Cell { Markdown("[`uuid()`](#uuid)") }
                     Table.Cell { Markdown("A fresh `Uuid`") }
                 }
@@ -111,7 +123,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Every name in this list but `spawn` belongs to the language: a `state`, prop, parameter, loop item or `const` with one of these names is an `E118`. `spawn` means something only after `worker name =`.")
+        Markdown("Every name in this list but `announce`, `ask`, `http`, `spawn` and `toast` belongs to the language: a `state`, prop, parameter, loop item or `const` with one of these names is an `E118`. A program's own `announce`, `ask`, `http` or `toast` keeps its name, and the function is out of reach where it is declared; `spawn` means something only after `worker name =`.")
 
         Heading("after", id: "after").h3
 
@@ -128,7 +140,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`interval`") }
-                    Table.Cell { Markdown("`Number` (milliseconds) or `Duration`") }
+                    Table.Cell { Markdown("`Number`, in milliseconds") }
                     Table.Cell("How long to wait")
                 }
             }
@@ -136,7 +148,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: a render block — a page, a component, a branch, a list item. The timer is cancelled when the block that holds it leaves. See [Timers](/learn/07-state-and-reactivity#timers).")
 
-        CodeBlock(#"after(3.seconds) { banner = null }"#, title: "wf")
+        CodeBlock(#"after(3000) { banner = null }"#, title: "wf")
 
         Heading("ago", id: "ago").h3
 
@@ -203,6 +215,76 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         CodeBlock(#"Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }"#, title: "wf")
 
+        Heading("announce", id: "announce").h3
+
+        Markdown("Says something to a screen reader, with nothing on screen moving.\n\nSignature: `announce(text)`, `announce(text, .assertive)`")
+
+        Table(caption: "announce") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Parameter").header
+                    Table.Cell("Type").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`text`") }
+                    Table.Cell { Markdown("`String`") }
+                    Table.Cell("What to say")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.assertive`") }
+                    Table.Cell("optional")
+                    Table.Cell("Interrupts what the reader is hearing, for what cannot wait; unset, it waits its turn")
+                }
+            }
+        }
+
+        Markdown("Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](/learn/08-events#toasts-questions-and-announcements-from-a-handler).")
+
+        CodeBlock(#"announce("{results.length} results")"#, title: "wf")
+
+        Heading("ask", id: "ask").h3
+
+        Markdown("Draws an alert dialog with a question, and waits for the answer.\n\nSignature: `ask(question, detail: …, yes: …, no: …, danger: Bool)` → a promise of `Bool`")
+
+        Table(caption: "ask") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Parameter").header
+                    Table.Cell("Type").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`question`") }
+                    Table.Cell { Markdown("`String`") }
+                    Table.Cell("The dialog's heading")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`detail:`") }
+                    Table.Cell { Markdown("`String`, optional") }
+                    Table.Cell("A sentence under it")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`yes:`, `no:`") }
+                    Table.Cell { Markdown("`String`, optional") }
+                    Table.Cell("The two buttons' words")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`danger:`") }
+                    Table.Cell { Markdown("`Bool`, optional") }
+                    Table.Cell("Draws yes in the danger colour")
+                }
+            }
+        }
+
+        Markdown("Returns `true` for yes, and `false` for no or Escape. The focus starts on no. Where: `await` in an action or a handler. `confirm` is the browser's own.")
+
+        CodeBlock(#"Button("Delete") { on click { if await ask("Delete the project?", yes: "Delete", danger: true) { remove() } } }"#, title: "wf")
+
         Heading("beacon", id: "beacon").h3
 
         Markdown("Sends a small `POST` that the browser delivers even while the page is unloading.\n\nSignature: `beacon(url, data)` → `Bool`")
@@ -223,8 +305,8 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                 }
                 Table.Row {
                     Table.Cell { Markdown("`data`") }
-                    Table.Cell { Markdown("`Map` or `String`") }
-                    Table.Cell("The body; a map is sent as JSON")
+                    Table.Cell { Markdown("`Json` or `String`") }
+                    Table.Cell("The body; a record or a map is sent as JSON")
                 }
             }
         }
@@ -273,7 +355,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`interval`") }
-                    Table.Cell { Markdown("`Number` (milliseconds) or `Duration`") }
+                    Table.Cell { Markdown("`Number`, in milliseconds") }
                     Table.Cell("The time between runs")
                 }
             }
@@ -281,7 +363,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns nothing. Where: a render block. The timer stops when its page, branch or list item leaves. See [Timers](/learn/07-state-and-reactivity#timers).")
 
-        CodeBlock(#"every(1.seconds) { elapsed = elapsed + 1 }"#, title: "wf")
+        CodeBlock(#"every(1000) { elapsed = elapsed + 1 }"#, title: "wf")
 
         Heading("format", id: "format").h3
 
@@ -364,7 +446,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `on:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).")
+        Markdown("`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).")
 
         CodeBlock(#"let rows: [Row] = try await http.get("/api/rows?page={page}")"#, title: "wf")
 
@@ -438,7 +520,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`value`") }
-                    Table.Cell("any")
+                    Table.Cell { Markdown("any value but a `Secret`") }
                     Table.Cell { Markdown("The value to print. For several, splice them into one string, `log(\"\{a\} \{b\}\")`, or call `console.log(a, b)`") }
                 }
             }
@@ -475,7 +557,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Heading("optimistic", id: "optimistic").h3
 
-        Markdown("Shows a change at once, before the server agrees. If anything later in the action throws, the change is taken back.\n\nSignature: `optimistic(holder, change)`")
+        Markdown("Shows a change at once, before the server agrees. If anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back.\n\nSignature: `optimistic(holder, change)`")
 
         Table(caption: "optimistic") {
             Table.Head {
@@ -535,7 +617,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Heading("rtc", id: "rtc").h3
 
-        Markdown("Opens a WebRTC data channel straight to another reader's page.\n\nSignature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) \{ on message(m) \{ … \} \}`")
+        Markdown("Opens a WebRTC data channel straight to another reader's page.\n\nSignature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) \{ send T  receive T  on message(m) \{ … \} \}`")
 
         Table(caption: "rtc") {
             Table.Head {
@@ -566,7 +648,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what the other side sent), `.state`, `.messages` and `.close()`. Where: only after `peer name =`. See [Connect two readers' pages](/recipes/connect-two-readers).")
 
-        CodeBlock(#"peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { on message(m) { heard = m.text } }"#, title: "wf")
+        CodeBlock(#"peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { receive Wave  on message(m) { heard = m.text } }"#, title: "wf")
 
         Heading("sanitize", id: "sanitize").h3
 
@@ -645,7 +727,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Heading("spawn", id: "spawn").h3
 
-        Markdown("Starts a script of `public/` in a worker beside the page.\n\nSignature: `worker name = spawn(path, restart: n, timeout: ms, type: .module) \{ on message(m) \{ … \} \}`")
+        Markdown("Starts a script of `public/` in a worker beside the page.\n\nSignature: `worker name = spawn(path, restart: n, timeout: ms, type: .module) \{ receive T  on message(m) \{ … \} \}`")
 
         Table(caption: "spawn") {
             Table.Head {
@@ -681,7 +763,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("Returns a worker handle with `.request(method, params, options)`, `.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`. Where: only after `worker name =`, in a page, a component or a store. See [Run a script in a worker](/recipes/run-a-worker).")
 
-        CodeBlock(#"worker css = spawn("/workers/css.js", restart: 1) { on message(m) { problems = m.items } }"#, title: "wf")
+        CodeBlock(#"worker css = spawn("/workers/css.js", restart: 1) { receive CssMessage  on message(m) { problems = m.items } }"#, title: "wf")
 
         Heading("sse", id: "sse").h3
 
@@ -733,8 +815,8 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                 }
                 Table.Row {
                     Table.Cell { Markdown("`values`") }
-                    Table.Cell { Markdown("`Map`, optional") }
-                    Table.Cell { Markdown("Values for the message's `\{placeholders\}`; `count` picks a plural form") }
+                    Table.Cell("a map, optional")
+                    Table.Cell { Markdown("Values for the message's `\{placeholders\}`, `\{ name: user.name \}`; `count` picks a plural form") }
                 }
             }
         }
@@ -742,6 +824,51 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
         Markdown("Returns the message. A literal key no locale has is an `I01`; a value the message does not use, or a placeholder the call does not pass, is an `I02`. Where: anywhere. See [`t(\"key\")`](/recipes/translate-a-site#translate-text-with-t).")
 
         CodeBlock(#"Text(t("cart.items", { count: Cart.count }))"#, title: "wf")
+
+        Heading("toast", id: "toast").h3
+
+        Markdown("Shows a short message above everything, a modal included, and says it to a screen reader.\n\nSignature: `toast(message, tone: …, duration: …, action: …, onAction: …, closable: Bool)`; `toast.promise(promise, loading: …, done: …, failed: …)`")
+
+        Table(caption: "toast") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Parameter").header
+                    Table.Cell("Type").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`message`") }
+                    Table.Cell { Markdown("`String`") }
+                    Table.Cell("What it says")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`tone:`") }
+                    Table.Cell { Markdown("`.success`, `.danger`, `.warning`, `.info`") }
+                    Table.Cell("Its colour and icon")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`duration:`") }
+                    Table.Cell { Markdown("`Number` (milliseconds)") }
+                    Table.Cell("How long it stays")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`action:`, `onAction:`") }
+                    Table.Cell { Markdown("`String`, an action") }
+                    Table.Cell("A button on it, and what pressing it runs")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`closable:`") }
+                    Table.Cell { Markdown("`Bool`") }
+                    Table.Cell("Whether it has a close button")
+                }
+            }
+        }
+
+        Markdown("Returns a handle with `close()` and `update(…)`. It waits while the pointer is on it or the focus is in it, and no more than three show at once (a fourth closes the oldest). `toast.promise` shows `loading:` while the promise runs, then `done:` or `failed:`. Where: actions and handlers.")
+
+        CodeBlock(#"toast("Conversation archived", action: "Undo", onAction: restore)"#, title: "wf")
 
         Heading("uuid", id: "uuid").h3
 
@@ -780,9 +907,9 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. Where: only after `socket name =`. See [Open a socket](/recipes/open-a-socket).")
+        Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. `send T` is what `.send` takes and `receive T` what `.messages` holds and `on message(m)` is given; a socket, stream, channel, peer or worker that declares neither sends and hears `Json`, which is matched or decoded rather than read as a record (`T28`). Where: only after `socket name =`. See [Open a socket](/recipes/open-a-socket).")
 
-        CodeBlock(#"socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }"#, title: "wf")
+        CodeBlock(#"socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { send Outgoing  receive Incoming  on message(m) { Feed.add(m) } }"#, title: "wf")
 
         Heading("Browser values", id: "browser-values").h2
 
@@ -867,7 +994,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Heading("query", id: "query").h3
 
-        Markdown("The address's query string, as a map from each key to its value.\n\nA key the address lacks reads as `null`, so `query.tab ?? \"all\"` gives a default.")
+        Markdown("The address's query string, a `[String: String]` from each key to its value.\n\nA key the address lacks reads as `null`, so `query.tab ?? \"all\"` gives a default.")
 
         CodeBlock(#"Text("Showing {query.tab ?? "all"}")"#, title: "wf")
 
@@ -1013,7 +1140,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Heading("List methods", id: "list-methods").h2
 
-        Markdown("A list has the browser's array methods and seven of WebFluent's own.\n\nWebFluent's own:")
+        Markdown("A list has the browser's array methods and eight of WebFluent's own.\n\nWebFluent's own:")
 
         Table(caption: "List methods") {
             Table.Head {
@@ -1145,6 +1272,6 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Markdown("The browser's names compile to themselves, with no prefix, and a table of the browser's types says what each is: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date` (`Date.now()`), `Object` (`Object.keys`), `Array` (`Array.isArray`), `Number` (`Number.isInteger`, …), `navigator` and its `clipboard`, `location`, `history`, `performance`, `screen`, `Infinity`, `NaN`, `undefined`, and the functions `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `requestAnimationFrame`, `cancelAnimationFrame`, `queueMicrotask`, `structuredClone`, `matchMedia`, `getComputedStyle`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`, `encodeURIComponent`, `decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `alert`, `confirm` and `prompt`. `JSON.parse` hands back `Json`; `getItem` a `String?`; an element's `getBoundingClientRect()` a `Rect`.\n\nA handler's event, an element a `ref:` names and the value `catch` binds are typed by the same table: a `KeyboardEvent`, an `Element`, an `Error`. A global or a member it does not list — `crypto`, `navigator.bluetooth`, `e.kye` — is [`T30`](/errors/T30), with the nearest name; reach it from a [project script](/recipes/call-your-own-script) whose JSDoc says its types. A name the program declares itself wins over a global, and unlike the language's own names, a global may be the name of a state, a prop or a parameter.")
 
-        CodeBlock(#"localStorage.setItem("last-seen", now.date())"#, title: "wf")
+        CodeBlock(#"localStorage.setItem("last-seen", "{now.date()}")"#, title: "wf")
     }
 }

@@ -539,6 +539,26 @@ checker, a value an error has already been reported about is no longer
 `Any` but a type of its own, which agrees with everything as `Any` did, so
 the count holds only what the program leaves untyped.
 
+## Every built-in follows the theme
+
+A built-in draws from the theme's tokens alone, so a theme restyles all of
+them, and a dark theme needs nothing beyond its colours.
+
+- **What is written on a tone is a token**: `color-on-primary`,
+  `-secondary`, `-success`, `-danger`, `-warning` and `-info` are the label
+  of a primary button, a badge, a pressed toggle or a chosen day. A theme
+  with a light primary names a dark one, and `A13` checks each pair. A
+  theme with a pale tone may draw new `A13` warnings.
+- **Alerts, focus rings, highlights and stars are mixed from the theme's
+  colours**, rather than fixed tints, and `color-backdrop` dims the page
+  behind a modal, a dialog, a sheet and a drawer.
+- **A `Modal` or `Dialog` is as wide as its `<dialog>`**, so `class:` or
+  `style { width: … }` on it sizes what it shows.
+- **The structural look keeps a `Popover`'s box**, and toasts take the
+  theme's font.
+- The `spa` starter's own dark-mode button is `DarkModeSwitch`, so it no
+  longer hides the built-in `ThemeToggle`.
+
 ## Found by hand, before the release
 
 A pass over every 7.0 feature in a browser, against a server that

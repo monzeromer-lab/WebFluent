@@ -8,7 +8,7 @@
   // wrong in a shape `match` can read.
   //
   // An error is an array whose first item names the case — `.offline`,
-  // `.timeout`, `.aborted`, `.parse`, `.status(code, body)` — so `match`
+  // `.timeout`, `.cancelled`, `.transport`, `.decode`, `.status(code, body)` — so `match`
   // reads it as an enum, and which also carries `message`, `status`,
   // `body` and `headers` as fields, so `e.message` reads as a record.
   function netError(kind, message, extra) {

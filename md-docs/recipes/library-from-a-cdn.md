@@ -106,9 +106,9 @@ An entry may be an object instead of a URL, to say how it loads.
   `window.Confetti`. Most CDNs also serve a plain build, which needs
   neither key.
 - **Called from `.wf` directly.** `{ "src": "…", "globals": ["confetti"] }`
-  puts the names a library defines in scope, each typed `Any`, because the
-  compiler cannot see their shape. A class among them is constructed when
-  called.
+  puts the names a library defines in scope, each taking and giving `Json`,
+  because the compiler cannot see their shape: match or decode what one
+  gives back. A class among them is constructed when called.
 
 ## Troubleshooting
 

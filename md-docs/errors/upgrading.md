@@ -5,12 +5,12 @@ route: "/errors/upgrading"
 from: ["/docs/guide/upgrading", "/about/upgrading"]
 group: "help"
 blurb: "What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward."
-description: "How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate."
+description: "How to upgrade wf, what each release from 4.0 to 7.0 asks of a project, and moving an older project forward with wf migrate."
 ---
 # Upgrading
 
 This page says what each release asks of your project when you upgrade,
-newest first, from 6.0 back to WebFluent 2.
+newest first, from 7.0 back to WebFluent 2.
 
 The policy behind it: a release should ask nothing of a project that
 works. When one does ask, it is because the old behaviour shipped a broken
@@ -24,7 +24,7 @@ upgrade asks of you:
 
 - [Install a newer version](#install-a-newer-version)
 - [Upgrade a project](#upgrade-a-project)
-- The notes for each release, from [6.1](#6-1) back to
+- The notes for each release, from [7.0](#7-0) back to
   [WebFluent 2](#from-webfluent-2)
 
 ## At a glance
@@ -32,6 +32,7 @@ upgrade asks of you:
 | Release | What to do |
 |---|---|
 | [7.0](#7-0) | Run `wf migrate`, then fix what it lists; read the changes that need no edit |
+| [6.2](#6-2) | Nothing; a component named like a built-in now draws the project's own (`V11`). |
 | [6.1](#6-1) | Run `wf check` (`T10`, `E111`, `R05`); a stylesheet that selects `main#wf-main` should select `#wf-main` |
 | [6.0](#6-0) | Run `wf check`; check `build.output`, `public_env` names taken from the shell, and `wf serve --host` if you test on a phone. To have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
 | [5.14, 5.13](#5-14-and-5-13) | Nothing |
@@ -96,7 +97,8 @@ It rewrites the request forms 6.x had (`N08`): `fetch(…)` into
 [header(…)]`. It declares what each `state` holds (`T25`), what each action
 returns and fails with (`T26`, `N03`), each parameter's type (`T32`), and
 JSDoc for a script function `.wf` calls (`T31`); it writes the comparison a
-condition meant (`T29`), a splice or a unit where a value was converted
+condition meant (`T29`), a splice for text joined to a number with `+`
+(`T18`: `"+" + n` becomes `"+{n}"`), a splice or a unit where a value was converted
 (`T34`), `try` where a result's value is wanted, and an error enum's
 `http` case (`N12`). It runs until nothing is left to fix, then lists, by
 place, every error a person decides — a `on request` hook to write as a
@@ -120,6 +122,19 @@ that are errors, and `T20` — a list or a record shown as text — is an error
 now. A service described by an OpenAPI spec is best kept
 as files: `wf api add openapi.json` (see
 [Call a service from its OpenAPI spec](../recipes/service-from-openapi.md)).
+
+## 6.2
+
+6.2 adds some sixty built-ins and makes the existing ones work by
+keyboard, screen reader, touch and right to left. Nothing in a project
+needs a change. Your project may notice these:
+
+- **A component of your own wins over a built-in of its name.** It used to
+  be the other way: the built-in was drawn and your component never was.
+  `V11` is now information, saying the built-in cannot be placed there.
+- **A `Button` whose `on click` calls an async action is busy** until the
+  call ends, and a call with the arguments of one still running joins it,
+  so a double click submits once. Nothing is written for either.
 
 ## 6.1
 
@@ -580,7 +595,7 @@ visiting `:param` routes. [Command line](../reference/cli.md) describes each.
 `meta.scripts` entry, a local module into a plain script under `src/` with
 its signatures as JSDoc, and an `external element` call into
 `Element("tag", …)`. A call into a remote module that `external` typed is
-`Any` afterwards.
+untyped afterwards (`Json` since 7.0).
 
 **Every `.js` file under `src/` now ships**, linked on every page before
 the compiled code. `wf migrate` lists the ones it finds; move any that are

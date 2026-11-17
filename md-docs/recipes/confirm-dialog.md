@@ -21,6 +21,7 @@ component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event cancel()
     slot
     AlertDialog(visible: visible, title: title) {
+        on close { emit cancel() }
         children
         Row(gap: .sm, justify: .end) {
             Button("Cancel") { on click { emit cancel() } }
@@ -58,8 +59,10 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
   clear it, which closes the
   [dialog](../learn/08-events.md#overlays-modals-dialogs-toasts-and-menus).
 - An `AlertDialog` is one to a screen reader, read with its body. Escape
-  closes it as **Cancel** would, and a press beside it does not: an answer
-  is a button.
+  closes it, and a press beside it does not: an answer is a button. Its
+  `on close` runs however it closes, so Escape fires `cancel` too and the
+  page clears `asking`; without it, `asking` would stay `true` and the next
+  **Delete account** would change nothing.
 
 ## One question, from a handler
 

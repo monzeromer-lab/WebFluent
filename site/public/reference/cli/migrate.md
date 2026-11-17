@@ -1,10 +1,10 @@
 # wf migrate
 
-> Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
+> Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies
 
 The page: https://webfluent.monzeromer.dev/reference/cli/migrate
 
-Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
+Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies
 
 ```bash
 wf migrate [PATH] [options]

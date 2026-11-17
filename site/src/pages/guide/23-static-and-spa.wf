@@ -115,7 +115,7 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
             }
         }
 
-        Markdown("For the first paint to be right, prefer what the build can see:\n\n- **Data files over fetches** for content that changes only when you deploy ([Fetching data](/learn/15-data)).\n- **[Responsive values](/learn/13-styling#responsive-values) over `viewport`** for layout.")
+        Markdown("For the first paint to be right, prefer what the build can see:\n\n- **Data files over requests** for content that changes only when you deploy ([Fetching data](/learn/15-data)).\n- **[Responsive values](/learn/13-styling#responsive-values) over `viewport`** for layout.")
 
         Heading("Routes with no single file", id: "routes-with-no-single-file").h2
 

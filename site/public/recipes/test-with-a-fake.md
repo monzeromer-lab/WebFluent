@@ -69,4 +69,10 @@ A test that names `fakes:` runs in a browser, where the page makes its
 calls; nothing is sent. A call to an endpoint no fake answers fails the
 test and names it. With a contract from an OpenAPI spec,
 `fake Examples for Backend.people from examples` answers from the spec's
-examples. More in [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes).
+examples. A fake that answers an endpoint the group does not have, reads a
+parameter it does not take, or answers with the wrong type is `N06`.
+
+A build leaves fakes out. To load every page of the site in a browser with
+the fakes answering — for a site whose API is elsewhere — run
+`wf verify --fakes tests/fakes.wf`, naming the file that holds them. More
+in [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes).

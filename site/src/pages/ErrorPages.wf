@@ -450,7 +450,7 @@ page ErrorE109(path: "/errors/E109", title: "E109 — An element this output can
                 Markdown("draw it as text, or build the\npage as a site.")
             }
         }
-        Markdown("A `Button`, an `Input`, a handler or a `Router` in a project whose\n`output_type` is `pdf` or `slides`. With `\"build\": \{ \"output_type\": \"pdf\" \}`\nin `webfluent.app.json` (the example is not compiled here: what it draws\ndepends on the config):\n\n```wf no-check\npage Report(path: \"/\", title: \"Report\", description: \"The quarter.\") \{\n    Document(title: \"Q1 report\") \{\n        Heading(\"Q1 report\").h1\n        Button(\"Print\")\n    \}\n\}\n```\n\nPaper has no controls (`Button`,\n`Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`,\n`FileUpload`, `Textarea`, `Form`, `IconButton`, `ButtonGroup`, `Dropdown`), no navigation\n(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), no overlays (`Modal`,\n`Dialog`, `Popover`, `Toast`, `Tooltip`), no media that plays (`Video`,\n`Audio`, `Carousel`), no other page inside it (`Frame`) and nothing a\nscript draws (`Host`, `Element`, `Portal`).")
+        Markdown("A `Button`, an `Input`, a handler or a `Router` in a project whose\n`output_type` is `pdf` or `slides`. With `\"build\": \{ \"output_type\": \"pdf\" \}`\nin `webfluent.app.json` (the example is not compiled here: what it draws\ndepends on the config):\n\n```wf no-check\npage Report(path: \"/\", title: \"Report\", description: \"The quarter.\") \{\n    Document(title: \"Q1 report\") \{\n        Heading(\"Q1 report\").h1\n        Button(\"Print\")\n    \}\n\}\n```\n\nPaper has no controls (`Button`,\n`Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`,\n`FileUpload`, `Textarea`, `Form`, `IconButton`, `ButtonGroup`, `Dropdown`,\n`Combobox` and every other control), no navigation\n(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), no overlays (`Modal`,\n`Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Toast`, `Tooltip`), no media that plays (`Video`,\n`Audio`, `Carousel`), no other page inside it (`Frame`) and nothing a\nscript draws (`Host`, `Element`, `Portal`).")
     }
 }
 
@@ -587,7 +587,7 @@ page ErrorE117(path: "/errors/E117", title: "E117 — A key combination no keybo
     Heading("Search").h1
 }"#, title: "wf") }
         note {
-            Markdown("Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:\na letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.")
+            Markdown("Modifiers `mod` (⌘ on a Mac, Ctrl elsewhere — the one for an\napp's shortcuts), `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:\na letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`,\n`inline-start`. A chord is its steps with a space between: `mod+k mod+s`.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -691,7 +691,7 @@ page ErrorT01(path: "/errors/T01", title: "T01 — A value of the wrong type", d
     Button("Reset") { on click { count = 0 } }
 }"#, title: "wf") }
         note {
-            Markdown("Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.\n\nA number a built-in cannot be given is one too: a `Carousel(interval:)`\noutside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms\nautoplay), a `Column(span:)` that is not a whole number from 1 to 12.\n\n```wf expect=T01\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    Heading(\"Grid\").h1\n    Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n\}\n```\n\n```text\nerror[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted\n --> src/App.wf:3:11\n  |\n3 |     Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n  |           ^^^^^^\n  = help: `span: 6` is half the row\n  = docs: https://webfluent.monzeromer.dev/errors/T01\n```")
+            Markdown("Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds one or the other, say so with an enum whose cases carry each (`enum Amount \{ text(value: String), number(value: Number) \}`), or `Json` for JSON whose shape is open.\n\nA number a built-in cannot be given is one too: a `Carousel(interval:)`\noutside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms\nautoplay), a `Column(span:)` that is not a whole number from 1 to 12.\n\n```wf expect=T01\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    Heading(\"Grid\").h1\n    Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n\}\n```\n\n```text\nerror[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted\n --> src/App.wf:3:11\n  |\n3 |     Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n  |           ^^^^^^\n  = help: `span: 6` is half the row\n  = docs: https://webfluent.monzeromer.dev/errors/T01\n```")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -928,7 +928,7 @@ page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that can
     if n == 1 { Text("One") } else { Text("?") }
 }"#, title: "wf") }
         note {
-            Markdown("Use `if` for a condition; `match` takes a resource, a connection or an enum.")
+            Markdown("Use `if` for a condition; `match` takes a read (a `resource`), a result (`.ok`, `.err`), a connection or an enum.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -1121,7 +1121,7 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
     }
 }
 
-page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that is not a number", description: "-, *, / and % take numbers; on a string or a list the result is NaN. + joins text when one side is a string, and takes numbers otherwise.") {
+page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that is not a number", description: "-, *, / and % take numbers; on a string or a list the result is NaN.") {
     ErrorShell("T18", title: "Arithmetic on something that is not a number", severity: "error", family: "Types", summary: "`-`, `*`, `/` and `%` take numbers (or scale a duration); on a string or a list the result is `NaN`. `+` adds two numbers, joins two strings or adds two durations — text and a number are not joined by `+`, a splice says how the number is shown: `\"Total: \{n\}\"`.", printed: #"error[T18]: `*` takes numbers, but `price` is `String`
  --> src/App.wf:3:27
   |
@@ -1138,7 +1138,7 @@ page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that 
     Heading("Total {price * 2}").h1
 }"#, title: "wf") }
         note {
-            Markdown("Hold numbers as numbers (`state price = 12`), or convert:\n`Number(price) * 2`.")
+            Markdown("Hold numbers as numbers (`state price = 12`), or convert:\n`Number(price) * 2`.\n\n`+` joins two strings or adds two numbers. Text and a number joined with\n`+` is refused too, since nothing would say how the number is shown:\n\n```wf expect=T18\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    state n = 3\n    Heading(\"Cart\").h1\n    Text(\"Total: \" + n)\n\}\n```\n\n```text\nerror[T18]: `+` joins two strings or adds two numbers, but `n` is `Number`\n --> src/App.wf:4:20\n  |\n4 |     Text(\"Total: \" + n)\n  |                    ^\n  = help: Splice it into the text, which says how it is shown: `\"Total: \{n\}\"`\n  = docs: https://webfluent.monzeromer.dev/errors/T18\n```\n\n```wf fixed\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    state n = 3\n    Heading(\"Cart\").h1\n    Text(\"Total: \{n\}\")\n\}\n```\n\n**Fix:** Splice the value into the text — `\"Total: \{n\}\"`, or\n`\"Total: \{n:.currency\}\"` to say how it shows. The editor's quick fix,\n`wf fix --code T18` and `wf migrate` write the splice.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -1393,7 +1393,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT27(path: "/errors/T27", title: "T27 — Two values with no type in common", description: "") {
+page ErrorT27(path: "/errors/T27", title: "T27 — Two values with no type in common", description: "The branches of an if or a match, a list's items and the sides of ?? make one value, so they are one type. null on one side makes it T?.") {
     ErrorShell("T27", title: "Two values with no type in common", severity: "error", family: "Types", summary: "The branches of an `if` or a `match`, the items of a list, or the two sides of `??` are one value, so they are one type: `if ok \{ 1 \} else \{ \"none\" \}` is a number one way and text the other, and nothing that reads it can say which. `null` on one side is fine — the value is then `T?`.", printed: #"error[T27]: `if left … 0 { … }` is `Number` one way and `String` the other, which have no type in common
  --> src/App.wf:3:5
   |
@@ -1421,7 +1421,7 @@ page ErrorT27(path: "/errors/T27", title: "T27 — Two values with no type in co
     }
 }
 
-page ErrorT28(path: "/errors/T28", title: "T28 — A Json value read as if it were something else", description: "") {
+page ErrorT28(path: "/errors/T28", title: "T28 — A Json value read as if it were something else", description: "Json may be an object, a list, a string, a number, a boolean or null. Match its cases, or decode it into a type, before reading it.") {
     ErrorShell("T28", title: "A Json value read as if it were something else", severity: "error", family: "Types", summary: "`Json` is JSON as it arrives: it may be an object, a list, a string, a number, a boolean or null, so reading a field of it, indexing it, calling a method on it or adding to it assumes what nobody checked. Match its cases, or decode it into a type — `User.decode(raw)` — and read the value that comes back.", printed: #"error[T28]: `raw` is `Json`, and `.name` reads it as a record
  --> src/App.wf:5:10
   |
@@ -1452,7 +1452,7 @@ page P(path: "/", title: "Profile", description: "D") {
     }
 }
 
-page ErrorT29(path: "/errors/T29", title: "T29 — A condition that is not a Bool", description: "") {
+page ErrorT29(path: "/errors/T29", title: "T29 — A condition that is not a Bool", description: "if, show, !, && and || take a Bool. Write the comparison meant: count != 0, name != \"\", user != null.") {
     ErrorShell("T29", title: "A condition that is not a Bool", severity: "error", family: "Types", summary: "`if`, `show`, `!`, `&&` and `||` take a `Bool` (or a `Bool?`, whose `null` is `false`). A number, a string or a value that may be null is not one: JavaScript would read `0`, `\"\"` and `null` as false, and the program says which it means — `count != 0`, `name != \"\"`, `user != null`. A fallback for a value that may be null is `??`, not `||`.", printed: #"error[T29]: `if` reads `count` as a condition, but it is a number, not a `Bool`: `Number`
  --> src/App.wf:4:5
   |
@@ -1522,7 +1522,7 @@ page ErrorT31(path: "/errors/T31", title: "T31 — A script's function the langu
   |
 3 |     Card(mount: (n) => tiltBy(n, 15)) { Text("Lean on me.") }
   |                        ^^^^^^
-  = help: Say it above the function, at src/tilt.js:2: `/** @param {number} max … @returns {string} */`
+  = help: Say it above the function, at src/tilt.js:2: `/** @param {number} max … @returns {string} */`; the fix writes one from this call, `@returns {*}` for you to narrow
   = docs: https://webfluent.monzeromer.dev/errors/T31"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T31.md") {
         broken { CodeBlock(#"page P(path: "/", title: "Tilt", description: "D") {
     Heading("Tilt").h1
@@ -1578,7 +1578,7 @@ page P(path: "/", title: "Todos", description: "D") {
     }
 }
 
-page ErrorT33(path: "/errors/T33", title: "T33 — Data that is not what its type says", description: "") {
+page ErrorT33(path: "/errors/T33", title: "T33 — Data that is not what its type says", description: "Data from outside the program — a data file, a template's data, a test's data: — is held to its type where it comes in, and refused with the place it goes…") {
     ErrorShell("T33", title: "Data that is not what its type says", severity: "error", family: "Types", summary: "Data that comes from outside the program is held to the type that receives it, where it comes in: a `data` file when the project is built, a template's data before it renders, a test's `data:` seeds before it runs. A value that does not fit is named by its place — `$[3].date is \"March 5\", not a Date` — rather than shown wrong, or as nothing, on the page.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T33.md") {
         fixed {
             Stack(gap: .sm) {
@@ -1589,7 +1589,7 @@ page ErrorT33(path: "/errors/T33", title: "T33 — Data that is not what its typ
     }
 }
 
-page ErrorT34(path: "/errors/T34", title: "T34 — A conversion the language does not make for you", description: "") {
+page ErrorT34(path: "/errors/T34", title: "T34 — A conversion the language does not make for you", description: "A Date or Time where text is wanted takes a splice that says how it shows; a Duration says its unit, never a bare number.") {
     ErrorShell("T34", title: "A conversion the language does not make for you", severity: "error", family: "Types", summary: "A `Date`, a `Time` or a `DateTime` where a `String` is wanted: each has more than one spelling, and a splice says which — `\"\{due\}\"`, `\"\{due:.date(long)\}\"`. A `Duration` and a `Number` taken for each other: a duration says its unit — `500.ms`, `3.seconds` — and `wait.ms()` is the number it counts.", printed: #"error[T34]: `content:` on `Text` is `Date`, and a `Date` is not a `String`: it has more than one spelling
  --> src/App.wf:4:10
   |
@@ -1935,10 +1935,10 @@ page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested ro
 }
 
 page ErrorR05(path: "/errors/R05", title: "R05 — A translation of no page, or two in one language", description: "translates: names the page this one is a translation of, and the pages it joins list each other as hreflang alternates, each in its own lang:.…") {
-    ErrorShell("R05", title: "A translation of no page, or two in one language", severity: "error", family: "Routes", summary: "`translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`. A name no page has joins nothing, and two pages in one language would be two alternates for one `hreflang`.", printed: #"error[R05]: `HomeEn` translates `Hom`, and no page is named `Hom`
+    ErrorShell("R05", title: "A translation of no page, or two in one language", severity: "error", family: "Routes", summary: "`translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`. A name no page has joins nothing, and two pages in one language would be two alternates for one `hreflang`.", printed: #"error[R05]: `HomeAr` translates `Hom`, and no page is named `Hom`
  --> src/App.wf:5:1
   |
-5 | page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Hom) {
+5 | page HomeAr(path: "/ar", title: "Home", description: "D", lang: "ar", translates: Hom) {
   | ^^^^
   = help: Did you mean `Home`?
   = docs: https://webfluent.monzeromer.dev/errors/R05"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R05.md") {
@@ -1946,14 +1946,14 @@ page ErrorR05(path: "/errors/R05", title: "R05 — A translation of no page, or 
     Heading("Home").h1
 }
 
-page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Hom) {
+page HomeAr(path: "/ar", title: "Home", description: "D", lang: "ar", translates: Hom) {
     Heading("Home").h1
 }"#, title: "wf") }
         fixed { CodeBlock(#"page Home(path: "/", title: "Home", description: "D") {
     Heading("Home").h1
 }
 
-page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Home) {
+page HomeAr(path: "/ar", title: "Home", description: "D", lang: "ar", translates: Home) {
     Heading("Home").h1
 }"#, title: "wf") }
         note {
@@ -2341,7 +2341,7 @@ page ErrorD06(path: "/errors/D06", title: "D06 — A script loaded on consent, w
     }
 }
 
-page ErrorN01(path: "/errors/N01", title: "N01 — A path that names no parameter", description: "") {
+page ErrorN01(path: "/errors/N01", title: "N01 — A path that names no parameter", description: "An endpoint's path names its parameters, at \"users/\{id\}\": each \{name\} is filled by the parameter of that name.") {
     ErrorShell("N01", title: "A path that names no parameter", severity: "error", family: "Requests", summary: "An endpoint's path names its parameters, `at \"users/\{id\}\"`: each `\{name\}` is filled by the parameter of that name, and one that no parameter fills would be sent as written. A parameter has one place — the path, a header or a cookie.", printed: #"error[N01]: `Backend.user` is at `users/{id}`, and no parameter fills `{id}`
  --> src/App.wf:4:5
   |
@@ -2385,7 +2385,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN02(path: "/errors/N02", title: "N02 — A resource over a write", description: "") {
+page ErrorN02(path: "/errors/N02", title: "N02 — A resource over a write", description: "A resource asks again whenever the page draws it or what it reads changes. A write — POST, PUT, PATCH, DELETE — is sent once, from an action or a handler.") {
     ErrorShell("N02", title: "A resource over a write", severity: "error", family: "Requests", summary: "A `resource` asks whenever the page draws it and whenever what it reads changes. A write — a `POST`, `PUT`, `PATCH` or `DELETE` — is sent when something happens, from an action, once.", printed: #"error[N02]: `resource made` reads `Backend.create`, a `POST`: a write is sent when something happens, not whenever the page draws
  --> src/App.wf:8:5
   |
@@ -2490,7 +2490,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN04(path: "/errors/N04", title: "N04 — A result nothing reads", description: "") {
+page ErrorN04(path: "/errors/N04", title: "N04 — A result nothing reads", description: "A call's result awaited on its own drops whether the call worked. Match it, or pass a failure up with try.") {
     ErrorShell("N04", title: "A result nothing reads", severity: "warning", family: "Requests", summary: "`await Backend.users.create(body: draft)` written on its own drops what came back: whether the user was made, or why not. Match it, or pass a failure up with `try`.", printed: #"warning[N04]: what `await Backend.create(…)` answers is not read: whether it worked goes nowhere
  --> src/App.wf:9:9
   |
@@ -2545,7 +2545,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN05(path: "/errors/N05", title: "N05 — An invalidates naming what the contract does not have", description: "") {
+page ErrorN05(path: "/errors/N05", title: "N05 — An invalidates naming what the contract does not have", description: "A write's invalidates [list, byId(id)] names reads of the same group, each argument one of the write's own parameters.") {
     ErrorShell("N05", title: "An invalidates naming what the contract does not have", severity: "error", family: "Requests", summary: "A write's `invalidates [list, byId(id)]` names the reads a success makes stale, each a `get` of the same group, each argument one of the write's own parameters. A name the group does not have would make nothing stale.", printed: #"error[N05]: `Backend.todos.create` invalidates `all`, which `Backend.todos` has no read of
  --> src/App.wf:9:18
   |
@@ -2599,7 +2599,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN06(path: "/errors/N06", title: "N06 — A fake that does not match its group's contract", description: "") {
+page ErrorN06(path: "/errors/N06", title: "N06 — A fake that does not match its group's contract", description: "A fake answers in place of the network, so it is held to the group's contract: its endpoints, their parameters, and the result each declares.") {
     ErrorShell("N06", title: "A fake that does not match its group's contract", severity: "error", family: "Requests", summary: "A `fake OneUser for Backend.users \{ … \}` answers in place of the network, so it is held to what the network would have to do: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares — `.ok(value)` of its type, or `.err(error)` of its error. A test's `fakes:` names fakes, and `expect called` an endpoint.", printed: #"error[N06]: `Backend.users` has no endpoint `lists` for `fake OneUser` to answer
   --> src/App.wf:10:5
    |
@@ -2922,7 +2922,7 @@ page ErrorI05(path: "/errors/I05", title: "I05 — Words a reader sees that are 
                 Markdown("splice names, `derived filesText = \"\{n\} files\"`\nthen `Text(\"\{filesText\} found\")`, and name what is words as words.")
             }
         }
-        Markdown("Warning, under `\"literals\": true`. `Text(\"\{plural(n, \"file\")\} found\")`\nsplices a call, so no table can key it; `derived said = \"\{n\} errors\"`\nshown as `Text(said)` is not looked up, because only a value whose name\nsays it is words (`saidText`, `errorsLabel`) is. A reader in Arabic sees\nboth in English.")
+        Markdown("Warning, under `\"literals\": true`. `Text(\"\{n + 1\} found\")`\nsplices more than a name, so no table can key it; `derived said = \"\{n\} errors\"`\nshown as `Text(said)` is not looked up, because only a value whose name\nsays it is words (`saidText`, `errorsLabel`) is. A reader in Arabic sees\nboth in English.")
     }
 }
 
@@ -3235,10 +3235,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Contrast").h1
 }"#, title: "wf") }
         note {
-            Markdown("Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).")
+            Markdown("Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text). A theme with a light tone names a dark label for it: `color-primary: #FDE68A` with `color-on-primary: #1A1A19`.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
-        Markdown("The theme must be the one the build uses: the only one declared, or the\none `theme.name` names in the config. A project `wf init` made names\n`Day`, so to try this example remove `theme` from its config.")
+        Markdown("The theme must be the one the build uses: the only one declared, or the\none `theme.name` names in the config. A project `wf init` made names\n`Day`, so to try this example remove `theme` from its config.\n\nIt checks each pair a page draws: text on the background and on a\nsurface, a tone used as a link or an icon on the background (3:1), and\nwhat is written on a tone — a primary button's or badge's label, a\nselected day — which is `color-on-primary` (and `-secondary`, `-success`,\n`-danger`, `-warning`, `-info`) on its tone.")
     }
 }
 

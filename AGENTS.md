@@ -81,14 +81,14 @@ what each store that has been built is holding, a log of every action with
 the state on each side of it, and a click to put a store back to before one
 ran.
 
-`wf serve` answers a request that is not a page (a `fetch`, a file) and
-that the build has no file for with a `404` and a line in the terminal —
-only a navigation gets the shell. Its builds are development builds: a
-response is held to its declared type (`resource x: [User]`, `-> User`) and
-a mismatch is a `.parse` error naming the place (`$[1].name is missing`); a
-route no page answers shows a 404 box; a `for` item that throws shows where
-(the rest of the list draws — on a deployed page it leaves a gap); an effect
-that feeds itself stops after 100 runs with a warning.
+`wf serve` answers a request that is not a page (a call to an API, a file)
+and that the build has no file for with a `404` and a line in the terminal —
+only a navigation gets the shell. Its builds are development builds: an
+error enum's body is held to its declared type, as every build holds a
+response (a mismatch is a `.decode` error naming the place, `$[1].name is
+missing`); a route no page answers shows a 404 box; a `for` item that throws
+shows where (the rest of the list draws — on a deployed page it leaves a
+gap); an effect that feeds itself stops after 100 runs with a warning.
 
 `wf verify` visits `:param` routes at their `paths:` values, or at a
 placeholder (`/user/1`); fails a page whose router drew nothing into
@@ -1939,11 +1939,12 @@ that stores the site for when the network is gone:
   `cache-first`, `stale-while-revalidate` or `network-only`. Anything not
   named passes through untouched.
 - `sync` — a write safe to send twice (a `PUT` or a `DELETE`, through
-  `fetch` or an `api`) that fails for want of a network is kept and sent, in
+  `http` or an `api`) that fails for want of a network is kept and sent, in
   order, when the connection returns — by Background Sync where the browser
-  has it, so a closed page still sends it. A `POST` or a `PATCH` is not kept:
-  one whose answer was lost may have been taken, and sent again would be a
-  second order; it fails as `.offline(queued: false)`. A kept write's call
+  has it, so a closed page still sends it. A `POST` or a `PATCH` is kept only
+  when its endpoint is marked `idempotent`: any other one whose answer was
+  lost may have been taken, and sent again would be a second order, so it
+  fails as `.offline(queued: false)`. A kept write's call
   fails `.offline(queued: true)` — no answer came, and the write waits — so
   the page says so rather than taking it as done. Once it is sent, what its
   endpoint `invalidates` asks again. A server that answers has the write;
@@ -3727,7 +3728,7 @@ prints a code's entry. Where the fix is known it is part of the finding —
 the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 `T06`, `T16`, `T13`, `E101`, `E103`; `?.` for `T04`; the missing props for
 `C01`; the missing arms for `T15`; the flag for `V01`; `alt: ""` for `A01`;
-`derived` for `X06`; an `_` for `U01`–`U05`; a splice for `T18`
+`derived` for `X06`; removing it, or an `_` before it, for `U01`–`U05`; a splice for `T18`
 (`"+" + n` → `"+{n}"`).
 
 | Family | What |
@@ -3881,7 +3882,7 @@ paint alike.
 | `A09` | A `Video` with no `controls`, or a `Video`/`Audio` with no `captions:`/`transcript:` |
 | `A10` | A `Table` with no header row (`Table.Head`) |
 | `A11` | A heading level skipped — `h2` straight to `h4` |
-| `A12` | A page with no `h1` |
+| `A12` | A page with no `h1`, or more than one |
 | `A13` | A theme's colour pairing falls below the WCAG AA contrast ratio |
 | `A14` | A `role:` that requires particular children (`tablist` → `tab`, `list` → `listitem`, `menu` → `menuitem`, …) holds a control that is not one |
 | `A15` | A control's `aria-label` does not contain its visible text — its label, the literals in its block, and what a component in the block renders from its literal props — so what a voice-control user says does not match what they see |
@@ -4187,7 +4188,7 @@ The same compiler builds for WebAssembly (`crates/wf-wasm`): a page
 compiles a project with nothing sent to a server — sites and apps, every
 check `wf check` makes, pictures sized to WebP, PDFs and slide decks.
 `crates/wf-wasm/build.sh` writes two builds and `wf.js` loads what a
-project needs: the compiler on the first call (about 1.6 MB gzipped), the
+project needs: the compiler on the first call (about 1.9 MB gzipped), the
 one with the PDF engine and its fonts only for a config whose
 `output_type` is `"pdf"` or `"slides"`.
 

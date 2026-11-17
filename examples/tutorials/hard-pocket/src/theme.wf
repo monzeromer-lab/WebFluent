@@ -32,9 +32,12 @@ theme Pocket {
 
 theme PocketNight {
     color-primary: #3CC59C
+    color-on-primary: #0D1311
     color-secondary: #98A6A0
     color-success: #4CC79A
+    color-on-success: #0D1311
     color-danger: #F08A5D
+    color-on-danger: #0D1311
     color-warning: #F2B35B
     color-on-warning: #1A1206
     color-background: #0D1311

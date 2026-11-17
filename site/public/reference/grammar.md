@@ -49,12 +49,15 @@ Each keyword, and where it starts a statement:
 
 | Keyword | Where | Starts |
 |---|---|---|
-| `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation`, `test` | top of a file | a declaration |
+| `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation`, `test` | top of a file | a declaration |
+| `get`, `post`, `put`, `patch`, `delete`, `head`, `options`, with `at`, `in`, `invalidates`, `pages`, `idempotent`, `streamed` | an `api` body | an endpoint |
+| `middleware`, `invalidations`, `pagination` | an `api` body | what every request passes through; what a group's writes make stale; how its reads page |
+| `on` | after an error enum's case | the status the case stands for: `on 404`, `on 4XX` |
 | `state` | render block, store | a value that can change |
 | `persist` | page, component, store | a value kept across visits |
 | `derived` | render block, store | a value worked out from others |
 | `effect`, with `cleanup` | render block, store | code that runs when what it reads changes, and its clean-up |
-| `action` | render block, store | a named imperative block |
+| `action`, with `concurrent` | render block, store | a named imperative block |
 | `use` | render block | access to a store |
 | `resource` | render block, store | a request whose state the page shows |
 | `validate` | render block | the rules a state must pass |
@@ -63,15 +66,16 @@ Each keyword, and where it starts a statement:
 | `on key("…")`, `on resize`, and the other page events | top of a page, a component or `app` | a listener on the document or the window |
 | `head` | page | tags for the document's head |
 | `if`, `else`, `if let` | render or imperative block | a branch |
-| `for`, with `in` and `by` | render or imperative block | a loop |
+| `for`, with `in` and `by` | render or imperative block | a loop; `for await` walks a streamed endpoint's lines, in an imperative block |
 | `show` | render block | a block hidden, not removed, when its condition fails |
-| `match` | render block, or a value | one arm, by a resource's state or an enum's case |
+| `match` | render or imperative block, or a value | one arm, by a read's case, an enum's case or a result's `.ok`/`.err` |
 | `sequence`, `step` | render block | a timed group of enter animations |
 | `slot`, `event`, `part` | component, before its elements | a slot, an event it fires, a part |
 | `children` | component | where the caller's block goes |
 | `style`, `transition`, `on` | element block | styles, transitions, handlers |
 | `let`, `return` | imperative block | a local, and leaving with a value |
-| `try`, `catch` | imperative block | error handling |
+| `try`, `catch` | imperative block | catching what a script throws |
+| `try` | a value, in an imperative block | a result's value, or its error passed up from the action |
 | `await` | imperative block, or a value | waiting for a promise |
 | `emit` | imperative block of a component | firing one of its events |
 | `expect`, `click`, `type`, `press` | test | a step a test checks or performs |
@@ -88,19 +92,25 @@ component Name(_ positional: Type, prop: Type = default, …) { component body }
 store Name(scope: .app | .session | .route, eager: Bool) { store body }
 app { render block }
 theme Name { token: value … }
-type Name { field: Type = default, … }        type Name = Other { … }
+type Name { field: Type = default, … }        type Name = Other { … }        type Name = Type
 enum Name { case, case(part: Type, …), … }
+enum NameError { case(problem: Type) on 404, case(problem: Type?) on 4XX, http(error: HttpError) }
 api Name(base: expr, …) { settings  middleware [ … ]  endpoints  invalidations { … }  pagination { … } }
 api Name.group { endpoints }
 api Name from "spec.json" (base: expr)
 middleware name(req, next) { action body }
 fake Name for Service.group { endpoint(params) { result } … }
+fake Name for Service.group from examples { endpoint(params) { result } … }
 const NAME: Type = expr
 data name: Type = "file.json"
 image name = "picture.jpg"
 animation Name { from { css } 50% { css } to { css } }
-test "name"(data: { … }) { render block and test steps }
+test "name"(data: { … }, fakes: [Fake, …]) { render block and test steps }
 ```
+
+An *error enum* is an enum whose cases name statuses with `on`: one
+status (`on 422`) or a class (`on 4XX`, every status of it no other case
+names), and exactly one `http(error: HttpError)` case for the rest (`N12`).
 
 A `///` comment before a declaration, a prop, a field, an event, an
 endpoint, or a `state`, `persist`, `derived` or `action` of a page, a
@@ -110,6 +120,52 @@ A store's body holds `state`, `persist`, `derived`, `effect`, `action`,
 `resource` and the connections (`socket`, `stream`, `channel`, `peer`,
 `worker`).
 
+## Types
+
+A type is written wherever a `: Type` or a `-> Type` goes:
+
+| Type | Written |
+|---|---|
+| A built-in | `String`, `Number`, `Bool`, `Json`, and the language's own: `Date`, `Time`, `DateTime`, `Duration`, `Money`, `Url`, `Email`, `Color`, `Uuid`, `File`, `Secret` |
+| A declared one | `Todo`, `Tone` — a `type`, an `enum` or an alias |
+| A list | `[Todo]` |
+| A dictionary | `[String: Number]`, `[Region: Number]` — keys of `String` or an enum |
+| May be null | `Todo?` |
+| A function | `(Todo) -> Bool`, `(String, Number) -> ()`; `()` is nothing |
+| A result | `User!` (a `User` or an `HttpError`), `User ! CreateUserError` |
+| Nothing, but it may fail | `-> !`, `-> ! CreateUserError` — after an action or an endpoint only |
+| A refined type | `Number(1..=30)`, `String(minLength: 8)`, `Date(after: @2026-01-01)` — a condition on its values: `min`, `max`, `minLength`, `maxLength`, `pattern`, `after`, `before`, or a range |
+
+`type Name = Type` gives a type another name. `Any` and `Map` are not
+types (`T23`, `T24`): JSON whose shape is open is `Json`.
+
+## Services
+
+An `api` body holds settings, `middleware`, endpoints, and the
+`invalidations { }` and `pagination { }` of its groups. A group,
+`api Name.group { }`, holds endpoints only; it sends what its service
+sends.
+
+```text
+api Name(base: expr) {
+    timeout: 10.seconds                     retry: .backoff(…)    credentials: .sameOrigin
+    middleware [requestId, bearer(Session.token), timed]
+    get name(param: Type = default, other: Type? in header "X-Name" | in query "q" | in cookie) at "path/{param}" -> Type!
+        pages .number(param: page) | .cursor(param: after, next: p => …, items: p => …) | .link
+    get name(…) at "…" -> [Type]! streamed
+    post name(body: Type) at "…" -> Type ! NameError
+        idempotent
+        invalidates [read, read(param)]
+    delete name(id: String) at "…/{id}" -> !
+    invalidations { group.write(id) invalidates [group.read, group.byId(id)] }
+    pagination { group.read pages .cursor(…) }
+}
+```
+
+Every endpoint has `at "path"`, every `{name}` in it is one of its
+parameters (`N01`), and its answer is `-> T!`, `-> T ! E`, `-> !` or
+`-> ! E`. An endpoint may also say `cache:` and `as:` after its answer.
+
 ## Render blocks
 
 A page, a component, the app, a test and every element's children hold
@@ -118,12 +174,12 @@ these statements:
 | Statement | Form |
 |---|---|
 | state | `state name: Type = expr` |
-| persisted state | `persist name: Type = expr { in: .local \| .session \| .name  key: expr  version: n  sync: Bool  migrate n -> n+1 { expr } }` — a page, a component or a store |
+| persisted state | `persist name: Type = expr { in: .local \| .session \| .app  key: expr  version: n  sync: Bool  migrate n -> n+1 { expr } }` — a page, a component or a store |
 | derived | `derived name = expr` |
 | effect | `effect { imperative  cleanup { imperative } }` |
-| action | `action name(param: Type, …) { imperative }` |
+| action | `action name(param: Type, …) -> Type { imperative }` — `-> T`, `-> T ! E`, `-> !` or `-> ! E` when it returns or fails; `concurrent` before the block runs every call |
 | store | `use Store` |
-| resource | `resource name: Type = http.get(url, options)` or `= Api.endpoint(args)` |
+| resource | `resource name: Type = http.get(url, options)`, or `= Api.endpoint(args)` and `= Api.group.endpoint(args)`, typed by the endpoint |
 | validation | `validate name { rule(args) "message"  custom "message" { expr }  async "message" { expr } }` |
 | connection | `socket name = ws(url, …) { send T  receive T  on message(m) { … }  on open { … } }`, `stream name = sse(…)`, `channel name = broadcast(…)`, `peer name = rtc(signal: …, …)`, `worker name = spawn(path, …) { on message(m) { … } }` |
 | timer | `every(interval) { imperative }`, `after(interval) { imperative }` |
@@ -163,7 +219,7 @@ An element's block holds these, in this order, each optional:
 Name(…).flags {
     style { declarations }
     transition { property: duration easing … }
-    on event(e) { imperative }
+    on event(e) { imperative }             `on input(debounce: 300.ms)`, `on scroll(e, throttle: 100.ms)`
     slotName(params) { render block }      a slot fill, on a component call
     children
 }
@@ -180,10 +236,15 @@ Actions, handlers, effects, timers and hooks hold these statements:
 | call | `f(args)`, `Store.action(args)`, `list.push(x)`, `navigate("/…")`, `log(…)` |
 | emit | `emit event(args)` — a component only |
 | return | `return`, `return expr` |
-| conditional | `if … else …`, `if let …` |
-| loop | `for x in list { … }`, `for x, i in list { … }`, `for n in 1..=10 { … }` |
+| conditional | `if … else …`, `if let x = v { … }`, `if let .err(e) = result { … }` |
+| choice | `match expr { .ok(v) { … }  .err(.http(e)) { … }  else { … } }` |
+| loop | `for x in list { … }`, `for x, i in list { … }`, `for n in 1..=10 { … }`, `for await line, i in Api.group.endpoint(args) { … }` |
 | error handling | `try { … } catch e { … }` |
+| a result's value | `let v = try await Api.endpoint(args)` — the value, or the error returned from the action |
 | waiting | `await expr` — makes the action asynchronous |
+
+A pattern in a `match` arm or an `if let` is a case (`.ok(v)`), a case
+inside a case (`.err(.http(.status(503, _)))`), `_`, or a literal.
 
 `let`, `return` and `emit` written in a render block are an error that
 says to move them into a handler, an action or an effect.
@@ -212,9 +273,14 @@ written:
 | Step | Form |
 |---|---|
 | check | `expect "text"`, `expect not "text"` |
+| focus | `expect focus "name"` |
+| requests | `expect called Api.group.endpoint`, `expect not called …` |
 | click | `click "name"` |
 | type | `type "text" into "name"` |
-| key | `press "Key"`, `press "Key" in "name"` |
+| key | `press "Key"`, `press "Key" in "name"`, `press "mod+k"` |
+
+`test "name"(fakes: [Fake])` answers the endpoints of a `fake`'s group in
+place of the network; `data: { … }` seeds the body's state.
 
 ## Expressions
 
@@ -230,7 +296,7 @@ The operators, from weakest to strongest binding:
 | 6 | `<` `<=` `>` `>=` |
 | 7 | `+` `-` |
 | 8 | `*` `/` `%` |
-| 9 | unary `!` `-`, `await` |
+| 9 | unary `!` `-`, `await`, `try` |
 | 10 | calls `f(…)`, fields `a.b`, `a?.b`, methods `a.m(…)`, `a?.m(…)`, indexes `a[i]`, `a?.[i]`, flags |
 
 So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.

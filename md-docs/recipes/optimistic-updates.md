@@ -58,9 +58,12 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 
 ## Variations
 
+### Let the action roll itself back
+
 `optimistic(holder, change)` does the same with less code inside an
 action. It applies the change at once, and if anything later in the action
-throws, the change is taken back
+fails — a `try` passing its error up, or a throw — the change is taken
+back. The action declares `-> !`, so `try` may pass the failure up
 ([Fetching data](../learn/15-data.md#show-a-change-before-the-server-agrees)):
 
 ```wf
@@ -69,3 +72,42 @@ action like(id: String) -> ! {
     try await http.post("/api/like/{id}")
 }
 ```
+
+### Change what a read shows
+
+When the list comes from an endpoint of an `api`, change the read itself:
+`.update(change)` shows the change in every `resource` over that endpoint,
+and returns what takes it back. This store adds a todo at once, and takes
+it out again if the server refuses it:
+
+```wf
+type Todo { id: String, title: String }
+type NewTodo { title: String }
+
+api Backend(base: "/api") { }
+
+api Backend.todos {
+    get list() at "todos" -> [Todo]!
+    post create(body: NewTodo) at "todos" -> Todo!
+        invalidates [list]
+}
+
+store Todos {
+    action add(title: String) {
+        let undo = Backend.todos.list.update(list => list.concat([Todo(id: "new", title: title)]))
+        if let .err(_) = await Backend.todos.create(body: NewTodo(title: title)) { undo() }
+    }
+}
+
+page List(path: "/todos", title: "Todos", description: "Todos that show at once.") {
+    use Todos
+    resource todos = Backend.todos.list()
+    Heading("Todos").h1
+    Button("Add bread") { on click { Todos.add("Bread") } }
+    for todo in todos.value ?? [] by todo.id { Text(todo.title) }
+}
+```
+
+When the create succeeds, `invalidates [list]` asks for the list again, and
+the server's copy, with the todo's real `id`, takes the place of the one
+shown ([Refresh a list after a write](refresh-after-a-write.md)).

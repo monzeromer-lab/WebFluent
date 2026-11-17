@@ -80,7 +80,7 @@ wf --version
 **ترى** الإصدار الذي ثبّته:
 
 ```text
-wf 6.0.0
+wf 7.0.0
 ```
 
 إن قالت الصدفة إنها لا تجد `wf`، فافتح طرفية جديدة. يضيف المثبّت مجلده إلى
@@ -153,7 +153,7 @@ Starting dev server at http://localhost:3000/
 
 لديك الآن مشروع يعمل. أوقف الخادم بـCtrl+C حين تنتهي. شغّل `wf build` لتكتب
 الموقع النهائي في `build/`، جاهزًا لأي استضافة ثابتة
-([النشر](https://webfluent.monzeromer.dev/recipes.md)).
+([النشر على GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)).
 
 بقية هذا الفصل إعداد اختياري. لتواصل التعلّم، انتقل إلى
 [الدرس التطبيقي](https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf.md).
@@ -250,8 +250,10 @@ cd WebFluent && cargo install --path .
 
 ## كتابة موقع من الصفر
 
-لترى أصغر موقع كامل، استبدل محتويات `src/` بملفين، واحذف اختبارات القالب
-تحت `tests/`، فهي تختبر الصفحات التي أزلتها.
+لترى أصغر موقع كامل، استبدل كل ملف في `src/` عدا `theme.wf` بالملفين أدناه،
+واحذف اختبارات القالب تحت `tests/`، فهي تختبر الصفحات التي أزلتها. أبقِ
+`src/theme.wf`: ملف `webfluent.app.json` في المشروع يسمّي السمات التي يعلنها
+(`Day` و`Night`)، ويتوقف البناء إن غابت.
 
 `src/App.wf` هو الهيكل الذي تتشاركه كل الصفحات، وفيه الموجّه:
 

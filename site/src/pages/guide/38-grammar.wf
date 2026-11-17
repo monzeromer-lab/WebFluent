@@ -1,6 +1,6 @@
 /// Chapter 38 of the guide, written from md-docs/reference/grammar.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals.", layout: DocsShell("Grammar", kind: .reference, chapter: t("nav.group.reference"), blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals.", source: "md-docs/reference/grammar.md", sections: [Anchor(id: "names", label: "Names"), Anchor(id: "keywords", label: "Keywords"), Anchor(id: "declarations", label: "Declarations"), Anchor(id: "render-blocks", label: "Render blocks"), Anchor(id: "component-bodies", label: "Component bodies"), Anchor(id: "element-blocks", label: "Element blocks"), Anchor(id: "imperative-blocks", label: "Imperative blocks"), Anchor(id: "style-blocks-and-themes", label: "Style blocks and themes"), Anchor(id: "test-steps", label: "Test steps"), Anchor(id: "expressions", label: "Expressions"), Anchor(id: "literals", label: "Literals"), Anchor(id: "comments", label: "Comments"), Anchor(id: "layout", label: "Layout")], prevTo: "/reference/runtime", prevLabel: t("ch.37"), nextTo: "/reference/browser-support", nextLabel: t("ch.39"))) {
+page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals.", layout: DocsShell("Grammar", kind: .reference, chapter: t("nav.group.reference"), blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals.", source: "md-docs/reference/grammar.md", sections: [Anchor(id: "names", label: "Names"), Anchor(id: "keywords", label: "Keywords"), Anchor(id: "declarations", label: "Declarations"), Anchor(id: "types", label: "Types"), Anchor(id: "services", label: "Services"), Anchor(id: "render-blocks", label: "Render blocks"), Anchor(id: "component-bodies", label: "Component bodies"), Anchor(id: "element-blocks", label: "Element blocks"), Anchor(id: "imperative-blocks", label: "Imperative blocks"), Anchor(id: "style-blocks-and-themes", label: "Style blocks and themes"), Anchor(id: "test-steps", label: "Test steps"), Anchor(id: "expressions", label: "Expressions"), Anchor(id: "literals", label: "Literals"), Anchor(id: "comments", label: "Comments"), Anchor(id: "layout", label: "Layout")], prevTo: "/reference/runtime", prevLabel: t("ch.37"), nextTo: "/reference/browser-support", nextLabel: t("ch.39"))) {
     Stack(gap: .lg) {
         Markdown("This page is a map of what the parser accepts: each keyword, each statement, and where it may be written. The other chapters say what each form means; this page says where it goes.\n\nHow to read the shapes on this page:\n\n- A `text` block shows the shape of a form, not a program to copy.\n- `…` stands for more of the same, and `|` separates alternatives.\n- A word in lower case that is not a keyword, such as `expr`, `Type` or `name`, stands for something you write there.\n- *Render block* means a block that holds elements and the statements that declare state: a page, a component, the `app`, a test, and every element's children. *Imperative block* means a block of statements that run: an action, a handler, an effect, a timer or a hook.")
 
@@ -51,9 +51,24 @@ page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "Th
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation`, `test`") }
+                    Table.Cell { Markdown("`page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation`, `test`") }
                     Table.Cell("top of a file")
                     Table.Cell("a declaration")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`get`, `post`, `put`, `patch`, `delete`, `head`, `options`, with `at`, `in`, `invalidates`, `pages`, `idempotent`, `streamed`") }
+                    Table.Cell { Markdown("an `api` body") }
+                    Table.Cell("an endpoint")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`middleware`, `invalidations`, `pagination`") }
+                    Table.Cell { Markdown("an `api` body") }
+                    Table.Cell("what every request passes through; what a group's writes make stale; how its reads page")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on`") }
+                    Table.Cell("after an error enum's case")
+                    Table.Cell { Markdown("the status the case stands for: `on 404`, `on 4XX`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`state`") }
@@ -76,7 +91,7 @@ page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "Th
                     Table.Cell("code that runs when what it reads changes, and its clean-up")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`action`") }
+                    Table.Cell { Markdown("`action`, with `concurrent`") }
                     Table.Cell("render block, store")
                     Table.Cell("a named imperative block")
                 }
@@ -123,7 +138,7 @@ page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "Th
                 Table.Row {
                     Table.Cell { Markdown("`for`, with `in` and `by`") }
                     Table.Cell("render or imperative block")
-                    Table.Cell("a loop")
+                    Table.Cell { Markdown("a loop; `for await` walks a streamed endpoint's lines, in an imperative block") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`show`") }
@@ -132,8 +147,8 @@ page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "Th
                 }
                 Table.Row {
                     Table.Cell { Markdown("`match`") }
-                    Table.Cell("render block, or a value")
-                    Table.Cell("one arm, by a resource's state or an enum's case")
+                    Table.Cell("render or imperative block, or a value")
+                    Table.Cell { Markdown("one arm, by a read's case, an enum's case or a result's `.ok`/`.err`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sequence`, `step`") }
@@ -163,7 +178,12 @@ page GrammarGuide(path: "/reference/grammar", title: "Grammar", description: "Th
                 Table.Row {
                     Table.Cell { Markdown("`try`, `catch`") }
                     Table.Cell("imperative block")
-                    Table.Cell("error handling")
+                    Table.Cell("catching what a script throws")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`try`") }
+                    Table.Cell("a value, in an imperative block")
+                    Table.Cell("a result's value, or its error passed up from the action")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`await`") }
@@ -194,20 +214,95 @@ component Name(_ positional: Type, prop: Type = default, …) { component body }
 store Name(scope: .app | .session | .route, eager: Bool) { store body }
 app { render block }
 theme Name { token: value … }
-type Name { field: Type = default, … }        type Name = Other { … }
+type Name { field: Type = default, … }        type Name = Other { … }        type Name = Type
 enum Name { case, case(part: Type, …), … }
+enum NameError { case(problem: Type) on 404, case(problem: Type?) on 4XX, http(error: HttpError) }
 api Name(base: expr, …) { settings  middleware [ … ]  endpoints  invalidations { … }  pagination { … } }
 api Name.group { endpoints }
 api Name from "spec.json" (base: expr)
 middleware name(req, next) { action body }
 fake Name for Service.group { endpoint(params) { result } … }
+fake Name for Service.group from examples { endpoint(params) { result } … }
 const NAME: Type = expr
 data name: Type = "file.json"
 image name = "picture.jpg"
 animation Name { from { css } 50% { css } to { css } }
-test "name"(data: { … }) { render block and test steps }"#, title: "text")
+test "name"(data: { … }, fakes: [Fake, …]) { render block and test steps }"#, title: "text")
 
-        Markdown("A `///` comment before a declaration, a prop, a field, an event, an endpoint, or a `state`, `persist`, `derived` or `action` of a page, a component or a store is its documentation.\n\nA store's body holds `state`, `persist`, `derived`, `effect`, `action`, `resource` and the connections (`socket`, `stream`, `channel`, `peer`, `worker`).")
+        Markdown("An *error enum* is an enum whose cases name statuses with `on`: one status (`on 422`) or a class (`on 4XX`, every status of it no other case names), and exactly one `http(error: HttpError)` case for the rest (`N12`).\n\nA `///` comment before a declaration, a prop, a field, an event, an endpoint, or a `state`, `persist`, `derived` or `action` of a page, a component or a store is its documentation.\n\nA store's body holds `state`, `persist`, `derived`, `effect`, `action`, `resource` and the connections (`socket`, `stream`, `channel`, `peer`, `worker`).")
+
+        Heading("Types", id: "types").h2
+
+        Markdown("A type is written wherever a `: Type` or a `-> Type` goes:")
+
+        Table(caption: "Types") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Type").header
+                    Table.Cell("Written").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("A built-in")
+                    Table.Cell { Markdown("`String`, `Number`, `Bool`, `Json`, and the language's own: `Date`, `Time`, `DateTime`, `Duration`, `Money`, `Url`, `Email`, `Color`, `Uuid`, `File`, `Secret`") }
+                }
+                Table.Row {
+                    Table.Cell("A declared one")
+                    Table.Cell { Markdown("`Todo`, `Tone` — a `type`, an `enum` or an alias") }
+                }
+                Table.Row {
+                    Table.Cell("A list")
+                    Table.Cell { Markdown("`[Todo]`") }
+                }
+                Table.Row {
+                    Table.Cell("A dictionary")
+                    Table.Cell { Markdown("`[String: Number]`, `[Region: Number]` — keys of `String` or an enum") }
+                }
+                Table.Row {
+                    Table.Cell("May be null")
+                    Table.Cell { Markdown("`Todo?`") }
+                }
+                Table.Row {
+                    Table.Cell("A function")
+                    Table.Cell { Markdown("`(Todo) -> Bool`, `(String, Number) -> ()`; `()` is nothing") }
+                }
+                Table.Row {
+                    Table.Cell("A result")
+                    Table.Cell { Markdown("`User!` (a `User` or an `HttpError`), `User ! CreateUserError`") }
+                }
+                Table.Row {
+                    Table.Cell("Nothing, but it may fail")
+                    Table.Cell { Markdown("`-> !`, `-> ! CreateUserError` — after an action or an endpoint only") }
+                }
+                Table.Row {
+                    Table.Cell("A refined type")
+                    Table.Cell { Markdown("`Number(1..=30)`, `String(minLength: 8)`, `Date(after: @2026-01-01)` — a condition on its values: `min`, `max`, `minLength`, `maxLength`, `pattern`, `after`, `before`, or a range") }
+                }
+            }
+        }
+
+        Markdown("`type Name = Type` gives a type another name. `Any` and `Map` are not types (`T23`, `T24`): JSON whose shape is open is `Json`.")
+
+        Heading("Services", id: "services").h2
+
+        Markdown("An `api` body holds settings, `middleware`, endpoints, and the `invalidations \{ \}` and `pagination \{ \}` of its groups. A group, `api Name.group \{ \}`, holds endpoints only; it sends what its service sends.")
+
+        CodeBlock(#"api Name(base: expr) {
+    timeout: 10.seconds                     retry: .backoff(…)    credentials: .sameOrigin
+    middleware [requestId, bearer(Session.token), timed]
+    get name(param: Type = default, other: Type? in header "X-Name" | in query "q" | in cookie) at "path/{param}" -> Type!
+        pages .number(param: page) | .cursor(param: after, next: p => …, items: p => …) | .link
+    get name(…) at "…" -> [Type]! streamed
+    post name(body: Type) at "…" -> Type ! NameError
+        idempotent
+        invalidates [read, read(param)]
+    delete name(id: String) at "…/{id}" -> !
+    invalidations { group.write(id) invalidates [group.read, group.byId(id)] }
+    pagination { group.read pages .cursor(…) }
+}"#, title: "text")
+
+        Markdown("Every endpoint has `at \"path\"`, every `\{name\}` in it is one of its parameters (`N01`), and its answer is `-> T!`, `-> T ! E`, `-> !` or `-> ! E`. An endpoint may also say `cache:` and `as:` after its answer.")
 
         Heading("Render blocks", id: "render-blocks").h2
 
@@ -227,7 +322,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("persisted state")
-                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session | .name  key: expr  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}` — a page, a component or a store") }
+                    Table.Cell { Markdown("`persist name: Type = expr \{ in: .local | .session | .app  key: expr  version: n  sync: Bool  migrate n -> n+1 \{ expr \} \}` — a page, a component or a store") }
                 }
                 Table.Row {
                     Table.Cell("derived")
@@ -239,7 +334,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("action")
-                    Table.Cell { Markdown("`action name(param: Type, …) \{ imperative \}`") }
+                    Table.Cell { Markdown("`action name(param: Type, …) -> Type \{ imperative \}` — `-> T`, `-> T ! E`, `-> !` or `-> ! E` when it returns or fails; `concurrent` before the block runs every call") }
                 }
                 Table.Row {
                     Table.Cell("store")
@@ -247,7 +342,7 @@ test "name"(data: { … }) { render block and test steps }"#, title: "text")
                 }
                 Table.Row {
                     Table.Cell("resource")
-                    Table.Cell { Markdown("`resource name: Type = http.get(url, options)` or `= Api.endpoint(args)`") }
+                    Table.Cell { Markdown("`resource name: Type = http.get(url, options)`, or `= Api.endpoint(args)` and `= Api.group.endpoint(args)`, typed by the endpoint") }
                 }
                 Table.Row {
                     Table.Cell("validation")
@@ -327,7 +422,7 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
         CodeBlock(#"Name(…).flags {
     style { declarations }
     transition { property: duration easing … }
-    on event(e) { imperative }
+    on event(e) { imperative }             `on input(debounce: 300.ms)`, `on scroll(e, throttle: 100.ms)`
     slotName(params) { render block }      a slot fill, on a component call
     children
 }"#, title: "text")
@@ -366,15 +461,23 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
                 }
                 Table.Row {
                     Table.Cell("conditional")
-                    Table.Cell { Markdown("`if … else …`, `if let …`") }
+                    Table.Cell { Markdown("`if … else …`, `if let x = v \{ … \}`, `if let .err(e) = result \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("choice")
+                    Table.Cell { Markdown("`match expr \{ .ok(v) \{ … \}  .err(.http(e)) \{ … \}  else \{ … \} \}`") }
                 }
                 Table.Row {
                     Table.Cell("loop")
-                    Table.Cell { Markdown("`for x in list \{ … \}`, `for x, i in list \{ … \}`, `for n in 1..=10 \{ … \}`") }
+                    Table.Cell { Markdown("`for x in list \{ … \}`, `for x, i in list \{ … \}`, `for n in 1..=10 \{ … \}`, `for await line, i in Api.group.endpoint(args) \{ … \}`") }
                 }
                 Table.Row {
                     Table.Cell("error handling")
                     Table.Cell { Markdown("`try \{ … \} catch e \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("a result's value")
+                    Table.Cell { Markdown("`let v = try await Api.endpoint(args)` — the value, or the error returned from the action") }
                 }
                 Table.Row {
                     Table.Cell("waiting")
@@ -383,7 +486,7 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
             }
         }
 
-        Markdown("`let`, `return` and `emit` written in a render block are an error that says to move them into a handler, an action or an effect.")
+        Markdown("A pattern in a `match` arm or an `if let` is a case (`.ok(v)`), a case inside a case (`.err(.http(.status(503, _)))`), `_`, or a literal.\n\n`let`, `return` and `emit` written in a render block are an error that says to move them into a handler, an action or an effect.")
 
         Heading("Style blocks and themes", id: "style-blocks-and-themes").h2
 
@@ -416,6 +519,14 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
                     Table.Cell { Markdown("`expect \"text\"`, `expect not \"text\"`") }
                 }
                 Table.Row {
+                    Table.Cell("focus")
+                    Table.Cell { Markdown("`expect focus \"name\"`") }
+                }
+                Table.Row {
+                    Table.Cell("requests")
+                    Table.Cell { Markdown("`expect called Api.group.endpoint`, `expect not called …`") }
+                }
+                Table.Row {
                     Table.Cell("click")
                     Table.Cell { Markdown("`click \"name\"`") }
                 }
@@ -425,10 +536,12 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
                 }
                 Table.Row {
                     Table.Cell("key")
-                    Table.Cell { Markdown("`press \"Key\"`, `press \"Key\" in \"name\"`") }
+                    Table.Cell { Markdown("`press \"Key\"`, `press \"Key\" in \"name\"`, `press \"mod+k\"`") }
                 }
             }
         }
+
+        Markdown("`test \"name\"(fakes: [Fake])` answers the endpoints of a `fake`'s group in place of the network; `data: \{ … \}` seeds the body's state.")
 
         Heading("Expressions", id: "expressions").h2
 
@@ -476,7 +589,7 @@ part Name(props) { render block }     a part, called as `Component.Name`"#, titl
                 }
                 Table.Row {
                     Table.Cell("9")
-                    Table.Cell { Markdown("unary `!` `-`, `await`") }
+                    Table.Cell { Markdown("unary `!` `-`, `await`, `try`") }
                 }
                 Table.Row {
                     Table.Cell("10")

@@ -135,6 +135,7 @@ theme Paper {
 /// The same page after dark.
 theme Night {
     color-primary: #2DD4BF
+    color-on-primary: #14171A
     color-background: #14171A
     color-surface: #1C2024
     color-text: #ECEEF0
@@ -142,6 +143,11 @@ theme Night {
     color-border: #2C3238
 }
 ```
+
+The dark teal is light enough that white text on it is hard to read, so
+`Night` also sets `color-on-primary`, the colour of a primary button's
+label, to the dark background. `wf check` reports a pair like that as
+`A13` in either theme.
 
 The page you write in step 6 names classes — `card`, `todo`, `is-done`,
 `filters` — and `src/todos.css` styles them. The build bundles every `.css`

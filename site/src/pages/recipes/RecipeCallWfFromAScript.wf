@@ -8,9 +8,9 @@ page RecipeCallWfFromAScript(path: "/recipes/call-wf-from-a-script", title: "Cal
 async function shareLink() {
   try {
     await navigator.clipboard.writeText(location.href);
-    WF.toast("Link copied", "success");
+    WF.toast("Link copied", { tone: "success" });
   } catch (e) {
-    WF.toast("Could not copy the link", "danger");
+    WF.toast("Could not copy the link", { tone: "danger" });
   }
 }
 "#, "src/pages/CallWfFromAScript.wf": #"page Article(path: "/article", title: "Slow roasting", description: "Why we take eleven minutes over it.") {
@@ -37,13 +37,13 @@ async function shareLink() {
 async function shareLink() {
   try {
     await navigator.clipboard.writeText(location.href);
-    WF.toast("Link copied", "success");
+    WF.toast("Link copied", { tone: "success" });
   } catch (e) {
-    WF.toast("Could not copy the link", "danger");
+    WF.toast("Could not copy the link", { tone: "danger" });
   }
 }"#, title: "js")
         }
-        Markdown("- `WF` is on `window` once `app.js` has run, so any script may call it while the page is open. `WF.toast(message, tone, ms)` shows a toast in a tone (`\"info\"` by default) for `ms` milliseconds (3000 by default).\n- Other calls a script makes the same way: `WF.navigate(\"/about\")` moves to another route, and `WF.storeSnapshot(\"Cart\")` reads what a store holds. The [runtime reference](/reference/runtime) lists every function.\n- A build keeps only the runtime modules its code reaches, and it reads your scripts under `src/` for that too: the `WF.toast` written in `src/share.js` keeps the toast module in the build, though no `.wf` code uses it.")
+        Markdown("- `WF` is on `window` once `app.js` has run, so any script may call it while the page is open. `WF.toast(message, \{ tone, duration \})` shows a toast in a tone (`\"info\"` by default) for `duration` milliseconds (3000 by default); `action:` and `onAction:` add a button to it, as `toast(…)` does in a handler.\n- Other calls a script makes the same way: `WF.navigate(\"/about\")` moves to another route, and `WF.storeSnapshot(\"Cart\")` reads what a store holds. The [runtime reference](/reference/runtime) lists every function.\n- A build keeps only the runtime modules its code reaches, and it reads your scripts under `src/` for that too: the `WF.toast` written in `src/share.js` keeps the toast module in the build, though no `.wf` code uses it.")
 
         Callout("A call the build cannot read is not counted: a script in `public/` or from another origin, a `WF[name]` built at run time, or the console. If it reaches a module nothing else uses, set `\"build\": \{ \"runtime\": \"full\" \}`, or the call fails in the browser.", kind: .warning)
 

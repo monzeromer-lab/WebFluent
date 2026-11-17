@@ -47,10 +47,11 @@ How it behaves:
   when it turns false.
 - State declared inside a component in the branch starts over each time the
   branch is created.
-- A condition must be a `Bool`, or a value that may be null, which counts as
-  `false` when it is null.
-- A list or a record as a condition is an error (`T07`), since it would always
-  be true.
+- A condition must be a `Bool`. A `Bool?` counts, its `null` as `false`.
+- Anything else is an error, with the comparison it means as the fix:
+  `if count` is `T29` (write `count != 0`), `if user` on a `User?` is `T29`
+  (write `user != null`, or bind it with `if let`), and a list as a condition
+  is `T07`, since it would always be true.
 
 > [!NOTE]
 > **Coming from React?** `{open && <Panel />}` and `cond ? a : b` inside JSX
@@ -83,8 +84,8 @@ The rules:
 
 - `if let x { }`, with no `=`, does the same for a name already in scope.
 - The narrowing holds inside the branch only. `if x != null { }` and
-  `if x && … { }` narrow `x` inside their branch the same way; the right-hand
-  side of the `&&` is not narrowed:
+  `if x != null && … { }` narrow `x` inside their branch the same way; the
+  right-hand side of the `&&` is not narrowed:
 
   ```text
   if user != null && user.name == "x" { … }     // T04: `user` may be null
@@ -243,15 +244,18 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
 }
 ```
 
-Over a **resource** it chooses by the request's state — loading, error or
-ready ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)).
+Over a **resource** it chooses by the read's case — `.loading`,
+`.failed(e)` or `.loaded(value, refreshing, stale)` — and over a **result**
+by `.ok(value)` or `.err(error)` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)). A `match`
+over a read with neither a `.failed` arm nor an `else` is an error (`T21`):
+a request that fails would show nothing.
 
 The rules:
 
 - An arm binds one name per part of the payload: `.failed(reason)`.
 - `else` covers every case without an arm of its own.
-- Without an `else`, a `match` must give every case of the enum an arm, or it
-  is an error (`T15`). That holds for a `match` statement and a `match`
+- Without an `else`, a `match` must give every case of the enum, the read or
+  the result an arm, or it is an error (`T15`). That holds for a `match` statement and a `match`
   expression alike; an expression that covers every case needs no `else`.
 - An arm is drawn again when the arm changes, not when its value does. A new
   payload of the same case — `.failed("refused")` after `.failed("timed
@@ -308,6 +312,13 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
     Text("{rows.length} rows")
 }
 ```
+
+When the action only needs the value, `try` says so in one word: `let
+answer: Rows = try await http.get("/api/rows")` gives the rows, or ends the
+action and passes the failure up, for an action that declares it may fail
+(`action pull() -> ! { … }`). `try { … } catch e { … }` is for code that
+throws, such as a call into a script of your own; `e` is an `Error`, with
+`e.message`.
 
 ## Summary
 

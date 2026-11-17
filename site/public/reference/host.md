@@ -21,7 +21,7 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Example
 
 ```wf
-Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))
+Host(tag: "canvas", aria-label: "Chart", mount: (node) => node.getBoundingClientRect(), cleanup: (box) => log("gone"))
 ```
 
 ## What it can raise

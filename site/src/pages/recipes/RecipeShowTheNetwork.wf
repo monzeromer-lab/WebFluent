@@ -47,6 +47,10 @@ page RecipeShowTheNetwork(path: "/recipes/show-the-network", title: "Show what t
                     Table.Cell { Markdown("`network.queued`") }
                     Table.Cell { Markdown("How many writes wait for the connection, when the site works offline ([Offline](/recipes/keep-writes-made-offline))") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`network.refused`") }
+                    Table.Cell { Markdown("The kept writes the server refused once they were sent, each `\{ method, url, status, at \}`; `network.clearRefused()` forgets them") }
+                }
             }
         }
 

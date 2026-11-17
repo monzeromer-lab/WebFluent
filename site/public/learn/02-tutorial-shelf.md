@@ -794,7 +794,7 @@ To go further:
 - Talk to a real server: [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md).
 - Make the site work offline: [Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md).
 - Translate it: [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md).
-- Build a bigger project: [Tutorials](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md).
+- Build another app, step by step: [Tutorial: a to-do list](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md).
 
 ## Common mistakes
 

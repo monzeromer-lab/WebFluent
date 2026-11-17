@@ -125,6 +125,18 @@ Run `wf explain CODE` to print the entry; every code is also in
 argument that the compiler writes to the element "as an attribute"
 (`C04`) is almost always a misspelled prop.
 
+### A project that built under 6.x stops on errors
+
+7.0 has no loose mode: what 6.x accepted and 7.0 refuses — `fetch(…)`, a
+read's `ready(v)` arm, `Any`, a `state items = []` that says nothing of
+what it holds — is an error with its fix.
+
+1. Run `wf migrate --check` to see what it would rewrite, then
+   `wf migrate`. It applies every fix it knows, again and again, and lists
+   by place what a person decides.
+2. Run `wf check` and fix what is left. `lints` and `// wf-allow` cannot
+   lower an error in 7.0 ([Upgrading](upgrading.md#7-0)).
+
 ### A project that built under 4.x stops on errors
 
 5.0 refuses what used to compile and then fail in the browser, so a 4.x
@@ -134,7 +146,8 @@ project may stop on errors it always had.
 2. Apply the fixes your editor offers as quick fixes, where the fix is
    known.
 3. While you catch up, lower in `lints` the codes that cannot ship a
-   broken page ([Upgrading](upgrading.md#5-0)).
+   broken page — `R01`, `C02`, `S04`, `I01`, `I02`, `I04` and the warnings
+   ([Upgrading](upgrading.md#5-0)).
 
 ### A finding you mean to keep
 
@@ -142,8 +155,9 @@ The compiler reports something you have decided is right for this line.
 
 Put `// wf-allow(CODE)` on the line above it, or at the end of its line,
 to accept that one finding. To silence a warning across a whole project,
-set it in `lints` instead. An allow that covers nothing is itself reported
-(`U07`).
+set it in `lints` instead. Neither can accept an error, except the few that
+ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`). An allow
+that covers nothing is itself reported (`U07`).
 
 ### CI does not fail on warnings, or does not annotate pull requests
 
@@ -232,19 +246,22 @@ Either the last build failed, or an old service worker is holding pages.
 
 ### A request is a 404 under `wf serve` or `wf verify`
 
-Only a page navigation gets the single-page shell. A `fetch`, or a file the
-build did not write, gets a `404` and a line in the terminal. The dev
+Only a page navigation gets the single-page shell. A request — an `http`
+or `api` call — or a file the build did not write gets a `404` and a line
+in the terminal. The dev
 server does not serve your API.
 
 Point the page at the server that has the API — an `api`'s `base:` read
-from `env` — or put a fixture file in `public/`.
+from `env` — or put a fixture file in `public/`. To load every page with
+no server at all, answer the service with a `fake` and run
+`wf verify --fakes tests/fakes.wf`.
 
 ### "The response of … is not the type the program declares"
 
-Under `wf serve`, a response is held to the type its `resource` or `api`
-endpoint declares. One that differs takes the `error` arm, as a `.parse`
-error that names the first place it differs, such as `$[1].name is
-missing`.
+In every build, a response is held to the type its `resource`, `http`
+call or `api` endpoint declares. One that differs fails as
+`.decode(at, message)` — a read's `.failed(e)` arm, a call's `.err` —
+naming the first place it differs, such as `$[1].name is missing`.
 
 Fix the declared type, or the server.
 
@@ -277,8 +294,9 @@ action. `X02` reports the plain cases at build time.
 ### An `api` call stays loading
 
 A parameter that the endpoint's path names is empty — `Backend.user(id:
-"")` for `users/:id` — so nothing was requested: `users/` would ask for the
-whole collection.
+"")` for `at "users/{id}"` — so nothing was requested: `users/` would ask
+for the whole collection. The call ends `.cancelled`, and a read over it
+stays `.loading`.
 
 Nothing to fix if the value is still on its way: the call is sent when the
 value arrives. Otherwise, pass the value.
@@ -372,8 +390,10 @@ request, render templates from your own server with the
 
 ### Does it support TypeScript?
 
-WebFluent has its own type checker, gradual and built in
-([Types](../learn/12-types.md)). There is nothing to configure.
+WebFluent has its own type checker, built in and strict: every value has a
+type the program can name, declared where another file sees it and
+inferred where only the body does ([Types](../learn/12-types.md)). There
+is nothing to configure.
 
 ### Can I write CSS the usual way?
 
@@ -382,7 +402,7 @@ to an element ([Styling](../learn/13-styling.md)).
 
 ### How big is the output?
 
-A page of static text ships about 4 kB of script, gzipped; a full
+A page of static text ships about 2 kB of script, gzipped; a full
 application, a few tens of kilobytes. `wf build --stats` shows what yours
 weighs.
 

@@ -339,7 +339,7 @@ impl LanguageServer for Backend {
             };
             let options = DidChangeWatchedFilesRegistrationOptions {
                 watchers: vec![
-                    watcher("**/*.{wf,wfx,md,js,css,json}"),
+                    watcher("**/*.{wf,wfx,md,js,css,json,yaml,yml}"),
                     watcher("**/.env"),
                     watcher("**/public/**"),
                 ],

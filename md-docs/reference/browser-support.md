@@ -38,8 +38,9 @@ last column says what changes.
 | View Transitions API | `Router(transition: …)`, `shared:` elements | The class-based transition plays instead; `shared:` does nothing |
 | `linear()` easing | `easing: .spring`, `.bouncy` | The browser ignores it and uses its default easing |
 | Web Animations API | enter, exit, list moves, `count:` | Present in every current browser; without it, elements appear and leave without motion |
-| `IntersectionObserver` | `on: .enterView` | The animation plays at once |
-| Background Sync | writes kept offline, sent after the tab closes | The page sends them the next time it is open and online |
+| `IntersectionObserver` | `on: .enterView`; `OnThisPage` marking the heading being read | The animation plays at once; the links are listed, none marked |
+| `field-sizing: content` | `Textarea.autosize` | A script grows the box with its text instead |
+| Background Sync | writes kept offline (a `PUT` or a `DELETE`), sent after the tab closes | The page sends them the next time it is open and online |
 | Service workers | `offline` | The site works online as usual |
 | WebRTC | `peer` | The peer reads `error`: "WebRTC is not available in this browser" |
 | `BroadcastChannel` | `channel` | The channel reads `closed` |
@@ -50,9 +51,9 @@ last column says what changes.
 
 ## Dialogs and forms
 
-`Modal` and `Dialog` use the `<dialog>` element and `showModal()`, which
-every current browser has. Form validation uses the browser's constraint
-validation alongside the language's own rules
+`Modal`, `Dialog`, `AlertDialog` and `Sheet` use the `<dialog>` element and
+`showModal()`, which every current browser has. Form validation uses the
+browser's constraint validation alongside the language's own rules
 ([Forms](../learn/14-forms.md)).
 
 ## Next

@@ -54,7 +54,7 @@ Each key says what it keeps and how:
 | `precache` | The routes a first visit stores, as globs. `"/"` by default. Each route is stored with its own chunk and stylesheet, and the shell with them. |
 | `fallback` | A page's `path`, shown for a route that was not stored. |
 | `cache` | How a path the build did not write — an API, say — is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through untouched. |
-| `sync` | Keep a write made with no network and send it later ([Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md)). |
+| `sync` | Keep a write that is safe to send twice — a `PUT`, a `DELETE`, or an `idempotent` endpoint's — made with no network, and send it later, in order, through the service's middleware as it is then ([Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md)). |
 
 A stored route loads with no network at all. When there is a network, a
 navigation still goes to it first, so a page that changed is never served
@@ -95,14 +95,20 @@ Then, in the browser:
    **Application → Service workers** and check the worker is activated.
 2. In the **Network** panel, tick **Offline** and reload. Stored routes
    load; every other route shows the `fallback` page.
-3. Make a write, then untick **Offline**. The write goes out, and
-   `network.queued` drops to zero.
+3. Make a `PUT` or a `DELETE` while offline: its call fails as
+   `.offline(queued: true)`, and `network.queued` counts it. Untick
+   **Offline**. The write goes out, and `network.queued` drops to zero.
 
 `wf verify` runs against the built output too, and the repository's own
 browser tests hold the whole flow to a real Chrome.
 
 ## Troubleshooting
 
+- **A `POST` or a `PATCH` made offline is not sent later.** Only a write
+  that is safe to send twice is kept: a `PUT`, a `DELETE`, or an endpoint
+  marked `idempotent`. Any other write fails as `.offline(queued: false)`,
+  and the page says so; one whose answer was lost may have reached the
+  server, and sent again it would be a second order.
 - **An upload made offline fails.** A `File` body is never kept: the call
   fails as it would without `sync`. Ask the reader to try again online.
 - **A write arrives at the server minutes late.** That is the design: a kept

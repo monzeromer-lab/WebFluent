@@ -51,6 +51,14 @@ slots of every built-in and of every component you declare. A misspelled
 prop, an unknown flag (`Button("Save").primray`) or a handler for an event
 the component does not fire stops the build, with the fix suggested.
 
+**Typed without a second language.** There is no `lang="ts"` and no
+`vue-tsc`: a `.wf` file is typed by the compiler that builds it. The
+checker infers what it can and asks you to write the rest: a state whose
+first value says nothing (`state items: [Todo] = []`), an action that
+returns (`-> Number`), a parameter. There is no `any`: JSON whose shape is
+open is `Json`, matched or decoded (`User.decode(raw)`) before it is read,
+and no setting turns the checks off.
+
 **Pages own their routes.** There is no router file. Each `page` names its
 `path:`, and the compiler builds the router from every page.
 
@@ -116,3 +124,69 @@ component Counter(start: Number = 0) {
 - **`derived` replaces `computed`**, and knows what it reads.
 - **The event is declared** where the component is, and checked where it is
   handled.
+
+## Data, from a service
+
+VueUse's `useFetch` hands back separate refs for the data, the error and
+whether a request is running, and the type of the data is whatever you
+assert:
+
+```vue
+<script setup lang="ts">
+import { useFetch } from "@vueuse/core";
+const { data, error, isFetching } = useFetch("/api/people").json<Person[]>();
+</script>
+
+<template>
+  <p v-if="isFetching">Loading…</p>
+  <p v-else-if="error">{{ error }}</p>
+  <p v-else v-for="p in data" :key="p.id">{{ p.name }}</p>
+</template>
+```
+
+In WebFluent the service is described once, in an `api` block, and a page
+reads it with a `resource`:
+
+```wf
+type Person { id: String, name: String }
+type NewPerson { name: String }
+
+api Backend(base: "/api") {
+    get people() at "people" -> [Person]!
+    post addPerson(body: NewPerson) at "people" -> Person!
+        invalidates [people]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add Grace") {
+        on click {
+            match await Backend.addPerson(body: NewPerson(name: "Grace")) {
+                .ok(p) { said = "Added {p.name}" }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}
+```
+
+- **The contract is written once.** `-> [Person]!` says what the endpoint
+  answers and that it may fail; what arrives is checked against it, and a
+  server that breaks it fails as `.decode`. A service with an OpenAPI spec
+  gets this block written for it by `wf api add`.
+- **A read is one value.** A `match` that leaves out `.failed` does not
+  build, so the page always says what happens when the request fails.
+- **A call answers with a result.** `.ok(p)` or `.err(e)`, never a throw;
+  `e` is an `HttpError` (offline, a timeout, a status) with a `.message`.
+- **`invalidates [people]`** on the write asks the list again once the
+  write succeeds, with no refetch written by hand.
+- **A test needs no server.** A `fake` answers the endpoints, held to the
+  same contract ([Testing](../learn/16-testing.md)).

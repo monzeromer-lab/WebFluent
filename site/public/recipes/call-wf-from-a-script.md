@@ -29,9 +29,9 @@ The script is a plain file under `src/`
 async function shareLink() {
   try {
     await navigator.clipboard.writeText(location.href);
-    WF.toast("Link copied", "success");
+    WF.toast("Link copied", { tone: "success" });
   } catch (e) {
-    WF.toast("Could not copy the link", "danger");
+    WF.toast("Could not copy the link", { tone: "danger" });
   }
 }
 ```
@@ -39,8 +39,10 @@ async function shareLink() {
 ## How it works
 
 - `WF` is on `window` once `app.js` has run, so any script may call it
-  while the page is open. `WF.toast(message, tone, ms)` shows a toast in
-  a tone (`"info"` by default) for `ms` milliseconds (3000 by default).
+  while the page is open. `WF.toast(message, { tone, duration })` shows a
+  toast in a tone (`"info"` by default) for `duration` milliseconds (3000
+  by default); `action:` and `onAction:` add a button to it, as `toast(…)`
+  does in a handler.
 - Other calls a script makes the same way: `WF.navigate("/about")` moves
   to another route, and `WF.storeSnapshot("Cart")` reads what a store
   holds. The [runtime reference](https://webfluent.monzeromer.dev/reference/runtime.md) lists every

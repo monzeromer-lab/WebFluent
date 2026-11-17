@@ -47,7 +47,7 @@ not on your `PATH`.
 | Go to definition, references, highlights | For every declaration — a component, a store, a type, a case, a field, a `const`, a `data` file, an animation, an endpoint — and inside a string's `{…}` splices |
 | Rename | Across the project, after the editor asks whether the name can be renamed |
 | Formatting | `wf fmt`, for the file or a range |
-| Folding, inlay hints | Blocks fold; an inlay hint shows the type of a `state` or `derived` value written without one |
+| Folding, inlay hints | Blocks fold; an inlay hint shows the type of a `state`, `derived` value or `let` written without one (`state count = 0` shows `: Number`) |
 | Semantic tokens | A name is coloured by what it resolves to: a component, a type, a store, a prop or a state |
 | Document and workspace symbols | The outline, and a search over the project's declarations |
 | Code actions | The fixes the compiler attaches to a finding (quick fix), all of a file's fixes at once (fix all), and **Extract component** |
@@ -85,7 +85,7 @@ What the table sums up, request by request.
   endpoint) and inside a string's `{…}` splices.
 - **Formatting** — `wf fmt`, on the open file.
 - **Folding, inlay hints and semantic highlighting** — an inlay hint shows
-  the type of a `state` or `derived` value written without one, and a name
+  the type of a `state`, `derived` value or `let` written without one, and a name
   is coloured by what it resolves to: a component, a type, a store, a prop
   or a state.
 - **Document symbols** and the outline.
@@ -93,8 +93,10 @@ What the table sums up, request by request.
   misspelt field, member, method, variable, component or flag; `?.` for a
   value that may be null; the props a call leaves out; the arms a `match`
   misses; a bare word written as its flag; `alt: ""` for an image; an `_`
-  before a name nothing reads. **Extract component** turns a selection into
-  a component.
+  before a name nothing reads; the type a `state`, a parameter or an
+  action's return leaves unsaid (`T25`, `T32`, `T26`); `Json` for `Any` or
+  `Map` (`T23`, `T24`); the 7.0 form of a removed request form (`N08`).
+  **Extract component** turns a selection into a component.
 
 ### How it finds the project
 

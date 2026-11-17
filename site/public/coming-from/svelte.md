@@ -40,6 +40,14 @@ expressions in your markup; WebFluent also knows every built-in's flags,
 events and slots. `Button("Save").primray` does not build, and neither
 does a handler for an event the component does not fire (`E103`).
 
+**Typed without a second language.** `svelte-check` reads TypeScript beside
+the markup; a `.wf` file is typed by the compiler that builds it. The
+checker infers what it can and asks you to write the rest: a state whose
+first value says nothing (`state items: [Todo] = []`), an action that
+returns (`-> Number`), a parameter. There is no `any`: JSON whose shape is
+open is `Json`, matched or decoded (`User.decode(raw)`) before it is read,
+and no setting turns the checks off.
+
 **Elements come designed.** `Button`, `Card`, `Table`, `Modal` and the rest
 are built in, with their accessibility work done, and a flag picks a variant
 (`.primary`, `.lg`). Your own look is a theme of design tokens and a
@@ -52,9 +60,10 @@ ordered by specificity.
 **No imports.** Every file under `src/` is part of one program, so a
 component declared anywhere is usable everywhere.
 
-**Fetching is a value.** A `resource` is read with `match`, and repeats when
-a state its address reads changes; an `api` block describes a service once,
-so every call is typed, cached and cancellable.
+**Fetching is a value.** A `resource` is read with `match`, and asks again
+when a state its address reads changes; an `api` block describes a service
+once, so every call is typed, cached and cancellable, and answers with a
+result rather than throwing.
 
 **The build is the site.** Pre-rendering, code splitting, image resizing and
 a Content-Security-Policy come from `wf build`; there is no server to run.
@@ -104,3 +113,63 @@ component Counter(start: Number = 0) {
 - **The event is declared**, so a caller's misspelled handler is a build
   error rather than a prop nobody reads.
 - **No `class`.** `Badge` comes designed, and `.info` is checked.
+
+## Data, from a service
+
+In SvelteKit a `load` function fetches, the page reads `data`, and the
+type of the answer is whatever the function says it is:
+
+```svelte
+<script>
+  let { data } = $props();   // from +page.ts: fetch("/api/people").then((r) => r.json())
+</script>
+
+{#each data.people as p (p.id)}<p>{p.name}</p>{/each}
+```
+
+In WebFluent the service is described once, in an `api` block, and a page
+reads it with a `resource`:
+
+```wf
+type Person { id: String, name: String }
+type NewPerson { name: String }
+
+api Backend(base: "/api") {
+    get people() at "people" -> [Person]!
+    post addPerson(body: NewPerson) at "people" -> Person!
+        invalidates [people]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add Grace") {
+        on click {
+            match await Backend.addPerson(body: NewPerson(name: "Grace")) {
+                .ok(p) { said = "Added {p.name}" }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}
+```
+
+- **The contract is written once.** `-> [Person]!` says what the endpoint
+  answers and that it may fail; what arrives is checked against it, and a
+  server that breaks it fails as `.decode`. A service with an OpenAPI spec
+  gets this block written for it by `wf api add`.
+- **A read is one value.** A `match` that leaves out `.failed` does not
+  build, so the page always says what happens when the request fails.
+- **A call answers with a result.** `.ok(p)` or `.err(e)`, never a throw;
+  `e` is an `HttpError` (offline, a timeout, a status) with a `.message`.
+- **`invalidates [people]`** on the write asks the list again once the
+  write succeeds, with no refetch written by hand.
+- **A test needs no server.** A `fake` answers the endpoints, held to the
+  same contract ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)).

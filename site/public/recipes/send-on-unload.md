@@ -5,7 +5,7 @@
 The page: https://webfluent.monzeromer.dev/recipes/send-on-unload
 
 `beacon(url, data)` records that something happened even when the reader
-is leaving — an analytics event, a "reader left" signal. A `fetch` started
+is leaving — an analytics event, a "reader left" signal. A request started
 as the page unloads is cancelled; a beacon is delivered. This checkout page
 sends one when the reader leaves it, whether they close the tab, go to
 another site or switch away:
@@ -28,7 +28,8 @@ page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the or
 ## How it works
 
 `beacon` posts a small body with `navigator.sendBeacon`, which the browser
-delivers even as the page unloads, where a `fetch` would be cancelled. It
+delivers even as the page unloads, where an ordinary request would be
+cancelled. It
 returns nothing to wait for: the page goes on, and so may the reader.
 
 `on visibilitychange`, written at the top of the page, listens on the

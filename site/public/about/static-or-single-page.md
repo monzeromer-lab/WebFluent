@@ -92,7 +92,7 @@ it, the build evaluates the page as far as it can know the values:
 
 For the first paint to be right, prefer what the build can see:
 
-- **Data files over fetches** for content that changes only when you
+- **Data files over requests** for content that changes only when you
   deploy ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)).
 - **[Responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values) over `viewport`**
   for layout.

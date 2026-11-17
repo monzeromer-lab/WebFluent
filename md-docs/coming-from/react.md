@@ -48,6 +48,14 @@ slots of every built-in and of every component you declare.
 event the component never fires (`E103`). An unknown prop on your own
 component is `C02`, not a silent pass-through.
 
+**Typed without a second language.** There is no TypeScript beside the
+markup and no `tsc` step: a `.wf` file is typed by the compiler that builds
+it. The checker infers what it can and asks you to write the rest: a state
+whose first value says nothing (`state items: [Todo] = []`), an action that
+returns (`-> Number`), a parameter. There is no `any`: JSON whose shape is
+open is `Json`, matched or decoded (`User.decode(raw)`) before it is read,
+and no setting turns the checks off.
+
 **Pages own their routes.** There is no route table. Each `page` names its
 `path:`, and the compiler builds the router from them, ordered by
 specificity, so the order you declare pages in cannot hide a route.

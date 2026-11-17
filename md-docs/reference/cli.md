@@ -78,7 +78,8 @@ These rules hold for every command unless its entry says otherwise:
 ### `wf init`
 
 Creates a new project directory with a config, a `.gitignore`, an
-`AGENTS.md` and a small working application.
+`AGENTS.md`, the `writing-webfluent` agent skill (in `.agents/skills/` and
+`.claude/skills/`) and a small working application.
 
 **Usage:** `wf init [OPTIONS] NAME`
 
@@ -112,7 +113,9 @@ code that is not a tag (`pt_BR`) is refused with what to write instead. A
 `AGENTS.md` is the language reference — the file a coding agent reads before
 it changes a project. With it, an assistant asked to add a page writes the
 WebFluent of the `wf` that made the project, flags and all, instead of
-guessing. Its first line names the version it describes. A newer `wf`
+guessing. Its first line names the version it describes. The skill points
+an agent at `AGENTS.md` when the work is WebFluent, in the folders agents
+look in for one. A newer `wf`
 writes a newer one, and an older project can take the current one from the
 [repository](https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md).
 
@@ -239,19 +242,20 @@ and lets you put a store back to before an action ran
 an offline site is removed under `wf serve`, so an edit is never hidden
 behind its cache.
 
-A request that is not a navigation — a `fetch`, a script, an image — for a
-file the build did not write gets a `404`, as a host would send, and a line
-in the terminal naming the file. Only a navigation gets the single-page
+A request that is not a navigation — an `http` or `api` call, a script, an
+image — for a file the build did not write gets a `404`, as a host would
+send, and a line in the terminal naming the file. Only a navigation gets the single-page
 shell. (Answering a missing API with the shell's HTML makes the page fail to
 parse it, far from the cause.)
 
 A build under `wf serve` is a *development build*, and it adds these checks
 to the running page:
 
-- A response with a declared type — `resource users: [User] = …`, an `api`
-  endpoint's `-> User` — is held to that type as it arrives. One that does
-  not match takes the `error` arm as a `.parse` error naming the place:
-  `$[1].name is missing`.
+- The body of each status an endpoint's error enum names is held to the
+  type its case carries. (A response's declared type — `resource users:
+  [User] = …`, an endpoint's `-> User!` — is held in every build, served or
+  deployed: one that does not match fails as `.decode(at, message)`, naming
+  the place, `$[1].name is missing`.)
 - A route no page answers (and no `path: "*"` page catches) shows a `404`
   box saying so. A deployed page shows nothing.
 - An item of a `for` that throws shows where it is and what it threw, and
@@ -271,8 +275,8 @@ Writes a starter page, component or store.
 
 | Option | Value | Default | Meaning |
 |---|---|---|---|
-| `KIND` | `page`, `component`, `store` | required | What to write, in `src/pages/`, `src/components/` or `src/stores/`. |
-| `NAME` | a name | required | The declaration's name. |
+| `KIND` | `page`, `component`, `store`, `block` | required | What to write, in `src/pages/`, `src/components/` or `src/stores/`. |
+| `NAME` | a name | required | The declaration's name; for a `block`, which one (below). |
 | `-d`, `--dir` | a directory | `.` | The project to write into. |
 
 ```bash
@@ -307,7 +311,7 @@ lints and the config — and writes nothing.
 | `-d`, `--dir` | a directory | `.` | The project to check. |
 | `--format` | `human`, `json`, `sarif`, `github` | `human` | How findings are written, as for [`wf build`](#wf-build). |
 | `--deny-warnings` | — | off | Fails on a warning too. |
-| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check says the build would refuse it, and checks everything else. |
+| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check warns that the build would refuse it, and checks everything else. |
 
 ```bash
 wf check
@@ -498,7 +502,7 @@ when it names none.
 A route fails on any of these:
 
 - an uncaught exception or a `console.error`;
-- a file that did not arrive (a `fetch` the build has no file for is a
+- a file that did not arrive (a request the build has no file for is a
   `404`, not the page shell);
 - an image that failed to load;
 - a router that drew nothing into `<main>`;
@@ -1085,23 +1089,18 @@ wf types --holes
 It includes the names the project's scripts under `src/` declare, each with
 the parameters and return type its JSDoc gives it.
 
-With `--holes` it lists every place the checker cannot say what a value is
-— a parameter with no type, a field read from a `Map`, a browser global, a
-`catch e` — each with its file, line and kind, then the count of each kind.
-A hole is counted where the unknown value is made, not at every place it
-goes afterwards; the loose rules (a value of unknown type given where a
-type is declared, a map where a record is wanted) are counted where they
-are used. A program with none is one whose every value has a type the
-checker knows. `--json` gives `total`, the count of each kind, and the
-list.
+With `--holes` it lists every place the checker cannot say what a value is,
+each with its file, line and kind, then the count of each kind. A hole is
+counted where the unknown value is made, not at every place it goes
+afterwards. Since 7.0 a program that checks has none: `Any` and `Map` are
+not types (`T23`, `T24`), every `state`, parameter and return says what it
+holds, and the browser, events and built-ins are typed. The list is for a
+project on its way there — one `wf migrate` has not finished — and for a
+tool that wants to prove it. `--json` gives `total`, the count of each
+kind, and the list.
 
 ```text
-  src/stores/Session.wf:14:5      caught-error       e
-  src/pages/Report.wf:22:9        map-field          r.findings
-
-  2 place(s) where a type is unknown, in 2 file(s)
-    map-field              1  a field of a `Map`, or of a value with no known fields
-    caught-error           1  `catch e`
+  0 place(s) where a type is unknown, in 0 file(s)
 ```
 
 ## Environment variables

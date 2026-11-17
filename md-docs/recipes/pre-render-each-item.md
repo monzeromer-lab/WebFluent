@@ -11,8 +11,8 @@ A page on a `:param` route, such as `/posts/:slug`, has no single file a
 static build can write. List the values in `paths:`, and the build writes
 one HTML file for each. This blog writes one file per post in `posts.json`:
 
-**Needs:** `"build": { "ssg": true }` in `webfluent.app.json`, and
-`src/posts.json`, a list of posts with a `slug`, a `title`, a `date` and a
+**Needs:** `"build": { "ssg": true }` in `webfluent.app.json` (and
+`meta.site_url`, for the sitemap), and `src/posts.json`, a list of posts with a `slug`, a `title`, a `date` and a
 `body`.
 
 ```wf

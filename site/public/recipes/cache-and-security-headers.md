@@ -44,7 +44,7 @@ To let browsers keep files without serving a stale site, set
 |---|---|---|
 | HTML, `app.js`, `pages/*`, `styles.css`, `theme.js`, `js/*` (your own scripts), `elements.js` | `no-cache` (revalidate every time) | their names do not change between builds |
 | `sw.js` | `no-cache` | a stale worker holds a stale site ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)) |
-| resized images (`hero.<hash>.960.webp`) | `public, max-age=31536000, immutable` | the name changes when the file does |
+| processed images under `img/` (`img/hero.<hash>.960.webp`, `img/hero.<hash>.jpg`) | `public, max-age=31536000, immutable` | the name changes when the file does |
 | `public/` files | your choice | they keep the names you gave them |
 
 `no-cache` still lets the browser keep a copy. The browser asks the server

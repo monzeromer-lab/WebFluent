@@ -55,8 +55,9 @@ elements rather than rebuilding them:
 - **Splitters you can move without a mouse.** A `Splitter` is a
   `separator` with its size as `aria-valuenow`. It takes focus, the arrow
   keys move it, Home and End go to its ends, and Enter resets it.
-- **Announcements.** A `Toast` is spoken politely. To announce anything
-  else, call `WF.announce(text)`.
+- **Announcements.** A `Toast`, and a `toast(…)` from a handler, is spoken
+  politely. To announce anything else, call `announce("{n} results")` from a
+  handler, or `announce(text, .assertive)` for what cannot wait.
 - **The active link.** The link to the current page carries
   `aria-current="page"`.
 - **Reduced motion.** A reader who asked for it gets no animation at all,
@@ -81,7 +82,7 @@ and `wf explain CODE` prints it in your terminal.
 | `A09` | A video has captions and controls; audio has a transcript |
 | `A10` | A table has a header row |
 | `A11`, `A12` | No heading level is skipped, and each page has exactly one `h1` |
-| `A13` | The theme's text and background colours meet WCAG AA contrast |
+| `A13` | The theme's colour pairs meet WCAG AA contrast: text on the background and surfaces, and a tone's label (`color-on-primary`, …) on its tone |
 | `A14` | A `role:` holds children of the roles it requires |
 | `A15` | A control's `aria-label` contains its visible text, for voice control |
 | `A16` | No literal `id:` is shared by several elements, in a loop or a reused component |

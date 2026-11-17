@@ -39,6 +39,7 @@ JSDoc:
  * A bar chart of `values`, one bar a quarter, drawn on `canvas`.
  * @param {HTMLCanvasElement} canvas
  * @param {number[]} values
+ * @returns {Chart}
  */
 function drawSales(canvas, values) {
   return new Chart(canvas, {
@@ -83,9 +84,10 @@ The library itself loads from a CDN, through `meta.scripts` in
   names in scope, so the page calls `drawSales` and `showSales` by name.
   Its JSDoc types each call: `values` must be a list of numbers, and a
   call with the wrong number of arguments is a `T10` error
-  ([Call your own JavaScript](call-your-own-script.md)). `Chart` and
-  `HTMLCanvasElement` are types WebFluent does not know, so they read as
-  `Any`.
+  ([Call your own JavaScript](call-your-own-script.md)).
+  `HTMLCanvasElement` reads as an `Element`. `Chart` is a name the project
+  does not declare, so it is the library's own object: the page hands it
+  from `mount:` to `update:` and `cleanup:` without reading inside it.
 - **`Host` makes the canvas.** `Host(tag: "canvas", …)` is a bare node for
   somebody else's code. `role: "img"` and `aria-label:` give the chart a
   name a screen reader announces, since a canvas has no text.

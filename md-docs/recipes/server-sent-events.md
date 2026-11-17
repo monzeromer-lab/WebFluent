@@ -18,7 +18,9 @@ This page shows the latest price as it arrives:
 ```wf
 page Prices(path: "/prices", title: "Prices", description: "Live prices.") {
     state price = 0
-    stream ticks = sse("/events", events: ["price"])
+    stream ticks = sse("/events", events: ["price"]) {
+        receive Number
+    }
     effect { if let p = ticks.last("price") { price = p } }
 
     Heading("Prices").h1
@@ -34,6 +36,9 @@ page Prices(path: "/prices", title: "Prices", description: "Live prices.") {
 - **`stream ticks = sse("/events", events: ["price"])`** opens the stream
   when the page is drawn and closes it when the reader leaves. `events:`
   names the event types to listen for; only those names are listened to.
+- **`receive Number`** says what each event's data is, so `ticks.last(…)`
+  is a `Number` and fits `price`. A stream that names nothing carries
+  `Json`, which is matched or decoded rather than read as a value.
 - **`ticks.last("price")`** is the latest event of that name. Each event
   name is kept apart, so it is the last price and not the last event of any
   kind; `ticks.last()` is the last unnamed message. The `effect` copies it

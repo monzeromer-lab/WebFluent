@@ -498,7 +498,7 @@ Host(tag: …)
 ```
 
 ```wf
-Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))
+Host(tag: "canvas", aria-label: "Chart", mount: (node) => node.getBoundingClientRect(), cleanup: (box) => log("gone"))
 ```
 
 Renders with the class `wf-host`.
@@ -1817,7 +1817,7 @@ Frame(src: …, srcdoc: …, title: …)
 Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
 state heard = ""
 Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-    on message(m) { heard = m.data }
+    on message(m) { heard = JSON.stringify(m.data) }
 }
 state version = 1
 Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
@@ -2005,10 +2005,10 @@ Item(title: …, description: …) { … }
 ```
 
 ```wf
-state on = true
+state notify = true
 Item(title: "Notifications", description: "Sent to your phone") {
     Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: on, label: "On") }
+    Item.Actions { Switch(bind: notify, label: "On") }
 }
 ```
 
@@ -2289,9 +2289,8 @@ Tree(items: …, children: …, key: …)
 ```
 
 ```wf
-state files = [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }]
 state file = ""
-Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+Tree(items: [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }], children: f => f.children, key: f => f.path, bind: file, label: "Files") {
     row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
 }
 ```
@@ -2710,7 +2709,9 @@ FileUpload(accept: …, label: …, multiple: …) { … }
 ```
 
 ```wf
-FileUpload(accept: "image/*", label: "Choose a picture") { on change(e) { log(e.target.files[0].name) } }
+state photo: File? = null
+FileUpload(bind: photo, accept: "image/*", label: "Choose a picture")
+if let p = photo { Text(p.name) }
 ```
 
 Renders with the class `wf-file-upload`.

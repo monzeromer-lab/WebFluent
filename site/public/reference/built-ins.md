@@ -24,6 +24,8 @@ The functions, in alphabetical order:
 | [`after(interval) { }`](#after) | Runs a block once, after a delay |
 | [`ago(date)`](#ago) | The distance from now, in words |
 | [`animate(element, name, duration)`](#animate) | Plays an animation on an element handle |
+| [`announce(text)`](#announce) | Says something to a screen reader |
+| [`ask(question)`](#ask) | Asks a yes-or-no question in an alert dialog |
 | [`beacon(url, data)`](#beacon) | Sends a small post that survives the page unloading |
 | [`broadcast(name)`](#broadcast) | Opens a channel the site's other tabs hear |
 | [`every(interval) { }`](#every) | Runs a block repeatedly |
@@ -42,12 +44,15 @@ The functions, in alphabetical order:
 | [`spawn(path)`](#spawn) | Starts a script of `public/` in a worker |
 | [`sse(url)`](#sse) | Opens a stream of server-sent events |
 | [`t("key", values)`](#t) | A translation |
+| [`toast(message)`](#toast) | Shows a short message above everything |
 | [`uuid()`](#uuid) | A fresh `Uuid` |
 | [`ws(url)`](#ws) | Opens a WebSocket |
 
-Every name in this list but `spawn` belongs to the language: a `state`,
-prop, parameter, loop item or `const` with one of these names is an
-`E118`. `spawn` means something only after `worker name =`.
+Every name in this list but `announce`, `ask`, `http`, `spawn` and
+`toast` belongs to the language: a `state`, prop, parameter, loop item or
+`const` with one of these names is an `E118`. A program's own `announce`,
+`ask`, `http` or `toast` keeps its name, and the function is out of reach
+where it is declared; `spawn` means something only after `worker name =`.
 
 ### `after`
 
@@ -57,14 +62,14 @@ Signature: `after(interval) { statements }`
 
 | Parameter | Type | Meaning |
 |---|---|---|
-| `interval` | `Number` (milliseconds) or `Duration` | How long to wait |
+| `interval` | `Number`, in milliseconds | How long to wait |
 
 Returns nothing. Where: a render block — a page, a component, a branch, a
 list item. The timer is cancelled when the block that holds it leaves.
 See [Timers](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers).
 
 ```wf
-after(3.seconds) { banner = null }
+after(3000) { banner = null }
 ```
 
 ### `ago`
@@ -106,6 +111,45 @@ plays as soon as it is made. Where: handlers and actions. See
 Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }
 ```
 
+### `announce`
+
+Says something to a screen reader, with nothing on screen moving.
+
+Signature: `announce(text)`, `announce(text, .assertive)`
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `text` | `String` | What to say |
+| `.assertive` | optional | Interrupts what the reader is hearing, for what cannot wait; unset, it waits its turn |
+
+Returns nothing. Where: actions, handlers and effects. See
+[Toasts, questions and announcements](https://webfluent.monzeromer.dev/learn/08-events.md#toasts-questions-and-announcements-from-a-handler).
+
+```wf
+announce("{results.length} results")
+```
+
+### `ask`
+
+Draws an alert dialog with a question, and waits for the answer.
+
+Signature: `ask(question, detail: …, yes: …, no: …, danger: Bool)` → a promise of `Bool`
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `question` | `String` | The dialog's heading |
+| `detail:` | `String`, optional | A sentence under it |
+| `yes:`, `no:` | `String`, optional | The two buttons' words |
+| `danger:` | `Bool`, optional | Draws yes in the danger colour |
+
+Returns `true` for yes, and `false` for no or Escape. The focus starts on
+no. Where: `await` in an action or a handler. `confirm` is the browser's
+own.
+
+```wf
+Button("Delete") { on click { if await ask("Delete the project?", yes: "Delete", danger: true) { remove() } } }
+```
+
 ### `beacon`
 
 Sends a small `POST` that the browser delivers even while the page is
@@ -116,7 +160,7 @@ Signature: `beacon(url, data)` → `Bool`
 | Parameter | Type | Meaning |
 |---|---|---|
 | `url` | `String` | Where to send it |
-| `data` | `Map` or `String` | The body; a map is sent as JSON |
+| `data` | `Json` or `String` | The body; a record or a map is sent as JSON |
 
 Returns whether the browser accepted the send. Where: anywhere, usually a
 handler. See [Send a message as the page unloads](https://webfluent.monzeromer.dev/recipes/send-on-unload.md).
@@ -153,14 +197,14 @@ Signature: `every(interval) { statements }`
 
 | Parameter | Type | Meaning |
 |---|---|---|
-| `interval` | `Number` (milliseconds) or `Duration` | The time between runs |
+| `interval` | `Number`, in milliseconds | The time between runs |
 
 Returns nothing. Where: a render block. The timer stops when its page,
 branch or list item leaves. See
 [Timers](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers).
 
 ```wf
-every(1.seconds) { elapsed = elapsed + 1 }
+every(1000) { elapsed = elapsed + 1 }
 ```
 
 ### `format`
@@ -207,8 +251,9 @@ Signature: `http.get(url, options)` → a promise of `T!`; `http.post`,
 http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows:
 [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is
 an `HttpError`. Where: `await` in an action or a handler, or as a
-`resource`, which adds `on:` and the other options of a resource. `fetch` is
-gone (`N08`); `window.fetch` is the browser's own, untouched. See
+`resource`, which adds `refresh:`, `placeholder:` and the other options of a
+resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own,
+untouched. See
 [Ask on demand with `http`](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http).
 
 ```wf
@@ -260,7 +305,7 @@ Signature: `log(value)`
 
 | Parameter | Type | Meaning |
 |---|---|---|
-| `value` | any | The value to print. For several, splice them into one string, `log("{a} {b}")`, or call `console.log(a, b)` |
+| `value` | any value but a `Secret` | The value to print. For several, splice them into one string, `log("{a} {b}")`, or call `console.log(a, b)` |
 
 Returns nothing. Where: actions, handlers, effects and timers. A `Secret`
 passed to it is a `T12`.
@@ -292,7 +337,8 @@ Button("Open") { on click { navigate("/orders/{order.id}") } }
 ### `optimistic`
 
 Shows a change at once, before the server agrees. If anything later in the
-action throws, the change is taken back.
+action fails — a `try` passing its error up, or a throw — the change is
+taken back.
 
 Signature: `optimistic(holder, change)`
 
@@ -331,7 +377,7 @@ Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fade
 
 Opens a WebRTC data channel straight to another reader's page.
 
-Signature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) { on message(m) { … } }`
+Signature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) { send T  receive T  on message(m) { … } }`
 
 | Option | Type | Meaning |
 |---|---|---|
@@ -345,7 +391,7 @@ the other side sent), `.state`, `.messages` and `.close()`. Where: only after
 [Connect two readers' pages](https://webfluent.monzeromer.dev/recipes/connect-two-readers.md).
 
 ```wf
-peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { on message(m) { heard = m.text } }
+peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { receive Wave  on message(m) { heard = m.text } }
 ```
 
 ### `sanitize`
@@ -410,7 +456,7 @@ Button("Dark") { on click { setTheme("dark") } }
 
 Starts a script of `public/` in a worker beside the page.
 
-Signature: `worker name = spawn(path, restart: n, timeout: ms, type: .module) { on message(m) { … } }`
+Signature: `worker name = spawn(path, restart: n, timeout: ms, type: .module) { receive T  on message(m) { … } }`
 
 | Parameter | Type | Meaning |
 |---|---|---|
@@ -425,7 +471,7 @@ Where: only after `worker name =`, in a page, a component or a store. See
 [Run a script in a worker](https://webfluent.monzeromer.dev/recipes/run-a-worker.md).
 
 ```wf
-worker css = spawn("/workers/css.js", restart: 1) { on message(m) { problems = m.items } }
+worker css = spawn("/workers/css.js", restart: 1) { receive CssMessage  on message(m) { problems = m.items } }
 ```
 
 ### `sse`
@@ -457,7 +503,7 @@ Signature: `t(key)`, `t(key, values)` → `String`
 | Parameter | Type | Meaning |
 |---|---|---|
 | `key` | `String` | A key of the translation files |
-| `values` | `Map`, optional | Values for the message's `{placeholders}`; `count` picks a plural form |
+| `values` | a map, optional | Values for the message's `{placeholders}`, `{ name: user.name }`; `count` picks a plural form |
 
 Returns the message. A literal key no locale has is an `I01`; a value the
 message does not use, or a placeholder the call does not pass, is an
@@ -465,6 +511,30 @@ message does not use, or a placeholder the call does not pass, is an
 
 ```wf
 Text(t("cart.items", { count: Cart.count }))
+```
+
+### `toast`
+
+Shows a short message above everything, a modal included, and says it to a
+screen reader.
+
+Signature: `toast(message, tone: …, duration: …, action: …, onAction: …, closable: Bool)`; `toast.promise(promise, loading: …, done: …, failed: …)`
+
+| Parameter | Type | Meaning |
+|---|---|---|
+| `message` | `String` | What it says |
+| `tone:` | `.success`, `.danger`, `.warning`, `.info` | Its colour and icon |
+| `duration:` | `Number` (milliseconds) | How long it stays |
+| `action:`, `onAction:` | `String`, an action | A button on it, and what pressing it runs |
+| `closable:` | `Bool` | Whether it has a close button |
+
+Returns a handle with `close()` and `update(…)`. It waits while the pointer
+is on it or the focus is in it, and no more than three show at once (a
+fourth closes the oldest). `toast.promise` shows `loading:` while the
+promise runs, then `done:` or `failed:`. Where: actions and handlers.
+
+```wf
+toast("Conversation archived", action: "Undo", onAction: restore)
 ```
 
 ### `uuid`
@@ -493,11 +563,15 @@ Signature: `socket name = ws(url, protocols: [names], heartbeat: duration) { sen
 | `heartbeat` | `Duration` | How often to ping a quiet line |
 
 Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`,
-`.state`, `.error`, `.closure` and `.close()`. Where: only after
-`socket name =`. See [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md).
+`.state`, `.error`, `.closure` and `.close()`. `send T` is what `.send`
+takes and `receive T` what `.messages` holds and `on message(m)` is given;
+a socket, stream, channel, peer or worker that declares neither sends and
+hears `Json`, which is matched or decoded rather than read as a record
+(`T28`). Where: only after `socket name =`. See
+[Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md).
 
 ```wf
-socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }
+socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { send Outgoing  receive Incoming  on message(m) { Feed.add(m) } }
 ```
 
 ## Browser values
@@ -536,7 +610,8 @@ if viewport.md { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } 
 
 ### `query`
 
-The address's query string, as a map from each key to its value.
+The address's query string, a `[String: String]` from each key to its
+value.
 
 A key the address lacks reads as `null`, so `query.tab ?? "all"` gives a
 default.
@@ -658,7 +733,7 @@ derived preview = post.body.dedent().lines().first() ?? ""
 
 ## List methods
 
-A list has the browser's array methods and seven of WebFluent's own.
+A list has the browser's array methods and eight of WebFluent's own.
 
 WebFluent's own:
 
@@ -769,7 +844,7 @@ the language's own names, a global may be the name of a state, a prop or a
 parameter.
 
 ```wf
-localStorage.setItem("last-seen", now.date())
+localStorage.setItem("last-seen", "{now.date()}")
 ```
 
 ## Next

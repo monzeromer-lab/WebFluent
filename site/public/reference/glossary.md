@@ -13,8 +13,15 @@ idea. The guide uses each term in the same sense every time.
 ### Action
 
 A named function of a page, component or store whose body
-changes state or does other work: `action add() { … }`
+changes state or does other work: `action add() { … }`, with `-> T` when
+it returns a value and `-> !` when it may fail
 ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals)).
+
+### `api`
+
+A declaration that describes a service: its address, how it is
+reached, and its endpoints, each a typed call
+([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api)).
 
 ### App shell
 
@@ -49,6 +56,13 @@ A page's own script and stylesheet, written to their own files
 and loaded the first time the page's route shows, when `build.split` is on
 ([Configuration](https://webfluent.monzeromer.dev/reference/config.md#build)).
 
+### Contract
+
+What an `api` says of each endpoint — where it is, what it takes, what it
+answers and how it fails — which every call site, every fake and, with an
+OpenAPI spec, `wf api check` are held to
+([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#declare-endpoints)).
+
 ### Component
 
 An element you declare, with typed props, events, slots and
@@ -59,8 +73,8 @@ parts: `component UserCard(…) { … }` ([Components](https://webfluent.monzero
 ### Declaration
 
 A top-level statement of a file: `page`, `component`,
-`store`, `theme`, `app`, `type`, `enum`, `api`, `const`, `data`, `image`,
-`animation` or `test` ([Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#declarations)).
+`store`, `theme`, `app`, `type`, `enum`, `api`, `middleware`, `fake`,
+`const`, `data`, `image`, `animation` or `test` ([Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#declarations)).
 
 ### Derived value
 
@@ -93,10 +107,23 @@ read changes, with a `cleanup { }` for what it set up
 Anything a page draws by a capitalised name — a built-in such
 as `Button`, or a component of your own ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md)).
 
+### Endpoint
+
+One call of an `api`: a method, a name, its parameters, a path given by
+`at`, and its answer, `get user(id: String) at "users/{id}" -> User!`
+([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#declare-endpoints)).
+
 ### Enum
 
 A type with a fixed set of cases, declared
 `enum Tone { calm, loud }` ([Types](https://webfluent.monzeromer.dev/learn/12-types.md#enums)).
+
+### Error enum
+
+An enum whose cases name the statuses a service answers with, each with
+its body — `notFound(problem: Problem) on 404` — and one
+`http(error: HttpError)` case for every other failure
+([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#say-how-a-call-fails)).
 
 ### Event
 
@@ -105,6 +132,12 @@ component declares and fires with `emit` — that a handler answers
 ([Events](https://webfluent.monzeromer.dev/learn/08-events.md)).
 
 ## F
+
+### Fake
+
+What answers a group's endpoints in a test in place of the network, held
+to the group's contract: `fake OneUser for Backend.users { … }`
+([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes)).
 
 ### Flag
 
@@ -145,7 +178,17 @@ draws the page in its default slot
 
 A rule the compiler checks beyond whether the program can work,
 such as an accessibility rule or an unused-value rule; the `lints` setting
-changes what any finding counts as ([Configuration](https://webfluent.monzeromer.dev/reference/config.md#lints)).
+turns a warning off or raises it to an error, and lowers only the few
+errors that cannot ship a broken page ([Configuration](https://webfluent.monzeromer.dev/reference/config.md#lints)).
+
+## M
+
+### Middleware
+
+A step every request of an `api` passes through, in the order written:
+`middleware [requestId, bearer(Session.token)]`, or one the project
+declares with `middleware name(req, next) { … }`
+([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#pass-every-request-through-middleware)).
 
 ## P
 
@@ -192,6 +235,12 @@ the one marked `_`, by position ([Components](https://webfluent.monzeromer.dev/l
 
 ## R
 
+### Read
+
+A request whose answer the page shows, as one value in one of three
+cases: `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`; a
+`resource` holds one ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource)).
+
 ### Registry
 
 The compiler's table of every built-in's props, cases,
@@ -207,9 +256,17 @@ describes what to show and the state behind it
 
 ### Resource
 
-A request a page makes, whose loading, error and ready states
-a `match` shows: `resource rows: [Row] = http.get(…)`
+A declaration that holds a read: `resource rows: [Row] = http.get(…)` or
+`resource users = Backend.users.list()`, shown by a `match` on its
+`.loading`, `.failed(e)` and `.loaded(v)` cases
 ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource)).
+
+### Result
+
+What a call that may fail gives: `.ok(value)` or `.err(error)`, written
+`T!` (the error an `HttpError`) or `T ! E`, and matched or passed up with
+`try`; a call never throws
+([Types](https://webfluent.monzeromer.dev/learn/12-types.md#json-decoding-and-results)).
 
 ### Route parameter
 
@@ -292,7 +349,8 @@ baseline ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 ### Type
 
 A record declared with `type`, or any of the types a value can
-have, which the checker holds every use to ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
+have; every value's type is one the program can name, written or
+inferred, and the checker holds every use to it ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
 
 ## V
 

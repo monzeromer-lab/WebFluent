@@ -27,13 +27,16 @@ can hold:
 ```text
 my-site/
 ├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
+├── .agents/skills/, .claude/skills/
+│                           the writing-webfluent skill, where agents look for one (`wf init` writes it)
 ├── webfluent.app.json      the config (see Configuration)
 ├── .env                    build-time values, not committed (see Environments)
 ├── src/
 │   ├── App.wf              the app shell and the Router
 │   ├── theme.wf            themes
 │   ├── types.wf            shared types, enums, constants, data
-│   ├── api.wf              services
+│   ├── api.wf              services you write by hand
+│   ├── api/backend/        a service `wf api add` keeps: service.wf, and generated/ from its spec
 │   ├── pages/              one page per file
 │   ├── components/         components
 │   ├── stores/             stores
@@ -85,6 +88,7 @@ output.
 `use Store` at the top of a page or component says that it reads that
 store. It documents the dependency for the reader and the editor; it does
 not scope anything, and a page reads a store by name with or without it.
+`use` of a store nothing declares is `X05`.
 
 ## Names across a project
 
@@ -111,7 +115,8 @@ The build reads other files too. What each becomes:
 | `*.css` | anywhere under `src/` | bundled into `styles.css`, in path order, after the built-ins' rules |
 | `*.js` | anywhere under `src/` | copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)) |
 | `*.md` | under `src/` | a page ([Content](https://webfluent.monzeromer.dev/recipes/markdown-pages.md)) |
-| `*.json` | named by a `data` declaration | a constant, read at build time |
+| `*.json` | named by a `data` declaration | a constant, read at build time and held to its declared type (`T33`) |
+| an OpenAPI spec | named by `apis` or `api … from` | a service's contract: its types and endpoints ([Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)) |
 | images | named by an `image` declaration | resized, hashed files and a `<picture>` ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md)) |
 | `translations/*.json` | the `i18n.dir` | the locale tables ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)) |
 | anything | `public/` | copied as it is to the build's root: `public/favicon.svg` is `/favicon.svg` |
@@ -148,6 +153,10 @@ Commit the sources and the config:
 - `src/`
 - `public/`
 - `tests/`, with its `__snapshots__/`
+- `AGENTS.md` and the skill folders, so every agent on the project reads
+  the same reference
+- a service's `generated/` folder: `wf api check` in CI says when it is
+  behind its spec
 
 Leave out what the build writes and what is private. Add these lines to
 `.gitignore`:
@@ -191,7 +200,7 @@ As a project grows, these habits keep it readable:
 | `use Store` | documents a dependency; scopes nothing |
 | Duplicate names | `E102`, naming both places |
 | `public/` | copied to the build's root as it is |
-| Starter files | `wf generate page`, `component` or `store`, then the name |
+| Starter files | `wf generate page`, `component` or `store`, then the name; `wf generate block` for a whole page |
 | Not committed | `build/`, `.wf-cache/`, `.wf-sizes.json`, `.env` |
 
 ## Next

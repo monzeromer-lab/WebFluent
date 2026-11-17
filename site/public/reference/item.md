@@ -32,10 +32,10 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Example
 
 ```wf
-state on = true
+state notify = true
 Item(title: "Notifications", description: "Sent to your phone") {
     Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: on, label: "On") }
+    Item.Actions { Switch(bind: notify, label: "On") }
 }
 ```
 

@@ -77,7 +77,7 @@ A published element behaves this way:
 
 - **An attribute is a prop.** It is read when the element is connected, and
   again whenever it changes. A `Number` prop is read as a number, and a
-  `Map` or a list as JSON. A prop with a capital in its name is written
+  record, a dictionary or a list as JSON. A prop with a capital in its name is written
   with a hyphen: `publishableKey` is the attribute `publishable-key`.
 - **A `Bool` prop is true when the attribute is present**, as HTML reads
   `disabled`, and false when it is `="false"`, so a framework that writes

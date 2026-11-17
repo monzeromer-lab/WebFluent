@@ -563,6 +563,23 @@ where it becomes unknown, not at every place it goes afterwards. Inside the
 checker, a value an error has already been reported about is no longer
 `Any` but a type of its own, which agrees with everything as `Any` did, so
 the count holds only what the program leaves untyped."#),
+                NotesSection(title: #"Every built-in follows the theme"#, id: "7.0.0-every-built-in-follows-the-theme", intro: #"A built-in draws from the theme's tokens alone, so a theme restyles all of
+them, and a dark theme needs nothing beyond its colours."#, items: [
+                    Change(text: #"**What is written on a tone is a token**: `color-on-primary`,
+`-secondary`, `-success`, `-danger`, `-warning` and `-info` are the label
+of a primary button, a badge, a pressed toggle or a chosen day. A theme
+with a light primary names a dark one, and `A13` checks each pair. A
+theme with a pale tone may draw new `A13` warnings."#),
+                    Change(text: #"**Alerts, focus rings, highlights and stars are mixed from the theme's
+colours**, rather than fixed tints, and `color-backdrop` dims the page
+behind a modal, a dialog, a sheet and a drawer."#),
+                    Change(text: #"**A `Modal` or `Dialog` is as wide as its `<dialog>`**, so `class:` or
+`style { width: … }` on it sizes what it shows."#),
+                    Change(text: #"**The structural look keeps a `Popover`'s box**, and toasts take the
+theme's font."#),
+                    Change(text: #"The `spa` starter's own dark-mode button is `DarkModeSwitch`, so it no
+longer hides the built-in `ThemeToggle`."#)
+                ]),
                 NotesSection(title: #"Found by hand, before the release"#, id: "7.0.0-found-by-hand-before-the-release", intro: #"A pass over every 7.0 feature in a browser, against a server that
 misbehaves on request, found and fixed these:"#, items: [
                     Change(text: #"**A parameter's default is sent.** `pageSize: Number = 20 in query
@@ -593,7 +610,7 @@ rather than what it did."#)
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 111), latest: true)
+            ], count: 116), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4379,6 +4396,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-any-and-map-leave-the-language", label: #"`Any` and `Map` leave the language"#), Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-pages-lines-and-writes-kept-offline", label: #"Pages, lines, and writes kept offline"#), Anchor(id: "7.0.0-fakes-a-service-answered-in-a-test", label: #"Fakes: a service answered in a test"#), Anchor(id: "7.0.0-a-service-s-contract-written-from-its-openapi-spec", label: #"A service's contract, written from its OpenAPI spec"#), Anchor(id: "7.0.0-carried-to-7-by-wf-migrate", label: #"Carried to 7 by `wf migrate`"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-found-by-hand-before-the-release", label: #"Found by hand, before the release"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-any-and-map-leave-the-language", label: #"`Any` and `Map` leave the language"#), Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-pages-lines-and-writes-kept-offline", label: #"Pages, lines, and writes kept offline"#), Anchor(id: "7.0.0-fakes-a-service-answered-in-a-test", label: #"Fakes: a service answered in a test"#), Anchor(id: "7.0.0-a-service-s-contract-written-from-its-openapi-spec", label: #"A service's contract, written from its OpenAPI spec"#), Anchor(id: "7.0.0-carried-to-7-by-wf-migrate", label: #"Carried to 7 by `wf migrate`"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-every-built-in-follows-the-theme", label: #"Every built-in follows the theme"#), Anchor(id: "7.0.0-found-by-hand-before-the-release", label: #"Found by hand, before the release"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

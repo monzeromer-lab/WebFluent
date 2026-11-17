@@ -2174,7 +2174,7 @@ page BuiltinHost(path: "/reference/host", title: "Host — Reference", descripti
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [], parts: [])
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => log("gone"))"#, title: "wf")
+        CodeBlock(#"Host(tag: "canvas", aria-label: "Chart", mount: (node) => node.getBoundingClientRect(), cleanup: (box) => log("gone"))"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-host" }), class: "bp-prose")
     }
 }
@@ -4218,10 +4218,10 @@ page BuiltinItem(path: "/reference/item", title: "Item — Reference", descripti
             Link("Item.Actions", to: "/reference/item-actions", class: "bp-button")
         }
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"state on = true
+        CodeBlock(#"state notify = true
 Item(title: "Notifications", description: "Sent to your phone") {
     Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: on, label: "On") }
+    Item.Actions { Switch(bind: notify, label: "On") }
 }"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-item" }), class: "bp-prose")
     }
@@ -4250,10 +4250,10 @@ page BuiltinItemMedia(path: "/reference/item-media", title: "Item.Media — Refe
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"state on = true
+        CodeBlock(#"state notify = true
 Item(title: "Notifications", description: "Sent to your phone") {
     Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: on, label: "On") }
+    Item.Actions { Switch(bind: notify, label: "On") }
 }"#, title: "wf")
     }
 }
@@ -4281,10 +4281,10 @@ page BuiltinItemContent(path: "/reference/item-content", title: "Item.Content �
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"state on = true
+        CodeBlock(#"state notify = true
 Item(title: "Notifications", description: "Sent to your phone") {
     Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: on, label: "On") }
+    Item.Actions { Switch(bind: notify, label: "On") }
 }"#, title: "wf")
     }
 }
@@ -4312,10 +4312,10 @@ page BuiltinItemActions(path: "/reference/item-actions", title: "Item.Actions �
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"state on = true
+        CodeBlock(#"state notify = true
 Item(title: "Notifications", description: "Sent to your phone") {
     Item.Media { Icon("bell") }
-    Item.Actions { Switch(bind: on, label: "On") }
+    Item.Actions { Switch(bind: notify, label: "On") }
 }"#, title: "wf")
     }
 }
@@ -4921,9 +4921,8 @@ page BuiltinTree(path: "/reference/tree", title: "Tree — Reference", descripti
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [], parts: [])
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"state files = [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }]
-state file = ""
-Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+        CodeBlock(#"state file = ""
+Tree(items: [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }], children: f => f.children, key: f => f.path, bind: file, label: "Files") {
     row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
 }"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-tree" }), class: "bp-prose")
@@ -6307,7 +6306,9 @@ page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Ref
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
         Heading(t("ref.example"), id: "example").h2
-        CodeBlock(#"FileUpload(accept: "image/*", label: "Choose a picture") { on change(e) { log(e.target.files[0].name) } }"#, title: "wf")
+        CodeBlock(#"state photo: File? = null
+FileUpload(bind: photo, accept: "image/*", label: "Choose a picture")
+if let p = photo { Text(p.name) }"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-file-upload" }), class: "bp-prose")
     }
 }
@@ -9127,7 +9128,7 @@ page BuiltinFrame(path: "/reference/frame", title: "Frame — Reference", descri
         CodeBlock(#"Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
 state heard = ""
 Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-    on message(m) { heard = m.data }
+    on message(m) { heard = JSON.stringify(m.data) }
 }
 state version = 1
 Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")"#, title: "wf")

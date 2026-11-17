@@ -30,7 +30,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Heading("The event object", id: "the-event-object").h3
 
-        Markdown("To read the event, name a parameter: `on keydown(e) \{ … \}`. It is the browser's own event object, so `e.key`, `e.target.value`, `e.clientX`, `e.preventDefault()` and `e.stopPropagation()` are all there.\n\nWithout a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.\n\nA DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).\n\nThis drop zone uses the event object twice — to allow the drop, and to read the dropped files:")
+        Markdown("To read the event, name a parameter: `on keydown(e) \{ … \}`. It is the browser's own event object, typed by the event: `on keydown(e)` is a `KeyboardEvent` (`e.key`, `e.shiftKey`), `on click(e)` a `MouseEvent` (`e.clientX`), and `e.target` an `Element` (`e.target.value`), with `e.preventDefault()` and `e.stopPropagation()` on every one. A member the event does not have, `e.kye`, is `T30`, with the nearest name.\n\nWithout a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.\n\nA DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).\n\nThis drop zone uses the event object twice — to allow the drop, and to read the dropped files:")
 
         CodeBlock(#"page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
     state names: [String] = []
@@ -246,6 +246,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
             }
         }
     }
+    if gone { Text("No messages.") }
 }"#, title: "wf")
 
         Markdown("- **`toast(message, …)`** shows a toast above everything, a modal included, and says it to a screen reader. It takes `tone:` (`.success`, `.danger`, `.warning`, `.info`), `duration:` in milliseconds, and `action:` with `onAction:` for a button on it. It waits while the pointer is on it or the focus is in it, has a close button, and no more than three show at once. `toast.promise(p, loading: …, done: …, failed: …)` follows a promise.\n- **`await ask(question, …)`** draws an alert dialog and is `true` for yes, `false` for no or Escape. It takes `detail:`, `yes:`, `no:` and `danger: true`; the focus starts on no. (`confirm` is the browser's.)\n- **`announce(text)`** says something to a screen reader with nothing on screen moving; `announce(text, .assertive)` interrupts, for what cannot wait.\n\nA program that names something `toast`, `ask` or `announce` of its own keeps it; the function is then out of reach there.")

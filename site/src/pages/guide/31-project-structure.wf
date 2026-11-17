@@ -10,13 +10,16 @@ page ProjectGuide(path: "/reference/project", title: "Project structure", descri
 
         CodeBlock(#"my-site/
 ├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
+├── .agents/skills/, .claude/skills/
+│                           the writing-webfluent skill, where agents look for one (`wf init` writes it)
 ├── webfluent.app.json      the config (see Configuration)
 ├── .env                    build-time values, not committed (see Environments)
 ├── src/
 │   ├── App.wf              the app shell and the Router
 │   ├── theme.wf            themes
 │   ├── types.wf            shared types, enums, constants, data
-│   ├── api.wf              services
+│   ├── api.wf              services you write by hand
+│   ├── api/backend/        a service `wf api add` keeps: service.wf, and generated/ from its spec
 │   ├── pages/              one page per file
 │   ├── components/         components
 │   ├── stores/             stores
@@ -49,7 +52,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
     PriceCard("Team", price: 49)
 }"#, title: "wf")
 
-        Markdown("The compiler reads `App.wf` (or `App.wfx`) first, then the rest in path order. The order matters for nothing but the order of equal things in the output.\n\n`use Store` at the top of a page or component says that it reads that store. It documents the dependency for the reader and the editor; it does not scope anything, and a page reads a store by name with or without it.")
+        Markdown("The compiler reads `App.wf` (or `App.wfx`) first, then the rest in path order. The order matters for nothing but the order of equal things in the output.\n\n`use Store` at the top of a page or component says that it reads that store. It documents the dependency for the reader and the editor; it does not scope anything, and a page reads a store by name with or without it. `use` of a store nothing declares is `X05`.")
 
         Heading("Names across a project", id: "names-across-a-project").h2
 
@@ -86,7 +89,12 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
                 Table.Row {
                     Table.Cell { Markdown("`*.json`") }
                     Table.Cell { Markdown("named by a `data` declaration") }
-                    Table.Cell("a constant, read at build time")
+                    Table.Cell { Markdown("a constant, read at build time and held to its declared type (`T33`)") }
+                }
+                Table.Row {
+                    Table.Cell("an OpenAPI spec")
+                    Table.Cell { Markdown("named by `apis` or `api … from`") }
+                    Table.Cell { Markdown("a service's contract: its types and endpoints ([Call a service from its OpenAPI spec](/recipes/service-from-openapi))") }
                 }
                 Table.Row {
                     Table.Cell("images")
@@ -149,7 +157,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
 
         Heading("Choose what to commit", id: "choose-what-to-commit").h2
 
-        Markdown("Commit the sources and the config:\n\n- `webfluent.app.json`\n- `src/`\n- `public/`\n- `tests/`, with its `__snapshots__/`\n\nLeave out what the build writes and what is private. Add these lines to `.gitignore`:")
+        Markdown("Commit the sources and the config:\n\n- `webfluent.app.json`\n- `src/`\n- `public/`\n- `tests/`, with its `__snapshots__/`\n- `AGENTS.md` and the skill folders, so every agent on the project reads the same reference\n- a service's `generated/` folder: `wf api check` in CI says when it is behind its spec\n\nLeave out what the build writes and what is private. Add these lines to `.gitignore`:")
 
         CodeBlock(#"build/
 .wf-cache/
@@ -198,7 +206,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
                 }
                 Table.Row {
                     Table.Cell("Starter files")
-                    Table.Cell { Markdown("`wf generate page`, `component` or `store`, then the name") }
+                    Table.Cell { Markdown("`wf generate page`, `component` or `store`, then the name; `wf generate block` for a whole page") }
                 }
                 Table.Row {
                     Table.Cell("Not committed")

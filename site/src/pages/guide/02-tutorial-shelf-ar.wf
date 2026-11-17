@@ -109,7 +109,7 @@ component BookCard(_ book: Book) {
     }
 }"#, title: "wf")
 
-        Markdown("- `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها: `BookCard(book)`.\n- `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة بأعلام. يعرف المُصرِّف خصائص كل منها، ويرفض علمًا لا يقبله.\n- يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if` مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر النص ولا يُعاد رسم شيء آخر.\n\n([المكوّنات](/learn/10-components)، [العناصر](/learn/06-elements).)\n\n**تحقّق:** شغّل `wf check`. يُبلغ عن خطأ واحد: `` error[R01]: `/books/\{…\}` is not a route ``. تربط البطاقة بصفحة الكتاب، ولا صفحة تجيب عن هذا العنوان بعد. يفحص المُصرِّف كل رابط مقابل الصفحات التي تعلنها؛ والخطوة التالية تضيف الصفحة.")
+        Markdown("- `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها: `BookCard(book)`.\n- `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة بأعلام. يعرف المُصرِّف خصائص كل منها، ويرفض علمًا لا يقبله.\n- يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if` مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر النص ولا يُعاد رسم شيء آخر.\n\n([المكوّنات](/learn/10-components)، [العناصر](/learn/06-elements).)\n\n**تحقّق:** شغّل `wf check`. يُبلغ عن تحذيرين ولا خطأ: `` warning[U03]: `BookCard` is declared but never placed `` و `` warning[U04]: `Shelf.count` is declared but never read ``. لا شيء يضع البطاقة بعد، ولا شيء يعرض العدد؛ والخطوة التالية تفعل الأمرين. وتربط البطاقة أيضًا بـ`/books/…`، وهي صفحة لا وجود لها بعد. يفحص المُصرِّف كل رابط مقابل الصفحات التي تعلنها، لكن فيما يرسمه الموقع فقط، فلا يقول شيئًا إلى أن توضع البطاقة.")
 
         Heading("الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب", id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب").h2
 
@@ -209,7 +209,7 @@ app {
     Footer { Text("Built with WebFluent").muted.sm }
 }"#, title: "wf")
 
-        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن شريط تنقّل. ضع كتابين على رفّك: يصير الرابط `Your shelf (2)`. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives here**.")
+        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن شريط تنقّل. ضع كتابين على رفّك: يصير الرابط **Your shelf (2)**. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives here**.")
 
         Heading("الخطوة 7: أضف نموذجًا لاقتراح كتاب", id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب").h2
 
@@ -259,7 +259,7 @@ app {
     Footer { Text("Built with WebFluent").muted.sm }
 }"#, title: "wf")
 
-        Markdown("**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى `Thank you — we will take a look.`، ويصير النموذج فارغًا.\n\nالموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،")
+        Markdown("**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.\n\nالموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،")
 
         CodeBlock(#"// … in src/api.wf, beside the pages
 api Suggestions(base: "/api") {
@@ -270,12 +270,12 @@ api Suggestions(base: "/api") {
 
         CodeBlock(#"// … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
-    await Suggestions.suggest(body: { title: title, author: author, why: why })
+    try await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
     form.reset()
 }"#, title: "wf")
 
-        Markdown("([البيانات وواجهات API](/learn/15-data)، [البيئات](/recipes/environments-and-secrets).)")
+        Markdown("يأخذ `try` قيمة الاستدعاء، أو يوقف المعالج عند الفشل ويُبلغ عنه، فلا تصير `sent` صحيحة إلا حين يصل الاقتراح.\n\n([البيانات وواجهات API](/learn/15-data)، [البيئات والأسرار](/recipes/environments-and-secrets).)")
 
         Heading("الخطوة 8: امنح الموقع سمة", id: "الخطوة-8-امنح-الموقع-سمة").h2
 
@@ -389,7 +389,7 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4"#, title: "yaml")
 
-        Markdown("ادفع المشروع إلى مستودع `shelf`. في **Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.\n\n**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا، ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**. يغطي [النشر](/recipes) Netlify وVercel وCloudflare Pages وnginx ومضيفين آخرين.")
+        Markdown("ادفع المشروع إلى مستودع `shelf`. في **Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.\n\n**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا، ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**. تغطي الوصفات [Netlify](/recipes/deploy-to-netlify) و[Vercel](/recipes/deploy-to-vercel) و[Cloudflare Pages](/recipes/deploy-to-cloudflare-pages) و[nginx](/recipes/serve-with-nginx) ومضيفين آخرين.")
 
         Heading("البرنامج كاملًا", id: "البرنامج-كاملا").h2
 
@@ -621,12 +621,12 @@ test "a card shows who wrote the book, and when" {
                 Table.Row {
                     Table.Cell { Markdown("`wf build` و`wf verify` وسير عمل") }
                     Table.Cell("البناء والفحص والنشر")
-                    Table.Cell { Markdown("[النشر](/recipes)") }
+                    Table.Cell { Markdown("[النشر على GitHub Pages](/recipes/deploy-to-github-pages)") }
                 }
             }
         }
 
-        Markdown("لتذهب أبعد:\n\n- اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](/learn/04-language-basics).\n- تحدّث مع خادم حقيقي: [البيانات وواجهات API](/learn/15-data).\n- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](/recipes/work-offline).\n- ترجمه: [الترجمة](/recipes/translate-a-site).\n- ابنِ مشروعًا أكبر: [Pocket](/recipes/build-a-budget-app)، متتبّع ميزانية.")
+        Markdown("لتذهب أبعد:\n\n- اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](/learn/04-language-basics).\n- تحدّث مع خادم حقيقي: [البيانات وواجهات API](/learn/15-data).\n- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](/recipes/work-offline).\n- ترجمه: [الترجمة](/recipes/translate-a-site).\n- ابنِ تطبيقًا آخر خطوةً خطوة: [درس: قائمة مهام](/ar/learn/03-tutorial-todos).")
 
         Heading("أخطاء شائعة", id: "أخطاء-شائعة").h2
 
@@ -670,10 +670,10 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
     Button("Keep it") { on click { Shelf.toggle("a-pattern-language") } }
 }"#, title: "wf · draws T06")
 
-        Markdown("اقرأ عضوًا يعلنه المخزن، أو أعلن العضو الذي تحتاجه: `derived count = saved.length` ([T06](/errors/T06)).")
+        Markdown("اقرأ عضوًا يعلنه المخزن، أو أعلن العضو الذي تحتاجه: `derived count = saved.length` ([T06](/errors/T06)).\n\nللمضيّ أبعد: إن كنت تعرف React أو Vue أو Svelte، فإن [قادم من React أو Vue أو Svelte](/ar/coming-from/react) يطابق ما تعرفه على WebFluent.")
 
         Heading("التالي", id: "التالي").h2
 
-        Markdown("[قادم من React أو Vue أو Svelte](/ar/coming-from/react).")
+        Markdown("[درس: Todos](/ar/learn/03-tutorial-todos): تطبيق من صفحة واحدة، فيه مخزن واختبارات.")
     }
 }

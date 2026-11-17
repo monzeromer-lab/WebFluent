@@ -51,8 +51,8 @@ Under a map such as `build.budget`, the rest of the path is one key, so
 ## The defaults
 
 This block is what a config holding only a name means. The compiler's test
-suite checks it against the compiler's own defaults. `i18n` and `offline`
-are absent unless you add them.
+suite checks it against the compiler's own defaults. `i18n`, `offline` and
+`apis` are absent unless you add them.
 
 <!-- defaults -->
 ```json
@@ -284,7 +284,7 @@ An entry of `meta.scripts` takes one of these forms:
 |---|---|
 | `"https://…"` or a file in `public/` | A classic script, linked `defer`. |
 | `{ "src": "…", "module": true, "as": "Name" }` | An ES module, whose exports are put on `window.Name`. |
-| `{ "src": "…", "globals": ["Chart"] }` | A script whose names `.wf` may call directly. |
+| `{ "src": "…", "globals": ["Chart"] }` | A script whose names `.wf` may call directly, each taking and giving `Json`; a class among them is constructed. |
 | `{ "src": "…", "async": true }` | A script nothing waits for — analytics — loaded without holding up the page's code. |
 | `{ "src": "…", "load": "after" }` | A script the page asks for only once it has loaded and painted. |
 | `{ "src": "…", "load": "consent" }` | A script the page asks for only once the reader has accepted it in a `ConsentBanner`. |
@@ -344,7 +344,7 @@ in **4.1**. Absent, no service worker is written.
 | `precache` | list of globs | `["/"]` | The routes a first visit stores; `"*"` for every route. |
 | `fallback` | string | `null` | A page's path, shown for a route that was not stored. |
 | `cache` | map of glob to strategy | `{}` | How paths the build did not write are fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. |
-| `sync` | boolean | `false` | Keeps writes made offline and sends them when the connection returns. |
+| `sync` | boolean | `false` | Keeps a write safe to send twice — a `PUT` or a `DELETE` — that failed for want of a network, and sends it, in order, when the connection returns. A `POST` or a `PATCH` is kept only when its endpoint is marked `idempotent`; any other fails as `.offline(queued: false)`. |
 
 See also: [Work offline](../recipes/work-offline.md).
 
@@ -385,8 +385,11 @@ when it cannot ship a broken page:
 - `S04` — two pages on one route;
 - `I01`, `I02`, `I04` — a message that shows its key or a placeholder.
 
-Asking to lower any other error is itself refused, and so is a key that is
-not a code or a family. To accept one finding on one line instead, write a
+Asking to lower any other error is itself refused (`E111`), and so is a key
+that is not a code or a family. There is no loose mode: what 7.0 refuses —
+`Any` and `Map` (`T23`, `T24`), an untyped `state` or parameter, a `match`
+with no `.failed` arm (`T21`), a removed request form (`N08`) — stays an
+error, and [`wf migrate`](cli.md#wf-migrate) carries a 6.x project across. To accept one finding on one line instead, write a
 `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in
 [Diagnostics](../errors/diagnostics.md).
 

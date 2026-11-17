@@ -104,7 +104,8 @@ Run `node server.js` and open `/invoices/INV-001` for the page, or
   field missing or of the wrong type throws, its message naming the place
   (`T33 … $.items[1].price is missing`).
 - A render runs `wf` once and takes a few milliseconds. The data goes over
-  standard input, so nothing is written to disk.
+  standard input, so it is never written to disk; a template given as a
+  string is written to a temporary file once, the first time it renders.
 
 The binding needs `wf` itself installed. It looks for it at `WF_BIN`, then
 on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside

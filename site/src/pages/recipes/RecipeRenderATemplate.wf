@@ -126,12 +126,12 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.",
                 }
                 Table.Row {
                     Table.Cell { Markdown("`state` and `derived` values (see below)") }
-                    Table.Cell { Markdown("`resource`") }
+                    Table.Cell { Markdown("A `resource`'s request") }
                 }
             }
         }
 
-        Markdown("A `state` is its first value, and a `derived` value is what that works out to. So a page may work out its totals once, in order, and show them anywhere. A value the data hands over wins over either.\n\nA template may declare `type`s and a `theme` like any file. `data` files are read relative to the template. `format` and `ago` speak the data's `locale` key when it has one, and English otherwise.\n\nA template may read private `env` names ([Environments and secrets](/recipes/environments-and-secrets)): it runs on your server, where a secret stays secret.")
+        Markdown("A `state` is its first value, and a `derived` value is what that works out to. So a page may work out its totals once, in order, and show them anywhere. A value the data hands over wins over either.\n\nA `resource` sends no request at render time, so it draws its `.loading` arm, unless the data gives it a value by its name: `\{ \"users\": \{ \"loaded\": [ … ] \} \}` draws `.loaded`, and `\{ \"users\": \{ \"failed\": \{ … \} \} \}` draws `.failed`. What `loaded` holds is held to the read's type (`T33`).\n\nA template may declare `type`s and a `theme` like any file. `data` files are read relative to the template. `format` and `ago` speak the data's `locale` key when it has one, and English otherwise.\n\nA template may read private `env` names ([Environments and secrets](/recipes/environments-and-secrets)): it runs on your server, where a secret stays secret.")
 
         Heading("Pick an output for the job", id: "pick-an-output-for-the-job").h2
 

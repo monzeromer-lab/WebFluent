@@ -105,6 +105,9 @@ wf test
 - **Close a dialog**: `press "Escape"` closes the open `Modal` or `Dialog`;
   `press "Enter" in "Search"` presses a key in one named field.
 - **One file**: `wf test tests/shopping.wf` runs only that file's tests.
+- **A page that reads a service**: a `fake` answers its endpoints, held to
+  the contract, and nothing reaches the network
+  ([Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md)).
 - **Every page in a browser**: `wf verify` loads each route of the built
   site and fails on a script error, a failed request or a page that drew
   nothing ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#check-every-page-with-wf-verify)).

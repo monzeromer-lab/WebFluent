@@ -800,7 +800,7 @@ To go further:
 - Talk to a real server: [Data and APIs](15-data.md).
 - Make the site work offline: [Make a site work offline](../recipes/work-offline.md).
 - Translate it: [Translate a site](../recipes/translate-a-site.md).
-- Build a bigger project: [Tutorials](03-tutorial-todos.md).
+- Build another app, step by step: [Tutorial: a to-do list](03-tutorial-todos.md).
 
 ## Common mistakes
 

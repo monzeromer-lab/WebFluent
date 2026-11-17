@@ -20,7 +20,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "{posts.find(p => p.slu
 }
 "# }) {
         code {
-            Markdown("**Needs:** `\"build\": \{ \"ssg\": true \}` in `webfluent.app.json`, and `src/posts.json`, a list of posts with a `slug`, a `title`, a `date` and a `body`.")
+            Markdown("**Needs:** `\"build\": \{ \"ssg\": true \}` in `webfluent.app.json` (and `meta.site_url`, for the sitemap), and `src/posts.json`, a list of posts with a `slug`, a `title`, a `date` and a `body`.")
             CodeBlock(#"type Post { slug: String, title: String, date: String, body: String }
 
 data posts: [Post] = "posts.json"

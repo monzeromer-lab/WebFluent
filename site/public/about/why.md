@@ -102,7 +102,45 @@ Types make most of this possible, and most of them are worked out for
 you: a literal, a record, a store member, what a method gives back. What
 cannot be worked out — an empty list's items, an action's parameters, what
 a server answers — is written, and the checker says where it is missing.
-Every value has a type the program can name.
+Every value has a type the program can name: there is no `Any`, JSON whose
+shape is open is `Json` until it is matched or decoded, and no setting
+turns the checks off.
+
+## A request is a contract
+
+The server is where most of a page's data comes from, and the place a
+typed program usually stops being typed. In WebFluent a service is
+described once, in an `api` block — or written for you from its OpenAPI
+spec by `wf api add` — and every call of it is checked against that
+contract:
+
+```wf
+type User { id: String, name: String }
+
+api Backend(base: "/api") {
+    get users() at "users" -> [User]!
+}
+
+page People(path: "/", title: "People", description: "Who is here.") {
+    resource users = Backend.users()
+    Heading("People").h1
+    match users {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for u in list by u.id { Text(u.name) } }
+    }
+}
+```
+
+`-> [User]!` says what the endpoint answers and that it may fail. A read is
+one value with three cases, and a `match` that leaves out `.failed` is an
+error, so a page cannot forget the request that went wrong. A call answers
+with a result, `.ok(value)` or `.err(error)`, rather than throwing, and the
+error says what happened: offline, a timeout, a status with the server's
+problem, or an answer that did not match the contract. What arrives is held
+to the declared type in every build. A test answers the service with a
+`fake`, held to the same contract, so a page that reads a server is tested
+without one.
 
 ## Secure by construction, not by advice
 

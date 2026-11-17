@@ -56,13 +56,17 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Markdown("Every warning has a code, and the code's entry explains it.\n\nRun `wf explain CODE` to print the entry; every code is also in [Diagnostics](/errors), with an example and a fix. A named argument that the compiler writes to the element \"as an attribute\" (`C04`) is almost always a misspelled prop.")
 
+        Heading("A project that built under 6.x stops on errors", id: "a-project-that-built-under-6-x-stops-on-errors").h3
+
+        Markdown("7.0 has no loose mode: what 6.x accepted and 7.0 refuses — `fetch(…)`, a read's `ready(v)` arm, `Any`, a `state items = []` that says nothing of what it holds — is an error with its fix.\n\n1. Run `wf migrate --check` to see what it would rewrite, then `wf migrate`. It applies every fix it knows, again and again, and lists by place what a person decides.\n2. Run `wf check` and fix what is left. `lints` and `// wf-allow` cannot lower an error in 7.0 ([Upgrading](/errors/upgrading#7-0)).")
+
         Heading("A project that built under 4.x stops on errors", id: "a-project-that-built-under-4-x-stops-on-errors").h3
 
-        Markdown("5.0 refuses what used to compile and then fail in the browser, so a 4.x project may stop on errors it always had.\n\n1. Run `wf check`. It lists every finding and writes nothing.\n2. Apply the fixes your editor offers as quick fixes, where the fix is known.\n3. While you catch up, lower in `lints` the codes that cannot ship a broken page ([Upgrading](/errors/upgrading#5-0)).")
+        Markdown("5.0 refuses what used to compile and then fail in the browser, so a 4.x project may stop on errors it always had.\n\n1. Run `wf check`. It lists every finding and writes nothing.\n2. Apply the fixes your editor offers as quick fixes, where the fix is known.\n3. While you catch up, lower in `lints` the codes that cannot ship a broken page — `R01`, `C02`, `S04`, `I01`, `I02`, `I04` and the warnings ([Upgrading](/errors/upgrading#5-0)).")
 
         Heading("A finding you mean to keep", id: "a-finding-you-mean-to-keep").h3
 
-        Markdown("The compiler reports something you have decided is right for this line.\n\nPut `// wf-allow(CODE)` on the line above it, or at the end of its line, to accept that one finding. To silence a warning across a whole project, set it in `lints` instead. An allow that covers nothing is itself reported (`U07`).")
+        Markdown("The compiler reports something you have decided is right for this line.\n\nPut `// wf-allow(CODE)` on the line above it, or at the end of its line, to accept that one finding. To silence a warning across a whole project, set it in `lints` instead. Neither can accept an error, except the few that ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`). An allow that covers nothing is itself reported (`U07`).")
 
         Heading("CI does not fail on warnings, or does not annotate pull requests", id: "ci-does-not-fail-on-warnings-or-does-not-annotate-pull-requests").h3
 
@@ -104,11 +108,11 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Heading("A request is a 404 under wf serve or wf verify", id: "a-request-is-a-404-under-wf-serve-or-wf-verify").h3
 
-        Markdown("Only a page navigation gets the single-page shell. A `fetch`, or a file the build did not write, gets a `404` and a line in the terminal. The dev server does not serve your API.\n\nPoint the page at the server that has the API — an `api`'s `base:` read from `env` — or put a fixture file in `public/`.")
+        Markdown("Only a page navigation gets the single-page shell. A request — an `http` or `api` call — or a file the build did not write gets a `404` and a line in the terminal. The dev server does not serve your API.\n\nPoint the page at the server that has the API — an `api`'s `base:` read from `env` — or put a fixture file in `public/`. To load every page with no server at all, answer the service with a `fake` and run `wf verify --fakes tests/fakes.wf`.")
 
         Heading("\"The response of … is not the type the program declares\"", id: "the-response-of-is-not-the-type-the-program-declares").h3
 
-        Markdown("Under `wf serve`, a response is held to the type its `resource` or `api` endpoint declares. One that differs takes the `error` arm, as a `.parse` error that names the first place it differs, such as `$[1].name is missing`.\n\nFix the declared type, or the server.")
+        Markdown("In every build, a response is held to the type its `resource`, `http` call or `api` endpoint declares. One that differs fails as `.decode(at, message)` — a read's `.failed(e)` arm, a call's `.err` — naming the first place it differs, such as `$[1].name is missing`.\n\nFix the declared type, or the server.")
 
         Heading("\"Item N could not be drawn\"", id: "item-n-could-not-be-drawn").h3
 
@@ -124,7 +128,7 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Heading("An api call stays loading", id: "an-api-call-stays-loading").h3
 
-        Markdown("A parameter that the endpoint's path names is empty — `Backend.user(id: \"\")` for `users/:id` — so nothing was requested: `users/` would ask for the whole collection.\n\nNothing to fix if the value is still on its way: the call is sent when the value arrives. Otherwise, pass the value.")
+        Markdown("A parameter that the endpoint's path names is empty — `Backend.user(id: \"\")` for `at \"users/\{id\}\"` — so nothing was requested: `users/` would ask for the whole collection. The call ends `.cancelled`, and a read over it stays `.loading`.\n\nNothing to fix if the value is still on its way: the call is sent when the value arrives. Otherwise, pass the value.")
 
         Heading("The layout jumps as the page loads", id: "the-layout-jumps-as-the-page-loads").h3
 
@@ -174,7 +178,7 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Heading("Does it support TypeScript?", id: "does-it-support-typescript").h3
 
-        Markdown("WebFluent has its own type checker, gradual and built in ([Types](/learn/12-types)). There is nothing to configure.")
+        Markdown("WebFluent has its own type checker, built in and strict: every value has a type the program can name, declared where another file sees it and inferred where only the body does ([Types](/learn/12-types)). There is nothing to configure.")
 
         Heading("Can I write CSS the usual way?", id: "can-i-write-css-the-usual-way").h3
 
@@ -182,7 +186,7 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Heading("How big is the output?", id: "how-big-is-the-output").h3
 
-        Markdown("A page of static text ships about 4 kB of script, gzipped; a full application, a few tens of kilobytes. `wf build --stats` shows what yours weighs.")
+        Markdown("A page of static text ships about 2 kB of script, gzipped; a full application, a few tens of kilobytes. `wf build --stats` shows what yours weighs.")
 
         Heading("Which browsers does it support?", id: "which-browsers-does-it-support").h3
 

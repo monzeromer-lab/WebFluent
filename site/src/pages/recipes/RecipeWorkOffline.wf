@@ -41,7 +41,7 @@ page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work o
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sync`") }
-                    Table.Cell { Markdown("Keep a write made with no network and send it later ([Keep writes made offline](/recipes/keep-writes-made-offline)).") }
+                    Table.Cell { Markdown("Keep a write that is safe to send twice — a `PUT`, a `DELETE`, or an `idempotent` endpoint's — made with no network, and send it later, in order, through the service's middleware as it is then ([Keep writes made offline](/recipes/keep-writes-made-offline)).") }
                 }
             }
         }
@@ -63,11 +63,11 @@ page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work o
                 Line(command: "python3 -m http.server -d build")
             ])
 
-        Markdown("Then, in the browser:\n\n1. Open the site. In the developer tools, open **Application → Service workers** and check the worker is activated.\n2. In the **Network** panel, tick **Offline** and reload. Stored routes load; every other route shows the `fallback` page.\n3. Make a write, then untick **Offline**. The write goes out, and `network.queued` drops to zero.\n\n`wf verify` runs against the built output too, and the repository's own browser tests hold the whole flow to a real Chrome.")
+        Markdown("Then, in the browser:\n\n1. Open the site. In the developer tools, open **Application → Service workers** and check the worker is activated.\n2. In the **Network** panel, tick **Offline** and reload. Stored routes load; every other route shows the `fallback` page.\n3. Make a `PUT` or a `DELETE` while offline: its call fails as `.offline(queued: true)`, and `network.queued` counts it. Untick **Offline**. The write goes out, and `network.queued` drops to zero.\n\n`wf verify` runs against the built output too, and the repository's own browser tests hold the whole flow to a real Chrome.")
 
         Heading("Troubleshooting", id: "troubleshooting").h2
 
-        Markdown("- **An upload made offline fails.** A `File` body is never kept: the call fails as it would without `sync`. Ask the reader to try again online.\n- **A write arrives at the server minutes late.** That is the design: a kept write is sent once it can be. Make the server's endpoints safe to receive late, and idempotent where a retry could repeat one.\n- **The API the site needs does not work offline.** What `cache` does not name passes straight through to the network. Give the API a `network-first` or `stale-while-revalidate` entry.\n- **A page that loaded offline yesterday has to be fetched again.** The browser decides how much it keeps, and can evict the store under storage pressure. The next visit with a network stores it again.\n- **Readers keep getting the old version.** Something in front of the site caches `sw.js`. Serve it with `Cache-Control: no-cache`.\n- **Nothing is stored when you test with `wf serve`.** The dev server removes the worker. Test the output of `wf build` with a static server.")
+        Markdown("- **A `POST` or a `PATCH` made offline is not sent later.** Only a write that is safe to send twice is kept: a `PUT`, a `DELETE`, or an endpoint marked `idempotent`. Any other write fails as `.offline(queued: false)`, and the page says so; one whose answer was lost may have reached the server, and sent again it would be a second order.\n- **An upload made offline fails.** A `File` body is never kept: the call fails as it would without `sync`. Ask the reader to try again online.\n- **A write arrives at the server minutes late.** That is the design: a kept write is sent once it can be. Make the server's endpoints safe to receive late, and idempotent where a retry could repeat one.\n- **The API the site needs does not work offline.** What `cache` does not name passes straight through to the network. Give the API a `network-first` or `stale-while-revalidate` entry.\n- **A page that loaded offline yesterday has to be fetched again.** The browser decides how much it keeps, and can evict the store under storage pressure. The next visit with a network stores it again.\n- **Readers keep getting the old version.** Something in front of the site caches `sw.js`. Serve it with `Cache-Control: no-cache`.\n- **Nothing is stored when you test with `wf serve`.** The dev server removes the worker. Test the output of `wf build` with a static server.")
 
     }
 }

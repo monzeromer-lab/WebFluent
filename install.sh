@@ -102,7 +102,7 @@ main() {
         VERSION=$(fetch "https://api.github.com/repos/$REPO/releases/latest" \
             | grep '"tag_name"' | head -n1 | cut -d'"' -f4) || true
     fi
-    [ -n "$VERSION" ] || die "could not determine the latest version (GitHub API rate limit?). Set WF_VERSION=v5.15.0 to pin one."
+    [ -n "$VERSION" ] || die "could not determine the latest version (GitHub API rate limit?). Set WF_VERSION=v7.0.0 to pin one."
     printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' \
         || die "a version is vX.Y.Z, not $VERSION"
 

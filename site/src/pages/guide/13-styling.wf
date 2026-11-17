@@ -73,13 +73,38 @@ page Home(path: "/", title: "Home", description: "A themed page.") {
     shadow-md: 0 4px 12px rgba(0,0,0,0.08)
 }"#, title: "wf")
 
-        Markdown("Every primary button, link and focus ring now uses `#0F766E`, because the built-ins read `color-primary` rather than a fixed colour.\n\nHow a theme works:\n\n- Each value is raw CSS, to the end of its line. Do not quote it.\n- You list only the tokens you change. Every token you leave out keeps its *baseline* value — the default the compiler ships.\n- The baseline has 71 tokens, in groups: colour, font, spacing, radius, shadow, motion, easing, breakpoints, code and layout. [Design tokens](/reference/tokens) lists each one with its baseline value.\n- Every token becomes a CSS custom property on `:root` (`--color-primary`). You read it from a style block as `$color-primary` and from a stylesheet as `var(--color-primary)`.\n- A theme may add tokens of its own, such as `surface-raised: #131519`. They become custom properties like the rest.\n- The breakpoints are tokens too, so moving one moves every media query the build writes (see [Responsive values](#responsive-values)).\n\nIf the project declares one theme, the build uses it. If it declares several, choose one in `webfluent.app.json`:")
+        Markdown("Every primary button, link and focus ring now uses `#0F766E`, because the built-ins read `color-primary` rather than a fixed colour.\n\nHow a theme works:\n\n- Each value is raw CSS, to the end of its line. Do not quote it.\n- You list only the tokens you change. Every token you leave out keeps its *baseline* value — the default the compiler ships.\n- The baseline has 87 tokens, in groups: colour, font, spacing, radius, shadow, motion, easing, breakpoints, code, terminal, stacking, targets and layout. [Design tokens](/reference/tokens) lists each one with its baseline value.\n- Every token becomes a CSS custom property on `:root` (`--color-primary`). You read it from a style block as `$color-primary` and from a stylesheet as `var(--color-primary)`.\n- A theme may add tokens of its own, such as `surface-raised: #131519`. They become custom properties like the rest.\n- The breakpoints are tokens too, so moving one moves every media query the build writes (see [Responsive values](#responsive-values)).")
+
+        Heading("Every built-in follows the theme", id: "every-built-in-follows-the-theme").h3
+
+        Markdown("The built-ins draw their colours, sizes, radii, fonts and motion from the tokens and nothing else, so a theme restyles all of them. Three kinds of token are worth knowing when you change the colours:\n\n- **What is written on a tone.** `color-on-primary` is the colour of a label on `color-primary`: a primary button's text, a badge's, a pressed toggle's, the selected day in a calendar. `color-on-secondary`, `color-on-success`, `color-on-danger`, `color-on-warning` and `color-on-info` do the same for the other tones.\n- **What dims the page.** `color-backdrop` is drawn behind a `Modal`, a `Dialog`, a `Sheet` and a drawer.\n- **What is worked out for you.** An alert's tint, a focus ring and a highlighted match are mixed from the tone and the page's colours, so a dark theme gets dark alerts without naming any.\n\nA theme with a light primary names a dark label. Without `color-on-primary` here, every primary button would write white on pale yellow, and `A13` would say so:")
+
+        CodeBlock(#"theme Ink {
+    color-background: #0B1220
+    color-surface: #111827
+    color-text: #E5E7EB
+    color-text-muted: #9CA3AF
+    color-border: #1F2937
+    color-primary: #FDE68A
+    color-on-primary: #1A1300
+}
+
+page Home(path: "/", title: "Home", description: "A light primary on a dark page.") {
+    Heading("Home").h1
+    Button("Start").primary
+}"#, title: "wf")
+
+        Markdown("The stacking scale (`z-sticky`, `z-drawer`, `z-modal`, `z-toast`, …) places a sticky header or a drawer of your own against the built-ins, and `target-min` (24px) and `target-min-touch` (44px) are the least size a control is pressed at; `style \{ min-block-size: $target-min \}` gives a control of your own the same.")
+
+        Heading("Choose and check a theme", id: "choose-and-check-a-theme").h3
+
+        Markdown("If the project declares one theme, the build uses it. If it declares several, choose one in `webfluent.app.json`:")
 
         CodeBlock(#"{ "theme": { "name": "Brand" } }"#, title: "json")
 
-        Markdown("The contrast lint, `A13`, checks the text and background pairs of your theme and warns when one falls below the WCAG AA contrast ratio. Run `wf theme` to see every token, where it comes from and which pairs it checked.\n\nTo keep the built-ins' layout and mechanics but drop their look — for a site that brings its whole design — set `theme.builtin` in `webfluent.app.json`:")
+        Markdown("The contrast lint, `A13`, checks the colour pairs your theme changes — text on the background and the surfaces, and each tone's label on its tone — and warns when one falls below the WCAG AA contrast ratio. Run `wf theme` to see every token, where it comes from and which pairs it checked.\n\nTo keep the built-ins' layout and mechanics but drop their look — for a site that brings its whole design — set `theme.builtin` in `webfluent.app.json`:")
 
-        Table(caption: "Change the whole site with a theme") {
+        Table(caption: "Choose and check a theme") {
             Table.Head {
                 Table.Row {
                     Table.Cell.header { Markdown("`theme.builtin`") }
@@ -320,7 +345,7 @@ page Prefs(path: "/prefs", title: "Appearance", description: "Choose light or da
     }
 }"#, title: "wf")
 
-        Markdown("The text under the heading reads `You are on the dark theme` after you press **Dark**.\n\n- `setTheme(\"light\")` forces light, `setTheme(\"dark\")` forces dark, and `setTheme(\"system\")` follows the system again.\n- `theme` reads the reader's choice: `\"light\"`, `\"dark\"` or `\"system\"`.\n- The choice is kept in the browser's storage across visits. The page's script applies it before it draws the page. The system preference needs no script: it is a media query in the stylesheet, so it applies from the first paint.")
+        Markdown("The text under the heading reads `You are on the dark theme` after you press **Dark**.\n\n- `setTheme(\"light\")` forces light, `setTheme(\"dark\")` forces dark, and `setTheme(\"system\")` follows the system again.\n- `theme` reads the reader's choice: `\"light\"`, `\"dark\"` or `\"system\"`.\n- The choice is kept in the browser's storage across visits. The page's script applies it before it draws the page. The system preference needs no script: it is a media query in the stylesheet, so it applies from the first paint.\n\nEvery built-in reads tokens, so the dark theme reaches all of them; the built-in `ThemeToggle` is a button that switches between the two with `setTheme`.")
 
         Callout("Only what reads tokens switches with the theme. A colour written raw, such as `background: #FFFFFF`, stays the same in dark mode. Use tokens such as `$surface` and `$text` for anything that should change.", kind: .warning)
 

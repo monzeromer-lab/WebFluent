@@ -524,6 +524,7 @@
     const messages = signal([]);
     const latest = signal({});
     const failure = signal(null);
+    const closure = signal(null);
     const keep = keepOf(opts);
     let source = null;
 
@@ -534,16 +535,20 @@
       source.onerror = () => {
         // The browser retries by itself; `closed` is only for a source that
         // said it was done.
-        state.set(source && source.readyState === 2 ? "closed" : "connecting");
+        const done = source && source.readyState === 2;
+        state.set(done ? "closed" : "connecting");
+        if (done) closure.set({ code: 1006, reason: "The stream closed" });
         failure.set(netError("network", "The stream dropped"));
       };
       const take = (name) => (event) => {
         let data = event.data;
         try { data = JSON.parse(data); } catch (e) { /* a plain string */ }
-        const message = { event: name, data, id: event.lastEventId };
-        messages.update((held) => appendKept(held, message, keep));
+        // What arrived, as its declared `receive` type: `.messages` and
+        // `on message(m)` hold the data itself; `.last(name)` keeps it by
+        // the event's name.
+        messages.update((held) => appendKept(held, data, keep));
         latest.update((held) => ({ ...held, [name]: data }));
-        if (opts.onMessage) opts.onMessage(message);
+        if (opts.onMessage) opts.onMessage(data);
       };
       source.onmessage = take("message");
       for (const name of opts.events || []) source.addEventListener(name, take(name));
@@ -554,10 +559,12 @@
       state,
       messages,
       error: failure,
+      closure,
       /// The last thing that arrived under a name.
       last: (name) => latest()[name == null ? "message" : name] ?? null,
       close() {
         if (source) source.close();
+        if (closure() == null) closure.set({ code: 1000, reason: "" });
         state.set("closed");
       },
     };

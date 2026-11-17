@@ -122,8 +122,9 @@ app {
   `Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600`.
   `HttpOnly` keeps it from every script, `SameSite=Lax`
   from another site's form, and `Secure` off plaintext connections.
-- `Auth.me.invalidate()` on sign-out drops what the endpoint cached, so
-  the next reader of the tab is not shown the last one's. Do the same for
+- `Auth.me.invalidate()` on sign-out drops what the endpoint cached, and
+  any `resource` over it asks again, so the next reader of the tab is not
+  shown the last one's. Do the same for
   every endpoint whose answer is one reader's: an answer cached under one
   `Authorization` header is never served for another, but a cookie cannot
   be read, so the cache cannot tell one cookie's reader from the next.

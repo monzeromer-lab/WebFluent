@@ -172,14 +172,14 @@ fn main() -> webfluent::Result<()> {
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`from_str`, `from_file`, `from_files`, `from_dir`, `from_sources`") }
-                    Table.Cell { Markdown("`page`, `with_theme`, `with_tokens`, `with_lang`, `with_pdf`, `with_slides`") }
-                    Table.Cell { Markdown("`render_html`, `render_html_fragment`, `render_html_parts` (CSS and body apart), `render_pdf`, `render_slides`, and `render_pdf_report` with the engine's notes") }
+                    Table.Cell { Markdown("`from_str`, `from_file`, `from_files`, `from_dir`, `from_sources`; `pages()` lists what was loaded") }
+                    Table.Cell { Markdown("`page`, `with_theme`, `with_tokens`, `with_lang`, `with_pdf`, `with_slides`, `with_studio` (node ids, as `--studio`)") }
+                    Table.Cell { Markdown("`render_html`, `render_html_fragment`, `render_html_parts` (CSS and body apart), `render_pdf`, `render_slides`, and `render_pdf_report` and `render_slides_report` with the engine's notes") }
                 }
             }
         }
 
-        Markdown("A template is the static part of the language. [Render a template](/recipes/render-a-template) shows what one may use, and [Render from Rust](/recipes/render-from-rust) how to render from a web server.")
+        Markdown("The data is held to the page's parameters before anything is drawn: data that does not fit is refused as `T33`, naming the place (`$.items[0].price is missing`), in `WebFluentError::Diagnostics`.\n\nA template is the static part of the language. [Render a template](/recipes/render-a-template) shows what one may use, and [Render from Rust](/recipes/render-from-rust) how to render from a web server.")
 
         Heading("Builds", id: "builds").h3
 
@@ -206,7 +206,7 @@ fn main() {
     }
 }"#, title: "rust")
 
-        Markdown("Each field of `BuildOptions` is one of `wf build`'s flags: `output_dir`, `allow_output_outside`, `stats`, `format`, `deny_warnings`, `dev` (a `wf serve` build), `cache` (`--cache`), `studio` (`--studio`) and `on_line`, a callback for each line as the build prints it.")
+        Markdown("Each field of `BuildOptions` is one of `wf build`'s flags or what a command around it needs: `output_dir`, `allow_output_outside`, `stats`, `format`, `color`, `deny_warnings`, `dev` (a `wf serve` build), `cache` (`--cache`), `studio` (`--studio`), `sourcemap` (source maps whatever the config says), `only_route` (render only the page at one route, for a preview), `fakes` (a file of fakes answering every endpoint, as `wf verify --fakes`) and `on_line`, a callback for each line as the build prints it.")
 
         Heading("Read a project through a Vfs", id: "read-a-project-through-a-vfs").h3
 
@@ -321,7 +321,7 @@ fn main() {
         Markdown("The modules and items in [The documented API](#the-documented-api) are covered: a change that breaks them waits for a major version. A minor version may add a case to a `#[non_exhaustive]` enum (`WebFluentError`, the tree's `Declaration`, `Expr` and `StatementKind`, `OutputType`, `memory::Contents`, …), which is why a `match` on one needs a `_` arm.\n\nThe rest of the compiler — the checker, the code generator, the runtime, the PDF engine, the registry and the tools behind the other commands — is the crate's own. The `internals` feature makes it public again for a tool that needs it, hidden from the docs and outside semver: anything there may change in any release. A crate that turns it on pins an exact version:")
 
         CodeBlock(#"[dependencies]
-webfluent = { version = "=6.0.0", default-features = false, features = ["internals"] }"#, title: "toml")
+webfluent = { version = "=7.0.0", default-features = false, features = ["internals"] }"#, title: "toml")
 
         Heading("Node: the webfluent package", id: "node-the-webfluent-package").h2
 
@@ -376,7 +376,7 @@ http.createServer(async (req, res) => {
             }
         }
 
-        Markdown("The package finds `wf` in `WF_BIN`, then in the absolute directories on `PATH` (never the current directory), then in `~/.webfluent/bin` and `~/.cargo/bin`. It needs Node 18 or later, and ships its TypeScript types (`index.d.ts`).")
+        Markdown("The package finds `wf` in `WF_BIN`, then in the absolute directories on `PATH` (never the current directory), then in `~/.webfluent/bin`, `~/.cargo/bin`, `/usr/local/bin` and `/usr/bin`. It needs Node 18 or later, and ships its TypeScript types (`index.d.ts`).")
 
         Heading("Browser: wf.js", id: "browser-wf-js").h2
 
@@ -420,12 +420,20 @@ if (out.ok) document.querySelector("iframe").src = await preview(out);"#, title:
                     Table.Cell("The compiler's version")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`preview(out, route?)`") }
-                    Table.Cell { Markdown("Hands a build to a service worker (`preview-sw.js`) that serves it under `preview/`, as a host would, and resolves to the address for an `<iframe>`") }
+                    Table.Cell { Markdown("`preview(out, route?, slot?)`") }
+                    Table.Cell { Markdown("Hands a build to a service worker (`preview-sw.js`) that serves it under `preview/` (or `preview/<slot>/`, so a page can show several), as a host would, and resolves to the address for an `<iframe>`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`previewConfig(config)`") }
+                    Table.Cell { Markdown("`previewConfig(config, slot?)`") }
                     Table.Cell { Markdown("`config` with `build.base_path` set to where `preview` serves, so the pages ask for their files there") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`inlineConfig(config)`, `previewInline(out, slot?)`") }
+                    Table.Cell { Markdown("The same for a browser that refuses a service worker: one page, its sheets and scripts inlined, written by `run.html`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`wantsDocument(files, config)`") }
+                    Table.Cell("Whether the config asks for a PDF or a deck, so the PDF build is needed")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`registerFont(bytes)`") }
@@ -442,7 +450,7 @@ if (out.ok) document.querySelector("iframe").src = await preview(out);"#, title:
 
         Heading("The two builds", id: "the-two-builds").h3
 
-        Markdown("`crates/wf-wasm/build.sh` writes two builds, and `wf.js` loads each only when a project needs it. Sizes are of the 6.0 build, compressed with `gzip -9`:")
+        Markdown("`crates/wf-wasm/build.sh` writes two builds, and `wf.js` loads each only when a project needs it. Sizes are of the 7.0 build, compressed with `gzip -9`:")
 
         Table(caption: "The two builds") {
             Table.Head {
@@ -456,14 +464,14 @@ if (out.ok) document.querySelector("iframe").src = await preview(out);"#, title:
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`pkg/wf_wasm_bg.wasm`, the compiler with WebP") }
-                    Table.Cell("4.8 MB")
-                    Table.Cell("1.6 MB")
+                    Table.Cell("5.7 MB")
+                    Table.Cell("1.9 MB")
                     Table.Cell { Markdown("on the first `compile`, `check` or `preload`") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`pkg-pdf/wf_wasm_pdf_bg.wasm`, the same with the PDF engine") }
-                    Table.Cell("8.4 MB")
-                    Table.Cell("2.7 MB")
+                    Table.Cell("9.4 MB")
+                    Table.Cell("3.0 MB")
                     Table.Cell { Markdown("the first time a config's `output_type` is `\"pdf\"` or `\"slides\"`") }
                 }
                 Table.Row {

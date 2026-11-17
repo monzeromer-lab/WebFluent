@@ -321,8 +321,7 @@ fn lowered_checks(
             let painted = deep(s, || {
                 match crate::project::themes::resolve_tokens(lowered, &theme) {
                     Ok(mut tokens) => {
-                        let contrast =
-                            crate::check::linter::lint_contrast_in(lowered, &tokens, file_of);
+                        let contrast = contrast_of(lowered, &theme, &tokens, file_of);
                         if let Some(config) = p.config {
                             crate::project::themes::apply_motion(&mut tokens, &config.motion);
                         }
@@ -1111,6 +1110,33 @@ pub fn apply_lints(
     out.extend(problems);
 }
 
+/// `A13` over each theme the build paints with: the site's own, and the dark
+/// one over it.
+fn contrast_of(
+    program: &Program,
+    config: &crate::project::config::project::ThemeConfig,
+    tokens: &std::collections::HashMap<String, String>,
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<Diagnostic> {
+    use crate::project::themes;
+    let mut painted = Vec::new();
+    if let Ok(Some(light)) = themes::select_theme(program, config) {
+        painted.push((light, tokens.clone()));
+    }
+    if let (Some(name), Ok(Some(dark))) = (
+        config.dark.as_deref(),
+        themes::resolve_dark_tokens(program, config),
+    ) && let Some(decl) = themes::resolve::declared_themes(program)
+        .into_iter()
+        .find(|t| t.name == name)
+    {
+        let mut over = tokens.clone();
+        over.extend(dark);
+        painted.push((decl, over));
+    }
+    crate::check::linter::lint_contrast_themes(program, &painted, file_of)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1350,3 +1376,4 @@ mod tests {
         assert!(!found.iter().any(|d| d.code == "E101"), "{found:?}");
     }
 }
+

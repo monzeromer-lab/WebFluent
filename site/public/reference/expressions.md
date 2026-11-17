@@ -14,7 +14,7 @@ In this chapter:
 
 - literals, including the literals of the language's own types;
 - interpolation, and how a splice formats its value;
-- operators and their precedence;
+- operators, the types they take, and their precedence;
 - `if` and `match` used as values;
 - fields, calls, lambdas and the methods of strings, lists and numbers;
 - `format` and `ago`, regular expressions, design tokens as values;
@@ -119,7 +119,7 @@ The page shows `Hello, Sam`, `You have 3 items`, `Total: $29.97` and
 `Next: 4`.
 
 Any expression may go inside `{…}`: a call, a method chain, an `if`, even a
-string of its own. `"{n ?? "none"}"` and `"{if ok { "yes" } else { "no" }}"`
+string of its own. `"{nickname ?? "none"}"` and `"{if ok { "yes" } else { "no" }}"`
 both work. The rules:
 
 - The group must close on the same line.
@@ -190,8 +190,14 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
 
 How they behave:
 
-- `+` joins strings when either side is a `String`, and adds numbers
-  otherwise. Arithmetic on anything else is a `T18`.
+- `+` adds two numbers or joins two strings. A string and a number are
+  not joined: `"Total: " + n` is a `T18`, and a splice says how the number
+  shows, `"Total: {n}"`. Arithmetic on anything but numbers is a `T18`
+  too.
+- `!`, `&&` and `||` take a `Bool` (a `Bool?` counts, its `null` false).
+  A number, a string or a value that may be null is a `T29`: write what
+  the condition asks — `count != 0`, `name != ""`, `user != null` — and
+  use `??`, not `||`, for a fallback.
 - `==` compares values. Two records with the same fields are not `==`
   unless they are the same object, so compare their ids.
 - Against a `null` literal, `==` and `!=` also match a value that is
@@ -200,6 +206,33 @@ How they behave:
   through a `null` and give `null` instead of failing.
 - A range is the whole numbers from `a` up to `b`, without `b` for `..` and
   with it for `..=`.
+
+### The types an expression must have
+
+Every expression has one type the program can name, and the checker holds
+each place to it:
+
+- **A condition is a `Bool`.** `if`, `show`, `!`, `&&` and `||` read a
+  `Bool`; `if count { … }` is a `T29`, whose fix writes `if count != 0`.
+- **A value made of several has one type.** The branches of an `if` or a
+  `match`, the items of a list and the two sides of `??` must agree:
+  `if ok { 1 } else { "none" }` is a `T27`. `null` on one side makes the
+  value `T?`.
+- **No conversion happens by itself.** A `Date`, `Time` or `DateTime` where
+  a `String` is wanted is a `T34`, because it has more than one spelling:
+  `Text(due)` becomes `Text("{due}")` or `Text("{due:.date(long)}")`. A
+  `Duration` and a `Number` do not mix either: `3.seconds + 500` is a
+  `T34`, and `3.seconds + 500.ms` adds.
+
+```wf expect=T29
+page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.") {
+    state count = 0
+    Heading("Cart").h1
+    if count { Text("{count} items") }
+}
+```
+
+### Precedence
 
 Precedence, strongest first: `!`, unary `-` and `await`; then `* / %`;
 `+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So
@@ -227,6 +260,7 @@ page Grades(path: "/grades", title: "Grades", description: "A score, graded.") {
 
 The rules:
 
+- Every arm gives the same type, or `null` (`T27`).
 - An `if` with no `else` is `null` when its condition fails.
 - `if let x = v { a } else { b }` binds `x` when `v` is not `null`.
 - A `match` on an enum, as a value or as a statement, needs an arm for
@@ -494,19 +528,19 @@ has an entry for each.
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](https://webfluent.monzeromer.dev/recipes/send-on-unload.md)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it)) |
+| `toast(message, …)`, `await ask(question, …)`, `announce(text)` | Shows a toast, asks a yes-or-no question, says something to a screen reader ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#toasts-questions-and-announcements-from-a-handler)) |
 | `http.get(url, options)` | Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) |
 
-The browser's own globals need no prefix and compile to themselves:
-`window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`,
-`Math`, `Date`, `setTimeout`, `setInterval`, `clearTimeout`,
-`clearInterval`, `parseInt`, `parseFloat`, `Array`, `Object`, `String`,
-`Number`, `Boolean`, `Promise`, `Error`, `Map`, `Set`, `RegExp`,
-`Infinity`, `NaN`, `undefined`, `encodeURIComponent`, `decodeURIComponent`,
-`encodeURI`, `decodeURI`, `atob`, `btoa`, `fetch`, `alert`, `confirm`,
-`prompt`, `requestAnimationFrame`, `cancelAnimationFrame`, `navigator`,
-`location`, and the other platform names that
-[Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#browser-globals) lists.
+The browser's own globals need no prefix and compile to themselves, typed
+by the language's table of the browser: `window`, `document`, `console`,
+`localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `Object`,
+`Array`, `Number`, `navigator`, `location`, `history`, `performance`,
+`screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and
+the other names [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#browser-globals) lists. A global
+the table does not type — `crypto`, `Promise`, `Map`, `URL` — is a `T30`;
+reach it from a project script whose JSDoc types it. `fetch(…)` is gone
+(`N08`): a request is `http.get(…)`.
 
 ## Summary
 

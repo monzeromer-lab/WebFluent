@@ -1,6 +1,6 @@
 /// Chapter 40 of the guide, written from md-docs/reference/glossary.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: "The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.", layout: DocsShell("Glossary", kind: .reference, chapter: t("nav.group.reference"), blurb: "The words this guide uses, each in a sentence, with where to read more.", source: "md-docs/reference/glossary.md", sections: [Anchor(id: "a", label: "A"), Anchor(id: "b", label: "B"), Anchor(id: "c", label: "C"), Anchor(id: "d", label: "D"), Anchor(id: "e", label: "E"), Anchor(id: "f", label: "F"), Anchor(id: "h", label: "H"), Anchor(id: "i", label: "I"), Anchor(id: "l", label: "L"), Anchor(id: "p", label: "P"), Anchor(id: "r", label: "R"), Anchor(id: "s", label: "S"), Anchor(id: "t", label: "T"), Anchor(id: "v", label: "V"), Anchor(id: "w", label: "W")], prevTo: "/reference/browser-support", prevLabel: t("ch.39"), nextTo: "/reference/library", nextLabel: t("ch.41"))) {
+page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: "The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.", layout: DocsShell("Glossary", kind: .reference, chapter: t("nav.group.reference"), blurb: "The words this guide uses, each in a sentence, with where to read more.", source: "md-docs/reference/glossary.md", sections: [Anchor(id: "a", label: "A"), Anchor(id: "b", label: "B"), Anchor(id: "c", label: "C"), Anchor(id: "d", label: "D"), Anchor(id: "e", label: "E"), Anchor(id: "f", label: "F"), Anchor(id: "h", label: "H"), Anchor(id: "i", label: "I"), Anchor(id: "l", label: "L"), Anchor(id: "m", label: "M"), Anchor(id: "p", label: "P"), Anchor(id: "r", label: "R"), Anchor(id: "s", label: "S"), Anchor(id: "t", label: "T"), Anchor(id: "v", label: "V"), Anchor(id: "w", label: "W")], prevTo: "/reference/browser-support", prevLabel: t("ch.39"), nextTo: "/reference/library", nextLabel: t("ch.41"))) {
     Stack(gap: .lg) {
         Markdown("This glossary defines the words this guide uses, in alphabetical order. Each entry is one sentence, with a link to the chapter that explains the idea. The guide uses each term in the same sense every time.")
 
@@ -8,7 +8,11 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Action", id: "action").h3
 
-        Markdown("A named function of a page, component or store whose body changes state or does other work: `action add() \{ … \}` ([State and reactivity](/learn/07-state-and-reactivity#actions-and-locals)).")
+        Markdown("A named function of a page, component or store whose body changes state or does other work: `action add() \{ … \}`, with `-> T` when it returns a value and `-> !` when it may fail ([State and reactivity](/learn/07-state-and-reactivity#actions-and-locals)).")
+
+        Heading("api", id: "api").h3
+
+        Markdown("A declaration that describes a service: its address, how it is reached, and its endpoints, each a typed call ([Fetching data](/learn/15-data#describe-a-service-with-api)).")
 
         Heading("App shell", id: "app-shell").h3
 
@@ -34,6 +38,10 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Markdown("A page's own script and stylesheet, written to their own files and loaded the first time the page's route shows, when `build.split` is on ([Configuration](/reference/config#build)).")
 
+        Heading("Contract", id: "contract").h3
+
+        Markdown("What an `api` says of each endpoint — where it is, what it takes, what it answers and how it fails — which every call site, every fake and, with an OpenAPI spec, `wf api check` are held to ([Fetching data](/learn/15-data#declare-endpoints)).")
+
         Heading("Component", id: "component").h3
 
         Markdown("An element you declare, with typed props, events, slots and parts: `component UserCard(…) \{ … \}` ([Components](/learn/10-components)).")
@@ -42,7 +50,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Declaration", id: "declaration").h3
 
-        Markdown("A top-level statement of a file: `page`, `component`, `store`, `theme`, `app`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation` or `test` ([Language basics](/learn/04-language-basics#declarations)).")
+        Markdown("A top-level statement of a file: `page`, `component`, `store`, `theme`, `app`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation` or `test` ([Language basics](/learn/04-language-basics#declarations)).")
 
         Heading("Derived value", id: "derived-value").h3
 
@@ -66,15 +74,27 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Markdown("Anything a page draws by a capitalised name — a built-in such as `Button`, or a component of your own ([Elements](/learn/06-elements)).")
 
+        Heading("Endpoint", id: "endpoint").h3
+
+        Markdown("One call of an `api`: a method, a name, its parameters, a path given by `at`, and its answer, `get user(id: String) at \"users/\{id\}\" -> User!` ([Fetching data](/learn/15-data#declare-endpoints)).")
+
         Heading("Enum", id: "enum").h3
 
         Markdown("A type with a fixed set of cases, declared `enum Tone \{ calm, loud \}` ([Types](/learn/12-types#enums)).")
+
+        Heading("Error enum", id: "error-enum").h3
+
+        Markdown("An enum whose cases name the statuses a service answers with, each with its body — `notFound(problem: Problem) on 404` — and one `http(error: HttpError)` case for every other failure ([Fetching data](/learn/15-data#say-how-a-call-fails)).")
 
         Heading("Event", id: "event").h3
 
         Markdown("Something that happens — a click, a key, or an event a component declares and fires with `emit` — that a handler answers ([Events](/learn/08-events)).")
 
         Heading("F", id: "f").h2
+
+        Heading("Fake", id: "fake").h3
+
+        Markdown("What answers a group's endpoints in a test in place of the network, held to the group's contract: `fake OneUser for Backend.users \{ … \}` ([Testing](/learn/16-testing#answer-a-service-with-fakes)).")
 
         Heading("Flag", id: "flag").h3
 
@@ -104,7 +124,13 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Lint", id: "lint").h3
 
-        Markdown("A rule the compiler checks beyond whether the program can work, such as an accessibility rule or an unused-value rule; the `lints` setting changes what any finding counts as ([Configuration](/reference/config#lints)).")
+        Markdown("A rule the compiler checks beyond whether the program can work, such as an accessibility rule or an unused-value rule; the `lints` setting turns a warning off or raises it to an error, and lowers only the few errors that cannot ship a broken page ([Configuration](/reference/config#lints)).")
+
+        Heading("M", id: "m").h2
+
+        Heading("Middleware", id: "middleware").h3
+
+        Markdown("A step every request of an `api` passes through, in the order written: `middleware [requestId, bearer(Session.token)]`, or one the project declares with `middleware name(req, next) \{ … \}` ([Fetching data](/learn/15-data#pass-every-request-through-middleware)).")
 
         Heading("P", id: "p").h2
 
@@ -138,6 +164,10 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("R", id: "r").h2
 
+        Heading("Read", id: "read").h3
+
+        Markdown("A request whose answer the page shows, as one value in one of three cases: `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`; a `resource` holds one ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
+
         Heading("Registry", id: "registry").h3
 
         Markdown("The compiler's table of every built-in's props, cases, flags, events, slots and parts, which the checker, the linters, the editor and the reference all read; `wf registry --json` prints it ([Command line](/reference/cli)).")
@@ -148,7 +178,11 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Resource", id: "resource").h3
 
-        Markdown("A request a page makes, whose loading, error and ready states a `match` shows: `resource rows: [Row] = http.get(…)` ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
+        Markdown("A declaration that holds a read: `resource rows: [Row] = http.get(…)` or `resource users = Backend.users.list()`, shown by a `match` on its `.loading`, `.failed(e)` and `.loaded(v)` cases ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
+
+        Heading("Result", id: "result").h3
+
+        Markdown("What a call that may fail gives: `.ok(value)` or `.err(error)`, written `T!` (the error an `HttpError`) or `T ! E`, and matched or passed up with `try`; a call never throws ([Types](/learn/12-types#json-decoding-and-results)).")
 
         Heading("Route parameter", id: "route-parameter").h3
 
@@ -208,7 +242,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Type", id: "type").h3
 
-        Markdown("A record declared with `type`, or any of the types a value can have, which the checker holds every use to ([Types](/learn/12-types)).")
+        Markdown("A record declared with `type`, or any of the types a value can have; every value's type is one the program can name, written or inferred, and the checker holds every use to it ([Types](/learn/12-types)).")
 
         Heading("V", id: "v").h2
 

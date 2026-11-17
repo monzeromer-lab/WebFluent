@@ -34,3 +34,4 @@ nothing to subscribe to.
 | `network.saveData` | Whether the reader asked to save data |
 | `network.downlink` | The estimated bandwidth, in megabits per second |
 | `network.queued` | How many writes wait for the connection, when the site works offline ([Offline](keep-writes-made-offline.md)) |
+| `network.refused` | The kept writes the server refused once they were sent, each `{ method, url, status, at }`; `network.clearRefused()` forgets them |

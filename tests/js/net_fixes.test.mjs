@@ -220,7 +220,10 @@ test("a stream's messages are bounded too", () => {
   const ticks = WF.sse("/events", { keep: 10 });
   for (let i = 0; i < 25; i++) made[0].onmessage({ data: String(i), lastEventId: "" });
   assert.equal(ticks.messages().length, 10);
-  assert.equal(ticks.messages()[9].data, 24);
+  assert.equal(ticks.messages()[9], 24);
+  assert.equal(ticks.closure(), null);
+  ticks.close();
+  assert.deepEqual(ticks.closure(), { code: 1000, reason: "" });
   const plenty = WF.sse("/more");
   for (let i = 0; i < 600; i++) made[1].onmessage({ data: String(i), lastEventId: "" });
   assert.equal(plenty.messages().length, 500);

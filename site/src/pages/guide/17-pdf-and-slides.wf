@@ -15,7 +15,7 @@ page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slide
 
         Markdown("Then run `wf build` in the project's folder. The build prints the page count and writes one file, `build/<name>.pdf`, named after the project unless `output_filename` says otherwise:")
 
-        CodeBlock(#"  PDF: 45586 bytes, 3 page(s)
+        CodeBlock(#"  PDF: 45763 bytes, 3 page(s)
   Output: ./build/my-report.pdf
 Build complete."#, title: "text")
 

@@ -108,6 +108,7 @@ theme Paper {
 /// The same page after dark.
 theme Night {
     color-primary: #2DD4BF
+    color-on-primary: #14171A
     color-background: #14171A
     color-surface: #1C2024
     color-text: #ECEEF0
@@ -115,7 +116,7 @@ theme Night {
     color-border: #2C3238
 }"#, title: "wf")
 
-        Markdown("The page you write in step 6 names classes — `card`, `todo`, `is-done`, `filters` — and `src/todos.css` styles them. The build bundles every `.css` file under `src/`, so the file needs no link. These are four of its rules; copy the whole file from the [finished project](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):")
+        Markdown("The dark teal is light enough that white text on it is hard to read, so `Night` also sets `color-on-primary`, the colour of a primary button's label, to the dark background. `wf check` reports a pair like that as `A13` in either theme.\n\nThe page you write in step 6 names classes — `card`, `todo`, `is-done`, `filters` — and `src/todos.css` styles them. The build bundles every `.css` file under `src/`, so the file needs no link. These are four of its rules; copy the whole file from the [finished project](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):")
 
         CodeBlock(#".todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
 .todo__title { flex: 1; }

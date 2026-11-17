@@ -65,24 +65,25 @@ To see the size of everything a build writes, run the build with
 wf build --stats
 ```
 
-This is the output for the project `wf init -t spa` makes, trimmed (the
-exact numbers move a little from release to release):
+This is the output for the project `wf init -t spa` makes, measured with
+7.0.0 and trimmed (the exact numbers move a little from release to
+release):
 
 ```text
   What it weighs
-    app.js                               68.6 kB  (22.7 kB gzipped)
-    styles.css                           29.7 kB  (5.7 kB gzipped)
+    app.js                               69.0 kB  (22.8 kB gzipped)
+    styles.css                           30.7 kB  (5.8 kB gzipped)
     pages/Settings.js                     9.0 kB  (2.2 kB gzipped)
     pages/Profile.js                      5.6 kB  (1.5 kB gzipped)
     pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
     pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
-    total                               122.3 kB
+    total                               123.7 kB
 
-  Runtime: 24 of 58 modules, 170.9 kB of 594.0 kB kept, 153.2 kB with its names shortened (before minifying)
+  Runtime: 24 of 58 modules, 171.5 kB of 596.5 kB kept, 153.9 kB with its names shortened (before minifying)
     core          27.6 kB  always
     layer         19.6 kB  needed by drawer
-    form          15.8 kB  WF.form
+    form          16.4 kB  WF.form
     router        14.4 kB  WF.router
     motion        12.6 kB  enter:
     each          10.6 kB  WF.each
@@ -152,8 +153,8 @@ instead:
 
 | Pattern | Why it is slow | Do this instead |
 |---|---|---|
-| A large `data` file | `data posts = "posts.json"` is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript | Keep build-time data to what pages show. Fetch the rest, or split it across pages that each read one file |
-| A waterfall of fetches | A resource whose URL depends on another's answer waits for that answer | Ask for both at once, or have the server send them together |
+| A large `data` file | `data posts = "posts.json"` is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript | Keep build-time data to what pages show. Ask for the rest with a `resource`, or split it across pages that each read one file |
+| A waterfall of requests | A resource whose URL depends on another's answer waits for that answer | Ask for both at once, or have the server send them together |
 | Layout decided by `viewport` | `viewport` is unknown until the script runs, so the page paints one branch and then swaps it | Use [responsive values](../learn/13-styling.md#responsive-values), which are CSS |
 | `"runtime": "full"` | It ships every module | Use it only when a hand-written script calls `WF` in ways the build cannot see, or an icon's name arrives at run time |
 | Web fonts | Each weight is a download | Use `display=swap` and few weights, or the baseline's system fonts |

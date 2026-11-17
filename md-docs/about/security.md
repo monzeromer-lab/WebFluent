@@ -87,7 +87,9 @@ them on.
   such as a language server's documentation, `Markdown(text).inert` draws
   no link or picture at all ([Render Markdown](../recipes/render-markdown.md)).
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string,
-  logged or persisted. Each is a `T12`, reported at the line that does it.
+  joined with `+`, handed to a browser global (`console`, storage, a
+  request's address), logged or persisted. Each is a `T12`, reported at the
+  line that does it.
 - **A non-public `env` name cannot be read from a page.** See
   [Secrets stay out of the bundle](#secrets-stay-out-of-the-bundle).
 - **A build stays in its project.** `data`, `image`, `api … from` and
@@ -157,6 +159,11 @@ The browser sends the cookie with each request, so the page needs no token
 at all: an `api` with `credentials: .sameOrigin` sends it with every call.
 [Sign in with a session cookie](../recipes/sign-in-with-a-session-cookie.md)
 builds the whole flow, including what to forget when the reader signs out.
+
+A write kept for later by `offline.sync` is stored without its
+credential: the `api`'s middleware (`bearer(…)`) adds it again when the
+write is sent, and a call that carries its own credential header is not
+kept at all.
 
 A page *may* keep what a page may show: a display name, a theme, a
 preference. If a value would matter to someone who stole it, it belongs

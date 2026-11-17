@@ -11,13 +11,17 @@ The page: https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos
 > لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته
 > الإنجليزية.
 
-هو أول ثلاثة دروس مشاريع بعد درس Shelf، يبني كل منها مشروعًا كاملًا، خطوة بخطوة. كل مشروع موجود كاملًا في المستودع تحت `examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه في متصفح القارئ.
+هو ثاني دروس الكتاب، بعد Shelf. ويبني مشروعان أطول في الوصفات على
+الاثنين. قائمة المهام والمشروعان الأطول موجودة كاملة في المستودع تحت
+`examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه
+في متصفح القارئ.
 
-| الدرس | ما تبنيه | ما يعلّمه | الوقت |
+| المشروع | ما تبنيه | ما يعلّمه | الوقت |
 |---|---|---|---|
-| [قائمة المهام](https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos.md) | قائمة بما عليك فعله: أضف، وعلّم، وأعد التسمية، ورشّح | الأنواع، ومخزن بـ`persist`، ومكوّن، وقائمة بمفاتيح، ومرشّح في العنوان، واختبارات تنقر | 20 دقيقة |
-| [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) | موقع دفتر ملاحظات، مبني بناءً ثابتًا، بصفحة لكل ملاحظة | ملفات `data`، وتخطيط، وصفحات `:slug` مع `paths:`، وصفحات Markdown، والبحث والوسوم، وما يمكن لصفحة مُصيَّرة مسبقًا أن تعرفه | ساعة |
-| [Pocket](https://webfluent.monzeromer.dev/recipes/build-a-budget-app.md) | متتبّع ميزانية بلوحة معلومات ونماذج ولغتين | `Money` و`Date`، والمجاميع المشتقة، وترحيل `persist`، و`validate`، ونافذة حوار واختصارات، والترجمة (i18n) والنص من اليمين إلى اليسار، وسكربت من كتابتك، والعمل دون اتصال | بضع ساعات |
+| [Shelf](https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf.md) (الفصل 2) | موقع قائمة قراءة: صفحة لكل كتاب، ورفّ محفوظ، ونموذج | `data` ذات أنواع، ومكوّن، وصفحات `:slug`، ومخزن بـ`persist`، ونموذج، وسمة، واختبار، ونشر | نصف ساعة |
+| [قائمة المهام](https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos.md) (هذا الفصل) | قائمة بما عليك فعله: أضف، وعلّم، وأعد التسمية، ورشّح | الأنواع، ومخزن بـ`persist`، ومكوّن، وقائمة بمفاتيح، ومرشّح في العنوان، واختبارات تنقر | 20 دقيقة |
+| [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) (مشروع أطول) | موقع دفتر ملاحظات، مبني بناءً ثابتًا، بصفحة لكل ملاحظة | ملفات `data`، وتخطيط، وصفحات `:slug` مع `paths:`، وصفحات Markdown، والبحث والوسوم، وما يمكن لصفحة مُصيَّرة مسبقًا أن تعرفه | ساعة |
+| [Pocket](https://webfluent.monzeromer.dev/recipes/build-a-budget-app.md) (مشروع أطول) | متتبّع ميزانية بلوحة معلومات ونماذج ولغتين | `Money` و`Date`، والمجاميع المشتقة، وترحيل `persist`، و`validate`، ونافذة حوار واختصارات، والترجمة (i18n) والنص من اليمين إلى اليسار، وسكربت من كتابتك، والعمل دون اتصال | بضع ساعات |
 
 إن لم تكتب WebFluent من قبل، فابدأ بـ[درس Shelf](https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf.md): نصف ساعته الأولى ألطف.
 
@@ -32,7 +36,7 @@ The page: https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos
 
 تحتاج إلى:
 
-- `wf` مثبّتًا وفي `PATH` لديك — يطبع `wf --version` القيمة `wf 6.0.0` أو
+- `wf` مثبّتًا وفي `PATH` لديك — يطبع `wf --version` القيمة `wf 7.0.0` أو
   أحدث ([البدء](https://webfluent.monzeromer.dev/ar/learn/01-getting-started.md)).
 - Chrome أو Chromium على الجهاز، للاختبارات التي تنقر ولـ`wf verify`.
   اضبط `WF_CHROME` على مساره إن لم يكن في مكان معتاد.
@@ -90,6 +94,13 @@ cd todos
 - `"csp": true` يشحن سياسة أمان المحتوى ويُلزم البناء بها
   ([الأمان](https://webfluent.monzeromer.dev/about/security.md)).
 - يسمّي `theme` سمتين (themes)، `Paper` و`Night`، تكتبهما في الخطوة التالية.
+- `favicon` هي الأيقونة في تبويب المتصفح. يُقدَّم الملف الموجود في `public/`
+  من جذر الموقع، فضع واحدة في `public/favicon.svg`:
+
+```bash
+mkdir -p public
+printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0F766E"/><path d="M9 16l5 5 9-10" stroke="#fff" stroke-width="3" fill="none"/></svg>' > public/favicon.svg
+```
 
 **تحقّق:** يطبع `wf check` الرسالة `IO Error: No .wf files found in src/`.
 هذا متوقّع: يبقى `src/` فارغًا حتى الخطوة التالية.
@@ -118,6 +129,7 @@ theme Paper {
 /// The same page after dark.
 theme Night {
     color-primary: #2DD4BF
+    color-on-primary: #14171A
     color-background: #14171A
     color-surface: #1C2024
     color-text: #ECEEF0
@@ -125,6 +137,10 @@ theme Night {
     color-border: #2C3238
 }
 ```
+
+الأخضر المزرقّ في `Night` فاتح، فيصعب قراءة نص أبيض فوقه؛ لذلك يضبط
+`Night` أيضًا `color-on-primary`، لون نص الزر الأساسي، على لون الخلفية
+الداكن. يُبلّغ `wf check` عن زوج كهذا بـ`A13` في أيّ من السمتين.
 
 الصفحة التي تكتبها في الخطوة 6 تسمّي أصنافًا (classes) — `card` و`todo`
 و`is-done` و`filters` — ويُنسّقها `src/todos.css`. يجمع البناء كل ملف `.css`
@@ -394,11 +410,11 @@ wf serve
 
 **تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض
 <http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left`
-و`Nothing yet — add your first todo above.` اكتب مهمة واضغط Enter: تظهر،
+و*Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر،
 ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر
 **Open**، فيصبح العنوان `/?show=open`.
 
-إن طبع الخادم `No theme Paper is declared in this project`، فالأرجح أنك
+إن طبع الخادم ``No `theme Paper` is declared in this project``، فالأرجح أنك
 تخطّيت `src/theme.wf` في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير `U04`
 هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.
 
@@ -456,8 +472,11 @@ wf build
 ```
 
 يبلّغ `wf check` عن كل نتيجة ولا يكتب شيئًا. ويكتب `wf build` المجلد
-`build/`، الذي يقدّمه أي مضيف ثابت — يغطي [النشر](https://webfluent.monzeromer.dev/recipes.md)
-GitHub Pages وNetlify وغيرهما. لتحمّل الصفحة المبنية في متصفح حقيقي قبل
+`build/`، الذي يقدّمه أي مضيف ثابت: انظر وصفات
+[GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)
+و[Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md)
+و[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md)
+و[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md). لتحمّل الصفحة المبنية في متصفح حقيقي قبل
 النشر، شغّل `wf verify`: يفشل عند خطأ، أو ملف مفقود، أو صفحة لا ترسم شيئًا.
 
 **تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحتوي `build/` على
@@ -535,6 +554,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 اربط `state`، كما تربط الصفحة `draft`، وغيّر المخزن عبر إجراءاته
 ([F01](https://webfluent.monzeromer.dev/errors/F01.md)).
 
+للمضيّ أبعد: يبني [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md)
+موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.
+
 ## التالي
 
-[درس: Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) يبني موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.
+[أساسيات اللغة](https://webfluent.monzeromer.dev/learn/04-language-basics.md).

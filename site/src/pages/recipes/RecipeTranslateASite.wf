@@ -118,7 +118,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
   "actions.save": "حفظ"
 }"#, title: "json")
 
-        Markdown("And `src/translations/es.json`, whose words have the two forms English has:")
+        Markdown("And `src/translations/es.json`. Spanish has a third form, `many`, for a round million and more (`1 000 000 de elementos`):")
 
         CodeBlock(#"{
   "nav.home": "Inicio",
@@ -126,6 +126,7 @@ page About(path: "/about", title: "About", description: "About the site.") {
   "nav.language": "Idioma",
   "welcome": "¡Bienvenido, {name}!",
   "items.one": "{count} elemento",
+  "items.many": "{count} de elementos",
   "items.other": "{count} elementos",
   "actions.save": "Guardar"
 }"#, title: "json")

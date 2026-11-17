@@ -28,7 +28,7 @@ pub mod unused;
 pub mod vocabulary;
 
 pub use accessibility::lint_accessibility_in;
-pub use contrast::lint_contrast_in;
+pub use contrast::lint_contrast_themes;
 internal! {
     pub use pdf_validation::{drawn_in, is_slide, offered_in, validate_for_pdf};
 }

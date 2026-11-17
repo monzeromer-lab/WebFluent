@@ -624,7 +624,7 @@ test "a card shows who wrote the book, and when" {
             }
         }
 
-        Markdown("To go further:\n\n- Read the language properly, starting at [Language basics](/learn/04-language-basics).\n- Talk to a real server: [Data and APIs](/learn/15-data).\n- Make the site work offline: [Make a site work offline](/recipes/work-offline).\n- Translate it: [Translate a site](/recipes/translate-a-site).\n- Build a bigger project: [Tutorials](/learn/03-tutorial-todos).")
+        Markdown("To go further:\n\n- Read the language properly, starting at [Language basics](/learn/04-language-basics).\n- Talk to a real server: [Data and APIs](/learn/15-data).\n- Make the site work offline: [Make a site work offline](/recipes/work-offline).\n- Translate it: [Translate a site](/recipes/translate-a-site).\n- Build another app, step by step: [Tutorial: a to-do list](/learn/03-tutorial-todos).")
 
         Heading("Common mistakes", id: "common-mistakes").h2
 

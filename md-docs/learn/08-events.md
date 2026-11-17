@@ -73,8 +73,11 @@ clickable wherever it is used.
 ### The event object
 
 To read the event, name a parameter: `on keydown(e) { … }`. It is the
-browser's own event object, so `e.key`, `e.target.value`, `e.clientX`,
-`e.preventDefault()` and `e.stopPropagation()` are all there.
+browser's own event object, typed by the event: `on keydown(e)` is a
+`KeyboardEvent` (`e.key`, `e.shiftKey`), `on click(e)` a `MouseEvent`
+(`e.clientX`), and `e.target` an `Element` (`e.target.value`), with
+`e.preventDefault()` and `e.stopPropagation()` on every one. A member the
+event does not have, `e.kye`, is `T30`, with the nearest name.
 
 Without a parameter, the event is still in scope as `event` — unless the
 program has an `event` of its own (a loop's item, a state, an action), which
@@ -433,6 +436,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
             }
         }
     }
+    if gone { Text("No messages.") }
 }
 ```
 

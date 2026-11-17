@@ -13,6 +13,7 @@ theme Paper {
 /// The same page after dark.
 theme Night {
     color-primary: #2DD4BF
+    color-on-primary: #14171A
     color-background: #14171A
     color-surface: #1C2024
     color-text: #ECEEF0

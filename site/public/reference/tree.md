@@ -31,9 +31,8 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Example
 
 ```wf
-state files = [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }]
 state file = ""
-Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+Tree(items: [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }], children: f => f.children, key: f => f.path, bind: file, label: "Files") {
     row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
 }
 ```

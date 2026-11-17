@@ -26,7 +26,7 @@ page RecipeOfferANewVersion(path: "/recipes/offer-a-new-version", title: "Offer 
     Heading("Home").h1
 }"#, title: "wf")
         }
-        Markdown("- **Every deploy is a version.** The worker is versioned by a hash of everything the build wrote, so any deploy that changes a byte is a new version.\n- **The new version waits.** It installs beside the old one and waits. `update.available` turns true when it is ready.\n- **`update.apply()` takes it** and reloads the page once. It never reloads on the first install, which only takes over a page that already works, and never twice for one update. The old version's store is deleted when the new one takes over.\n- **`network.queued`** is how many writes made offline are waiting ([Keep writes made offline](/recipes/keep-writes-made-offline)).")
+        Markdown("- **Every deploy is a version.** The worker is versioned by a hash of everything the build wrote, so any deploy that changes a byte is a new version.\n- **The new version waits.** It installs beside the old one and waits. `update.available` turns true when it is ready.\n- **`update.apply()` takes it** and reloads the page once. It never reloads on the first install, which only takes over a page that already works, and never twice for one update. The old version's cached files are deleted when the new one takes over.\n- **`network.queued`** is how many writes made offline are waiting ([Keep writes made offline](/recipes/keep-writes-made-offline)).")
 
     }
 }

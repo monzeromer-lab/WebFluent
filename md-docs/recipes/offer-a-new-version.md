@@ -41,7 +41,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
   `update.available` turns true when it is ready.
 - **`update.apply()` takes it** and reloads the page once. It never reloads
   on the first install, which only takes over a page that already works,
-  and never twice for one update. The old version's store is deleted when
-  the new one takes over.
+  and never twice for one update. The old version's cached files are deleted
+  when the new one takes over.
 - **`network.queued`** is how many writes made offline are waiting
   ([Keep writes made offline](keep-writes-made-offline.md)).

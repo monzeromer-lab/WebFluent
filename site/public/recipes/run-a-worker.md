@@ -26,7 +26,7 @@ store Lang {
         on message(m) { if m.type == "diagnostics" { problems = m.items } }
         on restart(e) { restarts = restarts + 1 }
     }
-    action complete(text: String, at: Number) {
+    action complete(text: String, at: Number) -> Json {
         return await css.request("complete", { text: text, at: at }, { supersede: true })
     }
     action check(text: String) { css.send({ method: "check", params: { text: text } }) }

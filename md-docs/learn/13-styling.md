@@ -99,8 +99,9 @@ How a theme works:
 - Each value is raw CSS, to the end of its line. Do not quote it.
 - You list only the tokens you change. Every token you leave out keeps its
   *baseline* value — the default the compiler ships.
-- The baseline has 71 tokens, in groups: colour, font, spacing, radius,
-  shadow, motion, easing, breakpoints, code and layout.
+- The baseline has 87 tokens, in groups: colour, font, spacing, radius,
+  shadow, motion, easing, breakpoints, code, terminal, stacking, targets and
+  layout.
   [Design tokens](../reference/design-tokens.md) lists each one with its baseline
   value.
 - Every token becomes a CSS custom property on `:root` (`--color-primary`).
@@ -111,6 +112,52 @@ How a theme works:
 - The breakpoints are tokens too, so moving one moves every media query the
   build writes (see [Responsive values](#responsive-values)).
 
+### Every built-in follows the theme
+
+The built-ins draw their colours, sizes, radii, fonts and motion from the
+tokens and nothing else, so a theme restyles all of them. Three kinds of
+token are worth knowing when you change the colours:
+
+- **What is written on a tone.** `color-on-primary` is the colour of a
+  label on `color-primary`: a primary button's text, a badge's, a pressed
+  toggle's, the selected day in a calendar. `color-on-secondary`,
+  `color-on-success`, `color-on-danger`, `color-on-warning` and
+  `color-on-info` do the same for the other tones.
+- **What dims the page.** `color-backdrop` is drawn behind a `Modal`, a
+  `Dialog`, a `Sheet` and a drawer.
+- **What is worked out for you.** An alert's tint, a focus ring and a
+  highlighted match are mixed from the tone and the page's colours, so a
+  dark theme gets dark alerts without naming any.
+
+A theme with a light primary names a dark label. Without
+`color-on-primary` here, every primary button would write white on pale
+yellow, and `A13` would say so:
+
+```wf
+theme Ink {
+    color-background: #0B1220
+    color-surface: #111827
+    color-text: #E5E7EB
+    color-text-muted: #9CA3AF
+    color-border: #1F2937
+    color-primary: #FDE68A
+    color-on-primary: #1A1300
+}
+
+page Home(path: "/", title: "Home", description: "A light primary on a dark page.") {
+    Heading("Home").h1
+    Button("Start").primary
+}
+```
+
+The stacking scale (`z-sticky`, `z-drawer`, `z-modal`, `z-toast`, …) places a
+sticky header or a drawer of your own against the built-ins, and
+`target-min` (24px) and `target-min-touch` (44px) are the least size a
+control is pressed at; `style { min-block-size: $target-min }` gives a
+control of your own the same.
+
+### Choose and check a theme
+
 If the project declares one theme, the build uses it. If it declares
 several, choose one in `webfluent.app.json`:
 
@@ -118,9 +165,10 @@ several, choose one in `webfluent.app.json`:
 { "theme": { "name": "Brand" } }
 ```
 
-The contrast lint, `A13`, checks the text and background pairs of your theme
-and warns when one falls below the WCAG AA contrast ratio. Run `wf theme` to
-see every token, where it comes from and which pairs it checked.
+The contrast lint, `A13`, checks the colour pairs your theme changes — text
+on the background and the surfaces, and each tone's label on its tone — and
+warns when one falls below the WCAG AA contrast ratio. Run `wf theme` to see
+every token, where it comes from and which pairs it checked.
 
 To keep the built-ins' layout and mechanics but drop their look — for a site
 that brings its whole design — set `theme.builtin` in `webfluent.app.json`:
@@ -480,6 +528,10 @@ The text under the heading reads `You are on the dark theme` after you press
   script applies it before it draws the page. The system preference needs
   no script: it is a media query in the stylesheet, so it applies from the
   first paint.
+
+Every built-in reads tokens, so the dark theme reaches all of them; the
+built-in `ThemeToggle` is a button that switches between the two with
+`setTheme`.
 
 > [!WARNING]
 > Only what reads tokens switches with the theme. A colour written raw, such

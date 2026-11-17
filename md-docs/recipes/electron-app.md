@@ -181,7 +181,7 @@ function pickFolder() {
 /**
  * Hear an event the native side emits, until the function it returns is called.
  * @param {string} name
- * @param {(payload: any) => void} handler
+ * @param {(payload: number) => void} handler
  * @returns {() => void}
  */
 function onEvent(name, handler) {

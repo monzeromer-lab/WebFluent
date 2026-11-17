@@ -56,7 +56,7 @@ The page's header takes these attributes:
 | `guard:` | | An expression that must hold for the route to render ([Guards](#guards)) |
 | `redirect:` | | Where the reader goes when the guard fails. The default is `/` |
 | `paths:` | | The values a static build renders a `:param` page for ([Pre-render a page for each item](../recipes/pre-render-each-item.md)) |
-| `name: Type` | | A route parameter, typed ([Route parameters](#route-parameters)) |
+| `name: Type` | for each `:name` | A route parameter, typed ([Route parameters](#route-parameters)) |
 
 A page without a `title:` builds with warning `S01`, and one without a
 `description:` with warning `S02`. The compiler cannot write those for you,
@@ -171,15 +171,18 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 }
 ```
 
-A parameter is a `String` unless you declare another type, such as
-`id: Number`. A static build renders a `:param` page once for each value its
+Every parameter the path names is declared in the page's header with its
+type: `slug: String`, or `id: Number` for a number, which the page then
+reads as one. A path that names a parameter the header does not declare is
+`R02`. A static build renders a `:param` page once for each value its
 `paths:` names ([Pre-render a page for each item](../recipes/pre-render-each-item.md)).
 
 ## Query strings and fragments
 
-`query` is the URL's query string as a map, and `hash` is its `#fragment`.
-The runtime keeps both current, so a page that reads them follows the
-address:
+`query` is the URL's query string, a `[String: String]`, and `hash` is its
+`#fragment`. Reading a key gives a `String?`, since the address may not
+carry it, so a page gives it a default with `??`. The runtime keeps both
+current, so a page that reads them follows the address:
 
 ```wf
 page Products(path: "/products", title: "Products", description: "Everything we sell.") {
@@ -283,7 +286,7 @@ The browser evaluates the guard on every navigation.
 > [!CAUTION]
 > A guard is a gate in the browser, not a secret. A static build still
 > pre-renders the guarded page's HTML, so keep anything private behind an
-> API that the page fetches.
+> API that the page asks, and that checks who is asking.
 
 ## Per-page head tags
 

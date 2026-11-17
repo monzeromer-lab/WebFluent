@@ -495,12 +495,15 @@ impl Checker<'_, '_> {
                 self.pop_scope();
             }
             StatementKind::Timer(t) => {
-                let ty = self.infer(&t.interval, Some(&Type::Number));
-                if !ty.assignable_to(&Type::Number) {
+                // Milliseconds, as a number or a `Duration` (`3.seconds`),
+                // which is milliseconds at run time.
+                let ty = self.infer(&t.interval, None);
+                let duration = Type::Scalar(Scalar::Duration);
+                if !ty.assignable_to(&Type::Number) && !ty.assignable_to(&duration) {
                     self.error_at_current(
                         "T01",
                         format!(
-                            "`{}` takes milliseconds, but `{}` is `{ty}`",
+                            "`{}` takes milliseconds or a `Duration`, but `{}` is `{ty}`",
                             if t.every { "every" } else { "after" },
                             expr_text(&t.interval)
                         ),

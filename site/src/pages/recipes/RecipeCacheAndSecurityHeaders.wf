@@ -35,7 +35,7 @@ page RecipeCacheAndSecurityHeaders(path: "/recipes/cache-and-security-headers", 
                     Table.Cell { Markdown("a stale worker holds a stale site ([Make a site work offline](/recipes/work-offline))") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("resized images (`hero.<hash>.960.webp`)") }
+                    Table.Cell { Markdown("processed images under `img/` (`img/hero.<hash>.960.webp`, `img/hero.<hash>.jpg`)") }
                     Table.Cell { Markdown("`public, max-age=31536000, immutable`") }
                     Table.Cell("the name changes when the file does")
                 }

@@ -38,7 +38,7 @@ Every element also takes the props, events and attribute families listed [on eve
 Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
 state heard = ""
 Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-    on message(m) { heard = m.data }
+    on message(m) { heard = JSON.stringify(m.data) }
 }
 state version = 1
 Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")

@@ -670,6 +670,39 @@
     "after": ""
    },
    {
+    "title": "Every built-in follows the theme",
+    "id": "7.0.0-every-built-in-follows-the-theme",
+    "intro": "A built-in draws from the theme's tokens alone, so a theme restyles all of\nthem, and a dark theme needs nothing beyond its colours.",
+    "items": [
+     {
+      "text": "**What is written on a tone is a token**: `color-on-primary`,\n`-secondary`, `-success`, `-danger`, `-warning` and `-info` are the label\nof a primary button, a badge, a pressed toggle or a chosen day. A theme\nwith a light primary names a dark one, and `A13` checks each pair. A\ntheme with a pale tone may draw new `A13` warnings.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Alerts, focus rings, highlights and stars are mixed from the theme's\ncolours**, rather than fixed tints, and `color-backdrop` dims the page\nbehind a modal, a dialog, a sheet and a drawer.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A `Modal` or `Dialog` is as wide as its `<dialog>`**, so `class:` or\n`style { width: … }` on it sizes what it shows.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The structural look keeps a `Popover`'s box**, and toasts take the\ntheme's font.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The `spa` starter's own dark-mode button is `DarkModeSwitch`, so it no\nlonger hides the built-in `ThemeToggle`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Found by hand, before the release",
     "id": "7.0.0-found-by-hand-before-the-release",
     "intro": "A pass over every 7.0 feature in a browser, against a server that\nmisbehaves on request, found and fixed these:",
@@ -736,7 +769,7 @@
     "after": ""
    }
   ],
-  "count": 111
+  "count": 116
  },
  {
   "version": "6.2.0",

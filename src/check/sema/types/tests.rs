@@ -693,7 +693,7 @@ fn refs_and_timers_are_typed() {
     );
     has(
         "page P(path: \"/\") { state n = 0\n every(\"soon\") { n = n + 1 } }",
-        "[T01] `every` takes milliseconds, but `\"soon\"` is `String`",
+        "[T01] `every` takes milliseconds or a `Duration`, but `\"soon\"` is `String`",
     );
     has(
         "page P(path: \"/\") { state q = \"\"\n Input(bind: q, ref: \"box\") }",

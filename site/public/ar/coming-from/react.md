@@ -31,7 +31,7 @@ WebFluent مُصرِّف (compiler) بترميز ذي أنواع، وليس مك
 | مسار | `<Route path="/users/:id" element={<User />} />` | `page User(path: "/users/:id", id: String) { … }` |
 | إظهار شيء بشرط | `{open && <Panel />}` | `if open { Panel }` |
 | قائمة | `{items.map((i) => <li key={i.id}>{i.name}</li>)}` | `for i in items by i.id { Text(i.name) }` |
-| الجلب | `useQuery({ queryKey: ["users"], queryFn })` | `resource users: [User] = http.get("/api/users")`، تُقرأ بـ`match users { … }` |
+| الجلب | `useQuery({ queryKey: ["users"], queryFn })` من TanStack Query، أو `useEffect` مع `fetch` | `resource users: [User] = http.get("/api/users")`، تُقرأ بـ`match users { … }` |
 | التنسيق | `className`, CSS modules, Tailwind | أعلام (`Button("Save").primary`)، و`style { }` على العنصر، ورموز التصميم |
 | اختبار | Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 
@@ -45,6 +45,13 @@ WebFluent مُصرِّف (compiler) بترميز ذي أنواع، وليس مك
 وأعلامه (flags) وأحداثه وفتحاته (slots). `Button("Save").primray` لا
 يُبنى، ولا يُبنى كذلك معالج لحدث لا يطلقه المكوّن أبدًا (`E103`). والخاصية
 المجهولة على مكوّنك أنت هي `C02`، لا تمرير صامت.
+
+**الأنواع بلا لغة ثانية.** لا TypeScript بجانب الترميز ولا خطوة `tsc`:
+ملف `.wf` يفحص أنواعه المُصرِّف نفسه الذي يبنيه. يستنتج الفاحص ما يستطيع،
+ويطلب منك كتابة الباقي: حالة لا تقول قيمتها الأولى شيئًا (`state items:
+[Todo] = []`)، وإجراء يُرجع قيمة (`-> Number`)، ومعامل. لا `any`: JSON الذي
+لم يُحدَّد شكله هو `Json`، يُطابَق أو يُفكّ (`User.decode(raw)`) قبل أن
+يُقرأ، ولا إعداد يُطفئ الفحوص.
 
 **الصفحات تملك مساراتها.** لا يوجد جدول مسارات. كل `page` تسمّي `path:`
 الخاص بها، ويبني المُصرِّف الموجّه منها، مرتّبة حسب دقّتها، فلا يستطيع ترتيب
@@ -135,7 +142,70 @@ TanStack Query ذاكرةٌ للطلبات التي يطلبها المكوّن.
 | `retry: 3` | `retry: .backoff(times: 3)` على الخدمة لما يصحّ إرساله مرتين؛ و`POST` فقط إن كانت نقطة النهاية `idempotent` |
 | `error` من نوع `unknown` أو `Error` | `-> User ! CreateUserError`: تعدادُ أخطاءٍ فيه حالةٌ لكل حالةٍ يجيب بها الخادم، تُطابَق واحدةً واحدة |
 | `openapi-typescript` و`orval` | `wf api add openapi.json`: العقد ملفاتٍ، يُفحص في CI بـ`wf api check` |
-| Mock Service Worker في الاختبارات | `fake` للعقد يُلزمه المترجم به، ويُسمّى في `fakes:` الاختبار |
+| Mock Service Worker في الاختبارات | `fake` للعقد يُلزمه المُصرِّف به، ويُسمّى في `fakes:` الاختبار |
+
+القائمة نفسها، مع إضافة تُحدّثها وخطأ حقل يُعرض:
+
+```jsx
+function People() {
+  const qc = useQueryClient();
+  const { data, isPending, error } = useQuery({ queryKey: ["people"], queryFn: listPeople });
+  const add = useMutation({
+    mutationFn: createPerson,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["people"] }),
+  });
+  if (isPending) return <Spinner />;
+  if (error) return <Alert>{error.message}</Alert>;
+  return (
+    <>
+      {data.map((p) => <p key={p.id}>{p.name}</p>)}
+      <button onClick={() => add.mutate({ name: "Grace" })}>Add</button>
+      {add.error?.status === 422 && <p>{add.error.body.errors[0].message}</p>}
+    </>
+  );
+}
+```
+
+```wf
+type Person { id: String, name: String }
+type NewPerson { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    post create(body: NewPerson) at "people" -> Person ! CreatePersonError
+        invalidates [list]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add") {
+        on click {
+            match await Backend.people.create(body: NewPerson(name: "Grace")) {
+                .ok(_) { said = "" }
+                .err(.unprocessableContent(p)) { said = p.errors.first()?.message ?? "Check the name" }
+                .err(.http(e)) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}
+```
 
 - **لا مفاتيح للاستعلامات.** القراءة تُعرف بنقطة نهايتها ووسائطها، وقارئان
   للعنوان نفسه يرسلان طلبًا واحدًا.

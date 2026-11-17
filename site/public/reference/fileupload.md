@@ -40,7 +40,9 @@ Every element also takes the props, events and attribute families listed [on eve
 ## Example
 
 ```wf
-FileUpload(accept: "image/*", label: "Choose a picture") { on change(e) { log(e.target.files[0].name) } }
+state photo: File? = null
+FileUpload(bind: photo, accept: "image/*", label: "Choose a picture")
+if let p = photo { Text(p.name) }
 ```
 
 ## What it can raise

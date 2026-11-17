@@ -202,7 +202,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [wf fmt](https://webfluent.monzeromer.dev/reference/cli/fmt.md): Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)
 - [wf generate](https://webfluent.monzeromer.dev/reference/cli/generate.md): Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings
 - [wf init](https://webfluent.monzeromer.dev/reference/cli/init.md): Create a new WebFluent project
-- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
+- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies
 - [wf motion](https://webfluent.monzeromer.dev/reference/cli/motion.md): The animations an element can play, the eases and speeds, the route transitions and the project's default
 - [wf registry](https://webfluent.monzeromer.dev/reference/cli/registry.md): Describe every built-in component: props, cases, flags, events, slots, parts
 - [wf render](https://webfluent.monzeromer.dev/reference/cli/render.md): Render a .wf template with JSON data
@@ -363,7 +363,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Route](https://webfluent.monzeromer.dev/reference/route.md): Maps a path to a page (the original grammar; pages now declare their paths).
 - [Router](https://webfluent.monzeromer.dev/reference/router.md): Where the current page renders. May sit at any depth inside app; pages declare their own paths.
 - [Row](https://webfluent.monzeromer.dev/reference/row.md): Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.
-- [Runtime API](https://webfluent.monzeromer.dev/reference/runtime.md): The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety, text and boot, module by module.
+- [Runtime API](https://webfluent.monzeromer.dev/reference/runtime.md): The runtime reference, window.WF: signals, elements, motion, routing, data and results, stores, widgets, safety, text and boot, module by module.
 - [ScrollArea](https://webfluent.monzeromer.dev/reference/scrollarea.md): A box that scrolls within height:, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.
 - [Section](https://webfluent.monzeromer.dev/reference/section.md): Groups content with spacing; on the web, a <section>.
 - [SectionSlide](https://webfluent.monzeromer.dev/reference/sectionslide.md): Full-bleed coloured band with a centred label.
@@ -506,12 +506,12 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [I03 — A message one locale has and another does not](https://webfluent.monzeromer.dev/errors/I03.md): A reader in the locale that lacks it sees the default locale's words instead of their own — or, where the default locale is the one that lacks it, the key.
 - [I04 — A locale the project does not have](https://webfluent.monzeromer.dev/errors/I04.md): `setLocale("xx")` names a locale `i18n.locales` does not list.
 - [I05 — Words a reader sees that are not translated](https://webfluent.monzeromer.dev/errors/I05.md): Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…
-- [N01 — A path that names no parameter](https://webfluent.monzeromer.dev/errors/N01.md)
-- [N02 — A resource over a write](https://webfluent.monzeromer.dev/errors/N02.md)
+- [N01 — A path that names no parameter](https://webfluent.monzeromer.dev/errors/N01.md): An endpoint's path names its parameters, `at "users/{id}"`: each `{name}` is filled by the parameter of that name. A parameter has one place — the path, a header or a cookie.
+- [N02 — A resource over a write](https://webfluent.monzeromer.dev/errors/N02.md): A `resource` asks again whenever the page draws it or what it reads changes. A write — `POST`, `PUT`, `PATCH`, `DELETE` — is sent once, from an action or a handler.
 - [N03 — A `try` with nowhere to pass its error](https://webfluent.monzeromer.dev/errors/N03.md): `try` returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.
-- [N04 — A result nothing reads](https://webfluent.monzeromer.dev/errors/N04.md)
-- [N05 — An `invalidates` naming what the contract does not have](https://webfluent.monzeromer.dev/errors/N05.md)
-- [N06 — A `fake` that does not match its group's contract](https://webfluent.monzeromer.dev/errors/N06.md)
+- [N04 — A result nothing reads](https://webfluent.monzeromer.dev/errors/N04.md): A call's result awaited on its own drops whether the call worked. Match it, or pass a failure up with `try`.
+- [N05 — An `invalidates` naming what the contract does not have](https://webfluent.monzeromer.dev/errors/N05.md): A write's `invalidates [list, byId(id)]` names reads of the same group, each argument one of the write's own parameters. A name the group does not have makes nothing stale.
+- [N06 — A `fake` that does not match its group's contract](https://webfluent.monzeromer.dev/errors/N06.md): A `fake` answers in place of the network, so it is held to the group's contract: its endpoints, their parameters, and the result each declares.
 - [N07 — A service's files are behind its spec](https://webfluent.monzeromer.dev/errors/N07.md): A service's files are behind its OpenAPI spec: `wf api sync` would change them, so the program is checked against a contract the server no longer keeps.
 - [N08 — A form 7.0 removed](https://webfluent.monzeromer.dev/errors/N08.md): `fetch(…)`, an endpoint that does not say how it fails, `errors { }`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.
 - [N09 — A retry asked of a write that is not idempotent](https://webfluent.monzeromer.dev/errors/N09.md): A `POST` or `PATCH` whose answer was lost may have been taken, and sent again it would be taken twice — a second order. So it is retried, or replayed offline, only when its endpoint is marked `idempotent`, which sends one `Idempotency-Key` on every try; a `retry:` on any other write does nothing.
@@ -546,7 +546,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [T15 — A `match` that misses a case, or has one twice](https://webfluent.monzeromer.dev/errors/T15.md): A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches…
 - [T16 — A method a number, a string or a list does not have](https://webfluent.monzeromer.dev/errors/T16.md): In the browser the call is `x.method is not a function`, the first time the line runs. The message suggests the nearest method there is.
 - [T17 — An async result used before it is awaited](https://webfluent.monzeromer.dev/errors/T17.md): An action that awaits hands back a promise; read as its result without `await` it is not one. `await` is written in an action, a handler, a timer or…
-- [T18 — Arithmetic on something that is not a number](https://webfluent.monzeromer.dev/errors/T18.md): `-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.
+- [T18 — Arithmetic on something that is not a number](https://webfluent.monzeromer.dev/errors/T18.md): `-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins two strings or adds two numbers, never one of each: a splice says how a number shows in text.
 - [T19 — A value that may be null, shown as text](https://webfluent.monzeromer.dev/errors/T19.md): Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.
 - [T20 — A list or a record shown as text](https://webfluent.monzeromer.dev/errors/T20.md): A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.
 - [T21 — A read's `match` with no `.failed` arm](https://webfluent.monzeromer.dev/errors/T21.md): When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.
@@ -555,14 +555,14 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [T24 — `Map` written as a type](https://webfluent.monzeromer.dev/errors/T24.md): 7.0 took `Map` out of the language: it said nothing of its keys or what they hold. Write a `type` with its fields, a dictionary `[String: T]`, or `Json`.
 - [T25 — A state whose first value does not say what it holds](https://webfluent.monzeromer.dev/errors/T25.md): A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.
 - [T26 — An action that returns a value and does not say what](https://webfluent.monzeromer.dev/errors/T26.md): An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.
-- [T27 — Two values with no type in common](https://webfluent.monzeromer.dev/errors/T27.md)
-- [T28 — A `Json` value read as if it were something else](https://webfluent.monzeromer.dev/errors/T28.md)
-- [T29 — A condition that is not a `Bool`](https://webfluent.monzeromer.dev/errors/T29.md)
+- [T27 — Two values with no type in common](https://webfluent.monzeromer.dev/errors/T27.md): The branches of an `if` or a `match`, a list's items and the sides of `??` make one value, so they are one type. `null` on one side makes it `T?`.
+- [T28 — A `Json` value read as if it were something else](https://webfluent.monzeromer.dev/errors/T28.md): `Json` may be an object, a list, a string, a number, a boolean or null. Match its cases, or decode it into a type, before reading it.
+- [T29 — A condition that is not a `Bool`](https://webfluent.monzeromer.dev/errors/T29.md): `if`, `show`, `!`, `&&` and `||` take a `Bool`. Write the comparison meant: `count != 0`, `name != ""`, `user != null`.
 - [T30 — A part of the browser the language does not type](https://webfluent.monzeromer.dev/errors/T30.md): A browser global, or a member of an element or an event, the language does not type: reach it from a project script whose JSDoc says its types.
 - [T31 — A script's function the language cannot type](https://webfluent.monzeromer.dev/errors/T31.md): A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.
 - [T32 — A parameter written with no type](https://webfluent.monzeromer.dev/errors/T32.md): What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.
-- [T33 — Data that is not what its type says](https://webfluent.monzeromer.dev/errors/T33.md)
-- [T34 — A conversion the language does not make for you](https://webfluent.monzeromer.dev/errors/T34.md)
+- [T33 — Data that is not what its type says](https://webfluent.monzeromer.dev/errors/T33.md): Data from outside the program — a `data` file, a template's data, a test's `data:` — is held to its type where it comes in, and refused with the place it goes wrong.
+- [T34 — A conversion the language does not make for you](https://webfluent.monzeromer.dev/errors/T34.md): A `Date` or `Time` where text is wanted takes a splice that says how it shows; a `Duration` says its unit, never a bare number.
 - [T35 — Values worked out from each other with neither declared](https://webfluent.monzeromer.dev/errors/T35.md): Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.
 - [U01 — A state nothing reads](https://webfluent.monzeromer.dev/errors/U01.md): A `state` nothing in its page or component reads; an assignment alone does not read it.
 - [U02 — A derived value nothing reads](https://webfluent.monzeromer.dev/errors/U02.md): A `derived` nothing reads.
@@ -592,7 +592,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [X05 — `use` of a store nothing declares](https://webfluent.monzeromer.dev/errors/X05.md): `use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.
 - [X06 — A state that copies a live value once](https://webfluent.monzeromer.dev/errors/X06.md): `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock…
 - [Troubleshooting](https://webfluent.monzeromer.dev/errors/troubleshooting.md): What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.
-- [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md): How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.
+- [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md): How to upgrade wf, what each release from 4.0 to 7.0 asks of a project, and moving an older project forward with wf migrate.
 
 ## About
 

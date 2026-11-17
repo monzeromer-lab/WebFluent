@@ -32,7 +32,7 @@ stacks and grids, styled with CSS.
 | A figure | `\includegraphics{chart.png}` / `#image("chart.png")` | `Image(src: "/chart.png", alt: "…")` |
 | A chart | `pgfplots` | `Chart(kind: .bar, data: SALES, x: "month", y: "web")` |
 | A macro | `\newcommand{\price}[1]{…}` / `#let price(x) = …` | `component Price(_ amount: Number) { … }` |
-| Data | `\input{data}`, `datatool` / `#let data = json("data.json")` | `data sales = "sales.json"`, or a `const` |
+| Data | `\input{data}`, `datatool` / `#let data = json("data.json")` | `data sales: [Sale] = "sales.json"`, held to its type when the build reads it, or a `const` |
 | Fonts | `fontspec` / `#set text(font: …)` | a `.ttf` or `.otf` under `fonts/`, named in `font-family` |
 | Slides | Beamer frames / Touying | `Presentation { Slide { … } }`, with `"output_type": "slides"` |
 | Building | `pdflatex`, `latexmk` / `typst compile` | `wf build`, with `"output_type": "pdf"` in the config |

@@ -21,7 +21,7 @@ page Learn09ControlFlow(path: "/learn/09-control-flow", title: "Control flow", d
     Button("+1") { on click { count = count + 1 } }
 }"#, title: "wf")
 
-        Markdown("How it behaves:\n\n- A branch's elements are created when its condition turns true, and removed when it turns false.\n- State declared inside a component in the branch starts over each time the branch is created.\n- A condition must be a `Bool`, or a value that may be null, which counts as `false` when it is null.\n- A list or a record as a condition is an error (`T07`), since it would always be true.")
+        Markdown("How it behaves:\n\n- A branch's elements are created when its condition turns true, and removed when it turns false.\n- State declared inside a component in the branch starts over each time the branch is created.\n- A condition must be a `Bool`. A `Bool?` counts, its `null` as `false`.\n- Anything else is an error, with the comparison it means as the fix: `if count` is `T29` (write `count != 0`), `if user` on a `User?` is `T29` (write `user != null`, or bind it with `if let`), and a list as a condition is `T07`, since it would always be true.")
 
         Callout("**Coming from React?** `\{open && <Panel />\}` and `cond ? a : b` inside JSX become statements: `if open \{ Panel \}` and `if cond \{ a \} else \{ b \}`. A condition is a `Bool`, so test a list with `items.length > 0`. See [Coming from React](/coming-from/react).", kind: .note)
 
@@ -42,7 +42,7 @@ page Profile(path: "/", title: "Profile", description: "A user who may not be si
     }
 }"#, title: "wf")
 
-        Markdown("The rules:\n\n- `if let x \{ \}`, with no `=`, does the same for a name already in scope.\n- The narrowing holds inside the branch only. `if x != null \{ \}` and `if x && … \{ \}` narrow `x` inside their branch the same way; the right-hand side of the `&&` is not narrowed:\n\n  ```text if user != null && user.name == \"x\" \{ … \}     // T04: `user` may be null if user != null && user?.name == \"x\" \{ … \}    // reads through the null if let u = user \{ if u.name == \"x\" \{ … \} \}    // or bind it, then test it ```\n- The binding follows the value. When `user` becomes another user, the branch shows the new one in place. It is drawn again only when the value goes to `null` and back.")
+        Markdown("The rules:\n\n- `if let x \{ \}`, with no `=`, does the same for a name already in scope.\n- The narrowing holds inside the branch only. `if x != null \{ \}` and `if x != null && … \{ \}` narrow `x` inside their branch the same way; the right-hand side of the `&&` is not narrowed:\n\n  ```text if user != null && user.name == \"x\" \{ … \}     // T04: `user` may be null if user != null && user?.name == \"x\" \{ … \}    // reads through the null if let u = user \{ if u.name == \"x\" \{ … \} \}    // or bind it, then test it ```\n- The binding follows the value. When `user` becomes another user, the branch shows the new one in place. It is drawn again only when the value goes to `null` and back.")
 
         Heading("for", id: "for").h2
 
@@ -129,7 +129,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
     Text(match s { .idle { "waiting" } .failed(r) { r } else { "busy" } })   // as a value
 }"#, title: "wf")
 
-        Markdown("Over a **resource** it chooses by the request's state — loading, error or ready ([Fetching data](/learn/15-data)).\n\nThe rules:\n\n- An arm binds one name per part of the payload: `.failed(reason)`.\n- `else` covers every case without an arm of its own.\n- Without an `else`, a `match` must give every case of the enum an arm, or it is an error (`T15`). That holds for a `match` statement and a `match` expression alike; an expression that covers every case needs no `else`.\n- An arm is drawn again when the arm changes, not when its value does. A new payload of the same case — `.failed(\"refused\")` after `.failed(\"timed out\")` — reaches what the arm drew in place.")
+        Markdown("Over a **resource** it chooses by the read's case — `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)` — and over a **result** by `.ok(value)` or `.err(error)` ([Fetching data](/learn/15-data)). A `match` over a read with neither a `.failed` arm nor an `else` is an error (`T21`): a request that fails would show nothing.\n\nThe rules:\n\n- An arm binds one name per part of the payload: `.failed(reason)`.\n- `else` covers every case without an arm of its own.\n- Without an `else`, a `match` must give every case of the enum, the read or the result an arm, or it is an error (`T15`). That holds for a `match` statement and a `match` expression alike; an expression that covers every case needs no `else`.\n- An arm is drawn again when the arm changes, not when its value does. A new payload of the same case — `.failed(\"refused\")` after `.failed(\"timed out\")` — reaches what the arm drew in place.")
 
         Heading("Expressions that choose", id: "expressions-that-choose").h2
 
@@ -174,6 +174,8 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
     if error != "" { Alert(error).danger }
     Text("{rows.length} rows")
 }"#, title: "wf")
+
+        Markdown("When the action only needs the value, `try` says so in one word: `let answer: Rows = try await http.get(\"/api/rows\")` gives the rows, or ends the action and passes the failure up, for an action that declares it may fail (`action pull() -> ! \{ … \}`). `try \{ … \} catch e \{ … \}` is for code that throws, such as a call into a script of your own; `e` is an `Error`, with `e.message`.")
 
         Heading("Summary", id: "summary").h2
 

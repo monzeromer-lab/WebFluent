@@ -115,7 +115,8 @@ uses:
 }
 ```
 
-And `src/translations/es.json`, whose words have the two forms English has:
+And `src/translations/es.json`. Spanish has a third form, `many`, for a
+round million and more (`1 000 000 de elementos`):
 
 ```json
 {
@@ -124,6 +125,7 @@ And `src/translations/es.json`, whose words have the two forms English has:
   "nav.language": "Idioma",
   "welcome": "¡Bienvenido, {name}!",
   "items.one": "{count} elemento",
+  "items.many": "{count} de elementos",
   "items.other": "{count} elementos",
   "actions.save": "Guardar"
 }

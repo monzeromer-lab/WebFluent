@@ -44,7 +44,8 @@ page Billing(path: "/billing", title: "Billing", description: "Plans and invoice
 ## How it works
 
 `env.PUBLIC_API` is the value of `PUBLIC_API`, fixed when the site is
-built. `env` holds exactly the names the build knows, each a `String`, so a
+built. `env` holds exactly the names the build knows, each typed by its
+value (a `String` for text, which `.env` and the shell always give), so a
 misspelt one — `env.PUBLIC_APII` — is a `T05` with the name meant, and a
 name nothing sets is one too: give every name its default in the config's
 `env` map ([Set a value](#set-a-value)), which a `.env` file or the shell

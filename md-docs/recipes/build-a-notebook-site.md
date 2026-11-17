@@ -139,10 +139,13 @@ data notes: [Note] = "notes.json"
 
 `src/notes.json` holds seven notes, each with a Markdown `body`.
 
-**Check it:** `wf check` prints `No problems in field-notes.` If one note
+**Check it:** `wf check` ends with `no problems`. (It also prints one
+`V11` note: the project's own `Sheet`, the layout of Step 3, takes the
+place of the built-in `Sheet`.) If one note
 in `notes.json` has a field that `Note` does not declare, the check reports
 `T05` at the `data` line and names the field; if a note leaves out a field
-`Note` requires, it reports `C01`.
+`Note` requires, it reports `T33` there and names the place
+(`$[0].summary is missing`).
 
 ## Step 3: Write the shell and a layout
 

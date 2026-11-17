@@ -4,7 +4,7 @@ kind: "reference"
 route: "/reference/runtime"
 group: "reference"
 blurb: "window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback."
-description: "The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety, text and boot, module by module."
+description: "The runtime reference, window.WF: signals, elements, motion, routing, data and results, stores, widgets, safety, text and boot, module by module."
 ---
 # Runtime API
 
@@ -21,7 +21,7 @@ a store holds:
 // src/support.js
 function openHelp() {
   WF.navigate("/about");
-  WF.toast("Saved", "success");
+  WF.toast("Saved", { tone: "success" });
   console.log(WF.storeSnapshot("Cart"));
 }
 ```
@@ -110,6 +110,7 @@ What the control-flow statements and slots compile to.
 | `keyLabel(combination)` | `keys` | `keyLabel("mod+k")`: how this system writes the combination (`⌘K`, `Ctrl+K`). |
 | `keyAria(combination)` | `keys` | The combination as `aria-keyshortcuts` writes it, for a drawn `shortcut:`. |
 | `trapFocus(node, read)` | `layer` | `trapFocus: open`. |
+| `roving(box, options)` | `focus` | `roving: .x`: one Tab stop for a group, the arrow keys, Home and End inside it. |
 | `gesture(node, name, fn)` | `gesture` | `on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)`. |
 | `draggable(node, value, options)`, `dropTarget(node, options)` | `gesture` | `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`. |
 | `splitter(node, read, write, options)` | `gesture` | `Splitter(bind:, min:, max:, reset:)`. |
@@ -151,14 +152,16 @@ What the control-flow statements and slots compile to.
 
 | Function | Module | What it does |
 |---|---|---|
-| `resource(url, options)` | `net` | A read: `{ read, value, isLoading, isLoaded, isFailed, isRefreshing, error, pending, items, hasMore, reload, loadMore, invalidate, cancel }`; `read()` is its one value — `"loading"`, `["failed", e]` or `["loaded", value, refreshing, stale]`. `readOf(v)` is what a `match` sees of `v`. |
-| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body. `http.get(…)` and the other verbs compile to `httpCall`, which wraps it in a result. |
+| `resource(url, options)` | `net` | A read: `{ read, value, isLoading, isLoaded, isFailed, isRefreshing, error, pending, items, hasMore, reload, loadMore, invalidate, cancel }`. From a script each member is a function to call, `users.value()`, `users.isLoaded()`; `read()` is its one value — `"loading"`, `["failed", e]` or `["loaded", value, refreshing, stale]`. `readOf(v)` is what a `match` sees of `v`. |
+| `request(url, options)` ● | `net` | A request through the engine — retries, timeouts, cache, typed errors — that resolves to the parsed body, and rejects on a failure. |
+| `httpCall(method, url, options)` ● | `net` | What `http.get(…)`, `http.post(…)` and the other verbs compile to: the same request as a promise of a result, `["ok", value]` or `["err", httpError]`, that never rejects. |
 | `optimistic(holder, change)` | `net` | Shows a change at once, rolled back if the action throws. |
 | `attempt(fn)` | `net` | Runs an action so that a throw rolls back its optimistic changes. |
 | `send(url, options)` | `http` | The engine's request itself. |
 | `invalidate(prefix)` | `http` | Drops cached answers — every one with no argument, or each key equal to or starting with `prefix` — and every resource whose request it names asks again. |
 | `beacon(url, data)` ● | `http` | A post that survives the page unloading. |
-| `api(definition)` | `api` | The service an `api` declaration compiles to. |
+| `api(config)`, `group(client, name, spec)` | `api` | The service an `api` declaration compiles to, and one of its groups (`api Backend.users { }`). An endpoint's call answers with a result, as `httpCall` does. |
+| `mw.bearer(read)`, `mw.header(name, read)`, `mw.requestId`, `mw.log`, `mw.refreshOn401(refresh)` | `http` | The runtime's middleware, as a service's `middleware [ … ]` names it: each a function of the request and the rest of the chain, returning what the chain returns. |
 | `ws(url, options)`, `sse(url, options)`, `broadcast(name, options)` | `api` | A socket, a stream of events, a channel between tabs. |
 | `rtc(options)` | `peer` | A peer: a WebRTC data channel. |
 | `worker(url, options)` | `worker` | A `worker`: a script of the site run beside the page. |
@@ -178,9 +181,12 @@ What the control-flow statements and slots compile to.
 
 | Function | Module | What it does |
 |---|---|---|
-| `toast(message, tone, ms)` ● | `toast` | Shows a toast in tone `"success"`, `"danger"`, `"warning"` or `"info"` (the default), for `ms` milliseconds (3000 by default). |
-| `announce(text)` ● | `announce` | Says `text` to screen readers, politely. |
-| `dialog(el, read, write)`, `tabs(nav, active)` | `overlay` | What `Modal` and `Dialog`, and `Tabs`, compile to. |
+| `toast(message, options)` ● | `toast` | Shows a toast above everything and says it to a screen reader. `options`: `tone` (`"info"`, the default, `"success"`, `"warning"`, `"danger"`), `duration` in ms (3000, or 8000 with an action; `Infinity` until closed), `action` and `onAction` (a button on it), `closable` (`false` for no close button). Returns `{ close, update }`. The older `toast(message, tone, ms)` still works. |
+| `toastPromise(promise, options)` ● | `toast` | `toast.promise(…)`: a toast that says `loading` while `promise` runs, then `done` or `failed` (words, or a function of the value or the error). Returns the promise. |
+| `ask(message, options)` ● | `overlay` | An alert dialog and a promise of the answer: `true` for yes, `false` for no, Escape or the page leaving. `options`: `detail`, `yes`, `no`, `danger`. The focus starts on no. |
+| `announce(text, politeness)` ● | `announce` | Says `text` to screen readers: politely, or at once with `"assertive"`. |
+| `dialog(el, read, write, options)`, `tabs(nav, active)` | `overlay` | What `Modal`, `Dialog` and `AlertDialog` (`options.dismiss`, `options.initial`), and `Tabs`, compile to. |
+| `sheet(box, options)` | `sheet` | What `Sheet` compiles to: `options.side` and `options.snap`. |
 | `popup(root, trigger, open)` | `overlay` | Closes a popup on Escape or a click outside, and returns focus to its trigger. |
 | `layer(el, read, write, options)` | `layer` | A layer drawn in the browser's top layer at an anchor or a point: what `Popover` compiles to. |
 | `menu`, `submenu`, `tooltip` | `layer` | What `Menu`, `Menu.Sub` and `Tooltip` compile to. |
@@ -191,6 +197,36 @@ What the control-flow statements and slots compile to.
 | `field(control, options)`, `choiceError(label, check)` | `field` | A control's label, hint and error; a `Checkbox` or `Switch`'s rule message. |
 | `form(options)`, `validate(read, rules, options)` | `form` | A `Form` handle and a `validate` block's rules. |
 | `askRules(read, rules, fault, remote, pending)` | `form` | Internal: asks a `validate` block's `async` rules, which the compiled form passes as `ask:`. |
+| `calendar(box, read, write, options)` | `calendar` | What `Calendar` compiles to. |
+| `otp`, `tagInput`, `rating`, `rangeSlider`, `dropzone`, `dateRange`, `checkboxGroup`, `autosize`, `reveal` | `forms` | What `InputOTP`, `TagInput`, `Rating`, `Slider.range`, `FileUpload.dropzone`, `DateRangePicker`, `CheckboxGroup`, `Textarea.autosize` and `.password.reveal` compile to. |
+| `listbox`, `tree`, `dataTable`, `combobox`, `commandPalette` | `collections` | What `Listbox`, `Tree`, `DataTable`, `Combobox` and `CommandPalette` compile to. |
+| `navMenu`, `menuBar`, `contextMenu` | `navigation` | What `NavigationMenu`, `Menubar` and `ContextMenu` compile to. |
+| `avatarGroup`, `ring`, `scrollArea`, `sticky`, `panelGroup` | `display` | What `AvatarGroup`, `CircularProgress`, `ScrollArea`, `Sticky` and `PanelGroup` compile to. |
+| `colorPicker`, `transferList`, `editable`, `fab`, `backToTop`, `popconfirm`, `markMatches` | `extras` | What `ColorPicker`, `TransferList`, `Editable`, `Fab`, `BackToTop`, `Popconfirm` and `Highlight` compile to. |
+| `copyButton`, `themeToggle`, `localeSwitch`, `fieldFor`, `inputClear`, `onThisPage` | `content` | What `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Field`, `InputGroup.Clear` and `OnThisPage` compile to. |
+
+## Calls
+
+| Function | Module | What it does |
+|---|---|---|
+| `sameCall(pending, args, run, concurrent)` | `busy` | What an async action's call compiles to: the call already running with those arguments, or a new one (every call, with `concurrent`). |
+| `busy(el, handler)` | `busy` | A click or submit handler that marks `el` busy (`aria-busy`, a spinner past 300 ms) while the calls it started run. |
+| `debounce(fn, ms)` ●, `throttle(fn, ms)` ● | `pace` | `on input(debounce: 300.ms)` and `on scroll(throttle: 100.ms)`. |
+
+## Results and JSON
+
+A result is `["ok", value]` (`"ok"` when it holds nothing) or
+`["err", error]`; an enum's case with a payload is `[case, …payload]` and a
+bare case its name.
+
+| Function | Module | What it does |
+|---|---|---|
+| `tryOk(r, target)` | `result` | `try r`: the value of `r`, or its error passed up to the action that declares what it fails with; in a handler, a reported failure. |
+| `thrown(e)` | `result` | What `catch e` binds: what was thrown, as an `Error`. A string, a number or a plain object is wrapped in one. |
+| `decode(shape, value)` | `json` | `T.decode(json)`: `["ok", value]`, or `["err", { at, message }]`. |
+| `returned(name, shape, value)` | `json` | A project script's answer held to its `@returns`: the value, or a `DecodeError` thrown naming the function and the place. |
+| `jsonCase`, `jsonTagged`, `jsonPayload` | `json` | A `Json` value's case (`object`, `array`, `string`, `number`, `bool`, `null`), as a `match` reads it. |
+| `dictKeys`, `dictValues`, `dictEntries`, `dictHas`, `dictWithout` | `json` | A dictionary's `keys()`, `values()`, `entries()`, `has(k)` and `without(k)`. |
 
 ## Safety
 
@@ -245,7 +281,7 @@ Each of these is a function of the value it works on.
 | `picture(asset, options)` | `picture` | An `image`'s `<picture>`. |
 | `offline(options)`, `update()`, `clearQueued()` | `offline` | The service worker, the update flow, and forgetting the writes kept offline. |
 | `loadAfter(scripts)` | `later` | Loads the `meta.scripts` entries marked `"load": "after"` once the page has painted. |
-| `consentScripts(scripts)`, `consentBanner(node)` | `covers` | The `meta.scripts` entries marked `"load": "consent"`, loaded once the reader accepts in a `ConsentBanner` (and on every visit after). |
+| `consentScripts(scripts)`, `consentBanner(node)`, `consentSettings(node)` | `covers` | The `meta.scripts` entries marked `"load": "consent"`, loaded once the reader accepts in a `ConsentBanner` (and on every visit after); `ConsentSettings` forgets the answer and asks again. |
 | `hoverCard(node, delay)`, `loadingOverlay(node, read)`, `lightbox(node, label)`, `tour(node, read, targets)` | `covers` | What `HoverCard`, `LoadingOverlay`, `Lightbox` and `Tour` compile to. |
 | `__debug`, `__reg` | `debug` | For WebFluent Studio. |
 

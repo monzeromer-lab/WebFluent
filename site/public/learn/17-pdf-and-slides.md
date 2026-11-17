@@ -31,7 +31,7 @@ count and writes one file, `build/<name>.pdf`, named after the project
 unless `output_filename` says otherwise:
 
 ```text
-  PDF: 45586 bytes, 3 page(s)
+  PDF: 45763 bytes, 3 page(s)
   Output: ./build/my-report.pdf
 Build complete.
 ```

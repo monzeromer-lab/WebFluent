@@ -61,7 +61,7 @@ South & \$1.9M \\
         CheatRow("A figure", theirs: "\\includegraphics\{chart.png\} / #image(\"chart.png\")", ours: "Image(src: \"/chart.png\", alt: \"…\")", language: "latex")
         CheatRow("A chart", theirs: "pgfplots", ours: "Chart(kind: .bar, data: SALES, x: \"month\", y: \"web\")", language: "latex")
         CheatRow("A macro", theirs: "\\newcommand\{\\price\}[1]\{…\} / #let price(x) = …", ours: "component Price(_ amount: Number) \{ … \}", language: "latex")
-        CheatRow("Data", theirs: "\\input\{data\}, datatool / #let data = json(\"data.json\")", ours: "data sales = \"sales.json\", or a const", language: "latex")
+        CheatRow("Data", theirs: "\\input\{data\}, datatool / #let data = json(\"data.json\")", ours: "data sales: [Sale] = \"sales.json\", held to its type when the build reads it, or a const", language: "latex")
         CheatRow("Fonts", theirs: "fontspec / #set text(font: …)", ours: "a .ttf or .otf under fonts/, named in font-family", language: "latex")
         CheatRow("Slides", theirs: "Beamer frames / Touying", ours: "Presentation \{ Slide \{ … \} \}, with \"output_type\": \"slides\"", language: "latex")
         CheatRow("Building", theirs: "pdflatex, latexmk / typst compile", ours: "wf build, with \"output_type\": \"pdf\" in the config", language: "latex")

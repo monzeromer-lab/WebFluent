@@ -221,20 +221,49 @@ pub fn lint_contrast_in(
     // Only report on projects that actually declare a theme: the baseline is the
     // engine's own problem, and warning about it on every build of every project
     // would say nothing the author can act on.
-    let Some((index, theme)) = program
-        .declarations
-        .iter()
-        .enumerate()
-        .find_map(|(i, d)| match d {
-            Declaration::Theme(t) => Some((i, t)),
-            _ => None,
-        })
-    else {
+    let Some(theme) = program.declarations.iter().find_map(|d| match d {
+        Declaration::Theme(t) => Some(t),
+        _ => None,
+    }) else {
         return Vec::new();
     };
+    lint_contrast_themes(program, &[(theme, resolved.clone())], file_of)
+}
 
-    let file = file_of(index);
-    let file = file.as_str();
+/// [`lint_contrast_in`] for each theme a build paints with — the site's own
+/// and its dark one — each with every token it resolves to (the dark one's
+/// over the site's), so a pale tone in the dark theme is reported as the
+/// light one's is.
+pub fn lint_contrast_themes(
+    program: &Program,
+    themes: &[(
+        &crate::syntax::parser::ast::ThemeDecl,
+        std::collections::HashMap<String, String>,
+    )],
+    file_of: &dyn Fn(usize) -> String,
+) -> Vec<Diagnostic> {
+    let modifiers = used_modifiers(program);
+    let mut warnings = Vec::new();
+    for (theme, resolved) in themes {
+        let Some(index) = program
+            .declarations
+            .iter()
+            .position(|d| matches!(d, Declaration::Theme(t) if std::ptr::eq(t, *theme)))
+        else {
+            continue;
+        };
+        warnings.extend(lint_theme(theme, resolved, &file_of(index), &modifiers));
+    }
+    warnings
+}
+
+/// The pairings one theme is responsible for, read against what it resolves to.
+fn lint_theme(
+    theme: &crate::syntax::parser::ast::ThemeDecl,
+    resolved: &std::collections::HashMap<String, String>,
+    file: &str,
+    modifiers: &std::collections::HashSet<String>,
+) -> Vec<Diagnostic> {
     let touched: Vec<&str> = theme.tokens.iter().map(|t| t.name.as_str()).collect();
     let mut warnings = Vec::new();
 
@@ -264,7 +293,6 @@ pub fn lint_contrast_in(
         }
     }
 
-    let modifiers = used_modifiers(program);
     for (token, modifier, description) in ON_TONE {
         let label = on(token);
         if !(touched.contains(token) || touched.contains(&label.as_str()))

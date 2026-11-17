@@ -108,7 +108,11 @@ fn main() -> webfluent::Result<()> {
 
 | Load | Configure | Render |
 |---|---|---|
-| `from_str`, `from_file`, `from_files`, `from_dir`, `from_sources` | `page`, `with_theme`, `with_tokens`, `with_lang`, `with_pdf`, `with_slides` | `render_html`, `render_html_fragment`, `render_html_parts` (CSS and body apart), `render_pdf`, `render_slides`, and `render_pdf_report` with the engine's notes |
+| `from_str`, `from_file`, `from_files`, `from_dir`, `from_sources`; `pages()` lists what was loaded | `page`, `with_theme`, `with_tokens`, `with_lang`, `with_pdf`, `with_slides`, `with_studio` (node ids, as `--studio`) | `render_html`, `render_html_fragment`, `render_html_parts` (CSS and body apart), `render_pdf`, `render_slides`, and `render_pdf_report` and `render_slides_report` with the engine's notes |
+
+The data is held to the page's parameters before anything is drawn: data
+that does not fit is refused as `T33`, naming the place
+(`$.items[0].price is missing`), in `WebFluentError::Diagnostics`.
 
 A template is the static part of the language. [Render a
 template](../recipes/render-a-template.md) shows what one may use, and
@@ -146,10 +150,13 @@ fn main() {
 }
 ```
 
-Each field of `BuildOptions` is one of `wf build`'s flags: `output_dir`,
-`allow_output_outside`, `stats`, `format`, `deny_warnings`, `dev` (a `wf
-serve` build), `cache` (`--cache`), `studio` (`--studio`) and `on_line`, a
-callback for each line as the build prints it.
+Each field of `BuildOptions` is one of `wf build`'s flags or what a
+command around it needs: `output_dir`, `allow_output_outside`, `stats`,
+`format`, `color`, `deny_warnings`, `dev` (a `wf serve` build), `cache`
+(`--cache`), `studio` (`--studio`), `sourcemap` (source maps whatever the
+config says), `only_route` (render only the page at one route, for a
+preview), `fakes` (a file of fakes answering every endpoint, as `wf verify
+--fakes`) and `on_line`, a callback for each line as the build prints it.
 
 ### Read a project through a `Vfs`
 
@@ -283,7 +290,7 @@ change in any release. A crate that turns it on pins an exact version:
 
 ```toml
 [dependencies]
-webfluent = { version = "=6.0.0", default-features = false, features = ["internals"] }
+webfluent = { version = "=7.0.0", default-features = false, features = ["internals"] }
 ```
 
 ## Node: the `webfluent` package
@@ -327,8 +334,8 @@ http.createServer(async (req, res) => {
 | `renderHtmlAsync`, `renderHtmlFragmentAsync`, `renderPdfAsync`, `renderSlidesAsync` | The same, as a `Promise`: use these in a server |
 
 The package finds `wf` in `WF_BIN`, then in the absolute directories on
-`PATH` (never the current directory), then in `~/.webfluent/bin` and
-`~/.cargo/bin`. It needs Node 18 or later, and ships its TypeScript
+`PATH` (never the current directory), then in `~/.webfluent/bin`,
+`~/.cargo/bin`, `/usr/local/bin` and `/usr/bin`. It needs Node 18 or later, and ships its TypeScript
 types (`index.d.ts`).
 
 ## Browser: `wf.js`
@@ -361,8 +368,10 @@ if (out.ok) document.querySelector("iframe").src = await preview(out);
 | `check(files, config)` | Every finding, with nothing built |
 | `explain(code)` | `{ code, severity, title, summary, docs }`, or `null` |
 | `version()` | The compiler's version |
-| `preview(out, route?)` | Hands a build to a service worker (`preview-sw.js`) that serves it under `preview/`, as a host would, and resolves to the address for an `<iframe>` |
-| `previewConfig(config)` | `config` with `build.base_path` set to where `preview` serves, so the pages ask for their files there |
+| `preview(out, route?, slot?)` | Hands a build to a service worker (`preview-sw.js`) that serves it under `preview/` (or `preview/<slot>/`, so a page can show several), as a host would, and resolves to the address for an `<iframe>` |
+| `previewConfig(config, slot?)` | `config` with `build.base_path` set to where `preview` serves, so the pages ask for their files there |
+| `inlineConfig(config)`, `previewInline(out, slot?)` | The same for a browser that refuses a service worker: one page, its sheets and scripts inlined, written by `run.html` |
+| `wantsDocument(files, config)` | Whether the config asks for a PDF or a deck, so the PDF build is needed |
 | `registerFont(bytes)` | A face a document may be set in or fall back to (TTF or OTF, as it is, zlib or gzip); resolves to its family |
 | `preload({ document })` | Starts loading before the first call; `document: true` loads the PDF build too |
 
@@ -373,13 +382,13 @@ page around it holds anything worth protecting.
 ### The two builds
 
 `crates/wf-wasm/build.sh` writes two builds, and `wf.js` loads each only
-when a project needs it. Sizes are of the 6.0 build, compressed with
+when a project needs it. Sizes are of the 7.0 build, compressed with
 `gzip -9`:
 
 | File | Raw | Gzipped | Loaded |
 |---|---|---|---|
-| `pkg/wf_wasm_bg.wasm`, the compiler with WebP | 4.8 MB | 1.6 MB | on the first `compile`, `check` or `preload` |
-| `pkg-pdf/wf_wasm_pdf_bg.wasm`, the same with the PDF engine | 8.4 MB | 2.7 MB | the first time a config's `output_type` is `"pdf"` or `"slides"` |
+| `pkg/wf_wasm_bg.wasm`, the compiler with WebP | 5.7 MB | 1.9 MB | on the first `compile`, `check` or `preload` |
+| `pkg-pdf/wf_wasm_pdf_bg.wasm`, the same with the PDF engine | 9.4 MB | 3.0 MB | the first time a config's `output_type` is `"pdf"` or `"slides"` |
 | `pkg-pdf/fonts/*.ttf.z`, the twelve Liberation faces | 2.4 MB | already compressed | with the PDF build |
 | `pkg-pdf/fonts/NotoSansArabic.ttf.gz` | 455 kB | already compressed | the first time a document's text has Arabic in it |
 

@@ -93,7 +93,7 @@ page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages a
                 }
                 Table.Row {
                     Table.Cell { Markdown("`name: Type`") }
-                    Table.Cell("")
+                    Table.Cell { Markdown("for each `:name`") }
                     Table.Cell { Markdown("A route parameter, typed ([Route parameters](#route-parameters))") }
                 }
             }
@@ -173,11 +173,11 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
     }
 }"#, title: "wf")
 
-        Markdown("A parameter is a `String` unless you declare another type, such as `id: Number`. A static build renders a `:param` page once for each value its `paths:` names ([Pre-render a page for each item](/recipes/pre-render-each-item)).")
+        Markdown("Every parameter the path names is declared in the page's header with its type: `slug: String`, or `id: Number` for a number, which the page then reads as one. A path that names a parameter the header does not declare is `R02`. A static build renders a `:param` page once for each value its `paths:` names ([Pre-render a page for each item](/recipes/pre-render-each-item)).")
 
         Heading("Query strings and fragments", id: "query-strings-and-fragments").h2
 
-        Markdown("`query` is the URL's query string as a map, and `hash` is its `#fragment`. The runtime keeps both current, so a page that reads them follows the address:")
+        Markdown("`query` is the URL's query string, a `[String: String]`, and `hash` is its `#fragment`. Reading a key gives a `String?`, since the address may not carry it, so a page gives it a default with `??`. The runtime keeps both current, so a page that reads them follows the address:")
 
         CodeBlock(#"page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived tab = query.tab ?? "all"
@@ -250,7 +250,7 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
         Markdown("The browser evaluates the guard on every navigation.")
 
-        Callout("A guard is a gate in the browser, not a secret. A static build still pre-renders the guarded page's HTML, so keep anything private behind an API that the page fetches.", kind: .caution)
+        Callout("A guard is a gate in the browser, not a secret. A static build still pre-renders the guarded page's HTML, so keep anything private behind an API that the page asks, and that checks who is asking.", kind: .caution)
 
         Heading("Per-page head tags", id: "per-page-head-tags").h2
 

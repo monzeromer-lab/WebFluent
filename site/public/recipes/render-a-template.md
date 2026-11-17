@@ -114,11 +114,16 @@ browser to run the rest:
 | `format` and `ago` | Navigation |
 | `style { }` blocks, flags, themes | Stores |
 | `type`s, `const`s, `data` files and components | Animations |
-| `state` and `derived` values (see below) | `resource` |
+| `state` and `derived` values (see below) | A `resource`'s request |
 
 A `state` is its first value, and a `derived` value is what that works out
 to. So a page may work out its totals once, in order, and show them
 anywhere. A value the data hands over wins over either.
+
+A `resource` sends no request at render time, so it draws its `.loading`
+arm, unless the data gives it a value by its name: `{ "users": {
+"loaded": [ … ] } }` draws `.loaded`, and `{ "users": { "failed": { … } } }`
+draws `.failed`. What `loaded` holds is held to the read's type (`T33`).
 
 A template may declare `type`s and a `theme` like any file. `data` files
 are read relative to the template. `format` and `ago` speak the data's

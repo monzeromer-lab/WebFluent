@@ -109,7 +109,7 @@ so the write is not sent again; it is listed in `network.refused`, each
 `{ method, url, status, at }`, until `network.clearRefused()`. A server that
 is down, or asks the client to wait, keeps the write waiting for later.
 
-A write whose service adds credentials with its hook is sent by a page that
+A write whose service adds credentials with its middleware is sent by a page that
 has that service open, so the worker leaves it — and the writes after it,
 to keep them in order — for the next such page.
 

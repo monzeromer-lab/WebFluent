@@ -66,7 +66,8 @@ pub struct BuildOptions<'a> {
     pub format: Format,
     /// A warning stops the build as an error does — for CI.
     pub deny_warnings: bool,
-    /// A build for `wf serve`: responses are held to their declared types.
+    /// A build for `wf serve`: an error enum's body is held to its declared
+    /// type, beside the check every build makes of a response.
     pub dev: bool,
     /// Whether the findings rendered for a person are in colour.
     pub color: bool,

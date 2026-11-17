@@ -6,6 +6,7 @@ page RecipeChartFromALibrary(path: "/recipes/chart-from-a-library", title: "Draw
  * A bar chart of `values`, one bar a quarter, drawn on `canvas`.
  * @param {HTMLCanvasElement} canvas
  * @param {number[]} values
+ * @returns {Chart}
  */
 function drawSales(canvas, values) {
   return new Chart(canvas, {
@@ -65,6 +66,7 @@ function showSales(chart, values) {
  * A bar chart of `values`, one bar a quarter, drawn on `canvas`.
  * @param {HTMLCanvasElement} canvas
  * @param {number[]} values
+ * @returns {Chart}
  */
 function drawSales(canvas, values) {
   return new Chart(canvas, {
@@ -100,7 +102,7 @@ function showSales(chart, values) {
             Markdown("The other ways an entry in `meta.scripts` can load (`async`, after the page, as a module, or with `globals` your `.wf` code calls directly) are in [Load a library from a CDN](/recipes/library-from-a-cdn).")
 
         }
-        Markdown("- **The library loads first.** The build links each `meta.scripts` entry with `<script defer>`, in order, before your own scripts and the compiled code, so `Chart` exists when `drawSales` runs. It also widens the Content-Security-Policy by the CDN's origin, so the policy that ships beside the page does not block the library. The compiler never fetches the file, so `.wf` code never calls `Chart` directly: your script does.\n- **Your script is a plain browser script.** The build copies `src/sales-chart.js` to `build/js/` as written and puts its top-level names in scope, so the page calls `drawSales` and `showSales` by name. Its JSDoc types each call: `values` must be a list of numbers, and a call with the wrong number of arguments is a `T10` error ([Call your own JavaScript](/recipes/call-your-own-script)). `Chart` and `HTMLCanvasElement` are types WebFluent does not know, so they read as `Any`.\n- **`Host` makes the canvas.** `Host(tag: \"canvas\", …)` is a bare node for somebody else's code. `role: \"img\"` and `aria-label:` give the chart a name a screen reader announces, since a canvas has no text.\n- **`mount:` draws the chart.** It runs when the canvas is made, and what it returns, the `Chart` object, is the handle `update:` and `cleanup:` receive ([Hand an element to a script](/recipes/hand-an-element-to-a-script)).\n- **`update:` follows the data.** It reads `values`, so it runs again whenever the switch changes `values`, and `showSales` gives the existing chart the new figures instead of drawing a new one.\n- **`cleanup:` destroys the chart** when the page leaves, so nothing the library set up outlives the canvas.")
+        Markdown("- **The library loads first.** The build links each `meta.scripts` entry with `<script defer>`, in order, before your own scripts and the compiled code, so `Chart` exists when `drawSales` runs. It also widens the Content-Security-Policy by the CDN's origin, so the policy that ships beside the page does not block the library. The compiler never fetches the file, so `.wf` code never calls `Chart` directly: your script does.\n- **Your script is a plain browser script.** The build copies `src/sales-chart.js` to `build/js/` as written and puts its top-level names in scope, so the page calls `drawSales` and `showSales` by name. Its JSDoc types each call: `values` must be a list of numbers, and a call with the wrong number of arguments is a `T10` error ([Call your own JavaScript](/recipes/call-your-own-script)). `HTMLCanvasElement` reads as an `Element`. `Chart` is a name the project does not declare, so it is the library's own object: the page hands it from `mount:` to `update:` and `cleanup:` without reading inside it.\n- **`Host` makes the canvas.** `Host(tag: \"canvas\", …)` is a bare node for somebody else's code. `role: \"img\"` and `aria-label:` give the chart a name a screen reader announces, since a canvas has no text.\n- **`mount:` draws the chart.** It runs when the canvas is made, and what it returns, the `Chart` object, is the handle `update:` and `cleanup:` receive ([Hand an element to a script](/recipes/hand-an-element-to-a-script)).\n- **`update:` follows the data.** It reads `values`, so it runs again whenever the switch changes `values`, and `showSales` gives the existing chart the new figures instead of drawing a new one.\n- **`cleanup:` destroys the chart** when the page leaves, so nothing the library set up outlives the canvas.")
 
         Heading("Troubleshooting", id: "troubleshooting").h2
 

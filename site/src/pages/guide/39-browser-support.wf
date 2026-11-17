@@ -40,12 +40,17 @@ page BrowserSupportGuide(path: "/reference/browser-support", title: "Browser sup
                 }
                 Table.Row {
                     Table.Cell { Markdown("`IntersectionObserver`") }
-                    Table.Cell { Markdown("`on: .enterView`") }
-                    Table.Cell("The animation plays at once")
+                    Table.Cell { Markdown("`on: .enterView`; `OnThisPage` marking the heading being read") }
+                    Table.Cell("The animation plays at once; the links are listed, none marked")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`field-sizing: content`") }
+                    Table.Cell { Markdown("`Textarea.autosize`") }
+                    Table.Cell("A script grows the box with its text instead")
                 }
                 Table.Row {
                     Table.Cell("Background Sync")
-                    Table.Cell("writes kept offline, sent after the tab closes")
+                    Table.Cell { Markdown("writes kept offline (a `PUT` or a `DELETE`), sent after the tab closes") }
                     Table.Cell("The page sends them the next time it is open and online")
                 }
                 Table.Row {
@@ -88,6 +93,6 @@ page BrowserSupportGuide(path: "/reference/browser-support", title: "Browser sup
 
         Heading("Dialogs and forms", id: "dialogs-and-forms").h2
 
-        Markdown("`Modal` and `Dialog` use the `<dialog>` element and `showModal()`, which every current browser has. Form validation uses the browser's constraint validation alongside the language's own rules ([Forms](/learn/14-forms)).")
+        Markdown("`Modal`, `Dialog`, `AlertDialog` and `Sheet` use the `<dialog>` element and `showModal()`, which every current browser has. Form validation uses the browser's constraint validation alongside the language's own rules ([Forms](/learn/14-forms)).")
     }
 }

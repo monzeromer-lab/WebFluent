@@ -354,7 +354,7 @@ impl Checker<'_, '_> {
                 "T31",
                 format!("`{name}` has no JSDoc, so nothing says what it takes or gives back"),
                 &format!(
-                    "Say it above the function, at {file}:{}: `/** @param {{number}} max … @returns {{string}} */`",
+                    "Say it above the function, at {file}:{}: `/** @param {{number}} max … @returns {{string}} */`; the fix writes one from this call, `@returns {{*}}` for you to narrow",
                     script.line
                 ),
             );

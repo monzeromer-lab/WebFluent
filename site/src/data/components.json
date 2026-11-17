@@ -1758,7 +1758,7 @@
     "data"
    ],
    "cssClass": "wf-host",
-   "example": "Host(tag: \"canvas\", mount: (node) => node.getContext(\"2d\"), cleanup: (ctx) => log(\"gone\"))",
+   "example": "Host(tag: \"canvas\", aria-label: \"Chart\", mount: (node) => node.getBoundingClientRect(), cleanup: (box) => log(\"gone\"))",
    "preview": false,
    "outputs": [],
    "since": "5.0",
@@ -6517,7 +6517,7 @@
     "data"
    ],
    "cssClass": "wf-item",
-   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "example": "state notify = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: notify, label: \"On\") }\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",
@@ -6574,7 +6574,7 @@
     "data"
    ],
    "cssClass": "",
-   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "example": "state notify = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: notify, label: \"On\") }\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",
@@ -6636,7 +6636,7 @@
     "data"
    ],
    "cssClass": "",
-   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "example": "state notify = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: notify, label: \"On\") }\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",
@@ -6698,7 +6698,7 @@
     "data"
    ],
    "cssClass": "",
-   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "example": "state notify = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: notify, label: \"On\") }\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",
@@ -8148,7 +8148,7 @@
     "data"
    ],
    "cssClass": "wf-tree",
-   "example": "state files = [{ path: \"src\", name: \"src\", children: [{ path: \"src/App.wf\", name: \"App.wf\", children: [] }] }]\nstate file = \"\"\nTree(items: files, children: f => f.children, key: f => f.path, bind: file, label: \"Files\") {\n    row(f) { Icon(if f.children.length > 0 { \"folder\" } else { \"file\" })  Text(f.name) }\n}",
+   "example": "state file = \"\"\nTree(items: [{ path: \"src\", name: \"src\", children: [{ path: \"src/App.wf\", name: \"App.wf\", children: [] }] }], children: f => f.children, key: f => f.path, bind: file, label: \"Files\") {\n    row(f) { Icon(if f.children.length > 0 { \"folder\" } else { \"file\" })  Text(f.name) }\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",
@@ -12004,7 +12004,7 @@
     "input"
    ],
    "cssClass": "wf-file-upload",
-   "example": "FileUpload(accept: \"image/*\", label: \"Choose a picture\") { on change(e) { log(e.target.files[0].name) } }",
+   "example": "state photo: File? = null\nFileUpload(bind: photo, accept: \"image/*\", label: \"Choose a picture\")\nif let p = photo { Text(p.name) }",
    "preview": false,
    "outputs": [],
    "since": "5.0",
@@ -19383,7 +19383,7 @@
     "data"
    ],
    "cssClass": "wf-frame",
-   "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = m.data }\n}\nstate version = 1\nFrame(srcdoc: \"<p>Version {version}</p>\", title: \"Example\", sandbox: \"\")",
+   "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = JSON.stringify(m.data) }\n}\nstate version = 1\nFrame(srcdoc: \"<p>Version {version}</p>\", title: \"Example\", sandbox: \"\")",
    "preview": false,
    "outputs": [],
    "since": "5.9.0",

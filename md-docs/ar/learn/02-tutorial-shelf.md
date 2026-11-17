@@ -197,10 +197,13 @@ component BookCard(_ book: Book) {
 
 ([المكوّنات](../../learn/10-components.md)، [العناصر](../../learn/06-elements.md).)
 
-**تحقّق:** شغّل `wf check`. يُبلغ عن خطأ واحد:
-`` error[R01]: `/books/{…}` is not a route ``. تربط البطاقة بصفحة
-الكتاب، ولا صفحة تجيب عن هذا العنوان بعد. يفحص المُصرِّف كل رابط
-مقابل الصفحات التي تعلنها؛ والخطوة التالية تضيف الصفحة.
+**تحقّق:** شغّل `wf check`. يُبلغ عن تحذيرين ولا خطأ:
+`` warning[U03]: `BookCard` is declared but never placed `` و
+`` warning[U04]: `Shelf.count` is declared but never read ``. لا شيء يضع
+البطاقة بعد، ولا شيء يعرض العدد؛ والخطوة التالية تفعل الأمرين.
+وتربط البطاقة أيضًا بـ`/books/…`، وهي صفحة لا وجود لها بعد. يفحص
+المُصرِّف كل رابط مقابل الصفحات التي تعلنها، لكن فيما يرسمه الموقع فقط،
+فلا يقول شيئًا إلى أن توضع البطاقة.
 
 ## الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب
 
@@ -341,7 +344,7 @@ app {
 
 **تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن
 شريط تنقّل. ضع كتابين على رفّك: يصير الرابط
-`Your shelf (2)`. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان
+**Your shelf (2)**. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان
 هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives
 here**.
 
@@ -405,7 +408,7 @@ app {
 **تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج
 فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت
 **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل
-مرة أخرى. ترى `Thank you — we will take a look.`، ويصير النموذج فارغًا.
+مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.
 
 الموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في
 هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في
@@ -423,13 +426,16 @@ api Suggestions(base: "/api") {
 ```wf
 // … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
-    await Suggestions.suggest(body: { title: title, author: author, why: why })
+    try await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
     form.reset()
 }
 ```
 
-([البيانات وواجهات API](../../learn/15-data.md)، [البيئات](../../recipes/environments-and-secrets.md).)
+يأخذ `try` قيمة الاستدعاء، أو يوقف المعالج عند الفشل ويُبلغ عنه، فلا تصير
+`sent` صحيحة إلا حين يصل الاقتراح.
+
+([البيانات وواجهات API](../../learn/15-data.md)، [البيئات والأسرار](../../recipes/environments-and-secrets.md).)
 
 ## الخطوة 8: امنح الموقع سمة
 
@@ -596,8 +602,10 @@ jobs:
 
 **تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا،
 ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**.
-يغطي [النشر](../../recipes/index.md) Netlify وVercel وCloudflare Pages
-وnginx ومضيفين آخرين.
+تغطي الوصفات [Netlify](../../recipes/deploy-to-netlify.md)
+و[Vercel](../../recipes/deploy-to-vercel.md)
+و[Cloudflare Pages](../../recipes/deploy-to-cloudflare-pages.md)
+و[nginx](../../recipes/serve-with-nginx.md) ومضيفين آخرين.
 
 ## البرنامج كاملًا
 
@@ -786,7 +794,7 @@ Shelf موقع كامل، وكل جزء منه يستخدم فكرة واحدة 
 | `validate` و`Form(bind: form)` | نماذج يُتحقَّق منها | [النماذج](../../learn/14-forms.md) |
 | `theme Paper` و`theme Ink` | رموز التصميم والوضع الداكن | [التنسيق](../../learn/13-styling.md) |
 | `test "…" { … click … expect … }` | اختبارات تُصيِّر وتنقر | [الاختبار](../../learn/16-testing.md) |
-| `wf build` و`wf verify` وسير عمل | البناء والفحص والنشر | [النشر](../../recipes/index.md) |
+| `wf build` و`wf verify` وسير عمل | البناء والفحص والنشر | [النشر على GitHub Pages](../../recipes/deploy-to-github-pages.md) |
 
 لتذهب أبعد:
 
@@ -794,7 +802,7 @@ Shelf موقع كامل، وكل جزء منه يستخدم فكرة واحدة 
 - تحدّث مع خادم حقيقي: [البيانات وواجهات API](../../learn/15-data.md).
 - اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](../../recipes/work-offline.md).
 - ترجمه: [الترجمة](../../recipes/translate-a-site.md).
-- ابنِ مشروعًا أكبر: [Pocket](../../recipes/build-a-budget-app.md)، متتبّع ميزانية.
+- ابنِ تطبيقًا آخر خطوةً خطوة: [درس: قائمة مهام](03-tutorial-todos.md).
 
 ## أخطاء شائعة
 
@@ -855,6 +863,9 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 اقرأ عضوًا يعلنه المخزن، أو أعلن العضو الذي تحتاجه:
 `derived count = saved.length` ([T06](../../errors/T06.md)).
 
+للمضيّ أبعد: إن كنت تعرف React أو Vue أو Svelte، فإن [قادم من React أو Vue أو
+Svelte](../coming-from/react.md) يطابق ما تعرفه على WebFluent.
+
 ## التالي
 
-[قادم من React أو Vue أو Svelte](../coming-from/react.md).
+[درس: Todos](03-tutorial-todos.md): تطبيق من صفحة واحدة، فيه مخزن واختبارات.

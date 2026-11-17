@@ -26,7 +26,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Heading("The defaults", id: "the-defaults").h2
 
-                Markdown("This block is what a config holding only a name means. The compiler's test suite checks it against the compiler's own defaults. `i18n` and `offline` are absent unless you add them.")
+                Markdown("This block is what a config holding only a name means. The compiler's test suite checks it against the compiler's own defaults. `i18n`, `offline` and `apis` are absent unless you add them.")
 
                 CodeBlock(#"{
   "name": "my-site",
@@ -681,7 +681,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                         }
                         Table.Row {
                             Table.Cell { Markdown("`\{ \"src\": \"…\", \"globals\": [\"Chart\"] \}`") }
-                            Table.Cell { Markdown("A script whose names `.wf` may call directly.") }
+                            Table.Cell { Markdown("A script whose names `.wf` may call directly, each taking and giving `Json`; a class among them is constructed.") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`\{ \"src\": \"…\", \"async\": true \}`") }
@@ -853,7 +853,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`sync`") }
                             Table.Cell("boolean")
                             Table.Cell { Markdown("`false`") }
-                            Table.Cell("Keeps writes made offline and sends them when the connection returns.")
+                            Table.Cell { Markdown("Keeps a write safe to send twice — a `PUT` or a `DELETE` — that failed for want of a network, and sends it, in order, when the connection returns. A `POST` or a `PATCH` is kept only when its endpoint is marked `idempotent`; any other fails as `.offline(queued: false)`.") }
                         }
                     }
                 }
@@ -905,7 +905,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 CodeBlock(#"{ "lints": { "A11": "off", "U": "error", "R01": "warn" } }"#, title: "json")
 
-                Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop the component does not declare;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused, and so is a key that is not a code or a family. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/errors).")
+                Markdown("You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:\n\n- `R01` — a link to a route that is missing;\n- `C02` — a prop the component does not declare;\n- `S04` — two pages on one route;\n- `I01`, `I02`, `I04` — a message that shows its key or a placeholder.\n\nAsking to lower any other error is itself refused (`E111`), and so is a key that is not a code or a family. There is no loose mode: what 7.0 refuses — `Any` and `Map` (`T23`, `T24`), an untyped `state` or parameter, a `match` with no `.failed` arm (`T21`), a removed request form (`N08`) — stays an error, and [`wf migrate`](/reference/cli#wf-migrate) carries a 6.x project across. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](/errors).")
 
             }
         }

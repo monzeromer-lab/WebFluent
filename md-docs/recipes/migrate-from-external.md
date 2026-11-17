@@ -81,12 +81,15 @@ where 4.2 says it:
 - **A remote module** (`external X from "https://…"`) becomes a
   `meta.scripts` entry with `"module": true` and `"as": "X"`, and its
   `integrity:` moves to `meta.integrity`. Its calls keep working, typed
-  `Any`, since the compiler cannot read a remote file
+  `Json`, since the compiler cannot read a remote file
   ([Load a library from a CDN](library-from-a-cdn.md)).
 - **A local module** (`external X from "./x.js"`, a file in `public/`)
   becomes a plain script at the same path under `src/`, with its exports
   removed and its signatures as JSDoc. `X.f(…)` is rewritten to `f(…)`
-  ([Call your own JavaScript](call-your-own-script.md)).
+  ([Call your own JavaScript](call-your-own-script.md)). An `Any` in the
+  old signature is written `{*}`, which reads as `Json`, so a parameter
+  that takes an element is a `T01` at the call that `wf migrate` lists for
+  you: write `{HTMLElement}` there, as the script above does.
 - **An `external element`** call site becomes `Element("tag-name", …)`,
   with its arguments and handlers as they were
   ([Place a custom element from a library](place-a-custom-element.md)).

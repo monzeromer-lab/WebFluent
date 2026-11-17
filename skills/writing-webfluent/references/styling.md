@@ -87,6 +87,7 @@ theme Day {
 /// The same brand at night: only what changes.
 theme Night {
     color-primary: #2DD4BF
+    color-on-primary: #14171A
     color-background: #0C0A09
     color-surface: #1C1917
     color-text: #F5F5F4
