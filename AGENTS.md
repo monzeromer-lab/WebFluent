@@ -154,7 +154,10 @@ stylesheets under `src/`, those `meta.stylesheets` links, and `public/`
 served beside it. A test that only looks needs no browser and is compared
 to its snapshot as well. The steps run in the order written, everything is found
 by the name a reader sees (a button's text, a control's label, placeholder
-or `aria-label`), and a handler that throws fails the test.
+or `aria-label`) among what a reader can reach — never a control in a
+closed dialog, a hidden branch or under `inert`; two a reader could mean
+fail the step, saying so — `expect` reads an open dialog (an `ask`) and
+the toasts as well as the page, and a handler that throws fails the test.
 
 | Step | What it does |
 |---|---|

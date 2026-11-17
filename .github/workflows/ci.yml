@@ -352,6 +352,14 @@ jobs:
           for d in people petstore oxn; do (cd tests/fixtures/openapi/$d && ../../../../target/release/wf api check); done
           target/release/wf test tests/fixtures/openapi/people
 
+      # Every project whose tests the guide and the starters promise pass:
+      # the tutorials and the other fixtures, each in its own browser.
+      - name: The tutorials' and fixtures' tests
+        run: |
+          for d in examples/tutorials/easy-todos examples/tutorials/medium-field-notes examples/tutorials/hard-pocket tests/fixtures/dashboard tests/fixtures/content tests/fixtures/standards; do
+            target/release/wf test "$d"
+          done
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest

@@ -5,7 +5,7 @@ license: MPL-2.0
 compatibility: Needs the wf command on PATH (install.sh or install.ps1 in the WebFluent repository). Tests that click, and wf verify, need Chrome or Chromium.
 metadata:
   author: Monzer Omer
-  version: "7.0.0"
+  version: "7.0.1"
 ---
 
 # Writing WebFluent
@@ -37,7 +37,7 @@ Read this file, then only the reference the task needs:
      it. Read it by section (`grep -n '^## ' AGENTS.md`, then the lines you
      need).
    - With no `AGENTS.md`, use [references/language.md](references/language.md),
-     the reference of WebFluent 7.0.0.
+     the reference of WebFluent 7.0.1.
    - If the compiler and the reference disagree, the compiler is right. Say so.
    - A project written for WebFluent 6 is refused by 7 until it's migrated:
      `wf migrate --check` lists what changes, `wf migrate` rewrites it, then

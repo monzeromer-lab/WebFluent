@@ -252,7 +252,7 @@ Both installers read two environment variables:
 | Variable | Effect | Example |
 |---|---|---|
 | `WF_INSTALL_DIR` | Installs the binary somewhere other than `~/.webfluent/bin` | `WF_INSTALL_DIR=/opt/wf/bin` |
-| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v7.0.0` |
+| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v7.0.1` |
 
 Running the installer again upgrades `wf` in place.
 
@@ -9762,6 +9762,15 @@ button's name is its text; a control's is its label, its placeholder or its
 ([Accessibility](/about/accessibility)), so a test that passes here is a
 page somebody can use.
 
+It finds only what a reader can reach. A button in a closed `Sheet`, a
+branch that is hidden, or anything under `inert` is passed over, so
+`click "Juice"` presses the one that shows, not its namesake in a sheet that
+is shut. When two a reader could mean carry the name, the step fails and
+says so, rather than guessing: name the one meant more closely
+(`aria-label: "Remove Tea"`). And `expect` reads what is drawn above the
+page as well: an open dialog, such as the one `ask(…)` draws, and the
+toasts.
+
 > [!NOTE]
 > **Coming from Testing Library?** There is no `getByTestId` and no
 > `waitFor`. A step finds an element only by the name a reader sees, so a
@@ -13440,7 +13449,7 @@ repository; the build command installs `wf` as
 In the Pages project's build settings, set the build command:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.0 bash && ~/.webfluent/bin/wf build
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash && ~/.webfluent/bin/wf build
 ```
 
 and set the build output directory to `build`.
@@ -13519,7 +13528,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.0 bash
+      - run: curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash
       - run: ~/.webfluent/bin/wf build
       # Only for a single-page build ("ssg": false): GitHub serves
       # 404.html for an address it has no file for, so the app loads there
@@ -13584,7 +13593,7 @@ Add `netlify.toml` at the project's root:
 
 ```toml
 [build]
-  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.0 bash && ~/.webfluent/bin/wf build"
+  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash && ~/.webfluent/bin/wf build"
   publish = "build"
 ```
 
@@ -13635,7 +13644,7 @@ build:
 
 ```json
 {
-  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.0 bash && ~/.webfluent/bin/wf build",
+  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash && ~/.webfluent/bin/wf build",
   "outputDirectory": "build",
   "headers": [
     {
@@ -13693,7 +13702,7 @@ Add a `Dockerfile` at the project's root:
 ```dockerfile
 FROM debian:stable-slim AS build
 RUN apt-get update && apt-get install -y curl ca-certificates
-RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.0 bash
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash
 WORKDIR /site
 COPY . .
 RUN /root/.webfluent/bin/wf build
@@ -14552,7 +14561,7 @@ You need a project that builds with `wf build` on your own machine, and a
 build machine with `curl` and `bash`.
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.0 bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.0.1 bash
 ~/.webfluent/bin/wf build
 ```
 

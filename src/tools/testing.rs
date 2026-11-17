@@ -1216,7 +1216,14 @@ fn play(page: &mut dyn Page, test: &TestDecl) -> Result<std::result::Result<(), 
 ///
 /// What [`Page::eval`] returns.
 pub fn visible_text(page: &mut dyn Page) -> Result<String> {
-    let value = page.eval("((document.querySelector('main') || document.body).innerText || '')")?;
+    // The page, and what is drawn above it: an open dialog (an `ask`, a
+    // modal) and the toasts — each once, whether or not it is in `<main>`.
+    let value = page.eval(
+        "(() => { const main = document.querySelector('main') || document.body; \
+         const above = [...document.querySelectorAll('dialog[open], .wf-toast-container')] \
+           .filter((el) => !main.contains(el)); \
+         return [main, ...above].map((el) => el.innerText || '').join('\\n'); })()",
+    )?;
     Ok(value.as_str().unwrap_or_default().to_string())
 }
 
@@ -1279,7 +1286,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             let name = text(target);
             let done = page.eval(&step_script("click", &name, ""))?;
             if done.as_str() != Some("ok") {
-                return Ok(Err(format!("nothing to click called {name:?}")));
+                return Ok(Err(cannot_act(done.as_str(), &format!("nothing to click called {name:?}"), &name)));
             }
             page.settle(120)?;
         }
@@ -1294,7 +1301,9 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
                 Some("no-option") => {
                     return Ok(Err(format!("{into:?} has no option {what:?}")));
                 }
-                _ => return Ok(Err(format!("no control called {into:?} to type into"))),
+                other => {
+                    return Ok(Err(cannot_act(other, &format!("no control called {into:?} to type into"), &into)));
+                }
             }
             page.settle(120)?;
         }
@@ -1335,8 +1344,10 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             let where_ = target.as_ref().map(text).unwrap_or_default();
             let done = page.eval(&step_script("press", &where_, &key))?;
             if done.as_str() != Some("ok") {
-                return Ok(Err(format!(
-                    "nothing called {where_:?} to press {key:?} in"
+                return Ok(Err(cannot_act(
+                    done.as_str(),
+                    &format!("nothing called {where_:?} to press {key:?} in"),
+                    &where_,
                 )));
             }
             page.settle(120)?;
@@ -1598,11 +1609,29 @@ const FIND: &str = r#"
         : heard(el),
     ].some((t) => words(t) === n);
   };
-  const find = (n, kinds) => {
-    const all = [...document.querySelectorAll(kinds)];
-    // The one whose own name it is, not an ancestor that contains it.
-    return all.filter((el) => named(el, n)).pop() || null;
+  // What a reader can reach: drawn, and not inside something hidden, inert
+  // or a dialog that is not open — never a control in a closed sheet.
+  const reachable = (el) => {
+    if (el.closest("[hidden], [inert], dialog:not([open])")) return false;
+    if (typeof el.checkVisibility === "function") return el.checkVisibility();
+    return el.getClientRects().length > 0;
   };
+  // How the last search went: how many a reader could reach, and how many
+  // carried the name but were hidden.
+  let seen = { reachable: 0, hidden: 0 };
+  const find = (n, kinds) => {
+    const all = [...document.querySelectorAll(kinds)].filter((el) => named(el, n));
+    // The one whose own name it is, not an ancestor that contains it.
+    const own = all.filter((el) => !all.some((o) => o !== el && el.contains(o)));
+    const shown = own.filter(reachable);
+    seen = { reachable: shown.length, hidden: own.length - shown.length };
+    // The first in the page's order, as a reader meets it.
+    return shown[0] || null;
+  };
+  // What a step says when it cannot act: nothing by the name, only hidden
+  // ones, or more than one a reader could mean.
+  const missing = () => (seen.hidden > 0 ? "hidden:" + seen.hidden : "none");
+  const many = () => (seen.reachable > 1 ? "many:" + seen.reachable : null);
 "#;
 
 const ACT: &str = r#"
@@ -1611,7 +1640,8 @@ const ACT: &str = r#"
     // control, or a widget's role — a tab, a menu's item, an option, a row
     // of a tree.
     const el = find(name, "button, a, [role=button], [role=link], [role=tab], [role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option], [role=treeitem], [role=switch], [role=checkbox], [role=radio], input, select, summary, label, [onclick]");
-    if (!el) return "none";
+    if (!el) return missing();
+    if (many()) return many();
     // A real press puts the focus on what it presses, when that can take
     // it — so a key pressed next goes there, as it would for a reader.
     if (el.focus && el.matches && el.matches("button, a[href], input, select, textarea, summary, [tabindex]")) el.focus({ preventScroll: true });
@@ -1620,7 +1650,8 @@ const ACT: &str = r#"
   }
   if (what === "type") {
     const el = find(name, "input, textarea, select");
-    if (!el) return "none";
+    if (!el) return missing();
+    if (many()) return many();
     el.focus();
     if (el.tagName === "SELECT") {
       // A select is chosen by what the reader sees: an option's text, or
@@ -1643,7 +1674,8 @@ const ACT: &str = r#"
   }
   if (what === "press") {
     const el = name ? find(name, "input, textarea, select, button, a, [tabindex]") : (document.activeElement || document.body);
-    if (!el) return "none";
+    if (!el) return missing();
+    if (name && many()) return many();
     // `press "ctrl+k"`, `press "mod+shift+p"`: the modifiers held with the
     // key, read as `on key("…")` reads them — `mod` is ⌘ on a Mac and Ctrl
     // elsewhere — and the key's short names (`esc`, `down`, `space`).
@@ -1683,6 +1715,21 @@ const ACT: &str = r#"
   }
   return "none";
 "#;
+
+/// Why a step found nothing to act on: nothing by the name, only hidden
+/// ones (in a closed dialog, a hidden branch), or several a reader could
+/// mean.
+fn cannot_act(answer: Option<&str>, none: &str, name: &str) -> String {
+    match answer.and_then(|a| a.split_once(':')) {
+        Some(("hidden", n)) => format!(
+            "{none} that a reader can reach: {n} by that name are hidden (a closed dialog, a hidden branch)"
+        ),
+        Some(("many", n)) => format!(
+            "{n} elements a reader can reach are called {name:?}: name the one meant more closely"
+        ),
+        _ => none.to_string(),
+    }
+}
 
 fn indent_acting(text: &str) -> String {
     text.lines().take(24).fold(String::new(), |mut acc, l| {

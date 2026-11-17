@@ -1,5 +1,83 @@
 [
  {
+  "version": "7.0.1",
+  "id": "7.0.1",
+  "date": "2026-11-17",
+  "when": "17 November 2026",
+  "summary": "Fixes found by reading every page of the guide against 7.0 and building\nits examples, and the three open issues.",
+  "sections": [
+   {
+    "title": "Tests act as a reader can",
+    "id": "7.0.1-tests-act-as-a-reader-can",
+    "intro": "",
+    "items": [
+     {
+      "text": "**A step acts only on what a reader can reach.** `click`, `type` and\n`press` pass over a control in a closed `Sheet` or `Modal`, a hidden\nbranch or anything under `inert`, and take the first one a reader meets.\nTwo a reader could mean fail the step and say so, and a name that only\nsomething hidden carries says that too.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`expect` reads what is drawn above the page**: an open dialog, such as\nthe one `ask(…)` draws, and the toasts.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A page and a component may each have an async action of one name.** A\ncomponent's `pending` now belongs to each instance, so two cards side by\nside no longer join each other's calls, and a test page no longer stops\non `Identifier '_begin_pending' has already been declared`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**An error a fake answers with** carries the message the network's\nwould, and a read over a faked endpoint fails with it rather than\n`[object Object]`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "The runtime and the checker",
+    "id": "7.0.1-the-runtime-and-the-checker",
+    "intro": "",
+    "items": [
+     {
+      "text": "**`Host(tag: \"svg\")` is an SVG element**, live and in the static paint,\nso what a script draws in it paints.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A `match` on a `stream` no longer throws**: a stream has a `closure`,\nand its `.messages` and `on message(m)` hold what it declares it\nreceives.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`after` and `every` take a `Duration`** — `after(3.seconds)` — as the\nguide shows.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`A13` checks the dark theme** as well as the site's. The `spa`\nstarter's dark theme and the tutorials' now name a label colour that\nclears it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A state read only as a `persist`'s `key:` is not reported unused, and\n`N08` no longer suggests `window.fetch`, which the checker refuses.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Docs, the agent reference and the skill",
+    "id": "7.0.1-docs-the-agent-reference-and-the-skill",
+    "intro": "Every page outside the Learn chapters already reviewed — the reference,\nthe recipes, the about and coming-from pages, the Arabic pages and every\nerror page — was read against 7.0 and its examples built and run, and so\nwere `AGENTS.md` and the `writing-webfluent` skill that `wf init` writes\ninto a project. Pages that still taught `Any`, `Map`, `fetch`, the 6.x read\narms or gradual typing are rewritten; the grammar reference covers the\nservice, type and test syntax; the skill covers the request contract,\nfakes, `wf api add`, `wf migrate` and the theme's tokens. The installers\nsuggest pinning `v7.0.1`, and the editor follows a YAML OpenAPI spec.",
+    "items": [],
+    "after": ""
+   }
+  ],
+  "count": 9
+ },
+ {
   "version": "7.0.0",
   "id": "7.0.0",
   "date": "2026-11-17",

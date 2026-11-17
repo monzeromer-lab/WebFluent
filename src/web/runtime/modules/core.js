@@ -377,7 +377,11 @@
   let i18nInstance = null;
 
   function el(tag, attrs, ...children) {
-    const el = document.createElement(tag);
+    // An `svg` (a `Host(tag: "svg")`) is made in the SVG namespace, or the
+    // browser treats it as an unknown HTML element and paints nothing a
+    // script draws in it.
+    const svg = tag === "svg";
+    const el = svg ? document.createElementNS("http://www.w3.org/2000/svg", "svg") : document.createElement(tag);
     // A select's value only takes once its options exist, so it is applied
     // after the children; set before them it was silently ignored.
     let selectValue;
@@ -404,11 +408,16 @@
         } else if (k.startsWith("on:")) {
           el.addEventListener(k.slice(3), v);
         } else if (k === "className" || k === "class") {
+          // An SVG element's `className` is not a string: its class is an
+          // attribute.
           if (typeof v === "function") {
             effect(() => {
               const c = String(v());
-              if (el.className !== c) el.className = c;
+              if (svg) el.setAttribute("class", c);
+              else if (el.className !== c) el.className = c;
             });
+          } else if (svg) {
+            el.setAttribute("class", v);
           } else {
             el.className = v;
           }

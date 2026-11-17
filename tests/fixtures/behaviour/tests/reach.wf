@@ -1,0 +1,23 @@
+test "a Host made as svg paints what a script draws in it" {
+    Drawing
+    press "Tab"
+    expect "drawn as svg, 80 wide"
+}
+
+test "click presses the control a reader can reach, not one in a closed sheet" {
+    Board
+    click "Juice"
+    expect "Picked: juice chip"
+}
+
+test "a page and a component keep their own async action, and expect reads an ask" {
+    Move
+    click "Start walk"
+    expect "Start the walk?"
+    click "Start"
+    expect "walk started"
+    click "Move"
+    expect "Move now?"
+    click "Stay"
+    expect "not moved"
+}

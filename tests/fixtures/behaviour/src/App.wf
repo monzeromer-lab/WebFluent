@@ -46,3 +46,42 @@ component Clash(label: String = "c") {
     Button("Fail") { on click { fail() } }
     row(s: "r")
 }
+
+// A `Host(tag: "svg")` is an SVG element, so what a script draws in it paints.
+component Drawing {
+    Host(tag: "svg", aria-label: "Circle", mount: (n) => markDrawing(n))
+}
+
+// A control in a closed sheet is not one a reader can press: `click "Juice"`
+// presses the button that shows.
+component Board {
+    state kind = "meat"
+    state sheet = false
+    state picked = ""
+    Button("Juice") { on click { picked = "juice chip" } }
+    Text("Picked: {picked}")
+    Sheet(visible: sheet, title: "Add food").closable {
+        on close { sheet = false }
+        ToggleGroup(bind: kind, label: "Kind") {
+            ToggleGroup.Item("Meat", value: "meat")
+            ToggleGroup.Item("Juice", value: "juice")
+        }
+    }
+}
+
+// A page and a component each with an async action called `begin`: each
+// keeps its own, and the test page draws them both.
+component Walk {
+    state said = "walk not started"
+    action begin() { if await ask("Start the walk?", yes: "Start", no: "Not yet") { said = "walk started" } }
+    Button("Start walk") { on click { begin() } }
+    Text(said)
+}
+page Move(path: "/move", title: "Move", description: "Two actions of one name.") {
+    state moved = "not moved"
+    action begin() { if await ask("Move now?", yes: "Move", no: "Stay") { moved = "moved" } }
+    Heading("Move").h1
+    Button("Move") { on click { begin() } }
+    Text(moved)
+    Walk
+}

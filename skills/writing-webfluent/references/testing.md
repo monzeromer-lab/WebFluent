@@ -66,7 +66,10 @@ test "a line of none says it was removed"(data: { line: { name: "Tea", qty: 0, p
 A test with a step that acts (`click`, `type … into`, `press`) is compiled
 into a real page and run in headless Chrome. The steps run in order, and
 everything is found by the name a reader sees: a button's text, a control's
-label, placeholder or `aria-label`.
+label, placeholder or `aria-label`. A step acts only on what a reader can
+reach — a control in a closed dialog or a hidden branch is passed over — and
+two a reader could mean fail the step, saying so. `expect` reads an open
+dialog (an `ask`) and the toasts as well as the page.
 
 ```wf
 /// The cart: what is in it, and how many.

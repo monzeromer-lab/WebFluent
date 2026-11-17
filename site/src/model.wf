@@ -31,7 +31,7 @@ const VERSION = "7.0"
 
 /// The release the compiler in the page is: `scripts/site-wasm.sh` ships it
 /// under `/wasm/<release>/`, and the live examples load it from there.
-const WF_RELEASE = "7.0.0"
+const WF_RELEASE = "7.0.1"
 
 /// Where that compiler lives.
 const WASM = "/wasm/" + WF_RELEASE + "/"

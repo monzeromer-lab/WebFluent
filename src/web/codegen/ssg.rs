@@ -2657,6 +2657,13 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         if name == "Tcell" && (ctx.in_thead || element_tag(name, &ui.modifiers) == "th") {
             attrs.push("scope=\"col\"".to_string());
             "th"
+        } else if name == "Host" {
+            // The element the live page makes: an `svg`, a `canvas`, … as
+            // `tag:` asks.
+            crate::project::builtin::host_tag(ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, Expr::StringLiteral(t)) if k == "tag" => Some(t.as_str()),
+                _ => None,
+            }))
         } else {
             element_tag(name, &ui.modifiers)
         };

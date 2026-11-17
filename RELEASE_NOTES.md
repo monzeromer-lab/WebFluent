@@ -1,3 +1,52 @@
+# WebFluent v7.0.1 Release Notes
+
+Fixes found by reading every page of the guide against 7.0 and building
+its examples, and the three open issues.
+
+## Tests act as a reader can
+
+- **A step acts only on what a reader can reach.** `click`, `type` and
+  `press` pass over a control in a closed `Sheet` or `Modal`, a hidden
+  branch or anything under `inert`, and take the first one a reader meets.
+  Two a reader could mean fail the step and say so, and a name that only
+  something hidden carries says that too.
+- **`expect` reads what is drawn above the page**: an open dialog, such as
+  the one `ask(…)` draws, and the toasts.
+- **A page and a component may each have an async action of one name.** A
+  component's `pending` now belongs to each instance, so two cards side by
+  side no longer join each other's calls, and a test page no longer stops
+  on `Identifier '_begin_pending' has already been declared`.
+- **An error a fake answers with** carries the message the network's
+  would, and a read over a faked endpoint fails with it rather than
+  `[object Object]`.
+
+## The runtime and the checker
+
+- **`Host(tag: "svg")` is an SVG element**, live and in the static paint,
+  so what a script draws in it paints.
+- **A `match` on a `stream` no longer throws**: a stream has a `closure`,
+  and its `.messages` and `on message(m)` hold what it declares it
+  receives.
+- **`after` and `every` take a `Duration`** — `after(3.seconds)` — as the
+  guide shows.
+- **`A13` checks the dark theme** as well as the site's. The `spa`
+  starter's dark theme and the tutorials' now name a label colour that
+  clears it.
+- A state read only as a `persist`'s `key:` is not reported unused, and
+  `N08` no longer suggests `window.fetch`, which the checker refuses.
+
+## Docs, the agent reference and the skill
+
+Every page outside the Learn chapters already reviewed — the reference,
+the recipes, the about and coming-from pages, the Arabic pages and every
+error page — was read against 7.0 and its examples built and run, and so
+were `AGENTS.md` and the `writing-webfluent` skill that `wf init` writes
+into a project. Pages that still taught `Any`, `Map`, `fetch`, the 6.x read
+arms or gradual typing are rewritten; the grammar reference covers the
+service, type and test syntax; the skill covers the request contract,
+fakes, `wf api add`, `wf migrate` and the theme's tokens. The installers
+suggest pinning `v7.0.1`, and the editor follows a YAML OpenAPI spec.
+
 # WebFluent v7.0.0 Release Notes
 
 7.0 is strict, and a request is a contract. Every value has a type the

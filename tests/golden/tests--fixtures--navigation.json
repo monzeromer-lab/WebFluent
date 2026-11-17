@@ -2,8 +2,8 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "b65207f1c63ba24c4333dc50c027025499e472d5aca41fbb5a6f3db0bc66f90a",
-    "app.js.gz": "f441795d88a6c7bac9a3125fee34e7db66980f5cbe2050f0040f98ae440aa703",
+    "app.js": "4fefd0655eb20911ce703d008627795530112765efad73c2634e02ea5733538f",
+    "app.js.gz": "c097b2b40ae21c41bab71ed83f24486138ba0aa9171ac2ac11c9415146fb5da4",
     "compiler/index.html": "d9dcb5597afb0131668714d8483b5119b7a229986fdd0776644db5037571e907",
     "compiler/index.html.gz": "79f839f55c7fa2d307313f3255f6eaabeeaf7fbc22eee7b3f3768f3398cc1470",
     "editor/index.html": "f5ce771f27639b705dbbd0ff816fa20b5f4613e98292084d1d3fd5f6d2380bae",

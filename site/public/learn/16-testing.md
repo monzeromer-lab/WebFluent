@@ -140,6 +140,15 @@ button's name is its text; a control's is its label, its placeholder or its
 ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)), so a test that passes here is a
 page somebody can use.
 
+It finds only what a reader can reach. A button in a closed `Sheet`, a
+branch that is hidden, or anything under `inert` is passed over, so
+`click "Juice"` presses the one that shows, not its namesake in a sheet that
+is shut. When two a reader could mean carry the name, the step fails and
+says so, rather than guessing: name the one meant more closely
+(`aria-label: "Remove Tea"`). And `expect` reads what is drawn above the
+page as well: an open dialog, such as the one `ask(…)` draws, and the
+toasts.
+
 > [!NOTE]
 > **Coming from Testing Library?** There is no `getByTestId` and no
 > `waitFor`. A step finds an element only by the name a reader sees, so a

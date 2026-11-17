@@ -161,7 +161,6 @@ impl JsCodegen {
         self.body.refs = crate::check::sema::types::ref_names(&comp.body);
         self.body.own_names = declared_names(&comp.body);
         self.body.body_signals = body_signals(&comp.body);
-        self.emit_pending_signals(&comp.body);
         // A form handle resolves as a bare name like a ref does, but is
         // declared here, once, as a form.
         let handles = self.body.refs.clone();
@@ -198,6 +197,9 @@ impl JsCodegen {
             "_p = WF.props(_p, {{ {} }});",
             defaults.join(", ")
         ));
+        // Each instance's own: two cards side by side never join each
+        // other's calls, and a page's action of the same name is its own.
+        self.emit_pending_signals(&comp.body);
         for line in forms {
             self.emit_line(&line);
         }
