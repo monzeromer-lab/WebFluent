@@ -773,7 +773,8 @@ get report(id: String) at "reports/{id}" -> Json! as: .blob
   a failure's body. `cache:` sets a cache policy for that endpoint alone.
 
 A call passes the endpoint's parameters by name, and one with no default
-that may not be null must be given. Called in an action, it is a promise of
+that may not be null must be given; one it leaves out that has a default
+is sent with that default. Called in an action, it is a promise of
 a result: `await` it, then `match` it or pass its failure up with `try`
 ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`,
 `headers:`, `timeout:` and `retry:`, and in a `resource` also `refresh:`
@@ -1312,8 +1313,8 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 Use the field the type declares, `u.name`, or add `fullName` to the `type`
 if the server sends it ([T05](../errors/T05.md)).
 
-**Reading `.data` as if it had arrived.** Before the first answer,
-`name.data` is `null`:
+**Reading `.value` as if it had arrived.** Before the first answer,
+`name.value` is `null`:
 
 ```wf expect=T04
 type User { id: String, name: String }

@@ -33,10 +33,13 @@ type ReleaseNotes {
 }
 
 /// One release: its version, which is its anchor, its date and summary,
-/// then its sections. Only the newest shows every section from the start;
+/// then its sections. Only the newest (and one not released yet) shows
+/// every section from the start;
 /// an older one shows its first and keeps the rest a click away.
 component ReleaseEntry(_ release: ReleaseNotes, latest: Bool = false) {
     state all = false
+    // The newest release, and one still being written, show every section.
+    derived whole = latest || release.date == ""
 
     Stack(gap: .md, id: release.id, class: "changelog-release") {
         style {
@@ -55,6 +58,9 @@ component ReleaseEntry(_ release: ReleaseNotes, latest: Bool = false) {
             if latest {
                 Text(t("changelog.latest"), class: "bp-label", data-tone: "kind")
             }
+            if release.date == "" {
+                Text(t("changelog.unreleased"), class: "bp-label")
+            }
             if release.when != "" {
                 Text(release.when).muted { style { margin: 0; font-size: 14px } }
             }
@@ -65,8 +71,8 @@ component ReleaseEntry(_ release: ReleaseNotes, latest: Bool = false) {
         }
 
         for section, k in release.sections by section.id {
-            if latest || k == 0 {
-                NotesBlock(section, shown: if latest { 4 } else { 3 })
+            if whole || k == 0 {
+                NotesBlock(section, shown: if whole { 4 } else { 3 })
             } else {
                 show all {
                     NotesBlock(section, shown: 4)
@@ -74,7 +80,7 @@ component ReleaseEntry(_ release: ReleaseNotes, latest: Bool = false) {
             }
         }
 
-        if !latest && release.sections.length > 1 {
+        if !whole && release.sections.length > 1 {
             Button(if all { t("changelog.fewer") } else { t("changelog.all", { count: release.count }) }, aria-expanded: all).sm.outlined {
                 style { align-self: flex-start }
                 on click { all = !all }
@@ -167,6 +173,8 @@ component VersionList(releases: [ReleaseNotes] = []) {
                     Text(release.version, class: "bp-mono")
                     if release.date != "" {
                         Text(release.date.slice(5)).muted { style { margin: 0; font-size: 12px } }
+                    } else {
+                        Text(t("changelog.next")).muted { style { margin: 0; font-size: 12px } }
                     }
                 }
             }

@@ -64,28 +64,30 @@ exact numbers move a little from release to release):
 
 ```text
   What it weighs
-    app.js                               49.4 kB  (16.7 kB gzipped)
-    styles.css                           26.5 kB  (5.0 kB gzipped)
-    pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
+    app.js                               68.6 kB  (22.7 kB gzipped)
+    styles.css                           29.7 kB  (5.7 kB gzipped)
+    pages/Settings.js                     9.0 kB  (2.2 kB gzipped)
     pages/Profile.js                      5.6 kB  (1.5 kB gzipped)
     pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
     pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
-    total                                99.7 kB
+    total                               122.3 kB
 
-  Runtime: 19 of 44 modules, 123.5 kB of 406.7 kB kept, 110.7 kB with its names shortened (before minifying)
-    core          26.3 kB  always
-    router        13.9 kB  WF.router
-    form          12.7 kB  WF.form
+  Runtime: 24 of 58 modules, 170.9 kB of 594.0 kB kept, 153.2 kB with its names shortened (before minifying)
+    core          27.6 kB  always
+    layer         19.6 kB  needed by drawer
+    form          15.8 kB  WF.form
+    router        14.4 kB  WF.router
     motion        12.6 kB  enter:
     each          10.6 kB  WF.each
-    store          9.1 kB  WF.store
-    keep           8.9 kB  WF.persist
+    store          9.9 kB  WF.store
+    keep           9.6 kB  WF.persist
+    …
     field          2.7 kB  WF.field
     …
-    left out: keys format offline peer scalars text slot browser host …
+    left out: format offline peer scalars text slot browser host …
 
-  Tokens: 30 nothing in the output names, left out
+  Tokens: 33 nothing in the output names, left out
 ```
 
 Read it in three parts:

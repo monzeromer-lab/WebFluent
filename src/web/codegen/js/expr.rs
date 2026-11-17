@@ -529,6 +529,12 @@ impl JsCodegen {
                     .iter()
                     .find(|a| matches!(a, Expr::MapLiteral(_)))
                     .map_or_else(|| "{}".to_string(), |a| self.emit_expr_in(a, cx));
+                // The type the answer goes into, from the `let` it is
+                // awaited in: held to it, as a resource's is.
+                let options = match self.answer_shape.borrow_mut().take() {
+                    Some(shape) => format!("{{ ...{options}, shape: {shape} }}"),
+                    None => options,
+                };
                 format!("WF.httpCall(\"{}\", {url}, {options})", verb.to_uppercase())
             }
             // `Json.string("x")`: the value itself, which is the JSON.
@@ -653,7 +659,9 @@ impl JsCodegen {
                         // list's `splice` leaves it calling something that is not
                         // there. The list methods stay for `Todos.items.remove(0)`,
                         // which reaches the list rather than the store.
-                        if matches!(obj.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) {
+                        if matches!(obj.as_ref(), Expr::Identifier(s) if self.stores.contains(s))
+                            || self.is_api(obj)
+                        {
                             return format!("{}.{}({})", obj_str, method, args_str.join(", "));
                         }
 
@@ -684,6 +692,9 @@ impl JsCodegen {
                             && !store_states.contains(s)
                             && !self.store_locals.borrow().contains(s)
                         {
+                            return format!("{}.{}({})", obj_str, method, args_str.join(", "));
+                        }
+                        if self.is_api(obj) {
                             return format!("{}.{}({})", obj_str, method, args_str.join(", "));
                         }
                         // The same table the page emitter reads. A bare name that

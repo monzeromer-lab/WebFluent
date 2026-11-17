@@ -340,7 +340,7 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
   - `on close` runs when it closes, however it was closed.
   - `title:` is its heading, which names it (`A08` without one).
     `Modal.Footer` is the row of actions, and `.closable` adds a close
-    button. [`Modal`](https://webfluent.monzeromer.dev/reference.md#modal) lists the rest.
+    button. [`Modal`](https://webfluent.monzeromer.dev/reference/modal.md) lists the rest.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds.
   It is announced politely to screen readers. Put it under a condition that
   turns true, or call `toast(…)` from a handler (below).
@@ -519,9 +519,9 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 
 Every option of these — `placement:`, `offset:`, `.arrow`, a menu's
 `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and
-`shortcut:` — is listed under [`Popover`](https://webfluent.monzeromer.dev/reference.md#popover),
-[`Menu`](https://webfluent.monzeromer.dev/reference.md#menu) and
-[`Tooltip`](https://webfluent.monzeromer.dev/reference.md#tooltip). To ask before a destructive
+`shortcut:` — is listed under [`Popover`](https://webfluent.monzeromer.dev/reference/popover.md),
+[`Menu`](https://webfluent.monzeromer.dev/reference/menu.md) and
+[`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip.md). To ask before a destructive
 action, see [Build a confirm dialog](https://webfluent.monzeromer.dev/recipes/confirm-dialog.md).
 
 ## Gestures: drag, long-press, swipe and the splitter
@@ -576,7 +576,7 @@ page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
 
 [On every element](https://webfluent.monzeromer.dev/reference.md#on-every-element) lists the
 drag props and the gesture events in full, `dropValue:` and
-`on dragmove(d)` among them; [`Splitter`](https://webfluent.monzeromer.dev/reference.md#splitter)
+`on dragmove(d)` among them; [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter.md)
 lists its props.
 
 On a call of your own component, the drag, the drop and the gestures apply

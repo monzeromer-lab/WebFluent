@@ -1952,7 +1952,7 @@ that stores the site for when the network is gone:
   that is down or asks to wait keeps it for later. A `File` body is
   not kept. Only a write the network failed is kept — the browser offline,
   or the site's own server unreachable — and never a credential: an `api`'s
-  `on request` hook adds them again when it is sent, and a call that carries
+  middleware (`bearer(…)`) adds them again when it is sent, and a call that carries
   its own credential header is not kept. `WF.clearQueued()` forgets them.
   A site under a `base_path` keeps its stores, writes and `persist` values
   apart from another on the origin.
@@ -2366,7 +2366,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Switch` | `Switch(bind: var, label: "Enable")` |
 | `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value; `.range` has two thumbs, `bind:` holding `[low, high]`. `aria-*`, `id:`, `role:`, `disabled:` and the rest of its attributes reach the input (`hidden`, `lang`, `dir` its box); with `aria-valuetext:` the raw number is not shown beside the track (you are showing it) |
 | `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input; the bound state holds a `Date` (`state selectedDate: Date? = null`) |
-| `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on change(e) { handleFile(e) } }` — flags: `.multiple` |
+| `FileUpload` | `FileUpload(bind: photo, accept: "image/*", label: "Upload Photo")` — `bind:` holds the `File` chosen (`File?`), or with `.multiple` the list (`[File]`); `on change(e)` hears the same files. Flags: `.multiple` |
 | `Textarea` | `Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` — several lines; with `maxLength` it counts what is left; `.autosize` grows with its text |
 | `Form` | `Form(bind: form, show: .onBlur) { on submit { save() } ... }` — `show`: when a `validate` message appears (`.onBlur`, `.onSubmit`, `.live`) |
 | `Field` | `Field(label: "Plan", hint: "…", error: planError) { PlanPicker(bind: plan) }` — a label, hint and error around a control of your own: the first control in its block is named by the label (`aria-labelledby`, `for`), described by the hint and the error, and `aria-invalid` while there is one |
@@ -3062,11 +3062,11 @@ with what the build kept of it and what reached it.
 
 ```
   What it weighs
-    styles.css                             5.2 kB  (1.5 kB gzipped)
-    app.js                                 4.9 kB  (1.9 kB gzipped)  −0.1 kB
+    styles.css                             6.4 kB  (1.9 kB gzipped)
+    app.js                                 5.0 kB  (1.9 kB gzipped)  −0.1 kB
 
-  Runtime: 1 of 44 modules, 14.8 kB of 404.6 kB kept, 13.8 kB with its names shortened (before minifying)
-    core          14.8 kB  always
+  Runtime: 1 of 58 modules, 15.0 kB of 594.0 kB kept, 14.0 kB with its names shortened (before minifying)
+    core          15.0 kB  always
     left out: theme keys nodes motion helpers format offline peer scalars form …
 ```
 
@@ -3716,7 +3716,8 @@ prints a code's entry. Where the fix is known it is part of the finding —
 the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 `T06`, `T16`, `T13`, `E101`, `E103`; `?.` for `T04`; the missing props for
 `C01`; the missing arms for `T15`; the flag for `V01`; `alt: ""` for `A01`;
-`derived` for `X06`; an `_` for `U01`–`U05`.
+`derived` for `X06`; an `_` for `U01`–`U05`; a splice for `T18`
+(`"+" + n` → `"+{n}"`).
 
 | Family | What |
 |---|---|

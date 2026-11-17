@@ -1547,6 +1547,7 @@ impl Checker<'_, '_> {
                     ),
                     "Splice it into the text, which says how it is shown: `\"Total: {n}\"`",
                 );
+                self.plan_splice(l, r);
                 Type::Error
             }
             _ => {

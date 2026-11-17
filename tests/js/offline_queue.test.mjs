@@ -284,3 +284,32 @@ test("a kept write the server refuses is kept aside, listed in `network.refused`
   assert.equal(WF.network().refused.length, 0);
   assert.equal(stored(indexedDB).length, 0);
 });
+
+test("a kept write is sent through the service's middleware as it is when it goes", async () => {
+  let token = "alice";
+  let online = false;
+  const sent = [];
+  const fetchImpl = async (url, init) => {
+    if (!online) throw new TypeError("Failed to fetch");
+    sent.push({ url, auth: init.headers.Authorization, client: init.headers["X-Client"] });
+    return ok();
+  };
+  const { WF, indexedDB, navigator, window } = load({ fetchImpl, online: false });
+  const B = WF.api({
+    name: "B", base: "/api",
+    middleware: [WF.mw.bearer(() => token), WF.mw.header("X-Client", () => "lab")],
+    endpoints: { save: { method: "PUT", path: "items" } },
+  });
+  await assert.rejects(B.save({ body: { a: 1 } }), kept);
+  await settle();
+  const [write] = stored(indexedDB);
+  assert.ok(write && write.api === "B", `kept, to be made up again: ${JSON.stringify(write)}`);
+  assert.ok(!JSON.stringify(write).includes("alice"), "no token stored");
+  token = "bob";
+  online = true;
+  navigator.onLine = true;
+  window._fire("online", {});
+  await settle(30);
+  assert.deepEqual(sent, [{ url: "/api/items", auth: "Bearer bob", client: "lab" }]);
+  assert.equal(stored(indexedDB).length, 0, "gone once sent");
+});

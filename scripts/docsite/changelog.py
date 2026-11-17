@@ -328,9 +328,12 @@ def page(found: list[dict]) -> str:
         for r in found
     )
     rail = ", ".join(f'Anchor(id: "{s["id"]}", label: {lit(s["title"])})' for s in found[0]["sections"])
+    # The latest is the newest release that has a date: one still being
+    # written (no tag yet) is not released, and says so.
+    latest = next((r["version"] for r in found if r["date"]), None)
     calls = "\n".join(
-        f"\n{ind}ReleaseEntry({release(r, ind)}" + (", latest: true" if i == 0 else "") + ")"
-        for i, r in enumerate(found)
+        f"\n{ind}ReleaseEntry({release(r, ind)}" + (", latest: true" if r["version"] == latest else "") + ")"
+        for r in found
     )
     head = PAGE_HEAD.replace("VERSIONS", f"[\n{versions}\n        ]")
     return head + calls + "\n" + PAGE_TAIL.replace("RAIL", f"[{rail}]")

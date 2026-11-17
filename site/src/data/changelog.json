@@ -12,7 +12,7 @@
     "intro": "",
     "items": [
      {
-      "text": "**`Any` written as a type is `T23`, `Map` is `T24`**, each with a fix that\nwrites `Json`. A record (`type Price { … }`) or a dictionary (`[String:\nNumber]`) says more, where you know it; `Json` is JSON whose shape is\nopen, matched or decoded before it is read. `wf migrate` writes `Json`.",
+      "text": "**`Any` written as a type is `T23`, `Map` is `T24`**, each with a fix that\nwrites `Json`. A record (`type Price { … }`) or a dictionary (`[String:\nNumber]`) says more, where you know it; `Json` is JSON whose shape is\nopen, matched or decoded before it is read. `wf migrate` writes `Json`\nwhere that leaves the project with fewer errors, and leaves the `T24`\nof a `Map` read as a record for a person, who names its type.",
       "points": [],
       "after": ""
      },
@@ -32,13 +32,6 @@
    {
     "title": "A write is sent again only when that is safe",
     "id": "7.0.0-a-write-is-sent-again-only-when-that-is-safe",
-    "intro": "",
-    "items": [],
-    "after": ""
-   },
-   {
-    "title": "A write is sent again only when that is safe",
-    "id": "7.0.0-a-write-is-sent-again-only-when-that-is-safe-2",
     "intro": "",
     "items": [
      {
@@ -642,7 +635,7 @@
     "intro": "7.0 has no loose mode, so `wf migrate` carries a 6.x project across.",
     "items": [
      {
-      "text": "**Every fix, at once.** The step applies the fix every 7.0 finding\ncarries, again and again until none is left: the request forms (`fetch`\n→ `http.get`, `ready(v)` → `.loaded(v)`, `.data` → `.value`, `on:` →\n`refresh:`, `-> T` → `-> T!`, `:id` → `{id}`, `at` where there was none,\n`headers { }` → `middleware [header(…)]`), what each `state` holds, each\naction returns and fails with (`-> ! E` for a `try` in an action that said\nnothing), each parameter takes, JSDoc for a script, a condition's\ncomparison, a splice or a unit for a conversion (`T34`), `try` where a\nresult's value is wanted, an error enum's `http` case (`N12`).",
+      "text": "**Every fix, at once.** The step applies the fix every 7.0 finding\ncarries, again and again until none is left: the request forms (`fetch`\n→ `http.get`, `ready(v)` → `.loaded(v)`, `.data` → `.value`, `on:` →\n`refresh:`, `-> T` → `-> T!`, `:id` → `{id}`, `at` where there was none,\n`headers { }` → `middleware [header(…)]`), what each `state` holds, each\naction returns and fails with (`-> ! E` for a `try` in an action that said\nnothing), each parameter takes, JSDoc for a script, a condition's\ncomparison, a splice for text joined to a number (`\"+\" + n` →\n`\"+{n}\"`, `T18`), a splice or a unit for a conversion (`T34`), `try` where a\nresult's value is wanted, an error enum's `http` case (`N12`).",
       "points": [],
       "after": ""
      },
@@ -653,6 +646,11 @@
      },
      {
       "text": "**New fixes** in `wf fix` and the editor, from the same work: `T34`,\n`N12`, `N03`, `headers { }`, and `try` for a result's value.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A project whose output is outside it** (`\"output\": \"../docs\"`) is\nmigrated too: the step writes no output.",
       "points": [],
       "after": ""
      },
@@ -672,6 +670,59 @@
     "after": ""
    },
    {
+    "title": "Found by hand, before the release",
+    "id": "7.0.0-found-by-hand-before-the-release",
+    "intro": "A pass over every 7.0 feature in a browser, against a server that\nmisbehaves on request, found and fixed these:",
+    "items": [
+     {
+      "text": "**A parameter's default is sent.** `pageSize: Number = 20 in query\n\"page-size\"` sends `page-size=20` when a call leaves it out, rather than\nnothing (and the server's own default).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**An endpoint of a group named like a list helper** —\n`Backend.people.remove(id)` — is the endpoint, never the list method.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`form.apply` reaches any named control of the form**, not only one a\n`validate` block guards: the message under it, `aria-invalid`,\n`aria-describedby`, the focus, and gone when the reader changes it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`FileUpload(bind: photo)` holds what was chosen**: a `File?`, or with\n`.multiple` a `[File]` (`F02` when the state is the other).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**An error thrown under a busy button reaches the console**, `wf serve`'s\noverlay and a test, rather than vanishing.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A write kept offline is made up again by the service's middleware**,\nso `bearer(Session.token)` sends the token of the moment it goes.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`let x: T = try await http.get(…)` is held to `T`**, as a\n`resource`'s answer always was.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`wf render`** holds a read's data to its endpoint's type when the\nread names none, and draws `.loaded` for a `match` written with\n`.loaded(v)` and `else`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`wf api add`** writes an endpoint with a text answer (`-> String! as:\n.text`) that parses, and **`wf api check`** says what `sync` would do\nrather than what it did.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Removed",
     "id": "7.0.0-removed",
     "intro": "",
@@ -685,7 +736,7 @@
     "after": ""
    }
   ],
-  "count": 101
+  "count": 111
  },
  {
   "version": "6.2.0",

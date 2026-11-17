@@ -203,7 +203,7 @@ page ErrorE002(path: "/errors/E002", title: "E002 — A syntax error", descripti
     }
 }
 
-page ErrorE003(path: "/errors/E003", title: "E003 — Indentation that lines up with no block", description: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…") {
+page ErrorE003(path: "/errors/E003", title: "E003 — Indentation that lines up with no block", description: "In a .wfx file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…") {
     ErrorShell("E003", title: "Indentation that lines up with no block", severity: "error", family: "Syntax and structure", summary: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an indentation no enclosing block has is ambiguous.", printed: #"error[E003]: This line's indentation matches no block around it
  --> src/App.wfx:4:7
   |
@@ -228,7 +228,7 @@ page ErrorE003(path: "/errors/E003", title: "E003 — Indentation that lines up 
     }
 }
 
-page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 grammar", description: "WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.") {
+page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 grammar", description: "WebFluent 3 reads one grammar. wf migrate rewrites a WebFluent 2 project in place.") {
     ErrorShell("E004", title: "A file in the WebFluent 2 grammar", severity: "error", family: "Syntax and structure", summary: "WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.", printed: #"error[E004]: `Page` is a WebFluent 2 declaration; this is WebFluent 3
  --> src/App.wf:1:1
   |
@@ -249,7 +249,7 @@ page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 
     }
 }
 
-page ErrorE005(path: "/errors/E005", title: "E005 — A file the formatter will not change", description: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.") {
+page ErrorE005(path: "/errors/E005", title: "E005 — A file the formatter will not change", description: "wf fmt holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.") {
     ErrorShell("E005", title: "A file the formatter will not change", severity: "error", family: "Syntax and structure", summary: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E005.md") {
         fixed {
             Stack(gap: .sm) {
@@ -260,7 +260,7 @@ page ErrorE005(path: "/errors/E005", title: "E005 — A file the formatter will 
     }
 }
 
-page ErrorE101(path: "/errors/E101", title: "E101 — A component nothing declares", description: "An element, a `layout:` or a part names a component that no `component` declares and no built-in has. Often a misspelling.") {
+page ErrorE101(path: "/errors/E101", title: "E101 — A component nothing declares", description: "An element, a layout: or a part names a component that no component declares and no built-in has. Often a misspelling.") {
     ErrorShell("E101", title: "A component nothing declares", severity: "error", family: "Syntax and structure", summary: "An element, a `layout:` or a part names a component that no `component` declares and no built-in has. Often a misspelling.", printed: #"error[E101]: unknown component `Buton`: no `component Buton` is declared
  --> src/App.wf:3:5
   |
@@ -332,7 +332,7 @@ page ErrorE103(path: "/errors/E103", title: "E103 — A flag, case, part, event 
     }
 }
 
-page ErrorE104(path: "/errors/E104", title: "E104 — A layout with nowhere to put the page", description: "A page's `layout:` is a component the page is placed in, at its default slot. A component that declares no `slot` has nowhere to put it.") {
+page ErrorE104(path: "/errors/E104", title: "E104 — A layout with nowhere to put the page", description: "A page's layout: is a component the page is placed in, at its default slot. A component that declares no slot has nowhere to put it.") {
     ErrorShell("E104", title: "A layout with nowhere to put the page", severity: "error", family: "Syntax and structure", summary: "A page's `layout:` is a component the page is placed in, at its default slot. A component that declares no `slot` has nowhere to put it.", printed: #"error[E104]: `Shell` declares no default slot, so the page has nowhere to go
  --> src/App.wf:2:57
   |
@@ -359,7 +359,7 @@ page P(path: "/", title: "T", description: "D", layout: Shell) {
     }
 }
 
-page ErrorE105(path: "/errors/E105", title: "E105 — A statement a render block cannot hold", description: "A page's or component's body draws; an assignment or a call that does something belongs in a handler, an `action` or an `effect`.") {
+page ErrorE105(path: "/errors/E105", title: "E105 — A statement a render block cannot hold", description: "A page's or component's body draws; an assignment or a call that does something belongs in a handler, an action or an effect.") {
     ErrorShell("E105", title: "A statement a render block cannot hold", severity: "error", family: "Syntax and structure", summary: "A page's or component's body draws; an assignment or a call that does something belongs in a handler, an `action` or an `effect`.", printed: #"error[E105]: `n` is not an element or a statement a render block can hold
  --> src/App.wf:4:5
   |
@@ -384,7 +384,7 @@ page ErrorE105(path: "/errors/E105", title: "E105 — A statement a render block
     }
 }
 
-page ErrorE106(path: "/errors/E106", title: "E106 — Script or a whole style in an attribute", description: "`onclick:` and the other `on*` attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on…") {
+page ErrorE106(path: "/errors/E106", title: "E106 — Script or a whole style in an attribute", description: "onclick: and the other on* attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on…") {
     ErrorShell("E106", title: "Script or a whole style in an attribute", severity: "error", family: "Syntax and structure", summary: "`onclick:` and the other `on*` attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on click \{ … \}`. `style:` is a value written as the element's whole inline style; a style is a `style \{ \}` block, one property at a time.", printed: #"error[E106]: `onclick` on Button would put script in an attribute
  --> src/App.wf:3:20
   |
@@ -409,7 +409,7 @@ page ErrorE106(path: "/errors/E106", title: "E106 — Script or a whole style in
     }
 }
 
-page ErrorE107(path: "/errors/E107", title: "E107 — A URL a browser would run", description: "`javascript:`, `data:`, `vbscript:`, `blob:` and `file:` URLs run or load something the page did not write. A link takes `http`, `https`, `mailto`,…") {
+page ErrorE107(path: "/errors/E107", title: "E107 — A URL a browser would run", description: "javascript:, data:, vbscript:, blob: and file: URLs run or load something the page did not write. A link takes http, https, mailto,…") {
     ErrorShell("E107", title: "A URL a browser would run", severity: "error", family: "Syntax and structure", summary: "`javascript:`, `data:`, `vbscript:`, `blob:` and `file:` URLs run or load something the page did not write. A link takes `http`, `https`, `mailto`, `tel`, `sms`, `ftp` or a relative URL. In `head \{ \}`, a `script(src:)` or a refresh whose address a value chooses is refused the same way.", printed: #"error[E107]: `to` on Link names the `javascript` scheme, which a browser runs
  --> src/App.wf:3:16
   |
@@ -432,7 +432,7 @@ page ErrorE107(path: "/errors/E107", title: "E107 — A URL a browser would run"
     }
 }
 
-page ErrorE108(path: "/errors/E108", title: "E108 — An env name that is not public", description: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.") {
+page ErrorE108(path: "/errors/E108", title: "E108 — An env name that is not public", description: "Whatever a page reads from env is in the bundle, where anyone can read it. A name a page reads must begin PUBLIC_ or be listed in public_env.") {
     ErrorShell("E108", title: "An env name that is not public", severity: "error", family: "Syntax and structure", summary: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E108.md") {
         fixed {
             Stack(gap: .sm) {
@@ -454,7 +454,7 @@ page ErrorE109(path: "/errors/E109", title: "E109 — An element this output can
     }
 }
 
-page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cannot be a plain script", description: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose…") {
+page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cannot be a plain script", description: "A .js file under src/ is linked as a plain browser script: one with import or export, one a file in public/ would replace, or one whose…") {
     ErrorShell("E110", title: "A project script that cannot be a plain script", severity: "error", family: "Syntax and structure", summary: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose names clash with the program's, cannot be.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E110.md") {
         fixed {
             Stack(gap: .sm) {
@@ -465,7 +465,7 @@ page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cann
     }
 }
 
-page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work", description: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.") {
+page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work", description: "A value in webfluent.app.json that names something that does not exist or asks for something the build cannot do.") {
     ErrorShell("E111", title: "A setting that cannot work", severity: "error", family: "Syntax and structure", summary: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E111.md") {
         fixed {
             Stack(gap: .sm) {
@@ -476,7 +476,7 @@ page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work
     }
 }
 
-page ErrorE112(path: "/errors/E112", title: "E112 — A setting nothing reads", description: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.") {
+page ErrorE112(path: "/errors/E112", title: "E112 — A setting nothing reads", description: "A key in webfluent.app.json that is not a setting. Usually a misspelling, so the setting it meant keeps its default.") {
     ErrorShell("E112", title: "A setting nothing reads", severity: "warning", family: "Syntax and structure", summary: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E112.md") {
         fixed {
             Stack(gap: .sm) {
@@ -487,7 +487,7 @@ page ErrorE112(path: "/errors/E112", title: "E112 — A setting nothing reads", 
     }
 }
 
-page ErrorE113(path: "/errors/E113", title: "E113 — An argument that cannot be positional", description: "Only the first argument of a call may be written without its name, and only when the component declares a positional prop (`_ name`). Name the others.") {
+page ErrorE113(path: "/errors/E113", title: "E113 — An argument that cannot be positional", description: "Only the first argument of a call may be written without its name, and only when the component declares a positional prop (_ name). Name the others.") {
     ErrorShell("E113", title: "An argument that cannot be positional", severity: "error", family: "Syntax and structure", summary: "Only the first argument of a call may be written without its name, and only when the component declares a positional prop (`_ name`). Name the others.", printed: #"error[E113]: Only the first argument may be positional
  --> src/App.wf:4:20
   |
@@ -512,7 +512,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorE114(path: "/errors/E114", title: "E114 — emit outside a component", description: "An event belongs to a component, which declares it and fires it with `emit`; a page has none.") {
+page ErrorE114(path: "/errors/E114", title: "E114 — emit outside a component", description: "An event belongs to a component, which declares it and fires it with emit; a page has none.") {
     ErrorShell("E114", title: "emit outside a component", severity: "error", family: "Syntax and structure", summary: "An event belongs to a component, which declares it and fires it with `emit`; a page has none.", printed: #"error[E114]: `emit` fires a component's event; a page has none
  --> src/App.wf:3:33
   |
@@ -547,7 +547,7 @@ page ErrorE115(path: "/errors/E115", title: "E115 — A project script the compi
     }
 }
 
-page ErrorE116(path: "/errors/E116", title: "E116 — A tag that cannot be a custom element's", description: "`Element` names a custom element by its tag, first and as a string: lower case, with a hyphen (`\"stripe-pricing-table\"`).") {
+page ErrorE116(path: "/errors/E116", title: "E116 — A tag that cannot be a custom element's", description: "Element names a custom element by its tag, first and as a string: lower case, with a hyphen (\"stripe-pricing-table\").") {
     ErrorShell("E116", title: "A tag that cannot be a custom element's", severity: "error", family: "Syntax and structure", summary: "`Element` names a custom element by its tag, first and as a string: lower case, with a hyphen (`\"stripe-pricing-table\"`).", printed: #"error[E116]: `pricingtable` is not a custom element's tag
  --> src/App.wf:3:5
   |
@@ -570,7 +570,7 @@ page ErrorE116(path: "/errors/E116", title: "E116 — A tag that cannot be a cus
     }
 }
 
-page ErrorE117(path: "/errors/E117", title: "E117 — A key combination no keyboard sends", description: "`on key(…)` names modifiers (`ctrl`, `shift`, `alt`, `meta`) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.") {
+page ErrorE117(path: "/errors/E117", title: "E117 — A key combination no keyboard sends", description: "on key(…) names modifiers (ctrl, shift, alt, meta) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.") {
     ErrorShell("E117", title: "A key combination no keyboard sends", severity: "error", family: "Syntax and structure", summary: "`on key(…)` names modifiers (`ctrl`, `shift`, `alt`, `meta`) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.", printed: #"error[E117]: `on key("ctrl+shfit+k")` names `shfit`, which is not a modifier
  --> src/App.wf:2:12
   |
@@ -593,7 +593,7 @@ page ErrorE117(path: "/errors/E117", title: "E117 — A key combination no keybo
     }
 }
 
-page ErrorE118(path: "/errors/E118", title: "E118 — A name the language already has", description: "A name the language gives a meaning cannot be a program's own — not a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a…") {
+page ErrorE118(path: "/errors/E118", title: "E118 — A name the language already has", description: "A name the language gives a meaning cannot be a program's own — not a state, derived, persist or let, a prop, a route or action parameter, a…") {
     ErrorShell("E118", title: "A name the language already has", severity: "error", family: "Syntax and structure", summary: "A name the language gives a meaning cannot be a program's own — not a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a loop item, a lambda's parameter, a binding of `if let`, `match` or a slot, nor a top-level `const`, `data`, `image`, store or `api`. They are `env`, the build's settings; `params`, the route's; `locale` and `dir`, the reader's language; the values the browser keeps current, `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update`; the language's functions (`t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `sanitize`, `every`, `after`, …); the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, …); and, at the top level, the runtime's `WF`. Declared, one would hide what the language means by it for as far as its scope reaches. The names a handler brings (`event`, `e`, `value`, `key`) and the browser's globals are a program's to use.", printed: #"error[E118]: `env` is a name the language already has: the build's settings, read as `env.PUBLIC_API`
  --> src/App.wf:2:5
   |
@@ -628,7 +628,7 @@ page ErrorE901(path: "/errors/E901", title: "E901 — The compiler wrote JavaScr
     }
 }
 
-page ErrorE902(path: "/errors/E902", title: "E902 — Output its own security policy refuses", description: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add…") {
+page ErrorE902(path: "/errors/E902", title: "E902 — Output its own security policy refuses", description: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own head \{ \} tags would add…") {
     ErrorShell("E902", title: "Output its own security policy refuses", severity: "error", family: "Syntax and structure", summary: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add to it; something there would be blocked.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E902.md") {
         fixed {
             Stack(gap: .sm) {
@@ -650,7 +650,7 @@ page ErrorE119(path: "/errors/E119", title: "E119 — A hidden direction control
     }
 }
 
-page ErrorE120(path: "/errors/E120", title: "E120 — Something nests too deeply", description: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of…") {
+page ErrorE120(path: "/errors/E120", title: "E120 — Something nests too deeply", description: "Brackets, blocks, components that place each other, or the links of one chain (a.b.c, 1 + 2 + 3) nest more than 100 levels deep, which no pass of…") {
     ErrorShell("E120", title: "Something nests too deeply", severity: "error", family: "Syntax and structure", summary: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.", printed: #""#, quickfix: "", lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E120.md") {
         fixed {
             Stack(gap: .sm) {
@@ -697,7 +697,7 @@ page ErrorT01(path: "/errors/T01", title: "T01 — A value of the wrong type", d
     }
 }
 
-page ErrorT02(path: "/errors/T02", title: "T02 — A case the enum does not have", description: "`.loud` given where an enum is wanted that has no case `loud`.") {
+page ErrorT02(path: "/errors/T02", title: "T02 — A case the enum does not have", description: ".loud given where an enum is wanted that has no case loud.") {
     ErrorShell("T02", title: "A case the enum does not have", severity: "error", family: "Types", summary: "`.loud` given where an enum is wanted that has no case `loud`.", printed: #"error[T02]: `Tone` has no case `.quiet`
  --> src/App.wf:3:17
   |
@@ -722,7 +722,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT04(path: "/errors/T04", title: "T04 — A value that may be null, read as if it were not", description: "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.") {
+page ErrorT04(path: "/errors/T04", title: "T04 — A value that may be null, read as if it were not", description: "A field or method read from a value that may be null. if let, ??, ?. or a != null check narrows it.") {
     ErrorShell("T04", title: "A value that may be null, read as if it were not", severity: "error", family: "Types", summary: "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.", printed: #"error[T04]: `user.email` may be null, so `.length` may fail
  --> src/App.wf:5:12
   |
@@ -802,7 +802,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT07(path: "/errors/T07", title: "T07 — A condition that is always true", description: "A list, a record or an action used as a condition: it is never `false`, so the branch always runs.") {
+page ErrorT07(path: "/errors/T07", title: "T07 — A condition that is always true", description: "A list, a record or an action used as a condition: it is never false, so the branch always runs.") {
     ErrorShell("T07", title: "A condition that is always true", severity: "error", family: "Types", summary: "A list, a record or an action used as a condition: it is never `false`, so the branch always runs.", printed: #"error[T07]: `if` reads `items` as a condition, but a list is always true
  --> src/App.wf:4:5
   |
@@ -827,7 +827,7 @@ page ErrorT07(path: "/errors/T07", title: "T07 — A condition that is always tr
     }
 }
 
-page ErrorT08(path: "/errors/T08", title: "T08 — A loop over something that is not a list", description: "A `for` over a number, a string or a record.") {
+page ErrorT08(path: "/errors/T08", title: "T08 — A loop over something that is not a list", description: "A for over a number, a string or a record.") {
     ErrorShell("T08", title: "A loop over something that is not a list", severity: "error", family: "Types", summary: "A `for` over a number, a string or a record.", printed: #"error[T08]: `for` loops over a list, but `total` is `Number`
  --> src/App.wf:4:5
   |
@@ -852,7 +852,7 @@ page ErrorT08(path: "/errors/T08", title: "T08 — A loop over something that is
     }
 }
 
-page ErrorT09(path: "/errors/T09", title: "T09 — An emit that does not match its event", description: "The arguments an `emit` passes are not the ones the event declares.") {
+page ErrorT09(path: "/errors/T09", title: "T09 — An emit that does not match its event", description: "The arguments an emit passes are not the ones the event declares.") {
     ErrorShell("T09", title: "An emit that does not match its event", severity: "error", family: "Types", summary: "The arguments an `emit` passes are not the ones the event declares.", printed: #"error[T09]: `emit change` passes 2 arguments, but the event takes 1
  --> src/App.wf:3:30
   |
@@ -906,7 +906,7 @@ page ErrorT10(path: "/errors/T10", title: "T10 — A call with the wrong argumen
     }
 }
 
-page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that cannot be matched", description: "A `match` is over a read, a result, a connection or an enum; its arms are the cases of that kind.") {
+page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that cannot be matched", description: "A match is over a read, a result, a connection or an enum; its arms are the cases of that kind.") {
     ErrorShell("T11", title: "A match on something that cannot be matched", severity: "error", family: "Types", summary: "A `match` is over a read, a result, a connection or an enum; its arms are the cases of that kind.", printed: #"error[T11]: `match` needs a resource or an enum, but `n` is `Number`
  --> src/App.wf:4:5
   |
@@ -934,7 +934,7 @@ page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that can
     }
 }
 
-page ErrorT12(path: "/errors/T12", title: "T12 — A secret where it would escape", description: "A `Secret` shown by an element, spliced into text, logged or kept with `persist`.") {
+page ErrorT12(path: "/errors/T12", title: "T12 — A secret where it would escape", description: "A Secret shown by an element, spliced into text, logged or kept with persist.") {
     ErrorShell("T12", title: "A secret where it would escape", severity: "error", family: "Types", summary: "A `Secret` shown by an element, spliced into text, logged or kept with `persist`.", printed: #"error[T12]: `token` is a `Secret`, and `Text` would show it
  --> src/App.wf:4:10
   |
@@ -990,7 +990,7 @@ page ErrorT13(path: "/errors/T13", title: "T13 — A name nothing declares", des
     }
 }
 
-page ErrorT16(path: "/errors/T16", title: "T16 — A method a number, a string or a list does not have", description: "In the browser the call is `x.method is not a function`, the first time the line runs. The message suggests the nearest method there is.") {
+page ErrorT16(path: "/errors/T16", title: "T16 — A method a number, a string or a list does not have", description: "In the browser the call is x.method is not a function, the first time the line runs. The message suggests the nearest method there is.") {
     ErrorShell("T16", title: "A method a number, a string or a list does not have", severity: "error", family: "Types", summary: "In the browser the call is `x.method is not a function`, the first time the line runs. The message suggests the nearest method there is.", printed: #"error[T16]: a `[String]` has no method `joined`
  --> src/App.wf:4:16
   |
@@ -1015,7 +1015,7 @@ page ErrorT16(path: "/errors/T16", title: "T16 — A method a number, a string o
     }
 }
 
-page ErrorT14(path: "/errors/T14", title: "T14 — A comparison that is always the same", description: "`==` or `!=` between values that can never be equal — a string and a number, a record and a string, an enum and a case it does not have — so the…") {
+page ErrorT14(path: "/errors/T14", title: "T14 — A comparison that is always the same", description: "== or != between values that can never be equal — a string and a number, a record and a string, an enum and a case it does not have — so the…") {
     ErrorShell("T14", title: "A comparison that is always the same", severity: "error", family: "Types", summary: "`==` or `!=` between values that can never be equal — a string and a number, a record and a string, an enum and a case it does not have — so the answer never changes.", printed: #"error[T14]: `count` is `Number` and `"0"` is `String`, which are never equal, so this is always false
  --> src/App.wf:4:8
   |
@@ -1040,7 +1040,7 @@ page ErrorT14(path: "/errors/T14", title: "T14 — A comparison that is always t
     }
 }
 
-page ErrorT17(path: "/errors/T17", title: "T17 — An async result used before it is awaited", description: "An action that awaits hands back a promise; read as its result without `await` it is not one. `await` is written in an action, a handler, a timer or…") {
+page ErrorT17(path: "/errors/T17", title: "T17 — An async result used before it is awaited", description: "An action that awaits hands back a promise; read as its result without await it is not one. await is written in an action, a handler, a timer or…") {
     ErrorShell("T17", title: "An async result used before it is awaited", severity: "error", family: "Types", summary: "An action that awaits hands back a promise; read as its result without `await` it is not one. `await` is written in an action, a handler, a timer or a hook — not in a `derived` value or an effect, which run at once — and `.pending` is for an action that awaits.", printed: #"error[T17]: `save` awaits nothing, so `.pending` is always false
  --> src/App.wf:5:30
   |
@@ -1067,7 +1067,7 @@ page ErrorT17(path: "/errors/T17", title: "T17 — An async result used before i
     }
 }
 
-page ErrorT19(path: "/errors/T19", title: "T19 — A value that may be null, shown as text", description: "Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.") {
+page ErrorT19(path: "/errors/T19", title: "T19 — A value that may be null, shown as text", description: "Spliced into text, null shows as null (and a missing value as undefined). Say what to show instead with ??.") {
     ErrorShell("T19", title: "A value that may be null, shown as text", severity: "warning", family: "Types", summary: "Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.", printed: #"warning[T19]: `user.nickname` may be null, and in text it would show as `null`
  --> src/App.wf:5:26
   |
@@ -1095,7 +1095,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as text", description: "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.") {
+page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as text", description: "A list in text runs its items together with commas, and a map or a record shows as [object Object]. Show a field, or join a list of text.") {
     ErrorShell("T20", title: "A list or a record shown as text", severity: "error", family: "Types", summary: "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.", printed: #"error[T20]: `tags` is `[String]`, and in text it shows as its items run together with commas
  --> src/App.wf:4:19
   |
@@ -1121,7 +1121,7 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
     }
 }
 
-page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that is not a number", description: "`-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.") {
+page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that is not a number", description: "-, *, / and % take numbers; on a string or a list the result is NaN. + joins text when one side is a string, and takes numbers otherwise.") {
     ErrorShell("T18", title: "Arithmetic on something that is not a number", severity: "error", family: "Types", summary: "`-`, `*`, `/` and `%` take numbers (or scale a duration); on a string or a list the result is `NaN`. `+` adds two numbers, joins two strings or adds two durations — text and a number are not joined by `+`, a splice says how the number is shown: `\"Total: \{n\}\"`.", printed: #"error[T18]: `*` takes numbers, but `price` is `String`
  --> src/App.wf:3:27
   |
@@ -1144,7 +1144,7 @@ page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that 
     }
 }
 
-page ErrorT15(path: "/errors/T15", title: "T15 — A match that misses a case, or has one twice", description: "A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches…") {
+page ErrorT15(path: "/errors/T15", title: "T15 — A match that misses a case, or has one twice", description: "A match with no else must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches…") {
     ErrorShell("T15", title: "A match that misses a case, or has one twice", severity: "error", family: "Types", summary: "A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches only the first. A `match` expression that covers every case needs no `else`.", printed: #"error[T15]: this `match` on `status` has no arm for `.review`, and no `else`
  --> src/App.wf:5:5
   |
@@ -1178,7 +1178,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT22(path: "/errors/T22", title: "T22 — A handler that names more values than its event sends", description: "A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM…") {
+page ErrorT22(path: "/errors/T22", title: "T22 — A handler that names more values than its event sends", description: "A handler names the values its event sends, in order: on menu(key, x, y) for a component's event menu(key: String, x: Number, y: Number). A DOM…") {
     ErrorShell("T22", title: "A handler that names more values than its event sends", severity: "error", family: "Types", summary: "A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM event sends one value, the event itself. A name past the last value sent is never anything but `undefined`.", printed: #"error[T22]: `on menu` names 4 values, but `event menu(key: String, x: Number, y: Number)` sends 3 values
  --> src/App.wf:9:44
   |
@@ -1216,7 +1216,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT21(path: "/errors/T21", title: "T21 — A read's match with no .failed arm", description: "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.") {
+page ErrorT21(path: "/errors/T21", title: "T21 — A read's match with no .failed arm", description: "When the first request fails, a match over a read with no .failed arm and no else shows nothing at all, and the reader is not told.") {
     ErrorShell("T21", title: "A read's match with no .failed arm", severity: "error", family: "Types", summary: "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.", printed: #"error[T21]: this `match` on `users` has no `.failed` arm and no `else`, so a failed request shows nothing
  --> src/App.wf:6:5
   |
@@ -1253,7 +1253,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorT23(path: "/errors/T23", title: "T23 — Any written as a type", description: "7.0 took `Any` out of the language: a value of a type nothing checks agreed with every other. Write the type it holds, or `Json` for JSON whose shape is open.") {
+page ErrorT23(path: "/errors/T23", title: "T23 — Any written as a type", description: "7.0 took Any out of the language: a value of a type nothing checks agreed with every other. Write the type it holds, or Json for JSON whose shape is open.") {
     ErrorShell("T23", title: "Any written as a type", severity: "error", family: "Types", summary: "7.0 took `Any` out of the language: a value of a type nothing checks agreed with every other, so a mistake passed it by. Every value has a type the program can name — write it, or `Json` for JSON whose shape is open, which is matched or decoded before it is read.", printed: #"error[T23]: `picked` is written `Any`, which 7.0 took out of the language: every value has a type the program can name
  --> src/App.wf:4:5
   |
@@ -1295,7 +1295,7 @@ page P(path: "/", title: "People", description: "D") {
     }
 }
 
-page ErrorT24(path: "/errors/T24", title: "T24 — Map written as a type", description: "7.0 took `Map` out of the language: it said nothing of its keys or what they hold. Write a `type` with its fields, a dictionary `[String: T]`, or `Json`.") {
+page ErrorT24(path: "/errors/T24", title: "T24 — Map written as a type", description: "7.0 took Map out of the language: it said nothing of its keys or what they hold. Write a type with its fields, a dictionary [String: T], or Json.") {
     ErrorShell("T24", title: "Map written as a type", severity: "error", family: "Types", summary: "7.0 took `Map` out of the language: it said nothing of its keys or what they hold, so a misspelt field read as nothing. Write a `type` with its fields, a dictionary `[String: T]`, or `Json` for JSON whose shape is open.", printed: #"error[T24]: `prices` is written `Map`, which 7.0 took out of the language: it says nothing of the keys or what they hold
  --> src/App.wf:2:5
   |
@@ -1321,7 +1321,7 @@ page ErrorT24(path: "/errors/T24", title: "T24 — Map written as a type", descr
     }
 }
 
-page ErrorT25(path: "/errors/T25", title: "T25 — A state whose first value does not say what it holds", description: "A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.") {
+page ErrorT25(path: "/errors/T25", title: "T25 — A state whose first value does not say what it holds", description: "A state or persist is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items.") {
     ErrorShell("T25", title: "A state whose first value does not say what it holds", severity: "error", family: "Types", summary: "A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.", printed: #"error[T25]: `state items`'s first value does not say what it holds
  --> src/App.wf:4:5
   |
@@ -1353,7 +1353,7 @@ page P(path: "/", title: "Todos", description: "D") {
     }
 }
 
-page ErrorT26(path: "/errors/T26", title: "T26 — An action that returns a value and does not say what", description: "An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.") {
+page ErrorT26(path: "/errors/T26", title: "T26 — An action that returns a value and does not say what", description: "An action that returns a value says what it returns, -> T, so a caller in another file reads it without reading the action's body.") {
     ErrorShell("T26", title: "An action that returns a value and does not say what", severity: "error", family: "Types", summary: "What an action returns is part of what it is: a caller in another file reads it without reading the action's body. An action that returns a value declares it, `-> T`, and every `return` is held to it.", printed: #"error[T26]: `total` returns a value and does not say what
  --> src/App.wf:3:5
   |
@@ -1516,7 +1516,7 @@ page ErrorT30(path: "/errors/T30", title: "T30 — A part of the browser the lan
     }
 }
 
-page ErrorT31(path: "/errors/T31", title: "T31 — A script's function the language cannot type", description: "A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.") {
+page ErrorT31(path: "/errors/T31", title: "T31 — A script's function the language cannot type", description: "A project script's JSDoc is its signature. A function called from .wf with none, or with a type the language cannot say — a union, an Array that does not say…") {
     ErrorShell("T31", title: "A script's function the language cannot type", severity: "error", family: "Types", summary: "A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.", printed: #"error[T31]: `tiltBy` has no JSDoc, so nothing says what it takes or gives back
  --> src/App.wf:3:24
   |
@@ -1540,7 +1540,7 @@ page ErrorT31(path: "/errors/T31", title: "T31 — A script's function the langu
     }
 }
 
-page ErrorT32(path: "/errors/T32", title: "T32 — A parameter written with no type", description: "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.") {
+page ErrorT32(path: "/errors/T32", title: "T32 — A parameter written with no type", description: "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is…") {
     ErrorShell("T32", title: "A parameter written with no type", severity: "error", family: "Types", summary: "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.", printed: #"error[T32]: `title` of `add` says nothing of its type
  --> src/App.wf:3:5
   |
@@ -1615,7 +1615,7 @@ page ErrorT34(path: "/errors/T34", title: "T34 — A conversion the language doe
     }
 }
 
-page ErrorT35(path: "/errors/T35", title: "T35 — Values worked out from each other with neither declared", description: "Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.") {
+page ErrorT35(path: "/errors/T35", title: "T35 — Values worked out from each other with neither declared", description: "Two derived values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must…") {
     ErrorShell("T35", title: "Values worked out from each other with neither declared", severity: "error", family: "Types", summary: "Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.", printed: #"error[T35]: `total` and `shipping` are each worked out from the other, so neither says what it is
  --> src/App.wf:3:5
   |
@@ -1654,7 +1654,7 @@ page P(path: "/", title: "Cart", description: "D") {
     }
 }
 
-page ErrorC01(path: "/errors/C01", title: "C01 — A required prop or field left out", description: "A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.") {
+page ErrorC01(path: "/errors/C01", title: "C01 — A required prop or field left out", description: "A component's prop, or a record's field, that has no default is not given. The value would be undefined where the declaration promises one.") {
     ErrorShell("C01", title: "A required prop or field left out", severity: "error", family: "Components", summary: "A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.", printed: #"error[C01]: `Todo(…)` leaves out `id` of `Todo`, which has no default
  --> src/App.wf:3:18
   |
@@ -1704,7 +1704,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorC03(path: "/errors/C03", title: "C03 — A part outside the component it belongs to", description: "`Select.Option`, `Table.Row`, `Card.Header` — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.") {
+page ErrorC03(path: "/errors/C03", title: "C03 — A part outside the component it belongs to", description: "Select.Option, Table.Row, Card.Header — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.") {
     ErrorShell("C03", title: "A part outside the component it belongs to", severity: "error", family: "Components", summary: "`Select.Option`, `Table.Row`, `Card.Header` — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.", printed: #"error[C03]: `Select.Option` is a part of `Select`, and it is not inside one
  --> src/App.wf:3:5
   |
@@ -1728,7 +1728,7 @@ page ErrorC03(path: "/errors/C03", title: "C03 — A part outside the component 
     }
 }
 
-page ErrorC04(path: "/errors/C04", title: "C04 — An attribute a built-in does not declare", description: "A named argument a built-in has no prop for is written to its element as an HTML attribute. `aria-*`, `data-*` and the global attributes are…") {
+page ErrorC04(path: "/errors/C04", title: "C04 — An attribute a built-in does not declare", description: "A named argument a built-in has no prop for is written to its element as an HTML attribute. aria-, data- and the global attributes are…") {
     ErrorShell("C04", title: "An attribute a built-in does not declare", severity: "warning", family: "Components", summary: "A named argument a built-in has no prop for is written to its element as an HTML attribute. `aria-*`, `data-*` and the global attributes are expected; anything else is usually a misspelling.", printed: #"warning[C04]: Button has no prop `colour`; it is written to the element as an attribute
  --> src/App.wf:3:20
   |
@@ -1776,7 +1776,7 @@ page ErrorC05(path: "/errors/C05", title: "C05 — A positional argument a built
     }
 }
 
-page ErrorC06(path: "/errors/C06", title: "C06 — A positional argument bound by order", description: "Your component declares no positional prop (`_ name`), so the argument is bound to its first prop. Mark that prop with `_` to say so.") {
+page ErrorC06(path: "/errors/C06", title: "C06 — A positional argument bound by order", description: "Your component declares no positional prop (_ name), so the argument is bound to its first prop. Mark that prop with _ to say so.") {
     ErrorShell("C06", title: "A positional argument bound by order", severity: "warning", family: "Components", summary: "Your component declares no positional prop (`_ name`), so the argument is bound to its first prop. Mark that prop with `_` to say so.", printed: #"warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
  --> src/App.wf:4:10
   |
@@ -1802,7 +1802,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorC07(path: "/errors/C07", title: "C07 — A drag or a gesture on a component with no one element", description: "`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written on your…") {
+page ErrorC07(path: "/errors/C07", title: "C07 — A drag or a gesture on a component with no one element", description: "drag:, dragGroup:, dropValue:, dropAxis:, dropInside:, on receive(d), on dragmove(d), on longpress and on swipe written on your…") {
     ErrorShell("C07", title: "A drag or a gesture on a component with no one element", severity: "error", family: "Components", summary: "`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written on your component's call belong to the one element it draws. A component whose body is an `if`, a `for`, a `show`, a `match` or several elements has none to give them, so wrap what it draws in one element, or write them inside it.", printed: #"error[C07]: `drag:` on `Rows2` has no element to land on: its body is a `for`
  --> src/App.wf:6:16
   |
@@ -1832,7 +1832,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorR01(path: "/errors/R01", title: "R01 — A route to nothing", description: "A link, a `navigate()` or a `Route` names a page or a path that no page has.") {
+page ErrorR01(path: "/errors/R01", title: "R01 — A route to nothing", description: "A link, a navigate() or a Route names a page or a path that no page has.") {
     ErrorShell("R01", title: "A route to nothing", severity: "error", family: "Routes", summary: "A link, a `navigate()` or a `Route` names a page or a path that no page has.", printed: #"error[R01]: `/abuot` is not a route: no page's `path` matches it
  --> src/App.wf:3:5
   |
@@ -1861,7 +1861,7 @@ page About(path: "/about", title: "About", description: "D") {
     }
 }
 
-page ErrorR02(path: "/errors/R02", title: "R02 — A route parameter and a page parameter that do not match", description: "A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing, and a parameter with no `:name` is never filled.") {
+page ErrorR02(path: "/errors/R02", title: "R02 — A route parameter and a page parameter that do not match", description: "A route's :name fills the page's parameter of that name; a :name with no parameter is read as nothing, and a parameter with no :name is never filled.") {
     ErrorShell("R02", title: "A route parameter and a page parameter that do not match", severity: "error", family: "Routes", summary: "A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing, and a parameter with no `:name` is never filled.", printed: #"error[R02]: the route `/u/:id` names `:id`, and the page declares no parameter `id`
  --> src/App.wf:1:1
   |
@@ -1882,7 +1882,7 @@ page ErrorR02(path: "/errors/R02", title: "R02 — A route parameter and a page 
     }
 }
 
-page ErrorR03(path: "/errors/R03", title: "R03 — An app with no Router, or with two", description: "The current page is drawn where `app` places its `Router`. With none, no page is ever drawn; with two, the page has two places.") {
+page ErrorR03(path: "/errors/R03", title: "R03 — An app with no Router, or with two", description: "The current page is drawn where app places its Router. With none, no page is ever drawn; with two, the page has two places.") {
     ErrorShell("R03", title: "An app with no Router, or with two", severity: "error", family: "Routes", summary: "The current page is drawn where `app` places its `Router`. With none, no page is ever drawn; with two, the page has two places.", printed: #"error[R03]: `app` places no `Router`, so no page is ever drawn
  --> src/App.wf:2:5
   |
@@ -1910,7 +1910,7 @@ page Home(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested route", description: "`\"images/x.png\"` is fetched relative to the page's address, so on `/blog/post` it is `/blog/images/x.png`. Written from the root, `\"/images/x.png\"`,…") {
+page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested route", description: "\"images/x.png\" is fetched relative to the page's address, so on /blog/post it is /blog/images/x.png. Written from the root, \"/images/x.png\",…") {
     ErrorShell("R04", title: "A relative URL on a nested route", severity: "warning", family: "Routes", summary: "`\"images/x.png\"` is fetched relative to the page's address, so on `/blog/post` it is `/blog/images/x.png`. Written from the root, `\"/images/x.png\"`, it is the same file on every page.", printed: #"warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is fetched from `/blog/images/cover.png`
  --> src/App.wf:3:5
   |
@@ -1934,7 +1934,7 @@ page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested ro
     }
 }
 
-page ErrorR05(path: "/errors/R05", title: "R05 — A translation of no page, or two in one language", description: "`translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`.…") {
+page ErrorR05(path: "/errors/R05", title: "R05 — A translation of no page, or two in one language", description: "translates: names the page this one is a translation of, and the pages it joins list each other as hreflang alternates, each in its own lang:.…") {
     ErrorShell("R05", title: "A translation of no page, or two in one language", severity: "error", family: "Routes", summary: "`translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`. A name no page has joins nothing, and two pages in one language would be two alternates for one `hreflang`.", printed: #"error[R05]: `HomeEn` translates `Hom`, and no page is named `Hom`
  --> src/App.wf:5:1
   |
@@ -1964,7 +1964,7 @@ page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates
     }
 }
 
-page ErrorX01(path: "/errors/X01", title: "X01 — An assignment to something that cannot change", description: "A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy…") {
+page ErrorX01(path: "/errors/X01", title: "X01 — An assignment to something that cannot change", description: "A const, a derived value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy…") {
     ErrorShell("X01", title: "An assignment to something that cannot change", severity: "error", family: "State and reactivity", summary: "A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy nothing reads.", printed: #"error[X01]: `LIMIT` is a `const`, and nothing may assign to it
  --> src/App.wf:4:33
   |
@@ -2014,7 +2014,7 @@ page ErrorX02(path: "/errors/X02", title: "X02 — An effect that feeds itself",
     }
 }
 
-page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes something", description: "A `derived` value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state…") {
+page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes something", description: "A derived value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state…") {
     ErrorShell("X04", title: "A derived value that changes something", severity: "error", family: "State and reactivity", summary: "A `derived` value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state each time it is read.", printed: #"error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`
  --> src/App.wf:7:5
   |
@@ -2048,7 +2048,7 @@ page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes 
     }
 }
 
-page ErrorX05(path: "/errors/X05", title: "X05 — use of a store nothing declares", description: "`use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.") {
+page ErrorX05(path: "/errors/X05", title: "X05 — use of a store nothing declares", description: "use names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.") {
     ErrorShell("X05", title: "use of a store nothing declares", severity: "error", family: "State and reactivity", summary: "`use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.", printed: #"error[X05]: `use Carts` names a store nothing declares
  --> src/App.wf:3:5
   |
@@ -2073,7 +2073,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorX06(path: "/errors/X06", title: "X06 — A state that copies a live value once", description: "`now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock…") {
+page ErrorX06(path: "/errors/X06", title: "X06 — A state that copies a live value once", description: "now, viewport, query, hash, theme, network and update keep themselves current, but a state takes its initial value once: `state clock…") {
     ErrorShell("X06", title: "A state that copies a live value once", severity: "warning", family: "State and reactivity", summary: "`now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock = now(every: 1.seconds)` holds the moment the page opened, and everything worked out from it stays there. A `derived` value follows what it reads. A state the program goes on to assign or bind starts from the live value on purpose, and draws nothing.", printed: #"warning[X06]: `clock` copies `now` once, when the page opens, and never follows it
  --> src/App.wf:3:5
   |
@@ -2100,7 +2100,7 @@ page ErrorX06(path: "/errors/X06", title: "X06 — A state that copies a live va
     }
 }
 
-page ErrorF01(path: "/errors/F01", title: "F01 — A bind: to something that cannot be written", description: "`bind:` writes what the control holds back to what it names: a state, a store's state, or a field of a loop's item. A constant, a derived value, a…") {
+page ErrorF01(path: "/errors/F01", title: "F01 — A bind: to something that cannot be written", description: "bind: writes what the control holds back to what it names: a state, a store's state, or a field of a loop's item. A constant, a derived value, a…") {
     ErrorShell("F01", title: "A bind: to something that cannot be written", severity: "error", family: "Forms and bindings", summary: "`bind:` writes what the control holds back to what it names: a state, a store's state, or a field of a loop's item. A constant, a derived value, a prop or a value worked out on the spot cannot take it.", printed: #"error[F01]: `bind:` on `Input` writes back to what it names, and `name` is a `derived` value
  --> src/App.wf:5:11
   |
@@ -2127,7 +2127,7 @@ page ErrorF01(path: "/errors/F01", title: "F01 — A bind: to something that can
     }
 }
 
-page ErrorF02(path: "/errors/F02", title: "F02 — A bind: to a state the control cannot hold", description: "A text field holds text, a number field (`.number`) a number, a checkbox a `Bool`. Bound to a state of another type, it writes the wrong kind of…") {
+page ErrorF02(path: "/errors/F02", title: "F02 — A bind: to a state the control cannot hold", description: "A text field holds text, a number field (.number) a number, a checkbox a Bool. Bound to a state of another type, it writes the wrong kind of…") {
     ErrorShell("F02", title: "A bind: to a state the control cannot hold", severity: "error", family: "Forms and bindings", summary: "A text field holds text, a number field (`.number`) a number, a checkbox a `Bool`. Bound to a state of another type, it writes the wrong kind of value into it.", printed: #"error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`
  --> src/App.wf:4:11
   |
@@ -2152,7 +2152,7 @@ page ErrorF02(path: "/errors/F02", title: "F02 — A bind: to a state the contro
     }
 }
 
-page ErrorF03(path: "/errors/F03", title: "F03 — A validate block no control can satisfy", description: "The rules of a `validate` block are shown on the control bound to the state, and a form is valid when they pass. On a state no control binds, or a…") {
+page ErrorF03(path: "/errors/F03", title: "F03 — A validate block no control can satisfy", description: "The rules of a validate block are shown on the control bound to the state, and a form is valid when they pass. On a state no control binds, or a…") {
     ErrorShell("F03", title: "A validate block no control can satisfy", severity: "error", family: "Forms and bindings", summary: "The rules of a `validate` block are shown on the control bound to the state, and a form is valid when they pass. On a state no control binds, or a derived value, they can never pass, and the submit stays disabled.", printed: #"error[F03]: `validate email` guards a state no control binds, so its rules can never be met
  --> src/App.wf:3:5
   |
@@ -2182,7 +2182,7 @@ page ErrorF03(path: "/errors/F03", title: "F03 — A validate block no control c
     }
 }
 
-page ErrorF04(path: "/errors/F04", title: "F04 — A checkbox that shows a state and never changes it", description: "`Checkbox(checked: x)` with no `bind:` and no `on change` draws `x`, and a click toggles the box while `x` stays as it was.") {
+page ErrorF04(path: "/errors/F04", title: "F04 — A checkbox that shows a state and never changes it", description: "Checkbox(checked: x) with no bind: and no on change draws x, and a click toggles the box while x stays as it was.") {
     ErrorShell("F04", title: "A checkbox that shows a state and never changes it", severity: "warning", family: "Forms and bindings", summary: "`Checkbox(checked: x)` with no `bind:` and no `on change` draws `x`, and a click toggles the box while `x` stays as it was.", printed: #"warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a click toggles the box and not the state
  --> src/App.wf:4:5
   |
@@ -2240,7 +2240,7 @@ page ErrorF05(path: "/errors/F05", title: "F05 — A select whose value is none 
     }
 }
 
-page ErrorD01(path: "/errors/D01", title: "D01 — A file the project does not have", description: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.") {
+page ErrorD01(path: "/errors/D01", title: "D01 — A file the project does not have", description: "A site-relative src:, poster:, captions: or transcript: names a file that is not in public/; the page asks for it and gets nothing.") {
     ErrorShell("D01", title: "A file the project does not have", severity: "warning", family: "Data and assets", summary: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D01.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2251,7 +2251,7 @@ page ErrorD01(path: "/errors/D01", title: "D01 — A file the project does not h
     }
 }
 
-page ErrorD02(path: "/errors/D02", title: "D02 — A persisted value storage cannot keep", description: "`persist` writes its value to the browser's storage as JSON; a function, a file or a promise does not survive it.") {
+page ErrorD02(path: "/errors/D02", title: "D02 — A persisted value storage cannot keep", description: "persist writes its value to the browser's storage as JSON; a function, a file or a promise does not survive it.") {
     ErrorShell("D02", title: "A persisted value storage cannot keep", severity: "error", family: "Data and assets", summary: "`persist` writes its value to the browser's storage as JSON; a function, a file or a promise does not survive it.", printed: #"error[D02]: `persist pick` keeps a function, which cannot be written to the browser's storage
  --> src/App.wf:2:5
   |
@@ -2274,7 +2274,7 @@ page ErrorD02(path: "/errors/D02", title: "D02 — A persisted value storage can
     }
 }
 
-page ErrorD03(path: "/errors/D03", title: "D03 — A persisted value every instance shares", description: "A `persist` in a component placed more than once, or in a loop, is one stored value for all of them. `key:` gives each its own.") {
+page ErrorD03(path: "/errors/D03", title: "D03 — A persisted value every instance shares", description: "A persist in a component placed more than once, or in a loop, is one stored value for all of them. key: gives each its own.") {
     ErrorShell("D03", title: "A persisted value every instance shares", severity: "warning", family: "Data and assets", summary: "A `persist` in a component placed more than once, or in a loop, is one stored value for all of them. `key:` gives each its own.", printed: #"warning[D03]: `persist open` is in `Panel`, which is placed more than once, so every one of them reads and writes one stored value
  --> src/App.wf:2:5
   |
@@ -2308,7 +2308,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed with no new version", description: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.") {
+page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed with no new version", description: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising version:, with a migrate step, brings it forward.") {
     ErrorShell("D04", title: "A persisted shape changed with no new version", severity: "warning", family: "Data and assets", summary: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D04.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2319,7 +2319,7 @@ page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed wit
     }
 }
 
-page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin with no integrity hash", description: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser…") {
+page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin with no integrity hash", description: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A meta.integrity hash is how the browser…") {
     ErrorShell("D05", title: "An asset from another origin with no integrity hash", severity: "warning", family: "Data and assets", summary: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D05.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2330,7 +2330,7 @@ page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin 
     }
 }
 
-page ErrorD06(path: "/errors/D06", title: "D06 — A script loaded on consent, with nothing to ask for it", description: "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is…") {
+page ErrorD06(path: "/errors/D06", title: "D06 — A script loaded on consent, with nothing to ask for it", description: "A meta.scripts entry marked \"load\": \"consent\" loads only once the reader accepts in a ConsentBanner. With no banner in the program, nobody is…") {
     ErrorShell("D06", title: "A script loaded on consent, with nothing to ask for it", severity: "warning", family: "Data and assets", summary: "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is asked, and it never loads.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D06.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2434,7 +2434,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN03(path: "/errors/N03", title: "N03 — A try with nowhere to pass its error", description: "`try` returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.") {
+page ErrorN03(path: "/errors/N03", title: "N03 — A try with nowhere to pass its error", description: "try returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.") {
     ErrorShell("N03", title: "A try with nowhere to pass its error", severity: "error", family: "Requests", summary: "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.", printed: #"error[N03]: `load` passes a failure up with `try`, and says nothing of what it fails with
  --> src/App.wf:9:5
   |
@@ -2659,7 +2659,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN07(path: "/errors/N07", title: "N07 — A service's files are behind its spec", description: "A service's files are behind its OpenAPI spec: `wf api sync` would change them, so the program is checked against a contract the server no longer keeps.") {
+page ErrorN07(path: "/errors/N07", title: "N07 — A service's files are behind its spec", description: "A service's files are behind its OpenAPI spec: wf api sync would change them, so the program is checked against a contract the server no longer keeps.") {
     ErrorShell("N07", title: "A service's files are behind its spec", severity: "warning", family: "Requests", summary: "`wf api sync` writes a service's `generated/` folder from its OpenAPI spec, and `wf api check` fails when the two disagree. When the spec has changed since the files were written, the program is checked against a contract the server no longer keeps: run `wf api sync`.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N07.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2670,7 +2670,7 @@ page ErrorN07(path: "/errors/N07", title: "N07 — A service's files are behind 
     }
 }
 
-page ErrorN08(path: "/errors/N08", title: "N08 — A form 7.0 removed", description: "`fetch(…)`, an endpoint that does not say how it fails, `errors \{ \}`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.") {
+page ErrorN08(path: "/errors/N08", title: "N08 — A form 7.0 removed", description: "fetch(…), an endpoint that does not say how it fails, errors \{ \}, and a read's loading/error/ready arms, .data, .state, .refreshing and on: were how 6.x asked…") {
     ErrorShell("N08", title: "A form 7.0 removed", severity: "error", family: "Requests", summary: "`fetch(…)`, an endpoint that does not say how it fails, `errors \{ \}`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.", printed: #"error[N08]: `resource rows = fetch(…)`: `fetch` is the browser's, and a read is `http.get(…)`
  --> src/App.wf:4:5
   |
@@ -2706,7 +2706,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN09(path: "/errors/N09", title: "N09 — A retry asked of a write that is not idempotent", description: "A `POST` or `PATCH` whose answer was lost may have been taken, and sent again it would be taken twice — a second order. So it is retried, or replayed offline, only when its endpoint is marked `idempotent`, which sends one `Idempotency-Key` on every try; a `retry:` on any other write does nothing.") {
+page ErrorN09(path: "/errors/N09", title: "N09 — A retry asked of a write that is not idempotent", description: "A POST or PATCH whose answer was lost may have been taken, and sent again it would be taken twice — a second order.") {
     ErrorShell("N09", title: "A retry asked of a write that is not idempotent", severity: "warning", family: "Requests", summary: "A `POST` or `PATCH` whose answer was lost may have been taken, and sent again it would be taken twice — a second order. So it is retried, or replayed offline, only when its endpoint is marked `idempotent`, which sends one `Idempotency-Key` on every try; a `retry:` on any other write does nothing.", printed: #"warning[N09]: `retry:` on `Shop.placeOrder`, a `POST` its contract does not mark `idempotent`: it is not retried
   --> src/App.wf:12:85
    |
@@ -2756,7 +2756,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN11(path: "/errors/N11", title: "N11 — Any or Map where a service meets the program", description: "What crosses to a service has a type the program names: a record, a dictionary, or `Json` — never `Any` or `Map`.") {
+page ErrorN11(path: "/errors/N11", title: "N11 — Any or Map where a service meets the program", description: "What crosses to a service has a type the program names: a record, a dictionary, or Json — never Any or Map.") {
     ErrorShell("N11", title: "Any or Map where a service meets the program", severity: "error", family: "Requests", summary: "What crosses to a service — a parameter, a body, an answer, what a read holds — has a type the program names: a `type` with its fields, a dictionary, or `Json` for JSON whose shape is open. `Any` and `Map` say nothing of what arrives, so nothing about it can be checked.", printed: #"error[N11]: `body` of `Backend.signUp` is `Map`, which says nothing of what it holds
  --> src/App.wf:2:5
   |
@@ -2790,7 +2790,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorN12(path: "/errors/N12", title: "N12 — An error enum that is not shaped as one", description: "An error enum names the statuses a service answers with, each a case with one value, and keeps one `http(error: HttpError)` case for the rest.") {
+page ErrorN12(path: "/errors/N12", title: "N12 — An error enum that is not shaped as one", description: "An error enum names the statuses a service answers with, each a case with one value, and keeps one http(error: HttpError) case for the rest.") {
     ErrorShell("N12", title: "An error enum that is not shaped as one", severity: "error", family: "Requests", summary: "An error enum names the statuses a service answers with, each a case carrying the body of its status, and keeps one `http(error: HttpError)` case for everything else — no network, a timeout, a status it does not name. A case with no status or more than one value, a status named twice, or no `http` case leaves a failure with nowhere to go.", printed: #"error[N12]: `SaveError` names a status, so it is an error enum, and keeps no `http` case
  --> src/App.wf:3:1
   |
@@ -2871,7 +2871,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorI01(path: "/errors/I01", title: "I01 — A message no translation has", description: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.") {
+page ErrorI01(path: "/errors/I01", title: "I01 — A message no translation has", description: "t(\"key\") names a key no locale's file holds, so the page shows the key itself.") {
     ErrorShell("I01", title: "A message no translation has", severity: "error", family: "Translations", summary: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I01.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2904,7 +2904,7 @@ page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and 
     }
 }
 
-page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not have", description: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.") {
+page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not have", description: "setLocale(\"xx\") names a locale i18n.locales does not list.") {
     ErrorShell("I04", title: "A locale the project does not have", severity: "error", family: "Translations", summary: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I04.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2915,7 +2915,7 @@ page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not
     }
 }
 
-page ErrorI05(path: "/errors/I05", title: "I05 — Words a reader sees that are not translated", description: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…") {
+page ErrorI05(path: "/errors/I05", title: "I05 — Words a reader sees that are not translated", description: "Under i18n.literals, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…") {
     ErrorShell("I05", title: "Words a reader sees that are not translated", severity: "warning", family: "Translations", summary: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader sees it as written.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I05.md") {
         fixed {
             Stack(gap: .sm) {
@@ -2926,7 +2926,7 @@ page ErrorI05(path: "/errors/I05", title: "I05 — Words a reader sees that are 
     }
 }
 
-page ErrorA01(path: "/errors/A01", title: "A01 — An image with no alt text", description: "An `Image` with no `alt`. A screen reader reads the file name; a decorative image takes `alt: \"\"`.") {
+page ErrorA01(path: "/errors/A01", title: "A01 — An image with no alt text", description: "An Image with no alt. A screen reader reads the file name; a decorative image takes alt: \"\".") {
     ErrorShell("A01", title: "An image with no alt text", severity: "warning", family: "Accessibility", summary: "An `Image` with no `alt`. A screen reader reads the file name; a decorative image takes `alt: \"\"`.", printed: #"warning[A01]: Image missing "alt" attribute
  --> src/App.wf:3:5
   |
@@ -2949,7 +2949,7 @@ page ErrorA01(path: "/errors/A01", title: "A01 — An image with no alt text", d
     }
 }
 
-page ErrorA02(path: "/errors/A02", title: "A02 — An icon button with no name", description: "An `IconButton` with no `label:`, which is its accessible name.") {
+page ErrorA02(path: "/errors/A02", title: "A02 — An icon button with no name", description: "An IconButton with no label:, which is its accessible name.") {
     ErrorShell("A02", title: "An icon button with no name", severity: "warning", family: "Accessibility", summary: "An `IconButton` with no `label:`, which is its accessible name.", printed: #"warning[A02]: IconButton missing accessible label
  --> src/App.wf:3:5
   |
@@ -2972,7 +2972,7 @@ page ErrorA02(path: "/errors/A02", title: "A02 — An icon button with no name",
     }
 }
 
-page ErrorA03(path: "/errors/A03", title: "A03 — An input with no label", description: "An `Input` with neither `label:` nor `placeholder:`.") {
+page ErrorA03(path: "/errors/A03", title: "A03 — An input with no label", description: "An Input with neither label: nor placeholder:.") {
     ErrorShell("A03", title: "An input with no label", severity: "warning", family: "Accessibility", summary: "An `Input` with neither `label:` nor `placeholder:`.", printed: #"warning[A03]: Input missing "label" or "placeholder" attribute
  --> src/App.wf:4:5
   |
@@ -2997,7 +2997,7 @@ page ErrorA03(path: "/errors/A03", title: "A03 — An input with no label", desc
     }
 }
 
-page ErrorA04(path: "/errors/A04", title: "A04 — A control with no label", description: "A `Checkbox`, `Radio`, `Switch`, `Slider` or `Textarea` with no `label:`.") {
+page ErrorA04(path: "/errors/A04", title: "A04 — A control with no label", description: "A Checkbox, Radio, Switch, Slider or Textarea with no label:.") {
     ErrorShell("A04", title: "A control with no label", severity: "warning", family: "Accessibility", summary: "A `Checkbox`, `Radio`, `Switch`, `Slider` or `Textarea` with no `label:`.", printed: #"warning[A04]: Checkbox missing "label" attribute
  --> src/App.wf:4:5
   |
@@ -3022,7 +3022,7 @@ page ErrorA04(path: "/errors/A04", title: "A04 — A control with no label", des
     }
 }
 
-page ErrorA05(path: "/errors/A05", title: "A05 — A button with no text", description: "A `Button` with no text: no label, no `aria-label:`, and no `Text` in its block.") {
+page ErrorA05(path: "/errors/A05", title: "A05 — A button with no text", description: "A Button with no text: no label, no aria-label:, and no Text in its block.") {
     ErrorShell("A05", title: "A button with no text", severity: "warning", family: "Accessibility", summary: "A `Button` with no text: no label, no `aria-label:`, and no `Text` in its block.", printed: #"warning[A05]: Button has no text content
  --> src/App.wf:3:5
   |
@@ -3045,7 +3045,7 @@ page ErrorA05(path: "/errors/A05", title: "A05 — A button with no text", descr
     }
 }
 
-page ErrorA06(path: "/errors/A06", title: "A06 — A link with no text", description: "A `Link` with no text.") {
+page ErrorA06(path: "/errors/A06", title: "A06 — A link with no text", description: "A Link with no text.") {
     ErrorShell("A06", title: "A link with no text", severity: "warning", family: "Accessibility", summary: "A `Link` with no text.", printed: #"warning[A06]: Link has no text content
  --> src/App.wf:3:5
   |
@@ -3071,7 +3071,7 @@ page About(path: "/about", title: "About", description: "D") {
     }
 }
 
-page ErrorA07(path: "/errors/A07", title: "A07 — An empty heading", description: "A `Heading` with no text.") {
+page ErrorA07(path: "/errors/A07", title: "A07 — An empty heading", description: "A Heading with no text.") {
     ErrorShell("A07", title: "An empty heading", severity: "warning", family: "Accessibility", summary: "A `Heading` with no text.", printed: #"warning[A07]: Heading has empty text content
  --> src/App.wf:3:5
   |
@@ -3094,7 +3094,7 @@ page ErrorA07(path: "/errors/A07", title: "A07 — An empty heading", descriptio
     }
 }
 
-page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", description: "A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.") {
+page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", description: "A Modal, Dialog, AlertDialog or Sheet with no title: (a Sheet may take a label:), which is its accessible name.") {
     ErrorShell("A08", title: "A dialog with no title", severity: "warning", family: "Accessibility", summary: "A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.", printed: #"warning[A08]: Modal missing "title" attribute
  --> src/App.wf:4:5
   |
@@ -3119,7 +3119,7 @@ page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", desc
     }
 }
 
-page ErrorA09(path: "/errors/A09", title: "A09 — Media nobody can follow without sound", description: "A `Video` with no `controls`, or a `Video` or `Audio` with no `captions:` or `transcript:`.") {
+page ErrorA09(path: "/errors/A09", title: "A09 — Media nobody can follow without sound", description: "A Video with no controls, or a Video or Audio with no captions: or transcript:.") {
     ErrorShell("A09", title: "Media nobody can follow without sound", severity: "warning", family: "Accessibility", summary: "A `Video` with no `controls`, or a `Video` or `Audio` with no `captions:` or `transcript:`.", printed: #"warning[A09]: Video missing "captions"
  --> src/App.wf:3:5
   |
@@ -3142,7 +3142,7 @@ page ErrorA09(path: "/errors/A09", title: "A09 — Media nobody can follow witho
     }
 }
 
-page ErrorA10(path: "/errors/A10", title: "A10 — A table with no header row", description: "A `Table` with no `Table.Head`.") {
+page ErrorA10(path: "/errors/A10", title: "A10 — A table with no header row", description: "A Table with no Table.Head.") {
     ErrorShell("A10", title: "A table with no header row", severity: "warning", family: "Accessibility", summary: "A `Table` with no `Table.Head`.", printed: #"warning[A10]: Table has no header row (`Table.Head`)
  --> src/App.wf:3:5
   |
@@ -3168,7 +3168,7 @@ page ErrorA10(path: "/errors/A10", title: "A10 — A table with no header row", 
     }
 }
 
-page ErrorA11(path: "/errors/A11", title: "A11 — A skipped heading level", description: "A heading level skipped — `h2` straight to `h4`.") {
+page ErrorA11(path: "/errors/A11", title: "A11 — A skipped heading level", description: "A heading level skipped — h2 straight to h4.") {
     ErrorShell("A11", title: "A skipped heading level", severity: "warning", family: "Accessibility", summary: "A heading level skipped — `h2` straight to `h4`.", printed: #"warning[A11]: Heading level skips from h1 to h4
  --> src/App.wf:3:5
   |
@@ -3191,7 +3191,7 @@ page ErrorA11(path: "/errors/A11", title: "A11 — A skipped heading level", des
     }
 }
 
-page ErrorA12(path: "/errors/A12", title: "A12 — A page without exactly one h1", description: "A page with no `h1`, or more than one.") {
+page ErrorA12(path: "/errors/A12", title: "A12 — A page without exactly one h1", description: "A page with no h1, or more than one.") {
     ErrorShell("A12", title: "A page without exactly one h1", severity: "warning", family: "Accessibility", summary: "A page with no `h1`, or more than one.", printed: #"warning[A12]: Page has no h1 heading
  --> src/App.wf:1:1
   |
@@ -3242,7 +3242,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorA14(path: "/errors/A14", title: "A14 — A role whose children are the wrong kind", description: "A `role:` that requires particular children holds a control that is not one.") {
+page ErrorA14(path: "/errors/A14", title: "A14 — A role whose children are the wrong kind", description: "A role: that requires particular children holds a control that is not one.") {
     ErrorShell("A14", title: "A role whose children are the wrong kind", severity: "warning", family: "Accessibility", summary: "A `role:` that requires particular children holds a control that is not one.", printed: #"warning[A14]: role "tablist" requires children with role "tab", but holds a Button
  --> src/App.wf:3:5
   |
@@ -3271,7 +3271,7 @@ page ErrorA14(path: "/errors/A14", title: "A14 — A role whose children are the
     }
 }
 
-page ErrorA15(path: "/errors/A15", title: "A15 — An aria-label that does not contain the visible text", description: "A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.") {
+page ErrorA15(path: "/errors/A15", title: "A15 — An aria-label that does not contain the visible text", description: "A control's aria-label does not contain the text it shows, so what a voice-control user says does not match what they see.") {
     ErrorShell("A15", title: "An aria-label that does not contain the visible text", severity: "warning", family: "Accessibility", summary: "A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.", printed: #"warning[A15]: Button shows "save" but its aria-label says "Submit the form"
  --> src/App.wf:3:5
   |
@@ -3294,7 +3294,7 @@ page ErrorA15(path: "/errors/A15", title: "A15 — An aria-label that does not c
     }
 }
 
-page ErrorA16(path: "/errors/A16", title: "A16 — One id on several elements", description: "A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.") {
+page ErrorA16(path: "/errors/A16", title: "A16 — One id on several elements", description: "A literal id: inside a for, or in a component placed more than once, gives several elements one id; a label's for and aria-* find only the first.") {
     ErrorShell("A16", title: "One id on several elements", severity: "warning", family: "Accessibility", summary: "A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.", printed: #"warning[A16]: `id: "row"` is inside a `for`, so the page has several elements with one id
  --> src/App.wf:4:26
   |
@@ -3320,7 +3320,7 @@ page ErrorA16(path: "/errors/A16", title: "A16 — One id on several elements", 
     }
 }
 
-page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", description: "A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.") {
+page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", description: "A Frame with no title:, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.") {
     ErrorShell("A17", title: "A frame with no title", severity: "warning", family: "Accessibility", summary: "A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.", printed: #"warning[A17]: Frame missing "title" attribute
  --> src/App.wf:3:5
   |
@@ -3344,7 +3344,7 @@ page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", descr
     }
 }
 
-page ErrorA18(path: "/errors/A18", title: "A18 — A popover with no name", description: "A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.") {
+page ErrorA18(path: "/errors/A18", title: "A18 — A popover with no name", description: "A Popover drawn as a dialog (it has no other role:) with no label:: a screen reader announces it as a dialog and nothing more.") {
     ErrorShell("A18", title: "A popover with no name", severity: "warning", family: "Accessibility", summary: "A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.", printed: #"warning[A18]: Popover has no accessible name
  --> src/App.wf:5:5
   |
@@ -3372,7 +3372,7 @@ page ErrorA18(path: "/errors/A18", title: "A18 — A popover with no name", desc
     }
 }
 
-page ErrorS01(path: "/errors/S01", title: "S01 — A page with no title", description: "A page has no `title:`.") {
+page ErrorS01(path: "/errors/S01", title: "S01 — A page with no title", description: "A page has no title:.") {
     ErrorShell("S01", title: "A page with no title", severity: "warning", family: "Search and sharing", summary: "A page has no `title:`.", printed: #"warning[S01]: Page P has no title
  --> src/App.wf:1:1
   |
@@ -3393,7 +3393,7 @@ page ErrorS01(path: "/errors/S01", title: "S01 — A page with no title", descri
     }
 }
 
-page ErrorS02(path: "/errors/S02", title: "S02 — A page with no description", description: "A page has no `description:`, so its search snippet is written for it.") {
+page ErrorS02(path: "/errors/S02", title: "S02 — A page with no description", description: "A page has no description:, so its search snippet is written for it.") {
     ErrorShell("S02", title: "A page with no description", severity: "warning", family: "Search and sharing", summary: "A page has no `description:`, so its search snippet is written for it.", printed: #"warning[S02]: Page P has no description
  --> src/App.wf:1:1
   |
@@ -3454,7 +3454,7 @@ page B(path: "/team", title: "B", description: "D") { Heading("B").h1 }"#, title
     }
 }
 
-page ErrorP01(path: "/errors/P01", title: "P01 — A persisted value with no way forward", description: "A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded.") {
+page ErrorP01(path: "/errors/P01", title: "P01 — A persisted value with no way forward", description: "A persist at version: n with nothing to bring an older version forward, so what a returning reader had is discarded.") {
     ErrorShell("P01", title: "A persisted value with no way forward", severity: "warning", family: "What is kept in the browser", summary: "A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded.", printed: #"warning[P01]: `items` is at version 2, and nothing brings version 1 forward
  --> src/App.wf:2:5
   |
@@ -3484,7 +3484,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorP02(path: "/errors/P02", title: "P02 — A migration that never runs", description: "A `migrate` step above the declared `version:`.") {
+page ErrorP02(path: "/errors/P02", title: "P02 — A migration that never runs", description: "A migrate step above the declared version:.") {
     ErrorShell("P02", title: "A migration that never runs", severity: "warning", family: "What is kept in the browser", summary: "A `migrate` step above the declared `version:`.", printed: #"warning[P02]: `migrate 1 -> 2` on `items` is past the declared version
  --> src/App.wf:2:5
   |
@@ -3541,7 +3541,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorU01(path: "/errors/U01", title: "U01 — A state nothing reads", description: "A `state` nothing in its page or component reads; an assignment alone does not read it.") {
+page ErrorU01(path: "/errors/U01", title: "U01 — A state nothing reads", description: "A state nothing in its page or component reads; an assignment alone does not read it.") {
     ErrorShell("U01", title: "A state nothing reads", severity: "warning", family: "Declared and never read", summary: "A `state` nothing in its page or component reads; an assignment alone does not read it.", printed: #"warning[U01]: `unused` is declared but never read
  --> src/App.wf:2:5
   |
@@ -3563,7 +3563,7 @@ page ErrorU01(path: "/errors/U01", title: "U01 — A state nothing reads", descr
     }
 }
 
-page ErrorU02(path: "/errors/U02", title: "U02 — A derived value nothing reads", description: "A `derived` nothing reads.") {
+page ErrorU02(path: "/errors/U02", title: "U02 — A derived value nothing reads", description: "A derived nothing reads.") {
     ErrorShell("U02", title: "A derived value nothing reads", severity: "warning", family: "Declared and never read", summary: "A `derived` nothing reads.", printed: #"warning[U02]: `doubled` is declared but never read
  --> src/App.wf:3:5
   |
@@ -3612,7 +3612,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorU04(path: "/errors/U04", title: "U04 — A store member nothing reads", description: "A store's state, derived value or action that nothing reads, inside the store or as `Store.member`.") {
+page ErrorU04(path: "/errors/U04", title: "U04 — A store member nothing reads", description: "A store's state, derived value or action that nothing reads, inside the store or as Store.member.") {
     ErrorShell("U04", title: "A store member nothing reads", severity: "warning", family: "Declared and never read", summary: "A store's state, derived value or action that nothing reads, inside the store or as `Store.member`.", printed: #"warning[U04]: `Cart.coupon` is declared but never read
  --> src/App.wf:3:5
   |
@@ -3642,7 +3642,7 @@ page P(path: "/", title: "T", description: "D") {
     }
 }
 
-page ErrorU05(path: "/errors/U05", title: "U05 — An action nothing calls", description: "An action nothing calls; a name that starts with `_` is understood to be unused on purpose.") {
+page ErrorU05(path: "/errors/U05", title: "U05 — An action nothing calls", description: "An action nothing calls; a name that starts with _ is understood to be unused on purpose.") {
     ErrorShell("U05", title: "An action nothing calls", severity: "warning", family: "Declared and never read", summary: "An action nothing calls; a name that starts with `_` is understood to be unused on purpose.", printed: #"warning[U05]: `reset` is declared but never read
  --> src/App.wf:3:5
   |
@@ -3668,7 +3668,7 @@ page ErrorU05(path: "/errors/U05", title: "U05 — An action nothing calls", des
     }
 }
 
-page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", description: "What follows a `return` in the same block never runs.") {
+page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", description: "What follows a return in the same block never runs.") {
     ErrorShell("U06", title: "Code after return", severity: "warning", family: "Declared and never read", summary: "What follows a `return` in the same block never runs.", printed: #"warning[U06]: this never runs: the `return` above leaves first
  --> src/App.wf:6:9
   |
@@ -3703,7 +3703,7 @@ page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", descripti
     }
 }
 
-page ErrorU07(path: "/errors/U07", title: "U07 — An allow that allows nothing", description: "A `// wf-allow(CODE)` comment covers the next line of code (or its own, at the end of one); when nothing it names is reported there, or it names an…") {
+page ErrorU07(path: "/errors/U07", title: "U07 — An allow that allows nothing", description: "A // wf-allow(CODE) comment covers the next line of code (or its own, at the end of one); when nothing it names is reported there, or it names an…") {
     ErrorShell("U07", title: "An allow that allows nothing", severity: "warning", family: "Declared and never read", summary: "A `// wf-allow(CODE)` comment covers the next line of code (or its own, at the end of one); when nothing it names is reported there, or it names an error no allow may silence, it is reported itself — so allows cannot outlive what they were written for.", printed: #"warning[U07]: `wf-allow(U01)` allows nothing: no `U01` is reported on the line it covers
  --> src/App.wf:2:5
   |
@@ -3752,7 +3752,7 @@ page ErrorU08(path: "/errors/U08", title: "U08 — A condition that is always th
     }
 }
 
-page ErrorU09(path: "/errors/U09", title: "U09 — An unkeyed loop whose items hold state", description: "With no `by`, a change to the list redraws every item, and what an item holds — a field being typed in, a component's own state — starts again.") {
+page ErrorU09(path: "/errors/U09", title: "U09 — An unkeyed loop whose items hold state", description: "With no by, a change to the list redraws every item, and what an item holds — a field being typed in, a component's own state — starts again.") {
     ErrorShell("U09", title: "An unkeyed loop whose items hold state", severity: "warning", family: "Declared and never read", summary: "With no `by`, a change to the list redraws every item, and what an item holds — a field being typed in, a component's own state — starts again.", printed: #"warning[U09]: this `for` has no `by`, and each item holds a `Input`, which starts again whenever the list changes
  --> src/App.wf:4:5
   |
@@ -3778,7 +3778,7 @@ page ErrorU09(path: "/errors/U09", title: "U09 — An unkeyed loop whose items h
     }
 }
 
-page ErrorU10(path: "/errors/U10", title: "U10 — An else no value reaches", description: "Every case of the enum has its own arm, so the `match`'s `else` never runs.") {
+page ErrorU10(path: "/errors/U10", title: "U10 — An else no value reaches", description: "Every case of the enum has its own arm, so the match's else never runs.") {
     ErrorShell("U10", title: "An else no value reaches", severity: "warning", family: "Declared and never read", summary: "Every case of the enum has its own arm, so the `match`'s `else` never runs.", printed: #"warning[U10]: every case of `Tone` has its own arm, so this `match`'s `else` is never reached
  --> src/App.wf:5:5
   |
@@ -3846,7 +3846,7 @@ page ErrorV02(path: "/errors/V02", title: "V02 — A flag no stylesheet styles",
     }
 }
 
-page ErrorV03(path: "/errors/V03", title: "V03 — Markup put in as markup", description: "An `Unsafe.Html`, and whether what it puts in went through `sanitize`; and a `Frame(srcdoc:)` drawing HTML from a value, which is sandboxed…") {
+page ErrorV03(path: "/errors/V03", title: "V03 — Markup put in as markup", description: "An Unsafe.Html, and whether what it puts in went through sanitize; and a Frame(srcdoc:) drawing HTML from a value, which is sandboxed…") {
     ErrorShell("V03", title: "Markup put in as markup", severity: "warning", family: "Vocabulary", summary: "An `Unsafe.Html`, and whether what it puts in went through `sanitize`; and a `Frame(srcdoc:)` drawing HTML from a value, which is sandboxed (`sandbox=\"\"`) unless it says what it may do.", printed: #"warning[V03]: `Unsafe.Html` puts markup in as markup
  --> src/App.wf:4:5
   |
@@ -3871,7 +3871,7 @@ page ErrorV03(path: "/errors/V03", title: "V03 — Markup put in as markup", des
     }
 }
 
-page ErrorV04(path: "/errors/V04", title: "V04 — A class that is the engine's", description: "A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it.") {
+page ErrorV04(path: "/errors/V04", title: "V04 — A class that is the engine's", description: "A class: naming one of the built-ins' wf-* classes, which brings that built-in's rules with it.") {
     ErrorShell("V04", title: "A class that is the engine's", severity: "warning", family: "Vocabulary", summary: "A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it.", printed: #"warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
  --> src/App.wf:3:5
   |
@@ -3894,7 +3894,7 @@ page ErrorV04(path: "/errors/V04", title: "V04 — A class that is the engine's"
     }
 }
 
-page ErrorV05(path: "/errors/V05", title: "V05 — A CSS property no browser knows", description: "A misspelled property — `colr:` — is ignored by the browser; nothing tells you why the style did not take.") {
+page ErrorV05(path: "/errors/V05", title: "V05 — A CSS property no browser knows", description: "A misspelled property — colr: — is ignored by the browser; nothing tells you why the style did not take.") {
     ErrorShell("V05", title: "A CSS property no browser knows", severity: "warning", family: "Vocabulary", summary: "A misspelled property — `colr:` — is ignored by the browser; nothing tells you why the style did not take.", printed: #"warning[V05]: `colr` is not a CSS property, so the browser ignores it
  --> src/App.wf:3:17
   |
@@ -3920,7 +3920,7 @@ page ErrorV05(path: "/errors/V05", title: "V05 — A CSS property no browser kno
     }
 }
 
-page ErrorV06(path: "/errors/V06", title: "V06 — A design token the theme does not declare", description: "`$name` compiles to `var(--name)`; a token the theme does not declare is never set, so the property falls back to nothing.") {
+page ErrorV06(path: "/errors/V06", title: "V06 — A design token the theme does not declare", description: "$name compiles to var(--name); a token the theme does not declare is never set, so the property falls back to nothing.") {
     ErrorShell("V06", title: "A design token the theme does not declare", severity: "error", family: "Vocabulary", summary: "`$name` compiles to `var(--name)`; a token the theme does not declare is never set, so the property falls back to nothing.", printed: #"error[V06]: `$brnad` is no token the theme declares, so it is never set
  --> src/App.wf:3:17
   |
@@ -3945,7 +3945,7 @@ page ErrorV06(path: "/errors/V06", title: "V06 — A design token the theme does
     }
 }
 
-page ErrorV07(path: "/errors/V07", title: "V07 — A number where CSS wants a length", description: "`width: \{pct\}` with a number is a length with no unit, which the browser drops. Give it one: `\{pct\}%`.") {
+page ErrorV07(path: "/errors/V07", title: "V07 — A number where CSS wants a length", description: "width: \{pct\} with a number is a length with no unit, which the browser drops. Give it one: \{pct\}%.") {
     ErrorShell("V07", title: "A number where CSS wants a length", severity: "warning", family: "Vocabulary", summary: "`width: \{pct\}` with a number is a length with no unit, which the browser drops. Give it one: `\{pct\}%`.", printed: #"warning[V07]: `width: {pct}` is a number with no unit, which the browser drops
  --> src/App.wf:4:20
   |
@@ -3971,7 +3971,7 @@ page ErrorV07(path: "/errors/V07", title: "V07 — A number where CSS wants a le
     }
 }
 
-page ErrorV08(path: "/errors/V08", title: "V08 — An icon the runtime does not draw", description: "`Icon` and `IconButton` draw the built-in icons; any other name shows as the word.") {
+page ErrorV08(path: "/errors/V08", title: "V08 — An icon the runtime does not draw", description: "Icon and IconButton draw the built-in icons; any other name shows as the word.") {
     ErrorShell("V08", title: "An icon the runtime does not draw", severity: "warning", family: "Vocabulary", summary: "`Icon` and `IconButton` draw the built-in icons; any other name shows as the word.", printed: #"warning[V08]: `rocket` is not an icon the runtime draws; it will show as the word
  --> src/App.wf:3:10
   |
@@ -3994,7 +3994,7 @@ page ErrorV08(path: "/errors/V08", title: "V08 — An icon the runtime does not 
     }
 }
 
-page ErrorV09(path: "/errors/V09", title: "V09 — An event the element does not fire", description: "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).") {
+page ErrorV09(path: "/errors/V09", title: "V09 — An event the element does not fire", description: "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (on clik).") {
     ErrorShell("V09", title: "An event the element does not fire", severity: "warning", family: "Vocabulary", summary: "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).", printed: #"warning[V09]: `clik` is not an event Button fires
  --> src/App.wf:3:22
   |
@@ -4017,7 +4017,7 @@ page ErrorV09(path: "/errors/V09", title: "V09 — An event the element does not
     }
 }
 
-page ErrorV12(path: "/errors/V12", title: "V12 — A long list that is not windowed", description: "A `VirtualList` draws only the rows in view of one keyed `for` — `for row in rows by row.id \{ … \}` — that is the whole of its body; with anything…") {
+page ErrorV12(path: "/errors/V12", title: "V12 — A long list that is not windowed", description: "A VirtualList draws only the rows in view of one keyed for — for row in rows by row.id \{ … \} — that is the whole of its body; with anything…") {
     ErrorShell("V12", title: "A long list that is not windowed", severity: "warning", family: "Vocabulary", summary: "A `VirtualList` draws only the rows in view of one keyed `for` — `for row in rows by row.id \{ … \}` — that is the whole of its body; with anything else in it, or a `for` with no `by`, it draws everything, as a plain scrolling box does.", printed: #"warning[V12]: This `VirtualList` draws every row: its body is not one keyed `for`
  --> src/App.wf:4:5
   |
@@ -4047,7 +4047,7 @@ page ErrorV12(path: "/errors/V12", title: "V12 — A long list that is not windo
     }
 }
 
-page ErrorV10(path: "/errors/V10", title: "V10 — A Host tag it does not make", description: "A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.") {
+page ErrorV10(path: "/errors/V10", title: "V10 — A Host tag it does not make", description: "A Host is made of one of a few elements — div, span, canvas, svg, section, figure, pre, p, ul, table; any other tag is a div.") {
     ErrorShell("V10", title: "A Host tag it does not make", severity: "warning", family: "Vocabulary", summary: "A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.", printed: #"warning[V10]: `Host` makes no `video`, so it is a `div`
  --> src/App.wf:3:10
   |

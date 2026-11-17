@@ -2699,7 +2699,7 @@ Attribute families: `global`, `aria`, `data`, `input`.
 
 ### FileUpload
 
-File input; handle the chosen files in `on change`.
+File input; `bind:` holds what was chosen, and `on change` hears it.
 
 ```
 FileUpload(accept: …, label: …, multiple: …) { … }

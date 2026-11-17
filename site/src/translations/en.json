@@ -230,6 +230,8 @@
   "changelog.major": "WebFluent {major}",
   "changelog.github": "Releases on GitHub",
   "changelog.latest": "Latest",
+  "changelog.unreleased": "Not released yet",
+  "changelog.next": "next",
   "changelog.anchor": "Link to {version}",
   "changelog.more": "{count} more",
   "changelog.fewer": "Show fewer",

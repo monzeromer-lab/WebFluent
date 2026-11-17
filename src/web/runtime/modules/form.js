@@ -296,19 +296,33 @@
         readNative();
       },
       get element() { return node(); },
-      /// What the server said, shown on the fields it named.
+      /// What the server said, shown on the fields it named: a field a
+      /// `validate` block guards shows it as its own message; any other
+      /// control of the form with that `name` shows it beneath it, with the
+      /// same plumbing, until the reader changes it.
       apply(said) {
+        let firstLoose = null;
         for (const [name, message] of Object.entries(said || {})) {
+          const text = Array.isArray(message) ? message[0] : String(message);
           const entry = fields.get(name);
           if (entry) {
             entry.touched.set(true);
-            entry.server.set(Array.isArray(message) ? message[0] : String(message));
+            entry.server.set(text);
+            continue;
+          }
+          const control = controlNamed(node(), name);
+          if (control) {
+            serverNote(control, text);
+            if (!firstLoose) firstLoose = control;
           }
         }
         submitted.set(true);
-        focusFirstInvalid(node(), fields);
+        const anyRule = Array.from(fields.values()).some((e) => e.message());
+        if (anyRule) focusFirstInvalid(node(), fields);
+        else if (firstLoose && firstLoose.focus) firstLoose.focus();
       },
       reset() {
+        clearServerNotes(node());
         submitted.set(false);
         readNative();
         for (const entry of fields.values()) {
@@ -338,6 +352,51 @@
       __node: node,
     };
     return handle;
+  }
+
+  /// The control of `form` named `name`.
+  function controlNamed(form, name) {
+    if (!form || !form.querySelectorAll) return null;
+    return Array.from(form.querySelectorAll("input, select, textarea"))
+      .find((c) => (c.name || c.getAttribute("name")) === name) || null;
+  }
+
+  /// A server's message beneath a control no rule guards: announced,
+  /// referred to by the control, marking it invalid, and gone once the
+  /// reader changes what it holds.
+  function serverNote(control, text) {
+    if (!control.id) control.id = "wf-field-" + Math.random().toString(36).slice(2, 9);
+    const id = control.id + "-server";
+    let message = control.ownerDocument && control.ownerDocument.getElementById(id);
+    if (!message) {
+      message = el("p", { className: "wf-field__error", id, role: "alert" });
+      const holder = control.closest ? control.closest(".wf-field") : null;
+      if (holder) holder.appendChild(message);
+      else if (control.parentNode) control.parentNode.insertBefore(message, control.nextSibling);
+      const described = (control.getAttribute("aria-describedby") || "").split(" ").filter(Boolean);
+      if (!described.includes(id)) control.setAttribute("aria-describedby", described.concat([id]).join(" "));
+      const clear = () => {
+        message.remove();
+        const left = (control.getAttribute("aria-describedby") || "").split(" ").filter((x) => x && x !== id);
+        if (left.length) control.setAttribute("aria-describedby", left.join(" "));
+        else control.removeAttribute("aria-describedby");
+        control.setAttribute("aria-invalid", "false");
+        control.removeEventListener("input", clear);
+        control.removeEventListener("change", clear);
+      };
+      control.addEventListener("input", clear);
+      control.addEventListener("change", clear);
+      message._wfClear = clear;
+    }
+    message.textContent = text;
+    control.setAttribute("aria-invalid", "true");
+  }
+
+  function clearServerNotes(form) {
+    if (!form || !form.querySelectorAll) return;
+    for (const note of Array.from(form.querySelectorAll(".wf-field__error"))) {
+      if (/-server$/.test(note.id || "") && note._wfClear) note._wfClear();
+    }
   }
 
   /// Focus the first control that has something to say, and say it — which

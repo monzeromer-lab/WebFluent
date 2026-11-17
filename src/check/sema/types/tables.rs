@@ -179,6 +179,11 @@ pub(super) fn bound_type(component: &str, modifiers: &[String]) -> Option<Type> 
             Some(Type::Scalar(Scalar::DateTime))
         }
         "Input" | "Textarea" => Some(Type::String),
+        // What was chosen: several files, or one or none.
+        "FileUpload" if modifiers.iter().any(|m| m == "multiple") => {
+            Some(Type::list(Type::Scalar(Scalar::File)))
+        }
+        "FileUpload" => Some(Type::optional(Type::Scalar(Scalar::File))),
         _ => None,
     }
 }

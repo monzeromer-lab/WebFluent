@@ -976,8 +976,12 @@ impl ParserV2 {
         // `-> User! idempotent`: a word an endpoint is marked with ends the
         // type; it names no error.
         let starts_type = match self.kind() {
+            // `-> String! as: .text`: a setting after it is no error type.
             TokenType::Identifier(w) => {
-                !matches!(w.as_str(), "idempotent" | "invalidates" | "pages" | "streamed")
+                let marker = matches!(w.as_str(), "idempotent" | "invalidates" | "pages" | "streamed");
+                let setting = ENDPOINT_SETTINGS.contains(&w.as_str())
+                    && matches!(self.kind_at(1), TokenType::Colon);
+                !(marker || setting)
             }
             TokenType::OpenBracket | TokenType::OpenParen => true,
             _ => false,

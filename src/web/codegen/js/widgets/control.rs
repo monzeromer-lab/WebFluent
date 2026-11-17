@@ -802,6 +802,26 @@ impl JsCodegen {
         self.emit_line(&format!(
             "const {input_var} = WF.el(\"input\", {{ {input_attrs} }});"
         ));
+        // `bind:`: what was chosen — a list with `.multiple`, else the one
+        // file or `null` — whatever `on change` the call writes beside it.
+        if let Some(target) = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, v) if k == "bind" => Some(v),
+                _ => None,
+            })
+            .and_then(|v| self.bind_target(v))
+        {
+            self.emit_line(&format!(
+                "{input_var}.addEventListener(\"change\", ($$e) => {{ {}; }});",
+                target.write(if multiple {
+                    "Array.from($$e.target.files || [])"
+                } else {
+                    "($$e.target.files && $$e.target.files[0]) || null"
+                })
+            ));
+        }
         self.emit_line(&format!("{wrapper_var}.appendChild({input_var});"));
 
         self.emit_line(&format!("const {var} = {wrapper_var};"));

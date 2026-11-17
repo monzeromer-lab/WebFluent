@@ -253,7 +253,7 @@ def render(path, meta, title, body, index_entries):
     out = [
         f"// A recipe, written from md-docs/recipes/{path.name} by scripts/docsite/recipes.py;",
         "// edit the recipe, not this file.",
-        f"page {name}(path: {q(meta['route'])}, title: {q(title + ' — Recipes')}, description: {q(meta.get('description', title))}) {{",
+        f"page {name}(path: {q(meta['route'])}, title: {q(title + ' — Recipes')}, description: {q(guide.snippet(meta.get('description', title)))}) {{",
         f"    RecipeShell({q(title)}, summary: {q(summary)}, outputs: {json.dumps(meta.get('outputs', []))}, "
         f"since: {q(meta.get('since', ''))}, recipes: RECIPE_INDEX, sections: [{anchors}], related: [{rel}], "
         f"source: \"md-docs/recipes/{path.name}\", how: {'true' if how_heading else 'false'}, "

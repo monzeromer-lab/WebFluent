@@ -308,6 +308,52 @@ impl Checker<'_, '_> {
     /// The fix for a `T34` just reported about `value`: a date shown
     /// through a splice, a duration said in what it counts, a number given
     /// its unit.
+    /// `"Total: " + n` as the text it means, `"Total: {n}"`: a plain
+    /// string beside a value short enough to splice, either way round.
+    pub(super) fn plan_splice(&mut self, l: &super::Expr, r: &super::Expr) {
+        use super::Expr;
+        let literal = |e: &Expr| match e {
+            Expr::StringLiteral(s) if !s.contains(['{', '}', '"', '\\', '\n']) => Some(s.clone()),
+            _ => None,
+        };
+        let spliced = |e: &Expr| {
+            let text = super::expr_text(e);
+            (matches!(
+                e,
+                Expr::Identifier(_) | Expr::PropertyAccess(..) | Expr::MethodCall(..)
+            ) && !text.contains(['"', '{', '}', '\n']))
+            .then(|| format!("{{{text}}}"))
+        };
+        let joined = match (literal(l), literal(r)) {
+            (Some(text), None) => spliced(r).map(|v| format!("\"{text}{v}\"")),
+            (None, Some(text)) => spliced(l).map(|v| format!("\"{v}{text}\"")),
+            _ => None,
+        };
+        let Some(fixed) = joined else { return };
+        let from = format!("{} + {}", super::expr_text(l), super::expr_text(r));
+        // The finding sits on the value, after the string it joins: the
+        // text is found within the expression, and replaced where it is.
+        let (start, end) = (
+            self.current_span.start as usize,
+            self.current_span.end as usize,
+        );
+        let Some(at) = self
+            .source
+            .and_then(|src| src.get(start..end.min(src.len())))
+            .and_then(|text| text.find(&from))
+        else {
+            return;
+        };
+        self.plan_last(
+            format!("Write `{fixed}`"),
+            crate::diagnostics::fixes::Plan::Replace {
+                start: start + at,
+                end: start + at + from.len(),
+                text: fixed,
+            },
+        );
+    }
+
     pub(super) fn plan_conversion(
         &mut self,
         value: &super::Expr,

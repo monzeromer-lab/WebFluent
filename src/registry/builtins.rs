@@ -2410,7 +2410,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "FileUpload",
         "Form",
-        "File input; handle the chosen files in `on change`.",
+        "File input; `bind:` holds what was chosen, and `on change` hears it.",
         None,
         &[
             special(

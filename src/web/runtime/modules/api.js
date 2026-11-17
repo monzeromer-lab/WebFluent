@@ -7,7 +7,9 @@
   // `.key(args)`, so a page can say what it wants without writing a client.
   function api(config) {
     const client = {};
-    if (config.name && config.onRequest) _requestHooks.set(config.name, config.onRequest);
+    if (config.name && (config.onRequest || (config.middleware && config.middleware.length))) {
+      _requestHooks.set(config.name, (request) => replayThrough(config, request));
+    }
     const base = () => {
       const b = typeof config.base === "function" ? config.base() : config.base;
       return (b || "").replace(/\/+$/, "");
@@ -20,6 +22,27 @@
     // What a group of it is reached through.
     Object.defineProperty(client, "$reach", { value: { config, base }, enumerable: false });
     return client;
+  }
+
+  /// A write kept offline, made up again as it is sent: what the service's
+  /// middleware adds — `bearer(Session.token)`, `header(…)`, a request id —
+  /// is added by the middleware as it is now, never stored. The chain runs
+  /// to where the network would be, and the request that reaches it is the
+  /// one sent; the answer the steps are handed is an empty success.
+  async function replayThrough(config, request) {
+    if (config.onRequest) request = (await config.onRequest(request)) || request;
+    const steps = config.middleware;
+    if (!steps || !steps.length) return request;
+    let reached = request;
+    const network = async (req) => { reached = { ...request, ...req }; return ["ok", null]; };
+    const chain = steps.reduceRight((next, step) => (req) => Promise.resolve().then(() => step(req, next)), network);
+    await chain({ url: request.url, method: request.method, headers: { ...(request.headers || {}) }, body: request.body });
+    const headers = {};
+    for (const [k, v] of Object.entries(reached.headers || {})) {
+      const value = typeof v === "function" ? v() : v;
+      if (value != null) headers[k] = String(value);
+    }
+    return { ...reached, headers };
   }
 
   /// `api Backend.users { … }`: a group of a service's endpoints, reached
@@ -96,8 +119,16 @@
     // query: `in header "X-Tenant"`, `in cookie`.
     const placed = endpoint.locations || {};
     for (const p of Object.keys(placed)) perCall.add(p);
+    // What a call leaves out of a parameter with a default, it sends the
+    // default for.
+    const withDefaults = (args) => {
+      if (!endpoint.defaults) return args || {};
+      const out = { ...endpoint.defaults };
+      for (const [k, v] of Object.entries(args || {})) if (v !== undefined) out[k] = v;
+      return out;
+    };
     const addressOf = (args) => {
-      const given = args || {};
+      const given = withDefaults(args);
       // The next page of a `pages .link` read: the address the server
       // named, as it named it.
       if (given.$address) return given.$address;
@@ -126,7 +157,7 @@
     };
 
     const optionsOf = (args) => {
-      const given = args || {};
+      const given = withDefaults(args);
       let body = given.body;
       // A file is sent as a form, which is what a server expects of one.
       const file = fileOf(given);

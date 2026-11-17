@@ -267,7 +267,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Field.Label](https://webfluent.monzeromer.dev/reference/field-label.md): Its label. Drawn for it.
 - [Fieldset](https://webfluent.monzeromer.dev/reference/fieldset.md): Controls that belong together — an address, a choice of plan — under a legend that names them.
 - [Fieldset.Legend](https://webfluent.monzeromer.dev/reference/fieldset-legend.md): Its legend. Drawn for it.
-- [FileUpload](https://webfluent.monzeromer.dev/reference/fileupload.md): File input; handle the chosen files in on change.
+- [FileUpload](https://webfluent.monzeromer.dev/reference/fileupload.md): File input; bind: holds what was chosen, and on change hears it.
 - [Footer](https://webfluent.monzeromer.dev/reference/footer.md): Repeated at the bottom of every PDF page (or those on: names), where page and pages are the page's number and the count; a <footer> on the web.
 - [Form](https://webfluent.monzeromer.dev/reference/form.md): Groups controls; on submit runs when it is submitted, and the page never navigates away.
 - [Frame](https://webfluent.monzeromer.dev/reference/frame.md): Another page, shown inside this one: an iframe — the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.

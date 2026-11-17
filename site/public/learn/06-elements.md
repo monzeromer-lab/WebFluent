@@ -401,7 +401,7 @@ The compiler holds every element call to these rules:
 | Every flag resolves to exactly one prop | `E103` |
 | A handler names a DOM event, or one of the component's declared events | `V09` for any other name, such as a misspelled `on clik` |
 | A slot fill names a declared slot | `E103` |
-| An `Icon("name")` or `icon:` names an icon the runtime draws ([the list](https://webfluent.monzeromer.dev/reference.md#icons)) | `V08`; the name shows as a word |
+| An `Icon("name")` or `icon:` names an icon the runtime draws ([the list](https://webfluent.monzeromer.dev/recipes/show-an-icon.md#the-built-in-icons)) | `V08`; the name shows as a word |
 | Accessibility: an `Image` has `alt:`, an `IconButton` a `label:`, a control a label, a `Modal` a title, a `Table` a `Table.Head` | `A01`–`A10` |
 
 ## Quick reference

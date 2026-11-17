@@ -196,8 +196,11 @@ app { render block }
 theme Name { token: value … }
 type Name { field: Type = default, … }        type Name = Other { … }
 enum Name { case, case(part: Type, …), … }
-api Name(base: expr, …) { settings  on request|response|error(x) { … }  endpoints }
+api Name(base: expr, …) { settings  middleware [ … ]  endpoints  invalidations { … }  pagination { … } }
+api Name.group { endpoints }
 api Name from "spec.json" (base: expr)
+middleware name(req, next) { action body }
+fake Name for Service.group { endpoint(params) { result } … }
 const NAME: Type = expr
 data name: Type = "file.json"
 image name = "picture.jpg"

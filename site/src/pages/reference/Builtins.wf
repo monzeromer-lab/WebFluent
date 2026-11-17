@@ -877,7 +877,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/fileupload", class: "bp-card") {
                 Text("FileUpload", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("File input; handle the chosen files in on change.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("File input; bind: holds what was chosen, and on change hears it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/form", class: "bp-card") {
                 Text("Form", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -6274,8 +6274,8 @@ DatePicker(bind: start, label: "Start date", min: "2026-01-01")"#, title: "wf")
     }
 }
 
-page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Reference", description: "FileUpload: File input; handle the chosen files in on change.") {
-    ReferenceItemShell("FileUpload", summary: "File input; handle the chosen files in on change.", signature: "FileUpload(accept: String, label: String, multiple: Bool, …) \{ … \}", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Reference", description: "FileUpload: File input; bind: holds what was chosen, and on change hears it.") {
+    ReferenceItemShell("FileUpload", summary: "File input; bind: holds what was chosen, and on change hears it.", signature: "FileUpload(accept: String, label: String, multiple: Bool, …) \{ … \}", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "FileUpload") {
                 controls {

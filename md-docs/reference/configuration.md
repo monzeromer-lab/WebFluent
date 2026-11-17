@@ -348,6 +348,26 @@ in **4.1**. Absent, no service worker is written.
 
 See also: [Work offline](../recipes/work-offline.md).
 
+## `apis`
+
+The services `wf api` keeps from an OpenAPI spec, by name. Added in
+**7.0**. `wf api add` writes an entry; `wf api sync` rewrites each
+service's `generated/` folder from its spec; `wf api check` and `wf check`
+(`N07`) say when that folder is behind.
+
+```json
+{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } } }
+```
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `spec` | string | — | The OpenAPI 3.0 or 3.1 spec, JSON or YAML, a file in the project. |
+| `out` | string | `src/api/<name>`, lower case | The folder its `service.wf` and `generated/` files are written to. |
+| `skip` | list of names | `[]` | Operations left out, by the name they would have — one whose body or answer the language cannot read. |
+
+See also: [Read the service from an OpenAPI file](../learn/15-data.md#read-the-service-from-an-openapi-file)
+and [Call a service from its OpenAPI spec](../recipes/service-from-openapi.md).
+
 ## `lints`
 
 What a finding counts as, by its code or its family: `"off"`, `"warn"` or

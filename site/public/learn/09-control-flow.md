@@ -194,7 +194,7 @@ A few rules keep it right:
 - The pre-rendered page paints the first 60 rows, and a list drawn before its
   box has a height waits for one, so its first frame shows the rows in view.
 
-[`VirtualList`](https://webfluent.monzeromer.dev/reference.md#virtuallist) lists its props, and
+[`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist.md) lists its props, and
 the box takes the attributes and handlers any element takes — a
 `role: "listbox"`, an `on keydown`.
 

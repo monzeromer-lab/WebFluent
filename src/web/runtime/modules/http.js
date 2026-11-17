@@ -647,7 +647,9 @@
           url: request.url,
           method: request.method,
           given,
-          hooked: !!opts.onRequest,
+          // Made up again when it is sent: by a 6.x hook, or the
+          // service's middleware.
+          hooked: !!opts.onRequest || !!(opts.middleware && opts.middleware.length),
           api: opts.api || null,
           credentials: request.credentials,
           body: request.body,

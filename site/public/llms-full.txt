@@ -3142,7 +3142,7 @@ The compiler holds every element call to these rules:
 | Every flag resolves to exactly one prop | `E103` |
 | A handler names a DOM event, or one of the component's declared events | `V09` for any other name, such as a misspelled `on clik` |
 | A slot fill names a declared slot | `E103` |
-| An `Icon("name")` or `icon:` names an icon the runtime draws ([the list](/reference#icons)) | `V08`; the name shows as a word |
+| An `Icon("name")` or `icon:` names an icon the runtime draws ([the list](/recipes/show-an-icon#the-built-in-icons)) | `V08`; the name shows as a word |
 | Accessibility: an `Image` has `alt:`, an `IconButton` a `label:`, a control a label, a `Modal` a title, a `Table` a `Table.Head` | `A01`–`A10` |
 
 ## Quick reference
@@ -3983,7 +3983,7 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
   - `on close` runs when it closes, however it was closed.
   - `title:` is its heading, which names it (`A08` without one).
     `Modal.Footer` is the row of actions, and `.closable` adds a close
-    button. [`Modal`](/reference#modal) lists the rest.
+    button. [`Modal`](/reference/modal) lists the rest.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds.
   It is announced politely to screen readers. Put it under a condition that
   turns true, or call `toast(…)` from a handler (below).
@@ -4162,9 +4162,9 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 
 Every option of these — `placement:`, `offset:`, `.arrow`, a menu's
 `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and
-`shortcut:` — is listed under [`Popover`](/reference#popover),
-[`Menu`](/reference#menu) and
-[`Tooltip`](/reference#tooltip). To ask before a destructive
+`shortcut:` — is listed under [`Popover`](/reference/popover),
+[`Menu`](/reference/menu) and
+[`Tooltip`](/reference/tooltip). To ask before a destructive
 action, see [Build a confirm dialog](/recipes/confirm-dialog).
 
 ## Gestures: drag, long-press, swipe and the splitter
@@ -4219,7 +4219,7 @@ page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
 
 [On every element](/reference#on-every-element) lists the
 drag props and the gesture events in full, `dropValue:` and
-`on dragmove(d)` among them; [`Splitter`](/reference#splitter)
+`on dragmove(d)` among them; [`Splitter`](/reference/splitter)
 lists its props.
 
 On a call of your own component, the drag, the drop and the gestures apply
@@ -4542,7 +4542,7 @@ A few rules keep it right:
 - The pre-rendered page paints the first 60 rows, and a list drawn before its
   box has a height waits for one, so its first frame shows the rows in view.
 
-[`VirtualList`](/reference#virtuallist) lists its props, and
+[`VirtualList`](/reference/virtuallist) lists its props, and
 the box takes the attributes and handlers any element takes — a
 `role: "listbox"`, an `on keydown`.
 
@@ -7893,15 +7893,21 @@ action join() {
 }
 ```
 
-Each message is shown on the field whose `name:` it matches, and moves focus
-to the first one. A message stays until the reader changes that field's
+Each message is shown on the field it names: a field a `validate` block
+guards shows it as its own message, and any other control of the form
+shows it beneath itself when its `name:` matches — announced, marked
+`aria-invalid`, and named by `aria-describedby`. The focus moves to the
+first one. A message stays until the reader changes that field's
 value. A field may also be given a list of messages; the first is shown.
 [Send a form to a server](#send-a-form-to-a-server) shows the whole page.
 
 ## Upload a file
 
-To let the reader pick a file, place a `FileUpload`. The files arrive in its
-`change` event. Each is a `File`, with:
+To let the reader pick a file, place a `FileUpload` and bind it:
+`bind:` holds the `File` chosen (`File?`, `null` until one is), or with
+`.multiple` the list of them (`[File]`). Its `change` event carries the
+same files, for a page that wants them as they arrive. Each is a `File`,
+with:
 
 - `.name`, `.size` (in bytes) and `.type`;
 - `.preview()`, an object URL that shows an image before it is uploaded. It
@@ -7927,9 +7933,7 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
     }
 
     Heading("Your picture").h1
-    FileUpload(accept: "image/*", label: "Choose a picture") {
-        on change(e) { picked = e.target.files[0] }
-    }
+    FileUpload(bind: picked, accept: "image/*", label: "Choose a picture")
     if let f = picked {
         Image(src: f.preview(), alt: "The picture you chose")
         Text("{f.name}, {format(f.size / 1024, .integer)} kB").muted.sm
@@ -7942,7 +7946,8 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 
 - An endpoint with a `File` parameter sends a multipart form.
 - `Backend.avatar.progress` follows the upload from 0 to 1.
-- `FileUpload(…).multiple` lets the reader pick several files.
+- `FileUpload(bind: files).multiple` lets the reader pick several files,
+  held in a `[File]`.
 
 > [!IMPORTANT]
 > `accept:` and any size limit you show are for the reader's convenience,
@@ -8946,7 +8951,8 @@ get report(id: String) at "reports/{id}" -> Json! as: .blob
   a failure's body. `cache:` sets a cache policy for that endpoint alone.
 
 A call passes the endpoint's parameters by name, and one with no default
-that may not be null must be given. Called in an action, it is a promise of
+that may not be null must be given; one it leaves out that has a default
+is sent with that default. Called in an action, it is a promise of
 a result: `await` it, then `match` it or pass its failure up with `try`
 ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`,
 `headers:`, `timeout:` and `retry:`, and in a `resource` also `refresh:`
@@ -9485,8 +9491,8 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 Use the field the type declares, `u.name`, or add `fullName` to the `type`
 if the server sends it ([T05](/errors/T05)).
 
-**Reading `.data` as if it had arrived.** Before the first answer,
-`name.data` is `null`:
+**Reading `.value` as if it had arrived.** Before the first answer,
+`name.value` is `null`:
 
 ```wf expect=T04
 type User { id: String, name: String }
@@ -14529,8 +14535,9 @@ another origin that is refused while the browser is online — a CORS
 refusal, a closed port — fails as it would without `sync`.
 
 A credential is never stored with a kept write. What an `api`'s
-`on request` hook adds — an `Authorization` header from the session — is
-added again when the write is sent, by the hook as it is then: a write made
+middleware adds — `bearer(Session.token)`, an `Authorization` header from
+the session — is added again when the write is sent, by the middleware as
+it is then: a write made
 before a logout goes out with no one's token, never the old one. A write
 whose call carries a credential header itself (`headers: { "Authorization":
 token }`) cannot be kept without it, so it is not kept, and its call fails
@@ -21926,28 +21933,30 @@ exact numbers move a little from release to release):
 
 ```text
   What it weighs
-    app.js                               49.4 kB  (16.7 kB gzipped)
-    styles.css                           26.5 kB  (5.0 kB gzipped)
-    pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
+    app.js                               68.6 kB  (22.7 kB gzipped)
+    styles.css                           29.7 kB  (5.7 kB gzipped)
+    pages/Settings.js                     9.0 kB  (2.2 kB gzipped)
     pages/Profile.js                      5.6 kB  (1.5 kB gzipped)
     pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
     pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
-    total                                99.7 kB
+    total                               122.3 kB
 
-  Runtime: 19 of 44 modules, 123.5 kB of 406.7 kB kept, 110.7 kB with its names shortened (before minifying)
-    core          26.3 kB  always
-    router        13.9 kB  WF.router
-    form          12.7 kB  WF.form
+  Runtime: 24 of 58 modules, 170.9 kB of 594.0 kB kept, 153.2 kB with its names shortened (before minifying)
+    core          27.6 kB  always
+    layer         19.6 kB  needed by drawer
+    form          15.8 kB  WF.form
+    router        14.4 kB  WF.router
     motion        12.6 kB  enter:
     each          10.6 kB  WF.each
-    store          9.1 kB  WF.store
-    keep           8.9 kB  WF.persist
+    store          9.9 kB  WF.store
+    keep           9.6 kB  WF.persist
+    …
     field          2.7 kB  WF.field
     …
-    left out: keys format offline peer scalars text slot browser host …
+    left out: format offline peer scalars text slot browser host …
 
-  Tokens: 30 nothing in the output names, left out
+  Tokens: 33 nothing in the output names, left out
 ```
 
 Read it in three parts:
@@ -22825,8 +22834,11 @@ app { render block }
 theme Name { token: value … }
 type Name { field: Type = default, … }        type Name = Other { … }
 enum Name { case, case(part: Type, …), … }
-api Name(base: expr, …) { settings  on request|response|error(x) { … }  endpoints }
+api Name(base: expr, …) { settings  middleware [ … ]  endpoints  invalidations { … }  pagination { … } }
+api Name.group { endpoints }
 api Name from "spec.json" (base: expr)
+middleware name(req, next) { action body }
+fake Name for Service.group { endpoint(params) { result } … }
 const NAME: Type = expr
 data name: Type = "file.json"
 image name = "picture.jpg"
@@ -25765,6 +25777,26 @@ in **4.1**. Absent, no service worker is written.
 | `sync` | boolean | `false` | Keeps writes made offline and sends them when the connection returns. |
 
 See also: [Work offline](/recipes/work-offline).
+
+## `apis`
+
+The services `wf api` keeps from an OpenAPI spec, by name. Added in
+**7.0**. `wf api add` writes an entry; `wf api sync` rewrites each
+service's `generated/` folder from its spec; `wf api check` and `wf check`
+(`N07`) say when that folder is behind.
+
+```json
+{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } } }
+```
+
+| Key | Type | Default | Meaning |
+|---|---|---|---|
+| `spec` | string | — | The OpenAPI 3.0 or 3.1 spec, JSON or YAML, a file in the project. |
+| `out` | string | `src/api/<name>`, lower case | The folder its `service.wf` and `generated/` files are written to. |
+| `skip` | list of names | `[]` | Operations left out, by the name they would have — one whose body or answer the language cannot read. |
+
+See also: [Read the service from an OpenAPI file](/learn/15-data#read-the-service-from-an-openapi-file)
+and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).
 
 ## `lints`
 

@@ -2,7 +2,7 @@
 // edit the compiler or the script, not this file.
 
 page ConfigPage(path: "/reference/config", title: "Configuration — Reference", description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.") {
-    ReferenceItemShell(t("config.title"), summary: t("config.lede", { count: 87 }), signature: "webfluent.app.json", group: t("config.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "keys-project", label: "project"), Anchor(id: "keys-theme", label: "theme"), Anchor(id: "keys-build", label: "build"), Anchor(id: "keys-dev", label: "dev"), Anchor(id: "keys-meta", label: "meta"), Anchor(id: "keys-motion", label: "motion"), Anchor(id: "keys-env", label: "env"), Anchor(id: "keys-public_env", label: "public_env"), Anchor(id: "keys-apis", label: "apis"), Anchor(id: "keys-offline", label: "offline"), Anchor(id: "keys-i18n", label: "i18n"), Anchor(id: "keys-lints", label: "lints"), Anchor(id: "reading-and-changing-the-config", label: "Reading and changing the config"), Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "lints", label: "lints")], source: "md-docs/reference/configuration.md") {
+    ReferenceItemShell(t("config.title"), summary: t("config.lede", { count: 87 }), signature: "webfluent.app.json", group: t("config.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "keys-project", label: "project"), Anchor(id: "keys-theme", label: "theme"), Anchor(id: "keys-build", label: "build"), Anchor(id: "keys-dev", label: "dev"), Anchor(id: "keys-meta", label: "meta"), Anchor(id: "keys-motion", label: "motion"), Anchor(id: "keys-env", label: "env"), Anchor(id: "keys-public_env", label: "public_env"), Anchor(id: "keys-apis", label: "apis"), Anchor(id: "keys-offline", label: "offline"), Anchor(id: "keys-i18n", label: "i18n"), Anchor(id: "keys-lints", label: "lints"), Anchor(id: "reading-and-changing-the-config", label: "Reading and changing the config"), Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "apis", label: "apis"), Anchor(id: "lints", label: "lints")], source: "md-docs/reference/configuration.md") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter is the reference for `webfluent.app.json`, the file beside `src/` that holds a project's settings. Look up a key here to find its type, its default and what it changes.\n\nEvery key is optional except `name`, so the smallest config is one line:")
@@ -859,6 +859,45 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                 }
 
                 Markdown("See also: [Work offline](/recipes/work-offline).")
+
+                Heading("apis", id: "apis").h2
+
+                Markdown("The services `wf api` keeps from an OpenAPI spec, by name. Added in **7.0**. `wf api add` writes an entry; `wf api sync` rewrites each service's `generated/` folder from its spec; `wf api check` and `wf check` (`N07`) say when that folder is behind.")
+
+                CodeBlock(#"{ "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } } }"#, title: "json")
+
+                Table(caption: "apis") {
+                    Table.Head {
+                        Table.Row {
+                            Table.Cell("Key").header
+                            Table.Cell("Type").header
+                            Table.Cell("Default").header
+                            Table.Cell("Meaning").header
+                        }
+                    }
+                    Table.Body {
+                        Table.Row {
+                            Table.Cell { Markdown("`spec`") }
+                            Table.Cell("string")
+                            Table.Cell("—")
+                            Table.Cell("The OpenAPI 3.0 or 3.1 spec, JSON or YAML, a file in the project.")
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`out`") }
+                            Table.Cell("string")
+                            Table.Cell { Markdown("`src/api/<name>`, lower case") }
+                            Table.Cell { Markdown("The folder its `service.wf` and `generated/` files are written to.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`skip`") }
+                            Table.Cell("list of names")
+                            Table.Cell { Markdown("`[]`") }
+                            Table.Cell("Operations left out, by the name they would have — one whose body or answer the language cannot read.")
+                        }
+                    }
+                }
+
+                Markdown("See also: [Read the service from an OpenAPI file](/learn/15-data#read-the-service-from-an-openapi-file) and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).")
 
                 Heading("lints", id: "lints").h2
 

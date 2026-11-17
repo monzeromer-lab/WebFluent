@@ -256,7 +256,7 @@ def page_file(entries: list) -> str:
         example = bool(e["broken"] and e["fixed"])
         out.append(
             f'page Error{e["code"]}(path: "/errors/{e["code"]}", title: {q(title)}, '
-            f'description: {q(e["description"])}) {{'
+            f'description: {q(guide.snippet(e["description"]))}) {{'
         )
         out.append(
             f'    ErrorShell("{e["code"]}", title: {q(e["plain"])}, severity: "{e["severity"]}", '

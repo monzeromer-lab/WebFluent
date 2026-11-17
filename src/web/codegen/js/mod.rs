@@ -145,6 +145,10 @@ pub struct JsCodegen {
     /// Each endpoint's first parameter, by `Service.endpoint` or
     /// `Service.group.endpoint`: what a value written without a name is.
     endpoint_first: HashMap<String, String>,
+    /// Every service and group the program declares (`Backend`,
+    /// `Backend.people`): a method called on one is an endpoint, whatever its
+    /// name — `Backend.people.remove(id: x)` is never a list's `remove`.
+    api_names: std::collections::HashSet<String>,
     /// For each action being written, innermost last, how a `try` in it
     /// passes an error up — `"enum"`, `"http"`, `"same"` — when it declares
     /// a result, and whether that result holds a value.
@@ -231,6 +235,10 @@ pub struct JsCodegen {
     /// Locals declared so far in the store action being emitted, so a second
     /// assignment does not redeclare.
     store_locals: std::cell::RefCell<Vec<String>>,
+    /// The shape a `let`'s declared type gives the `http` call it awaits —
+    /// `let rows: [Row] = try await http.get(url)` — taken by that call, so
+    /// its answer is held to the type as any other request's is.
+    answer_shape: std::cell::RefCell<Option<String>>,
     /// i18n: default locale and translations (locale -> key -> value)
     i18n_default_locale: Option<String>,
     i18n_translations: HashMap<String, HashMap<String, String>>,
@@ -428,6 +436,7 @@ impl JsCodegen {
             json_subjects: Vec::new(),
             error_enums: HashMap::new(),
             endpoint_first: HashMap::new(),
+            api_names: std::collections::HashSet::new(),
             action_results: Vec::new(),
             offline: None,
             later: Vec::new(),
@@ -458,6 +467,7 @@ impl JsCodegen {
             loop_sources: Vec::new(),
             lambda_params: std::cell::RefCell::new(Vec::new()),
             store_locals: std::cell::RefCell::new(Vec::new()),
+            answer_shape: std::cell::RefCell::new(None),
             i18n_default_locale: None,
             i18n_translations: HashMap::new(),
             ssg_mode: false,
@@ -567,6 +577,39 @@ impl JsCodegen {
     /// The shape the runtime holds a response to (`shapeProblem` in
     /// `http.js`), for a declared type: `"s"`, `"n"`, `"b"`, `"m"`, `"*"`,
     /// `["?", s]`, `["l", s]`, `["r", "Name", { field: s }]`, `["e", [cases]]`.
+    /// Emits `value` — a `let`'s — with its declared type given to the
+    /// `http` call it awaits (`await http.get(…)`, `try await http.get(…)`),
+    /// so the answer is checked against it: `T!` and `T ! E` are `T`'s.
+    pub(super) fn with_answer_type(
+        &self,
+        ty: Option<&TypeRef>,
+        value: &Expr,
+        emit: impl FnOnce() -> String,
+    ) -> String {
+        let awaited = match value {
+            Expr::Await(inner) => Some(inner.as_ref()),
+            Expr::Try(inner) => match inner.as_ref() {
+                Expr::Await(inner) => Some(inner.as_ref()),
+                other => Some(other),
+            },
+            _ => None,
+        };
+        let is_http = matches!(awaited, Some(Expr::MethodCall(obj, verb, _))
+            if crate::syntax::parser::ast::HTTP_VERBS.contains(&verb.as_str())
+                && matches!(obj.as_ref(), Expr::Identifier(n) if n == "http"));
+        let shape = ty.filter(|_| is_http).map(|ty| match ty {
+            TypeRef::Result(value, _) => self.shape_of(value, 0),
+            other => self.shape_of(other, 0),
+        });
+        let Some(shape) = shape.filter(|s| s != "\"j\"" && s != "\"*\"") else {
+            return emit();
+        };
+        *self.answer_shape.borrow_mut() = Some(shape);
+        let out = emit();
+        self.answer_shape.borrow_mut().take();
+        out
+    }
+
     fn shape_of(&self, ty: &TypeRef, depth: usize) -> String {
         if depth > 6 {
             return "\"*\"".to_string();
@@ -1001,6 +1044,7 @@ impl JsCodegen {
                         );
                     }
                     Declaration::Api(a) => {
+                        self.api_names.insert(a.name.clone());
                         for e in &a.endpoints {
                             if let Some(first) = e.params.first() {
                                 self.endpoint_first

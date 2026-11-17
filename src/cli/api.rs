@@ -111,7 +111,14 @@ pub(crate) fn run_check(dir: &Path, name: Option<&str>) -> Result<()> {
                 source.spec
             );
             for c in &changes {
-                println!("{}", said(c));
+                println!(
+                    "{}",
+                    match c {
+                        Change::Added(p) => format!("  add      {p}"),
+                        Change::Changed(p) => format!("  rewrite  {p}"),
+                        Change::Removed(p) => format!("  remove   {p}"),
+                    }
+                );
             }
         }
     }

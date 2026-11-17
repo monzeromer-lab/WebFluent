@@ -238,6 +238,8 @@
   "changelog.major": "WebFluent {major}",
   "changelog.github": "الإصدارات على GitHub",
   "changelog.latest": "الأحدث",
+  "changelog.unreleased": "لم يصدر بعد",
+  "changelog.next": "القادم",
   "changelog.anchor": "رابط إلى {version}",
   "changelog.more": "{count} أخرى",
   "changelog.fewer": "عرض أقل",

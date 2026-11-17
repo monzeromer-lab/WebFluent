@@ -89,7 +89,15 @@
             el.removeAttribute("aria-disabled");
           }
         };
-        Promise.allSettled(work).then(end);
+        // Waiting on the work must not swallow what went wrong in it: a
+        // handler that throws is said where every other uncaught error is
+        // (the console, `wf serve`'s overlay, a test's failure).
+        Promise.allSettled(work).then((results) => {
+          end();
+          for (const r of results) {
+            if (r.status === "rejected") setTimeout(() => { throw r.reason; }, 0);
+          }
+        });
       }
       return out;
     };

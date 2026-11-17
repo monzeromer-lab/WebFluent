@@ -366,7 +366,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                     Table.Cell { Markdown("`E103`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("An `Icon(\"name\")` or `icon:` names an icon the runtime draws ([the list](/reference#icons))") }
+                    Table.Cell { Markdown("An `Icon(\"name\")` or `icon:` names an icon the runtime draws ([the list](/recipes/show-an-icon#the-built-in-icons))") }
                     Table.Cell { Markdown("`V08`; the name shows as a word") }
                 }
                 Table.Row {

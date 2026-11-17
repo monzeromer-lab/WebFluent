@@ -17,7 +17,9 @@ carries a 6.x project across.
 - **`Any` written as a type is `T23`, `Map` is `T24`**, each with a fix that
   writes `Json`. A record (`type Price { … }`) or a dictionary (`[String:
   Number]`) says more, where you know it; `Json` is JSON whose shape is
-  open, matched or decoded before it is read. `wf migrate` writes `Json`.
+  open, matched or decoded before it is read. `wf migrate` writes `Json`
+  where that leaves the project with fewer errors, and leaves the `T24`
+  of a `Map` read as a record for a person, who names its type.
 - **No place a type is unknown.** The docs site and every example check
   with none (`wf types --holes` reads zero), and a test holds them to it.
   Getting there typed more of the language: an empty list beside `??` is
@@ -30,8 +32,6 @@ carries a 6.x project across.
   type.
 - **A `let`'s type is held to what any written type is**: `let cells:
   [Any]` is `T23`.
-
-## A write is sent again only when that is safe
 
 ## A write is sent again only when that is safe
 
@@ -512,7 +512,8 @@ it can be read, reviewed and diffed.
   `headers { }` → `middleware [header(…)]`), what each `state` holds, each
   action returns and fails with (`-> ! E` for a `try` in an action that said
   nothing), each parameter takes, JSDoc for a script, a condition's
-  comparison, a splice or a unit for a conversion (`T34`), `try` where a
+  comparison, a splice for text joined to a number (`"+" + n` →
+  `"+{n}"`, `T18`), a splice or a unit for a conversion (`T34`), `try` where a
   result's value is wanted, an error enum's `http` case (`N12`).
 - **Then what a person decides**, listed by place — an `on request` hook to
   write as middleware, a `paginate:` to move onto its endpoint — and the
@@ -522,6 +523,8 @@ it can be read, reviewed and diffed.
   nothing.
 - **New fixes** in `wf fix` and the editor, from the same work: `T34`,
   `N12`, `N03`, `headers { }`, and `try` for a result's value.
+- **A project whose output is outside it** (`"output": "../docs"`) is
+  migrated too: the step writes no output.
 - **`T20` is an error**: a list or a record shown as text. `lints` and
   `// wf-allow` cannot lower or accept it, nor any other error.
 
@@ -535,6 +538,34 @@ where it becomes unknown, not at every place it goes afterwards. Inside the
 checker, a value an error has already been reported about is no longer
 `Any` but a type of its own, which agrees with everything as `Any` did, so
 the count holds only what the program leaves untyped.
+
+## Found by hand, before the release
+
+A pass over every 7.0 feature in a browser, against a server that
+misbehaves on request, found and fixed these:
+
+- **A parameter's default is sent.** `pageSize: Number = 20 in query
+  "page-size"` sends `page-size=20` when a call leaves it out, rather than
+  nothing (and the server's own default).
+- **An endpoint of a group named like a list helper** —
+  `Backend.people.remove(id)` — is the endpoint, never the list method.
+- **`form.apply` reaches any named control of the form**, not only one a
+  `validate` block guards: the message under it, `aria-invalid`,
+  `aria-describedby`, the focus, and gone when the reader changes it.
+- **`FileUpload(bind: photo)` holds what was chosen**: a `File?`, or with
+  `.multiple` a `[File]` (`F02` when the state is the other).
+- **An error thrown under a busy button reaches the console**, `wf serve`'s
+  overlay and a test, rather than vanishing.
+- **A write kept offline is made up again by the service's middleware**,
+  so `bearer(Session.token)` sends the token of the moment it goes.
+- **`let x: T = try await http.get(…)` is held to `T`**, as a
+  `resource`'s answer always was.
+- **`wf render`** holds a read's data to its endpoint's type when the
+  read names none, and draws `.loaded` for a `match` written with
+  `.loaded(v)` and `else`.
+- **`wf api add`** writes an endpoint with a text answer (`-> String! as:
+  .text`) that parses, and **`wf api check`** says what `sync` would do
+  rather than what it did.
 
 ## Removed
 

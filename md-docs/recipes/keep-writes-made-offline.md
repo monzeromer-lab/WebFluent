@@ -84,8 +84,9 @@ another origin that is refused while the browser is online — a CORS
 refusal, a closed port — fails as it would without `sync`.
 
 A credential is never stored with a kept write. What an `api`'s
-`on request` hook adds — an `Authorization` header from the session — is
-added again when the write is sent, by the hook as it is then: a write made
+middleware adds — `bearer(Session.token)`, an `Authorization` header from
+the session — is added again when the write is sent, by the middleware as
+it is then: a write made
 before a logout goes out with no one's token, never the old one. A write
 whose call carries a credential header itself (`headers: { "Authorization":
 token }`) cannot be kept without it, so it is not kept, and its call fails

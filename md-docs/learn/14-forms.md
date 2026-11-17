@@ -432,15 +432,21 @@ action join() {
 }
 ```
 
-Each message is shown on the field whose `name:` it matches, and moves focus
-to the first one. A message stays until the reader changes that field's
+Each message is shown on the field it names: a field a `validate` block
+guards shows it as its own message, and any other control of the form
+shows it beneath itself when its `name:` matches — announced, marked
+`aria-invalid`, and named by `aria-describedby`. The focus moves to the
+first one. A message stays until the reader changes that field's
 value. A field may also be given a list of messages; the first is shown.
 [Send a form to a server](#send-a-form-to-a-server) shows the whole page.
 
 ## Upload a file
 
-To let the reader pick a file, place a `FileUpload`. The files arrive in its
-`change` event. Each is a `File`, with:
+To let the reader pick a file, place a `FileUpload` and bind it:
+`bind:` holds the `File` chosen (`File?`, `null` until one is), or with
+`.multiple` the list of them (`[File]`). Its `change` event carries the
+same files, for a page that wants them as they arrive. Each is a `File`,
+with:
 
 - `.name`, `.size` (in bytes) and `.type`;
 - `.preview()`, an object URL that shows an image before it is uploaded. It
@@ -466,9 +472,7 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
     }
 
     Heading("Your picture").h1
-    FileUpload(accept: "image/*", label: "Choose a picture") {
-        on change(e) { picked = e.target.files[0] }
-    }
+    FileUpload(bind: picked, accept: "image/*", label: "Choose a picture")
     if let f = picked {
         Image(src: f.preview(), alt: "The picture you chose")
         Text("{f.name}, {format(f.size / 1024, .integer)} kB").muted.sm
@@ -481,7 +485,8 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 
 - An endpoint with a `File` parameter sends a multipart form.
 - `Backend.avatar.progress` follows the upload from 0 to 1.
-- `FileUpload(…).multiple` lets the reader pick several files.
+- `FileUpload(bind: files).multiple` lets the reader pick several files,
+  held in a `[File]`.
 
 > [!IMPORTANT]
 > `accept:` and any size limit you show are for the reader's convenience,

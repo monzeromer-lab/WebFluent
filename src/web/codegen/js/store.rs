@@ -212,6 +212,25 @@ impl JsCodegen {
                 format!("method: {}", js_str(&endpoint.method)),
                 format!("path: {}", js_str(&endpoint.path)),
             ];
+            // `page: Number = 1`: what a call that leaves a parameter out
+            // sends for it.
+            let defaults: Vec<String> = endpoint
+                .params
+                .iter()
+                .filter_map(|p| {
+                    let value = match p.default.as_ref()? {
+                        Expr::StringLiteral(text) => js_str(text),
+                        Expr::NumberLiteral(n) => n.to_string(),
+                        Expr::BoolLiteral(b) => b.to_string(),
+                        Expr::EnumCase(case) => js_str(case),
+                        _ => return None,
+                    };
+                    Some(format!("{}: {value}", js_str(&p.name)))
+                })
+                .collect();
+            if !defaults.is_empty() {
+                parts.push(format!("defaults: {{ {} }}", defaults.join(", ")));
+            }
             for (key, value) in &endpoint.settings {
                 // Written below, as what a success makes stale.
                 if key == "invalidates" {

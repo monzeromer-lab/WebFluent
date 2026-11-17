@@ -161,7 +161,8 @@ impl JsCodegen {
                 }
             }
             (StatementKind::State(s), StmtCx::Page) => {
-                let val = self.emit_expr(&s.value);
+                let val =
+                    self.with_answer_type(s.ty.as_ref(), &s.value, || self.emit_expr(&s.value));
                 self.emit_line(&format!("const {} = WF.signal({});", sig(&s.name), val));
                 self.block_lets.push(s.name.clone());
             }
@@ -170,7 +171,9 @@ impl JsCodegen {
             // second declaration — a SyntaxError that blanked the site, or a
             // TDZ error inside a loop.
             (StatementKind::State(s), StmtCx::Store { states, .. }) => {
-                let val = self.emit_store_expr(&s.value, states);
+                let val = self.with_answer_type(s.ty.as_ref(), &s.value, || {
+                    self.emit_store_expr(&s.value, states)
+                });
                 self.store_locals.borrow_mut().push(s.name.clone());
                 self.emit_line(&format!("let {} = {};", bare(&s.name), val));
             }

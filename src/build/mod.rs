@@ -690,7 +690,11 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     let config = config;
     out.findings(&diagnostics);
     stop_on(out, &diagnostics, options)?;
-    let mut warning_count = diagnostics.len();
+    // Information (`V11`) is said, not counted as a warning.
+    let mut warning_count = diagnostics
+        .iter()
+        .filter(|d| d.severity == crate::diagnostics::Severity::Warning)
+        .count();
     // What each `persist` holds now, for the next build to compare with.
     let shapes = crate::check::linter::project::persist_shapes(&program);
     if !shapes.is_empty() {

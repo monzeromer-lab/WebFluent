@@ -84,7 +84,10 @@ function mount(name, path, errors) {
     };
   };
   class Socket { constructor() { this.readyState = 0; } send() {} close() {} }
-  const report = (e) => errors.push(e && e.stack ? e.stack.split("\n").slice(0, 3).join("\n") : String(e));
+  // The network here is a stand-in: an answer of its that does not fit the
+  // type a page declares fails as a decode error, which is the stand-in's
+  // doing, not the page's.
+  const report = (e) => (e && e.kind === "parse") || errors.push(e && e.stack ? e.stack.split("\n").slice(0, 3).join("\n") : String(e));
   const quiet = { ...console, error: (...a) => report(a.map(String).join(" ")), warn: noop, log: noop };
   const run = new Function(
     "window", "document", "Node", "Element", "DocumentFragment", "setTimeout", "clearTimeout",

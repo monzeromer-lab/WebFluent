@@ -22,11 +22,12 @@ pub const ROUNDS: usize = 8;
 
 /// The codes 7.0 adds or makes errors, whose fixes the step applies: the
 /// request forms 7.0 removed (`N08`), open types at a service (`N11`), an
-/// error enum's `http` case (`N12`), a read's missing `.failed` arm
-/// (`T21`), and the typing rules (`T25`–`T35`).
+/// error enum's `http` case (`N12`), text joined to a number with `+`
+/// (`T18`), a read's missing `.failed` arm (`T21`), and the typing rules
+/// (`T25`–`T35`).
 pub const SEVEN: &[&str] = &[
-    "N08", "N11", "N12", "T21", "T23", "T24", "T25", "T26", "T27", "T28", "T29", "T30", "T31",
-    "T32", "T33", "T34", "T35",
+    "N08", "N11", "N12", "T18", "T21", "T23", "T24", "T25", "T26", "T27", "T28", "T29", "T30",
+    "T31", "T32", "T33", "T34", "T35",
 ];
 
 /// Whether a finding is one 7.0 brought: a code of [`SEVEN`], or another
@@ -131,7 +132,19 @@ pub fn fix(dir: &Path, wants: &dyn Fn(&Diagnostic) -> bool, dry_run: bool) -> Re
 ///
 /// What [`fix`] returns.
 pub fn migrate(dir: &Path, dry_run: bool) -> Result<Fixed> {
-    let mut fixed = fix(dir, &|d| is_seven(d.code) || takes_a_result(d), dry_run)?;
+    // `Any` and `Map` become `Json` only where that leaves fewer errors:
+    // a value read as a record is a `T28` for every field once it is
+    // `Json`, so there the type is a person's to write.
+    let mut fixed = fix(
+        dir,
+        &|d| (is_seven(d.code) || takes_a_result(d)) && !open_type(d.code),
+        dry_run,
+    )?;
+    if !dry_run {
+        for (code, n) in json_where_it_helps(dir)? {
+            *fixed.by_code.entry(code).or_default() += n;
+        }
+    }
     // What is left for a person is every error: a warning is `wf check`'s.
     let report = check(dir)?;
     fixed.left = report
@@ -140,6 +153,64 @@ pub fn migrate(dir: &Path, dry_run: bool) -> Result<Fixed> {
         .filter(|d| d.severity == Severity::Error)
         .collect();
     Ok(fixed)
+}
+
+fn open_type(code: &str) -> bool {
+    matches!(code, "T23" | "T24")
+}
+
+/// `T23` and `T24` fixed to `Json`, a file at a time, keeping a file's only
+/// where the project then has fewer errors than before. What it fixed, by
+/// code.
+fn json_where_it_helps(dir: &Path) -> Result<Vec<(&'static str, usize)>> {
+    let errors = |r: &BuildReport| {
+        r.diagnostics
+            .iter()
+            .filter(|d| d.severity == Severity::Error)
+            .count()
+    };
+    let report = check(dir)?;
+    let mut before = errors(&report);
+    let mut by_file: BTreeMap<String, Vec<Diagnostic>> = BTreeMap::new();
+    for d in report.diagnostics {
+        if open_type(d.code) && !d.fixes.is_empty() {
+            by_file.entry(d.file.clone()).or_default().push(d);
+        }
+    }
+    let mut kept: BTreeMap<&'static str, usize> = BTreeMap::new();
+    for (file, found) in by_file {
+        let path = dir.join(&file);
+        if crate::base::vfs::escapes(dir, &path) {
+            continue;
+        }
+        let Ok(text) = std::fs::read_to_string(&path) else {
+            continue;
+        };
+        let (edits, taken) = merge(found.iter());
+        let changed = apply(
+            &text,
+            &Fix {
+                title: String::new(),
+                edits,
+            },
+        );
+        if changed == text {
+            continue;
+        }
+        std::fs::write(&path, &changed)
+            .map_err(|e| WebFluentError::io_with(format!("{}: {e}", path.display()), e))?;
+        let after = errors(&check(dir)?);
+        if after < before {
+            before = after;
+            for d in taken {
+                *kept.entry(d.code).or_default() += 1;
+            }
+        } else {
+            std::fs::write(&path, &text)
+                .map_err(|e| WebFluentError::io_with(format!("{}: {e}", path.display()), e))?;
+        }
+    }
+    Ok(kept.into_iter().collect())
 }
 
 /// A request's result where its value is wanted — `let rows: [Row] =
@@ -157,7 +228,12 @@ pub const WITHOUT_AN_EDIT: &[&str] = &[
 
 /// Every finding, as `wf check` would report it, without printing.
 fn check(dir: &Path) -> Result<BuildReport> {
-    let options = BuildOptions::new(dir, &FsVfs);
+    // A check writes nothing, so where the build would write is no reason
+    // to stop: a project that builds to `../docs` is migrated and fixed too.
+    let options = BuildOptions {
+        allow_output_outside: true,
+        ..BuildOptions::new(dir, &FsVfs)
+    };
     match crate::build::check(&options) {
         Ok(report) => Ok(report),
         Err(failure) if !failure.report.diagnostics.is_empty() => Ok(*failure.report),

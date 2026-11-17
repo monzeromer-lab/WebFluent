@@ -209,6 +209,23 @@ def plain(text: str) -> str:
     return re.sub(r"[`*_]", "", text).strip()
 
 
+def snippet(text: str, limit: int = 160) -> str:
+    """A page's `description:` as a search result and a link preview show
+    it: no Markdown marks, and no longer than a result shows — cut at the
+    last sentence that fits, else at a word, with an ellipsis."""
+    text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+    text = re.sub(r"`([^`]*)`", r"\1", text)
+    text = re.sub(r"\*\*([^*]*)\*\*|\*([^*]*)\*", lambda m: m.group(1) or m.group(2), text)
+    text = " ".join(text.split())
+    if len(text) <= limit:
+        return text
+    cut = text[:limit]
+    ends = [m.end() for m in re.finditer(r"[.!?](?=\s)", cut)]
+    if ends and ends[-1] >= 60:
+        return cut[: ends[-1]]
+    return cut[: cut.rfind(" ")].rstrip(",;—- ") + "…"
+
+
 # The page being converted, so a relative link resolves from its folder.
 CURRENT = {"dir": GUIDE}
 
@@ -229,6 +246,14 @@ def rewrite_links(text: str) -> str:
         resolved = (CURRENT["dir"] / target).resolve()
         if resolved == (GUIDE / "README.md").resolve():
             return f"[{label}](/docs/guide/introduction)"
+        # The components chapter is drawn as one page per built-in: an
+        # anchor naming one goes to its page, and the icons to their list.
+        if resolved == (GUIDE / "reference" / "components.md").resolve() and anchor:
+            name = anchor[1:]
+            if name == "icons":
+                return f"[{label}](/recipes/show-an-icon#the-built-in-icons)"
+            if (ROOT / "site" / "public" / "reference" / f"{name}.md").exists():
+                return f"[{label}](/reference/{name})"
         route = route_of(resolved)
         if route:
             return f"[{label}]({href(route)}{anchor})"

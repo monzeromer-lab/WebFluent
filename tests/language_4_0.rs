@@ -409,7 +409,7 @@ fn a_service_is_one_object_of_endpoints() {
     );
     assert!(
         js.contains(
-            "users: { method: \"GET\", path: \"users\", result: {}, shape: [\"l\", [\"r\", \"User\""
+            "users: { method: \"GET\", path: \"users\", defaults: { \"page\": 1 }, result: {}, shape: [\"l\", [\"r\", \"User\""
         ),
         "an answer is held to its type in every build: {js}"
     );

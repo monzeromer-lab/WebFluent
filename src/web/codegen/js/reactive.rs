@@ -431,6 +431,18 @@ impl JsCodegen {
         }
     }
 
+    /// Whether `expr` names a service or one of its groups: `Backend`,
+    /// `Backend.people`.
+    pub(super) fn is_api(&self, expr: &Expr) -> bool {
+        match expr {
+            Expr::Identifier(name) => self.api_names.contains(name),
+            Expr::PropertyAccess(base, group) => {
+                matches!(base.as_ref(), Expr::Identifier(s) if self.api_names.contains(&format!("{s}.{group}")))
+            }
+            _ => false,
+        }
+    }
+
     /// Whether `expr` names an action: one of the page's own, or a store's.
     pub(super) fn is_action_ref(&self, expr: &Expr) -> bool {
         match expr {

@@ -514,9 +514,17 @@ impl Template {
                 let StatementKind::Resource(r) = &stmt.kind else {
                     continue;
                 };
-                let (Some(ty), Some(Value::Object(read))) = (&r.ty, given.get(&r.name)) else {
+                let Some(Value::Object(read)) = given.get(&r.name) else {
                     continue;
                 };
+                // Its type: the one written, or what its endpoint answers.
+                let Some(ty) =
+                    r.ty.clone()
+                        .or_else(|| read_type(r, &self.program.declarations))
+                else {
+                    continue;
+                };
+                let ty = &ty;
                 let Some(loaded) = read.get("loaded") else {
                     continue;
                 };
@@ -1602,6 +1610,40 @@ fn seed_values(stmts: &[Statement], ctx: &mut RenderContext<'_>) -> Seeded {
     }
 }
 
+/// What a read over an endpoint holds once it has loaded, when its
+/// annotation does not say: the endpoint's answer, or, for one that pages,
+/// a list of what each page's items are — left unsaid when that takes a
+/// function to work out.
+fn read_type(
+    r: &crate::syntax::parser::ast::ResourceDecl,
+    declarations: &[Declaration],
+) -> Option<crate::syntax::parser::ast::TypeRef> {
+    use crate::syntax::parser::ast::{Expr, TypeRef};
+    let Expr::MethodCall(obj, method, _) = &r.url else {
+        return None;
+    };
+    let service = match obj.as_ref() {
+        Expr::Identifier(name) => name.clone(),
+        Expr::PropertyAccess(base, group) => match base.as_ref() {
+            Expr::Identifier(svc) => format!("{svc}.{group}"),
+            _ => return None,
+        },
+        _ => return None,
+    };
+    let endpoint = declarations.iter().find_map(|d| match d {
+        Declaration::Api(a) if a.name == service => a.endpoints.iter().find(|e| e.name == *method),
+        _ => None,
+    })?;
+    let answer = match endpoint.returns.as_ref()? {
+        TypeRef::Result(value, _) => (**value).clone(),
+        other => other.clone(),
+    };
+    match endpoint.pages() {
+        Some(p) if p.arg("items").is_some() => None,
+        _ => Some(answer),
+    }
+}
+
 /// A read as the data gives it — `{ "loaded": value }`, `{ "failed":
 /// error }` or `{ "loading": true }` — as what the page reads of one: its
 /// case, for a `match`, beside its members. Anything else is not a read's
@@ -1685,15 +1727,19 @@ fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext<'_>) ->
             // `else`, is what a document can show. An enum's value is at
             // hand, so its arm is the case's, with the payload bound.
             StatementKind::Match(m) => {
-                let over_resource = crate::syntax::parser::ast::over_read(&m.arms);
-                let value = if over_resource {
+                // A read is known by its arms or, where they leave it open
+                // (`.loaded(v)` and `else`), by the value the data gave it.
+                let scrutinee = ctx.eval_expr(&m.scrutinee);
+                let given_read = match &scrutinee {
+                    Value::Object(read) => read.get("$read").cloned(),
+                    _ => None,
+                };
+                let over_resource =
+                    given_read.is_some() || crate::syntax::parser::ast::over_read(&m.arms);
+                let value = match (over_resource, given_read) {
                     // What the data says the read holds, or nothing yet.
-                    match ctx.eval_expr(&m.scrutinee) {
-                        Value::Object(read) => read.get("$read").cloned().unwrap_or(Value::Null),
-                        _ => Value::Null,
-                    }
-                } else {
-                    ctx.eval_expr(&m.scrutinee)
+                    (true, read) => read.unwrap_or(Value::Null),
+                    (false, _) => scrutinee,
                 };
                 let case = case_of(&value);
                 let arm = m
