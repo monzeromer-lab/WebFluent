@@ -553,7 +553,8 @@ nothing."#),
                     Change(text: #"**A project whose output is outside it** (`"output": "../docs"`) is
 migrated too: the step writes no output."#),
                     Change(text: #"**`T20` is an error**: a list or a record shown as text. `lints` and
-`// wf-allow` cannot lower or accept it, nor any other error."#)
+`// wf-allow` cannot lower or accept it: they lower only the errors that
+ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`)."#)
                 ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,

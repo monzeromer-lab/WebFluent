@@ -22,7 +22,10 @@ cause, never the symptom.
   `U07`.
 
 Errors stop the build; warnings don't. Treat warnings as work to do:
-`wf check --deny-warnings` in CI.
+`wf check --deny-warnings` in CI. `lints` in the config and `// wf-allow`
+lower or accept a warning; an error can't be lowered, except the six that
+cannot ship a broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`).
+`wf explain CODE --json` says whether a code is one (`lowerable`).
 
 ## The ones models hit most
 
@@ -43,10 +46,18 @@ Errors stop the build; warnings don't. Treat warnings as work to do:
 | `T05` | A field a record doesn't have | The message lists the fields |
 | `T01` | A value of the wrong type for a prop, state, field or argument | Convert it, or fix the type you declared |
 | `T17` | An async result used before it's awaited, or `await` where it can't run | `await` it inside an action or handler |
-| `T21` | A resource `match` with no `error` arm | Add `error(e) { … }` |
-| `N08` | `fetch(…)`, an endpoint `-> T` with no `!`, or an `errors { }` block | `http.get(…)`; `-> T!`; an error enum (`wf fix` writes the first two) |
-| `N11` | `Map` or `Any` in an endpoint, or an `http.get` whose answer has no type | Declare a `type`, or name `Json` |
-| `N03` | `try` in an action that declares no error that can hold it | Declare `-> T ! E` (or `-> T!`) on the action |
+| `T21` | A `match` over a read with no `.failed` arm and no `else` | Add `.failed(e) { … }` |
+| `N08` | A 6.x form: `fetch(…)`, an endpoint `-> T` with no `!`, `errors { }`, the arms `loading`/`error(e)`/`ready(v)`, `.data`/`.state`/`.refreshing`, `on:`, `headers { }`, `paginate:` | `http.get(…)`, `-> T!`, an error enum, `.loading`/`.failed(e)`/`.loaded(v)`, `.value`/`.isLoading`/`.isRefreshing`, `refresh:`, `middleware [ … ]`, the endpoint's `pages`. `wf migrate` rewrites a 6.x project |
+| `N11` | `Map` or `Any` in an endpoint, or an `http.get` whose answer has no type | Declare a `type`, or name `Json`: `resource rows: [Row] = http.get(…)` |
+| `N03` | `try` in an action that declares no error that can hold it | Declare `-> T ! E` (or `-> T!`, `-> !`) on the action |
+| `N04` | A call's result awaited on its own, so a failure is never heard (warning) | `match` it, or pass it up with `try` |
+| `N12` | An error enum without one `http(error: HttpError)` case, or a case with no status | One `http(error: HttpError)` case; every other case carries one value and names its status (`on 422`) |
+| `T23` · `T24` | `Any` or `Map` written as a type | A `type` with its fields, `[String: T]`, or `Json` |
+| `T25` | A `state` or `persist` whose first value says nothing: `[]`, `{}`, `null` | `state items: [Todo] = []`, `state picked: Todo? = null` |
+| `T26` | An action that returns a value without `-> T` | `action total() -> Number { … }`; the fix writes it |
+| `T29` | A condition that isn't a `Bool`: `if count`, `!name`, `user \|\| x` | `count != 0`, `name == ""`, `user ?? x`; the fix writes it |
+| `T32` | A parameter with no type: an action's, an event's, a slot's, a lambda's nothing types | `action add(title: String)`, `event pick(id: String)`, `(a: User) => …` |
+| `T28` | A `Json` value read as a record (`raw.name`) | `match` it, or `User.decode(raw)` |
 | `T15` | A `match` missing a case of the enum | Add the arm. Prefer that to adding an `else` |
 | `F01` | `bind:` to something that can't be written (derived, prop, const) | Bind a `state`, or have the component `emit` |
 | `F02` | `bind:` to a state the control can't hold (a text `Input` on a `Number`, a `DatePicker` on a `String`) | `.number` holds a number; a `DatePicker` binds a `Date?` |
@@ -61,14 +72,15 @@ Errors stop the build; warnings don't. Treat warnings as work to do:
 | `E108` | A non-public `env` name read from a page | Name it `PUBLIC_…`, or keep the value on a server |
 | `T12` | A `Secret` shown, spliced, logged or persisted | Keep it in Rust or on a server; never in the page |
 | `D01` | A `src:` naming a file `public/` doesn't have | Fix the path; `public/x.png` is `/x.png` |
-| `V06` | A `$token` the theme doesn't declare | A token `wf theme` lists, or declare it |
+| `V06` | A `$token` the theme doesn't declare (an error) | A token `wf theme` lists, or declare it in the theme |
 | `V05` | A style property CSS doesn't have | The message names the nearest one |
 | `V07` | A bare number spliced as a length | Add the unit: `{pct}%` |
 | `V08` | An icon the runtime doesn't draw | One of the built-in icons (`wf registry --json`) |
-| `V11` | Your component is named like a built-in (`Footer`), so the built-in is drawn | Rename it (`SiteFooter`) |
+| `V11` | Information: your component is named like a built-in (`Footer`), so every `Footer` in the project draws yours and the built-in can't be placed | Rename it (`SiteFooter`) if you want the built-in too |
 | `U01`–`U05` | Declared but never read, placed or called | Delete it, or prefix `_` if that is on purpose |
 | `U09` | A `for` with no `by` whose items hold state | `for x in xs by x.id` |
-| `A01`–`A17` | Accessibility: missing `alt`, label, heading, title, captions… | Add what's missing; the message says what |
+| `A01`–`A18` | Accessibility: missing `alt`, label, heading, title, captions… | Add what's missing; the message says what |
+| `A13` | A theme's colour pair below WCAG AA, in the light or the dark theme — text on the background, a tone's `color-on-*` label on the tone | Change one side of the pair; `wf theme` lists every ratio |
 | `S01`–`S03` | A page with no title or description, or one too long | Give every page `title:` and `description:` |
 
 `wf explain` prints any code's full entry. `wf explain` with no code lists
@@ -102,10 +114,11 @@ These pass `wf check` and are still wrong:
 - **A raw colour.** It doesn't follow dark mode. Use a token.
 - **Physical sides.** `left`/`right` don't flip in Arabic. Use logical
   properties.
-- **A server that answers with a different shape.** Under `wf serve`, a
-  response is checked against its declared type and a mismatch is a `.parse`
-  error naming the place. In production it isn't checked. Declare the type
-  so `wf serve` can check it.
+- **A server that answers with a different shape.** The build can't see
+  the server. Every answer is held to its declared type as it arrives, under
+  `wf serve` and deployed alike, and a mismatch fails as
+  `.decode(at, message)` (`$[1].name is missing`). Declare the type, and
+  handle `.failed(e)`.
 - **Layout by `viewport`.** It works, but the first paint is wrong. Use
   responsive values.
 

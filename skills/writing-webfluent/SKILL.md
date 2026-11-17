@@ -22,9 +22,9 @@ Read this file, then only the reference the task needs:
 | The task | Read |
 |---|---|
 | Any change: how good WebFluent is written, and the review checklist | [references/code-quality.md](references/code-quality.md) |
-| Building a feature: lists, forms, a service, routes, dialogs, settings, dashboards, shortcuts, drag, long lists | [references/recipes.md](references/recipes.md) |
+| Building a feature: lists, forms, a service (`api`, results, `resource`), routes, dialogs, settings, dashboards, shortcuts, drag, long lists | [references/recipes.md](references/recipes.md) |
 | Colours, themes, dark mode, `style { }`, CSS files, responsive layout, RTL, motion | [references/styling.md](references/styling.md) |
-| Writing tests, `wf verify`, CI | [references/testing.md](references/testing.md) |
+| Writing tests, fakes for a service, `wf verify`, CI | [references/testing.md](references/testing.md) |
 | A finding from `wf check` you don't understand | [references/diagnostics.md](references/diagnostics.md) |
 | A PDF, a slide deck, or rendering a template on a server | [references/documents.md](references/documents.md) |
 | An app for Linux, macOS, Windows, Android or iOS with Tauri (or Electron): the bridge to Rust, window chrome, safe areas and the back gesture, packaging and signing | [references/tauri-apps.md](references/tauri-apps.md) |
@@ -39,6 +39,9 @@ Read this file, then only the reference the task needs:
    - With no `AGENTS.md`, use [references/language.md](references/language.md),
      the reference of WebFluent 7.0.0.
    - If the compiler and the reference disagree, the compiler is right. Say so.
+   - A project written for WebFluent 6 is refused by 7 until it's migrated:
+     `wf migrate --check` lists what changes, `wf migrate` rewrites it, then
+     `wf check` shows what's left for a person to decide.
 2. **Read the file you're changing**, and a neighbour of it. Write as the
    project does: its layout, its names, its words.
 3. **Ask the compiler** for what you're about to use:
@@ -54,6 +57,7 @@ Read this file, then only the reference the task needs:
    | Validation rules and patterns | `wf rules` |
    | What a locale is missing | `wf translations --missing ar` |
    | Every setting of `webfluent.app.json` | `wf config schema` |
+   | A service's contract from its OpenAPI spec | `wf api add openapi.json --name Backend` |
    | What `public/` holds and what uses it | `wf assets` |
    | Everything at once, for an agent | `wf context --json` |
 
@@ -166,6 +170,17 @@ page DeployList(path: "/deploys", title: "Deploys", description: "Every deploy."
 - **A `style` block is CSS,** and it comes first in its block, before the
   children (`E002` otherwise). Its values aren't quoted, and two on one line
   are separated by `;`, never `,`.
+- **Say the type where the value doesn't.** `state items: [Todo] = []`,
+  `state picked: Todo? = null` (`T25`); `action total() -> Number` (`T26`);
+  every parameter typed (`T32`). `Any` and `Map` are not types: name a
+  `type`, `[String: T]`, or `Json`.
+- **A condition is a `Bool`.** `if count != 0`, `if name != ""`, `user ?? x`;
+  never `if count` or `user || x` (`T29`).
+- **A request is a result.** An endpoint is `get users() at "users" -> [User]!`
+  (`at` and `!` are required); a call is `await`ed and matched (`.ok(v)`,
+  `.err(e)`) or passed up with `try`. A `resource` is matched `.loading`,
+  `.failed(e)`, `.loaded(v)`. `fetch`, `ready(v)` and `error(e)` are 6.x
+  (`N08`).
 - **Await what fetches.** An action that awaits the network is awaited where
   its result is read (`T17`).
 - **`use` names a store exactly as it's declared,** with its capital (`X05`).
@@ -205,8 +220,10 @@ The full version, with the review checklist, is
   the address (`query.show`).
 - **Actions replace values**: `items = [...items, x]`, `map`, `filter`.
   Return early on a blank input.
-- **A service is an `api` block**, and a `resource` over it matches
-  `loading`, `error` and `ready`, the empty list too.
+- **A service is an `api` block** (in groups, each endpoint with `at`, its
+  answer and `!`), and a `resource` over it matches `.loading`, `.failed(e)`
+  and `.loaded(v)`, the empty list too. A write's `invalidates` refreshes
+  the reads it changes.
 - **Every list from data is keyed** with `by`.
 - **Every control has a visible label.** An action button names what it acts
   on (`label: "Remove {todo.title}"`). One `h1` per page. Status is never
@@ -268,7 +285,9 @@ test "a click adds one" {
 ```
 
 `wf test --update` writes the snapshots for new tests. Read them before you
-keep them. See [references/testing.md](references/testing.md).
+keep them. A page that reads a service is tested with a `fake` of its
+endpoints (`test "…"(fakes: [OneUser]) { … }`), never the network. See
+[references/testing.md](references/testing.md).
 
 ## Where things go
 

@@ -108,7 +108,7 @@ impl Checker<'_, '_> {
             self.error_at_current(
                 "N08",
                 "`fetch(…)` is gone: a request is `http.get(…)`, `http.post(…)`, whose answer is a result".to_string(),
-                "Write `let rows: [Row] = try await http.get(url)` in an action that says what it fails with, or `window.fetch` for the browser's own",
+                "Write `let rows: [Row] = try await http.get(url)` in an action that says what it fails with; a project script reaches the browser's own `fetch`",
             );
             let method = args.iter().find_map(|a| match a {
                 Expr::MapLiteral(p) => p.iter().find(|(k, _)| k == "method").map(|(_, v)| v),

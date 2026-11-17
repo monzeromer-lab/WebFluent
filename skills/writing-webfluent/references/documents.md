@@ -163,7 +163,26 @@ CSS.
 
 ## Server rendering
 
-A template is a `.wf` page whose values come from JSON data at render time:
+A template is a `.wf` page whose values come from JSON data at render time.
+The page says what it takes, as its parameters, and every render holds the
+data to them first:
+
+```wf no-check
+/// One line of an invoice.
+type InvoiceLine { name: String, price: Number }
+
+page Invoice(path: "/invoice", title: "Invoice {number}", number: String, lines: [InvoiceLine], paid: Bool) {
+    derived total = lines.map(l => l.price).sum()
+    Heading("Invoice {number}").h1
+    for line in lines { Text("{line.name}: {line.price}") }
+    Text("Total: {total}").bold
+    if paid { Badge("Paid").success } else { Badge("Due").danger }
+}
+```
+
+Data that doesn't fit is refused with `T33` and the place it goes wrong
+(`$.lines[0].price is missing`), never drawn as nothing. A name the page reads that is neither a parameter nor declared is
+`T13`.
 
 ```bash
 wf render invoice.wf --data invoice.json -f pdf -o invoice.pdf
@@ -174,7 +193,11 @@ wf render templates/ --page Receipt --lang ar --data data.json
   then `.page("Receipt")?.render_pdf(&data)?`. A `Template` is
   `Send + Sync`: build it once at start-up. From Node, `require('webfluent')`.
 - **What a template may use.** Layout, typography, data display, `for`, `if`,
-  splices, styles, themes and components all work. `effect`, handlers,
-  stores, `resource` and navigation don't: nothing runs after the render.
+  splices, styles, themes and components all work. A `state` is its first
+  value and a `derived` what that works out to; data handed to the render
+  wins over either. `effect`, handlers, stores, navigation and a
+  `resource`'s request don't: nothing runs after the render. A `resource`
+  paints its `.loading` arm, unless the data gives it a value by its name:
+  `{ "users": { "loaded": [ … ] } }` paints `.loaded`.
 - **Escaping.** Values from the data are escaped, and a URL from the data
   that a browser would run is dropped.

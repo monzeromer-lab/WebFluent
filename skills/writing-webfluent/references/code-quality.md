@@ -100,6 +100,19 @@ type Issue {
 - **`Json` says little.** `Any` and `Map` are not types in 7.0 (`T23`,
   `T24`); `Json` is for JSON whose shape is open, at a boundary you have not
   typed yet. Decode it into a `type` as soon as you know the shape.
+- **Say the type where nothing else does.** WebFluent 7 has no value of
+  unknown type, so the checker refuses what it can't work out:
+  - a `state` or `persist` whose first value says nothing (`[]`, `{}`,
+    `null`) names its type: `state items: [Issue] = []`,
+    `state picked: Issue? = null` (`T25`);
+  - an action that returns a value says what: `action total() -> Number`
+    (`T26`);
+  - every parameter of an action, an event or a slot has a type, and so does
+    a lambda's when nothing it is passed to types it (`T32`);
+  - a condition is a `Bool`: `if count != 0`, `if name != ""`,
+    `user ?? fallback`, never `if count` or `user || fallback` (`T29`).
+
+  `wf check` names each and its fix writes the type; `wf fix` applies them.
 - **Types several files read** go in `src/types.wf`, or in the feature's own
   file.
 
@@ -186,8 +199,9 @@ written on a component's call attach to its root element. A body that is an
 `Stack` or `Row`.
 
 **Don't shadow the built-ins.** A component called `Footer`, `Chart` or
-`Card` is never drawn, because the built-in wins (`V11`). Prefix it
-(`SiteFooter`).
+`Card` takes the built-in's place everywhere in the project (`V11`), so the
+built-in can no longer be placed there, and a reader of the code expects the
+built-in. Prefix it (`SiteFooter`).
 
 ## State: state, derived, stores
 
@@ -282,25 +296,39 @@ know the query, so draw every item and hide the ones that don't match.
 
 ## Data from a server
 
-- **Describe the service once** in an `api` block (base, timeout, retry,
-  credentials, endpoints with types), or read it from an OpenAPI file with
-  `api Backend from "openapi.json" (base: …)`.
-  - Every call is then typed, cached, deduplicated and cancellable.
-  - An endpoint says how it fails: `-> [User]!`, or `-> User ! CreateUserError`
-    with an error enum naming each status (`N08` for a bare `-> T`).
+- **Describe the service once** in an `api` block: its base, timeout, retry,
+  credentials and `middleware [ … ]`, then its endpoints, split into groups
+  (`api Backend.users { … }`) as it grows.
+  - Every endpoint says where it is and how it fails:
+    `get user(id: String) at "users/{id}" -> User!`, or
+    `post create(body: NewUser) at "users" -> User ! CreateUserError` with an
+    error enum that names each status and keeps `http(error: HttpError)`
+    (`N12`). A bare `-> T`, a path's `:id` and `headers { }` are 6.x (`N08`).
+  - A write names the reads it makes stale, `invalidates [list, byId(id)]`,
+    so every `resource` over them asks again; a read that pages says how,
+    `pages .cursor(…)`, and a resource over it has `.loadMore()`.
+  - Every call is then typed, cached, deduplicated and cancellable, and every
+    answer is held to its type as it arrives.
+  - From an OpenAPI spec, `wf api add openapi.json --name Backend` writes the
+    contract as files; `wf api sync` keeps them current and `wf api check`
+    fails CI when they're behind. Never edit a file under `generated/`.
   - `http.get(url)` (and `post`, `put`, `patch`, `delete`) is for the odd
     one-off, with its answer's type named: `resource rows: [Row] = http.get(url)`,
     `let me: Me = try await http.get(url)`. `fetch` is gone (`N08`); `Map` and
     `Any` in a contract are `N11`.
-- **A `resource` is matched with every arm**: `loading`, `error(e)` (`T21` if
-  it's missing) and `ready(x)`.
-- **Inside `ready`:**
-  - show `x.isRefreshing` as a small spinner, not a full reload;
-  - show `x.error` (a failed refresh) as a stale-data note;
+- **A call is a result.** `await` it, then `match` `.ok(v)` and `.err(e)`, or
+  pass the failure up with `try` from an action that declares `-> T ! E`,
+  `-> T!` or `-> !` (`N03`). A result awaited and dropped is `N04`: nobody
+  hears the failure.
+- **A `resource` is matched with every arm**: `.loading`, `.failed(e)`
+  (`T21` if it's missing) and `.loaded(x, refreshing, stale)`.
+- **Inside `.loaded`:**
+  - show `refreshing` as a small spinner, not a full reload;
+  - show `stale` (a refresh that failed) as a note that the data is old;
   - handle the empty list.
-- **Error kinds.** Branch on them (`.offline`, `.timeout`, `.status(code, body)`)
-  rather than showing `e.message` for everything. Give a "Try again"
-  (`x.reload()`).
+- **Error kinds.** Branch on them (`.offline`, `.timeout`,
+  `.status(code, problem)`, or the error enum's own cases) rather than
+  showing `e.message` for everything. Give a "Try again" (`x.reload()`).
 - **Key every list** from the server by its id (`for u in users by u.id`), so
   a refresh redraws only what changed.
 - **Sessions** belong in an httpOnly cookie (`credentials: .sameOrigin`),
@@ -423,7 +451,8 @@ Then read the diff for what the compiler can't see:
 - [ ] No component reaches into a store it could be handed as a prop; events
       go up.
 - [ ] Every list from data is keyed with `by`.
-- [ ] Every `resource` handles loading, error, empty and refreshing.
+- [ ] Every `resource` handles `.loading`, `.failed(e)`, the empty list and
+      `refreshing`; every call's result is matched or passed up with `try`.
 - [ ] Every control has a visible label; every action button says what it
       acts on.
 - [ ] Colours, sizes and spacing come from tokens; logical sides, not

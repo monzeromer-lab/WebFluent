@@ -393,7 +393,8 @@
           // Not asked (a path parameter with no value yet) or abandoned:
           // nothing to say, and a first load stays "loading".
           if (e && e.kind === "aborted") return;
-          error.set(e && e.kind ? e : netError("network", String((e && e.message) || e)));
+          // What a fake answered is kept as it is: its error, as the test wrote it.
+          error.set(e && (e.kind || e.$faked) ? e : netError("network", String((e && e.message) || e)));
           // A stream that failed after its first lines keeps them.
           if (!again && !arrived) state.set("error");
         },

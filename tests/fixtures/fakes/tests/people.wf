@@ -30,5 +30,15 @@ test "shows the server's field error"(fakes: [OneEngineer]) {
 test "says when removing fails"(fakes: [OneEngineer]) {
     People
     click "Remove Ada"
-    expect "Ada is still here"
+    expect "Ada is still here: HTTP 500"
+}
+
+fake Down for Backend.people {
+    listPeople(q, after) { .err(.status(503, null)) }
+}
+
+test "a fake's failure reads as the network's would"(fakes: [Down]) {
+    People
+    expect "HTTP 503"
+    expect not "[object Object]"
 }

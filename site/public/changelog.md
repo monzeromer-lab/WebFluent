@@ -526,7 +526,8 @@ it can be read, reviewed and diffed.
 - **A project whose output is outside it** (`"output": "../docs"`) is
   migrated too: the step writes no output.
 - **`T20` is an error**: a list or a record shown as text. `lints` and
-  `// wf-allow` cannot lower or accept it, nor any other error.
+  `// wf-allow` cannot lower or accept it: they lower only the errors that
+  ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`).
 
 ## Where a type is unknown
 

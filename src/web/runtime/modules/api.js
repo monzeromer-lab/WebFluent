@@ -262,7 +262,7 @@
           }
           // What the fake said went wrong is the endpoint's error as it
           // stands: nothing to read from a status.
-          throw { $faked: true, error: Array.isArray(given) ? given[1] : given };
+          throw { $faked: true, error: faultOf(Array.isArray(given) ? given[1] : given) };
         });
     };
     const fakesOn = () => typeof window !== "undefined" && window.__wfFakes != null;

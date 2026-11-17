@@ -33,14 +33,16 @@ block and as `var(--name)` in a `.css` file. `wf theme` lists every token the
 project has, where each is used, and the contrast of each colour pair.
 
 **Tokens, not raw values.** `background: #FFFFFF` stays white in dark mode,
-while `background: $surface` follows the theme. A token a theme doesn't
-declare is `V06`.
+while `background: $surface` follows the theme. A token the theme doesn't
+declare is `V06`, an error. Every built-in draws from these tokens alone, so a
+theme restyles all of them.
 
-The baseline's 71 tokens (WebFluent 5.12):
+The baseline's 87 tokens (WebFluent 7.0):
 
 | Group | Tokens |
 |---|---|
-| colour | `color-primary`, `color-secondary`, `color-success`, `color-danger`, `color-warning`, `color-info`, `color-background`, `color-surface`, `color-text`, `color-text-muted`, `color-border` |
+| colour | `color-primary`, `color-secondary`, `color-success`, `color-danger`, `color-warning`, `color-info`, `color-background`, `color-surface`, `color-text`, `color-text-muted`, `color-border`, `color-backdrop` |
+| on a tone | `color-on-primary`, `color-on-secondary`, `color-on-success`, `color-on-danger`, `color-on-warning`, `color-on-info` |
 | spacing | `spacing-xs`, `spacing-sm`, `spacing-md`, `spacing-lg`, `spacing-xl`, `spacing-2xl`, `spacing-3xl` |
 | font size | `font-size-xs`, `font-size-sm`, `font-size-base`, `font-size-lg`, `font-size-xl`, `font-size-2xl`, `font-size-3xl` |
 | font | `font-family`, `font-family-mono`, `font-weight-normal`, `font-weight-medium`, `font-weight-bold` |
@@ -52,6 +54,8 @@ The baseline's 71 tokens (WebFluent 5.12):
 | breakpoints | `screen-sm`, `screen-md`, `screen-lg`, `screen-xl` |
 | code and terminal | `syntax-keyword`, `syntax-string`, `syntax-number`, `syntax-function`, `syntax-comment`, `syntax-punct`, `term-bg`, `term-ink`, `term-dim` |
 | layout | `wf-header-height` |
+| stacking | `z-sticky`, `z-drawer`, `z-dropdown`, `z-modal`, `z-toast`, `z-tooltip`, `z-skip-link` |
+| targets | `target-min` (24px), `target-min-touch` (44px) |
 
 **Short names** resolve through the property's group:
 - `padding: $lg` is `spacing-lg`;
@@ -97,11 +101,24 @@ theme Night {
 }
 ```
 
+- **What is written on a tone** is its `color-on-*` token: a primary
+  button's label, a badge's, a pressed toggle's, a chosen day's. A theme
+  with a light `color-primary` names a dark `color-on-primary`.
+- **Alerts, focus rings and highlights** are mixed from the tone and the
+  page's colours, so a dark theme needs nothing more for them.
+  `color-backdrop` dims the page behind a modal, dialog, sheet or drawer.
+- **Your own sticky header or drawer** sits on the stacking scale
+  (`z-index: $z-sticky`), and a control of your own reaches at least
+  `min-block-size: $target-min`. Overlays are in the top layer and need no
+  `z-index`.
 - **The reader's choice.** `setTheme("light" | "dark" | "system")` switches
   and remembers the choice, and `theme` reads it. "system" follows
   `prefers-color-scheme` from the first paint, with no script.
-- **Contrast.** Check both themes with `wf theme`. A pair below WCAG AA is
-  `A13`.
+- **Contrast.** `A13` holds the light theme and the dark one to WCAG AA:
+  text and muted text on the background and the surface, the primary colour
+  on the background, and each `color-on-*` on its tone wherever that tone is
+  drawn (a primary button, a danger badge). `wf theme` lists every pair and
+  its ratio for both.
 - **Your own design system.** `"theme": { "builtin": "structural" }` keeps
   the built-ins' layout and behaviour and drops their look, for a project that
   styles everything itself.

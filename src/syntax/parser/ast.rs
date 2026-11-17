@@ -1692,7 +1692,10 @@ impl StatementKind {
 
     pub fn exprs(&self) -> Vec<&Expr> {
         match self {
-            StatementKind::State(s) => vec![&s.value],
+            // A `persist`'s `key:` is read too: it names which stored value.
+            StatementKind::State(s) => std::iter::once(&s.value)
+                .chain(s.policy.as_ref().and_then(|p| p.key.as_ref()))
+                .collect(),
             StatementKind::Derived(d) => vec![&d.value],
             StatementKind::If(i) => std::iter::once(&i.condition)
                 .chain(i.else_if_branches.iter().map(|(c, _)| c))

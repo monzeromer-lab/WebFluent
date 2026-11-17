@@ -1933,6 +1933,10 @@ fn the_skills_references_build_and_name_only_what_wf_has() {
 
         // Every `wf <command>` it names is one `wf` has.
         for (i, _) in markdown.match_indices("`wf ") {
+            // A fence's opening line (```` ```wf no-check ````) names no command.
+            if markdown[..i].ends_with("``") {
+                continue;
+            }
             let word: String = markdown[i + 4..]
                 .chars()
                 .take_while(|c| c.is_ascii_lowercase() || *c == '-')

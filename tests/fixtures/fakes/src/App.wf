@@ -40,7 +40,7 @@ store Team {
     action remove(person: Person) {
         match await Backend.people.deletePerson(id: person.id) {
             .ok { said = "{person.name} is gone" }
-            .err(_) { said = "{person.name} is still here" }
+            .err(e) { said = "{person.name} is still here: {e.message}" }
         }
     }
 }

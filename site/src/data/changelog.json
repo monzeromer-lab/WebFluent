@@ -655,7 +655,7 @@
       "after": ""
      },
      {
-      "text": "**`T20` is an error**: a list or a record shown as text. `lints` and\n`// wf-allow` cannot lower or accept it, nor any other error.",
+      "text": "**`T20` is an error**: a list or a record shown as text. `lints` and\n`// wf-allow` cannot lower or accept it: they lower only the errors that\nship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`).",
       "points": [],
       "after": ""
      }

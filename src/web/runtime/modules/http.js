@@ -31,6 +31,8 @@
   /// `.cancelled`, `.transport(message)`, `.decode(at, message)` or
   /// `.status(code, problem)`, each with `.message` for showing.
   function httpError(error) {
+    // What a fake answered `.err(…)` with is already the error, as written.
+    if (error && error.$faked) return faultOf(error.error);
     const kind = error && error.kind;
     const message = (error && error.message) || String(error);
     let parts;
@@ -47,6 +49,31 @@
     Object.defineProperty(parts, "message", { value: message, enumerable: false });
     Object.defineProperty(parts, "httpError", { value: true, enumerable: false });
     return parts;
+  }
+
+  /// An error a fake answered with, given what a real one carries: an
+  /// `HttpError` case written in a test (`.status(503, null)`) has the
+  /// `.message` the network's would, and so does one inside an error
+  /// enum's `http` case. Anything else is the endpoint's own case, as is.
+  const FAULTS = {
+    offline: () => "You are offline",
+    timeout: () => "The request took too long",
+    cancelled: () => "The request was cancelled",
+    transport: (v) => String(v[1] == null ? "The request failed" : v[1]),
+    decode: (v) => (v[1] || "$") + " " + (v[2] || "is not what was declared"),
+    status: (v) => statusMessage(v[1], v[2]),
+  };
+  function faultOf(value) {
+    if (!Array.isArray(value) || value.httpError) return value;
+    const say = FAULTS[value[0]];
+    if (say) {
+      const fault = value.slice();
+      Object.defineProperty(fault, "message", { value: say(value), enumerable: false });
+      Object.defineProperty(fault, "httpError", { value: true, enumerable: false });
+      return fault;
+    }
+    if (value[0] === "http" && Array.isArray(value[1])) return ["http", faultOf(value[1])];
+    return value;
   }
 
   /// What a failed status says: the server's own words when its body is a
@@ -625,6 +652,7 @@
   /// engine knew of it.
   function toHttpError(error) {
     if (Array.isArray(error) && error.httpError) return error;
+    if (error && error.$faked) return faultOf(error.error);
     const failure = error && error.kind ? error : netError("transport", String((error && error.message) || error));
     const http = httpError(failure);
     Object.defineProperty(http, "cause", { value: failure, enumerable: false });

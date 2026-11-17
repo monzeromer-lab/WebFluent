@@ -116,9 +116,11 @@ test "a seeded basket counts what it holds"(data: { Basket: { lines: [{ name: "T
 | Step | What it does |
 |---|---|
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
-| `click "Save"` | Clicks whatever carries that name |
+| `expect focus "Beta"` | What has the focus is called that (its `aria-label`, label, placeholder or text) |
+| `click "Save"` | Clicks whatever carries that name, and puts the focus on it |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` | A key on the focused element, or on a named one. Enter in a form's field submits it; Escape closes an open `Modal` |
+| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key on the focused element, or on a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere). Enter in a form's field submits it; Escape closes an open `Modal` or `Dialog` |
+| `expect called Backend.users.create` · `expect not called …` | Whether the page has asked that endpoint (a test with `fakes:`) |
 
 - **Name things so a test can find them.**
   - A control needs a label, and the page needs it anyway.
@@ -134,6 +136,86 @@ test "a seeded basket counts what it holds"(data: { Basket: { lines: [{ name: "T
 - **Native code.** A bridge function to native code (Tauri) answers
   harmlessly outside the app, so pages that call it are still testable. See
   [tauri-apps.md](tauri-apps.md).
+
+## A page that reads a service: fakes
+
+A test never reaches the network. A `fake` answers a group's endpoints in
+its place, held to the group's contract (`N06`): every endpoint it answers
+is one the group has, every name it binds one of the endpoint's parameters,
+every answer the result the endpoint declares (`.ok(…)` or `.err(…)`). A
+test names its fakes with `fakes:` and runs in Chrome. A write's
+`invalidates` asks its reads again, and a call to an endpoint no fake
+answers fails the test, naming it.
+
+```wf
+/// One member of the team.
+type Member { id: String, name: String }
+/// What adding a member sends.
+type NewMember { name: String }
+
+api Team(base: "/api") { }
+
+api Team.members {
+    get list() at "members" -> [Member]!
+    post add(body: NewMember) at "members" -> Member!
+        invalidates [list]
+}
+
+page Members(path: "/members", title: "Members", description: "Who is on the team.") {
+    state name = ""
+    state failed = ""
+    resource members = Team.members.list()
+
+    action add() {
+        match await Team.members.add(body: NewMember(name: name)) {
+            .ok(_) { name = "" }
+            .err(_) { failed = "{name} was not added. Try again." }
+        }
+    }
+
+    Heading("Members").h1
+    match members {
+        .loading { Spinner }
+        .failed(_) { Alert("The team could not be loaded.").danger }
+        .loaded(list) { for m in list by m.id { Text(m.name) } }
+    }
+    Input(bind: name, label: "Name")
+    Button("Add member") { on click { add() } }
+    if failed != "" { Alert(failed).danger }
+}
+
+fake OneMember for Team.members {
+    list() { .ok([Member(id: "1", name: "Ada")]) }
+    add(body) { .ok(Member(id: "2", name: body.name)) }
+}
+
+fake Down for Team.members {
+    list() { .err(.status(503, null)) }
+    add(body) { .err(.status(503, null)) }
+}
+
+test "the team is listed, and a new member is sent"(fakes: [OneMember]) {
+    Members
+    expect "Ada"
+    type "Grace" into "Name"
+    click "Add member"
+    expect called Team.members.add
+}
+
+test "a server that is down says so"(fakes: [Down]) {
+    Members
+    expect "The team could not be loaded."
+    type "Grace" into "Name"
+    click "Add member"
+    expect "Grace was not added"
+}
+```
+
+- **One fake per answer you want to see**: the happy path, an empty list,
+  a `422`, a server that is down. Each test names the one it needs.
+- **From an OpenAPI spec**, `fake Examples for Backend.users from examples`
+  answers every endpoint it doesn't answer itself with the spec's example.
+- **A build leaves fakes out.** Keep them under `tests/`.
 
 ## What to test
 
@@ -167,6 +249,7 @@ pointing at one.
 wf build && wf verify
 wf verify --budget 1000           # fail a route that paints slower than 1 s
 wf verify --returning-visitor     # again, with storage from the last build
+wf verify --fakes tests/fakes.wf  # the fakes in that file answer the endpoints
 wf verify --json                  # for a pipeline
 ```
 
@@ -176,10 +259,11 @@ wf verify --json                  # for a pipeline
     image, or a route that drew nothing in `<main>`.
 - **What it lists.** The built-ins no page drew. That is coverage, not a
   failure.
-- **A request with no server behind it.** A page that fetches from a server
-  `wf verify` doesn't have fails with a 404. That is expected for an `api`
-  with no server. Say so rather than hiding it, or point the `api` base at a
-  fixture under `public/` while verifying.
+- **A request with no server behind it.** A page that reads a server
+  `wf verify` doesn't have fails with a 404. `wf verify --fakes tests/fakes.wf`
+  builds the site with that file's fakes answering their endpoints, aside
+  from `build/`, and loads every page of that. Never point the `api` at a
+  fixture to make it pass.
 
 ## In CI
 

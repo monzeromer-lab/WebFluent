@@ -40,18 +40,18 @@ wf scope FILE:LINE[:COL] [--data D] [--json]  # What can be read there: each nam
 wf translations [--missing L] [--unused] [--plurals] [--json] # The translations table: what each locale lacks, what nothing names
 wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
-wf api add SPEC [--name N] | sync [N] [--skip OP] | check | eject N | list [--json]  # A service's contract as files, from its OpenAPI spec
+wf api add SPEC [--name N] [--out DIR] | sync [N] [--skip OP] | check [N] | eject N [--out DIR] | list [--json]  # A service's contract as files, from its OpenAPI spec
 wf explain [CODE] [--json]                       # A diagnostic's entry: meaning, example, fix
-wf serve [-d DIR] [--host ADDR]           # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
+wf serve [-d DIR] [--host ADDR] [--allow-output-outside]  # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store|block <name> [-d DIR]  # Scaffold a file, in the project's layout; a block is a whole page: sign-in, pricing, dashboard, settings
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
 wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
-wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
+wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, 4 → 4.2 (`external` rewritten) and 6 → 7
 wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
-wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L]  # A template rendered with JSON data (see Template Engine)
+wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE]  # A template rendered with JSON data (see Template Engine)
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
 wf types [path] [--json] [--holes]        # What a project declares: enums, types, components, stores, pages; --holes: every place a type is unknown, and why
 ```
@@ -262,7 +262,7 @@ direction control in the source is E119 (Trojan Source).
 ### Pages
 
 ```wf
-page Home(path: "/", title: "Home") {
+page Home(path: "/", title: "Home", description: "The front page.") {
     state count = 0
 
     Container {
@@ -484,7 +484,7 @@ store Todos {
 ### The types the language brings with it
 
 Eleven types come with the language. Each is a **plain JSON value at run
-time** — no wrapper — so it crosses a `fetch`, a `persist`, the static
+time** — no wrapper — so it crosses a request, a `persist`, the static
 paint and the template engine unchanged, and `.native()` hands a real
 platform object to any library that wants one.
 
@@ -1099,6 +1099,7 @@ page Signup(path: "/join", title: "Join", description: "Make an account.") {
     }
     validate confirm { matches(password) "The two passwords differ" }
 
+    Heading("Join").h1
     Form(bind: form, show: .onBlur) {        // .onBlur (default) · .onSubmit · .live
         on submit { Backend.signUp(body: SignUp(email: email, password: password)) }
         Input(bind: email, label: "Email").email
@@ -1735,8 +1736,8 @@ _)))`), in a `match` — which runs in an action or a handler too — and in
 `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await
 http.get(url)`, `resource rows: [Row] = http.get(url)` — and `N11` for a
 `get` with nowhere that says (a write whose answer nothing reads needs no
-type; `as: .text` is a `String`). `fetch` is gone (`N08`); `window.fetch` is
-the browser's own, untouched.
+type; `as: .text` is a `String`). `fetch` is gone (`N08`), and `window.fetch` is
+not in the browser table (`T30`): a project script reaches it.
 
 **Pages and lines.** How an endpoint answers more than once is part of
 its contract. One that pages says how, and a read of it holds every page's
@@ -1989,8 +1990,7 @@ taken back: the action rolls itself back.
 ```wf
 action rename(id: String, name: String) -> ! {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    try await Backend.updateUser(id: id, body: Rename(name: name))
-    Backend.users.invalidate()
+    try await Backend.todos.rename(id: id, body: Rename(title: name))
 }
 ```
 
@@ -2637,13 +2637,13 @@ the flag's look follows it.
 **Heading level**: `.h1` … `.h6`
 **Input type**: `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`
 **Animation** (on every element): `.fadeIn`, `.fadeOut`, `.slideUp`, `.slideDown`, `.slideLeft`, `.slideRight`, `.scaleIn`, `.scaleOut`, `.bounce`, `.shake`, `.pulse`, `.spin`, `.expand`, `.collapse`
-**Speed** (on every element): `.fast` (150ms), `.slow` (500ms)
+**Speed** (on every element): `.fast` (150ms), `.normal` (the default), `.slow` (500ms)
 
 ## Animation
 
 Every element takes the universal motion props: an enter animation as a
 flag or `animate:`, `exit:`, `delay:`, `duration:`, `speed:` (`.fast`,
-`.normal`, `.slow` — the flags `.fast` and `.slow` are this prop),
+`.normal`, `.slow` — the flags `.fast`, `.normal` and `.slow` are this prop),
 `stagger:` inside a list, `easing:`, `on:` (when the animation plays —
 `.mount` or `.enterView`), `shared:` (a name it keeps across a route
 change) and `count:` (a number that counts to its new value). Beside
@@ -2998,7 +2998,7 @@ chose — `setTheme("dark")`, `setTheme("light")`, `setTheme("system")`,
 kept across visits; `theme` reads the choice.
 
 ```wf
-theme Night { color-background: #0B1220  color-text: #E5E7EB  color-surface: #111827 }
+theme Night { color-background: #0B1220  color-text: #E5E7EB  color-text-muted: #9CA3AF  color-surface: #111827 }
 ```
 
 **Keyframes.** `animation Name { from { … } 50% { … } to { … } }` declares
@@ -3055,7 +3055,7 @@ reach, and `WF` carries only the names the program calls — a `for` adds
 build (not `wf serve`'s) then shortens the runtime's own names, its
 top-level ones and each function's locals; what the program calls on `WF`
 keeps its name. A page that shows static text, with no `app` and so no
-router, is an `app.js` of 1.9 kB gzipped.
+router, is an `app.js` of 1.8 kB gzipped.
 
 Calls from outside the bundle count as calls: the project's own scripts,
 an `elements` build's definitions. Nothing is hand-marked, so the set
@@ -3074,10 +3074,12 @@ with what the build kept of it and what reached it.
 
 ```
   What it weighs
-    styles.css                             6.4 kB  (1.9 kB gzipped)
-    app.js                                 5.0 kB  (1.9 kB gzipped)  −0.1 kB
+    styles.css                             5.5 kB  (1.7 kB gzipped)
+    app.js                                 4.9 kB  (1.8 kB gzipped)  −0.1 kB
+    index.html                             0.8 kB  (0.4 kB gzipped)
+    total                                 11.2 kB
 
-  Runtime: 1 of 58 modules, 15.0 kB of 594.0 kB kept, 14.0 kB with its names shortened (before minifying)
+  Runtime: 1 of 58 modules, 15.0 kB of 596.8 kB kept, 14.0 kB with its names shortened (before minifying)
     core          15.0 kB  always
     left out: theme keys nodes motion helpers format offline peer scalars form …
 ```
@@ -3416,7 +3418,7 @@ unicode-bidi: isolate; }` in the project's CSS.
 - JavaScript hydrates for interactivity: it takes the painted page over in
   place — an element nothing holds stays as painted, never moved or drawn
   again, so the first paint stays the page's largest
-- Dynamic content (state, if/for, fetch) handled by JS after hydration
+- Dynamic content (state, if/for, a `resource`) handled by JS after hydration
 
 ## PDF Output
 
@@ -3789,7 +3791,7 @@ And what the type checker finds:
 | `T09` | An `emit` whose arguments do not match the event's |
 | `T10` | A call with the wrong number or kind of arguments |
 | `T11` | A `match` on something that is neither a read nor an enum, or with arms of the wrong kind |
-| `T12` | A `Secret` where it would escape — shown, spliced into text, joined with `+`, handed to a browser global (`console`, storage, a `fetch` address), logged, or kept with `persist`. A secret has no string members |
+| `T12` | A `Secret` where it would escape — shown, spliced into text, joined with `+`, handed to a browser global (`console`, storage), logged, or kept with `persist`. A secret has no string members |
 | `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. `event` (`e`), `value` and `key` are names only inside a handler. Not applied to a template rendered with data |
 | `T14` | A comparison that is always the same: `"1" == 1`, a record against a string, an enum against a case it does not have |
 | `T15` | A `match` with no `else` that misses a case of the enum, the result or the read, or one with a case twice. A `match` expression that covers every case needs no `else` |
@@ -3957,10 +3959,11 @@ until none is left — the request forms (`fetch` → `http.get`, `ready(v)` →
 fails with, each parameter takes, a condition's comparison, a splice or a
 unit, `try` for a result's value, an error enum's `http` case — then lists
 what a person decides. `Any` and `Map` are no longer types (`T23`, `T24`;
-the step writes `Json`). `lints` and `// wf-allow` cannot lower an error,
-and `T20` is one.
+the step writes `Json`). `lints` and `// wf-allow` lower only the
+errors that ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`,
+`I04`); `T20` is not one.
 
-`wf migrate [path] [--check] [--stdout]` does four things.
+`wf migrate [path] [--check] [--stdout] [--wfx]` does four things.
 
 **WebFluent 2 → 3** rewrites every `.wf` under `src/` in place, with a
 note for anything that needed a decision. It is a change of spelling and
@@ -4055,6 +4058,7 @@ says what it would fix and writes nothing.
         "owner": "organization",
         "same_as": [],
         "job_title": "",
+        "owner_details": {},
         "image": "",
         "image_alt": "",
         "sitemap": true,
@@ -4316,7 +4320,7 @@ A field checked as it is typed:
 page Signup(path: "/signup", title: "Sign up") {
     state email = ""
     derived wrong = email != "" && !email.includes("@")
-    Input(bind: email, type: "email", label: "Email address")
+    Input(bind: email, label: "Email address").email
     if wrong {
         Text("Enter an email address.")
     }
@@ -4497,7 +4501,7 @@ page DeployList(path: "/deploys", title: "Deploys", description: "Every deploy."
 12. **Style values are CSS**: `padding: 1rem 2rem`, `background: $surface`, `width: {pct}%` — no quotes; `$name` is a design token, `{expr}` a live value; two on one line are separated by `;`, never `,` (`E002`)
 13. **`@media` and nested rules inside style blocks**: `@media (max-width: 768px) { display: none }` and `&:hover { … }` compile to stylesheet rules scoped to the element
 14. **Router nests anywhere**: `Router` can be inside `Row`, `Container`, `Stack`, or any layout wrapper at any depth; pages own their routes
-15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `Date`, `setTimeout`, `fetch`, `Promise`, etc. compile as-is
+15. **Browser globals are not prefixed**: `localStorage`, `window`, `console`, `JSON`, `Math`, `setTimeout`, etc. compile as-is, typed; one the table lacks (`crypto`, `window.fetch`) is `T30`
 16. **Both `!=` and `!==`**: both inequality operators are supported (both compile to `!==` in JS); against a `null` literal, `==` and `!=` compile to JavaScript's loose `== null`, so an absent value — a query key the address lacks — counts as null
 17. **Quoted map keys**: `{ "Content-Type": "application/json" }` — use for HTTP headers and hyphenated keys
 18. **Reserved words as map keys, not as names**: `{ action: "approve", token: tok }` — all keywords work as map keys, fields and enum cases; a name the language has is never a program's own (`E118`): `env`, `params`, `locale`, `dir`, `now`, `viewport`, `query`, `hash`, `theme`, `network`, `update`, the built-in functions (`t`, `format`, `ago`, `log`, `navigate`, `fetch`, `uuid`, `every`, `after`, …) and the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, …) cannot be a state, prop, parameter, loop item, lambda parameter or `const`. `event`, `e`, `value`, `key` and the browser's globals can

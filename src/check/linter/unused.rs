@@ -420,6 +420,14 @@ mod tests {
     }
 
     #[test]
+    fn a_persists_key_reads_the_state_it_names() {
+        let found = codes(
+            "page P(path: \"/\") { state listId = \"a\"\n persist open = false { key: listId }\n Switch(bind: open) }",
+        );
+        assert!(found.is_empty(), "{found:?}");
+    }
+
+    #[test]
     fn a_bind_a_style_splice_and_an_interpolation_read_a_name() {
         let found = codes(
             "page P(path: \"/\") { state q = \"\"\n state w = 10\n state t = \"x\"\n Input(bind: q)\n Card { style { width: {w}px } }\n Text(\"a {t} b\") }",

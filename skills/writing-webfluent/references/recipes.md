@@ -112,11 +112,6 @@ store Board {
         let i = if position == "after" { at + 1 } else { at }
         tasks = [...rest.slice(0, i), moving, ...rest.slice(i)]
     }
-
-    /// The task with this id, or null when it is gone.
-    action find(id: String) -> Task? {
-        return tasks.find(task => task.id == id)
-    }
 }
 ```
 
@@ -282,25 +277,55 @@ page Invite(path: "/invite", title: "Invite", description: "Ask someone to join 
 
 ## A service and a resource
 
-A `resource` over an endpoint is typed, cached, retried and cancelled for you.
-Match every arm.
-- A refresh keeps the data on screen and sets `.refreshing`.
-- A failed refresh keeps the data and sets `.error`.
+The service says how it is reached once; a group holds the endpoints of one
+thing. Each endpoint says where it is (`at`), what it answers and how it
+fails (`!`). A write names the reads it makes stale, and a read that pages
+says how. A `resource` over an endpoint is typed, cached, retried and
+cancelled for you. It is one value, matched with every arm:
+- `.loading` until the first answer, `.failed(e)` if that fails;
+- `.loaded(list, refreshing, stale)`: a refresh keeps the data on screen with
+  `refreshing` true, and a refresh that failed keeps it with its error in
+  `stale`.
 
 ```wf
 /// One release, as the server sends it.
 type Release { tag: String, title: String, published: DateTime }
+/// What publishing a release sends.
+type NewRelease { tag: String, title: String }
 
 api Releases(base: "/api") {
     timeout: 10.seconds
     retry: .backoff(times: 3, on: [.network, .timeout, .status5xx])
-    get list(page: Number = 1) at "list" -> [Release]!
+    credentials: .sameOrigin
+}
+
+api Releases.notes {
+    get list(page: Number = 1) at "releases" -> [Release]!
+        pages .number(param: page)
+    post publish(body: NewRelease) at "releases" -> Release!
+        invalidates [list]
 }
 
 page Changelog(path: "/changelog", title: "Changelog", description: "What changed, newest first.", layout: BoardShell) {
-    resource releases = Releases.list(cache: .swr(60.seconds), refresh: .onFocus)
+    resource releases = Releases.notes.list(cache: .swr(60.seconds), refresh: .onFocus)
+    state tag = ""
+    state title = ""
+    state failed = ""
+
+    action publish() {
+        match await Releases.notes.publish(body: NewRelease(tag: tag, title: title)) {
+            .ok(_) { tag = ""  title = "" }
+            .err(e) { failed = e.message }
+        }
+    }
 
     Heading("Changelog").h1
+    Row(gap: .sm, align: .end).stacks {
+        Input(bind: tag, label: "Tag").text
+        Input(bind: title, label: "Title").text
+        Button("Publish", disabled: tag == "", loading: publish.pending) { on click { publish() } }
+    }
+    if failed != "" { Alert(failed).danger }
     match releases {
         .loading { Skeleton(height: "20px") }
         .failed(e) {
@@ -311,9 +336,9 @@ page Changelog(path: "/changelog", title: "Changelog", description: "What change
             }
             Button("Try again") { on click { releases.reload() } }
         }
-        .loaded(list) {
-            if releases.error != null { Alert("Could not refresh; this is what was there.").warning }
-            if releases.isRefreshing { Spinner.sm }
+        .loaded(list, refreshing, stale) {
+            if stale != null { Alert("Could not refresh; this is what was there.").warning }
+            if refreshing { Spinner.sm }
             if list.length == 0 { Text("Nothing released yet.").muted }
             for r in list by r.tag {
                 Row(gap: .sm, align: .baseline) {
@@ -322,10 +347,19 @@ page Changelog(path: "/changelog", title: "Changelog", description: "What change
                     Text(ago(r.published)).muted.sm
                 }
             }
+            if releases.hasMore {
+                Button("Older releases", loading: releases.pending) { on click { releases.loadMore() } }
+            }
         }
     }
 }
 ```
+
+A successful `publish` asks `list` again, and the new release is drawn in
+place. A server with an OpenAPI spec needs none of this written by hand:
+`wf api add openapi.json --name Releases` writes the types and groups under
+`src/api/releases/generated/`, and `wf api sync` keeps them current. Tests
+answer the endpoints with a `fake` (see [testing.md](testing.md)).
 
 ## A detail page with a route parameter
 
@@ -424,7 +458,7 @@ page the `lang:` it is written in, and use `translates:` to say which pages
 are translations of each other:
 
 ```wf
-page Team(path: "/team", title: "من نحن", description: "من نحن وماذا نصنع.") {
+page Team(path: "/team", title: "من نحن", description: "من نحن وماذا نصنع.", lang: "ar") {
     Heading("من نحن").h1
     Link("English", to: "/en/team")
 }
