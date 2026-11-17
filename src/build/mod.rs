@@ -555,6 +555,13 @@ pub fn analyse_via(
                 declaration_files.push(file.clone());
             }
         }
+        // `fake … from examples` answers with the spec's examples.
+        let specs = crate::project::openapi::specs_of(&program.declarations, &config.apis);
+        crate::project::openapi::answer_from_examples(&mut program.declarations, &specs, &|spec| {
+            [project_dir.join(spec), project_dir.join("src").join(spec)]
+                .iter()
+                .find_map(|at| vfs.read_to_string(at).ok())
+        });
     }
     // What the pages will contain, decided before any of them is written:
     // the policy each one ships has to describe that page.

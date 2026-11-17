@@ -103,7 +103,14 @@
       if (given.$address) return given.$address;
       const { path, used } = fillPath(endpoint.path, given);
       const url = /^[a-z]+:\/\//i.test(path) ? path : base() + "/" + path.replace(/^\/+/, "");
-      return url + queryString(given, used, perCall);
+      // A query parameter the server names otherwise: `in query "user-id"`.
+      const renamed = {};
+      for (const [p, where] of Object.entries(placed)) {
+        if (where[0] === "query" && given[p] != null) renamed[where[1]] = given[p];
+      }
+      const query = queryString(given, used, perCall);
+      const more = queryString(renamed, new Set(), new Set());
+      return url + (more ? (query ? query + "&" + more.slice(1) : more) : query);
     };
     /// The headers a call's own parameters put on it.
     const placedHeaders = (given) => {
@@ -112,7 +119,7 @@
         if (given[p] == null) continue;
         if (where[0] === "header") out[where[1]] = String(given[p]);
         else if (where[0] === "cookie" && typeof document !== "undefined") {
-          document.cookie = encodeURIComponent(p) + "=" + encodeURIComponent(String(given[p])) + "; path=/";
+          document.cookie = encodeURIComponent(where[1] || p) + "=" + encodeURIComponent(String(given[p])) + "; path=/";
         }
       }
       return out;
@@ -318,7 +325,9 @@
         read.data.set(change(before));
         undone.push(() => read.data.set(before));
       }
-      undone.push(updateCached((config.name || "") + " " + name + " ", change));
+      // A paged read caches its pages, not the items it shows: the change
+      // is of the items, so only what is shown takes it.
+      if (!endpoint.pages) undone.push(updateCached((config.name || "") + " " + name + " ", change));
       let done = false;
       return () => {
         if (done) return;
@@ -340,8 +349,10 @@
   function failureOf(error, result) {
     if (error && error.$faked) return error.error;
     const cases = result.cases || {};
-    if (error && error.kind === "status" && cases[error.status] != null) {
-      return [cases[error.status], error.body];
+    if (error && error.kind === "status") {
+      // A status a case names, else the class it is in (`on 4XX`).
+      const named = cases[error.status] != null ? cases[error.status] : cases[Math.floor(error.status / 100)];
+      if (named != null) return [named, error.body];
     }
     const http = httpError(error);
     return result.enum ? ["http", http] : http;

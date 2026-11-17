@@ -134,6 +134,7 @@ mod navigation;
 mod nodes_corpus;
 #[path = "offline.rs"]
 mod offline;
+mod openapi;
 #[path = "output_security.rs"]
 mod output_security;
 #[path = "output_type_static.rs"]

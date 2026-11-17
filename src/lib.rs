@@ -220,7 +220,7 @@ internal! {
 }
 internal! {
     pub use tools::{
-        agent, audit, browser, commands, gallery, generate, migrate, patch, testing, verify,
+        agent, api, audit, browser, commands, gallery, generate, migrate, patch, testing, verify,
     };
 }
 internal! {

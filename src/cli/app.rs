@@ -89,6 +89,12 @@ enum Commands {
         #[command(subcommand)]
         action: ConfigAction,
     },
+    /// A service's contract as files, from its OpenAPI spec: add one, sync
+    /// it, check it is current, turn `api … from` into files, list them
+    Api {
+        #[command(subcommand)]
+        action: ApiAction,
+    },
     /// The animations an element can play, the eases and speeds, the route
     /// transitions and the project's default
     Motion {
@@ -430,6 +436,66 @@ enum ConfigAction {
     },
 }
 
+#[derive(Subcommand)]
+enum ApiAction {
+    /// Keep a service read from SPEC: record it in `apis`, write its
+    /// `service.wf` once, and its `generated/` files
+    Add {
+        /// The OpenAPI spec, JSON or YAML, a file in the project
+        spec: String,
+        /// The service's name, as the program calls it
+        #[arg(long, default_value = "Backend")]
+        name: String,
+        /// The folder its files go in (default: `src/api/<name>`)
+        #[arg(long)]
+        out: Option<String>,
+        /// The project's folder
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+    /// Rewrite each service's `generated/` from its spec
+    Sync {
+        /// One service (default: every one `apis` keeps)
+        name: Option<String>,
+        /// Leave an operation out, by its name or `METHOD /path`; kept in the
+        /// config, so the next sync and `check` leave it out too
+        #[arg(long)]
+        skip: Vec<String>,
+        /// The project's folder
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+    /// Fail when `sync` would change anything: for CI
+    Check {
+        /// One service (default: every one `apis` keeps)
+        name: Option<String>,
+        /// The project's folder
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+    /// Turn `api NAME from "openapi.json"` into a kept service's files
+    Eject {
+        /// The service
+        name: String,
+        /// The folder its files go in (default: `src/api/<name>`)
+        #[arg(long)]
+        out: Option<String>,
+        /// The project's folder
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+    /// Every service read from a spec: its spec, its folder, its groups and
+    /// their endpoints
+    List {
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
+        /// The project's folder
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+    },
+}
+
 /// Runs the `wf` command: parses the arguments, runs the command, and
 /// exits with its status.
 pub fn main() {
@@ -490,6 +556,22 @@ pub fn main() {
                 super::config::run_set(&dir, &path, Some(&value))
             }
             ConfigAction::Unset { path, dir } => super::config::run_set(&dir, &path, None),
+        },
+        Commands::Api { action } => match action {
+            ApiAction::Add {
+                spec,
+                name,
+                out,
+                dir,
+            } => super::api::run_add(&dir, &spec, &name, out.as_deref()),
+            ApiAction::Sync { name, skip, dir } => {
+                super::api::run_sync(&dir, name.as_deref(), &skip)
+            }
+            ApiAction::Check { name, dir } => super::api::run_check(&dir, name.as_deref()),
+            ApiAction::Eject { name, out, dir } => {
+                super::api::run_eject(&dir, &name, out.as_deref())
+            }
+            ApiAction::List { json, dir } => super::api::run_list(&dir, json),
         },
         Commands::Context {
             dir,

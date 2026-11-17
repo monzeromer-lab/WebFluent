@@ -90,7 +90,13 @@ impl Checker<'_, '_> {
                         self.error(
                             e.span,
                             "N12",
-                            format!("`{}.{}` and `{}.{first}` both stand for {status}", e.name, case.name, e.name),
+                            format!(
+                                "`{}.{}` and `{}.{first}` both stand for {}",
+                                e.name,
+                                case.name,
+                                e.name,
+                                if status < 10 { format!("{status}XX") } else { status.to_string() }
+                            ),
                             "A status is one case: keep one of them",
                         );
                     } else {

@@ -1,0 +1,118 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Team directory", "version": "1.0.0" },
+  "servers": [{ "url": "https://api.example.com/v1" }],
+  "tags": [{ "name": "people", "description": "Who is on the team." }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer" } },
+    "schemas": {
+      "Person": {
+        "description": "Someone on the team.",
+        "type": "object",
+        "required": ["id", "name", "email", "role", "joinedAt"],
+        "properties": {
+          "id": { "type": "string", "format": "uuid" },
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role": { "$ref": "#/components/schemas/Role" },
+          "joinedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Role": { "type": "string", "enum": ["engineer", "designer", "manager"] },
+      "NewPerson": {
+        "description": "What adding someone takes.",
+        "type": "object",
+        "required": ["name", "email", "role"],
+        "properties": {
+          "name": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "role": { "$ref": "#/components/schemas/Role" }
+        }
+      },
+      "PersonPage": {
+        "description": "One page of people, and where the next one starts.",
+        "type": "object",
+        "required": ["items"],
+        "properties": {
+          "items": { "type": "array", "items": { "$ref": "#/components/schemas/Person" } },
+          "nextCursor": { "type": ["string", "null"] }
+        }
+      },
+      "Problem": {
+        "description": "RFC 9457 problem details.",
+        "type": "object",
+        "properties": {
+          "type": { "type": "string" },
+          "title": { "type": "string" },
+          "status": { "type": "integer" },
+          "detail": { "type": "string" }
+        }
+      },
+      "ValidationProblem": {
+        "description": "A problem, with the fields that failed.",
+        "allOf": [
+          { "$ref": "#/components/schemas/Problem" },
+          { "type": "object", "required": ["errors"], "properties": {
+            "errors": { "type": "array", "items": { "$ref": "#/components/schemas/FieldError" } } } }
+        ]
+      },
+      "FieldError": {
+        "type": "object",
+        "required": ["field", "message"],
+        "properties": { "field": { "type": "string" }, "message": { "type": "string" } }
+      }
+    },
+    "responses": {
+      "NotFound": { "description": "No such person.", "content": { "application/problem+json": {
+        "schema": { "$ref": "#/components/schemas/Problem" } } } }
+    }
+  },
+  "security": [{ "bearerAuth": [] }],
+  "paths": {
+    "/people": {
+      "get": {
+        "operationId": "listPeople", "tags": ["people"],
+        "summary": "People whose name matches `q`, a page at a time.",
+        "parameters": [
+          { "name": "q", "in": "query", "schema": { "type": "string" } },
+          { "name": "after", "in": "query", "schema": { "type": "string" } }
+        ],
+        "responses": { "200": { "description": "A page.", "content": { "application/json": {
+          "schema": { "$ref": "#/components/schemas/PersonPage" },
+          "example": { "items": [{ "id": "0b6c4c1e-7d3a-4f0e-9a51-2f1f6c0e9d11", "name": "Ada", "email": "ada@example.com", "role": "engineer", "joinedAt": "2026-01-05T09:00:00Z" }], "nextCursor": null } } } } }
+      },
+      "post": {
+        "operationId": "createPerson", "tags": ["people"],
+        "summary": "Add someone.",
+        "requestBody": { "required": true, "content": { "application/json": {
+          "schema": { "$ref": "#/components/schemas/NewPerson" } } } },
+        "responses": {
+          "201": { "description": "Added.", "content": { "application/json": {
+            "schema": { "$ref": "#/components/schemas/Person" } } } },
+          "409": { "description": "Already on the team.", "content": { "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/Problem" } } } },
+          "422": { "description": "A field is wrong.", "content": { "application/problem+json": {
+            "schema": { "$ref": "#/components/schemas/ValidationProblem" } } } }
+        }
+      }
+    },
+    "/people/{id}": {
+      "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "string", "format": "uuid" } }],
+      "get": {
+        "operationId": "getPerson", "tags": ["people"],
+        "responses": {
+          "200": { "description": "One person.", "content": { "application/json": {
+            "schema": { "$ref": "#/components/schemas/Person" } } } },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "operationId": "deletePerson", "tags": ["people"],
+        "responses": {
+          "204": { "description": "Removed." },
+          "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      }
+    }
+  }
+}

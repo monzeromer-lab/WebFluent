@@ -345,6 +345,13 @@ jobs:
         working-directory: tests/fixtures/fakes
         run: ../../../target/release/wf verify --fakes tests/people.wf
 
+      # A contract written from an OpenAPI spec: current with its spec, and
+      # its page tested against fakes of it (and of the spec's examples).
+      - name: Contracts from OpenAPI
+        run: |
+          for d in people petstore oxn; do (cd tests/fixtures/openapi/$d && ../../../../target/release/wf api check); done
+          target/release/wf test tests/fixtures/openapi/people
+
   check:
     name: Build, lint and test
     runs-on: ubuntu-latest

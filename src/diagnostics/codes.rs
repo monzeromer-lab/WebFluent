@@ -642,6 +642,12 @@ pub static CODES: &[CodeInfo] = &[
         "A `fake OneUser for Backend.users { … }` answers in place of the network, so it is held to what the network would have to do: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares — `.ok(value)` of its type, or `.err(error)` of its error. A test's `fakes:` names fakes, and `expect called` an endpoint.",
     ),
     code(
+        "N07",
+        Warning,
+        "A service's files are behind its spec",
+        "`wf api sync` writes a service's `generated/` folder from its OpenAPI spec, and `wf api check` fails when the two disagree. When the spec has changed since the files were written, the program is checked against a contract the server no longer keeps: run `wf api sync`.",
+    ),
+    code(
         "N08",
         Error,
         "A form 7.0 removed",

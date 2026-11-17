@@ -222,6 +222,22 @@ pub fn collect(path: &Path) -> Result<Tests> {
     for (file, test) in &tests {
         clashes.extend(seed_faults(test, &declarations, file));
     }
+    // `fake … from examples` answers with the spec's examples.
+    let specs = crate::project::openapi::specs_of(
+        &declarations,
+        &crate::project::config::ProjectConfig::load(&project_dir)
+            .map(|c| c.apis)
+            .unwrap_or_default(),
+    );
+    let read_spec = |file: &str| {
+        [project_dir.join(file), project_dir.join("src").join(file)]
+            .iter()
+            .find_map(|at| std::fs::read_to_string(at).ok())
+    };
+    crate::project::openapi::answer_from_examples(&mut declarations, &specs, &read_spec);
+    for list in own.values_mut() {
+        crate::project::openapi::answer_from_examples(list, &specs, &read_spec);
+    }
     // A fake is held to the contract it answers for, and a test to the
     // fakes and endpoints it names (`N06`).
     clashes.extend(fake_faults(&declarations, &owners, &own, &tests));

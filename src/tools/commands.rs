@@ -41,6 +41,19 @@ pub const EFFECTS: &[Effect] = &[
     e("config get", "", None),
     e("config set", "webfluent.app.json", None),
     e("config unset", "webfluent.app.json", None),
+    e(
+        "api add",
+        "webfluent.app.json, the service's folder and .gitattributes",
+        None,
+    ),
+    e("api sync", "the service's generated/ folder", None),
+    e("api check", "", None),
+    e(
+        "api eject",
+        "the service's folder, webfluent.app.json, and the file that held `api … from`",
+        None,
+    ),
+    e("api list", "", None),
     e("fix", "the project's source files", Some("--dry-run")),
     e("explain", "", None),
     e(

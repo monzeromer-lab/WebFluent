@@ -511,6 +511,12 @@ pub const FIELDS: &[Field] = &[
         Strings,
         "The `env` names a page may read and so ships to the browser, beyond those beginning `PUBLIC_`.",
     ),
+    // ── Services ──
+    f(
+        "apis",
+        Map,
+        "Each service `wf api sync` writes from an OpenAPI spec: `{ \"spec\": \"openapi.json\", \"out\": \"src/api/backend\", \"skip\": [] }`.",
+    ),
     // ── Offline ──
     f(
         "offline.precache",
@@ -777,7 +783,12 @@ mod tests {
     #[test]
     fn every_row_is_a_field_the_config_reads() {
         for f in FIELDS {
-            let value = sample(f.ty);
+            // `apis` holds services, each a spec and a folder.
+            let value = if f.path == "apis" {
+                serde_json::json!({ "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } })
+            } else {
+                sample(f.ty)
+            };
             let mut doc = serde_json::json!({ "name": "p" });
             let mut at_ = &mut doc;
             let keys: Vec<&str> = f.path.split('.').collect();

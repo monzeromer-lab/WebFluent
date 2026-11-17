@@ -1,0 +1,24 @@
+// Written once by `wf api add`. Yours: `wf api sync` never changes it.
+
+/// Team directory
+api Backend(base: env.PUBLIC_API) {
+    timeout: 15.seconds
+    credentials: .sameOrigin
+    // GET, PUT and DELETE only: a POST is never sent twice.
+    retry: .backoff(times: 3)
+
+    // Run around every call, in this order.
+    middleware [bearer(Session.token), refreshOn401(Session.refresh), requestId]
+
+    // Which reads each write makes stale. Checked: a name that is not an
+    // endpoint, or an argument it does not take, is an error.
+    invalidations {
+        people.createPerson invalidates [people.listPeople]
+        people.deletePerson(id) invalidates [people.listPeople, people.getPerson(id)]
+    }
+
+    // How a list endpoint pages.
+    pagination {
+        people.listPeople pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)
+    }
+}

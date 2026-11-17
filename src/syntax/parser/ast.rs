@@ -67,6 +67,9 @@ pub struct FakeDecl {
     /// The service or group it answers for: `Backend`, `Backend.users`.
     pub target: String,
     pub answers: Vec<FakeAnswer>,
+    /// `fake Examples for Backend.users from examples`: every endpoint it
+    /// does not answer itself answers with its spec's example of a success.
+    pub from_examples: bool,
     pub doc: Option<String>,
     pub span: Span,
     /// The header, `fake OneUser for Backend.users`.
@@ -114,6 +117,34 @@ pub struct ApiDecl {
     /// The file it is read from, when the surface is imported: `api B from
     /// "openapi.json"`.
     pub from: Option<String>,
+    /// `invalidations { users.create invalidates [users.list] }`: what a
+    /// write of a group makes stale, said beside a contract written
+    /// elsewhere (a generated one).
+    pub invalidations: Vec<Invalidation>,
+    /// `pagination { users.list pages .cursor(…) }`: how a read of a group
+    /// pages, said the same way. The endpoint (`users.list`), how, and where.
+    pub pagination: Vec<(String, Expr, Span)>,
+}
+
+/// `users.remove(id) invalidates [users.list, users.byId(id)]`, in a
+/// service's `invalidations { }`.
+#[derive(Debug, Clone)]
+pub struct Invalidation {
+    /// The write, `group.endpoint`.
+    pub endpoint: String,
+    /// The write's parameters the targets are asked with: `(id)`.
+    pub params: Vec<String>,
+    /// The reads it makes stale.
+    pub targets: Vec<InvalidTarget>,
+    pub span: Span,
+}
+
+/// One read an invalidation names: `users.byId(id)`.
+#[derive(Debug, Clone)]
+pub struct InvalidTarget {
+    /// `group.endpoint`.
+    pub name: String,
+    pub args: Vec<String>,
 }
 
 /// `middleware name(req, next) { … }`: what a request passes through on
@@ -222,8 +253,12 @@ impl Paging<'_> {
 pub enum ParamLocation {
     /// `in header "X-Tenant"`.
     Header(String),
-    /// `in cookie`, under the parameter's name.
-    Cookie,
+    /// `in cookie`, under the parameter's name, or `in cookie "session_id"`
+    /// under the one the server knows.
+    Cookie(Option<String>),
+    /// `in query "user-id"`: a query parameter whose name the server knows
+    /// is not one the program can write.
+    Query(String),
 }
 
 // ─── Types ───────────────────────────────────────────────

@@ -1,0 +1,17 @@
+page Queues(path: "/", title: "Queues", description: "Every queue, and what it holds.") {
+    resource queues = Oxn.default.getV1Queues()
+    Heading("Queues").h1
+    match queues {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) {
+            for q in list by q.name {
+                Row(gap: .sm) {
+                    Text(q.name).bold
+                    Text("{q.counts.waiting} waiting, {q.counts.failed} failed").muted
+                    if q.paused { Badge("Paused").warning }
+                }
+            }
+        }
+    }
+}

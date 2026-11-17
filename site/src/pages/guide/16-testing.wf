@@ -229,7 +229,24 @@ test "shows the server's field error"(fakes: [OneEngineer]) {
     expect called Backend.people.create
 }"#, title: "wf")
 
-        Markdown("How a fake answers:\n\n- **By name.** `fake OneEngineer for Backend.people` answers that group; `fake … for Backend` answers a service's own endpoints. Each answer names the endpoint, then the parameters it reads — any of them, by the names the endpoint gives them. A parameter the call left out is its default, or `null`.\n- **As the endpoint would.** An answer is the endpoint's result: `.ok(value)`, or `.err(error)` with a case of its error enum, or an `HttpError` such as `.status(500, null)`. An `if` or a `match` picks one from what the call sent.\n- **Without the network.** A test that names `fakes:` runs in a browser, where its page makes the calls. Nothing is sent: a call goes to the fake, and a write's `invalidates` asks its reads again, as after a real success. A call to an endpoint no fake answers fails the test and names the endpoint.\n- **Whole.** A paged endpoint is answered a page at a time, from the parameter the page goes in; a `streamed` one with the whole list, which arrives a line at a time.\n\n`expect called Backend.people.create` passes once the page has asked that endpoint; `expect not called` passes while it has not. Use them to check that a write went out, or that a form did not send what it should not.\n\nA fake that does not fit its contract is `N06`, with what is wrong: an endpoint the group does not have, a parameter it does not take, an answer of the wrong type. So is a test's `fakes:` naming no fake, two fakes answering one endpoint, and an `expect called` naming no endpoint.\n\nPut fakes beside the tests that use them, under `tests/`. A fake in `src/` is checked like any declaration, and a build leaves it out.")
+        Markdown("How a fake answers:\n\n- **By name.** `fake OneEngineer for Backend.people` answers that group; `fake … for Backend` answers a service's own endpoints. Each answer names the endpoint, then the parameters it reads — any of them, by the names the endpoint gives them. A parameter the call left out is its default, or `null`.\n- **As the endpoint would.** An answer is the endpoint's result: `.ok(value)`, or `.err(error)` with a case of its error enum, or an `HttpError` such as `.status(500, null)`. An `if` or a `match` picks one from what the call sent.\n- **Without the network.** A test that names `fakes:` runs in a browser, where its page makes the calls. Nothing is sent: a call goes to the fake, and a write's `invalidates` asks its reads again, as after a real success. A call to an endpoint no fake answers fails the test and names the endpoint.\n- **Whole.** A paged endpoint is answered a page at a time, from the parameter the page goes in; a `streamed` one with the whole list, which arrives a line at a time.\n\nWhen the contract comes from an OpenAPI spec (`wf api`, or `api … from`), a fake can answer from the spec's own examples: every endpoint it does not answer itself answers `.ok(example)`, with the example of a success the spec gives, held to the endpoint's result as an answer written by hand is.")
+
+        CodeBlock(#"type Person { id: String, name: String }
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get listPeople at "people" -> [Person]!
+    post createPerson(body: Person) at "people" -> Person!
+}
+
+fake Examples for Backend.people from examples
+
+fake Refusing for Backend.people from examples {
+    createPerson(body) { .err(.status(503, null)) }
+}"#, title: "wf")
+
+        Markdown("Here `Backend.people` is written by hand for the sake of the example; with `wf api` it is the generated file, and the examples are the spec's.\n\n`expect called Backend.people.create` passes once the page has asked that endpoint; `expect not called` passes while it has not. Use them to check that a write went out, or that a form did not send what it should not.\n\nA fake that does not fit its contract is `N06`, with what is wrong: an endpoint the group does not have, a parameter it does not take, an answer of the wrong type. So is a test's `fakes:` naming no fake, two fakes answering one endpoint, and an `expect called` naming no endpoint.\n\nPut fakes beside the tests that use them, under `tests/`. A fake in `src/` is checked like any declaration, and a build leaves it out.")
 
         Heading("Run the tests", id: "run-the-tests").h2
 

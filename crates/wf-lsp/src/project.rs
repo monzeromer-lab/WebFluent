@@ -470,6 +470,29 @@ impl Project {
             }
         }
 
+        // `api B from "openapi.json"` is its groups and types once the spec is
+        // read, as the build reads it, so a call of one of its endpoints is
+        // known here too; what each adds is placed in the service's file.
+        let mut program = Program { declarations };
+        let from_file = program
+            .declarations
+            .iter()
+            .position(|d| matches!(d, Declaration::Api(a) if a.from.is_some()))
+            .map(|i| decl_file[i]);
+        let before = program.declarations.len();
+        let read_spec = |file: &str| -> Option<String> {
+            let root = root.as_ref()?;
+            [root.join(file), root.join("src").join(file)]
+                .iter()
+                .find_map(|at| cache.read(vfs, at).map(|t| t.to_string()))
+        };
+        if webfluent::openapi::expand(&mut program, &read_spec).is_err() {
+            webfluent::openapi::place_service_blocks(&mut program);
+        }
+        let added = program.declarations.len() - before;
+        decl_file.extend(std::iter::repeat_n(from_file.unwrap_or(0), added));
+        let declarations = program.declarations;
+
         Project {
             root,
             theme,

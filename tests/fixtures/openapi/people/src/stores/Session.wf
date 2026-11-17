@@ -1,0 +1,13 @@
+type TokenAnswer { token: String }
+
+/// The signed-in user's token.
+store Session(scope: .session) {
+    state token = ""
+
+    /// A new token for the one that expired: nothing, or why not. Never throws.
+    action refresh() -> ! {
+        // http: not through Backend's middleware.
+        let fresh: TokenAnswer = try await http.post("/auth/refresh")
+        token = fresh.token
+    }
+}

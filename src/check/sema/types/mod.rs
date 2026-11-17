@@ -825,6 +825,7 @@ pub fn check_sources_with<'s>(
                 }
                 cx.old_transport(a);
                 cx.group_of(a);
+                cx.service_blocks(a);
                 for endpoint in &a.endpoints {
                     cx.current_span = endpoint.span;
                     let what = format!("{}.{}", a.name, endpoint.name);

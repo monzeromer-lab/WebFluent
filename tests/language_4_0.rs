@@ -594,7 +594,7 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
     let src = format!(
         "api Backend from \"api.json\" (base: \"/api\")\n{}",
         page(
-            "resource one = Backend.getUser(id: \"1\")\n    match one { .loaded(u) { Text(u.name ?? \"?\") } else { Spinner } }"
+            "resource one = Backend.default.getUser(id: \"1\")\n    match one { .loaded(u) { Text(u.name ?? \"?\") } else { Spinner } }"
         )
     );
     let mut program = parse_source(&src, "t.wf").unwrap();
@@ -602,7 +602,7 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
 
     // The endpoints and the schemas both arrived.
     let api = program.declarations.iter().find_map(|d| match d {
-        webfluent::syntax::parser::Declaration::Api(a) => Some(a),
+        webfluent::syntax::parser::Declaration::Api(a) if a.name.ends_with(".default") => Some(a),
         _ => None,
     });
     let api = api.expect("the service");
@@ -764,7 +764,7 @@ fn a_string_schema_with_cases_is_an_enum_and_one_with_unwritable_cases_is_a_stri
     use webfluent::syntax::parser::{Declaration, TypeRef};
     let program = with_ops_spec(
         "Heading(\"Ops\").h1\n    \
-         resource one = Ops.server(env: .prod)\n    \
+         resource one = Ops.default.server(env: .prod)\n    \
          match one {\n        \
              .loaded(e) {\n            \
                  Text(\"{e.env}\")\n            \
@@ -814,7 +814,7 @@ fn a_string_schema_with_cases_is_an_enum_and_one_with_unwritable_cases_is_a_stri
 fn a_value_that_may_be_null_is_its_type_made_optional() {
     use webfluent::syntax::parser::TypeRef;
     let program = with_ops_spec(
-        "resource one = Ops.server(env: .prod)\n    \
+        "resource one = Ops.default.server(env: .prod)\n    \
          match one {\n        \
              .loaded(e) {\n            \
                  Text(e.reason.toUpperCase())\n            \
@@ -862,7 +862,7 @@ fn an_all_of_is_a_record_that_extends_the_one_it_names() {
     use webfluent::syntax::parser::TypeRef;
     let program = with_ops_spec(
         "Heading(\"Ops\").h1\n    \
-         resource one = Ops.detail(env: .prod)\n    \
+         resource one = Ops.default.detail(env: .prod)\n    \
          match one {\n        \
              .loaded(d) {\n            \
                  Text(d.reason ?? \"\")\n            \
@@ -929,8 +929,8 @@ fn a_string_format_is_the_type_the_language_has_for_it() {
     let program = with_ops_spec(
         "Heading(\"Ops\").h1\n    \
          state typed = \"\"\n    \
-         resource made = Ops.stamp(id: typed, body: { when: typed, owner: \"ada\" })\n    \
-         resource one = Ops.stamps()\n    \
+         resource made = Ops.default.stamp(id: typed, body: { when: typed, owner: \"ada\" })\n    \
+         resource one = Ops.default.stamps()\n    \
          match one {\n        \
              .loaded(s) {\n            \
                  Text(\"{s.day.plus(days: 3)} · {s.when.date()} · {s.owner.domain()}\")\n            \
@@ -961,7 +961,9 @@ fn a_string_format_is_the_type_the_language_has_for_it() {
         .declarations
         .iter()
         .find_map(|d| match d {
-            webfluent::syntax::parser::Declaration::Api(a) => Some(a),
+            webfluent::syntax::parser::Declaration::Api(a) if a.name.ends_with(".default") => {
+                Some(a)
+            }
             _ => None,
         })
         .expect("the service");
@@ -1115,7 +1117,7 @@ fn the_rest_of_a_specification_s_shapes_import_as_they_read() {
     // declares nothing: it is what it reads as, wherever it is named.
     let node = || TypeRef::Named("Node".into());
     assert_eq!(field(row, "maybe"), TypeRef::Optional(Box::new(node())));
-    assert_eq!(field(row, "pet"), TypeRef::Any);
+    assert_eq!(field(row, "pet"), TypeRef::Named("Json".into()));
     assert_eq!(field(row, "alias"), node());
     assert_eq!(field(row, "envOnly"), TypeRef::Named("Env".into()));
     for name in ["MaybeNode", "Pet", "Alias", "EnvOnly", "Loose", "Short"] {
@@ -1129,16 +1131,16 @@ fn the_rest_of_a_specification_s_shapes_import_as_they_read() {
     }
     // Beside a `type`, a composition only narrows it.
     assert_eq!(field(row, "short"), TypeRef::String);
-    assert_eq!(field(row, "bag"), TypeRef::Map);
+    assert_eq!(field(row, "bag"), TypeRef::Named("Json".into()));
     // 3.0's `nullable: true` counts beside an `allOf` or a `$ref` too.
     assert_eq!(field(row, "near"), TypeRef::Optional(Box::new(node())));
     assert_eq!(field(row, "also"), TypeRef::Optional(Box::new(node())));
 
     // A `null` among an inline enum's cases, and a `oneOf` part that is only
-    // `null`, each say "or nothing".
+    // `null`, each say "or nothing"; an inline enum is named by its place.
     assert_eq!(
         field(row, "grade"),
-        TypeRef::Optional(Box::new(TypeRef::String))
+        TypeRef::Optional(Box::new(TypeRef::Named("RowGrade".into())))
     );
     assert_eq!(
         field(row, "state"),
@@ -1188,7 +1190,7 @@ fn the_rest_of_a_specification_s_shapes_import_as_they_read() {
         .declarations
         .iter()
         .find_map(|d| match d {
-            Declaration::Api(a) => Some(a),
+            Declaration::Api(a) if a.name.ends_with(".default") => Some(a),
             _ => None,
         })
         .expect("the service");

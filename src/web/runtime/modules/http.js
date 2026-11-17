@@ -467,7 +467,8 @@
         const wrapped = error && error.kind ? error : netError("network", String(error && error.message || error));
         // A failure's body, held to the type its status declares.
         if (wrapped.kind === "status" && opts.errorShapes) {
-          const shape = opts.errorShapes[wrapped.status];
+          // `on 4XX`: a class of statuses, keyed by its first digit.
+          const shape = opts.errorShapes[wrapped.status] || opts.errorShapes[Math.floor(wrapped.status / 100)];
           const wrong = shape && shapeProblem(wrapped.body, shape, "$");
           if (wrong) throw netError("parse", "The " + wrapped.status + " body of " + url + " is not the type the program declares: " + wrong, { body: wrapped.body });
         }

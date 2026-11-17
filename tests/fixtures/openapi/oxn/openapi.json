@@ -1,0 +1,327 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "oxn queue API",
+    "version": "1",
+    "description": "Manage oxn job queues: inspect queues and jobs, add jobs, retry, promote, remove, clean, and follow events live. Paths are relative to where the API is mounted. GET routes need read access, every other method admin access; /v1/health needs none."
+  },
+  "components": {
+    "securitySchemes": {
+      "bearer": { "type": "http", "scheme": "bearer", "description": "Only when the API is configured with Auth::Bearer; otherwise access control is up to the host application's middleware." }
+    },
+    "parameters": {
+      "queue": { "name": "queue", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Queue name (no `:` or whitespace)." },
+      "id": { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "description": "Job id." },
+      "offset": { "name": "offset", "in": "query", "schema": { "type": "integer", "minimum": 0, "default": 0 } },
+      "order": { "name": "order", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"], "default": "asc" }, "description": "`asc`: processing order (next to run first) for wait/paused/active, ascending score for the others." }
+    },
+    "responses": {
+      "NoContent": { "description": "Done." },
+      "BadRequest": { "description": "Invalid input.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Unauthorized": { "description": "Missing or invalid credentials.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Forbidden": { "description": "Admin access required, or the API is read-only.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "NotFound": { "description": "No such job, queue or scheduler.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Conflict": { "description": "The job or queue is in the wrong state (e.g. retrying a job that isn't failed, removing a running job).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "TooLarge": { "description": "Body or bulk too large.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } },
+      "Unavailable": { "description": "Redis unreachable.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } } }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object", "additionalProperties": false, "required": ["error"],
+        "properties": {
+          "error": {
+            "type": "object", "additionalProperties": false, "required": ["code", "message"],
+            "properties": {
+              "code": { "type": "string", "description": "Stable machine-readable code: bad_request, unauthorized, forbidden, read_only, not_found, method_not_allowed, job_locked, not_in_expected_state, pending_children, job_exists, lock_lost, active_jobs, conflict, payload_too_large, backend_unavailable, internal." },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      },
+      "JobState": { "type": "string", "enum": ["waiting", "paused", "active", "delayed", "prioritized", "waiting-children", "completed", "failed"] },
+      "StateCounts": {
+        "type": "object", "additionalProperties": false,
+        "required": ["waiting", "paused", "active", "delayed", "prioritized", "waiting_children", "completed", "failed"],
+        "properties": {
+          "waiting": { "type": "integer", "minimum": 0 }, "paused": { "type": "integer", "minimum": 0 },
+          "active": { "type": "integer", "minimum": 0 }, "delayed": { "type": "integer", "minimum": 0 },
+          "prioritized": { "type": "integer", "minimum": 0 }, "waiting_children": { "type": "integer", "minimum": 0 },
+          "completed": { "type": "integer", "minimum": 0 }, "failed": { "type": "integer", "minimum": 0 }
+        }
+      },
+      "Queue": {
+        "type": "object", "additionalProperties": false, "required": ["name", "paused", "counts"],
+        "properties": { "name": { "type": "string" }, "paused": { "type": "boolean" }, "counts": { "$ref": "#/components/schemas/StateCounts" } }
+      },
+      "JobRef": {
+        "type": "object", "additionalProperties": false, "required": ["queue", "id"],
+        "properties": { "queue": { "type": "string" }, "id": { "type": "string" } }
+      },
+      "Job": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "queue", "name", "state", "data", "opts", "progress", "return_value", "failed_reason", "stacktrace", "attempts_made", "attempts_total", "timestamp_ms", "processed_on_ms", "finished_on_ms", "parent", "locked"],
+        "properties": {
+          "id": { "type": "string" }, "queue": { "type": "string" }, "name": { "type": "string" },
+          "state": { "oneOf": [{ "$ref": "#/components/schemas/JobState" }, { "type": "null" }] },
+          "data": { "description": "The payload as JSON (a string if it isn't valid JSON)." },
+          "opts": { "type": "object", "description": "The options the job runs with, as stored." },
+          "progress": { "description": "Last reported progress, or null." },
+          "return_value": { "description": "Return value once completed, or null." },
+          "failed_reason": { "type": ["string", "null"] },
+          "stacktrace": { "type": "array", "items": { "type": "string" } },
+          "attempts_made": { "type": "integer", "minimum": 0 }, "attempts_total": { "type": "integer", "minimum": 0 },
+          "timestamp_ms": { "type": "integer" },
+          "processed_on_ms": { "type": ["integer", "null"] }, "finished_on_ms": { "type": ["integer", "null"] },
+          "parent": { "oneOf": [{ "$ref": "#/components/schemas/JobRef" }, { "type": "null" }] },
+          "locked": { "type": "boolean" }
+        }
+      },
+      "JobSummary": {
+        "type": "object", "additionalProperties": false,
+        "required": ["id", "name", "state", "attempts_made", "attempts_total", "timestamp_ms", "processed_on_ms", "finished_on_ms", "failed_reason", "progress", "parent"],
+        "properties": {
+          "id": { "type": "string" }, "name": { "type": "string" }, "state": { "$ref": "#/components/schemas/JobState" },
+          "attempts_made": { "type": "integer", "minimum": 0 }, "attempts_total": { "type": "integer", "minimum": 0 },
+          "timestamp_ms": { "type": "integer" },
+          "processed_on_ms": { "type": ["integer", "null"] }, "finished_on_ms": { "type": ["integer", "null"] },
+          "failed_reason": { "type": ["string", "null"] }, "progress": {},
+          "parent": { "oneOf": [{ "$ref": "#/components/schemas/JobRef" }, { "type": "null" }] }
+        }
+      },
+      "JobPage": {
+        "type": "object", "additionalProperties": false, "required": ["jobs", "total", "offset", "limit"],
+        "properties": {
+          "jobs": { "type": "array", "items": { "$ref": "#/components/schemas/JobSummary" } },
+          "total": { "type": "integer", "minimum": 0, "description": "Jobs in the state in all, not just this page." },
+          "offset": { "type": "integer", "minimum": 0 }, "limit": { "type": "integer", "minimum": 1 }
+        }
+      },
+      "Logs": {
+        "type": "object", "additionalProperties": false, "required": ["logs", "offset", "limit"],
+        "properties": { "logs": { "type": "array", "items": { "type": "string" } }, "offset": { "type": "integer" }, "limit": { "type": "integer" } }
+      },
+      "FlowNode": {
+        "type": "object", "additionalProperties": false, "required": ["queue", "id", "name", "state", "dependency", "children", "truncated"],
+        "properties": {
+          "queue": { "type": "string" }, "id": { "type": "string" },
+          "name": { "type": ["string", "null"] },
+          "state": { "oneOf": [{ "$ref": "#/components/schemas/JobState" }, { "type": "null" }] },
+          "dependency": { "type": ["string", "null"], "enum": ["pending", "processed", "ignored-failure", null] },
+          "children": { "type": "array", "items": { "$ref": "#/components/schemas/FlowNode" } },
+          "truncated": { "type": "boolean" }
+        }
+      },
+      "Removal": {
+        "description": "`true` removes the job when it finishes, `false` keeps it; or keep the most recent N, or keep for a while.",
+        "oneOf": [
+          { "type": "boolean" },
+          { "type": "object", "additionalProperties": false, "required": ["keep_last"], "properties": { "keep_last": { "type": "integer", "minimum": 0 } } },
+          { "type": "object", "additionalProperties": false, "required": ["keep_for_ms"], "properties": { "keep_for_ms": { "type": "integer", "minimum": 0 } } }
+        ]
+      },
+      "Backoff": {
+        "oneOf": [
+          { "type": "object", "additionalProperties": false, "required": ["type", "delay_ms"], "properties": { "type": { "const": "fixed" }, "delay_ms": { "type": "integer", "minimum": 0 } } },
+          { "type": "object", "additionalProperties": false, "required": ["type", "delay_ms"], "properties": { "type": { "const": "exponential" }, "delay_ms": { "type": "integer", "minimum": 0 }, "max_ms": { "type": ["integer", "null"], "minimum": 0 } } }
+        ]
+      },
+      "JobOptions": {
+        "type": "object", "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "description": "Explicit id: adding an id that exists returns that job." },
+          "delay_ms": { "type": "integer", "minimum": 0 },
+          "priority": { "type": "integer", "minimum": 0, "description": "1 = highest; 0 = none." },
+          "attempts": { "type": "integer", "minimum": 1 },
+          "backoff": { "$ref": "#/components/schemas/Backoff" },
+          "lifo": { "type": "boolean" },
+          "remove_on_complete": { "$ref": "#/components/schemas/Removal" },
+          "remove_on_fail": { "$ref": "#/components/schemas/Removal" },
+          "deduplicate": { "type": "object", "additionalProperties": false, "required": ["id", "ttl_ms"], "properties": { "id": { "type": "string" }, "ttl_ms": { "type": "integer", "minimum": 0 } } }
+        }
+      },
+      "AddJob": {
+        "type": "object", "additionalProperties": false, "required": ["data"],
+        "properties": { "data": { "description": "Any JSON payload." }, "name": { "type": "string" }, "opts": { "$ref": "#/components/schemas/JobOptions" } }
+      },
+      "Repeat": {
+        "oneOf": [
+          { "type": "object", "additionalProperties": false, "required": ["cron"], "properties": { "cron": { "type": "string" } } },
+          { "type": "object", "additionalProperties": false, "required": ["every_ms"], "properties": { "every_ms": { "type": "integer", "minimum": 1 } } }
+        ]
+      },
+      "Scheduler": {
+        "type": "object", "additionalProperties": false, "required": ["id", "repeat", "name", "next_ms", "updated_ms"],
+        "properties": {
+          "id": { "type": "string" }, "repeat": { "$ref": "#/components/schemas/Repeat" }, "name": { "type": "string" },
+          "next_ms": { "type": "integer", "description": "Fire time of the latest tick enqueued." },
+          "updated_ms": { "type": "integer" }
+        }
+      },
+      "Count": { "type": "object", "additionalProperties": false, "required": ["count"], "properties": { "count": { "type": "integer", "minimum": 0 } } }
+    }
+  },
+  "security": [{}, { "bearer": [] }],
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "summary": "Whether Redis is reachable. Needs no credentials.",
+        "security": [],
+        "responses": {
+          "200": { "description": "Healthy.", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["status"], "properties": { "status": { "const": "ok" } } } } } },
+          "503": { "description": "Redis unreachable.", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["status", "error"], "properties": { "status": { "const": "unavailable" }, "error": { "type": "string" } } } } } }
+        }
+      }
+    },
+    "/v1/openapi.json": {
+      "get": { "summary": "This document.", "responses": { "200": { "description": "OpenAPI 3.1.", "content": { "application/json": { "schema": { "type": "object" } } } } } }
+    },
+    "/v1/whoami": {
+      "get": {
+        "summary": "What the caller may do: `admin` (everything) or `read` (GET routes only). A UI uses it to offer only the actions that will work.",
+        "responses": {
+          "200": { "description": "The caller's access.", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["access", "read_only", "auth"], "properties": { "access": { "enum": ["read", "admin"] }, "read_only": { "type": "boolean" }, "auth": { "enum": ["none", "bearer", "custom"] } } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/v1/queues": {
+      "get": {
+        "summary": "Every queue, with its counts and pause flag.",
+        "responses": {
+          "200": { "description": "Queues by name.", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Queue" } } } } },
+          "401": { "$ref": "#/components/responses/Unauthorized" }
+        }
+      }
+    },
+    "/v1/queues/{queue}": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "get": {
+        "summary": "One queue.",
+        "responses": {
+          "200": { "description": "The queue.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Queue" } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" }
+        }
+      },
+      "delete": {
+        "summary": "Obliterate the queue: every job and key it owns. Refused while jobs are active unless `force`.",
+        "parameters": [{ "name": "force", "in": "query", "schema": { "type": "boolean", "default": false } }],
+        "responses": {
+          "204": { "$ref": "#/components/responses/NoContent" },
+          "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "409": { "$ref": "#/components/responses/Conflict" }
+        }
+      }
+    },
+    "/v1/queues/{queue}/counts": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "get": { "summary": "Jobs per state.", "responses": { "200": { "description": "Counts.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/StateCounts" } } } }, "401": { "$ref": "#/components/responses/Unauthorized" } } }
+    },
+    "/v1/queues/{queue}/pause": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "post": { "summary": "Pause: workers take no new jobs; running ones finish.", "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/v1/queues/{queue}/resume": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "post": { "summary": "Resume a paused queue.", "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/v1/queues/{queue}/drain": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "post": {
+        "summary": "Delete every pending job (not active ones).",
+        "requestBody": { "required": false, "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "properties": { "include_delayed": { "type": "boolean", "default": false } } } } } },
+        "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/v1/queues/{queue}/clean": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "post": {
+        "summary": "Delete the oldest jobs in a state (completed, failed, delayed, prioritized, waiting-children).",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["state"], "properties": { "state": { "$ref": "#/components/schemas/JobState" }, "limit": { "type": "integer", "minimum": 0, "default": 0, "description": "0 = all." } } } } } },
+        "responses": { "200": { "description": "Jobs deleted.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } }
+      }
+    },
+    "/v1/queues/{queue}/promote-all": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "post": { "summary": "Run every delayed job now.", "responses": { "200": { "description": "Jobs promoted.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Count" } } } }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" } } }
+    },
+    "/v1/queues/{queue}/jobs": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "get": {
+        "summary": "A page of jobs in one state.",
+        "parameters": [
+          { "name": "state", "in": "query", "schema": { "$ref": "#/components/schemas/JobState" } },
+          { "$ref": "#/components/parameters/offset" },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 50 }, "description": "At most the API's max_page (500 by default)." },
+          { "$ref": "#/components/parameters/order" }
+        ],
+        "responses": { "200": { "description": "The page.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/JobPage" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" } }
+      },
+      "post": {
+        "summary": "Add a job. Options not given take the built-in defaults.",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "$ref": "#/components/schemas/AddJob" } } } },
+        "responses": {
+          "201": { "description": "Added (or, for an existing explicit id or a live dedup id, the existing job).", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["id"], "properties": { "id": { "type": "string" } } } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "413": { "$ref": "#/components/responses/TooLarge" }
+        }
+      }
+    },
+    "/v1/queues/{queue}/jobs/bulk": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "post": {
+        "summary": "Add many jobs (one script call per 1,000). Every job is validated before any is added.",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["jobs"], "properties": { "jobs": { "type": "array", "minItems": 1, "items": { "$ref": "#/components/schemas/AddJob" } } } } } } },
+        "responses": {
+          "201": { "description": "Ids in submission order.", "content": { "application/json": { "schema": { "type": "object", "additionalProperties": false, "required": ["ids"], "properties": { "ids": { "type": "array", "items": { "type": "string" } } } } } } },
+          "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "413": { "$ref": "#/components/responses/TooLarge" }
+        }
+      }
+    },
+    "/v1/queues/{queue}/jobs/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }, { "$ref": "#/components/parameters/id" }],
+      "get": { "summary": "One job, in full.", "responses": { "200": { "description": "The job.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Job" } } } }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" } } },
+      "delete": { "summary": "Remove the job and its flow tree. Refused while a worker runs it (or any job in its tree).", "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "404": { "$ref": "#/components/responses/NotFound" }, "409": { "$ref": "#/components/responses/Conflict" } } }
+    },
+    "/v1/queues/{queue}/jobs/{id}/logs": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }, { "$ref": "#/components/parameters/id" }],
+      "get": {
+        "summary": "The job's log lines.",
+        "parameters": [{ "$ref": "#/components/parameters/offset" }, { "name": "limit", "in": "query", "schema": { "type": "integer", "minimum": 1, "default": 100 } }, { "$ref": "#/components/parameters/order" }],
+        "responses": { "200": { "description": "Lines.", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Logs" } } } }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/v1/queues/{queue}/jobs/{id}/flow": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }, { "$ref": "#/components/parameters/id" }],
+      "get": {
+        "summary": "The job's flow tree: its children (pending, processed, ignored failures), recursively.",
+        "parameters": [{ "name": "depth", "in": "query", "schema": { "type": "integer", "minimum": 1, "maximum": 10, "default": 3 } }],
+        "responses": { "200": { "description": "The tree (at most 1,000 nodes).", "content": { "application/json": { "schema": { "$ref": "#/components/schemas/FlowNode" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "404": { "$ref": "#/components/responses/NotFound" } }
+      }
+    },
+    "/v1/queues/{queue}/jobs/{id}/retry": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }, { "$ref": "#/components/parameters/id" }],
+      "post": { "summary": "Retry a failed job (a fresh set of attempts).", "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "404": { "$ref": "#/components/responses/NotFound" }, "409": { "$ref": "#/components/responses/Conflict" } } }
+    },
+    "/v1/queues/{queue}/jobs/{id}/promote": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }, { "$ref": "#/components/parameters/id" }],
+      "post": { "summary": "Run a delayed job now.", "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "404": { "$ref": "#/components/responses/NotFound" }, "409": { "$ref": "#/components/responses/Conflict" } } }
+    },
+    "/v1/queues/{queue}/schedulers": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "get": { "summary": "The queue's job schedulers.", "responses": { "200": { "description": "Schedulers by id.", "content": { "application/json": { "schema": { "type": "array", "items": { "$ref": "#/components/schemas/Scheduler" } } } } }, "401": { "$ref": "#/components/responses/Unauthorized" } } }
+    },
+    "/v1/queues/{queue}/schedulers/{id}": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }, { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }],
+      "delete": { "summary": "Remove a scheduler and its pending ticks; every running instance of it stops.", "responses": { "204": { "$ref": "#/components/responses/NoContent" }, "401": { "$ref": "#/components/responses/Unauthorized" }, "403": { "$ref": "#/components/responses/Forbidden" }, "404": { "$ref": "#/components/responses/NotFound" } } }
+    },
+    "/v1/queues/{queue}/events": {
+      "parameters": [{ "$ref": "#/components/parameters/queue" }],
+      "get": {
+        "summary": "Live events as server-sent events. Each message: `id` (stream entry id; resume with Last-Event-ID), `event` (completed, failed, added, …) and `data` (the event as JSON, with `event_id` and `at_ms`). A comment is sent every 15s while idle.",
+        "parameters": [
+          { "name": "from", "in": "query", "schema": { "type": "string", "default": "now" }, "description": "`now`, `beginning`, or an event id to resume after." },
+          { "name": "Last-Event-ID", "in": "header", "schema": { "type": "string" }, "description": "Resume after this event (takes precedence over `from`)." }
+        ],
+        "responses": { "200": { "description": "The event stream.", "content": { "text/event-stream": { "schema": { "type": "string" } } } }, "400": { "$ref": "#/components/responses/BadRequest" }, "401": { "$ref": "#/components/responses/Unauthorized" } }
+      }
+    }
+  }
+}

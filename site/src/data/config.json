@@ -1,5 +1,5 @@
 {
- "count": 86,
+ "count": 87,
  "sections": [
   "project",
   "theme",
@@ -9,6 +9,7 @@
   "motion",
   "env",
   "public_env",
+  "apis",
   "offline",
   "i18n",
   "lints"
@@ -629,6 +630,14 @@
    "type": "strings",
    "default": "[]",
    "summary": "The `env` names a page may read and so ships to the browser, beyond those beginning `PUBLIC_`."
+  },
+  {
+   "path": "apis",
+   "slug": "apis",
+   "section": "apis",
+   "type": "map",
+   "default": "null",
+   "summary": "Each service `wf api sync` writes from an OpenAPI spec: `{ \"spec\": \"openapi.json\", \"out\": \"src/api/backend\", \"skip\": [] }`."
   },
   {
    "path": "offline.precache",

@@ -274,3 +274,48 @@ fn a_fix_that_edits_another_file_edits_that_file() {
     assert!(v09.data.is_some(), "a fix in this file is offered");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// `api Shop from "petstore.yaml"`: the editor reads the spec as the build
+/// does, so a call of one of its endpoints is known — and a misspelt one is
+/// the build's `T06`, not a false one.
+#[test]
+fn a_service_read_from_a_spec_is_known_in_the_editor() {
+    let dir = std::env::temp_dir().join(format!("wf-lsp-overlay-spec-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "shop" }"#).unwrap();
+    std::fs::write(
+        dir.join("petstore.yaml"),
+        "openapi: 3.0.3\ninfo: { title: Shop, version: '1' }\npaths:\n  /pets:\n    get:\n      operationId: listPets\n      tags: [pets]\n      responses:\n        '200':\n          description: pets\n          content:\n            application/json:\n              schema:\n                type: array\n                items: { $ref: '#/components/schemas/Pet' }\ncomponents:\n  schemas:\n    Pet:\n      type: object\n      required: [id, name]\n      properties:\n        id: { type: integer }\n        name: { type: string }\n",
+    )
+    .unwrap();
+    let page = |call: &str| {
+        format!(
+            "api Shop from \"petstore.yaml\" (base: \"/v1\")\n\npage Pets(path: \"/\", title: \"Pets\", description: \"Pets.\") {{\n    resource pets = Shop.pets.{call}()\n    Heading(\"Pets\").h1\n    match pets {{\n        .loaded(list) {{ for p in list by p.id {{ Text(p.name) }} }}\n        else {{ Spinner }}\n    }}\n}}\n"
+        )
+    };
+    let file = dir.join("src/pages/Pets.wf");
+    std::fs::write(&file, page("listPets")).unwrap();
+    let uri = Url::from_file_path(&file).unwrap();
+
+    let clean = Project::load_with(&uri, &FsVfs, &FileCache::default());
+    let ix = clean.file_index(&uri).unwrap();
+    assert!(errors(&clean, ix).is_empty(), "{:?}", errors(&clean, ix));
+
+    let mut vfs = OverlayVfs::over_disk();
+    vfs.set(&file, page("listPet"));
+    let project = Project::load_with(&uri, &vfs, &FileCache::default());
+    let ix = project.file_index(&uri).unwrap();
+    let found = errors(&project, ix);
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert_eq!(
+        found[0].code,
+        Some(NumberOrString::String("T06".to_string()))
+    );
+    assert!(
+        found[0].message.contains("listPets"),
+        "{}",
+        found[0].message
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -1,0 +1,15 @@
+{
+  "diagnostics": [],
+  "files": {
+    "app.js": "e52a42080440eb5b4bc9d800129de14d0dc13fa24d64ec049860b9c67d3f0b29",
+    "app.js.gz": "0ec0b8f26afda5cdd455c3babbd447c74603ef751ccad049706e979f1f91aa3a",
+    "index.html": "30695fa4fabc97bb123f6f5a4f710a5d23e3068a2c57a2a3b865666c9bbdf332",
+    "pages/Pet.js": "54b971c520e70ea7a584563c8f90fc59b3a3cd53021fcbbc9963ee166afa5948",
+    "pages/Pet.js.gz": "277038ec1dbef1c8f6a662424618b593f8f8d1dfcdeb9980502842b191f47ee7",
+    "pages/Pets.js": "153b7312ff43bac67b6cbb9690d435c5f5c131af63d890e99e059502d468e4eb",
+    "pages/Pets.js.gz": "335d57c760fad3c30348bb95710a319ecc7df8eff31fe77d3c7c3e97eba6849b",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "6e0bb0db16ec123f58d12ffc5eb05546c34b1ea81f277b18dcd0dfc88d30c0f6",
+    "styles.css.gz": "30856c63f3a669f0409175499707e52c8a4b349b1af65b65b90257fd184c8a56"
+  }
+}

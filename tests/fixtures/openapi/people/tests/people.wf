@@ -1,0 +1,48 @@
+// The view and the data layer, against a fake the compiler holds to the
+// generated `Backend.people`.
+
+fake OneEngineer for Backend.people {
+    listPeople(q, after) {
+        .ok(PersonPage(items: [
+            Person(id: "0b6c4c1e-7d3a-4f0e-9a51-2f1f6c0e9d11", name: "Ada", email: "ada@example.com", role: .engineer, joinedAt: @2026-01-05T09:00Z),
+        ], nextCursor: null))
+    }
+    createPerson(body) {
+        if body.email.endsWith("@example.com") {
+            .ok(Person(id: uuid(), name: body.name, email: "new@example.com", role: body.role, joinedAt: @2026-11-15T10:00Z))
+        } else {
+            .err(.unprocessableContent(ValidationProblem(title: "Invalid", status: 422, errors: [FieldError(field: "email", message: "Use your work address")])))
+        }
+    }
+    deletePerson(id) { .err(.http(.status(500, null))) }
+}
+
+test "lists the team"(fakes: [OneEngineer]) {
+    People
+    expect "Ada"
+}
+
+test "shows the server's field error"(fakes: [OneEngineer]) {
+    People
+    type "Grace" into "Name"
+    type "grace@elsewhere.org" into "Email"
+    click "Add"
+    expect "Use your work address"
+    expect called Backend.people.createPerson
+}
+
+test "puts a person back when removing fails"(fakes: [OneEngineer]) {
+    People
+    click "Remove Ada"
+    expect "Ada is still here"
+    expect "Ada"
+}
+
+// What the spec gives as an example of each success, as the answer.
+fake Examples for Backend.people from examples
+
+test "lists the team from the spec's own example"(fakes: [Examples]) {
+    People
+    expect "Ada"
+    expect "ada@example.com"
+}

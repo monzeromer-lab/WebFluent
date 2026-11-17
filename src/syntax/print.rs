@@ -1576,9 +1576,11 @@ pub fn store_header(s: &StoreDecl) -> String {
 
 /// One field of a record or a case's payload: `title: String = ""`.
 pub fn field(f: &FieldDecl) -> String {
+    // A name a program cannot write — `first-name` — is quoted.
+    let name = if is_name(&f.name) { f.name.clone() } else { string(&f.name) };
     match &f.default {
-        Some(d) => format!("{}: {} = {}", f.name, type_ref(&f.ty), expr(d)),
-        None => format!("{}: {}", f.name, type_ref(&f.ty)),
+        Some(d) => format!("{name}: {} = {}", type_ref(&f.ty), expr(d)),
+        None => format!("{name}: {}", type_ref(&f.ty)),
     }
 }
 
@@ -1621,8 +1623,14 @@ pub fn endpoint(e: &Endpoint) -> String {
                     Some(crate::syntax::parser::ast::ParamLocation::Header(h)) => {
                         written.push_str(&format!(" in header {}", string(h)));
                     }
-                    Some(crate::syntax::parser::ast::ParamLocation::Cookie) => {
+                    Some(crate::syntax::parser::ast::ParamLocation::Cookie(None)) => {
                         written.push_str(" in cookie");
+                    }
+                    Some(crate::syntax::parser::ast::ParamLocation::Cookie(Some(c))) => {
+                        written.push_str(&format!(" in cookie {}", string(c)));
+                    }
+                    Some(crate::syntax::parser::ast::ParamLocation::Query(q)) => {
+                        written.push_str(&format!(" in query {}", string(q)));
                     }
                     None => {}
                 }
@@ -1708,7 +1716,10 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                 .cases
                 .iter()
                 .map(|c| {
-                    let status = c.status.map(|s| format!(" on {s}")).unwrap_or_default();
+                    let status = c
+                        .status
+                        .map(|s| if s < 10 { format!(" on {s}XX") } else { format!(" on {s}") })
+                        .unwrap_or_default();
                     if c.fields.is_empty() {
                         format!("{}{status}", c.name)
                     } else {
@@ -1820,11 +1831,12 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                 })
                 .collect();
             format!(
-                "{}fake {} for {}{}",
+                "{}fake {} for {}{}{}",
                 doc(f.doc.as_deref(), 0),
                 f.name,
                 f.target,
-                lines_block(lines, 0)
+                if f.from_examples { " from examples" } else { "" },
+                if f.from_examples && lines.is_empty() { String::new() } else { lines_block(lines, 0) }
             )
         }
         Declaration::Api(a) => {
@@ -1856,6 +1868,39 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
             }
             for e in &a.endpoints {
                 lines.push(documented(e.doc.as_deref(), &endpoint(e), 1));
+            }
+            if !a.invalidations.is_empty() {
+                let rows: Vec<String> = a
+                    .invalidations
+                    .iter()
+                    .map(|i| {
+                        let named = |name: &str, args: &[String]| {
+                            if args.is_empty() {
+                                name.to_string()
+                            } else {
+                                format!("{name}({})", args.join(", "))
+                            }
+                        };
+                        format!(
+                            "{} invalidates [{}]",
+                            named(&i.endpoint, &i.params),
+                            i.targets
+                                .iter()
+                                .map(|t| named(&t.name, &t.args))
+                                .collect::<Vec<_>>()
+                                .join(", ")
+                        )
+                    })
+                    .collect();
+                lines.push(format!("invalidations{}", lines_block(rows, 1)));
+            }
+            if !a.pagination.is_empty() {
+                let rows: Vec<String> = a
+                    .pagination
+                    .iter()
+                    .map(|(e, how, _)| format!("{e} pages {}", expr(how)))
+                    .collect();
+                lines.push(format!("pagination{}", lines_block(rows, 1)));
             }
             let body = if lines.is_empty() && a.from.is_some() {
                 String::new()

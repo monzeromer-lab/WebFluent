@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, FakeDecl, FakeAnswer, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, FakeDecl, FakeAnswer, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Invalidation, InvalidTarget, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -1182,7 +1182,13 @@ impl ParserV2 {
         while !self.check(close) && !self.at_end() {
             let field_doc = self.take_docs();
             let field_mark = self.mark();
-            let field_name = self.expect_ident("a field name")?;
+            // `"first-name": String`: a field whose name in the JSON is not
+            // one a program can write.
+            let field_name = if matches!(self.kind(), TokenType::StringLiteral(_)) {
+                self.expect_string("a field name")?
+            } else {
+                self.expect_ident("a field name")?
+            };
             self.expect(&TokenType::Colon, "`:` after the field name")?;
             let ty = self.parse_type_ref()?;
             let default = if self.eat(&TokenType::Equals) {
@@ -1450,10 +1456,19 @@ impl ParserV2 {
             target.push('.');
             target.push_str(&self.expect_ident("the group, `Backend.users`")?);
         }
+        // `from examples`: what it does not answer, the spec's examples do.
+        let from_examples = self.is_word("from") && matches!(self.kind_at(1), TokenType::Identifier(w) if w == "examples");
+        if from_examples {
+            self.advance();
+            self.advance();
+        }
         let header_span = self.span_since(mark);
-        self.expect(&TokenType::OpenBrace, "`{`")?;
         let mut answers = Vec::new();
-        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+        let braced = !from_examples || self.check(&TokenType::OpenBrace);
+        if braced {
+            self.expect(&TokenType::OpenBrace, "`{`")?;
+        }
+        while braced && !self.check(&TokenType::CloseBrace) && !self.at_end() {
             self.take_docs();
             if self.check(&TokenType::CloseBrace) {
                 break;
@@ -1480,11 +1495,14 @@ impl ParserV2 {
                 span: self.span_since(answer_mark),
             });
         }
-        self.expect(&TokenType::CloseBrace, "`}`")?;
+        if braced {
+            self.expect(&TokenType::CloseBrace, "`}`")?;
+        }
         Ok(Declaration::Fake(FakeDecl {
             name,
             target,
             answers,
+            from_examples,
             doc,
             span: self.span_since(mark),
             header_span,
@@ -1541,8 +1559,19 @@ impl ParserV2 {
             if cases.iter().any(|c| c.name == case_name) {
                 return Err(self.error(format!("`enum {name}` has `{case_name}` twice")));
             }
-            // `on 422`: the status a case of an error enum stands for.
+            // `on 422`: the status a case of an error enum stands for; `on
+            // 4XX` and `on 5XX` every status of a class no other case names.
             let status = if self.is_word("on")
+                && let TokenType::NumberLiteral(n) = self.kind_at(1).clone()
+                && matches!(n.to_bits(), b if b == 4.0f64.to_bits() || b == 5.0f64.to_bits())
+                && matches!(self.kind_at(2), TokenType::Identifier(x) if x.eq_ignore_ascii_case("xx"))
+            {
+                self.advance();
+                self.advance();
+                self.advance();
+                #[expect(clippy::cast_possible_truncation, clippy::cast_sign_loss, reason = "4 or 5")]
+                Some(n as u16)
+            } else if self.is_word("on")
                 && let TokenType::NumberLiteral(n) = self.kind_at(1).clone()
             {
                 self.advance();
@@ -2535,6 +2564,8 @@ impl ParserV2 {
         let mut headers = Vec::new();
         let mut hooks = Vec::new();
         let mut endpoints = Vec::new();
+        let mut invalidations = Vec::new();
+        let mut pagination = Vec::new();
         if self.eat(&TokenType::OpenBrace) {
             while !self.check(&TokenType::CloseBrace) && !self.at_end() {
                 let doc = self.take_docs();
@@ -2554,6 +2585,34 @@ impl ParserV2 {
                     }
                     // `on request(r) { … }`, `on response(r)`, `on error(e)`.
                     "on" => hooks.push(self.parse_handler()?),
+                    // `invalidations { users.create invalidates [users.list] }`.
+                    "invalidations" if matches!(self.kind_at(1), TokenType::OpenBrace) => {
+                        self.advance();
+                        self.advance();
+                        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                            invalidations.push(self.parse_invalidation()?);
+                        }
+                        self.expect(&TokenType::CloseBrace, "`}` to close `invalidations`")?;
+                    }
+                    // `pagination { users.list pages .cursor(param: after, …) }`.
+                    "pagination" if matches!(self.kind_at(1), TokenType::OpenBrace) => {
+                        self.advance();
+                        self.advance();
+                        while !self.check(&TokenType::CloseBrace) && !self.at_end() {
+                            let mark = self.mark();
+                            let endpoint = self.group_endpoint()?;
+                            if !self.is_word("pages") {
+                                return Err(self.error_with_hint(
+                                    format!("Expected `pages` after `{endpoint}`, got {}", self.describe()),
+                                    "A read's paging is `users.list pages .cursor(param: after, next: p => p.next)`",
+                                ));
+                            }
+                            self.advance();
+                            let how = self.parse_expression()?;
+                            pagination.push((endpoint, how, self.span_since(mark)));
+                        }
+                        self.expect(&TokenType::CloseBrace, "`}` to close `pagination`")?;
+                    }
                     // `middleware [bearer(Session.token), requestId]`: what
                     // every request passes through, in the order written.
                     "middleware" if matches!(self.kind_at(1), TokenType::OpenBracket) => {
@@ -2590,7 +2649,61 @@ impl ParserV2 {
             doc,
             span: self.span_since(mark),
             from,
+            invalidations,
+            pagination,
         }))
+    }
+
+    /// `users.list`: an endpoint of one of the service's groups.
+    fn group_endpoint(&mut self) -> Result<String> {
+        let group = self.expect_ident("a group, `users.list`")?;
+        self.expect(&TokenType::Dot, "`.` between the group and its endpoint")?;
+        let endpoint = self.expect_ident("the endpoint's name")?;
+        Ok(format!("{group}.{endpoint}"))
+    }
+
+    /// `users.remove(id) invalidates [users.list, users.byId(id)]`.
+    fn parse_invalidation(&mut self) -> Result<Invalidation> {
+        let mark = self.mark();
+        let endpoint = self.group_endpoint()?;
+        let names = |p: &mut Self| -> Result<Vec<String>> {
+            let mut out = Vec::new();
+            if p.eat(&TokenType::OpenParen) {
+                while !p.check(&TokenType::CloseParen) && !p.at_end() {
+                    out.push(p.expect_ident("a parameter of the write")?);
+                    if !p.check(&TokenType::CloseParen) {
+                        p.expect(&TokenType::Comma, "`,`")?;
+                    }
+                }
+                p.expect(&TokenType::CloseParen, "`)`")?;
+            }
+            Ok(out)
+        };
+        let params = names(self)?;
+        if !self.is_word("invalidates") {
+            return Err(self.error_with_hint(
+                format!("Expected `invalidates` after `{endpoint}`, got {}", self.describe()),
+                "What a write makes stale is `users.create invalidates [users.list]`",
+            ));
+        }
+        self.advance();
+        self.expect(&TokenType::OpenBracket, "`[` after `invalidates`")?;
+        let mut targets = Vec::new();
+        while !self.check(&TokenType::CloseBracket) && !self.at_end() {
+            let name = self.group_endpoint()?;
+            let args = names(self)?;
+            targets.push(InvalidTarget { name, args });
+            if !self.check(&TokenType::CloseBracket) {
+                self.expect(&TokenType::Comma, "`,`")?;
+            }
+        }
+        self.expect(&TokenType::CloseBracket, "`]`")?;
+        Ok(Invalidation {
+            endpoint,
+            params,
+            targets,
+            span: self.span_since(mark),
+        })
     }
 
     /// `middleware refreshOn401(req, next) { … }`.
@@ -2652,11 +2765,21 @@ impl ParserV2 {
                         locations.push((param.name.clone(), ParamLocation::Header(header)));
                     } else if self.is_word("cookie") {
                         self.advance();
-                        locations.push((param.name.clone(), ParamLocation::Cookie));
+                        // `in cookie "session_id"`: the cookie's own name.
+                        let named = if matches!(self.kind(), TokenType::StringLiteral(_)) {
+                            Some(self.expect_string("the cookie's name")?)
+                        } else {
+                            None
+                        };
+                        locations.push((param.name.clone(), ParamLocation::Cookie(named)));
+                    } else if self.is_word("query") {
+                        self.advance();
+                        let named = self.expect_string("the query parameter's name")?;
+                        locations.push((param.name.clone(), ParamLocation::Query(named)));
                     } else {
                         return Err(self.error_with_hint(
-                            format!("Expected `header \"…\"` or `cookie` after `in`, got {}", self.describe()),
-                            "A parameter goes `in header \"X-Tenant\"` or `in cookie`; one the path names goes in the path, `body` in the body, any other in the query",
+                            format!("Expected `header \"…\"`, `cookie` or `query \"…\"` after `in`, got {}", self.describe()),
+                            "A parameter goes `in header \"X-Tenant\"`, `in cookie` or `in query \"user-id\"`; one the path names goes in the path, `body` in the body, any other in the query under its own name",
                         ));
                     }
                 }

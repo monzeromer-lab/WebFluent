@@ -76,6 +76,24 @@ pub struct ProjectConfig {
     /// cannot ship a broken page (`diagnostics::codes::lowerable`).
     #[serde(default)]
     pub lints: std::collections::BTreeMap<String, String>,
+    /// `"apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend" } }`:
+    /// each service `wf api sync` writes from a specification, and where.
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub apis: std::collections::BTreeMap<String, ApiSource>,
+}
+
+/// One service `wf api` keeps: the spec it is read from, the folder its
+/// files are in, and the operations it leaves out.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Eq)]
+pub struct ApiSource {
+    /// The specification, a path in the project: JSON or YAML.
+    pub spec: String,
+    /// The folder `service.wf` and `generated/` are in.
+    pub out: String,
+    /// Operations left out of the contract, by name or `METHOD /path`: what
+    /// the language cannot call, skipped on purpose.
+    #[serde(default)]
+    pub skip: Vec<String>,
 }
 
 /// `"offline": { … }` — the site working without the network.
@@ -1418,6 +1436,7 @@ impl ProjectConfig {
             env: std::collections::BTreeMap::default(),
             offline: None,
             lints: std::collections::BTreeMap::new(),
+            apis: std::collections::BTreeMap::new(),
         }
     }
 }

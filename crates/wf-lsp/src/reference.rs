@@ -335,7 +335,7 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     KeywordDoc {
         name: "fake",
         summary: "What answers a service's endpoints in a test, in place of the network, held to the group's contract (`N06`): each endpoint it answers, the parameters it reads by name, and the result each gives. A test names it with `fakes: [ … ]`; `wf verify --fakes FILE` builds a site with them.",
-        example: "fake OneUser for Backend.users {\n    list(page) { .ok([User(id: \"1\", name: \"Ada\")]) }\n}",
+        example: "fake OneUser for Backend.users {\n    list(page) { .ok([User(id: \"1\", name: \"Ada\")]) }\n}\n\n// Every endpoint it does not answer itself, from the spec's examples.\nfake Examples for Backend.users from examples",
         place: Place::TopLevel,
     },
     KeywordDoc {
@@ -943,6 +943,16 @@ pub const API_SETTINGS: &[(&str, &str, &str)] = &[
         "middleware",
         "middleware [${1:bearer(Session.token)}]",
         "What every request passes through, in order: `refreshOn401(action)`, `bearer(token)`, `header(name, value)`, `requestId`, `log`, or a `middleware` of the project's.",
+    ),
+    (
+        "invalidations",
+        "invalidations {\n\t${1:users.create} invalidates [${2:users.list}]\n}",
+        "What a write of a group makes stale, said beside a contract written elsewhere (`wf api sync`'s): each a `group.endpoint`, its targets reads of the same group, asked with the write's own parameters — `users.remove(id) invalidates [users.list, users.byId(id)]`.",
+    ),
+    (
+        "pagination",
+        "pagination {\n\t${1:users.list} pages .${2:cursor}(param: ${3:after}, next: p => p.${4:nextCursor})\n}",
+        "How a read of a group pages, said beside a contract written elsewhere: `users.list pages .cursor(param: after, next: p => p.next, items: p => p.items)`, `.number(param: page)` or `.link`.",
     ),
 ];
 

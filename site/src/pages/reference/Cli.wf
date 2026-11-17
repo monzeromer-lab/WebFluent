@@ -7,6 +7,7 @@ const CLI_INDEX: [IndexEntry] = [
     IndexEntry(label: "wf build", to: "/reference/cli/build", group: "Commands"),
     IndexEntry(label: "wf check", to: "/reference/cli/check", group: "Commands"),
     IndexEntry(label: "wf config", to: "/reference/cli/config", group: "Commands"),
+    IndexEntry(label: "wf api", to: "/reference/cli/api", group: "Commands"),
     IndexEntry(label: "wf motion", to: "/reference/cli/motion", group: "Commands"),
     IndexEntry(label: "wf context", to: "/reference/cli/context", group: "Commands"),
     IndexEntry(label: "wf translations", to: "/reference/cli/translations", group: "Commands"),
@@ -32,7 +33,7 @@ const CLI_INDEX: [IndexEntry] = [
 ]
 
 page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", description: "Every wf command and its options, from init, build and serve to render, migrate and verify, and the language server in each editor.") {
-    ReferenceItemShell(t("cli.title"), summary: t("cli.lede", { count: 26 }), signature: "wf <command> [options]", group: t("cli.title"), entries: REFERENCE_PAGES.concat(CLI_INDEX), sections: [Anchor(id: "commands", label: t("cli.commands")), Anchor(id: "command-summary", label: "Command summary"), Anchor(id: "conventions", label: "Conventions"), Anchor(id: "scaffolding-and-building", label: "Scaffolding and building"), Anchor(id: "checking-and-testing", label: "Checking and testing"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing-the-project", label: "Describing the project"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors"), Anchor(id: "building-a-tool-on-the-compiler", label: "Building a tool on the compiler")], source: "md-docs/reference/cli.md") {
+    ReferenceItemShell(t("cli.title"), summary: t("cli.lede", { count: 27 }), signature: "wf <command> [options]", group: t("cli.title"), entries: REFERENCE_PAGES.concat(CLI_INDEX), sections: [Anchor(id: "commands", label: t("cli.commands")), Anchor(id: "command-summary", label: "Command summary"), Anchor(id: "conventions", label: "Conventions"), Anchor(id: "scaffolding-and-building", label: "Scaffolding and building"), Anchor(id: "checking-and-testing", label: "Checking and testing"), Anchor(id: "formatting", label: "Formatting"), Anchor(id: "rendering", label: "Rendering"), Anchor(id: "upgrading", label: "Upgrading"), Anchor(id: "describing-the-project", label: "Describing the project"), Anchor(id: "environment-variables", label: "Environment variables"), Anchor(id: "editors", label: "Editors"), Anchor(id: "building-a-tool-on-the-compiler", label: "Building a tool on the compiler")], source: "md-docs/reference/cli.md") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter is the reference for `wf`, the one binary that creates, builds, serves, checks, formats, tests, renders and describes a WebFluent project, and for `wf-lsp`, the language server that brings the same checks into your editor. Look up a command here when you need its exact flags, defaults and behaviour.\n\n`wf --help` lists the commands, `wf <command> --help` lists one command's flags, and `wf --version` prints the version (`wf X.Y.Z`).")
@@ -80,6 +81,10 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                         Table.Row {
                             Table.Cell { Markdown("`wf config schema [--json]`, `wf config get|set|unset PATH [VALUE] [-d, --dir DIR]`") }
                             Table.Cell { Markdown("Lists every setting, and edits `webfluent.app.json` without changing its shape") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`wf api add|sync|check|eject|list`") }
+                            Table.Cell("Writes a service's contract as files from its OpenAPI spec, and keeps them current")
                         }
                         Table.Row {
                             Table.Cell { Markdown("`wf explain [CODE] [--json]`") }
@@ -538,6 +543,83 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
             ])
 
                 Markdown("`set` checks the value against the setting's type before it writes anything. `set` and `unset` keep the rest of the file as it was written. Under a map, the rest of the path is one key: `build.budget.app.js` sets the `app.js` entry of `build.budget`.\n\nSee also: [Configuration](/reference/config).")
+
+                Heading("wf api", id: "wf-api").h3
+
+                Markdown("Writes a service's contract as files from its OpenAPI spec (3.0 or 3.1, JSON or YAML), and keeps them current.\n\n**Usage:** `wf api add SPEC [--name NAME] [--out DIR]`, `wf api sync [NAME] [--skip OP]`, `wf api check [NAME]`, `wf api eject NAME [--out DIR]`, `wf api list [--json]`")
+
+                Table(caption: "wf api") {
+                    Table.Head {
+                        Table.Row {
+                            Table.Cell("Subcommand or option").header
+                            Table.Cell("Value").header
+                            Table.Cell("Meaning").header
+                        }
+                    }
+                    Table.Body {
+                        Table.Row {
+                            Table.Cell { Markdown("`add SPEC`") }
+                            Table.Cell("a file in the project")
+                            Table.Cell { Markdown("Records the service in `apis`, writes its `service.wf` once, marks its `generated/` folder in `.gitattributes`, and syncs it.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`--name`") }
+                            Table.Cell { Markdown("a name with a capital (default `Backend`)") }
+                            Table.Cell("What the program calls the service.")
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`--out`") }
+                            Table.Cell { Markdown("a folder (default `src/api/<name>`)") }
+                            Table.Cell { Markdown("Where `service.wf` and `generated/` go.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`sync [NAME]`") }
+                            Table.Cell("a service (default: every one)")
+                            Table.Cell { Markdown("Rewrites `generated/` from the spec: every file it should hold, and none it should not.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`--skip`") }
+                            Table.Cell { Markdown("an operation's name or `METHOD /path`") }
+                            Table.Cell { Markdown("Leaves an operation out, and records it in the config so the next sync and `check` leave it out too.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`check [NAME]`") }
+                            Table.Cell("a service (default: every one)")
+                            Table.Cell { Markdown("Exits `1` when `sync` would change anything: for CI.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`eject NAME`") }
+                            Table.Cell("a service")
+                            Table.Cell { Markdown("Turns `api NAME from \"…\"` into a kept service: the declaration leaves its file, `service.wf` holds it without `from`, and `generated/` the contract.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`list`") }
+                            Table.Cell("—")
+                            Table.Cell("Every service read from a spec: its spec, its folder, its groups and their endpoints.")
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`--json`") }
+                            Table.Cell("—")
+                            Table.Cell { Markdown("`list` as JSON, for a tool.") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`-d`, `--dir`") }
+                            Table.Cell { Markdown("a directory (default `.`)") }
+                            Table.Cell("The project.")
+                        }
+                    }
+                }
+
+                Terminal(lines: [
+                Line(command: "wf api add openapi.json --name Backend"),
+                Line(command: "wf api sync"),
+                Line(command: "wf api sync Backend --skip uploadXml"),
+                Line(command: "wf api check"),
+                Line(command: "wf api eject Backend"),
+                Line(command: "wf api list --json")
+            ])
+
+                Markdown("Every generated file opens with `// Code generated by `wf api sync` from SPEC. DO NOT EDIT.`, and `sync` never overwrites or removes a file in `generated/` without it. The output is the printer's, so it is the same for the same spec, and a change to the spec is the smallest diff. `wf check` warns (`N07`) when a spec has changed since its files were written. The compiler never fetches: download the spec first (`curl -o openapi.json …`). See [Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file).")
 
                 Heading("wf explain", id: "wf-explain").h3
 
@@ -1560,6 +1642,11 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                 Text("wf config", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
                 Text("Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape", class: "bp-small")
             }
+            Link(to: "/reference/cli/api") {
+                style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
+                Text("wf api", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
+                Text("A service's contract as files, from its OpenAPI spec: add one, sync it, check it is current, turn `api … from` into files, list them", class: "bp-small")
+            }
             Link(to: "/reference/cli/motion") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
                 Text("wf motion", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
@@ -1722,6 +1809,33 @@ page CliConfig(path: "/reference/cli/config", title: "wf config — Reference", 
         Code("wf config unset PATH [options]").block
         PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `meta.site_url`" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config unset", nameLabel: t("cli.option"))
         Markdown(t("cli.full", { name: "config" }), class: "bp-prose")
+        Link(t("cli.all"), to: "/reference/cli")
+    }
+}
+
+page CliApi(path: "/reference/cli/api", title: "wf api — Reference", description: "wf api: A service's contract as files, from its OpenAPI spec: add one, sync it, check it is current, turn api … from into files, list them. What it…") {
+    ReferenceItemShell("wf api", summary: "A service's contract as files, from its OpenAPI spec: add one, sync it, check it is current, turn `api … from` into files, list them", signature: "wf api <add|sync|check|eject|list>", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "add", label: "wf api add"), Anchor(id: "sync", label: "wf api sync"), Anchor(id: "check", label: "wf api check"), Anchor(id: "eject", label: "wf api eject"), Anchor(id: "list", label: "wf api list")], source: "src/cli/app.rs") {
+        Heading("wf api add", id: "add").h2
+        Text("Keep a service read from SPEC: record it in `apis`, write its `service.wf` once, and its `generated/` files")
+        Code("wf api add SPEC [options]").block
+        PropsTable(rows: [{ name: "SPEC", type: "text", meaning: "The OpenAPI spec, JSON or YAML, a file in the project" }, { name: "--name NAME", type: "text", meaning: "The service's name, as the program calls it (default `Backend`)" }, { name: "--out OUT", type: "text", meaning: "The folder its files go in (default: `src/api/<name>`)" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api add", nameLabel: t("cli.option"))
+        Heading("wf api sync", id: "sync").h2
+        Text("Rewrite each service's `generated/` from its spec")
+        Code("wf api sync [NAME] [options]").block
+        PropsTable(rows: [{ name: "[NAME]", type: "text", meaning: "One service (default: every one `apis` keeps)" }, { name: "--skip SKIP", type: "text, repeats", meaning: "Leave an operation out, by its name or `METHOD /path`; kept in the config, so the next sync and `check` leave it out too" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api sync", nameLabel: t("cli.option"))
+        Heading("wf api check", id: "check").h2
+        Text("Fail when `sync` would change anything: for CI")
+        Code("wf api check [NAME] [options]").block
+        PropsTable(rows: [{ name: "[NAME]", type: "text", meaning: "One service (default: every one `apis` keeps)" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api check", nameLabel: t("cli.option"))
+        Heading("wf api eject", id: "eject").h2
+        Text("Turn `api NAME from \"openapi.json\"` into a kept service's files")
+        Code("wf api eject NAME [options]").block
+        PropsTable(rows: [{ name: "NAME", type: "text", meaning: "The service" }, { name: "--out OUT", type: "text", meaning: "The folder its files go in (default: `src/api/<name>`)" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api eject", nameLabel: t("cli.option"))
+        Heading("wf api list", id: "list").h2
+        Text("Every service read from a spec: its spec, its folder, its groups and their endpoints")
+        Code("wf api list [options]").block
+        PropsTable(rows: [{ name: "--json", type: "flag", meaning: "Print JSON, for tools" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api list", nameLabel: t("cli.option"))
+        Markdown(t("cli.full", { name: "api" }), class: "bp-prose")
         Link(t("cli.all"), to: "/reference/cli")
     }
 }

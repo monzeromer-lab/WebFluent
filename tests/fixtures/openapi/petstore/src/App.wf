@@ -1,0 +1,3 @@
+// A pet shop whose service is described by `petstore.yaml`.
+
+app { Router }

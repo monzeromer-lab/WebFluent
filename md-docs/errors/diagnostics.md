@@ -321,6 +321,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [N04](N04.md) — A result nothing reads
 - [N05](N05.md) — An `invalidates` naming what the contract does not have
 - [N06](N06.md) — A `fake` that does not match its group's contract
+- [N07](N07.md) — A service's files are behind its spec
 - [N08](N08.md) — A form 7.0 removed
 - [N09](N09.md) — A retry asked of a write that is not idempotent
 - [N11](N11.md) — `Any` or `Map` where a service meets the program

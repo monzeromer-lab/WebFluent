@@ -2,6 +2,7 @@
 //! agent, init, generate, docs and the browser they drive.
 
 pub mod agent;
+pub mod api;
 pub mod audit;
 pub mod browser;
 pub mod commands;

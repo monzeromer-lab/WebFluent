@@ -1,0 +1,4 @@
+// A team directory whose service is described by `openapi.json`: the
+// contract in `src/api/backend/generated/` is written by `wf api sync`.
+
+app { Router }

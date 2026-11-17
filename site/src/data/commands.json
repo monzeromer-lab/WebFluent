@@ -1,5 +1,5 @@
 {
- "count": 26,
+ "count": 27,
  "items": [
   {
    "name": "init",
@@ -173,6 +173,122 @@
        "name": "PATH",
        "type": "text",
        "meaning": "A dotted path: `build.base_path`, `meta.site_url`"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "api",
+   "slug": "api",
+   "summary": "A service's contract as files, from its OpenAPI spec: add one, sync it, check it is current, turn `api … from` into files, list them",
+   "writes": "",
+   "preview": "",
+   "usage": "wf api <add|sync|check|eject|list>",
+   "options": [],
+   "subcommands": [
+    {
+     "name": "add",
+     "summary": "Keep a service read from SPEC: record it in `apis`, write its `service.wf` once, and its `generated/` files",
+     "usage": "wf api add SPEC [options]",
+     "options": [
+      {
+       "name": "SPEC",
+       "type": "text",
+       "meaning": "The OpenAPI spec, JSON or YAML, a file in the project"
+      },
+      {
+       "name": "--name NAME",
+       "type": "text",
+       "meaning": "The service's name, as the program calls it (default `Backend`)"
+      },
+      {
+       "name": "--out OUT",
+       "type": "text",
+       "meaning": "The folder its files go in (default: `src/api/<name>`)"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    },
+    {
+     "name": "sync",
+     "summary": "Rewrite each service's `generated/` from its spec",
+     "usage": "wf api sync [NAME] [options]",
+     "options": [
+      {
+       "name": "[NAME]",
+       "type": "text",
+       "meaning": "One service (default: every one `apis` keeps)"
+      },
+      {
+       "name": "--skip SKIP",
+       "type": "text, repeats",
+       "meaning": "Leave an operation out, by its name or `METHOD /path`; kept in the config, so the next sync and `check` leave it out too"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    },
+    {
+     "name": "check",
+     "summary": "Fail when `sync` would change anything: for CI",
+     "usage": "wf api check [NAME] [options]",
+     "options": [
+      {
+       "name": "[NAME]",
+       "type": "text",
+       "meaning": "One service (default: every one `apis` keeps)"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    },
+    {
+     "name": "eject",
+     "summary": "Turn `api NAME from \"openapi.json\"` into a kept service's files",
+     "usage": "wf api eject NAME [options]",
+     "options": [
+      {
+       "name": "NAME",
+       "type": "text",
+       "meaning": "The service"
+      },
+      {
+       "name": "--out OUT",
+       "type": "text",
+       "meaning": "The folder its files go in (default: `src/api/<name>`)"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    },
+    {
+     "name": "list",
+     "summary": "Every service read from a spec: its spec, its folder, its groups and their endpoints",
+     "usage": "wf api list [options]",
+     "options": [
+      {
+       "name": "--json",
+       "type": "flag",
+       "meaning": "Print JSON, for tools"
       },
       {
        "name": "--dir, -d DIR",

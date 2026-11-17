@@ -597,6 +597,16 @@ pub fn config_checks_via(
         out.push(d);
     }
 
+    // A service `wf api` keeps whose files the spec has moved past.
+    for (name, message) in crate::project::openapi::files::stale_services(vfs, dir, &config.apis) {
+        out.push(config_finding(
+            "N07",
+            message,
+            &text,
+            &format!("\"{name}\""),
+        ));
+    }
+
     // A theme the config names and the program does not declare stops the
     // build; `wf check` said "No problems" about it.
     let theme_errors = [

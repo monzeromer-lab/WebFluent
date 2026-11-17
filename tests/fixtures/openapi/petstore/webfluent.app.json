@@ -1,0 +1,10 @@
+{
+  "name": "petstore",
+  "build": { "output": "build" },
+  "apis": {
+    "Shop": {
+      "out": "src/api/shop",
+      "spec": "petstore.yaml"
+    }
+  }
+}

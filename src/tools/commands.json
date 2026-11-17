@@ -389,6 +389,251 @@
       "writes": ""
     },
     {
+      "name": "api",
+      "options": [],
+      "preview": null,
+      "subcommands": [
+        {
+          "name": "add",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "The OpenAPI spec, JSON or YAML, a file in the project",
+              "long": null,
+              "name": "spec",
+              "positional": true,
+              "repeats": false,
+              "required": true,
+              "short": null,
+              "takes": "text",
+              "value_name": "SPEC",
+              "values": []
+            },
+            {
+              "default": "Backend",
+              "flag": false,
+              "help": "The service's name, as the program calls it",
+              "long": "name",
+              "name": "name",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "text",
+              "value_name": "NAME",
+              "values": []
+            },
+            {
+              "default": null,
+              "flag": false,
+              "help": "The folder its files go in (default: `src/api/<name>`)",
+              "long": "out",
+              "name": "out",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "text",
+              "value_name": "OUT",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "The project's folder",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Keep a service read from SPEC: record it in `apis`, write its `service.wf` once, and its `generated/` files",
+          "writes": "webfluent.app.json, the service's folder and .gitattributes"
+        },
+        {
+          "name": "sync",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "One service (default: every one `apis` keeps)",
+              "long": null,
+              "name": "name",
+              "positional": true,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "text",
+              "value_name": "NAME",
+              "values": []
+            },
+            {
+              "default": null,
+              "flag": false,
+              "help": "Leave an operation out, by its name or `METHOD /path`; kept in the config, so the next sync and `check` leave it out too",
+              "long": "skip",
+              "name": "skip",
+              "positional": false,
+              "repeats": true,
+              "required": false,
+              "short": null,
+              "takes": "text",
+              "value_name": "SKIP",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "The project's folder",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Rewrite each service's `generated/` from its spec",
+          "writes": "the service's generated/ folder"
+        },
+        {
+          "name": "check",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "One service (default: every one `apis` keeps)",
+              "long": null,
+              "name": "name",
+              "positional": true,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "text",
+              "value_name": "NAME",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "The project's folder",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Fail when `sync` would change anything: for CI",
+          "writes": ""
+        },
+        {
+          "name": "eject",
+          "options": [
+            {
+              "default": null,
+              "flag": false,
+              "help": "The service",
+              "long": null,
+              "name": "name",
+              "positional": true,
+              "repeats": false,
+              "required": true,
+              "short": null,
+              "takes": "text",
+              "value_name": "NAME",
+              "values": []
+            },
+            {
+              "default": null,
+              "flag": false,
+              "help": "The folder its files go in (default: `src/api/<name>`)",
+              "long": "out",
+              "name": "out",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "text",
+              "value_name": "OUT",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "The project's folder",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Turn `api NAME from \"openapi.json\"` into a kept service's files",
+          "writes": "the service's folder, webfluent.app.json, and the file that held `api … from`"
+        },
+        {
+          "name": "list",
+          "options": [
+            {
+              "default": null,
+              "flag": true,
+              "help": "Print JSON, for tools",
+              "long": "json",
+              "name": "json",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": null,
+              "takes": "nothing",
+              "value_name": "JSON",
+              "values": []
+            },
+            {
+              "default": ".",
+              "flag": false,
+              "help": "The project's folder",
+              "long": "dir",
+              "name": "dir",
+              "positional": false,
+              "repeats": false,
+              "required": false,
+              "short": "d",
+              "takes": "path",
+              "value_name": "DIR",
+              "values": []
+            }
+          ],
+          "preview": null,
+          "summary": "Every service read from a spec: its spec, its folder, its groups and their endpoints",
+          "writes": ""
+        }
+      ],
+      "summary": "A service's contract as files, from its OpenAPI spec: add one, sync it, check it is current, turn `api … from` into files, list them",
+      "writes": ""
+    },
+    {
       "name": "motion",
       "options": [
         {

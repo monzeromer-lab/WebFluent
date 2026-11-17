@@ -1,0 +1,67 @@
+page People(path: "/", title: "People", description: "Everyone on the team.") {
+    use Directory
+
+    state typed = ""
+    state name = ""
+    state email = ""
+    state said = ""
+    validate name { required }
+    validate email { required  email }
+
+    Heading("People").h1
+
+    // The read follows Directory.search; it changes once the typing stops.
+    Input(bind: typed, label: "Search").search {
+        on input(debounce: 300.ms) { Directory.search = typed }
+    }
+
+    match Directory.people {
+        .loading { Skeleton(height: "20px") }
+        .failed(e) {
+            match e {
+                .offline { Alert("You are offline.").warning }
+                .status(403, _) { Alert("You may not see the team.").danger }
+                else { Alert(e.message).danger }
+            }
+            Button("Try again") { on click { Directory.people.reload() } }
+        }
+        .loaded(list, refreshing, stale) {
+            if refreshing { Spinner.sm }
+            if let problem = stale { Text("Showing what was here: {problem.message}").muted }
+            for p in list by p.id {
+                Row(justify: .between) {
+                    Text(p.name)
+                    Text(p.email).muted
+                    Button("Remove {p.name}").danger {
+                        on click {
+                            match await Directory.remove(p) {
+                                .ok { said = "{p.name} removed" }
+                                .err(.notFound(_)) { said = "{p.name} was already gone" }
+                                .err(.http(e)) { said = "{p.name} is still here: {e.message}" }
+                            }
+                        }
+                    }
+                }
+            }
+            if Directory.people.hasMore {
+                Button("Load more") { on click { Directory.people.loadMore() } }
+            }
+        }
+    }
+
+    Heading("Add someone").h2
+    Form(bind: form) {
+        on submit {
+            match await Directory.add(NewPerson(name: name, email: email, role: .engineer)) {
+                .ok(p) { said = "{p.name} added" }
+                .err(.unprocessableContent(pr)) { said = pr.errors.first()?.message ?? "Check the form" }
+                .err(.conflict(pr)) { said = pr.detail ?? "Already on the team" }
+                .err(.http(e)) { said = e.message }
+            }
+        }
+        Input(bind: name, label: "Name")
+        Input(bind: email, label: "Email").email
+        Button("Add", type: .submit).primary
+    }
+    Text(said)
+}

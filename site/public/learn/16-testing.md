@@ -335,6 +335,31 @@ How a fake answers:
   parameter the page goes in; a `streamed` one with the whole list, which
   arrives a line at a time.
 
+When the contract comes from an OpenAPI spec (`wf api`, or `api … from`),
+a fake can answer from the spec's own examples: every endpoint it does not
+answer itself answers `.ok(example)`, with the example of a success the spec
+gives, held to the endpoint's result as an answer written by hand is.
+
+```wf
+type Person { id: String, name: String }
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get listPeople at "people" -> [Person]!
+    post createPerson(body: Person) at "people" -> Person!
+}
+
+fake Examples for Backend.people from examples
+
+fake Refusing for Backend.people from examples {
+    createPerson(body) { .err(.status(503, null)) }
+}
+```
+
+Here `Backend.people` is written by hand for the sake of the example; with
+`wf api` it is the generated file, and the examples are the spec's.
+
 `expect called Backend.people.create` passes once the page has asked that
 endpoint; `expect not called` passes while it has not. Use them to check
 that a write went out, or that a form did not send what it should not.

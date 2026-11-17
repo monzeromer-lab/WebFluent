@@ -1,0 +1,11 @@
+{
+  "name": "people",
+  "build": { "output": "build" },
+  "env": { "PUBLIC_API": "/api" },
+  "apis": {
+    "Backend": {
+      "out": "src/api/backend",
+      "spec": "openapi.json"
+    }
+  }
+}

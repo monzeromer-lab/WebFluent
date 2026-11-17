@@ -23,6 +23,147 @@ pub(super) fn path_names(path: &str) -> Vec<String> {
 }
 
 impl Checker<'_, '_> {
+    /// A service's `invalidations { }` and `pagination { }`: what a
+    /// contract written elsewhere (a generated one) cannot say, said beside
+    /// it. Each names an endpoint of one of the service's groups; a write's
+    /// targets are reads of its own group, asked with the write's own
+    /// parameters (`N05`). What each says is then checked at the endpoint,
+    /// as if written there.
+    pub(super) fn service_blocks(&mut self, a: &ApiDecl) {
+        if a.name.contains('.') && (!a.invalidations.is_empty() || !a.pagination.is_empty()) {
+            let service = a.name.split('.').next().unwrap_or_default();
+            self.error(
+                a.span,
+                "N05",
+                format!("`api {}` is a group: what its endpoints make stale and how they page is said on them, or in `api {service}`", a.name),
+                "Write `invalidates [ … ]` and `pages …` on the endpoint, or move the block to the service",
+            );
+            return;
+        }
+        let groups: Vec<String> = self
+            .world
+            .apis
+            .keys()
+            .filter_map(|k| k.strip_prefix(&format!("{}.", a.name)).map(str::to_string))
+            .collect();
+        let known = |cx: &Self, full: &str| -> Option<&Endpoint> {
+            let (group, name) = full.split_once('.')?;
+            cx.world.endpoint(&format!("{}.{group}", a.name), name)
+        };
+        let all: Vec<String> = groups
+            .iter()
+            .flat_map(|g| {
+                self.world.apis[format!("{}.{g}", a.name).as_str()]
+                    .endpoints
+                    .iter()
+                    .map(move |e| format!("{g}.{}", e.name))
+            })
+            .collect();
+        let all_refs: Vec<&str> = all.iter().map(String::as_str).collect();
+        for inv in &a.invalidations {
+            self.current_span = inv.span;
+            let Some(write) = known(self, &inv.endpoint) else {
+                self.error_naming(
+                    "N05",
+                    format!(
+                        "`{}` names `{}`, which no group of it has",
+                        a.name, inv.endpoint
+                    ),
+                    "Name an endpoint as `group.endpoint`",
+                    &inv.endpoint,
+                    &all_refs,
+                    false,
+                );
+                continue;
+            };
+            if matches!(write.method.as_str(), "GET" | "HEAD") {
+                self.error(
+                    inv.span,
+                    "N05",
+                    format!(
+                        "`{}` is a read: it changes nothing, so it makes nothing stale",
+                        inv.endpoint
+                    ),
+                    "Name what goes stale on the write that changes it",
+                );
+                continue;
+            }
+            let own: Vec<&str> = write.params.iter().map(|p| p.name.as_str()).collect();
+            for p in &inv.params {
+                if !own.contains(&p.as_str()) {
+                    self.error(
+                        inv.span,
+                        "N05",
+                        format!("`{}` takes no parameter `{p}`", inv.endpoint),
+                        &format!(
+                            "It takes {}",
+                            if own.is_empty() {
+                                "none".to_string()
+                            } else {
+                                own.iter()
+                                    .map(|o| format!("`{o}`"))
+                                    .collect::<Vec<_>>()
+                                    .join(", ")
+                            }
+                        ),
+                    );
+                }
+            }
+            let group = inv.endpoint.split('.').next().unwrap_or_default();
+            for target in &inv.targets {
+                if target.name.split('.').next() != Some(group) {
+                    self.error(
+                        inv.span,
+                        "N05",
+                        format!(
+                            "`{}` invalidates `{}`, a read of another group",
+                            inv.endpoint, target.name
+                        ),
+                        "A write makes stale the reads of its own group",
+                    );
+                    continue;
+                }
+                if known(self, &target.name).is_none() {
+                    self.error_naming(
+                        "N05",
+                        format!(
+                            "`{}` invalidates `{}`, which no group of `{}` has",
+                            inv.endpoint, target.name, a.name
+                        ),
+                        "Name a read as `group.endpoint`",
+                        &target.name,
+                        &all_refs,
+                        false,
+                    );
+                    continue;
+                }
+                for arg in &target.args {
+                    if !inv.params.contains(arg) && !own.contains(&arg.as_str()) {
+                        self.error(
+                            inv.span,
+                            "N05",
+                            format!("`{}` invalidates `{}({arg})`: an argument is one of the write's own parameters", inv.endpoint, target.name),
+                            &format!("Name it after the write: `{}({arg}) invalidates [ … ]`", inv.endpoint),
+                        );
+                    }
+                }
+            }
+        }
+        for (endpoint, _, span) in &a.pagination {
+            self.current_span = *span;
+            if known(self, endpoint).is_none() {
+                self.error_naming(
+                    "N14",
+                    format!("`{}` pages `{endpoint}`, which no group of it has", a.name),
+                    "Name a read as `group.endpoint`",
+                    endpoint,
+                    &all_refs,
+                    false,
+                );
+            }
+        }
+    }
+
     /// `api Backend.users { … }`: a group of a service's endpoints, which
     /// the service reaches, and which has no transport of its own.
     pub(super) fn group_of(&mut self, a: &ApiDecl) {
@@ -131,7 +272,8 @@ impl Checker<'_, '_> {
             if named.iter().any(|n| n == name) {
                 let place = match location {
                     ParamLocation::Header(h) => format!("header `{h}`"),
-                    ParamLocation::Cookie => "a cookie".to_string(),
+                    ParamLocation::Cookie(_) => "a cookie".to_string(),
+                    ParamLocation::Query(q) => format!("the query as `{q}`"),
                 };
                 self.error(
                     e.span,

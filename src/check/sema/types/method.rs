@@ -865,12 +865,17 @@ impl Checker<'_, '_> {
     ) -> Type {
         match method {
             "update" => {
-                let answer = endpoint.returns.as_ref().map_or(Type::Error, |t| {
-                    match self.world.resolve(Type::from_ref(t)) {
-                        Type::Result(value, _) => *value,
-                        other => other,
-                    }
-                });
+                // A paged read shows the items it has gathered, so that is
+                // what its change is handed and gives back.
+                let answer = match self.paged_items(endpoint, true) {
+                    Some(items) => items,
+                    None => endpoint.returns.as_ref().map_or(Type::Error, |t| {
+                        match self.world.resolve(Type::from_ref(t)) {
+                            Type::Result(value, _) => *value,
+                            other => other,
+                        }
+                    }),
+                };
                 if !matches!(endpoint.method.as_str(), "GET" | "HEAD") {
                     self.error_at_current(
                         "N02",

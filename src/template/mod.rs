@@ -276,6 +276,28 @@ impl Template {
         }
         let mut program = Program { declarations };
         crate::syntax::prefer_own_components(&mut program);
+        // `api B from "openapi.json"` is its groups and types once the spec
+        // is read, as in a build; a service's `invalidations { }` and
+        // `pagination { }` land on what they name.
+        if let Some(root) = root {
+            crate::project::openapi::expand(&mut program, &|file| {
+                [root.join(file), root.join("src").join(file)]
+                    .iter()
+                    .find_map(|at| std::fs::read_to_string(at).ok())
+            })?;
+        } else {
+            if let Some(Declaration::Api(a)) = program
+                .declarations
+                .iter()
+                .find(|d| matches!(d, Declaration::Api(a) if a.from.is_some()))
+            {
+                return Err(WebFluentError::io(format!(
+                    "`api {} from` reads a file, which a template from a string has no place to read from; use `Template::from_file`",
+                    a.name
+                )));
+            }
+            crate::project::openapi::place_service_blocks(&mut program);
+        }
         // Held to what a build is held to: a component nothing declares, a
         // flag or case a component does not take, a value of the wrong type.
         // A name the template reads is its data's, known only at render

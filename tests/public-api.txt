@@ -327,6 +327,29 @@ impl core::marker::Unpin for webfluent::config::project::ScriptLoad
 impl core::marker::UnsafeUnpin for webfluent::config::project::ScriptLoad
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::ScriptLoad
 impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::ScriptLoad
+pub struct webfluent::config::project::ApiSource
+pub webfluent::config::project::ApiSource::out: alloc::string::String
+pub webfluent::config::project::ApiSource::skip: alloc::vec::Vec<alloc::string::String>
+pub webfluent::config::project::ApiSource::spec: alloc::string::String
+impl core::clone::Clone for webfluent::config::project::ApiSource
+pub fn webfluent::config::project::ApiSource::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::project::ApiSource
+impl core::cmp::PartialEq for webfluent::config::project::ApiSource
+pub fn webfluent::config::project::ApiSource::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::config::project::ApiSource
+pub fn webfluent::config::project::ApiSource::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::config::project::ApiSource
+impl serde_core::ser::Serialize for webfluent::config::project::ApiSource
+pub fn webfluent::config::project::ApiSource::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::ApiSource
+pub fn webfluent::config::project::ApiSource::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::project::ApiSource
+impl core::marker::Send for webfluent::config::project::ApiSource
+impl core::marker::Sync for webfluent::config::project::ApiSource
+impl core::marker::Unpin for webfluent::config::project::ApiSource
+impl core::marker::UnsafeUnpin for webfluent::config::project::ApiSource
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::ApiSource
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::ApiSource
 pub struct webfluent::config::project::BuildConfig
 pub webfluent::config::project::BuildConfig::base_path: alloc::string::String
 pub webfluent::config::project::BuildConfig::budget: alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>
@@ -566,6 +589,7 @@ impl core::marker::UnsafeUnpin for webfluent::PdfMargins
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::PdfMargins
 impl core::panic::unwind_safe::UnwindSafe for webfluent::PdfMargins
 pub struct webfluent::config::project::ProjectConfig
+pub webfluent::config::project::ProjectConfig::apis: alloc::collections::btree::map::BTreeMap<alloc::string::String, webfluent::config::project::ApiSource>
 pub webfluent::config::project::ProjectConfig::author: alloc::string::String
 pub webfluent::config::project::ProjectConfig::build: webfluent::config::project::BuildConfig
 pub webfluent::config::project::ProjectConfig::dev: webfluent::config::project::DevConfig
@@ -846,6 +870,7 @@ impl core::marker::UnsafeUnpin for webfluent::config::OfflineConfig
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::OfflineConfig
 impl core::panic::unwind_safe::UnwindSafe for webfluent::config::OfflineConfig
 pub struct webfluent::config::ProjectConfig
+pub webfluent::config::ProjectConfig::apis: alloc::collections::btree::map::BTreeMap<alloc::string::String, webfluent::config::project::ApiSource>
 pub webfluent::config::ProjectConfig::author: alloc::string::String
 pub webfluent::config::ProjectConfig::build: webfluent::config::project::BuildConfig
 pub webfluent::config::ProjectConfig::dev: webfluent::config::project::DevConfig
@@ -2342,8 +2367,9 @@ impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
 pub enum webfluent::syntax::parser::ast::ParamLocation
-pub webfluent::syntax::parser::ast::ParamLocation::Cookie
+pub webfluent::syntax::parser::ast::ParamLocation::Cookie(core::option::Option<alloc::string::String>)
 pub webfluent::syntax::parser::ast::ParamLocation::Header(alloc::string::String)
+pub webfluent::syntax::parser::ast::ParamLocation::Query(alloc::string::String)
 impl core::clone::Clone for webfluent::syntax::parser::ParamLocation
 pub fn webfluent::syntax::parser::ParamLocation::clone(&self) -> Self
 impl core::cmp::Eq for webfluent::syntax::parser::ParamLocation
@@ -2640,7 +2666,9 @@ pub webfluent::syntax::parser::ast::ApiDecl::endpoints: alloc::vec::Vec<webfluen
 pub webfluent::syntax::parser::ast::ApiDecl::from: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::ApiDecl::headers: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::ast::ApiDecl::hooks: alloc::vec::Vec<webfluent::syntax::parser::EventHandler>
+pub webfluent::syntax::parser::ast::ApiDecl::invalidations: alloc::vec::Vec<webfluent::syntax::parser::Invalidation>
 pub webfluent::syntax::parser::ast::ApiDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ast::ApiDecl::pagination: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr, webfluent::syntax::parser::Span)>
 pub webfluent::syntax::parser::ast::ApiDecl::settings: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::ast::ApiDecl::span: webfluent::syntax::parser::Span
 impl core::clone::Clone for webfluent::syntax::parser::ApiDecl
@@ -2918,6 +2946,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::FakeAns
 pub struct webfluent::syntax::parser::ast::FakeDecl
 pub webfluent::syntax::parser::ast::FakeDecl::answers: alloc::vec::Vec<webfluent::syntax::parser::FakeAnswer>
 pub webfluent::syntax::parser::ast::FakeDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ast::FakeDecl::from_examples: bool
 pub webfluent::syntax::parser::ast::FakeDecl::header_span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::FakeDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::FakeDecl::span: webfluent::syntax::parser::Span
@@ -3042,6 +3071,36 @@ impl core::marker::Unpin for webfluent::syntax::parser::IfStmt
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::IfStmt
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::IfStmt
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::IfStmt
+pub struct webfluent::syntax::parser::ast::InvalidTarget
+pub webfluent::syntax::parser::ast::InvalidTarget::args: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::ast::InvalidTarget::name: alloc::string::String
+impl core::clone::Clone for webfluent::syntax::parser::InvalidTarget
+pub fn webfluent::syntax::parser::InvalidTarget::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::InvalidTarget
+pub fn webfluent::syntax::parser::InvalidTarget::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::InvalidTarget
+impl core::marker::Send for webfluent::syntax::parser::InvalidTarget
+impl core::marker::Sync for webfluent::syntax::parser::InvalidTarget
+impl core::marker::Unpin for webfluent::syntax::parser::InvalidTarget
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::InvalidTarget
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::InvalidTarget
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::InvalidTarget
+pub struct webfluent::syntax::parser::ast::Invalidation
+pub webfluent::syntax::parser::ast::Invalidation::endpoint: alloc::string::String
+pub webfluent::syntax::parser::ast::Invalidation::params: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::ast::Invalidation::span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::ast::Invalidation::targets: alloc::vec::Vec<webfluent::syntax::parser::InvalidTarget>
+impl core::clone::Clone for webfluent::syntax::parser::Invalidation
+pub fn webfluent::syntax::parser::Invalidation::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::Invalidation
+pub fn webfluent::syntax::parser::Invalidation::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::Invalidation
+impl core::marker::Send for webfluent::syntax::parser::Invalidation
+impl core::marker::Sync for webfluent::syntax::parser::Invalidation
+impl core::marker::Unpin for webfluent::syntax::parser::Invalidation
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Invalidation
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Invalidation
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Invalidation
 pub struct webfluent::syntax::parser::ast::KeyFrame
 pub webfluent::syntax::parser::ast::KeyFrame::properties: alloc::vec::Vec<webfluent::syntax::parser::StyleProperty>
 pub webfluent::syntax::parser::ast::KeyFrame::selector: alloc::string::String
@@ -3898,8 +3957,9 @@ impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
 pub enum webfluent::syntax::parser::ParamLocation
-pub webfluent::syntax::parser::ParamLocation::Cookie
+pub webfluent::syntax::parser::ParamLocation::Cookie(core::option::Option<alloc::string::String>)
 pub webfluent::syntax::parser::ParamLocation::Header(alloc::string::String)
+pub webfluent::syntax::parser::ParamLocation::Query(alloc::string::String)
 impl core::clone::Clone for webfluent::syntax::parser::ParamLocation
 pub fn webfluent::syntax::parser::ParamLocation::clone(&self) -> Self
 impl core::cmp::Eq for webfluent::syntax::parser::ParamLocation
@@ -4196,7 +4256,9 @@ pub webfluent::syntax::parser::ApiDecl::endpoints: alloc::vec::Vec<webfluent::sy
 pub webfluent::syntax::parser::ApiDecl::from: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ApiDecl::headers: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::ApiDecl::hooks: alloc::vec::Vec<webfluent::syntax::parser::EventHandler>
+pub webfluent::syntax::parser::ApiDecl::invalidations: alloc::vec::Vec<webfluent::syntax::parser::Invalidation>
 pub webfluent::syntax::parser::ApiDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ApiDecl::pagination: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr, webfluent::syntax::parser::Span)>
 pub webfluent::syntax::parser::ApiDecl::settings: alloc::vec::Vec<(alloc::string::String, webfluent::syntax::parser::Expr)>
 pub webfluent::syntax::parser::ApiDecl::span: webfluent::syntax::parser::Span
 impl core::clone::Clone for webfluent::syntax::parser::ApiDecl
@@ -4474,6 +4536,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::FakeAns
 pub struct webfluent::syntax::parser::FakeDecl
 pub webfluent::syntax::parser::FakeDecl::answers: alloc::vec::Vec<webfluent::syntax::parser::FakeAnswer>
 pub webfluent::syntax::parser::FakeDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::FakeDecl::from_examples: bool
 pub webfluent::syntax::parser::FakeDecl::header_span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::FakeDecl::name: alloc::string::String
 pub webfluent::syntax::parser::FakeDecl::span: webfluent::syntax::parser::Span
@@ -4598,6 +4661,36 @@ impl core::marker::Unpin for webfluent::syntax::parser::IfStmt
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::IfStmt
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::IfStmt
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::IfStmt
+pub struct webfluent::syntax::parser::InvalidTarget
+pub webfluent::syntax::parser::InvalidTarget::args: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::InvalidTarget::name: alloc::string::String
+impl core::clone::Clone for webfluent::syntax::parser::InvalidTarget
+pub fn webfluent::syntax::parser::InvalidTarget::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::InvalidTarget
+pub fn webfluent::syntax::parser::InvalidTarget::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::InvalidTarget
+impl core::marker::Send for webfluent::syntax::parser::InvalidTarget
+impl core::marker::Sync for webfluent::syntax::parser::InvalidTarget
+impl core::marker::Unpin for webfluent::syntax::parser::InvalidTarget
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::InvalidTarget
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::InvalidTarget
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::InvalidTarget
+pub struct webfluent::syntax::parser::Invalidation
+pub webfluent::syntax::parser::Invalidation::endpoint: alloc::string::String
+pub webfluent::syntax::parser::Invalidation::params: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::Invalidation::span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::Invalidation::targets: alloc::vec::Vec<webfluent::syntax::parser::InvalidTarget>
+impl core::clone::Clone for webfluent::syntax::parser::Invalidation
+pub fn webfluent::syntax::parser::Invalidation::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::Invalidation
+pub fn webfluent::syntax::parser::Invalidation::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::Invalidation
+impl core::marker::Send for webfluent::syntax::parser::Invalidation
+impl core::marker::Sync for webfluent::syntax::parser::Invalidation
+impl core::marker::Unpin for webfluent::syntax::parser::Invalidation
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Invalidation
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Invalidation
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Invalidation
 pub struct webfluent::syntax::parser::KeyFrame
 pub webfluent::syntax::parser::KeyFrame::properties: alloc::vec::Vec<webfluent::syntax::parser::StyleProperty>
 pub webfluent::syntax::parser::KeyFrame::selector: alloc::string::String

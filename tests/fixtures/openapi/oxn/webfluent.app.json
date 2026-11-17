@@ -1,0 +1,10 @@
+{
+  "name": "oxn",
+  "build": { "output": "build" },
+  "apis": {
+    "Oxn": {
+      "out": "src/api/oxn",
+      "spec": "openapi.json"
+    }
+  }
+}

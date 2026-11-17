@@ -1282,8 +1282,8 @@ fn every_diagnostic_example_draws_its_code() {
 /// refuses, the compiler's own faults, and what only a project around the
 /// program — its config, its scripts, its output mode — can show.
 const EXAMPLE_EXEMPT: &[&str] = &[
-    "E005", "E108", "E109", "E110", "E111", "E112", "E115", "E119", "E901", "E902", "D05", "D06",
-    "D01", "D04", "I01", "I02", "I03", "I04", "I05", "A13", "V02",
+    "N07", "E005", "E108", "E109", "E110", "E111", "E112", "E115", "E119", "E901", "E902", "D05",
+    "D06", "D01", "D04", "I01", "I02", "I03", "I04", "I05", "A13", "V02",
     // E120 needs a hundred levels of nesting to show, and E121 is a
     // template render's, which no check draws.
     "E120", "E121",

@@ -690,10 +690,10 @@ The checker trusts the annotation. A development build (`wf serve`) also
 holds each response to its declared type, and a mismatch is a `.parse`
 error that names the place, such as `$[1].status is missing`.
 
-When the server publishes an OpenAPI specification, let the compiler read
-it instead: `api Backend from "openapi.json"` types every endpoint,
-parameter, response and error from the file, and turns each named schema
-into a `type`, or an `enum` for a string with cases (see
+When the server publishes an OpenAPI specification, let it write the
+contract instead: `wf api add openapi.json --name Backend` writes every
+endpoint, parameter, response and error as files, and turns each named
+schema into a `type`, or an `enum` for a string with cases (see
 [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file)). An `api` you write by
 hand types its calls the same way: `get users() at "users" -> [User]`.
 

@@ -1,0 +1,13 @@
+// Written once by `wf api add`. Yours: `wf api sync` never changes it.
+
+/// oxn queue API
+api Oxn(base: "/") {
+    timeout: 30.seconds
+    // The spec's security scheme is a bearer token: send one with every
+    // call, from a store that keeps it.
+    // middleware [bearer(Session.token)]
+
+    // What a write makes stale, and how a read pages, for the generated
+    // endpoints: `invalidations { group.create invalidates [group.list] }`,
+    // `pagination { group.list pages .cursor(param: after, next: p => p.next) }`.
+}

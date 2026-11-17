@@ -311,8 +311,14 @@ impl JsCodegen {
                         crate::syntax::parser::ast::ParamLocation::Header(h) => {
                             format!("{}: [\"header\", {}]", js_str(p), js_str(h))
                         }
-                        crate::syntax::parser::ast::ParamLocation::Cookie => {
+                        crate::syntax::parser::ast::ParamLocation::Cookie(None) => {
                             format!("{}: [\"cookie\"]", js_str(p))
+                        }
+                        crate::syntax::parser::ast::ParamLocation::Cookie(Some(c)) => {
+                            format!("{}: [\"cookie\", {}]", js_str(p), js_str(c))
+                        }
+                        crate::syntax::parser::ast::ParamLocation::Query(q) => {
+                            format!("{}: [\"query\", {}]", js_str(p), js_str(q))
                         }
                     })
                     .collect();

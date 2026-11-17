@@ -1,0 +1,4 @@
+// A dashboard for an oxn job queue, whose HTTP API is described by
+// `openapi.json` (oxn 0.3, MIT or Apache-2.0): a real spec of 21 paths.
+
+app { Router }

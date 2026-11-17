@@ -1,0 +1,25 @@
+/// The one place that reads and writes people.
+store Directory {
+    state search = ""
+
+    /// Everyone matching the search, gathered a page at a time.
+    resource people = Backend.people.listPeople(q: search, placeholder: .previous)
+
+    /// Add someone. The list refreshes by itself: createPerson invalidates it.
+    action add(draft: NewPerson) -> Person ! CreatePersonError {
+        return try await Backend.people.createPerson(body: draft)
+    }
+
+    /// Remove someone now; put them back if the server could not do it.
+    action remove(p: Person) -> ! DeletePersonError {
+        let undo = Backend.people.listPeople.update(items => items.filter(x => x.id != p.id))
+        match await Backend.people.deletePerson(id: p.id) {
+            .ok { }
+            .err(.notFound(_)) { }                 // already gone: it stays gone
+            .err(.http(e)) {                       // not removed: put them back
+                undo()
+                return .err(.http(e))
+            }
+        }
+    }
+}

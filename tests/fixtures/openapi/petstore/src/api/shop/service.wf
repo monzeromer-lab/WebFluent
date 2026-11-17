@@ -1,0 +1,10 @@
+// Written once by `wf api add`. Yours: `wf api sync` never changes it.
+
+/// Pet shop
+api Shop(base: "http://petstore.example.com/v1") {
+    timeout: 30.seconds
+
+    // What a write makes stale, and how a read pages, for the generated
+    // endpoints: `invalidations { group.create invalidates [group.list] }`,
+    // `pagination { group.list pages .cursor(param: after, next: p => p.next) }`.
+}

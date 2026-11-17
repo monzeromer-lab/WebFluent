@@ -1,0 +1,26 @@
+page Pets(path: "/", title: "Pets", description: "Every pet for sale.") {
+    resource pets = Shop.pets.listPets(limit: 20)
+    Heading("Pets").h1
+    match pets {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) {
+            for p in list by p.id {
+                Row(gap: .sm) {
+                    Text(p.name).bold
+                    Text(p.tag ?? "").muted
+                }
+            }
+        }
+    }
+}
+
+page Pet(path: "/pets/:id", title: "Pet", description: "One pet.", id: String) {
+    resource pet = Shop.pets.showPetById(petId: id)
+    match pet {
+        .loading { Spinner }
+        .failed(.notFound(e)) { Alert("No pet has that id: {e.message}").warning }
+        .failed(e) { Alert("The shop could not answer.").danger }
+        .loaded(p) { Heading(p.name).h1 }
+    }
+}

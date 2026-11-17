@@ -2,7 +2,7 @@
 // edit the compiler or the script, not this file.
 
 page ConfigPage(path: "/reference/config", title: "Configuration — Reference", description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.") {
-    ReferenceItemShell(t("config.title"), summary: t("config.lede", { count: 86 }), signature: "webfluent.app.json", group: t("config.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "keys-project", label: "project"), Anchor(id: "keys-theme", label: "theme"), Anchor(id: "keys-build", label: "build"), Anchor(id: "keys-dev", label: "dev"), Anchor(id: "keys-meta", label: "meta"), Anchor(id: "keys-motion", label: "motion"), Anchor(id: "keys-env", label: "env"), Anchor(id: "keys-public_env", label: "public_env"), Anchor(id: "keys-offline", label: "offline"), Anchor(id: "keys-i18n", label: "i18n"), Anchor(id: "keys-lints", label: "lints"), Anchor(id: "reading-and-changing-the-config", label: "Reading and changing the config"), Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "lints", label: "lints")], source: "md-docs/reference/configuration.md") {
+    ReferenceItemShell(t("config.title"), summary: t("config.lede", { count: 87 }), signature: "webfluent.app.json", group: t("config.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "keys-project", label: "project"), Anchor(id: "keys-theme", label: "theme"), Anchor(id: "keys-build", label: "build"), Anchor(id: "keys-dev", label: "dev"), Anchor(id: "keys-meta", label: "meta"), Anchor(id: "keys-motion", label: "motion"), Anchor(id: "keys-env", label: "env"), Anchor(id: "keys-public_env", label: "public_env"), Anchor(id: "keys-apis", label: "apis"), Anchor(id: "keys-offline", label: "offline"), Anchor(id: "keys-i18n", label: "i18n"), Anchor(id: "keys-lints", label: "lints"), Anchor(id: "reading-and-changing-the-config", label: "Reading and changing the config"), Anchor(id: "the-defaults", label: "The defaults"), Anchor(id: "the-project", label: "The project"), Anchor(id: "build", label: "build"), Anchor(id: "dev", label: "dev"), Anchor(id: "motion", label: "motion"), Anchor(id: "meta", label: "meta"), Anchor(id: "theme", label: "theme"), Anchor(id: "i18n", label: "i18n"), Anchor(id: "env-and-publicenv", label: "env and publicenv"), Anchor(id: "offline", label: "offline"), Anchor(id: "lints", label: "lints")], source: "md-docs/reference/configuration.md") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter is the reference for `webfluent.app.json`, the file beside `src/` that holds a project's settings. Look up a key here to find its type, its default and what it changes.\n\nEvery key is optional except `name`, so the smallest config is one line:")
@@ -1433,6 +1433,25 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     Table.Cell { Code("strings") }
                     Table.Cell { Code("[]") }
                     Table.Cell("The `env` names a page may read and so ships to the browser, beyond those beginning `PUBLIC_`.")
+                }
+            }
+        }
+        Heading("apis", id: "keys-apis", class: "bp-mono").h2
+        Table(caption: "The apis keys", class: "bp-table") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell(t("config.key")).header
+                    Table.Cell(t("ref.type")).header
+                    Table.Cell(t("config.default")).header
+                    Table.Cell(t("ref.meaning")).header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Code("apis") }
+                    Table.Cell { Code("map") }
+                    Table.Cell { Code("null") }
+                    Table.Cell("Each service `wf api sync` writes from an OpenAPI spec: `\{ \"spec\": \"openapi.json\", \"out\": \"src/api/backend\", \"skip\": [] \}`.")
                 }
             }
         }
