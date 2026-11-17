@@ -1132,7 +1132,7 @@ the disk, and `OverlayVfs::over_disk()` lays the editor's unsaved buffers
 over it, so a tool reports the project as it is being edited.
 
 Most of these are the compiler's own parts: they are reached with the
-crate's `internals` feature (`webfluent = { version = "6", features =
+crate's `internals` feature (`webfluent = { version = "7", features =
 ["internals"] }`), are not documented, and a release may change them
 without a major version. The ones marked "no" are the documented API.
 

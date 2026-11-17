@@ -18,7 +18,7 @@ same findings.
 This Rust program renders a template to HTML:
 
 ```rust
-// Cargo.toml: webfluent = { version = "6", default-features = false }
+// Cargo.toml: webfluent = { version = "7", default-features = false }
 //             serde_json = "1"
 use webfluent::Template;
 
@@ -43,7 +43,7 @@ section says which parts exist, what each is for, and what semver covers.
 
 ```toml
 [dependencies]
-webfluent = { version = "6", default-features = false }
+webfluent = { version = "7", default-features = false }
 ```
 
 `default-features = false` leaves out the `wf` command's own dependencies

@@ -45,7 +45,7 @@ argument parser and dev server), turn off the default features in
 
 ```toml
 [dependencies]
-webfluent = { version = "6", default-features = false }
+webfluent = { version = "7", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 

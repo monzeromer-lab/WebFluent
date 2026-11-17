@@ -27,7 +27,7 @@ page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
 }"#, title: "wf")
             Markdown("To use the engine without the `wf` command's own dependencies (its argument parser and dev server), turn off the default features in `Cargo.toml`:")
             CodeBlock(#"[dependencies]
-webfluent = { version = "6", default-features = false }
+webfluent = { version = "7", default-features = false }
 serde = { version = "1", features = ["derive"] }"#, title: "toml")
             Markdown("This program, `src/main.rs`, renders the `Invoice` page three ways and writes the results beside the project:")
             CodeBlock(#"use serde::Serialize;

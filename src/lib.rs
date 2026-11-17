@@ -124,7 +124,7 @@
 //! - **`cli`** (default) — the `wf` command's own dependencies: its argument
 //!   parser and the dev server. A program that only compiles or renders
 //!   templates turns it off:
-//!   `webfluent = { version = "6", default-features = false }`.
+//!   `webfluent = { version = "7", default-features = false }`.
 //!
 //! For most uses the [`Template`] API is the entry point; [`parse_source`]
 //! and [`build`] are there for a tool that needs the tree or a whole site.

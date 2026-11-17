@@ -2,8 +2,8 @@
  {
   "version": "7.0.0",
   "id": "7.0.0",
-  "date": "",
-  "when": "",
+  "date": "2026-11-17",
+  "when": "17 November 2026",
   "summary": "7.0 is strict, and a request is a contract. Every value has a type the\nprogram can name — `Any` and `Map` are gone, signatures are declared,\nnothing converts by itself — and there is no setting that turns any of it\noff. A service is described once, from its OpenAPI spec if it has one; a\ncall answers with a result that says how it failed; a read is one value\nwith three cases; and a test answers the service with a fake. `wf migrate`\ncarries a 6.x project across.",
   "sections": [
    {

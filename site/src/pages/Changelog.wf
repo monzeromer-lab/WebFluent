@@ -8,7 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
-                ReleaseNotes(version: "7.0.0", id: "7.0.0"),
+                ReleaseNotes(version: "7.0.0", id: "7.0.0", date: "2026-11-17"),
                 ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15"),
                 ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14"),
                 ReleaseNotes(version: "6.0.0", id: "6.0.0", date: "2026-11-13"),
@@ -75,7 +75,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                 }
             }
 
-            ReleaseEntry(ReleaseNotes(version: "7.0.0", id: "7.0.0", summary: #"7.0 is strict, and a request is a contract. Every value has a type the
+            ReleaseEntry(ReleaseNotes(version: "7.0.0", id: "7.0.0", date: "2026-11-17", when: "17 November 2026", summary: #"7.0 is strict, and a request is a contract. Every value has a type the
 program can name — `Any` and `Map` are gone, signatures are declared,
 nothing converts by itself — and there is no setting that turns any of it
 off. A service is described once, from its OpenAPI spec if it has one; a
@@ -593,7 +593,7 @@ rather than what it did."#)
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 111))
+            ], count: 111), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -920,7 +920,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 124), latest: true)
+            ], count: 124))
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
