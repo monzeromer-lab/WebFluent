@@ -15,6 +15,17 @@ pub fn default_tokens() -> HashMap<String, String> {
     t.insert("color-text".into(), "#0F172A".into());
     t.insert("color-text-muted".into(), "#64748B".into());
     t.insert("color-border".into(), "#E2E8F0".into());
+    // What is written on a tone: a primary button's label, a success
+    // badge's, a selected day's. A theme whose primary is light names a dark
+    // one, and every built-in drawn on that tone follows.
+    t.insert("color-on-primary".into(), "#FFFFFF".into());
+    t.insert("color-on-secondary".into(), "#FFFFFF".into());
+    t.insert("color-on-success".into(), "#FFFFFF".into());
+    t.insert("color-on-danger".into(), "#FFFFFF".into());
+    t.insert("color-on-warning".into(), "#000000".into());
+    t.insert("color-on-info".into(), "#FFFFFF".into());
+    // What dims the page behind a modal, a dialog, a sheet and a drawer.
+    t.insert("color-backdrop".into(), "rgb(0 0 0 / 0.5)".into());
 
     // Typography
     // System fonts, not webfonts. The baseline used to name Inter and JetBrains

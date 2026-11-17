@@ -645,6 +645,80 @@ impl Checker<'_, '_> {
         }
     }
 
+    /// `errors { 404 -> Problem }` as 7.0 writes it: an error enum, a case
+    /// a status named by its reason phrase (`notFound`), declared before
+    /// the service, and the endpoint answering `-> T ! UserError`.
+    fn plan_error_enum(
+        &mut self,
+        api: &crate::syntax::parser::ast::ApiDecl,
+        e: &crate::syntax::parser::ast::Endpoint,
+    ) {
+        let Some(source) = self.source else { return };
+        let Some(file) = self.world.api_files.get(api.name.as_str()).cloned() else {
+            return;
+        };
+        let mut name = String::new();
+        let mut upper = true;
+        for c in e.name.chars() {
+            name.push(if upper { c.to_ascii_uppercase() } else { c });
+            upper = false;
+        }
+        let name = format!("{name}Error");
+        if self.world.enums.contains_key(name.as_str())
+            || self.world.types.contains_key(name.as_str())
+        {
+            return;
+        }
+        let cases: Vec<String> = e
+            .errors
+            .iter()
+            .map(|(status, ty)| {
+                format!(
+                    "    {}(problem: {}) on {status}",
+                    crate::project::openapi::reason(*status),
+                    crate::syntax::print::type_ref(ty)
+                )
+            })
+            .collect();
+        let declared = format!(
+            "enum {name} {{\n{}\n    http(error: HttpError)\n}}\n\n",
+            cases.join("\n")
+        );
+        let mut fixed = e.clone();
+        fixed.errors.clear();
+        fixed.returns = Some(TypeRef::Result(
+            Box::new(e.returns.clone().unwrap_or(TypeRef::Unit)),
+            Some(Box::new(TypeRef::Named(name.clone()))),
+        ));
+        // The endpoint, and an `errors { }` block written after it.
+        let (start, mut end) = (
+            e.span.start as usize,
+            (e.span.end as usize).min(source.len()),
+        );
+        let rest = &source[end..];
+        let skipped = rest.len() - rest.trim_start().len();
+        if rest.trim_start().starts_with("errors")
+            && let Some(close) = rest[skipped..].find('}')
+        {
+            end += skipped + close + 1;
+        }
+        self.plan_last(
+            format!("Write `-> … ! {name}` and declare `enum {name}`"),
+            crate::diagnostics::fixes::Plan::All(vec![
+                crate::diagnostics::fixes::Plan::Replace {
+                    start,
+                    end,
+                    text: crate::syntax::print::endpoint(&fixed),
+                },
+                crate::diagnostics::fixes::Plan::InsertIn {
+                    file,
+                    at: api.span.start as usize,
+                    text: declared,
+                },
+            ]),
+        );
+    }
+
     /// `N08` for an endpoint written as 6.x wrote one: one that does not
     /// say how it fails (`-> T`, no result), or types its failures with
     /// `errors { }` rather than an error enum.
@@ -661,6 +735,7 @@ impl Checker<'_, '_> {
                 format!("`{what}` types its failures with `errors {{ }}`, which 7.0 replaced with an error enum"),
                 "Declare `enum NameError { unprocessableContent(problem: T) on 422  http(error: HttpError) }` and write `-> T ! NameError`",
             );
+            self.plan_error_enum(api, e);
             return;
         }
         if matches!(e.returns, Some(TypeRef::Result(..))) {

@@ -307,7 +307,7 @@ lints and the config — and writes nothing.
 | `-d`, `--dir` | a directory | `.` | The project to check. |
 | `--format` | `human`, `json`, `sarif`, `github` | `human` | How findings are written, as for [`wf build`](#wf-build). |
 | `--deny-warnings` | — | off | Fails on a warning too. |
-| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check reports what the build would refuse. |
+| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check says the build would refuse it, and checks everything else. |
 
 ```bash
 wf check

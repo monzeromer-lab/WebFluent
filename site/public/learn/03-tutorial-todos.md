@@ -32,7 +32,7 @@ ones. It is one page, one store and one component. The finished project is
 
 You need:
 
-- `wf` installed and on your `PATH` — `wf --version` prints `wf 6.0.0` or
+- `wf` installed and on your `PATH` — `wf --version` prints `wf 7.0.0` or
   later ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)).
 - Chrome or Chromium on the machine, for the tests that click and for
   `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.
@@ -412,7 +412,7 @@ wf serve
 appears, and the count reads `1 left`. Reload the page, and the todo is
 still there. Click **Open**, and the address becomes `/?show=open`.
 
-If the server prints `No theme Paper is declared in this project`, you
+If the server prints ``No `theme Paper` is declared in this project``, you
 probably skipped `src/theme.wf` in step 2. If a store member shows as
 `U04` here, you probably left out part of the page.
 

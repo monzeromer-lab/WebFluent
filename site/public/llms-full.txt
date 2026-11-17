@@ -111,7 +111,7 @@ wf --version
 **You see** the release you installed:
 
 ```text
-wf 6.0.0
+wf 7.0.0
 ```
 
 If the shell says it cannot find `wf`, open a new terminal. The installer
@@ -252,7 +252,7 @@ Both installers read two environment variables:
 | Variable | Effect | Example |
 |---|---|---|
 | `WF_INSTALL_DIR` | Installs the binary somewhere other than `~/.webfluent/bin` | `WF_INSTALL_DIR=/opt/wf/bin` |
-| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v6.2.0` |
+| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v7.0.0` |
 
 Running the installer again upgrades `wf` in place.
 
@@ -900,11 +900,14 @@ and call it from the form's handler:
 ```wf
 // … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
-    await Suggestions.suggest(body: { title: title, author: author, why: why })
+    try await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
     form.reset()
 }
 ```
+
+`try` takes the call's value, or stops the handler on a failure and reports
+it, so `sent` turns true only when the suggestion arrived.
 
 ([Data and APIs](/learn/15-data), [Environments and secrets](/recipes/environments-and-secrets).)
 
@@ -1377,7 +1380,7 @@ ones. It is one page, one store and one component. The finished project is
 
 You need:
 
-- `wf` installed and on your `PATH` — `wf --version` prints `wf 6.0.0` or
+- `wf` installed and on your `PATH` — `wf --version` prints `wf 7.0.0` or
   later ([Getting started](/learn/01-getting-started)).
 - Chrome or Chromium on the machine, for the tests that click and for
   `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.
@@ -1757,7 +1760,7 @@ wf serve
 appears, and the count reads `1 left`. Reload the page, and the todo is
 still there. Click **Open**, and the address becomes `/?show=open`.
 
-If the server prints `No theme Paper is declared in this project`, you
+If the server prints ``No `theme Paper` is declared in this project``, you
 probably skipped `src/theme.wf` in step 2. If a store member shows as
 `U04` here, you probably left out part of the page.
 
@@ -1917,12 +1920,12 @@ https://webfluent.monzeromer.dev/learn/04-language-basics
 
 This chapter covers the shape of every `.wf` file. A WebFluent program is a
 set of declarations: pages, components, stores and the rest, each a keyword
-followed by a name and a body. Learn the thirteen kinds and the two kinds of
+followed by a name and a body. Learn the fifteen kinds and the two kinds of
 body, and you can read any `.wf` file.
 
 In this chapter:
 
-- the thirteen declarations, and the chapter that covers each
+- the fifteen declarations, and the chapter that covers each
 - how names are written
 - comments, including the doc comments the editor shows
 - render blocks and imperative blocks, and what goes in each
@@ -1933,7 +1936,7 @@ In this chapter:
 
 A `.wf` file holds top-level declarations and nothing else. You cannot put an
 element or a statement loose in a file; it belongs in the body of a
-declaration. This file uses all thirteen kinds:
+declaration. This file uses all fifteen kinds:
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
@@ -1944,12 +1947,17 @@ app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: "/api/v1") { get todos() at "todos" -> [Todo]! }
+middleware timed(req, next) { return await next(req) }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
 test "pill shows its label" { Pill("Beta")  expect "Beta" }
+fake NoTodos for Backend { todos() { .ok([]) } }
 ```
+
+(`data` and `image` read their files when the project builds, so this one
+needs a `posts.json` and a `hero.jpg` beside it to build.)
 
 Each keyword declares one kind of thing:
 
@@ -3059,7 +3067,7 @@ The built-ins fall into these families:
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search)) |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](/learn/14-forms)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
@@ -3082,7 +3090,7 @@ page Report(path: "/", title: "Report", description: "The month, at a glance.") 
         Stat("Revenue", value: 48210, format: .currency, change: 0.124)
         Stat("Churn", value: 0.031, format: .percent, change: -0.02)
     }
-    Text { Text("Search with ")  Kbd("mod+k") }
+    Row(gap: .xs, align: .center) { Text("Search with")  Kbd("mod+k") }
     for tag in tags by tag {
         Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
     }
@@ -3540,7 +3548,8 @@ in this order, innermost first:
 6. Constants, `data` and `image` declarations, `env.X`, and the browser's
    values above.
 7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
-   `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.
+   `Date`, `setTimeout`, `console`, `navigator`, `location`. (A request is
+   `http.get(…)`; the browser's own `fetch` is `window.fetch`.)
 
 So with `state name = "outer"`, `for name in items by name { Text(name) }`
 shows each item, and a `const name` is hidden by both.
@@ -4804,8 +4813,9 @@ The rules for props:
 
 - `_ name: Type` marks the one prop a call may pass positionally. It must be
   the first prop. Every other prop is passed by name.
-- Every prop has a written type: `String`, `Number`, `Bool`, `Map`, `Any`,
-  `[T]` (a list), `T?` (may be `null`), or a declared `type` or `enum`. See
+- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a
+  list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a
+  function), `Json`, or a declared `type` or `enum`. See
   [Types](/learn/12-types) for the whole type language.
 - `= expr` gives a prop a default, so a call may leave it out. A `T?` prop
   with no default defaults to `null`.
@@ -5719,12 +5729,16 @@ store's actions and handlers name the connection as it is declared, and a
 page reads it through the store:
 
 ```wf
+type Line { text: String }
+
 store Live {
     state last = ""
     socket feed = ws("wss://example.com/feed") {
+        send Line
+        receive Line
         on message(m) { last = m.text }
     }
-    action say(text: String) { feed.send({ text: text }) }
+    action say(text: String) { feed.send(Line(text: text)) }
 }
 
 page Feed(path: "/", title: "Feed", description: "One line for every page.") {
@@ -5979,10 +5993,12 @@ https://webfluent.monzeromer.dev/learn/12-types
 
 This chapter covers WebFluent's types and the checker that holds a program to
 them. The checker runs in `wf build`, `wf check` and the
-editor, before any output is written. It is *gradual*: a program that
-declares no types still checks, because whatever the checker cannot work
-out has the type `Any`, and `Any` agrees with everything. Every annotation
-you add lets the checker say more. It is also *structural*: a value fits a
+editor, before any output is written. It is *strict*: every value has a
+type the program can name. Most are worked out for you — a literal, a
+record, a store member, a method's result — and what cannot be worked out
+(an empty list's items, an action's parameters, JSON whose shape is open) is
+written, or the checker says where (`T25`, `T32`, `T23`). It is also
+*structural*: a value fits a
 type when it has the right fields, whatever it was declared as. The checker
 changes nothing in the output; it only reports.
 
@@ -6029,15 +6045,16 @@ Writing `total: 120` fixes it. Had the invoice been an untyped map,
 | Number | `Number` (`Int` and `Float` are accepted as other spellings of it) | `42`, `3.14` |
 | Bool | `Bool` | `true`, `false` |
 | List | `[String]`, `[Todo]` | `[a, b]` |
-| Map | `Map` | `{ key: value }` — an object with unknown keys |
 | Optional | `String?`, `Todo?` | a value or `null` |
 | Record | the `type`'s name | `Todo(id: "a", title: "b")` |
 | Enum | the `enum`'s name | `.case` |
 | Dictionary | `[String: Number]`, `[Region: Money]` | `{ ada: 3, bo: 5 }` — keys of one type to values of another |
 | Function | `(Todo) -> Bool`, `() -> ()` | `t => t.done`, an action |
 | Result | `Settings ! DecodeError` | `.ok(value)` or `.err(error)` |
-| JSON | `Json` | JSON as it arrives: matched, or decoded into a type |
-| Any | `Any` | anything; what is not known |
+| JSON | `Json` | JSON as it arrives, whose shape is open: matched, or decoded into a type |
+
+There is no `Any` and no `Map` (`T23`, `T24`): a value whose shape you know
+is a record or a dictionary, and one whose shape is open is `Json`.
 
 You write a type after a colon on a `state`, a prop, an action parameter, a
 `type` field, a route parameter, a `let` or a `resource`. This page uses
@@ -6261,8 +6278,9 @@ page Records(path: "/", title: "Records", description: "A list of records.") {
   every field of `Todo`, then its own.
 - Records are structural: `{ id: "a", title: "b" }` given where a `Todo` is
   wanted is a `Todo`, and its fields are checked against the record's.
-- A `Map` fits any record, and a record fits a `Map`. So JSON from `fetch`
-  fits a `type` it was never declared as.
+- An answer from the network is held to the type you name for it, field
+  by field, as it arrives — `.decode(at, message)` names the field that does
+  not fit.
 
 ## Enums
 
@@ -6311,9 +6329,10 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
 
 A map literal has the fields it was written with. `{ name: "", age: 0 }`
 has the *shape* `{ name: String, age: Number }`, and reading `form.nam` is
-`T05`, with the fields it does have. A shape fits a `Map`, a record with the
-same fields, and any shape it agrees with. An empty `{}` and a literal with
-a spread say nothing about their keys, so they are plain `Map`s.
+`T05`, with the fields it does have. A shape fits a record with the same
+fields, and any shape it agrees with. An empty `{}` and a literal with a
+spread say nothing about their keys: where one is held, say what it holds
+— `state seen: [String: Bool] = {}` — or the checker asks (`T25`).
 
 ```wf
 page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape.") {
@@ -6534,11 +6553,12 @@ needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
 - On a list: `map` → `[U]` from the lambda; `filter`, `slice`, `concat`,
   `sort`, `sortBy`, `unique`, `take`, `flatMap` → `[T]`; `find`, `first`,
   `last` → `T?`; `some`, `every`, `includes` → `Bool`; `length`, `sum`,
-  `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`;
+  `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `[K: [T]]`;
   `reduce` → the initial value's type.
 - On a `Number`: `toFixed`, `toString` → `String`.
 
-Any other method is `Any`. The full lists are in
+A method the type does not have is `T16`, with the nearest one it does. The
+full lists are in
 [Built-ins](/reference/built-ins).
 
 **From stores:** `Todos.items` has the type of the store's state, and
@@ -6583,7 +6603,7 @@ The rules for operators and forms:
 - `a ?? b` is `a` without its `null`, joined with `b`.
 - `a?.b` is `b`'s type made optional, and the rest of the chain with it.
 - `if` and `match` used as values have the type both arms fit: the same
-  type, `T?` when one arm is `null`, and `Any` otherwise.
+  type, `T?` when one arm is `null`; arms with no type in common are `T27`.
 - `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
   side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
 - `await http.get(…)` is what you annotate it as:
@@ -6640,8 +6660,10 @@ no `?.`.
 
 ## Typing data from the network
 
-`fetch` returns `Any`, because the checker cannot see what a URL will
-return. Annotate the resource or the local variable to type its value:
+The checker cannot see what a URL will return, so an `http.get` says it:
+annotate the resource or the local variable with the type it holds (`N11`
+without one). The answer is held to that type as it arrives, in every
+build:
 
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
@@ -6659,9 +6681,9 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 }
 ```
 
-The checker trusts the annotation. A development build (`wf serve`) also
-holds each response to its declared type, and a mismatch is a `.parse`
-error that names the place, such as `$[1].status is missing`.
+In every build — under `wf serve` and deployed alike — each response is
+held to its declared type as it arrives, and one that does not fit fails as
+`.decode(at, message)`, naming the place, such as `$[1].status is missing`.
 
 When the server publishes an OpenAPI specification, let it write the
 contract instead: `wf api add openapi.json --name Backend` writes every
@@ -6713,8 +6735,9 @@ the narrowing forms above. `wf explain T05` prints a code's full entry, and
 
 - It does not check a lambda's body against a return type unless the lambda
   is handed to a function type, which says one.
-- It does not know what a plain `fetch` returns. Annotate it, or describe
-  the service with an `api`.
+- It does not know what a server will send until it sends it: an `http`
+  call names its type, or the service is described with an `api`, and what
+  arrives is held to it at run time.
 
 ## In the editor
 
@@ -6730,7 +6753,7 @@ diagnostic on the argument it belongs to. To set up the editor, see
 | Syntax | Meaning |
 |---|---|
 | `state x: T = v` | Annotate a state; props, parameters, fields and `let` take `: T` the same way |
-| `[T]` · `T?` · `Map` · `Any` | A list, a value that may be `null`, an object with unknown keys, anything |
+| `[T]` · `T?` | A list, a value that may be `null` |
 | `[K: V]` · `(A) -> R` · `()` | A dictionary, a function, nothing |
 | `type Name = T` | Another name for a type |
 | `action f() -> T` · `(a: T) => …` | What an action returns; a lambda's parameter type |
@@ -7666,7 +7689,7 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
         Input(bind: email, name: "email", label: "Email").email.required
         Input(bind: message, name: "message", label: "Message").required
         Button("Send", type: .submit, disabled: !form.valid || send.pending).primary
-        Text("Fields: {form.values.name} {form.values.email}").muted.sm
+        Text("{form.values.keys().length} fields filled in").muted.sm
     }
     if sent { Alert("Thanks — we will be in touch.").success }
 }
@@ -7686,7 +7709,7 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
 | `form.errors` | The message of every field that has one, by name |
 | `form.touched` | Which fields the reader has left |
 | `form.pending` | Whether an `async` rule is still waiting for its answer |
-| `form.values` | A map of the controls' values, by their `name:` attribute |
+| `form.values` | The controls' values by their `name:` attribute, as `[String: Json]`: a field's own state is the typed way to read one |
 | `form.reset()` | Clears the form, and every message it was showing |
 | `form.submit()` | Submits the form from code |
 | `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said)) |
@@ -7925,9 +7948,9 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
     state picked: File? = null
     state done = false
 
-    action upload() {
+    action upload() -> ! {
         if let f = picked {
-            await Backend.avatar(id: "me", file: f)
+            try await Backend.avatar(id: "me", file: f)
             done = true
         }
     }
@@ -8630,7 +8653,7 @@ call with `.transport`.
 | Feature | What it does |
 |---|---|
 | Abort | A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout |
-| Errors | an `HttpError`: `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message` |
+| Errors | an `HttpError`: `.offline`, `.timeout(limit)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message` |
 | Decoding | What a call or a `resource` declares it returns is held to what arrives, in every build: a server that breaks its contract fails as `.decode(at, message)` |
 | Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice, a `POST` or `PATCH` only when its endpoint is `idempotent` |
 | Cache | What the server's `Cache-Control` allows (RFC 9111): fresh for its `max-age`, stale within `stale-while-revalidate`, revalidated with `ETag`, never under `no-store`, kept apart by `Vary` and the credentials; nothing without caching headers. `cache: .maxAge(60.seconds)`, `.swr(…)`, `.none`, `.forever` override it. It holds the 256 answers read most recently |
@@ -8918,7 +8941,7 @@ post createUser(body: NewUser) at "createUser" -> User ! CreateUserError
 put rename(id: String, body: Rename) at "users/{id}" -> User!
 patch settings(body: Settings) at "settings" -> Settings!
 delete removeUser(id: String) at "users/{id}" -> !
-get report(id: String) at "reports/{id}" -> Json! as: .blob
+get report(id: String) at "reports/{id}" -> File! as: .blob
 ```
 
 - **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or
@@ -8943,7 +8966,7 @@ get report(id: String) at "reports/{id}" -> Json! as: .blob
 - **What comes back.** `-> T!` is a success's `T`, or an `HttpError`;
   `-> T ! E` names the failures in an error enum `E`, each status a case
   with its typed body; `-> !` returns nothing, as `204 No Content` does, and
-  may fail. Under `wf serve` the body that arrives is held to `T`, and a
+  may fail. In every build the body that arrives is held to `T`, and a
   declared status's body to its case's type. What crosses is a type the
   program names: `Map` and `Any` there are `N11`.
 - **Other responses.** `as:` says how to read a response that is not JSON:
@@ -9025,7 +9048,7 @@ page Team(path: "/people", title: "People", description: "Adding someone, and wh
   carries one value, the body of that status. An enum that names a status
   is held to that shape (`N12`).
 - **`HttpError`** is what goes wrong between the page and the server:
-  `.offline(queued)`, `.timeout(after)`, `.cancelled`, `.transport(message)`,
+  `.offline(queued)`, `.timeout(limit)`, `.cancelled`, `.transport(message)`,
   `.decode(at, message)` and `.status(code, problem)`. Every one has
   `.message`, for showing. `queued` is true for a write kept to send when
   the connection returns ([Keep writes made offline](/recipes/keep-writes-made-offline)).
@@ -9189,18 +9212,20 @@ in `meta.connect` too ([Security](/about/security)).
 
 To make an edit appear at once instead of after the round trip, call
 `optimistic(holder, change)` before the request. If anything later in the
-action throws, the change is taken back: the action rolls itself back.
+action fails — a `try` passing a failure up, or a throw — the change is
+taken back: the action rolls itself back.
 
 ```wf
-action rename(id: String, name: String) {
+action rename(id: String, name: String) -> ! {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id: id, body: { name: name })
+    try await Backend.updateUser(id: id, body: Rename(name: name))
     Backend.users.invalidate()
 }
 ```
 
-The new title shows at once. If `updateUser` fails, the old title comes
-back.
+The new title shows at once. If `updateUser` fails, `try` passes the
+failure up, and the old title comes back. The change's parameter is what
+the holder holds, so `items` and `i` are typed with nothing written.
 
 ## Ask on demand with `http`
 
@@ -9415,7 +9440,7 @@ source of data puts in that HTML:
 |---|---|
 | The browser console says a response was blocked by CORS | The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)). |
 | A request gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
-| A `.parse` error naming a place, such as `$[1].name is missing` | Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
+| A `.decode(at, message)` failure naming a place, such as `$[1].name is missing` | In every build, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
 | A resource stays `.loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
 | The page goes back to `.loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the value; `placeholder: .previous` keeps it for a new address too. |
 | `T05` on a field of the data | The declared type has no such field. Fix the name, or add the field to the `type`. |
@@ -9454,12 +9479,14 @@ The address is `http.get("/api/servers?env={stage}")`, and a button sets `stage`
 
 ## Common mistakes
 
-**A `match` with no `error` arm.** When the request fails, no arm draws, and
-the reader is not told:
+**A `match` with no `.failed` arm.** When the request fails, no arm draws,
+and the reader is not told:
 
 ```wf expect=T21
+type User { id: String, name: String }
+
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users = http.get("/api/users")
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
         .loading { Spinner }
@@ -9468,7 +9495,7 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 }
 ```
 
-Add `error(e) { Alert(e.message).danger }`, or an `else`
+Add `.failed(e) { Alert(e.message).danger }`, or an `else`
 ([T21](/errors/T21)).
 
 **A field the declared type does not have.** Once a resource is typed, every
@@ -9710,8 +9737,9 @@ store's state. Seeding works the same in a test that only looks and in one
 that clicks.
 
 A seed is held to the state it seeds before the test runs: `data: { count:
-"two" }` for a `state count = 0` is `T33`, naming the place (`Cart.items[0]
-is 1, not a String`), and a store member the store does not have is `T05`.
+"two" }` for a `state count = 0` is `T33`, naming the place (`count is
+"two", not a Number`; a store's seed names it, `Cart.items[0] is 1, not a
+CartItem`), and a store member the store does not have is `T05`.
 
 This test fills the cart with two of one item and checks the summary:
 
@@ -12034,8 +12062,9 @@ app {
 ```
 
 - The link whose `to:` is the page shown is marked `aria-current="page"`.
-- `ThemeToggle` is two icon buttons that call `setTheme("dark")` and
-  `setTheme("light")`. The reader's choice is kept across visits.
+- `ThemeToggle` is one button: a moon in a light page and a sun in a dark
+  one, named for the theme it switches to. It calls `setTheme`, and the
+  reader's choice is kept across visits.
 - `Router(transition: .fade, duration: "160ms")` fades one page out and
   the next in.
 
@@ -13158,7 +13187,7 @@ prefers, and keep that choice across visits. The switch needs a dark theme
 named in `webfluent.app.json`:
 
 **Needs:** the `theme` setting below in `webfluent.app.json`. The starter
-already declares `theme Night` in `src/theme.wf` and a `ThemeToggle`
+already declares `theme Night` in `src/theme.wf` and a `DarkModeSwitch`
 component that does this; replace `src/theme.wf` with this code's themes,
 and its `Settings` page replaces the starter's `src/pages/Settings.wf`.
 
@@ -15081,7 +15110,9 @@ reader's place, and the button goes away once there is nothing more.
   busy and cannot ask twice. `list.hasMore` turns false when a page comes
   back empty, and the button goes.
 - A server that pages by cursor, or by a `Link` header, says so instead:
-  `pages .cursor(param: after, next: p => p.nextCursor)`, `pages .link`.
+  `pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)`
+  (a cursor comes with a page that is a record, so it says where the items
+  are), or `pages .link`.
 
 
 
@@ -18554,7 +18585,7 @@ and when data saver is on:
 ```wf
 page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
     Heading("Inbox").h1
-    if !network.online { Alert("You are offline — changes are queued.").warning }
+    if !network.online { Alert("You are offline.").warning }
     if network.saveData { Text("Data saver is on.").muted }
 }
 ```
@@ -18589,7 +18620,8 @@ signed-in user in a store:
 **Needs:** a server that answers the `/api` endpoints the `api` block
 names and sets the session cookie. The code declares `type User` and an
 `app`, as the starter does: paste it into a new project, replacing
-`src/App.wf` and the starter's `src/stores/auth.wf`.
+`src/App.wf` and the starter's `src/stores/auth.wf`, and deleting
+`src/pages/Profile.wf`, which reads the starter's `AuthStore`.
 
 ```wf
 type User { id: String, name: String }
@@ -18699,8 +18731,9 @@ app {
   every endpoint whose answer is one reader's: an answer cached under one
   `Authorization` header is never served for another, but a cookie cannot
   be read, so the cache cannot tell one cookie's reader from the next.
-- The `SignIn` page validates its two fields and calls `Session.signIn`
-  in a `try`, so a wrong password shows an `Alert` instead of throwing.
+- The `SignIn` page validates its two fields and matches the result of
+  `Session.signIn`, so a wrong password shows an `Alert` instead of
+  throwing.
   `send.pending` disables the button while the request runs, and
   `noindex: true` keeps the page out of search results.
 - `Session.load()` at the top of `app` runs once, when the site opens: a
@@ -19372,7 +19405,8 @@ wf test
   by what a reader sees, so a test also catches a control that lost its
   name.
 - A test that only looks needs no browser. It is rendered and compared
-  with a snapshot, `tests/__snapshots__/shopping/<test name>.html`, written
+  with a snapshot, `tests/__snapshots__/shopping/<the-test-name>.html` (its
+  name in lower case, hyphenated), written
   the first time it runs. When a change is meant, `wf test --update`
   writes the snapshots again; commit them with the code.
 - A handler that throws fails the test, so a broken click is caught even
@@ -21040,7 +21074,7 @@ npm ci
 npm test
 ```
 
-`npm test` runs sixteen suites, starting with `offline.mjs` and `peer.mjs`;
+`npm test` runs every suite there, starting with `offline.mjs` and `peer.mjs`;
 each is also a script you can run alone, such as `node offline.mjs`. CI
 runs all of it on every push, and a few browser suites more.
 
@@ -21808,8 +21842,8 @@ it, the build evaluates the page as far as it can know the values:
 | Components | Expanded, with props substituted and slots filled |
 | `t("…")` | In the default locale |
 | `format`, `ago`, the list and string helpers | Computed, with a built-in table of locales |
-| `resource` and `api` calls | The `loading` arm; the live page fetches and replaces it |
-| `await fetch` in an action | Nothing, until the action runs |
+| `resource` and `api` calls | The `.loading` arm; the live page asks and replaces it |
+| `await http.get(…)` in an action | Nothing, until the action runs |
 | `viewport`, `query`, `hash`, `theme`, `network` | Unknown — a condition on them is drawn once the page is live |
 | Anything read from `window`, `document`, `localStorage` | Unknown |
 
@@ -21897,8 +21931,9 @@ You get these without setting anything:
 - **Only the runtime you use.** The *runtime* is the JavaScript the
   compiled pages call. It is a set of modules, and a build keeps only the
   ones its code reaches, and of those only the functions its calls reach.
-  A single-page build of one page of static text is an `app.js` of
-  about 5 kB, 1.9 kB gzipped.
+  A build of one page of static text, with no `app` (so no router), is an
+  `app.js` of about 5 kB, 1.9 kB gzipped; an `app` with a `Router` adds the
+  router, about 4 kB gzipped more.
 - **Short names.** A minified build shortens the runtime's own names, its
   top-level ones and each function's locals. What your pages call keeps
   its name.
@@ -22129,10 +22164,11 @@ findings is a project whose pages load, and `wf verify` exists to test the
 bet: it opens every route in a real browser and fails on an uncaught error,
 a failed request or a page that drew nothing.
 
-Types make most of this possible, and they are optional. A value the
-checker cannot work out is `Any`, which agrees with everything, so a
-program that declares no types checks as it always would. Every annotation
-you add narrows what the checker can say.
+Types make most of this possible, and most of them are worked out for
+you: a literal, a record, a store member, what a method gives back. What
+cannot be worked out — an empty list's items, an action's parameters, what
+a server answers — is written, and the checker says where it is missing.
+Every value has a type the program can name.
 
 ## Secure by construction, not by advice
 
@@ -22201,7 +22237,7 @@ mistakes the compiler finds before your readers do.
 - Coming from a framework, read
   [Coming from React](/coming-from/react) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](/reference).
-- This guide describes WebFluent 6. [Upgrading](/errors/upgrading) lists what
+- This guide describes WebFluent 7. [Upgrading](/errors/upgrading) lists what
   each release changed.
 
 
@@ -24579,7 +24615,7 @@ lints and the config — and writes nothing.
 | `-d`, `--dir` | a directory | `.` | The project to check. |
 | `--format` | `human`, `json`, `sarif`, `github` | `human` | How findings are written, as for [`wf build`](#wf-build). |
 | `--deny-warnings` | — | off | Fails on a warning too. |
-| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check reports what the build would refuse. |
+| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check says the build would refuse it, and checks everything else. |
 
 ```bash
 wf check
@@ -25899,6 +25935,21 @@ since the property would fall back to nothing. `wf theme` lists every token
 the build uses, where each is read, and the contrast of the colour pairs
 ([Command line](/reference/cli#wf-theme)).
 
+## Every built-in follows the theme
+
+The built-ins draw their colours, sizes, radii, fonts and motion from these
+tokens and nothing else, so a theme restyles every one of them, the ones a
+page adds later included. A tone's label is a token too: `color-on-primary`
+is what a primary button, badge, pressed toggle, current page or selected
+day writes on `color-primary`, and so for `secondary`, `success`, `danger`,
+`warning` and `info`. A theme with a light primary names a dark
+`color-on-primary`, and `A13` holds each pair to WCAG AA where a page draws
+it. An alert's tint, a focus ring and a highlighted match are worked out from
+the tone and the page's colours (`color-mix`), so a dark theme gets dark
+alerts without naming any; `color-backdrop` dims the page behind a modal, a
+dialog, a sheet and a drawer. The only colours that stay fixed are the ones
+over a picture: a carousel's and a lightbox's controls.
+
 ## The baseline
 
 The tables below are written from the compiler's baseline theme, and the
@@ -25910,10 +25961,17 @@ test suite checks them against it.
 
 | Token | Baseline |
 |---|---|
+| `color-backdrop` | `rgb(0 0 0 / 0.5)` |
 | `color-background` | `#FFFFFF` |
 | `color-border` | `#E2E8F0` |
 | `color-danger` | `#EF4444` |
 | `color-info` | `#06B6D4` |
+| `color-on-danger` | `#FFFFFF` |
+| `color-on-info` | `#FFFFFF` |
+| `color-on-primary` | `#FFFFFF` |
+| `color-on-secondary` | `#FFFFFF` |
+| `color-on-success` | `#FFFFFF` |
+| `color-on-warning` | `#000000` |
 | `color-primary` | `#3B82F6` |
 | `color-secondary` | `#64748B` |
 | `color-success` | `#22C55E` |
@@ -26051,7 +26109,7 @@ test suite checks them against it.
 |---|---|
 | `wf-header-height` | `56px` |
 
-80 tokens in all.
+87 tokens in all.
 
 <!-- /tokens -->
 

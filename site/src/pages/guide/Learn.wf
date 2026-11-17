@@ -35,7 +35,7 @@ page LearnIndex(path: "/learn", title: "Learn WebFluent", description: "The WebF
             Grid(columns: { base: 1, md: 2 }, gap: .md) {
                 Link(to: "/learn/04-language-basics", class: "bp-card") {
                     Text("4. Language basics") { style { font-weight: 650 } }
-                    Text("The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", class: "bp-small")
+                    Text("The shape of every .wf file: the fifteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", class: "bp-small")
                 }
                 Link(to: "/learn/05-pages-and-routing", class: "bp-card") {
                     Text("5. Pages and routing") { style { font-weight: 650 } }
@@ -67,7 +67,7 @@ page LearnIndex(path: "/learn", title: "Learn WebFluent", description: "The WebF
                 }
                 Link(to: "/learn/12-types", class: "bp-card") {
                     Text("12. Types") { style { font-weight: 650 } }
-                    Text("A gradual, structural type checker that changes no output and names every mistake where you wrote it.", class: "bp-small")
+                    Text("A strict, structural type checker that changes no output and names every mistake where you wrote it.", class: "bp-small")
                 }
             }
         }

@@ -9,5 +9,5 @@ api Oxn(base: "/") {
 
     // What a write makes stale, and how a read pages, for the generated
     // endpoints: `invalidations { group.create invalidates [group.list] }`,
-    // `pagination { group.list pages .cursor(param: after, next: p => p.next) }`.
+    // `pagination { group.list pages .cursor(param: after, next: p => p.next, items: p => p.items) }`.
 }

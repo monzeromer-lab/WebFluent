@@ -77,8 +77,9 @@ The rules for props:
 
 - `_ name: Type` marks the one prop a call may pass positionally. It must be
   the first prop. Every other prop is passed by name.
-- Every prop has a written type: `String`, `Number`, `Bool`, `Map`, `Any`,
-  `[T]` (a list), `T?` (may be `null`), or a declared `type` or `enum`. See
+- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a
+  list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a
+  function), `Json`, or a declared `type` or `enum`. See
   [Types](https://webfluent.monzeromer.dev/learn/12-types.md) for the whole type language.
 - `= expr` gives a prop a default, so a call may leave it out. A `T?` prop
   with no default defaults to `null`.

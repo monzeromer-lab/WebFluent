@@ -59,7 +59,7 @@ npm ci
 npm test
 ```
 
-`npm test` runs sixteen suites, starting with `offline.mjs` and `peer.mjs`;
+`npm test` runs every suite there, starting with `offline.mjs` and `peer.mjs`;
 each is also a script you can run alone, such as `node offline.mjs`. CI
 runs all of it on every push, and a few browser suites more.
 

@@ -368,11 +368,32 @@ fn member_hover(project: &Project, file_ix: usize, offset: usize, word: &str) ->
     if owner.is_empty() {
         return None;
     }
-    // `Backend.users`: the endpoint.
-    if let Some(api) = project.program.declarations.iter().find_map(|d| match d {
-        Declaration::Api(a) if a.name == owner => Some(a),
-        _ => None,
-    }) && let Some(e) = api.endpoints.iter().find(|e| e.name == word)
+    // `Backend.users.list`: the group is the service and the word before
+    // the dot together.
+    let dotted: String = before
+        .chars()
+        .rev()
+        .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '.')
+        .collect::<String>()
+        .chars()
+        .rev()
+        .collect::<String>()
+        .trim_matches('.')
+        .to_string();
+    let service = |name: &str| {
+        project.program.declarations.iter().find_map(|d| match d {
+            Declaration::Api(a) if a.name == name => Some(a),
+            _ => None,
+        })
+    };
+    let owner = if service(&dotted).is_some() {
+        dotted
+    } else {
+        owner
+    };
+    // `Backend.users`, `Backend.people.list`: the endpoint.
+    if let Some(api) = service(&owner)
+        && let Some(e) = api.endpoints.iter().find(|e| e.name == word)
     {
         let params: Vec<String> = e
             .params
@@ -391,7 +412,7 @@ fn member_hover(project: &Project, file_ix: usize, offset: usize, word: &str) ->
             .unwrap_or_default();
         return Some(format!(
             "**{word}** — endpoint of `{owner}`\n\n```wf\n{} {}({}) at \"{}\"{returns}\n```{doc}\n\nCalled `{owner}.{word}(…)`: typed, cached, deduplicated and cancellable.",
-            e.method,
+            e.method.to_lowercase(),
             e.name,
             params.join(", "),
             e.path

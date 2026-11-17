@@ -84,6 +84,9 @@ pub struct FakeAnswer {
     pub params: Vec<String>,
     pub body: Expr,
     pub span: Span,
+    /// Where an answer nobody wrote came from — "the spec's example of
+    /// `getPerson`" for `from examples` — so a fault in it is named there.
+    pub example: Option<String>,
 }
 
 /// A `.js` file under `src/` (`project_js`), as the build read it.

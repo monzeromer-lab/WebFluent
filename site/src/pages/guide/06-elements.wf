@@ -260,7 +260,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Feedback")
-                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
+                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
                 }
                 Table.Row {
                     Table.Cell("Actions")
@@ -301,7 +301,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
         Stat("Revenue", value: 48210, format: .currency, change: 0.124)
         Stat("Churn", value: 0.031, format: .percent, change: -0.02)
     }
-    Text { Text("Search with ")  Kbd("mod+k") }
+    Row(gap: .xs, align: .center) { Text("Search with")  Kbd("mod+k") }
     for tag in tags by tag {
         Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
     }

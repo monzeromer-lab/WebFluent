@@ -9,8 +9,9 @@ store Search {
 /// Search, as a palette over the page: one field, the kinds to narrow by,
 /// and what matched, in this order: a name or a code that is the term
 /// (`Button`, `T05`, `wf build`); a section another framework's word leads
-/// to (`useState` finds `state`); a heading that holds the term; a section
-/// whose words mention it. Enter opens the first. The index is a file of
+/// to (`useState` finds `state`); a heading that holds every word of it; a
+/// section whose words hold every one. The arrow keys move through what
+/// matched and Enter opens the one marked. The index is a file of
 /// its own, fetched the first time the palette opens rather than carried by
 /// every page.
 component SearchPalette {
@@ -19,6 +20,8 @@ component SearchPalette {
     state kind = "all"
     state rows: [SearchRow] = []
     state asked = false
+    // The result the arrow keys have reached: what Enter opens.
+    state at = 0
 
     action load() {
         if asked { return }
@@ -36,20 +39,32 @@ component SearchPalette {
     derived pool = rows.filter(r => term != "" && (kind == "all" || r.kind == kind))
     derived exact = pool.filter(r => r.section.toLowerCase() == term || r.section.toLowerCase().startsWith("{term} —"))
     derived led = pool.filter(r => !exact.includes(r) && (r.also ?? "").split("|").includes(term))
-    derived named = pool.filter(r => !exact.includes(r) && !led.includes(r) && "{r.title} {r.section}".toLowerCase().includes(term))
-    derived mentioned = pool.filter(r => !exact.includes(r) && !led.includes(r) && !"{r.title} {r.section}".toLowerCase().includes(term) && (r.words.includes(term) || (r.also ?? "").includes(term)))
-    derived hits = [...exact, ...led, ...named, ...mentioned].take(12)
+    // Every word of the search, each found somewhere, in any order:
+    // `sticky header` finds a section about a header that sticks.
+    derived parts = term.split(" ").filter(w => w != "")
+    derived named = pool.filter(r => !exact.includes(r) && !led.includes(r) && parts.every(w => "{r.title} {r.section}".toLowerCase().includes(w)))
+    derived mentioned = pool.filter(r => !exact.includes(r) && !led.includes(r) && !named.includes(r) && parts.every(w => "{r.title} {r.section} {r.words} {r.also ?? ""}".toLowerCase().includes(w)))
+    derived matched = [...exact, ...led, ...named, ...mentioned]
+    derived hits = matched.take(40)
 
     action go() {
-        if let first = hits[0] {
+        if let hit = hits[at] ?? hits[0] {
             Search.hide()
             q = ""
-            navigate(first.route)
+            navigate(hit.route)
         }
     }
 
+    action step(delta: Number) {
+        if hits.length == 0 { return }
+        at = (at + delta + hits.length) % hits.length
+        let row = document.getElementById("hit-{at}")
+        if let r = row { r.scrollIntoView({ block: "nearest" }) }
+    }
+
     on key("mod+k") { if Search.open { Search.hide() } else { Search.reveal()  load() } }
-    on key("/") { if !Search.open { Search.reveal()  load() } }
+    // The `/` that opens it is not typed into it.
+    on key("/", e) { if !Search.open { e.preventDefault()  Search.reveal()  load() } }
 
     Modal(visible: Search.open, title: t("search.title"), class: "bp-palette") {
         on close {
@@ -66,11 +81,15 @@ component SearchPalette {
         Stack {
             style { gap: 0 }
             Row(align: .center, gap: .sm, class: "bp-field") {
-                style { margin: 12px; cursor: text; & input { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0; border: 0; outline: none; background: transparent; color: $ink; font-family: inherit; font-size: 16px } }
+                style { margin: 12px; cursor: text; & input { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0; border: 0; outline: none; box-shadow: none; background: transparent; color: $ink; font-family: inherit; font-size: 16px }  & input::-webkit-search-cancel-button { filter: grayscale(1); opacity: 0.6 } }
                 Icon("search")
-                Input(bind: q, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search", autofocus: true) {
+                Input(bind: q, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search", autofocus: true,
+                      role: "combobox", aria-autocomplete: "list", aria-controls: "search-results", aria-expanded: hits.length > 0,
+                      aria-activedescendant: if hits.length > 0 { "hit-{at}" } else { "" }) {
                     on focus { load() }
-                    on input { load() }
+                    on input { load()  at = 0 }
+                    on key("ArrowDown", e) { e.preventDefault()  step(1) }
+                    on key("ArrowUp", e) { e.preventDefault()  step(-1) }
                     on key("Enter") { go() }
                 }
                 Text("esc", class: "bp-kbd")
@@ -79,7 +98,8 @@ component SearchPalette {
             // The kinds narrow what is found: one chosen at a time, a toggle
             // group (one Tab stop, the arrow keys inside it).
             ToggleGroup(bind: kind, label: t("search.kinds"), class: "bp-tabs") {
-                style { padding: 0 12px; border-bottom: 1px solid $line }
+                style { padding: 0 12px; border-bottom: 1px solid $line; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none }
+                on change { at = 0 }
                 ToggleGroup.Item(t("search.all"), value: "all", class: "bp-tab")
                 ToggleGroup.Item(t("nav.learn"), value: "learn", class: "bp-tab")
                 ToggleGroup.Item(t("nav.recipes"), value: "recipes", class: "bp-tab")
@@ -87,26 +107,34 @@ component SearchPalette {
                 ToggleGroup.Item(t("nav.errors"), value: "errors", class: "bp-tab")
             }
 
-            Stack(role: "listbox", aria-label: t("search.results")) {
+            Stack(role: "listbox", aria-label: t("search.results"), id: "search-results") {
                 style { gap: 2px; padding: 8px; max-height: 380px; overflow-y: auto }
                 if term == "" {
                     Text(t("search.hint"), class: "bp-small") { style { padding: 12px } }
                 } else if hits.length == 0 {
                     Text(t("search.none"), class: "bp-small") { style { padding: 12px } }
                 } else {
-                    for hit in hits by hit.route {
-                        Link(to: hit.route, role: "option", class: "bp-hit") {
+                    for hit, i in hits by hit.route {
+                        Link(to: hit.route, role: "option", class: "bp-hit", id: "hit-{i}", aria-selected: i == at) {
                             on click { Search.hide()  q = "" }
+                            on mouseenter { at = i }
                             Text(hit.chapter, class: "bp-num bp-muted") { style { width: 22px; flex-shrink: 0; font-size: 12px } }
                             Stack {
-                                style { gap: 1px; min-width: 0 }
-                                Text(if hit.section != "" { hit.section } else { hit.title }) { style { font-size: 14px; font-weight: 500 } }
+                                style { gap: 1px; min-width: 0; flex: 1 }
+                                // An Arabic page's title runs right to left in
+                                // an English page's search, and the reverse.
+                                Text(if hit.section != "" { hit.section } else { hit.title }, dir: "auto") { style { font-size: 14px; font-weight: 500 } }
                                 if hit.section != "" {
-                                    Text(hit.title, class: "bp-small")
+                                    Text(hit.title, class: "bp-small", dir: "auto")
                                 }
                             }
                         }
                     }
+                }
+            }
+            if hits.length > 0 {
+                Text(t("search.count", { count: matched.length }), class: "bp-small", role: "status") {
+                    style { padding: 6px 16px 10px; border-top: 1px solid $line }
                 }
             }
         }

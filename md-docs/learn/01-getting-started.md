@@ -85,7 +85,7 @@ wf --version
 **You see** the release you installed:
 
 ```text
-wf 6.0.0
+wf 7.0.0
 ```
 
 If the shell says it cannot find `wf`, open a new terminal. The installer
@@ -226,7 +226,7 @@ Both installers read two environment variables:
 | Variable | Effect | Example |
 |---|---|---|
 | `WF_INSTALL_DIR` | Installs the binary somewhere other than `~/.webfluent/bin` | `WF_INSTALL_DIR=/opt/wf/bin` |
-| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v6.2.0` |
+| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v7.0.0` |
 
 Running the installer again upgrades `wf` in place.
 

@@ -27,7 +27,7 @@
     return e;
   }
 
-  /// A request's failure as an `HttpError`: `.offline(queued)`, `.timeout(after)`,
+  /// A request's failure as an `HttpError`: `.offline(queued)`, `.timeout(limit)`,
   /// `.cancelled`, `.transport(message)`, `.decode(at, message)` or
   /// `.status(code, problem)`, each with `.message` for showing.
   function httpError(error) {
@@ -47,6 +47,18 @@
     Object.defineProperty(parts, "message", { value: message, enumerable: false });
     Object.defineProperty(parts, "httpError", { value: true, enumerable: false });
     return parts;
+  }
+
+  /// What a failed status says: the server's own words when its body is a
+  /// problem (RFC 9457) — its `detail`, else its `title` — and `HTTP 500`
+  /// when it says nothing a reader could use.
+  function statusMessage(status, body) {
+    if (body && typeof body === "object" && !Array.isArray(body)) {
+      for (const key of ["detail", "title"]) {
+        if (typeof body[key] === "string" && body[key].trim()) return body[key].trim();
+      }
+    }
+    return "HTTP " + status;
   }
 
   /// A response's headers as a plain map, lower-cased, so `r.headers.link`
@@ -146,6 +158,17 @@
   // A cookie cannot be read, so a logout should also call `invalidate()` on
   // the endpoints whose answers are one reader's.
   const _httpCache = new Map();
+  /// The request headers an address's answers vary by (`Vary`), learned
+  /// from its first answer: each variant is kept under its own key, so
+  /// English and Arabic answers of one address are both kept.
+  const _varyNames = new Map();
+  function variantKey(base, requestHeaders) {
+    const names = _varyNames.get(base);
+    if (!names) return base;
+    const sent = {};
+    for (const [k, v] of Object.entries(requestHeaders || {})) sent[k.toLowerCase()] = String(v);
+    return base + " \u0003" + names.map((n) => (sent[n] == null ? "" : sent[n])).join("\u0004");
+  }
   const CACHE_MAX = 256;
   // The credentials each `on request` hook sent last, by hook.
   const _hookAuth = new WeakMap();
@@ -331,9 +354,10 @@
     if (entry && entry.value !== undefined) {
       const age = Date.now() - entry.at;
       const ttl = policy.kind === "forever" ? Infinity : (policy.ttl || 0);
-      if (age < ttl) return Promise.resolve(entry.value);
-      // Stale: hand back what there is and revalidate behind it.
-      if (policy.kind === "swr") {
+      if (age < ttl && !opts.ask) return Promise.resolve(entry.value);
+      // Stale: hand back what there is and revalidate behind it — unless
+      // the reader asked again, who waits for the server.
+      if (policy.kind === "swr" && !opts.ask) {
         const revalidating = run(url, opts, entry).then(
           (value) => value,
           () => entry.value,
@@ -350,14 +374,15 @@
     // its own abort, and the request stops when the last reader has gone.
     if (!entry && !opts.progress && /^(GET|HEAD)$/.test((opts.method || "GET").toUpperCase())) {
       const now = headersNow(opts.headers);
-      const httpKey = key + " \u0002" + authOf(now) + " " + (opts.as || "");
+      const base = key + " \u0002" + authOf(now) + " " + (opts.as || "");
+      const httpKey = variantKey(base, now);
       const held = policy && policy.kind === "none" ? null : _httpCache.get(httpKey);
       if (held && held.value !== undefined && varyMatches(held, now)) {
         _httpCache.delete(httpKey);
         _httpCache.set(httpKey, held);
         const age = Date.now() - held.at;
-        if (age < held.fresh) return Promise.resolve(held.value);
-        if (age < held.fresh + held.swr) {
+        if (age < held.fresh && !opts.ask) return Promise.resolve(held.value);
+        if (age < held.fresh + held.swr && !opts.ask) {
           if (!held.inflight) {
             held.inflight = run(url, { ...opts, signal: undefined }, held)
               .catch(() => held.value)
@@ -368,7 +393,7 @@
       }
       const candidate = policy && policy.kind === "none"
         ? null
-        : held || { value: undefined, at: 0, etag: null, modified: null, inflight: null, auth: "", http: true, key: httpKey };
+        : held || { value: undefined, at: 0, etag: null, modified: null, inflight: null, auth: "", http: true, key: httpKey, base };
       return joinRead(key + " \u0001" + (opts.as || "") + " " + JSON.stringify(now), url, opts, candidate);
     }
     const running = run(url, opts, entry);
@@ -453,6 +478,11 @@
             entry.value = value;
             entry.at = Date.now();
             _httpCache.delete(entry.key);
+            // Kept under its variant: the headers its answer varies by.
+            if (entry.base && Array.isArray(entry.vary)) {
+              _varyNames.set(entry.base, entry.vary.map(([name]) => name));
+              entry.key = entry.base + " \u0003" + entry.vary.map(([, v]) => (v == null ? "" : v)).join("\u0004");
+            }
             _httpCache.set(entry.key, entry);
             trimCache(entry);
           } else {
@@ -612,7 +642,7 @@
       case "timeout": return netError("timeout", message, { after: http[1] });
       case "cancelled": return netError("aborted", message);
       case "decode": return netError("parse", message, { at: http[1], detail: http[2] });
-      case "status": return netError("status", "HTTP " + http[1], { status: http[1], body: http[2] });
+      case "status": return netError("status", statusMessage(http[1], http[2]), { status: http[1], body: http[2] });
       default: return netError("transport", message);
     }
   }
@@ -719,7 +749,7 @@
       } catch (e) {
         decoded = null;
       }
-      throw netError("status", `HTTP ${response.status}`, {
+      throw netError("status", statusMessage(response.status, decoded), {
         status: response.status,
         body: decoded,
         headers: heads,

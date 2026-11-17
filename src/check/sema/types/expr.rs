@@ -1036,7 +1036,7 @@ impl Checker<'_, '_> {
                 self.error_naming(
                     "T05",
                     format!("`{}` is an `HttpError`; it has no field `{field}`", expr_text(base)),
-                    "It has `message`; what it carries is matched by its case: `match e { .status(code, problem) { … } .timeout(after) { … } else { … } }`",
+                    "It has `message`; what it carries is matched by its case: `match e { .status(code, problem) { … } .timeout(limit) { … } else { … } }`",
                     field,
                     &["message"],
                     true,

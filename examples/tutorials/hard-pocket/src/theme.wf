@@ -8,6 +8,7 @@ theme Pocket {
     color-success: #13795B
     color-danger: #C2410C
     color-warning: #B45309
+    color-on-warning: #FFFFFF
     color-info: #0E7490
     color-background: #F5F6F2
     color-surface: #FFFFFF
@@ -35,6 +36,7 @@ theme PocketNight {
     color-success: #4CC79A
     color-danger: #F08A5D
     color-warning: #F2B35B
+    color-on-warning: #1A1206
     color-background: #0D1311
     color-surface: #141C19
     color-text: #E6ECE9

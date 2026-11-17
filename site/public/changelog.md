@@ -107,7 +107,7 @@ carries a 6.x project across.
   `http(error: HttpError)` case for everything else (`N12` holds an enum
   that names a status to that shape).
 - `HttpError` and `Problem` are built in: what goes wrong between the page
-  and the server — `.offline`, `.timeout(after)`, `.cancelled`,
+  and the server — `.offline`, `.timeout(limit)`, `.cancelled`,
   `.transport(message)`, `.decode(at, message)`, `.status(code, problem)`,
   each with `.message` — and a server's account of a failure as RFC 9457
   has it.

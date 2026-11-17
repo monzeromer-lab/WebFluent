@@ -199,7 +199,7 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
         Input(bind: email, name: "email", label: "Email").email.required
         Input(bind: message, name: "message", label: "Message").required
         Button("Send", type: .submit, disabled: !form.valid || send.pending).primary
-        Text("Fields: {form.values.name} {form.values.email}").muted.sm
+        Text("{form.values.keys().length} fields filled in").muted.sm
     }
     if sent { Alert("Thanks — we will be in touch.").success }
 }
@@ -219,7 +219,7 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
 | `form.errors` | The message of every field that has one, by name |
 | `form.touched` | Which fields the reader has left |
 | `form.pending` | Whether an `async` rule is still waiting for its answer |
-| `form.values` | A map of the controls' values, by their `name:` attribute |
+| `form.values` | The controls' values by their `name:` attribute, as `[String: Json]`: a field's own state is the typed way to read one |
 | `form.reset()` | Clears the form, and every message it was showing |
 | `form.submit()` | Submits the form from code |
 | `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said)) |
@@ -458,9 +458,9 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
     state picked: File? = null
     state done = false
 
-    action upload() {
+    action upload() -> ! {
         if let f = picked {
-            await Backend.avatar(id: "me", file: f)
+            try await Backend.avatar(id: "me", file: f)
             done = true
         }
     }

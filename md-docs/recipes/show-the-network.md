@@ -16,7 +16,7 @@ and when data saver is on:
 ```wf
 page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
     Heading("Inbox").h1
-    if !network.online { Alert("You are offline — changes are queued.").warning }
+    if !network.online { Alert("You are offline.").warning }
     if network.saveData { Text("Data saver is on.").muted }
 }
 ```

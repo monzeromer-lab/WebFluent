@@ -33,7 +33,7 @@ page AboutContributing(path: "/about/contributing", title: "Contributing", descr
                 Line(command: "npm test")
             ])
 
-        Markdown("`npm test` runs sixteen suites, starting with `offline.mjs` and `peer.mjs`; each is also a script you can run alone, such as `node offline.mjs`. CI runs all of it on every push, and a few browser suites more.")
+        Markdown("`npm test` runs every suite there, starting with `offline.mjs` and `peer.mjs`; each is also a script you can run alone, such as `node offline.mjs`. CI runs all of it on every push, and a few browser suites more.")
 
         Heading("The repository", id: "the-repository").h2
 

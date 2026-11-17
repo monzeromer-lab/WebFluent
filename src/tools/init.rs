@@ -520,8 +520,8 @@ const SPA: &[(&str, &str)] = &[
         include_str!("init/spa/src/components/TaskItem.wf"),
     ),
     (
-        "src/components/ThemeToggle.wf",
-        include_str!("init/spa/src/components/ThemeToggle.wf"),
+        "src/components/DarkModeSwitch.wf",
+        include_str!("init/spa/src/components/DarkModeSwitch.wf"),
     ),
     (
         "src/pages/Home.wf",
@@ -613,8 +613,8 @@ const SPA_I18N: &[(&str, &str)] = &[
         include_str!("init/spa-i18n/src/components/TaskItem.wf"),
     ),
     (
-        "src/components/ThemeToggle.wf",
-        include_str!("init/spa-i18n/src/components/ThemeToggle.wf"),
+        "src/components/DarkModeSwitch.wf",
+        include_str!("init/spa-i18n/src/components/DarkModeSwitch.wf"),
     ),
     (
         "src/pages/Home.wf",

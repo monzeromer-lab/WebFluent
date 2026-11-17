@@ -528,7 +528,9 @@ impl Checker<'_, '_> {
             StatementKind::If(i) => self.if_statement(i, span, body),
             StatementKind::Try(t) => {
                 self.push_scope();
+                self.catching += 1;
                 self.statements(&t.body, body);
+                self.catching -= 1;
                 self.pop_scope();
                 self.push_scope();
                 if let Some(param) = &t.param {

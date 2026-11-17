@@ -1497,6 +1497,7 @@ impl ParserV2 {
                 params,
                 body,
                 span: self.span_since(answer_mark),
+                example: None,
             });
         }
         if braced {
@@ -2611,7 +2612,7 @@ impl ParserV2 {
                             if !self.is_word("pages") {
                                 return Err(self.error_with_hint(
                                     format!("Expected `pages` after `{endpoint}`, got {}", self.describe()),
-                                    "A read's paging is `users.list pages .cursor(param: after, next: p => p.next)`",
+                                    "A read's paging is `users.list pages .cursor(param: after, next: p => p.next, items: p => p.items)`",
                                 ));
                             }
                             self.advance();

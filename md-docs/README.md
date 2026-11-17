@@ -32,7 +32,7 @@ suite, so what you read is what the compiler accepts.
 | 2 | [Tutorial: Shelf](learn/02-tutorial-shelf.md) | Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web. |
 | 3 | [Tutorial: Todos](learn/03-tutorial-todos.md) | Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click. |
 | | **The language** | |
-| 4 | [Language basics](learn/04-language-basics.md) | The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written. |
+| 4 | [Language basics](learn/04-language-basics.md) | The shape of every .wf file: the fifteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written. |
 | 5 | [Pages and routing](learn/05-pages-and-routing.md) | A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section. |
 | 6 | [Elements](learn/06-elements.md) | Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block. |
 | 7 | [State and reactivity](learn/07-state-and-reactivity.md) | A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage. |
@@ -40,7 +40,7 @@ suite, so what you read is what the compiler accepts.
 | 9 | [Control flow](learn/09-control-flow.md) | Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes. |
 | 10 | [Components](learn/10-components.md) | A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in. |
 | 11 | [Stores](learn/11-stores.md) | A store is state shared by every page and component that uses it, built the first time something reads it. |
-| 12 | [Types](learn/12-types.md) | A gradual, structural type checker that changes no output and names every mistake where you wrote it. |
+| 12 | [Types](learn/12-types.md) | A strict, structural type checker that changes no output and names every mistake where you wrote it. |
 | | **Building with it** | |
 | 13 | [Styling](learn/13-styling.md) | Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive. |
 | 14 | [Forms and validation](learn/14-forms.md) | Bind controls to state, validate what the reader types, upload files, and show what the server said. |

@@ -713,7 +713,22 @@ fn open_paren_owner(previous: &[&Token]) -> Option<ParenOwner> {
                     // `Backend.users(` — an endpoint, or `Store.method(` — a call.
                     _ => match (before, before2) {
                         (Some(TokenType::Dot), Some(TokenType::Identifier(owner))) => {
-                            ParenOwner::Member(owner.clone(), name.clone())
+                            // `Backend.people.list(`: the group is the owner.
+                            let service = match (
+                                ix.checked_sub(4)
+                                    .and_then(|i| previous.get(i))
+                                    .map(|t| &t.token_type),
+                                ix.checked_sub(5)
+                                    .and_then(|i| previous.get(i))
+                                    .map(|t| &t.token_type),
+                            ) {
+                                (Some(TokenType::Dot), Some(TokenType::Identifier(s))) => Some(s),
+                                _ => None,
+                            };
+                            match service {
+                                Some(s) => ParenOwner::Member(format!("{s}.{owner}"), name.clone()),
+                                None => ParenOwner::Member(owner.clone(), name.clone()),
+                            }
                         }
                         _ => ParenOwner::Call,
                     },
@@ -851,15 +866,35 @@ fn after_dot(
             })
             .collect(),
         TokenType::Identifier(word) => {
-            // `Backend.users.` — what a service's endpoint offers besides
-            // being called.
-            if let (Some(TokenType::Dot), Some(TokenType::Identifier(api))) = (
-                n.checked_sub(3).map(|i| &previous[i].token_type),
-                n.checked_sub(4).map(|i| &previous[i].token_type),
-            ) && api_named(project, api)
-                .is_some_and(|a| a.endpoints.iter().any(|e| &e.name == word))
+            let ident = |back: usize| match n.checked_sub(back).map(|i| &previous[i].token_type) {
+                Some(TokenType::Identifier(w)) => Some(w.as_str()),
+                _ => None,
+            };
+            let dot = |back: usize| {
+                matches!(
+                    n.checked_sub(back).map(|i| &previous[i].token_type),
+                    Some(TokenType::Dot)
+                )
+            };
+            // `Backend.users.`, `Backend.people.list.` — what an endpoint
+            // offers besides being called.
+            let owner = match (dot(3), ident(4), dot(5), ident(6)) {
+                (true, Some(group), true, Some(service)) => Some(format!("{service}.{group}")),
+                (true, Some(service), _, _) => Some(service.to_string()),
+                _ => None,
+            };
+            if let Some(owner) = &owner
+                && api_named(project, owner)
+                    .is_some_and(|a| a.endpoints.iter().any(|e| &e.name == word))
             {
                 return endpoint_members();
+            }
+            // `Backend.people.` — the group's endpoints.
+            if dot(3)
+                && let Some(service) = ident(4)
+                && let Some(group) = api_named(project, &format!("{service}.{word}"))
+            {
+                return api_members(group);
             }
             if word.chars().next().is_some_and(char::is_uppercase) {
                 // `Backend.` — its endpoints.

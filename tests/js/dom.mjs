@@ -210,7 +210,11 @@ class Element extends Node_ {
     this._listeners.set(type, l.filter((f) => f !== fn));
   }
   dispatchEvent(ev) {
-    ev.target = ev.target || this;
+    // A real `Event` has a read-only `target`: it is handed on as one whose
+    // target is this element.
+    if (!ev.target) {
+      try { ev.target = this; } catch (e) { ev = { type: ev.type, target: this, bubbles: ev.bubbles, preventDefault() {}, stopPropagation() {} }; }
+    }
     for (const fn of this._listeners.get(ev.type) || []) fn(ev);
     return true;
   }

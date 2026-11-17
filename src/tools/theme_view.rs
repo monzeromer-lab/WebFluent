@@ -657,7 +657,7 @@ mod tests {
         let white_on_primary = v
             .pairs
             .iter()
-            .find(|p| p.background == "color-primary" && p.foreground == "white")
+            .find(|p| p.background == "color-primary" && p.foreground == "color-on-primary")
             .unwrap();
         assert!(white_on_primary.drawn, "a `.primary` button is on the page");
         // What fails here, the build says, with A13.

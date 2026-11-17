@@ -63,6 +63,18 @@ def terms(text: str, cap: int = 24) -> str:
     return " ".join(seen[:cap])
 
 
+def arabic_terms(text: str, cap: int = 24) -> str:
+    """[`terms`], and the Arabic words of three letters or more, without
+    their diacritics, each once."""
+    body = re.sub(r"```.*?```", " ", text, flags=re.S)
+    body = re.sub(r"[\u064B-\u0652\u0670]", "", body)
+    seen = []
+    for w in re.findall(r"[\u0621-\u064A]{3,}", body):
+        if w not in seen:
+            seen.append(w)
+    return (terms(text, cap) + " " + " ".join(seen[:cap])).strip()
+
+
 # What a reader coming from another framework, or from LaTeX, types, and
 # the section that teaches the WebFluent way. A row holding a synonym is
 # ranked with the rows whose names match, so `useState` finds `state`
@@ -145,6 +157,25 @@ def search_index():
         title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
         rows.append({"chapter": "", "title": "Coming from", "section": title, "route": meta["route"], "kind": "learn",
                      "also": meta.get("framework", ""), "words": terms(meta.get("description", "") + " " + md)})
+    # The Arabic pages, so a search written in Arabic finds them: each page
+    # and its sections, with the Arabic words their text uses.
+    for f in sorted((ROOT / "md-docs" / "ar").rglob("*.md")):
+        meta, md = guide.front_matter(f)
+        if "route" not in meta:
+            continue
+        title = meta.get("title") or next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
+        route = guide.href(meta["route"])
+        rows.append({"chapter": "", "title": "العربية", "section": title, "route": route, "kind": "learn",
+                     "words": arabic_terms(meta.get("description", "") + " " + md)})
+        # A cheat sheet is drawn by its shell, its sections under ids of
+        # their own: the page alone is found.
+        if meta.get("kind") == "coming-from" or "coming-from" in meta["route"]:
+            continue
+        parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
+        for k in range(1, len(parts), 3):
+            text = guide.plain(parts[k + 1])
+            rows.append({"chapter": "", "title": title, "section": text, "route": f"{route}#{guide.slug(text)}",
+                         "kind": "learn", "words": arabic_terms(parts[k + 2])})
     # Every diagnostic, by its code and what it says: `T05` jumps to its page.
     for f in sorted((ROOT / "md-docs" / "errors").glob("*.md")):
         meta, md = guide.front_matter(f)

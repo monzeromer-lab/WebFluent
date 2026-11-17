@@ -45,6 +45,53 @@ impl Checker<'_, '_> {
         }
     }
 
+    /// The `fetch(…)` call in the expression being checked, rewritten as
+    /// `http.<verb>(…)` with its `method:` argument gone: the bytes it spans
+    /// and what goes there.
+    fn fetch_with_method(&self, verb: &str) -> Option<(usize, usize, String)> {
+        let source = self.source?;
+        let (from, to) = (
+            self.current_span.start as usize,
+            (self.current_span.end as usize).min(source.len()),
+        );
+        let text = source.get(from..to)?;
+        let at = text.find("fetch(")?;
+        // The call's closing parenthesis, strings skipped.
+        let (mut depth, mut quoted, mut close) = (0usize, false, None);
+        for (i, c) in text[at + 5..].char_indices() {
+            match c {
+                '"' => quoted = !quoted,
+                '(' if !quoted => depth += 1,
+                ')' if !quoted => {
+                    depth -= 1;
+                    if depth == 0 {
+                        close = Some(at + 5 + i);
+                        break;
+                    }
+                }
+                _ => {}
+            }
+        }
+        let close = close?;
+        let inner = &text[at + 6..close];
+        // `method: "POST"` with the comma before or after it.
+        let key = inner.find("method:")?;
+        let value_end = key + inner[key..].find('"')? + 1;
+        let value_end = value_end + inner[value_end..].find('"')? + 1;
+        let (cut_from, cut_to) = match inner[value_end..].trim_start().strip_prefix(',') {
+            Some(rest) => (key, inner.len() - rest.trim_start().len()),
+            None => (
+                inner[..key]
+                    .trim_end()
+                    .strip_suffix(',')
+                    .map_or(key, str::len),
+                value_end,
+            ),
+        };
+        let rewritten = format!("http.{verb}({}{})", &inner[..cut_from], &inner[cut_to..]);
+        Some((from + at, from + close + 1, rewritten))
+    }
+
     pub(super) fn function_call(&mut self, name: &str, args: &[Expr]) -> Type {
         if self.lookup(name).is_none() {
             // In a request's address it is in every log the request
@@ -63,17 +110,32 @@ impl Checker<'_, '_> {
                 "`fetch(…)` is gone: a request is `http.get(…)`, `http.post(…)`, whose answer is a result".to_string(),
                 "Write `let rows: [Row] = try await http.get(url)` in an action that says what it fails with, or `window.fetch` for the browser's own",
             );
-            if !args
-                .iter()
-                .any(|a| matches!(a, Expr::MapLiteral(p) if p.iter().any(|(k, _)| k == "method")))
-            {
-                self.plan_last(
+            let method = args.iter().find_map(|a| match a {
+                Expr::MapLiteral(p) => p.iter().find(|(k, _)| k == "method").map(|(_, v)| v),
+                _ => None,
+            });
+            match method {
+                None => self.plan_last(
                     "Write `http.get`".to_string(),
                     crate::diagnostics::fixes::Plan::Rename {
                         from: "fetch".to_string(),
                         to: "http.get".to_string(),
                     },
-                );
+                ),
+                // `fetch(url, method: "POST", body: b)` is `http.post(url,
+                // body: b)`: the verb is the method, and the argument goes.
+                Some(Expr::StringLiteral(m))
+                    if crate::syntax::parser::ast::HTTP_VERBS
+                        .contains(&m.to_lowercase().as_str()) =>
+                {
+                    if let Some((start, end, text)) = self.fetch_with_method(&m.to_lowercase()) {
+                        self.plan_last(
+                            format!("Write `http.{}`", m.to_lowercase()),
+                            crate::diagnostics::fixes::Plan::Replace { start, end, text },
+                        );
+                    }
+                }
+                Some(_) => {}
             }
         }
         if self.lookup(name).is_none()
@@ -145,6 +207,21 @@ impl Checker<'_, '_> {
                     self.infer(a, None);
                 }
                 self.untyped_browser(&format!("{name}(…)"), name, &[])
+            }
+            // `optimistic(Todos.items, items => …)`: the change takes what
+            // the holder holds and gives it back, so its parameter is typed.
+            None if name == "optimistic" && args.len() == 2 => {
+                let held = self.infer(&args[0], None);
+                let change = Type::Func(vec![held.clone()], Box::new(held));
+                let given = self.infer(&args[1], Some(&change));
+                if !given.assignable_to(&change) {
+                    self.error_at_current(
+                        "T01",
+                        format!("`optimistic`'s change is `{given}`, but `{change}` is wanted: it takes what `{}` holds and gives it back", expr_text(&args[0])),
+                        "Write the change as a function of the value: `items => items.filter(i => i.id != id)`",
+                    );
+                }
+                Type::Null
             }
             None => {
                 for a in args {

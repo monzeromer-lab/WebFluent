@@ -180,8 +180,9 @@ app {
 ```
 
 - The link whose `to:` is the page shown is marked `aria-current="page"`.
-- `ThemeToggle` is two icon buttons that call `setTheme("dark")` and
-  `setTheme("light")`. The reader's choice is kept across visits.
+- `ThemeToggle` is one button: a moon in a light page and a sun in a dark
+  one, named for the theme it switches to. It calls `setTheme`, and the
+  reader's choice is kept across visits.
 - `Router(transition: .fade, duration: "160ms")` fades one page out and
   the next in.
 

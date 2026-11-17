@@ -103,7 +103,7 @@ app {
 
     Router(transition: .fade, duration: "160ms")"#, title: "wf")
 
-        Markdown("- The link whose `to:` is the page shown is marked `aria-current=\"page\"`.\n- `ThemeToggle` is two icon buttons that call `setTheme(\"dark\")` and `setTheme(\"light\")`. The reader's choice is kept across visits.\n- `Router(transition: .fade, duration: \"160ms\")` fades one page out and the next in.\n\nEach page names the column it is set in with `layout:` — a component whose default slot is the page:")
+        Markdown("- The link whose `to:` is the page shown is marked `aria-current=\"page\"`.\n- `ThemeToggle` is one button: a moon in a light page and a sun in a dark one, named for the theme it switches to. It calls `setTheme`, and the reader's choice is kept across visits.\n- `Router(transition: .fade, duration: \"160ms\")` fades one page out and the next in.\n\nEach page names the column it is set in with `layout:` — a component whose default slot is the page:")
 
         CodeBlock(#"// src/components/Sheet.wf
 /// The column a page is set in, and the frame every page names with

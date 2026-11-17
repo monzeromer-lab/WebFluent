@@ -18,7 +18,7 @@ impl Checker<'_, '_> {
         }
     }
 
-    pub(super) fn fake(&mut self, f: &FakeDecl) {
+    pub(super) fn fake(&mut self, f: &FakeDecl, unfit: &[usize]) {
         self.current_span = f.header_span;
         if !self.world.apis.contains_key(f.target.as_str()) {
             let known: Vec<&str> = self.world.apis.keys().copied().collect();
@@ -38,7 +38,10 @@ impl Checker<'_, '_> {
             .map(|e| e.name.as_str())
             .collect();
         let mut seen: Vec<&str> = Vec::new();
-        for answer in &f.answers {
+        for (i, answer) in f.answers.iter().enumerate() {
+            if unfit.contains(&i) {
+                continue;
+            }
             self.current_span = answer.span;
             let what = format!("{}.{}", f.target, answer.endpoint);
             if seen.contains(&answer.endpoint.as_str()) {

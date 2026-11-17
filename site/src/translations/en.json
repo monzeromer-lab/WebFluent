@@ -453,6 +453,8 @@
   "recipes.none": "No recipe matches. Try other words, or another output.",
   "recipe.download": "Download the project",
   "recipe.files": "{files}",
+  "search.count.one": "{count} result",
+  "search.count.other": "{count} results",
   "ch.01": "Getting started",
   "ch.02": "Tutorial: Shelf",
   "ch.03": "Tutorial: Todos",

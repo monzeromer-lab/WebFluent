@@ -390,7 +390,7 @@ api Accounts(base: "/accounts") {
                 }
                 Table.Row {
                     Table.Cell("Errors")
-                    Table.Cell { Markdown("an `HttpError`: `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message`") }
+                    Table.Cell { Markdown("an `HttpError`: `.offline`, `.timeout(limit)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message`") }
                 }
                 Table.Row {
                     Table.Cell("Decoding")
@@ -662,9 +662,9 @@ post createUser(body: NewUser) at "createUser" -> User ! CreateUserError
 put rename(id: String, body: Rename) at "users/{id}" -> User!
 patch settings(body: Settings) at "settings" -> Settings!
 delete removeUser(id: String) at "users/{id}" -> !
-get report(id: String) at "reports/{id}" -> Json! as: .blob"#, title: "text")
+get report(id: String) at "reports/{id}" -> File! as: .blob"#, title: "text")
 
-        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **The path.** `at` is required: where the server answers the endpoint, below the service's `base`.\n- **Path parameters.** A parameter the path names (`\{id\}`) goes in the path, and every `\{name\}` must be one of the endpoint's parameters (`N01`). One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.cancelled`, and a resource over it stays `.loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **Headers and cookies.** `token: String in header \"X-Token\"` sends a parameter as a header, and `theme: String? in cookie` as a cookie.\n- **The first parameter** may be passed without its name: `Backend.user(\"7\")`.\n- **What comes back.** `-> T!` is a success's `T`, or an `HttpError`; `-> T ! E` names the failures in an error enum `E`, each status a case with its typed body; `-> !` returns nothing, as `204 No Content` does, and may fail. Under `wf serve` the body that arrives is held to `T`, and a declared status's body to its case's type. What crosses is a type the program names: `Map` and `Any` there are `N11`.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and one with no default that may not be null must be given; one it leaves out that has a default is sent with that default. Called in an action, it is a promise of a result: `await` it, then `match` it or pass its failure up with `try` ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`, `headers:`, `timeout:` and `retry:`, and in a `resource` also `refresh:` (`.onFocus`, `.onReconnect`, `.every(30.seconds)`, `.never`) and `placeholder:`.")
+        Markdown("- **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or `options`.\n- **The path.** `at` is required: where the server answers the endpoint, below the service's `base`.\n- **Path parameters.** A parameter the path names (`\{id\}`) goes in the path, and every `\{name\}` must be one of the endpoint's parameters (`N01`). One that is empty (`null` or `\"\"`) is not sent at all, since `users/` would be the whole collection, not the user; nor is one that is `.` or `..`, which the browser reads as this folder or the one above. The call ends as `.cancelled`, and a resource over it stays `.loading` until the value arrives.\n- **The body.** A parameter called `body` is the request body; a map is sent as JSON. A `File` parameter makes the call a multipart upload.\n- **Query parameters.** Every other parameter goes in the query string, and one that is `null` is left out.\n- **Headers and cookies.** `token: String in header \"X-Token\"` sends a parameter as a header, and `theme: String? in cookie` as a cookie.\n- **The first parameter** may be passed without its name: `Backend.user(\"7\")`.\n- **What comes back.** `-> T!` is a success's `T`, or an `HttpError`; `-> T ! E` names the failures in an error enum `E`, each status a case with its typed body; `-> !` returns nothing, as `204 No Content` does, and may fail. In every build the body that arrives is held to `T`, and a declared status's body to its case's type. What crosses is a type the program names: `Map` and `Any` there are `N11`.\n- **Other responses.** `as:` says how to read a response that is not JSON: `.text`, `.blob`, `.arrayBuffer` or `.none`. `errorAs:` does the same for a failure's body. `cache:` sets a cache policy for that endpoint alone.\n\nA call passes the endpoint's parameters by name, and one with no default that may not be null must be given; one it leaves out that has a default is sent with that default. Called in an action, it is a promise of a result: `await` it, then `match` it or pass its failure up with `try` ([Say how a call fails](#say-how-a-call-fails)). It may add `cache:`, `headers:`, `timeout:` and `retry:`, and in a `resource` also `refresh:` (`.onFocus`, `.onReconnect`, `.every(30.seconds)`, `.never`) and `placeholder:`.")
 
         Heading("Say how a call fails", id: "say-how-a-call-fails").h3
 
@@ -722,7 +722,7 @@ page Team(path: "/people", title: "People", description: "Adding someone, and wh
     }
 }"#, title: "wf")
 
-        Markdown("- **An error enum.** Each case but `http` names its status, `on 422`, and carries one value, the body of that status. An enum that names a status is held to that shape (`N12`).\n- **`HttpError`** is what goes wrong between the page and the server: `.offline(queued)`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)` and `.status(code, problem)`. Every one has `.message`, for showing. `queued` is true for a write kept to send when the connection returns ([Keep writes made offline](/recipes/keep-writes-made-offline)).\n- **`Problem`** is a server's account of a failure as RFC 9457 has it — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record. A status the enum does not name carries it as its `problem` when the server sends `application/problem+json`.\n- **A result** is `.ok(value)` (`.ok` when there is none) or `.err(error)`. A `match` on one gives every case an arm, or an `else`; an arm may look inside a case, `.err(.http(.status(503, _)))`, where `_` takes anything and a literal takes that value. `match` runs in an action or a handler too, and `if let .err(e) = outcome \{ … \}` takes one case.\n- **`try`** gives a result's value, or returns its error from the action as the action's own, which must say what it fails with (`N03`). The same error passes up as it is, an `HttpError` becomes an error enum's `.http`, and another error enum passes up through its `http` case once its other cases are handled. In a handler, `try` reports a failure instead.\n- **An action that may fail** returns its value, which is `.ok` of it; `return .err(e)` hands back a failure of its own. Its `.result` is its last outcome, or `null` before it has run.\n- **A `resource`** over such an endpoint holds its value, as it always has.")
+        Markdown("- **An error enum.** Each case but `http` names its status, `on 422`, and carries one value, the body of that status. An enum that names a status is held to that shape (`N12`).\n- **`HttpError`** is what goes wrong between the page and the server: `.offline(queued)`, `.timeout(limit)`, `.cancelled`, `.transport(message)`, `.decode(at, message)` and `.status(code, problem)`. Every one has `.message`, for showing. `queued` is true for a write kept to send when the connection returns ([Keep writes made offline](/recipes/keep-writes-made-offline)).\n- **`Problem`** is a server's account of a failure as RFC 9457 has it — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record. A status the enum does not name carries it as its `problem` when the server sends `application/problem+json`.\n- **A result** is `.ok(value)` (`.ok` when there is none) or `.err(error)`. A `match` on one gives every case an arm, or an `else`; an arm may look inside a case, `.err(.http(.status(503, _)))`, where `_` takes anything and a literal takes that value. `match` runs in an action or a handler too, and `if let .err(e) = outcome \{ … \}` takes one case.\n- **`try`** gives a result's value, or returns its error from the action as the action's own, which must say what it fails with (`N03`). The same error passes up as it is, an `HttpError` becomes an error enum's `.http`, and another error enum passes up through its `http` case once its other cases are handled. In a handler, `try` reports a failure instead.\n- **An action that may fail** returns its value, which is `.ok` of it; `return .err(e)` hands back a failure of its own. Its `.result` is its last outcome, or `null` before it has run.\n- **A `resource`** over such an endpoint holds its value, as it always has.")
 
         Heading("Load results a page at a time", id: "load-results-a-page-at-a-time").h3
 
@@ -835,15 +835,15 @@ page Log(path: "/log", title: "Log", description: "A deploy's log, as it is writ
 
         Heading("Show a change before the server agrees", id: "show-a-change-before-the-server-agrees").h3
 
-        Markdown("To make an edit appear at once instead of after the round trip, call `optimistic(holder, change)` before the request. If anything later in the action throws, the change is taken back: the action rolls itself back.")
+        Markdown("To make an edit appear at once instead of after the round trip, call `optimistic(holder, change)` before the request. If anything later in the action fails — a `try` passing a failure up, or a throw — the change is taken back: the action rolls itself back.")
 
-        CodeBlock(#"action rename(id: String, name: String) {
+        CodeBlock(#"action rename(id: String, name: String) -> ! {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id: id, body: { name: name })
+    try await Backend.updateUser(id: id, body: Rename(name: name))
     Backend.users.invalidate()
 }"#, title: "wf")
 
-        Markdown("The new title shows at once. If `updateUser` fails, the old title comes back.")
+        Markdown("The new title shows at once. If `updateUser` fails, `try` passes the failure up, and the old title comes back. The change's parameter is what the holder holds, so `items` and `i` are typed with nothing written.")
 
         Heading("Ask on demand with http", id: "ask-on-demand-with-http").h2
 
@@ -1019,8 +1019,8 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
                     Table.Cell { Markdown("`wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API.") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("A `.parse` error naming a place, such as `$[1].name is missing`") }
-                    Table.Cell { Markdown("Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`.") }
+                    Table.Cell { Markdown("A `.decode(at, message)` failure naming a place, such as `$[1].name is missing`") }
+                    Table.Cell { Markdown("In every build, a response is checked against its declared type. The server sent another shape: fix the server or the `type`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("A resource stays `.loading`") }
@@ -1073,10 +1073,12 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
 
         Heading("Common mistakes", id: "common-mistakes").h2
 
-        Markdown("**A `match` with no `error` arm.** When the request fails, no arm draws, and the reader is not told:")
+        Markdown("**A `match` with no `.failed` arm.** When the request fails, no arm draws, and the reader is not told:")
 
-        CodeBlock(#"page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users = http.get("/api/users")
+        CodeBlock(#"type User { id: String, name: String }
+
+page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
         .loading { Spinner }
@@ -1084,7 +1086,7 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
     }
 }"#, title: "wf · draws T21")
 
-        Markdown("Add `error(e) \{ Alert(e.message).danger \}`, or an `else` ([T21](/errors/T21)).\n\n**A field the declared type does not have.** Once a resource is typed, every field read from it is checked against the `type`:")
+        Markdown("Add `.failed(e) \{ Alert(e.message).danger \}`, or an `else` ([T21](/errors/T21)).\n\n**A field the declared type does not have.** Once a resource is typed, every field read from it is checked against the `type`:")
 
         CodeBlock(#"type User { id: String, name: String }
 

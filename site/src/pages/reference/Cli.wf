@@ -431,7 +431,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell { Markdown("`--allow-output-outside`") }
                             Table.Cell("—")
                             Table.Cell("off")
-                            Table.Cell { Markdown("Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check reports what the build would refuse.") }
+                            Table.Cell { Markdown("Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check says the build would refuse it, and checks everything else.") }
                         }
                     }
                 }

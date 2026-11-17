@@ -1876,6 +1876,7 @@ pub fn answer_from_examples(
                 params: Vec::new(),
                 body: Expr::CaseValue("ok".into(), vec![expr_of(example, value, declarations)]),
                 span: f.header_span,
+                example: Some(format!("the spec's example of `{endpoint}`")),
             });
         }
     }

@@ -1,7 +1,7 @@
 // Written when Arabic is a language the app switches to.
 
 test "the app speaks Arabic" {
-    ThemeToggle
+    DarkModeSwitch
     Button("AR") { on click { setLocale("ar") } }
     click "AR"
     expect "الوضع الداكن"

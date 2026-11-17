@@ -191,8 +191,9 @@ store's state. Seeding works the same in a test that only looks and in one
 that clicks.
 
 A seed is held to the state it seeds before the test runs: `data: { count:
-"two" }` for a `state count = 0` is `T33`, naming the place (`Cart.items[0]
-is 1, not a String`), and a store member the store does not have is `T05`.
+"two" }` for a `state count = 0` is `T33`, naming the place (`count is
+"two", not a Number`; a store's seed names it, `Cart.items[0] is 1, not a
+CartItem`), and a store member the store does not have is `T05`.
 
 This test fills the cart with two of one item and checks the summary:
 

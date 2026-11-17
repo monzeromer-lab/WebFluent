@@ -424,11 +424,14 @@ and call it from the form's handler:
 ```wf
 // … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
-    await Suggestions.suggest(body: { title: title, author: author, why: why })
+    try await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
     form.reset()
 }
 ```
+
+`try` takes the call's value, or stops the handler on a failure and reports
+it, so `sent` turns true only when the suggestion arrived.
 
 ([Data and APIs](15-data.md), [Environments and secrets](../recipes/environments-and-secrets.md).)
 

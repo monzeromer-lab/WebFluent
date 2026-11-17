@@ -177,3 +177,201 @@ fn migrate_splices_a_number_joined_to_text() {
     assert!(done.left.is_empty(), "{:?}", done.left);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn every_tone_s_label_and_a_modal_s_width_follow_the_theme() {
+    let dir = scratch(
+        "theme",
+        &[
+            (
+                "webfluent.app.json",
+                r#"{ "name": "theme", "build": { "minify": false } }"#,
+            ),
+            (
+                "src/App.wf",
+                "theme Night {\n    color-background: #0B1220\n    color-text: #E5E7EB\n    color-primary: #FDE68A\n    color-on-primary: #1A1300\n}\napp { Router }\npage Home(path: \"/\", title: \"H\", description: \"d\") {\n    state open = false\n    Heading(\"H\").h1\n    Button(\"Go\").primary\n    Badge(\"New\").success\n    Alert(\"Saved\").success\n    Modal(visible: open, title: \"Wide\") { Text(\"x\") }\n}\n",
+            ),
+        ],
+    );
+    webfluent::build::build(&webfluent::build::BuildOptions::new(
+        &dir,
+        &webfluent::vfs::FsVfs,
+    ))
+    .expect("builds");
+    let css = std::fs::read_to_string(dir.join("build/styles.css")).unwrap();
+    assert!(
+        css.contains("--color-on-primary: #1A1300") || css.contains("--color-on-primary:#1A1300"),
+        "the theme's label colour is a token: {css}"
+    );
+    for (class, token) in [
+        ("wf-btn--primary", "color-on-primary"),
+        ("wf-badge--success", "color-on-success"),
+    ] {
+        let rule = css
+            .split('}')
+            .find(|r| r.contains(&format!(".{class}")) && r.contains("background"))
+            .unwrap_or_default();
+        assert!(
+            rule.contains(&format!("var(--{token})")),
+            ".{class} writes in {token}: {rule}"
+        );
+    }
+    let alert = css
+        .split('}')
+        .find(|r| r.contains(".wf-alert--success"))
+        .unwrap_or_default();
+    assert!(
+        alert.contains("color-mix") && !alert.contains('#'),
+        "an alert is mixed from the theme: {alert}"
+    );
+    let modal = css
+        .split('}')
+        .find(|r| r.contains(".wf-modal__content {") || r.contains(".wf-modal__content{"))
+        .unwrap_or_default();
+    assert!(
+        !modal.contains("max-width: 500px") && !modal.contains("max-width:500px"),
+        "the content fills the dialog: {modal}"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn a_check_of_a_project_whose_output_is_outside_it_checks_everything() {
+    let dir = scratch(
+        "outside",
+        &[
+            (
+                "webfluent.app.json",
+                r#"{ "name": "outside", "build": { "output": "../elsewhere" } }"#,
+            ),
+            (
+                "src/App.wf",
+                "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"d\") {\n    Heading(\"H\").h1\n    Text(nmae)\n}\n",
+            ),
+        ],
+    );
+    let found = match webfluent::build::check(&webfluent::build::BuildOptions::new(
+        &dir,
+        &webfluent::vfs::FsVfs,
+    )) {
+        Ok(report) => format!("{:?}", report.lines),
+        Err(failure) => format!("{:?}\n{failure}", failure.report.lines),
+    };
+    assert!(found.contains("a build would stop here"), "{found}");
+    assert!(found.contains("T13"), "the program is checked too: {found}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn migrate_carries_every_row_of_the_tables_and_changes_no_catch() {
+    let dir = scratch(
+        "messy",
+        &[
+            ("webfluent.app.json", r#"{ "name": "messy" }"#),
+            ("src/App.wf", include_str!("fixtures/migrate7/messy-6.wf")),
+        ],
+    );
+    let done = seven::migrate(&dir, false).expect("migrates");
+    let text = std::fs::read_to_string(dir.join("src/App.wf")).unwrap();
+    for written in [
+        "enum UserError {\n    notFound(problem: Problem404) on 404\n    http(error: HttpError)\n}",
+        "get user(id: String) at \"users/{id}\" -> User ! UserError",
+        "-> [User]! pages .number(param: page)",
+        "resource feed = Backend.feed()",
+        "try await http.post(\"/api/notes\", body: { text: text })",
+        "if users.isLoaded {",
+    ] {
+        assert!(text.contains(written), "`{written}` in:\n{text}");
+    }
+    assert!(!text.contains("errors {"), "{text}");
+    // Inside `try { } catch`, `try` would skip the catch: left for a person.
+    assert!(
+        text.contains("let u: User = await http.get(\"/api/users/1\")"),
+        "{text}"
+    );
+    assert!(
+        done.left.iter().any(
+            |d| d.code == "T01" && d.hint.as_deref().is_some_and(|h| h.contains("match await"))
+        ),
+        "{:?}",
+        done.left
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+fn errors_of(src: &str) -> Vec<String> {
+    let (program, _) = webfluent::syntax::parse_source_recovering(src, "t.wf");
+    let source = src.to_string();
+    webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project {
+        program: &program,
+        file_of: &|_| "t.wf".to_string(),
+        source_of: &|_| Some(source.clone()),
+        dir: None,
+        config: None,
+        declaration_files: &[],
+        scripts: &[],
+        stylesheets: "",
+        incomplete: false,
+    })
+    .diagnostics
+    .into_iter()
+    .filter(|d| d.severity == webfluent::diagnostics::Severity::Error)
+    .map(|d| format!("[{}] {}", d.code, d.message))
+    .collect()
+}
+
+#[test]
+fn a_ref_on_a_component_call_is_its_root() {
+    let js = spa_generated(
+        "component Launch(label: String) { Button(label) }\napp { Router }\npage Home(path: \"/\", title: \"H\", description: \"d\") {\n    state open = false\n    Heading(\"H\").h1\n    Launch(label: \"Menu\", ref: launcher) { on click { open = true } }\n    Menu(visible: open, anchor: launcher, label: \"Actions\") { Menu.Item { Text(\"One\") } }\n}\n",
+    );
+    assert!(
+        !js.contains("ref:launcher") && !js.contains("ref: launcher"),
+        "not a prop: {js}"
+    );
+    assert!(
+        js.contains("launcher.el = _r"),
+        "the handle takes the root: {js}"
+    );
+}
+
+#[test]
+fn an_optimistic_change_is_typed_by_its_holder() {
+    let src = "type Todo { id: String, title: String }\nstore Todos {\n    state items: [Todo] = []\n    action hide(id: String) {\n        optimistic(items, list => list.filter(i => i.id != id))\n    }\n}\napp { Router }\npage Home(path: \"/\", title: \"H\", description: \"d\") { Heading(\"H\").h1 }\n";
+    assert_eq!(errors_of(src), Vec::<String>::new());
+    let wrong = src.replace("list.filter(i => i.id != id)", "list.length");
+    assert!(
+        errors_of(&wrong).iter().any(|e| e.contains("optimistic")),
+        "{:?}",
+        errors_of(&wrong)
+    );
+}
+
+#[test]
+fn a_structural_project_s_popover_has_its_theme_s_surface() {
+    let dir = scratch(
+        "structural",
+        &[
+            (
+                "webfluent.app.json",
+                r#"{ "name": "s", "theme": { "builtin": "structural" }, "build": { "minify": false } }"#,
+            ),
+            (
+                "src/App.wf",
+                "app { Router }\npage Home(path: \"/\", title: \"H\", description: \"d\") {\n    state open = false\n    Heading(\"H\").h1\n    Button(\"Why\", ref: why) { on click { open = true } }\n    Popover(visible: open, anchor: why, label: \"Why\") { Text(\"Because.\") }\n    Button(\"Toast\") { on click { toast(\"Saved\") } }\n}\n",
+            ),
+        ],
+    );
+    webfluent::build::build(&webfluent::build::BuildOptions::new(
+        &dir,
+        &webfluent::vfs::FsVfs,
+    ))
+    .expect("builds");
+    let css = std::fs::read_to_string(dir.join("build/styles.css")).unwrap();
+    let rule = css
+        .split('}')
+        .find(|r| r.contains(".wf-popover {") || r.contains(".wf-popover{"))
+        .unwrap_or_default();
+    assert!(rule.contains("var(--color-surface)"), "{rule}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

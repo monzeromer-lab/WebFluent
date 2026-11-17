@@ -30,7 +30,7 @@ test "settings will not save a short username" {
 }
 
 test "the theme switch turns dark mode on and off" {
-    ThemeToggle
+    DarkModeSwitch
     Text("Theme: {theme}")
     click "Dark mode"
     expect "Theme: dark"

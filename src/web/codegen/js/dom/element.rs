@@ -726,6 +726,11 @@ impl JsCodegen {
             matches!(a, Arg::Named(k, _)
                             if !own.contains(k) && (is_root_attribute(k) || k == "class"))
         });
+        // `ref: handle` a component does not take as a prop is a handle on
+        // its root element, as it is on a built-in's.
+        let (handle, passed): (Vec<Arg>, Vec<Arg>) = passed.into_iter().partition(
+            |a| matches!(a, Arg::Named(k, Expr::Identifier(_)) if k == "ref" && !own.contains(k)),
+        );
         let mut args_obj = self.emit_component_args(name, &passed);
         if !emitted.is_empty() {
             let handlers: Vec<String> = emitted
@@ -806,6 +811,14 @@ impl JsCodegen {
             }
             self.indent -= 1;
             self.emit_line("});");
+        }
+        for arg in &handle {
+            if let Arg::Named(_, Expr::Identifier(h)) = arg {
+                self.emit_line(&format!(
+                    "{{ const _r = {var} && {var}.nodeType === 11 ? {var}.firstElementChild : {var}; if (_r) {}.el = _r; }}",
+                    bare(h)
+                ));
+            }
         }
         // A gesture — `on receive(d)`, `on dragmove(d)`, a long press,
         // a swipe — is recognised on the root by the runtime; any

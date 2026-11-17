@@ -121,10 +121,11 @@ fn an_output_outside_the_project_is_refused_unless_asked_for() {
             "{output}"
         );
         assert!(s.0.join("victim/keep.tar.gz").exists(), "{output}");
-        // `wf check` says so too, and `wf serve` and `wf verify` refuse to
-        // serve it.
-        let (code, out) = s.wf(&["check"]);
-        assert_ne!(code, 0, "{output}: {out}");
+        // `wf check` writes nothing: it says a build would stop, and checks
+        // the rest. `wf verify` refuses to serve it.
+        let (_, out) = s.wf(&["check"]);
+        assert!(out.contains("a build would stop here"), "{output}: {out}");
+        assert!(out.contains("--allow-output-outside"), "{output}: {out}");
         let (code, out) = s.wf(&["verify"]);
         assert_ne!(code, 0, "{output}: {out}");
         assert!(out.contains("build.output"), "{output}: {out}");

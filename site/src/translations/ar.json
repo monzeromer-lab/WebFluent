@@ -512,5 +512,11 @@
   "error.quickfix": "يعرض محرّرك هذا الإصلاح: **{title}**. ويطبّقه `wf fix --code {code}` في كل موضع يناسبه.",
   "recipes.none": "لا وصفة تطابق. جرّب كلمات أخرى أو مخرَجًا آخر.",
   "recipe.download": "نزّل المشروع",
-  "recipe.files": "{files}"
+  "recipe.files": "{files}",
+  "search.count.zero": "لا نتائج",
+  "search.count.one": "نتيجة واحدة",
+  "search.count.two": "نتيجتان",
+  "search.count.few": "{count} نتائج",
+  "search.count.many": "{count} نتيجة",
+  "search.count.other": "{count} نتيجة"
 }

@@ -2,7 +2,7 @@
 // edit the compiler or the script, not this file.
 
 page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.") {
-    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 80 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "tokens-color", label: "color"), Anchor(id: "tokens-spacing", label: "spacing"), Anchor(id: "tokens-font-size", label: "font-size"), Anchor(id: "tokens-line-height", label: "line-height"), Anchor(id: "tokens-radius", label: "radius"), Anchor(id: "tokens-shadow", label: "shadow"), Anchor(id: "tokens-transition", label: "transition"), Anchor(id: "tokens-font", label: "font"), Anchor(id: "tokens-motion", label: "motion"), Anchor(id: "tokens-other", label: "other"), Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], source: "md-docs/reference/design-tokens.md") {
+    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 87 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "tokens-color", label: "color"), Anchor(id: "tokens-spacing", label: "spacing"), Anchor(id: "tokens-font-size", label: "font-size"), Anchor(id: "tokens-line-height", label: "line-height"), Anchor(id: "tokens-radius", label: "radius"), Anchor(id: "tokens-shadow", label: "shadow"), Anchor(id: "tokens-transition", label: "transition"), Anchor(id: "tokens-font", label: "font"), Anchor(id: "tokens-motion", label: "motion"), Anchor(id: "tokens-other", label: "other"), Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "every-built-in-follows-the-theme", label: "Every built-in follows the theme"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], source: "md-docs/reference/design-tokens.md") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter lists every design token of the baseline theme with its value, and how a style reads one. A *design token* is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.\n\nA `theme` declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on `:root`:")
@@ -72,6 +72,10 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
 
                 Markdown("The card's background is `#F1F5F9`, its radius `14px` and its border the baseline `color-border`. Its padding grows to `spacing-xl` from `900px` wide, because `@md` reads `screen-md`.\n\nA `$token` the resolved theme does not declare draws the `V06` warning, since the property would fall back to nothing. `wf theme` lists every token the build uses, where each is read, and the contrast of the colour pairs ([Command line](/reference/cli#wf-theme)).")
 
+                Heading("Every built-in follows the theme", id: "every-built-in-follows-the-theme").h2
+
+                Markdown("The built-ins draw their colours, sizes, radii, fonts and motion from these tokens and nothing else, so a theme restyles every one of them, the ones a page adds later included. A tone's label is a token too: `color-on-primary` is what a primary button, badge, pressed toggle, current page or selected day writes on `color-primary`, and so for `secondary`, `success`, `danger`, `warning` and `info`. A theme with a light primary names a dark `color-on-primary`, and `A13` holds each pair to WCAG AA where a page draws it. An alert's tint, a focus ring and a highlighted match are worked out from the tone and the page's colours (`color-mix`), so a dark theme gets dark alerts without naming any; `color-backdrop` dims the page behind a modal, a dialog, a sheet and a drawer. The only colours that stay fixed are the ones over a picture: a carousel's and a lightbox's controls.")
+
                 Heading("The baseline", id: "the-baseline").h2
 
                 Markdown("The tables below are written from the compiler's baseline theme, and the test suite checks them against it.")
@@ -87,6 +91,10 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     }
                     Table.Body {
                         Table.Row {
+                            Table.Cell { Markdown("`color-backdrop`") }
+                            Table.Cell { Markdown("`rgb(0 0 0 / 0.5)`") }
+                        }
+                        Table.Row {
                             Table.Cell { Markdown("`color-background`") }
                             Table.Cell { Markdown("`#FFFFFF`") }
                         }
@@ -101,6 +109,30 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                         Table.Row {
                             Table.Cell { Markdown("`color-info`") }
                             Table.Cell { Markdown("`#06B6D4`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`color-on-danger`") }
+                            Table.Cell { Markdown("`#FFFFFF`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`color-on-info`") }
+                            Table.Cell { Markdown("`#FFFFFF`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`color-on-primary`") }
+                            Table.Cell { Markdown("`#FFFFFF`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`color-on-secondary`") }
+                            Table.Cell { Markdown("`#FFFFFF`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`color-on-success`") }
+                            Table.Cell { Markdown("`#FFFFFF`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`color-on-warning`") }
+                            Table.Cell { Markdown("`#000000`") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`color-primary`") }
@@ -565,7 +597,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     }
                 }
 
-                Markdown("80 tokens in all.")
+                Markdown("87 tokens in all.")
 
                 Heading("Short names", id: "short-names").h2
 
@@ -641,6 +673,11 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
             }
             Table.Body {
                 Table.Row {
+                    Table.Cell { Code("$color-backdrop") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: rgb(0 0 0 / 0.5) } }  Code("rgb(0 0 0 / 0.5)") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
                     Table.Cell { Code("$color-background") }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
                     Table.Cell("color, background, background-color, border, border-color, outline")
@@ -658,6 +695,36 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                 Table.Row {
                     Table.Cell { Code("$color-info") }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #06B6D4 } }  Code("#06B6D4") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
+                    Table.Cell { Code("$color-on-danger") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
+                    Table.Cell { Code("$color-on-info") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
+                    Table.Cell { Code("$color-on-primary") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
+                    Table.Cell { Code("$color-on-secondary") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
+                    Table.Cell { Code("$color-on-success") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
+                    Table.Cell("color, background, background-color, border, border-color, outline")
+                }
+                Table.Row {
+                    Table.Cell { Code("$color-on-warning") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #000000 } }  Code("#000000") } }
                     Table.Cell("color, background, background-color, border, border-color, outline")
                 }
                 Table.Row {

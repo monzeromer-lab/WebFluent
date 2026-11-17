@@ -90,8 +90,8 @@ it, the build evaluates the page as far as it can know the values:
 | Components | Expanded, with props substituted and slots filled |
 | `t("…")` | In the default locale |
 | `format`, `ago`, the list and string helpers | Computed, with a built-in table of locales |
-| `resource` and `api` calls | The `loading` arm; the live page fetches and replaces it |
-| `await fetch` in an action | Nothing, until the action runs |
+| `resource` and `api` calls | The `.loading` arm; the live page asks and replaces it |
+| `await http.get(…)` in an action | Nothing, until the action runs |
 | `viewport`, `query`, `hash`, `theme`, `network` | Unknown — a condition on them is drawn once the page is live |
 | Anything read from `window`, `document`, `localStorage` | Unknown |
 

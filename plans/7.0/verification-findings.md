@@ -188,7 +188,145 @@ after the migration; what is left is what a person decides (a `Map` that
 wants a record type, a `Json` read as a record, an `Any` list, a value
 that may be null passed where it may not).
 
+### Requests, the rest by hand
+
+Checked and right, in the browser against the lab: `refresh:
+.every(2.seconds)` asks every 2 s exactly; `.onFocus` asks once, that read
+alone; two readers of one address make one request; `Retry-After: 1` is
+waited (1003 ms); a write kept offline that the server refuses on its
+replay lands in `network.refused`, and `network.clearRefused()` empties it;
+the replay carries the middleware's headers (fix 12); after a rebuild the
+page offers the new version (`update.available`) and `update.apply()` takes
+it with one reload.
+
+32. **`reload()` did not ask while a kept answer was fresh** — a server's
+    `max-age`, or `cache: .swr(…)` — though the docs say it asks now; a
+    refresh button did nothing for a minute. *Fix:* a refresh (`reload()`,
+    `refresh:`) goes to the server whatever the freshness, sending the
+    `ETag` it holds; the value stays shown, `refreshing`, until the answer.
+33. **Only one variant of a `Vary` answer was kept**: English, then Arabic,
+    then English asked three times within the English answer's `max-age`.
+    *Fix:* each variant is kept under its own key. *Proof:* the lab asks
+    once for each language; `tests/js/hands_on.test.mjs`.
+
+### Fakes, `wf api` and the language server, by hand
+
+Checked and right: a fake `from examples` answers with the spec's example
+and its own answers win; `wf verify --fakes` builds and loads the site with
+the fakes, naming each endpoint none answers; `N06` names each way a fake
+breaks its contract; `wf api list`; `sync` rewrites an edited generated
+file and leaves one without the marker alone (saying why); `check` and
+`N07` catch an edit; an XML answer stops `sync` (`E111`) until `--skip`
+names it; `eject` turns `api … from` into files that build.
+
+34. **A wrong example in the spec read as a mistake in the fake**: `T02
+    Role has no case .wizard` at the `fake` line, naming no example. *Fix:*
+    an example is JSON, held to the endpoint's answer as data is: `T33 the
+    spec's example of getPerson is not what Lab.people.getPerson answers:
+    $.role is "wizard", which is none of …`.
+35. **"No fake answers X: name one in the test's `fakes:`"** under `wf verify
+    --fakes`, where there is no test; it now names both places.
+36. **Messages still said `Any` and `Map`**, which 7.0 took out of the
+    language: an empty list was `[Any]`, an open map `Map`. They are `[]` and
+    `{…}`.
+37. **The language server knew nothing of groups**: hover on
+    `Lab.people.listPeople` was empty, completion after `Lab.people.` offered
+    nothing, and signature help looked for a service called `people` — for a
+    group written by hand and one read from a spec alike. *Fix:* the owner is
+    the service and the group together; hover shows the endpoint (its verb
+    as the language writes it, `get`).
+
+### Migration, by hand
+
+A 6.x project written with every row of the plan's migration tables.
+
+38. **Four rows promised a rewrite the step did not make**: `errors { 404 ->
+    Problem404 }` (now an `enum UserError { notFound(…) on 404 … }` and `->
+    User ! UserError`), `fetch(url, method: "POST", body: …)` in an action
+    (now `try await http.post(url, body: …)`), `paginate: .page` (now `pages
+    .number(param: page)` on the endpoint, the call losing the argument), and
+    `users.state == "ready"` (now `users.isLoaded`).
+39. **A `fetch` inside `try { } catch` became `try await http.get(…)`**,
+    which passes a failure up out of the action, so the `catch` that used to
+    handle it never ran — a silent change of behaviour. *Fix:* inside a `try`
+    block the step does not write `try`; the finding is left for a person,
+    with a hint to `match` the result.
+    *Proof (38, 39):* `tests/hands_on.rs` migrates
+    `tests/fixtures/migrate7/messy-6.wf`; what is left is the `on request`
+    hook, an empty `{}` state and that `catch`, each a person's decision.
+
+### halyard, migrated
+
+`~/Code/halyard` (on its branch `webfluent-7`, not committed): `wf migrate`
+then 47 decisions by hand — record types for its data (`Incident`,
+`OutLine`, `CodeProblem`, `LogRow`, …), dictionaries (`[String: String]`),
+regex literals, a project script that asks the browser whether a pattern
+is valid (in place of a hand-written scanner 6.x needed for want of
+`try`), and a local `dir` that read the language's text direction. Every
+page then drew pixel for pixel as the 6.2 build did. The hand-made command
+palette, toast stack, menus, popover and drawer became `CommandPalette`,
+`toast(…)`, `Menu`, `Popover` and `Sheet`, drawn in the design's colours
+through its theme's baseline names.
+
+40. **`ref:` on a component call bound nothing**: it was passed as a prop
+    the component does not take, so `Menu(anchor: launcher)` opened in the
+    corner. It is now a handle on the component's root, as on a built-in.
+41. **A structural project's `Popover` was the browser's white, page-wide
+    box**: its surface was in the full sheet only, though a `Menu`'s is in
+    both. It is in both.
+42. **Toasts were set in the browser's serif** in a project whose font is
+    set on `body`: the stack lives outside it. It takes `--font-family`.
+
+### The guide, read for 7.0
+
+Three readers went through Learn 1–17, the data, forms, testing and offline
+recipes and the about pages, running every example against the compiler.
+What they found, now fixed:
+
+43. **Chapter 12 still taught WebFluent 6's types**: a *gradual* checker,
+    `Any` and `Map` in the type table and the quick reference, mixed `if`
+    arms that are `Any`, `fetch` returning `Any`, `groupBy` giving `Map`.
+    Rewritten for 7.0's strict checker (`T23`, `T24`, `T25`, `T27`, `T16`,
+    `N11`); chapter 10's prop types and the introduction's "types are
+    optional" too.
+44. **"Under `wf serve` … a `.parse` error"** in chapters 12 and 15: an
+    answer is checked in every build, and fails as `.decode(at, message)`.
+45. **6.x wording**: chapter 15's "no `error` arm" (`.failed`), chapter 7's
+    `fetch` among the globals, "This guide describes WebFluent 6", the
+    static-paint table's `loading` arm and `await fetch`, the installer's
+    `v6.2.0` and `wf 6.0.0`.
+46. **Examples that taught a bug**: the shelf tutorial's and the upload
+    example's bare `await` (`N04`: a failure went unheard and `done`/`sent`
+    turned true anyway; now `try`), chapter 15's `optimistic` example (could
+    not roll back — now `-> !` and `try`), chapter 11's socket (`T28`: now
+    typed with `send`/`receive`), chapter 14's `form.values` (`T19`),
+    `-> Json! as: .blob` (`File!`), `Text { Text(…) Kbd(…) }` (a `<p>` in a
+    `<p>`; now a `Row`).
+47. **Facts that were wrong**: "thirteen kinds of declaration" (fifteen —
+    `middleware` and `fake`); the `T33` message quoted for a seed; the
+    feedback built-ins left out `AlertDialog`, `Sheet`, `ConsentSettings`;
+    the notebook recipe's `ThemeToggle` "two icon buttons" (one); "sixteen"
+    browser suites; a snapshot's file name; the `1.9 kB` page (one page,
+    no router); the sign-in recipe's "Needs" (the starter's `Profile.wf`
+    reads the store it replaces) and its "in a `try`"; the load-more
+    recipe's cursor (a cursor needs `items:`; so did the hint the parser
+    gives and the comment `wf api` writes in `service.wf`).
+48. **`optimistic(holder, change)` gave its change no types**, so every
+    example of it was `T32`. *Fix (checker):* the change is a function from
+    what the holder holds to the same, and its parameter is typed by it.
+49. **`form.reset()` reset the controls on the page but not the states
+    bound to them**, so the page and the program disagreed after it.
+    *Fix (runtime):* each control says what it holds after the reset.
+50. **The `spa` starter's own `ThemeToggle` hid the built-in**, so a new
+    project's first build printed a `V11` note. The starter's switch is
+    `DarkModeSwitch`.
+
 ### Noted, not changed
+
+- `Text` inside a `Text` renders a `<p>` inside a `<p>`, which a browser
+  splits. The guide's one such example is now a `Row`; making an inner
+  `Text` a `<span>` touches all three renderers and is left for after the
+  release.
 
 - An `HttpError`'s message for a status is `HTTP 500` even when the body is
   a Problem with a `title`; a page that wants the title matches
@@ -262,10 +400,57 @@ that may be null passed where it may not).
     without saying which (`T26`), `RegExp(…)` and `Object.assign` (`T30`),
     `Any` and `Map` read as records. The project itself was not touched.
 
+## Part C — after the first report
+
+### The search dialog
+
+21. **Its contents filled 500 of its 640 px**, leaving an empty band on the
+    right: the site sized the `Modal`, but a built-in `Modal`'s content was
+    fixed at 500 px whatever the dialog's size. *Fix (engine):* a `Modal` and
+    a `Dialog` are as wide as their `<dialog>`, and the content fills it, so a
+    `class:` or `style { }` on one sizes what it shows.
+22. **The arrow keys did nothing** in a list marked `listbox`, and Enter
+    always opened the first result. *Fix:* the field is a `combobox` whose
+    `aria-activedescendant` follows the arrows, Enter opens the one marked,
+    the pointer marks what it rests on.
+23. **Two words found nothing unless written together** (`sticky header`);
+    now every word is matched, in any order.
+24. **Results stopped at 12** without saying so; now 40 show, scrolling, and
+    the count of every match is said (`role="status"`).
+25. **Arabic found nothing**: the index had no Arabic page. The Arabic
+    chapters and sheet are indexed with their Arabic words and their own
+    anchors, and each result's text takes its own direction (`dir="auto"`).
+26. **`/` opened the search and typed itself into it**, so `/button` found
+    nothing; **"Nothing matches"** came with "0 results" under it; at phone
+    width **the kinds wrapped** to two lines; **the field drew two focus
+    rings**. Each fixed.
+
+### The built-ins and the theme
+
+27. **Built-ins wrote fixed colours where the theme should have spoken**:
+    labels on a tone were `#fff`/`#000` (a light primary made its buttons
+    unreadable), alerts were fixed light pastels (glaring in a dark theme),
+    the focus ring a fixed blue, the rating star and highlight fixed
+    yellows, backdrops a fixed black, and a plain toast had white text and
+    no background. *Fix:* `color-on-primary` … `color-on-info` and
+    `color-backdrop` join the baseline; every tone's label, the toggles,
+    pagination, stepper, calendar and chip draw from them; alerts, focus
+    rings and highlights are mixed from the tone and the page's colours. A13
+    checks each label against its tone. *Proof:* a dark theme with a light
+    primary, in the browser: every tone, alert, toggle, page, focus ring,
+    modal and toast follows it; `tests/hands_on.rs`.
+
+### The leftovers
+
+28. **A failed status said `HTTP 500`** when the server sent a problem; its
+    `detail`, else its `title`, is now the message.
+29. **`.timeout(after)` in the docs could not be written** (`after` is the
+    language's timer, `E118`); the payload is `limit`.
+30. **At 1024–1279 px the header's places ran under the search**, and the
+    home page's example squeezed its file name and code. The search is its
+    icon there, and the hero sits side by side from 1280 px.
+31. **`wf check` stopped** on an output outside the project, where its docs
+    say it reports it: it now says a build would stop, and checks the rest.
+
 ### Noted, not changed
 
-- At about 800 px wide the home page's example squeezes its file name
-  under the "Open in the Playground" button; desktop and phone are right.
-- `wf check` refuses a project whose output is outside it unless it is
-  given `--allow-output-outside`, though it writes nothing — as the docs
-  say.

@@ -109,6 +109,13 @@ fn callee(previous: &[&Token], open: usize) -> Option<String> {
     let before = open.checked_sub(2).map(|i| &previous[i].token_type);
     match (before, open.checked_sub(3).map(|i| &previous[i].token_type)) {
         (Some(TokenType::Dot), Some(TokenType::Identifier(owner))) => {
+            // `Backend.people.list(`: a group's endpoint, named by both.
+            if let (Some(TokenType::Dot), Some(TokenType::Identifier(service))) = (
+                open.checked_sub(4).map(|i| &previous[i].token_type),
+                open.checked_sub(5).map(|i| &previous[i].token_type),
+            ) {
+                return Some(format!("{service}.{owner}.{name}"));
+            }
             return Some(format!("{owner}.{name}"));
         }
         // `.failed(`: a case of an enum, given its payload. After a `)` or
@@ -241,7 +248,7 @@ fn describe(
         return Some((joined(callee, &params), params, c.doc.clone()));
     }
     // A service's endpoint.
-    if let Some((api, endpoint)) = callee.split_once('.')
+    if let Some((api, endpoint)) = callee.rsplit_once('.')
         && let Some(e) = declarations.iter().find_map(|d| match d {
             Declaration::Api(a) if a.name == api => a.endpoints.iter().find(|e| e.name == endpoint),
             _ => None,

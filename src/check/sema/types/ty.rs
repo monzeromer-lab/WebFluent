@@ -372,7 +372,10 @@ impl Type {
 impl std::fmt::Display for Type {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Type::Any => write!(f, "Any"),
+            // `Any` and `Map` are not types a program can write (7.0), so a
+            // message never names them: what an empty list holds is not
+            // known yet (`[]`), and an open map is `{…}`.
+            Type::Any => write!(f, "unknown"),
             Type::Error => write!(f, "unknown"),
             Type::String => write!(f, "String"),
             Type::Number => write!(f, "Number"),
@@ -380,8 +383,9 @@ impl std::fmt::Display for Type {
             Type::Null => write!(f, "null"),
             Type::Token => write!(f, "$token"),
             Type::Regex => write!(f, "Regex"),
+            Type::List(inner) if **inner == Type::Any => write!(f, "[]"),
             Type::List(inner) => write!(f, "[{inner}]"),
-            Type::Map => write!(f, "Map"),
+            Type::Map => write!(f, "{{…}}"),
             Type::Shape(fields) => {
                 let inner: Vec<String> = fields.iter().map(|(n, t)| format!("{n}: {t}")).collect();
                 write!(f, "{{ {} }}", inner.join(", "))

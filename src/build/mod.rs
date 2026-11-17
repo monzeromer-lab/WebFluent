@@ -466,8 +466,12 @@ fn load_config(options: &BuildOptions<'_>) -> Result<ProjectConfig> {
 /// `wf check`: every finding of a build, with nothing written.
 fn run_check(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     let confined = Confined::new(options.vfs, options.project_dir);
+    // A check writes nothing: an output a build would refuse (`"../docs"`
+    // without `--allow-output-outside`) is said, and the rest is checked.
     let mut config = load_config(options)?;
-    output_dir_of(options, &config)?;
+    if let Err(refused) = output_dir_of(options, &config) {
+        out.say(format!("  Warning: a build would stop here: {refused}"));
+    }
     let analysis = analyse_via(&confined, options.project_dir, &mut config, None)?;
     say_skipped(out, &confined);
     out.program(&analysis.program, &analysis.declaration_files);

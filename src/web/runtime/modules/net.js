@@ -343,7 +343,9 @@
       }
       pending.set(true);
       // An endpoint is a call; an address is a request.
-      const args = options && options.call ? argsOf() : null;
+      // Asked again — `reload()`, a refresh — goes to the server whatever a
+      // kept answer's freshness, sending what it holds to revalidate.
+      const args = options && options.call ? (again ? { ...argsOf(), $ask: true } : argsOf()) : null;
       let made;
       if (paging) {
         made = gatherPages(args, signalOf, mode).then(({ now, all }) => {
@@ -369,7 +371,7 @@
       } else {
         made = options && options.call
           ? url({ ...args, signal: signalOf })
-          : send(typeof url === "function" ? url() : url, { ...opts, body: bodyNow(), headers: headersOf(), signal: signalOf });
+          : send(typeof url === "function" ? url() : url, { ...opts, body: bodyNow(), headers: headersOf(), signal: signalOf, ask: again });
       }
       made.then(
         (value) => {

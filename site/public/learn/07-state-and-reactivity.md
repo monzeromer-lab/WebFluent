@@ -330,7 +330,8 @@ in this order, innermost first:
 6. Constants, `data` and `image` declarations, `env.X`, and the browser's
    values above.
 7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
-   `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.
+   `Date`, `setTimeout`, `console`, `navigator`, `location`. (A request is
+   `http.get(…)`; the browser's own `fetch` is `window.fetch`.)
 
 So with `state name = "outer"`, `for name in items by name { Text(name) }`
 shows each item, and a `const name` is hidden by both.

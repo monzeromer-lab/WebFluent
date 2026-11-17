@@ -190,6 +190,9 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 /* ── Fields ──────────────────────────────────────────────────────────── */
 .bp-field { display: flex; align-items: center; gap: var(--space-2); min-height: 40px; box-sizing: border-box; padding: 0 var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--raised); color: var(--muted); font-family: inherit; font-size: 13px; text-align: start; cursor: pointer; }
 .bp-field:hover { border-color: var(--border-strong); color: var(--ink); }
+/* A field that holds an input shows the focus on itself, once. */
+.bp-field:has(input:focus-visible) { border-color: var(--construction); box-shadow: 0 0 0 1px var(--construction); }
+.bp-field input:focus-visible { outline: none; }
 .bp-field .wf-icon { display: inline-flex; font-size: 15px; }
 .bp-field p { margin: 0; }
 .bp-select .wf-select, .bp-select select { min-height: 36px; padding: 0 var(--space-6) 0 var(--space-2); border: 1px solid var(--line); border-radius: var(--radius-sm); background-color: var(--sheet); color: var(--ink); font-family: inherit; font-size: 13px; }
@@ -212,7 +215,7 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-palette.wf-modal { width: min(640px, calc(100vw - 32px)); max-height: min(560px, calc(100vh - 64px)); padding: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--sheet); color: var(--ink); box-shadow: var(--shadow-lg); }
 .bp-palette .wf-modal__header { display: none; }
 .bp-hit { display: flex; align-items: baseline; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); color: var(--ink); text-decoration: none; }
-.bp-hit:hover, .bp-hit:focus-visible { background: var(--raised); text-decoration: none; }
+.bp-hit:hover, .bp-hit:focus-visible, .bp-hit[aria-selected="true"] { background: var(--raised); text-decoration: none; }
 .bp-hit p { margin: 0; }
 
 /* ── Diagnostics as `wf` prints them ─────────────────────────────────── */
@@ -315,6 +318,12 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 /* The places stay on one line; the Building switch's word gives way first. */
 .bp-header .bp-tabs { flex-wrap: nowrap; flex-shrink: 0; }
 @media (max-width: 1279.98px) { .bp-header .bp-building-label { display: none; } }
+/* Where the places sit in the bar but the bar is not yet wide, the search
+   is its icon, as on a phone, so the places are never drawn under it. */
+@media (min-width: 1024px) and (max-width: 1279.98px) {
+  .bp-header .bp-search { flex: 0 0 40px !important; width: 40px !important; padding: 0 !important; justify-content: center !important; }
+  .bp-header .bp-search > :not(.wf-icon) { display: none !important; }
+}
 
 /* The side columns scroll on their own; their scrollbar is a hairline that
    shows on hover, not the platform's grey bar beside the content. */

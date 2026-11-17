@@ -384,12 +384,16 @@ store's actions and handlers name the connection as it is declared, and a
 page reads it through the store:
 
 ```wf
+type Line { text: String }
+
 store Live {
     state last = ""
     socket feed = ws("wss://example.com/feed") {
+        send Line
+        receive Line
         on message(m) { last = m.text }
     }
-    action say(text: String) { feed.send({ text: text }) }
+    action say(text: String) { feed.send(Line(text: text)) }
 }
 
 page Feed(path: "/", title: "Feed", description: "One line for every page.") {

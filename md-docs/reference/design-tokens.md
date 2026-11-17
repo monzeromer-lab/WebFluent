@@ -74,6 +74,21 @@ since the property would fall back to nothing. `wf theme` lists every token
 the build uses, where each is read, and the contrast of the colour pairs
 ([Command line](cli.md#wf-theme)).
 
+## Every built-in follows the theme
+
+The built-ins draw their colours, sizes, radii, fonts and motion from these
+tokens and nothing else, so a theme restyles every one of them, the ones a
+page adds later included. A tone's label is a token too: `color-on-primary`
+is what a primary button, badge, pressed toggle, current page or selected
+day writes on `color-primary`, and so for `secondary`, `success`, `danger`,
+`warning` and `info`. A theme with a light primary names a dark
+`color-on-primary`, and `A13` holds each pair to WCAG AA where a page draws
+it. An alert's tint, a focus ring and a highlighted match are worked out from
+the tone and the page's colours (`color-mix`), so a dark theme gets dark
+alerts without naming any; `color-backdrop` dims the page behind a modal, a
+dialog, a sheet and a drawer. The only colours that stay fixed are the ones
+over a picture: a carousel's and a lightbox's controls.
+
 ## The baseline
 
 The tables below are written from the compiler's baseline theme, and the
@@ -85,10 +100,17 @@ test suite checks them against it.
 
 | Token | Baseline |
 |---|---|
+| `color-backdrop` | `rgb(0 0 0 / 0.5)` |
 | `color-background` | `#FFFFFF` |
 | `color-border` | `#E2E8F0` |
 | `color-danger` | `#EF4444` |
 | `color-info` | `#06B6D4` |
+| `color-on-danger` | `#FFFFFF` |
+| `color-on-info` | `#FFFFFF` |
+| `color-on-primary` | `#FFFFFF` |
+| `color-on-secondary` | `#FFFFFF` |
+| `color-on-success` | `#FFFFFF` |
+| `color-on-warning` | `#000000` |
 | `color-primary` | `#3B82F6` |
 | `color-secondary` | `#64748B` |
 | `color-success` | `#22C55E` |
@@ -226,7 +248,7 @@ test suite checks them against it.
 |---|---|
 | `wf-header-height` | `56px` |
 
-80 tokens in all.
+87 tokens in all.
 
 <!-- /tokens -->
 

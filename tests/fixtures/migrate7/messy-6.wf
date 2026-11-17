@@ -1,0 +1,58 @@
+// Every row of the 6 → 7 tables, written the 6.x way.
+
+type User { id: String, name: String }
+type Problem404 { title: String }
+
+api Backend(base: "/api") {
+    headers { X-Client: "web" }
+    on request(r) { r.headers["X-Trace"] = "1" }
+    get users at "users" -> [User]
+    get user(id: String) at "users/:id" -> User
+    errors { 404 -> Problem404 }
+    get profile -> User
+    post note(body: Map) at "notes" -> Any
+    get feed(page: Number = 1) at "feed" -> [User]
+}
+
+store Team {
+    state names = []
+    state raw = {}
+
+    action count() {
+        return names.length
+    }
+
+    action send(text: String) {
+        let saved: User = await fetch("/api/notes", method: "POST", body: { text: text })
+        names = names.concat([saved.name])
+    }
+
+    action risky() {
+        try {
+            let u: User = await fetch("/api/users/1")
+            names = [u.name]
+        } catch e {
+            log(e.message)
+        }
+    }
+}
+
+app { Router }
+
+page Home(path: "/", title: "Home", description: "Messy.") {
+    use Team
+    resource users: [User] = fetch("/api/users", on: .focus)
+    resource one = Backend.user(id: "1")
+    resource feed = Backend.feed(paginate: .page)
+    Heading("Team").h1
+    match users {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(list) { for u in list by u.id { Text(u.name) } }
+    }
+    if users.state == "ready" { Text("{users.data?.length ?? 0} people") }
+    if one.refreshing { Spinner.sm }
+    Text("{Team.count()}")
+    if Team.names.length { Text("named") }
+    Button("Note") { on click { Team.send("hi") } }
+}

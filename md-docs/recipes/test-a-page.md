@@ -94,7 +94,8 @@ wf test
   by what a reader sees, so a test also catches a control that lost its
   name.
 - A test that only looks needs no browser. It is rendered and compared
-  with a snapshot, `tests/__snapshots__/shopping/<test name>.html`, written
+  with a snapshot, `tests/__snapshots__/shopping/<the-test-name>.html` (its
+  name in lower case, hyphenated), written
   the first time it runs. When a change is meant, `wf test --update`
   writes the snapshots again; commit them with the code.
 - A handler that throws fails the test, so a broken click is caught even

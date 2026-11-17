@@ -1,12 +1,12 @@
 /// Chapter 4 of the guide, written from md-docs/learn/04-language-basics.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn04LanguageBasics(path: "/learn/04-language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.", layout: DocsShell("Language basics", kind: .tutorial, chapter: t("nav.group.language"), blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", source: "md-docs/learn/04-language-basics.md", sections: [Anchor(id: "declarations", label: "Declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Name the thirteen declarations a `.wf` file may hold", "Tell a render block from an imperative block, and put an assignment where it belongs", "Write two statements on one line, with `;` or two spaces", "Switch a file between the braced `.wf` and the indented `.wfx` layout", "Splice values into a string, and write raw and block strings"], prevTo: "/learn/03-tutorial-todos", prevLabel: t("ch.03"), nextTo: "/learn/05-pages-and-routing", nextLabel: t("ch.05"))) {
+page Learn04LanguageBasics(path: "/learn/04-language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.", layout: DocsShell("Language basics", kind: .tutorial, chapter: t("nav.group.language"), blurb: "The shape of every .wf file: the fifteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", source: "md-docs/learn/04-language-basics.md", sections: [Anchor(id: "declarations", label: "Declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Name the fifteen declarations a `.wf` file may hold", "Tell a render block from an imperative block, and put an assignment where it belongs", "Write two statements on one line, with `;` or two spaces", "Switch a file between the braced `.wf` and the indented `.wfx` layout", "Splice values into a string, and write raw and block strings"], prevTo: "/learn/03-tutorial-todos", prevLabel: t("ch.03"), nextTo: "/learn/05-pages-and-routing", nextLabel: t("ch.05"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter covers the shape of every `.wf` file. A WebFluent program is a set of declarations: pages, components, stores and the rest, each a keyword followed by a name and a body. Learn the thirteen kinds and the two kinds of body, and you can read any `.wf` file.\n\nIn this chapter:\n\n- the thirteen declarations, and the chapter that covers each\n- how names are written\n- comments, including the doc comments the editor shows\n- render blocks and imperative blocks, and what goes in each\n- the braced `.wf` layout and the indented `.wfx` layout\n- the three ways to write a string, and how a string splices in values")
+        Markdown("This chapter covers the shape of every `.wf` file. A WebFluent program is a set of declarations: pages, components, stores and the rest, each a keyword followed by a name and a body. Learn the fifteen kinds and the two kinds of body, and you can read any `.wf` file.\n\nIn this chapter:\n\n- the fifteen declarations, and the chapter that covers each\n- how names are written\n- comments, including the doc comments the editor shows\n- render blocks and imperative blocks, and what goes in each\n- the braced `.wf` layout and the indented `.wfx` layout\n- the three ways to write a string, and how a string splices in values")
 
         Heading("Declarations", id: "declarations").h2
 
-        Markdown("A `.wf` file holds top-level declarations and nothing else. You cannot put an element or a statement loose in a file; it belongs in the body of a declaration. This file uses all thirteen kinds:")
+        Markdown("A `.wf` file holds top-level declarations and nothing else. You cannot put an element or a statement loose in a file; it belongs in the body of a declaration. This file uses all fifteen kinds:")
 
         CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
 component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
@@ -16,13 +16,15 @@ app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: "/api/v1") { get todos() at "todos" -> [Todo]! }
+middleware timed(req, next) { return await next(req) }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
-test "pill shows its label" { Pill("Beta")  expect "Beta" }"#, title: "wf")
+test "pill shows its label" { Pill("Beta")  expect "Beta" }
+fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
 
-        Markdown("Each keyword declares one kind of thing:")
+        Markdown("(`data` and `image` read their files when the project builds, so this one needs a `posts.json` and a `hero.jpg` beside it to build.)\n\nEach keyword declares one kind of thing:")
 
         Table(caption: "Declarations") {
             Table.Head {

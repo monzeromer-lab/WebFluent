@@ -103,10 +103,11 @@ findings is a project whose pages load, and `wf verify` exists to test the
 bet: it opens every route in a real browser and fails on an uncaught error,
 a failed request or a page that drew nothing.
 
-Types make most of this possible, and they are optional. A value the
-checker cannot work out is `Any`, which agrees with everything, so a
-program that declares no types checks as it always would. Every annotation
-you add narrows what the checker can say.
+Types make most of this possible, and most of them are worked out for
+you: a literal, a record, a store member, what a method gives back. What
+cannot be worked out — an empty list's items, an action's parameters, what
+a server answers — is written, and the checker says where it is missing.
+Every value has a type the program can name.
 
 ## Secure by construction, not by advice
 
@@ -175,5 +176,5 @@ mistakes the compiler finds before your readers do.
 - Coming from a framework, read
   [Coming from React](../coming-from/react.md) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](../reference/components.md).
-- This guide describes WebFluent 6. [Upgrading](../errors/upgrading.md) lists what
+- This guide describes WebFluent 7. [Upgrading](../errors/upgrading.md) lists what
   each release changed.

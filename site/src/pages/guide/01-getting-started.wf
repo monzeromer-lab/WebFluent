@@ -50,7 +50,7 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
 
         Markdown("**You see** the release you installed:")
 
-        CodeBlock(#"wf 6.0.0"#, title: "text")
+        CodeBlock(#"wf 7.0.0"#, title: "text")
 
         Markdown("If the shell says it cannot find `wf`, open a new terminal. The installer adds its directory to your `PATH` in your shell's startup file, and the terminal you ran it in read that file before the change.")
 
@@ -132,7 +132,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
                 Table.Row {
                     Table.Cell { Markdown("`WF_VERSION`") }
                     Table.Cell("Installs that release instead of the latest")
-                    Table.Cell { Markdown("`WF_VERSION=v6.2.0`") }
+                    Table.Cell { Markdown("`WF_VERSION=v7.0.0`") }
                 }
             }
         }

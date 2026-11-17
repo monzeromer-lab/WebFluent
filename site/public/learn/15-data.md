@@ -446,7 +446,7 @@ call with `.transport`.
 | Feature | What it does |
 |---|---|
 | Abort | A call is aborted when its scope leaves, when an argument that reads state changes, on `.cancel()`, and on timeout |
-| Errors | an `HttpError`: `.offline`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message` |
+| Errors | an `HttpError`: `.offline`, `.timeout(limit)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — each with `.message` |
 | Decoding | What a call or a `resource` declares it returns is held to what arrives, in every build: a server that breaks its contract fails as `.decode(at, message)` |
 | Retry | Exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request that is safe to send twice, a `POST` or `PATCH` only when its endpoint is `idempotent` |
 | Cache | What the server's `Cache-Control` allows (RFC 9111): fresh for its `max-age`, stale within `stale-while-revalidate`, revalidated with `ETag`, never under `no-store`, kept apart by `Vary` and the credentials; nothing without caching headers. `cache: .maxAge(60.seconds)`, `.swr(…)`, `.none`, `.forever` override it. It holds the 256 answers read most recently |
@@ -734,7 +734,7 @@ post createUser(body: NewUser) at "createUser" -> User ! CreateUserError
 put rename(id: String, body: Rename) at "users/{id}" -> User!
 patch settings(body: Settings) at "settings" -> Settings!
 delete removeUser(id: String) at "users/{id}" -> !
-get report(id: String) at "reports/{id}" -> Json! as: .blob
+get report(id: String) at "reports/{id}" -> File! as: .blob
 ```
 
 - **The verb** is `get`, `post`, `put`, `patch`, `delete`, `head` or
@@ -759,7 +759,7 @@ get report(id: String) at "reports/{id}" -> Json! as: .blob
 - **What comes back.** `-> T!` is a success's `T`, or an `HttpError`;
   `-> T ! E` names the failures in an error enum `E`, each status a case
   with its typed body; `-> !` returns nothing, as `204 No Content` does, and
-  may fail. Under `wf serve` the body that arrives is held to `T`, and a
+  may fail. In every build the body that arrives is held to `T`, and a
   declared status's body to its case's type. What crosses is a type the
   program names: `Map` and `Any` there are `N11`.
 - **Other responses.** `as:` says how to read a response that is not JSON:
@@ -841,7 +841,7 @@ page Team(path: "/people", title: "People", description: "Adding someone, and wh
   carries one value, the body of that status. An enum that names a status
   is held to that shape (`N12`).
 - **`HttpError`** is what goes wrong between the page and the server:
-  `.offline(queued)`, `.timeout(after)`, `.cancelled`, `.transport(message)`,
+  `.offline(queued)`, `.timeout(limit)`, `.cancelled`, `.transport(message)`,
   `.decode(at, message)` and `.status(code, problem)`. Every one has
   `.message`, for showing. `queued` is true for a write kept to send when
   the connection returns ([Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md)).
@@ -1005,18 +1005,20 @@ in `meta.connect` too ([Security](https://webfluent.monzeromer.dev/about/securit
 
 To make an edit appear at once instead of after the round trip, call
 `optimistic(holder, change)` before the request. If anything later in the
-action throws, the change is taken back: the action rolls itself back.
+action fails — a `try` passing a failure up, or a throw — the change is
+taken back: the action rolls itself back.
 
 ```wf
-action rename(id: String, name: String) {
+action rename(id: String, name: String) -> ! {
     optimistic(Todos.items, items => items.map(i => if i.id == id { { ...i, title: name } } else { i }))
-    await Backend.updateUser(id: id, body: { name: name })
+    try await Backend.updateUser(id: id, body: Rename(name: name))
     Backend.users.invalidate()
 }
 ```
 
-The new title shows at once. If `updateUser` fails, the old title comes
-back.
+The new title shows at once. If `updateUser` fails, `try` passes the
+failure up, and the old title comes back. The change's parameter is what
+the holder holds, so `items` and `i` are typed with nothing written.
 
 ## Ask on demand with `http`
 
@@ -1231,7 +1233,7 @@ source of data puts in that HTML:
 |---|---|
 | The browser console says a response was blocked by CORS | The API is on another origin and does not allow yours. Add CORS headers to the API, or serve both from one origin ([Call an API on another origin](#call-an-api-on-another-origin)). |
 | A request gets a `404` under `wf serve`, with a line in the terminal | `wf serve` has no file or page for that address, and no proxy. Point `base:` at the real API. |
-| A `.parse` error naming a place, such as `$[1].name is missing` | Under `wf serve`, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
+| A `.decode(at, message)` failure naming a place, such as `$[1].name is missing` | In every build, a response is checked against its declared type. The server sent another shape: fix the server or the `type`. |
 | A resource stays `.loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
 | The page goes back to `.loading` when state changes | The address now names something else, so it is a first load. A refresh of the same address keeps the value; `placeholder: .previous` keeps it for a new address too. |
 | `T05` on a field of the data | The declared type has no such field. Fix the name, or add the field to the `type`. |
@@ -1270,12 +1272,14 @@ The address is `http.get("/api/servers?env={stage}")`, and a button sets `stage`
 
 ## Common mistakes
 
-**A `match` with no `error` arm.** When the request fails, no arm draws, and
-the reader is not told:
+**A `match` with no `.failed` arm.** When the request fails, no arm draws,
+and the reader is not told:
 
 ```wf expect=T21
+type User { id: String, name: String }
+
 page P(path: "/", title: "Users", description: "Everyone.") {
-    resource users = http.get("/api/users")
+    resource users: [User] = http.get("/api/users")
     Heading("Users").h1
     match users {
         .loading { Spinner }
@@ -1284,7 +1288,7 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 }
 ```
 
-Add `error(e) { Alert(e.message).danger }`, or an `else`
+Add `.failed(e) { Alert(e.message).danger }`, or an `else`
 ([T21](https://webfluent.monzeromer.dev/errors/T21.md)).
 
 **A field the declared type does not have.** Once a resource is typed, every

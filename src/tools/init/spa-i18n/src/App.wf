@@ -11,7 +11,7 @@ app {
             Link(to: "/settings") { Text(t("nav.settings")) }
         }
         Navbar.Actions {
-            ThemeToggle
+            DarkModeSwitch
             if let user = AuthStore.user {
                 Link(to: "/profile") { Text(user.name) }
                 Button(t("auth.logout")).sm { on click { AuthStore.logout() } }

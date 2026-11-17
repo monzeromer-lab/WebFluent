@@ -6,12 +6,12 @@ The page: https://webfluent.monzeromer.dev/learn/04-language-basics
 
 This chapter covers the shape of every `.wf` file. A WebFluent program is a
 set of declarations: pages, components, stores and the rest, each a keyword
-followed by a name and a body. Learn the thirteen kinds and the two kinds of
+followed by a name and a body. Learn the fifteen kinds and the two kinds of
 body, and you can read any `.wf` file.
 
 In this chapter:
 
-- the thirteen declarations, and the chapter that covers each
+- the fifteen declarations, and the chapter that covers each
 - how names are written
 - comments, including the doc comments the editor shows
 - render blocks and imperative blocks, and what goes in each
@@ -22,7 +22,7 @@ In this chapter:
 
 A `.wf` file holds top-level declarations and nothing else. You cannot put an
 element or a statement loose in a file; it belongs in the body of a
-declaration. This file uses all thirteen kinds:
+declaration. This file uses all fifteen kinds:
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
@@ -33,12 +33,17 @@ app { Navbar { Text("Shop").heading }  Router }
 type Todo { id: String, title: String, done: Bool = false }
 enum Tone { calm, loud }
 api Backend(base: "/api/v1") { get todos() at "todos" -> [Todo]! }
+middleware timed(req, next) { return await next(req) }
 const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
 test "pill shows its label" { Pill("Beta")  expect "Beta" }
+fake NoTodos for Backend { todos() { .ok([]) } }
 ```
+
+(`data` and `image` read their files when the project builds, so this one
+needs a `posts.json` and a `hero.jpg` beside it to build.)
 
 Each keyword declares one kind of thing:
 

@@ -74,6 +74,43 @@ impl Checker<'_, '_> {
                     to: format!("{subject}.{now}"),
                 },
             );
+        } else if field == "state" {
+            // `users.state == "ready"`: the question a member answers.
+            self.plan_state_comparison(&subject);
+        }
+    }
+
+    /// `r.state == "ready"` as `r.isLoaded` (and `"loading"`, `"error"`;
+    /// `!=` as the negation), where the comparison is written so.
+    fn plan_state_comparison(&mut self, subject: &str) {
+        let Some(source) = self.source else { return };
+        let (from, to) = (
+            self.current_span.start as usize,
+            (self.current_span.end as usize).min(source.len()),
+        );
+        let Some(text) = source.get(from..to) else {
+            return;
+        };
+        for (case, member) in [
+            ("ready", "isLoaded"),
+            ("loading", "isLoading"),
+            ("error", "isFailed"),
+        ] {
+            for (op, not) in [("==", ""), ("!=", "!")] {
+                let written = format!("{subject}.state {op} \"{case}\"");
+                if let Some(at) = text.find(&written) {
+                    let now = format!("{not}{subject}.{member}");
+                    self.plan_last(
+                        format!("Write `{now}`"),
+                        Plan::Replace {
+                            start: from + at,
+                            end: from + at + written.len(),
+                            text: now,
+                        },
+                    );
+                    return;
+                }
+            }
         }
     }
 
@@ -177,6 +214,29 @@ impl Checker<'_, '_> {
                         format!("`paginate:` on `resource {}` is 6.x's: how a read pages is its endpoint's to say", r.name),
                         &format!("Write `pages .number(param: page)` on {endpoint} (or `.cursor(…)`, `.link`), and drop `paginate:` — `{0}.items`, `{0}.hasMore` and `{0}.loadMore()` stay", r.name),
                     );
+                    // `paginate: .page` over an endpoint with a `page`
+                    // parameter: the endpoint pages by number, and the call
+                    // says nothing of it.
+                    if matches!(value, Expr::EnumCase(c) if c == "page")
+                        && let Expr::MethodCall(obj, method, _) = &r.url
+                        && let Some(service) = dotted_name(obj)
+                        && let Some(e) = self.world.endpoint(&service, method)
+                        && e.params.iter().any(|p| p.name == "page")
+                        && let Some(file) = self.world.api_files.get(service.as_str())
+                        && let Some(cut) = self.paginate_cut()
+                    {
+                        self.plan_last(
+                            format!("Write `pages .number(param: page)` on `{service}.{method}`"),
+                            Plan::All(vec![
+                                cut,
+                                Plan::InsertIn {
+                                    file: file.clone(),
+                                    at: e.span.end as usize,
+                                    text: " pages .number(param: page)".to_string(),
+                                },
+                            ]),
+                        );
+                    }
                 }
                 "refresh" => self.refresh_policy(value),
                 "placeholder" if !matches!(value, Expr::EnumCase(c) if c == "previous") => {
@@ -228,5 +288,43 @@ impl Checker<'_, '_> {
                 }
             }
         }
+    }
+}
+
+/// `Backend` or `Backend.people`: the service or group an endpoint call
+/// names, written as the program names it.
+fn dotted_name(e: &Expr) -> Option<String> {
+    match e {
+        Expr::Identifier(n) => Some(n.clone()),
+        Expr::PropertyAccess(base, field) => Some(format!("{}.{field}", dotted_name(base)?)),
+        _ => None,
+    }
+}
+
+impl Checker<'_, '_> {
+    /// The `paginate: …` argument of the read being checked, with the comma
+    /// that joins it to the others, as an edit that takes it out.
+    fn paginate_cut(&self) -> Option<Plan> {
+        let source = self.source?;
+        let (from, to) = (
+            self.current_span.start as usize,
+            (self.current_span.end as usize).min(source.len()),
+        );
+        let text = source.get(from..to)?;
+        let key = text.find("paginate:")?;
+        let mut end = key + "paginate:".len();
+        end += text[end..].len() - text[end..].trim_start().len();
+        end += text[end..].find(|c: char| !(c.is_alphanumeric() || c == '.' || c == '_'))?;
+        let (start, end) = if let Some(rest) = text[end..].trim_start().strip_prefix(',') {
+            (key, text.len() - rest.trim_start().len())
+        } else {
+            let before = text[..key].trim_end();
+            (before.strip_suffix(',').map_or(key, str::len), end)
+        };
+        Some(Plan::Replace {
+            start: from + start,
+            end: from + end,
+            text: String::new(),
+        })
     }
 }

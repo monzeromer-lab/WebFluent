@@ -103,6 +103,8 @@ struct World<'p> {
     consts: HashMap<String, Type>,
     /// The services the program declares.
     apis: HashMap<&'p str, &'p ApiDecl>,
+    /// The file each service is declared in, for a fix that edits it.
+    api_files: HashMap<&'p str, String>,
     /// What the project's scripts make global, by name, with the file each
     /// is in.
     scripts: HashMap<&'p str, (&'p str, &'p crate::syntax::js_scan::Name)>,
@@ -256,7 +258,7 @@ type DecodeError { at: String, message: String }
 /// `.message`, for showing.
 enum HttpError {
     offline(queued: Bool)
-    timeout(after: Duration)
+    timeout(limit: Duration)
     cancelled
     transport(message: String)
     decode(at: String, message: String)
@@ -417,6 +419,7 @@ pub fn check_sources_with<'s>(
             .collect(),
         consts: HashMap::new(),
         apis: HashMap::new(),
+        api_files: HashMap::new(),
         scripts: HashMap::new(),
         fixed: HashMap::new(),
         store_fixed: HashMap::new(),
@@ -424,7 +427,7 @@ pub fn check_sources_with<'s>(
         store_written: HashSet::new(),
         built_in_json: false,
     };
-    for decl in &program.declarations {
+    for (index, decl) in program.declarations.iter().enumerate() {
         match decl {
             Declaration::Script(script) => {
                 for n in &script.names {
@@ -442,6 +445,7 @@ pub fn check_sources_with<'s>(
             }
             Declaration::Api(a) => {
                 world.apis.insert(a.name.as_str(), a);
+                world.api_files.insert(a.name.as_str(), file_of(index));
             }
             Declaration::Component(c) => {
                 world.components.insert(c.name.as_str(), c);
@@ -897,7 +901,38 @@ pub fn check_sources_with<'s>(
             }
             Declaration::Enum(e) => cx.error_enum_shape(e),
             Declaration::Middleware(m) => cx.middleware(m),
-            Declaration::Fake(f) => cx.fake(f),
+            Declaration::Fake(f) => {
+                // An answer `from examples` is JSON from the spec: held to
+                // the endpoint's answer as data is (`T33`), the fault named
+                // in the example, and not checked again as code.
+                let mut unfit = Vec::new();
+                for (i, a) in f.answers.iter().enumerate() {
+                    let Some(label) = &a.example else { continue };
+                    let Some(endpoint) = cx.world.endpoint(&f.target, &a.endpoint) else {
+                        continue;
+                    };
+                    let (Some(TypeRef::Result(value, _)), Expr::CaseValue(_, args)) =
+                        (&endpoint.returns, &a.body)
+                    else {
+                        continue;
+                    };
+                    let Some(fault) = args.first().and_then(|e| data_fault(program, e, value))
+                    else {
+                        continue;
+                    };
+                    cx.error(
+                        a.span,
+                        "T33",
+                        format!("{label} is not what `{}.{}` answers: {fault}", f.target, a.endpoint),
+                        &format!(
+                            "Correct the example in the spec at `{}`, or answer `{}` in the fake yourself",
+                            fault.at, a.endpoint
+                        ),
+                    );
+                    unfit.push(i);
+                }
+                cx.fake(f, &unfit);
+            }
             Declaration::Store(_)
             | Declaration::Theme(_)
             | Declaration::Script(_)
@@ -1023,6 +1058,9 @@ struct Checker<'a, 'p> {
     depth: usize,
     /// Whether `E120` has been reported for this declaration.
     too_deep: bool,
+    /// How many `try { } catch` bodies enclose what is checked: a result
+    /// there is not taken with `try`, whose failure would skip the `catch`.
+    catching: usize,
     /// Whether the finding reported last was an error, for the fix that
     /// follows it ([`Checker::plan_last`]).
     last_was_error: bool,
@@ -1072,6 +1110,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             own_actions: HashMap::new(),
             depth: 0,
             too_deep: false,
+            catching: 0,
             last_was_error: false,
             cyclic: HashSet::new(),
             untyped: Vec::new(),
@@ -1294,7 +1333,9 @@ impl<'a, 'p> Checker<'a, 'p> {
         // passes the failure up.
         let result_of_wanted =
             matches!(given, Type::Result(value, _) if value.assignable_to(wanted));
-        let hint = if result_of_wanted {
+        let hint = if result_of_wanted && self.catching > 0 {
+            "A result is not thrown, so the `catch` around it never hears a failure: `match await … { .ok(value) { … } .err(e) { … } }`".to_string()
+        } else if result_of_wanted {
             "Take its value with `try`, which passes a failure up: `let rows: [Row] = try await http.get(url)`".to_string()
         } else {
             hint
@@ -1305,7 +1346,9 @@ impl<'a, 'p> Checker<'a, 'p> {
             format!("{what} is `{given}`, but `{wanted}` is wanted"),
             &hint,
         );
-        if result_of_wanted {
+        // Inside `try { } catch` the failure would leave the action, not
+        // reach the `catch`: a person writes the `match`.
+        if result_of_wanted && self.catching == 0 {
             self.plan_last(
                 "Write `try await`".to_string(),
                 crate::diagnostics::fixes::Plan::Rename {

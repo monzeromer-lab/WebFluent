@@ -1658,7 +1658,7 @@ What comes with it, at every call site:
 | | |
 |---|---|
 | Abort | on scope leave, on an argument that reads state changing, on `.cancel()`, on timeout |
-| Errors | a call's `.err` is an `HttpError` — `.offline(queued)`, `.timeout(after)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a read's `.failed(e)` holds the same |
+| Errors | a call's `.err` is an `HttpError` — `.offline(queued)`, `.timeout(limit)`, `.cancelled`, `.transport(message)`, `.decode(at, message)`, `.status(code, problem)` — or, for `-> T ! E`, a case of the error enum, each declared status with its body (held to its type under `wf serve`); a read's `.failed(e)` holds the same |
 | Retry | exponential backoff with jitter, per error kind, honouring `Retry-After` — for a request safe to send twice (`GET`, `HEAD`, `PUT`, `DELETE`), and a `POST` or `PATCH` only when its endpoint is `idempotent` (one `Idempotency-Key` on every try) |
 | Cache | what the server's `Cache-Control` allows (RFC 9111): `max-age`, `stale-while-revalidate`, `no-store`, `no-cache`, `Vary`, `ETag` revalidation and `304` served from what is held; nothing without caching headers; `.maxAge(d)`, `.swr(d)`, `.none`, `.forever` override it |
 | Dedupe | two readers of one address make one request, cached or not; each keeps its own abort |
@@ -1715,7 +1715,7 @@ store People {
 // `if let .err(.unprocessableContent(p)) = People.invite.result { … }`
 ```
 
-`HttpError` is `.offline(queued)`, `.timeout(after)`, `.cancelled`,
+`HttpError` is `.offline(queued)`, `.timeout(limit)`, `.cancelled`,
 `.transport(message)`, `.decode(at, message)` or `.status(code, problem)`,
 each with `.message`; `Problem` is RFC 9457's (`type`, `title`, `status`,
 `detail`, `instance`, `extensions`). `try` gives a result's value or returns
@@ -2970,6 +2970,17 @@ from a stylesheet as `var(--surface-raised)`. Declare one and it is used
 automatically; declare several and pick one with `"theme": { "name":
 "Brand" }`.
 
+Every built-in draws from these tokens alone, so a theme restyles all of
+them, new ones included. What is written on a tone is a token too —
+`color-on-primary` (and `-secondary`, `-success`, `-danger`, `-warning`,
+`-info`) is a primary button's, badge's, pressed toggle's or selected day's
+label — so a theme with a light primary names a dark one (`A13` checks the
+pair). Alerts, focus rings and highlights are mixed from the tone and the
+page's colours, so a dark theme needs nothing more; `color-backdrop` dims
+the page behind a modal, a dialog, a sheet and a drawer. A `Modal` or
+`Dialog` is as wide as its `<dialog>`, so `class:` or `style { width: … }`
+on it sizes what it shows.
+
 The baseline holds a stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`,
 `z-modal`, `z-toast`, `z-tooltip`, `z-skip-link` — for a page's own sticky
 header or drawer to sit where it should against the built-ins (modals,
@@ -3042,8 +3053,8 @@ reach, and `WF` carries only the names the program calls — a `for` adds
 `Router` with no `transition:` carries no transition player. A minified
 build (not `wf serve`'s) then shortens the runtime's own names, its
 top-level ones and each function's locals; what the program calls on `WF`
-keeps its name. A page that shows static text is an `app.js` of 1.9 kB
-gzipped.
+keeps its name. A page that shows static text, with no `app` and so no
+router, is an `app.js` of 1.9 kB gzipped.
 
 Calls from outside the bundle count as calls: the project's own scripts,
 an `elements` build's definitions. Nothing is hand-marked, so the set

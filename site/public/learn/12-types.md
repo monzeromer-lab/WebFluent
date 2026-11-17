@@ -6,10 +6,12 @@ The page: https://webfluent.monzeromer.dev/learn/12-types
 
 This chapter covers WebFluent's types and the checker that holds a program to
 them. The checker runs in `wf build`, `wf check` and the
-editor, before any output is written. It is *gradual*: a program that
-declares no types still checks, because whatever the checker cannot work
-out has the type `Any`, and `Any` agrees with everything. Every annotation
-you add lets the checker say more. It is also *structural*: a value fits a
+editor, before any output is written. It is *strict*: every value has a
+type the program can name. Most are worked out for you — a literal, a
+record, a store member, a method's result — and what cannot be worked out
+(an empty list's items, an action's parameters, JSON whose shape is open) is
+written, or the checker says where (`T25`, `T32`, `T23`). It is also
+*structural*: a value fits a
 type when it has the right fields, whatever it was declared as. The checker
 changes nothing in the output; it only reports.
 
@@ -56,15 +58,16 @@ Writing `total: 120` fixes it. Had the invoice been an untyped map,
 | Number | `Number` (`Int` and `Float` are accepted as other spellings of it) | `42`, `3.14` |
 | Bool | `Bool` | `true`, `false` |
 | List | `[String]`, `[Todo]` | `[a, b]` |
-| Map | `Map` | `{ key: value }` — an object with unknown keys |
 | Optional | `String?`, `Todo?` | a value or `null` |
 | Record | the `type`'s name | `Todo(id: "a", title: "b")` |
 | Enum | the `enum`'s name | `.case` |
 | Dictionary | `[String: Number]`, `[Region: Money]` | `{ ada: 3, bo: 5 }` — keys of one type to values of another |
 | Function | `(Todo) -> Bool`, `() -> ()` | `t => t.done`, an action |
 | Result | `Settings ! DecodeError` | `.ok(value)` or `.err(error)` |
-| JSON | `Json` | JSON as it arrives: matched, or decoded into a type |
-| Any | `Any` | anything; what is not known |
+| JSON | `Json` | JSON as it arrives, whose shape is open: matched, or decoded into a type |
+
+There is no `Any` and no `Map` (`T23`, `T24`): a value whose shape you know
+is a record or a dictionary, and one whose shape is open is `Json`.
 
 You write a type after a colon on a `state`, a prop, an action parameter, a
 `type` field, a route parameter, a `let` or a `resource`. This page uses
@@ -288,8 +291,9 @@ page Records(path: "/", title: "Records", description: "A list of records.") {
   every field of `Todo`, then its own.
 - Records are structural: `{ id: "a", title: "b" }` given where a `Todo` is
   wanted is a `Todo`, and its fields are checked against the record's.
-- A `Map` fits any record, and a record fits a `Map`. So JSON from `fetch`
-  fits a `type` it was never declared as.
+- An answer from the network is held to the type you name for it, field
+  by field, as it arrives — `.decode(at, message)` names the field that does
+  not fit.
 
 ## Enums
 
@@ -338,9 +342,10 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
 
 A map literal has the fields it was written with. `{ name: "", age: 0 }`
 has the *shape* `{ name: String, age: Number }`, and reading `form.nam` is
-`T05`, with the fields it does have. A shape fits a `Map`, a record with the
-same fields, and any shape it agrees with. An empty `{}` and a literal with
-a spread say nothing about their keys, so they are plain `Map`s.
+`T05`, with the fields it does have. A shape fits a record with the same
+fields, and any shape it agrees with. An empty `{}` and a literal with a
+spread say nothing about their keys: where one is held, say what it holds
+— `state seen: [String: Bool] = {}` — or the checker asks (`T25`).
 
 ```wf
 page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape.") {
@@ -561,11 +566,12 @@ needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a
 - On a list: `map` → `[U]` from the lambda; `filter`, `slice`, `concat`,
   `sort`, `sortBy`, `unique`, `take`, `flatMap` → `[T]`; `find`, `first`,
   `last` → `T?`; `some`, `every`, `includes` → `Bool`; `length`, `sum`,
-  `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`;
+  `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `[K: [T]]`;
   `reduce` → the initial value's type.
 - On a `Number`: `toFixed`, `toString` → `String`.
 
-Any other method is `Any`. The full lists are in
+A method the type does not have is `T16`, with the nearest one it does. The
+full lists are in
 [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md).
 
 **From stores:** `Todos.items` has the type of the store's state, and
@@ -610,7 +616,7 @@ The rules for operators and forms:
 - `a ?? b` is `a` without its `null`, joined with `b`.
 - `a?.b` is `b`'s type made optional, and the rest of the chain with it.
 - `if` and `match` used as values have the type both arms fit: the same
-  type, `T?` when one arm is `null`, and `Any` otherwise.
+  type, `T?` when one arm is `null`; arms with no type in common are `T27`.
 - `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either
   side is one; comparisons and `&&`, `||`, `!` give a `Bool`.
 - `await http.get(…)` is what you annotate it as:
@@ -667,8 +673,10 @@ no `?.`.
 
 ## Typing data from the network
 
-`fetch` returns `Any`, because the checker cannot see what a URL will
-return. Annotate the resource or the local variable to type its value:
+The checker cannot see what a URL will return, so an `http.get` says it:
+annotate the resource or the local variable with the type it holds (`N11`
+without one). The answer is held to that type as it arrives, in every
+build:
 
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
@@ -686,9 +694,9 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 }
 ```
 
-The checker trusts the annotation. A development build (`wf serve`) also
-holds each response to its declared type, and a mismatch is a `.parse`
-error that names the place, such as `$[1].status is missing`.
+In every build — under `wf serve` and deployed alike — each response is
+held to its declared type as it arrives, and one that does not fit fails as
+`.decode(at, message)`, naming the place, such as `$[1].status is missing`.
 
 When the server publishes an OpenAPI specification, let it write the
 contract instead: `wf api add openapi.json --name Backend` writes every
@@ -740,8 +748,9 @@ the narrowing forms above. `wf explain T05` prints a code's full entry, and
 
 - It does not check a lambda's body against a return type unless the lambda
   is handed to a function type, which says one.
-- It does not know what a plain `fetch` returns. Annotate it, or describe
-  the service with an `api`.
+- It does not know what a server will send until it sends it: an `http`
+  call names its type, or the service is described with an `api`, and what
+  arrives is held to it at run time.
 
 ## In the editor
 
@@ -757,7 +766,7 @@ diagnostic on the argument it belongs to. To set up the editor, see
 | Syntax | Meaning |
 |---|---|
 | `state x: T = v` | Annotate a state; props, parameters, fields and `let` take `: T` the same way |
-| `[T]` · `T?` · `Map` · `Any` | A list, a value that may be `null`, an object with unknown keys, anything |
+| `[T]` · `T?` | A list, a value that may be `null` |
 | `[K: V]` · `(A) -> R` · `()` | A dictionary, a function, nothing |
 | `type Name = T` | Another name for a type |
 | `action f() -> T` · `(a: T) => …` | What an action returns; a lambda's parameter type |

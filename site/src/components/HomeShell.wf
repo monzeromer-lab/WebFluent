@@ -49,8 +49,10 @@ component HomeShell(other: String = "", lang: String = "en") {
         style { gap: 0 }
 
         // The hero: the claim on the left, the example it makes on the right.
-        Grid(columns: { base: 1, lg: 2 }, class: "bp-wrap bp-home-hero") {
-            style { gap: 32px; padding-top: 40px; padding-bottom: 56px; align-items: center; @lg { gap: 56px; padding-top: 64px; padding-bottom: 80px } }
+        // Side by side only where the example still has room for its code
+        // and its preview; narrower, the example sits under the claim.
+        Grid(columns: { base: 1, xl: 2 }, class: "bp-wrap bp-home-hero") {
+            style { gap: 32px; padding-top: 40px; padding-bottom: 56px; align-items: center; @xl { gap: 56px; padding-top: 64px; padding-bottom: 80px } }
 
             Stack(gap: .md) {
                 style { gap: 20px; min-width: 0 }

@@ -33,8 +33,9 @@ You get these without setting anything:
 - **Only the runtime you use.** The *runtime* is the JavaScript the
   compiled pages call. It is a set of modules, and a build keeps only the
   ones its code reaches, and of those only the functions its calls reach.
-  A single-page build of one page of static text is an `app.js` of
-  about 5 kB, 1.9 kB gzipped.
+  A build of one page of static text, with no `app` (so no router), is an
+  `app.js` of about 5 kB, 1.9 kB gzipped; an `app` with a `Router` adds the
+  router, about 4 kB gzipped more.
 - **Short names.** A minified build shortens the runtime's own names, its
   top-level ones and each function's locals. What your pages call keeps
   its name.

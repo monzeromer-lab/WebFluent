@@ -66,22 +66,25 @@ const PAIRS: &[(&str, &str, f64, &str)] = &[
 // token wholesale would report every well-made design. Distinguishing the two
 // needs to know which component the border is on, which a token cannot say.
 
-/// Foreground tokens the stylesheet pairs with white text, and the modifier
-/// whose variant does so. A site that never writes `Button("x").primary`
-/// has no white label on `--color-primary`, so the pairing is not checked:
+/// The tones the stylesheet writes a label on, the token that label is in
+/// (`color-on-primary`), and the modifier whose variant does so. A site
+/// that never writes `Button("x").primary` has no label on
+/// `--color-primary`, so the pairing is not checked:
 /// in structural mode that token paints only the focus ring, and a warning
 /// about a button that does not exist is noise the author cannot act on.
-const ON_WHITE: &[(&str, &str, &str)] = &[
-    ("color-primary", "primary", "a primary button's white label"),
-    (
-        "color-secondary",
-        "secondary",
-        "a secondary button's white label",
-    ),
-    ("color-success", "success", "a success badge's white label"),
-    ("color-danger", "danger", "a danger button's white label"),
-    ("color-info", "info", "an info badge's white label"),
+const ON_TONE: &[(&str, &str, &str)] = &[
+    ("color-primary", "primary", "a primary button's label"),
+    ("color-secondary", "secondary", "a secondary button's label"),
+    ("color-success", "success", "a success badge's label"),
+    ("color-danger", "danger", "a danger button's label"),
+    ("color-warning", "warning", "a warning badge's label"),
+    ("color-info", "info", "an info badge's label"),
 ];
+
+/// `color-on-primary` for `color-primary`: the token a label on a tone is in.
+fn on(token: &str) -> String {
+    format!("color-on-{}", token.trim_start_matches("color-"))
+}
 
 /// Every modifier word written on a builtin element anywhere in the program.
 fn used_modifiers(program: &Program) -> std::collections::HashSet<String> {
@@ -140,8 +143,7 @@ fn used_modifiers(program: &Program) -> std::collections::HashSet<String> {
 /// One pairing the stylesheet composes, worked out over a set of tokens.
 #[derive(Debug, Clone, PartialEq, serde::Serialize)]
 pub struct Pairing {
-    /// The token on top, and the one under it (`white` for a label the
-    /// stylesheet sets in white).
+    /// The token on top, and the one under it.
     pub foreground: String,
     pub background: String,
     /// What it is, in the build's words: `text on a card or surface`.
@@ -150,7 +152,7 @@ pub struct Pairing {
     pub ratio: Option<f64>,
     /// What WCAG AA asks of it: 4.5 for text, 3 for large text and icons.
     pub threshold: f64,
-    /// Whether a page draws it: a white label on a variant no element
+    /// Whether a page draws it: a label on a variant no element
     /// uses is not drawn, and not checked.
     pub drawn: bool,
 }
@@ -185,12 +187,12 @@ pub fn pairings(
         })
         .collect();
     let modifiers = used_modifiers(program);
-    for (token, modifier, description) in ON_WHITE {
+    for (token, modifier, description) in ON_TONE {
         out.push(Pairing {
-            foreground: "white".to_string(),
+            foreground: on(token),
             background: token.to_string(),
             description,
-            ratio: ratio(Some((255, 255, 255)), colour(token)),
+            ratio: ratio(colour(&on(token)), colour(token)),
             threshold: AA_TEXT,
             drawn: modifiers.contains(*modifier),
         });
@@ -263,22 +265,28 @@ pub fn lint_contrast_in(
     }
 
     let modifiers = used_modifiers(program);
-    for (token, modifier, description) in ON_WHITE {
-        if !touched.contains(token) || !modifiers.contains(*modifier) {
+    for (token, modifier, description) in ON_TONE {
+        let label = on(token);
+        if !(touched.contains(token) || touched.contains(&label.as_str()))
+            || !modifiers.contains(*modifier)
+        {
             continue;
         }
-        let Some(value) = resolved.get(*token).and_then(|v| parse_colour(v)) else {
+        let (Some(value), Some(fg)) = (
+            resolved.get(*token).and_then(|v| parse_colour(v)),
+            resolved.get(&label).and_then(|v| parse_colour(v)),
+        ) else {
             continue;
         };
-        let ratio = contrast_ratio((255, 255, 255), value);
+        let ratio = contrast_ratio(fg, value);
         if ratio < AA_TEXT {
             warnings.push(crate::diagnostics::finding(
                 "A13",
                 format!("{description} has a contrast ratio of {ratio:.2}:1, below the {AA_TEXT}:1 WCAG AA minimum"),
                 file,
-                line_of(theme, token),
+                line_of(theme, token).max(line_of(theme, &label)),
                 1,
-                format!("Darken --{token}: the stylesheet puts white text on it"),
+                format!("Change --{token} or --{label}, the colour of what is written on it, until they clear {AA_TEXT}:1"),
             ));
         }
     }
@@ -439,9 +447,29 @@ mod tests {
     }
 
     #[test]
+    fn a_dark_label_named_for_a_pale_primary_is_not_reported() {
+        let program = parse(
+            "theme T {\n  color-primary: #FFE066\n  color-on-primary: #1A1300\n}\npage P(path: \"/\") { Button(\"Go\").primary }",
+        );
+        let resolved = crate::project::themes::resolve_tokens(
+            &program,
+            &crate::project::config::project::ThemeConfig::default(),
+        )
+        .expect("resolve");
+        let warnings = lint_contrast(&program, &resolved);
+        assert!(
+            !warnings
+                .iter()
+                .any(|w| w.to_string().contains("button's label")),
+            "{warnings:?}"
+        );
+    }
+
+    #[test]
     fn a_pale_primary_under_white_text_is_reported() {
-        // The stylesheet puts white text on `--color-primary`, so a pale primary
-        // is unreadable however good it looks against the page.
+        // The stylesheet writes `--color-on-primary` (white, unless the theme
+        // says otherwise) on `--color-primary`, so a pale primary is
+        // unreadable however good it looks against the page.
         let program = parse(
             "theme T {\n  color-primary: #FFE066\n}\npage P(path: \"/\") { Button(\"Go\").primary }",
         );
@@ -454,7 +482,7 @@ mod tests {
         assert!(
             warnings
                 .iter()
-                .any(|w| w.to_string().contains("white label")),
+                .any(|w| w.to_string().contains("primary button's label")),
             "{warnings:?}"
         );
     }

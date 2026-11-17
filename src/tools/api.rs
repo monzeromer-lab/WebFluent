@@ -104,7 +104,7 @@ pub fn service_text(name: &str, imported: &Imported) -> String {
         ));
     }
     out.push_str(
-        "\n    // What a write makes stale, and how a read pages, for the generated\n    // endpoints: `invalidations { group.create invalidates [group.list] }`,\n    // `pagination { group.list pages .cursor(param: after, next: p => p.next) }`.\n}\n",
+        "\n    // What a write makes stale, and how a read pages, for the generated\n    // endpoints: `invalidations { group.create invalidates [group.list] }`,\n    // `pagination { group.list pages .cursor(param: after, next: p => p.next, items: p => p.items) }`.\n}\n",
     );
     out
 }

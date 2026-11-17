@@ -50,4 +50,6 @@ reader's place, and the button goes away once there is nothing more.
   busy and cannot ask twice. `list.hasMore` turns false when a page comes
   back empty, and the button goes.
 - A server that pages by cursor, or by a `Link` header, says so instead:
-  `pages .cursor(param: after, next: p => p.nextCursor)`, `pages .link`.
+  `pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)`
+  (a cursor comes with a page that is a record, so it says where the items
+  are), or `pages .link`.

@@ -321,16 +321,26 @@
         if (anyRule) focusFirstInvalid(node(), fields);
         else if (firstLoose && firstLoose.focus) firstLoose.focus();
       },
+      /// Back to how the form started: its controls, and the states they
+      /// are bound to — the browser resets the controls and says nothing, so
+      /// each is made to say what it now holds — then no message shown.
       reset() {
         clearServerNotes(node());
+        const element = node();
+        if (element && element.reset) element.reset();
+        if (element && element.querySelectorAll) {
+          for (const control of Array.from(element.querySelectorAll("input, select, textarea"))) {
+            if (control.type === "file" || control.type === "submit" || control.type === "button") continue;
+            control.dispatchEvent(new Event("input", { bubbles: true }));
+            control.dispatchEvent(new Event("change", { bubbles: true }));
+          }
+        }
         submitted.set(false);
         readNative();
         for (const entry of fields.values()) {
           entry.touched.set(false);
           entry.shown.set("");
         }
-        const element = node();
-        if (element && element.reset) element.reset();
       },
       submit() {
         const element = node();

@@ -98,10 +98,10 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
                 }
                 Table.Row {
                     Table.Cell { Markdown("`resource` and `api` calls") }
-                    Table.Cell { Markdown("The `loading` arm; the live page fetches and replaces it") }
+                    Table.Cell { Markdown("The `.loading` arm; the live page asks and replaces it") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`await fetch` in an action") }
+                    Table.Cell { Markdown("`await http.get(…)` in an action") }
                     Table.Cell("Nothing, until the action runs")
                 }
                 Table.Row {

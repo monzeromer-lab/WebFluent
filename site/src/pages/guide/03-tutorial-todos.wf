@@ -45,7 +45,7 @@ page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: To
 
         Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("You need:\n\n- `wf` installed and on your `PATH` — `wf --version` prints `wf 6.0.0` or later ([Getting started](/learn/01-getting-started)).\n- Chrome or Chromium on the machine, for the tests that click and for `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.\n- Git, to fetch the finished projects.\n\nEvery code block whose first line names a file — `// src/stores/Todos.wf` — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.\n\nTo start from a finished project instead, clone the repository and serve one:")
+        Markdown("You need:\n\n- `wf` installed and on your `PATH` — `wf --version` prints `wf 7.0.0` or later ([Getting started](/learn/01-getting-started)).\n- Chrome or Chromium on the machine, for the tests that click and for `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.\n- Git, to fetch the finished projects.\n\nEvery code block whose first line names a file — `// src/stores/Todos.wf` — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.\n\nTo start from a finished project instead, clone the repository and serve one:")
 
         Terminal(lines: [
                 Line(command: "git clone https://github.com/monzeromer-lab/WebFluent"),
@@ -311,7 +311,7 @@ app {
                 Line(command: "wf serve")
             ])
 
-        Markdown("**Check it:** `wf check` prints `No problems in todos.`, and <http://localhost:3000/> shows a card headed **Todos** with `0 left` and *Nothing yet — add your first todo above.* Type a todo and press Enter: it appears, and the count reads `1 left`. Reload the page, and the todo is still there. Click **Open**, and the address becomes `/?show=open`.\n\nIf the server prints `No theme Paper is declared in this project`, you probably skipped `src/theme.wf` in step 2. If a store member shows as `U04` here, you probably left out part of the page.")
+        Markdown("**Check it:** `wf check` prints `No problems in todos.`, and <http://localhost:3000/> shows a card headed **Todos** with `0 left` and *Nothing yet — add your first todo above.* Type a todo and press Enter: it appears, and the count reads `1 left`. Reload the page, and the todo is still there. Click **Open**, and the address becomes `/?show=open`.\n\nIf the server prints ``No `theme Paper` is declared in this project``, you probably skipped `src/theme.wf` in step 2. If a store member shows as `U04` here, you probably left out part of the page.")
 
         Heading("Step 7: Write tests", id: "step-7-write-tests").h2
 

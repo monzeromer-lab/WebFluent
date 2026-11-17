@@ -12,7 +12,8 @@ signed-in user in a store:
 **Needs:** a server that answers the `/api` endpoints the `api` block
 names and sets the session cookie. The code declares `type User` and an
 `app`, as the starter does: paste it into a new project, replacing
-`src/App.wf` and the starter's `src/stores/auth.wf`.
+`src/App.wf` and the starter's `src/stores/auth.wf`, and deleting
+`src/pages/Profile.wf`, which reads the starter's `AuthStore`.
 
 ```wf
 type User { id: String, name: String }
@@ -122,8 +123,9 @@ app {
   every endpoint whose answer is one reader's: an answer cached under one
   `Authorization` header is never served for another, but a cookie cannot
   be read, so the cache cannot tell one cookie's reader from the next.
-- The `SignIn` page validates its two fields and calls `Session.signIn`
-  in a `try`, so a wrong password shows an `Alert` instead of throwing.
+- The `SignIn` page validates its two fields and matches the result of
+  `Session.signIn`, so a wrong password shows an `Alert` instead of
+  throwing.
   `send.pending` disables the button while the request runs, and
   `noindex: true` keeps the page out of search results.
 - `Session.load()` at the top of `app` runs once, when the site opens: a

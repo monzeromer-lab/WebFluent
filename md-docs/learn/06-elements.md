@@ -324,7 +324,7 @@ The built-ins fall into these families:
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](15-data.md#lists-of-data-a-table-a-tree-a-search)) |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](14-forms.md)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](../recipes/add-a-picture.md), [Video and audio](../recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
@@ -347,7 +347,7 @@ page Report(path: "/", title: "Report", description: "The month, at a glance.") 
         Stat("Revenue", value: 48210, format: .currency, change: 0.124)
         Stat("Churn", value: 0.031, format: .percent, change: -0.02)
     }
-    Text { Text("Search with ")  Kbd("mod+k") }
+    Row(gap: .xs, align: .center) { Text("Search with")  Kbd("mod+k") }
     for tag in tags by tag {
         Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
     }

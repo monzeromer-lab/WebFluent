@@ -102,3 +102,78 @@ test("a call that leaves a parameter out sends its default", async () => {
   assert.match(asked[1], /page-size=5/, "what a call gives wins");
   assert.match(asked[1], /tone=calm/, "and an undefined argument is left out");
 });
+
+test("a failed status says what the server's problem says, and its number when there is none", async () => {
+  const answers = [
+    { status: 409, body: { title: "Conflict", detail: "That address is taken" } },
+    { status: 404, body: { title: "Not found" } },
+    { status: 500, body: null },
+  ];
+  let n = 0;
+  const { WF } = load({
+    fetch: async () => {
+      const a = answers[n++];
+      return { ok: false, status: a.status, headers: { forEach: () => {} }, text: async () => (a.body ? JSON.stringify(a.body) : "") };
+    },
+  });
+  const said = [];
+  for (let i = 0; i < 3; i++) {
+    const r = await WF.httpCall("POST", "/api/x", {});
+    said.push(r[1].message);
+  }
+  assert.deepEqual(said, ["That address is taken", "Not found", "HTTP 500"]);
+});
+
+function cachedFetch(asked, headersFor) {
+  let n = 0;
+  return async (url, init) => {
+    n += 1;
+    const sent = (init && init.headers) || {};
+    asked.push({ url: String(url), lang: sent["Accept-Language"] });
+    const heads = headersFor(sent);
+    return {
+      ok: true, status: 200,
+      headers: { forEach: (fn) => Object.entries(heads).forEach(([k, v]) => fn(v, k)) },
+      text: async () => JSON.stringify({ n, lang: sent["Accept-Language"] || "" }),
+    };
+  };
+}
+
+test("reload asks the server even while what it holds is fresh", async () => {
+  const asked = [];
+  const { WF } = load({ fetch: cachedFetch(asked, () => ({ "cache-control": "max-age=60" })) });
+  const r = WF.resource("/api/fresh", {});
+  await settle(); await settle();
+  assert.equal(r.value().n, 1);
+  r.reload();
+  await settle(); await settle();
+  assert.equal(asked.length, 2, "a reload is a request");
+  assert.equal(r.value().n, 2);
+});
+
+test("each variant an answer varies by is kept under its own key", async () => {
+  const asked = [];
+  const { WF } = load({ fetch: cachedFetch(asked, () => ({ "cache-control": "max-age=60", vary: "Accept-Language" })) });
+  const ask = (lang) => WF.request("/api/spoken", { headers: { "Accept-Language": lang } });
+  const en = await ask("en");
+  const ar = await ask("ar");
+  const enAgain = await ask("en");
+  const arAgain = await ask("ar");
+  assert.deepEqual([en.lang, ar.lang, enAgain.lang, arAgain.lang], ["en", "ar", "en", "ar"]);
+  assert.equal(asked.length, 2, "English and Arabic each asked once");
+});
+
+test("a form's reset clears what its controls are bound to, not only the controls", () => {
+  const { WF, document } = load();
+  const form = WF.form();
+  const element = document.createElement("form");
+  const name = WF.signal("Ada");
+  const input = WF.el("input", { value: () => name(), "on:input": (e) => name.set(e.target.value) });
+  element.appendChild(input);
+  element.reset = () => { input.value = ""; };
+  document.body.appendChild(element);
+  form.current = element;
+  assert.equal(input.value, "Ada");
+  form.reset();
+  assert.equal(name(), "", "the bound state follows the reset control");
+});

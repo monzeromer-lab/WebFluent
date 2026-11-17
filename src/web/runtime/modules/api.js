@@ -108,7 +108,7 @@
     const progress = signal(0);
     const method = (endpoint.method || "GET").toUpperCase();
     // What is a parameter of the call rather than of the request.
-    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "refresh", "placeholder", "timeout", "signal", "as", "$address"]);
+    const perCall = new Set(["body", "file", "headers", "retry", "cache", "on", "refresh", "placeholder", "timeout", "signal", "as", "$address", "$ask"]);
     // The parameter a file arrives in is the one the endpoint names — `post
     // avatar(image: File)` sends `image` — and never part of the query.
     const fileField = endpoint.fileField || "file";
@@ -186,6 +186,7 @@
         redirect: config.redirect,
         referrerPolicy: config.referrerPolicy,
         signal: given.signal,
+        ask: !!given.$ask,
         withHeaders: endpoint.withHeaders,
         progress: fileOf(given) != null || endpoint.progress ? progress : null,
         onRequest: config.onRequest,
@@ -248,7 +249,7 @@
       calls.push(whole);
       const answer = window.__wfFakes[whole];
       if (!answer) {
-        const message = "No fake answers " + whole + ": name one that does in the test's `fakes:`";
+        const message = "No fake answers " + whole + ": answer it in a fake the test names (`fakes:`) or the file `wf verify --fakes` reads";
         console.error(message);
         return Promise.reject(netError("transport", message));
       }

@@ -177,7 +177,7 @@
       "after": ""
      },
      {
-      "text": "`HttpError` and `Problem` are built in: what goes wrong between the page\nand the server — `.offline`, `.timeout(after)`, `.cancelled`,\n`.transport(message)`, `.decode(at, message)`, `.status(code, problem)`,\neach with `.message` — and a server's account of a failure as RFC 9457\nhas it.",
+      "text": "`HttpError` and `Problem` are built in: what goes wrong between the page\nand the server — `.offline`, `.timeout(limit)`, `.cancelled`,\n`.transport(message)`, `.decode(at, message)`, `.status(code, problem)`,\neach with `.message` — and a server's account of a failure as RFC 9457\nhas it.",
       "points": [],
       "after": ""
      },
