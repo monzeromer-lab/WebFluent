@@ -251,7 +251,7 @@ fn try_passes_an_error_up_where_the_action_can_hold_it() {
             "    action one(id: String) {\n        let u = try await Backend.byId(id: id)\n        said = u.name\n    }",
         ),
         "N03",
-        "declares nothing it returns",
+        "`one` passes a failure up with `try`, and says nothing of what it fails with",
     );
     reports(
         &store(

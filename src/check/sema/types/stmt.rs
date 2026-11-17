@@ -333,12 +333,66 @@ impl Checker<'_, '_> {
                     .map(|t| self.world.resolve(Type::from_ref(t)));
                 self.returns.push(Vec::new());
                 self.declared_returns.push(declared.clone());
+                self.untyped_tries.push(Vec::new());
                 let was = std::mem::replace(&mut self.async_ok, true);
                 self.statements(&a.body, Body::Imperative);
                 self.async_ok = was;
                 self.declared_returns.pop();
+                let tried = self.untyped_tries.pop().unwrap_or_default();
                 let returned = self.returns.pop().unwrap_or_default();
                 self.pop_scope();
+                // `N03`: a failure passed up with `try` from an action that
+                // says nothing of what it returns or fails with.
+                if declared.is_none() && !tried.is_empty() {
+                    let value = returned
+                        .iter()
+                        .filter(|t| **t != Type::Null)
+                        .cloned()
+                        .reduce(Type::join);
+                    let error = tried
+                        .iter()
+                        .cloned()
+                        .reduce(Type::join)
+                        .unwrap_or(Type::Error);
+                    let value_text = match &value {
+                        Some(v) => writable(v),
+                        None => Some(String::new()),
+                    };
+                    let error_text = match writable(&error) {
+                        Some(e) if e == "HttpError" => Some(String::new()),
+                        Some(e) => Some(format!(" {e}")),
+                        None => None,
+                    };
+                    let written = value_text.zip(error_text).map(|(v, e)| {
+                        if v.is_empty() {
+                            format!("!{e}")
+                        } else {
+                            format!("{v} !{e}")
+                        }
+                    });
+                    self.error(
+                        span,
+                        "N03",
+                        format!(
+                            "`{}` passes a failure up with `try`, and says nothing of what it fails with",
+                            a.name
+                        ),
+                        &match &written {
+                            Some(t) => format!("Say so: `action {}(…) -> {t}`", a.name),
+                            None => format!("Say what it returns and fails with: `action {}(…) -> T ! E`", a.name),
+                        },
+                    );
+                    if let Some(t) = written {
+                        let anchor = if a.concurrent { "concurrent" } else { "{" };
+                        self.plan_last(
+                            format!("Declare `-> {t}`"),
+                            crate::diagnostics::fixes::Plan::InsertBefore {
+                                anchor: anchor.to_string(),
+                                text: format!(" -> {t}"),
+                            },
+                        );
+                    }
+                }
                 // An action that says what it returns returns that, and
                 // every way out of it was held to it as it was read.
                 if let Some(declared) = &declared
@@ -359,6 +413,7 @@ impl Checker<'_, '_> {
                 // `T26`: what an action returns is part of what it is, so a
                 // caller in another file sees it without reading its body.
                 if declared.is_none()
+                    && tried.is_empty()
                     && let Some(given) = returned
                         .iter()
                         .filter(|t| **t != Type::Null)

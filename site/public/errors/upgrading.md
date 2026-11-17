@@ -26,6 +26,7 @@ upgrade asks of you:
 
 | Release | What to do |
 |---|---|
+| [7.0](#7-0) | Run `wf migrate`, then fix what it lists; read the changes that need no edit |
 | [6.1](#6-1) | Run `wf check` (`T10`, `E111`, `R05`); a stylesheet that selects `main#wf-main` should select `#wf-main` |
 | [6.0](#6-0) | Run `wf check`; check `build.output`, `public_env` names taken from the shell, and `wf serve --host` if you test on a phone. To have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
 | [5.14, 5.13](#5-14-and-5-13) | Nothing |
@@ -69,6 +70,48 @@ After installing, bring each project forward:
 3. Run `wf test`. If snapshots changed, look at each difference, then run
    `wf test --update`.
 4. Build, and load the result with `wf verify`.
+
+## 7.0
+
+7.0 is strict, with no setting that turns it off: every value has a type
+the program can name, and a service is a contract whose calls answer with a
+result. What 6.x accepted and 7.0 refuses is an error with its fix, and
+`wf migrate` applies those fixes at once:
+
+```bash
+wf migrate --check     # what it would rewrite, and nothing written
+wf migrate
+```
+
+It rewrites the request forms 6.x had (`N08`): `fetch(…)` into
+`http.get(…)`, a read's `loading`, `error(e)` and `ready(v)` arms into
+`.loading`, `.failed(e)` and `.loaded(v)`, `.data` into `.value`, `on:` into
+`refresh:`, an endpoint's `-> T` into `-> T!`, a path's `:id` into `{id}`,
+`at` where an endpoint had none, `headers { }` into `middleware
+[header(…)]`. It declares what each `state` holds (`T25`), what each action
+returns and fails with (`T26`, `N03`), each parameter's type (`T32`), and
+JSDoc for a script function `.wf` calls (`T31`); it writes the comparison a
+condition meant (`T29`), a splice or a unit where a value was converted
+(`T34`), `try` where a result's value is wanted, and an error enum's
+`http` case (`N12`). It runs until nothing is left to fix, then lists, by
+place, every error a person decides — a `on request` hook to write as a
+middleware, a `paginate:` to move onto its endpoint. A second run finds
+nothing.
+
+Changes that need no edit, which it states:
+
+- A `POST` or `PATCH` is retried, or replayed offline, only when its
+  endpoint is marked `idempotent`.
+- Nothing is cached unless the server's `Cache-Control` or the contract
+  says so.
+- Every answer is held to its declared type, deployed too: a server that
+  does not keep its contract now fails as `.decode(at, message)`.
+
+`lints` and `// wf-allow` cannot lower or accept the typing codes or the
+request codes that are errors, and `T20` — a list or a record shown as
+text — is an error now. A service described by an OpenAPI spec is best kept
+as files: `wf api add openapi.json` (see
+[Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)).
 
 ## 6.1
 

@@ -1,0 +1,72 @@
+# Test a page with a fake service
+
+> Test a page that reads a service without the service: a fake answers its endpoints, held to the contract, and nothing reaches the network.
+
+The page: https://webfluent.monzeromer.dev/recipes/test-with-a-fake
+
+A page that reads a service has nothing to show in a test until something
+answers. A `fake` answers a group's endpoints in place of the network, and
+the compiler holds it to the contract: every endpoint it answers, every
+parameter it reads, every answer's type.
+
+**Needs:** the page in `src/`, the fake and the tests under `tests/`; run
+them with `wf test`. Here they are one file, for the sake of the example.
+
+```wf
+type Person { id: String, name: String }
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    delete remove(id: String) at "people/{id}" -> !
+        invalidates [list]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) {
+            for p in list by p.id {
+                Button("Remove {p.name}") {
+                    on click {
+                        match await Backend.people.remove(id: p.id) {
+                            .ok { said = "{p.name} removed" }
+                            .err(_) { said = "{p.name} is still here" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Text(said)
+}
+
+fake TwoPeople for Backend.people {
+    list() { .ok([Person(id: "1", name: "Ada"), Person(id: "2", name: "Grace")]) }
+    remove(id) { .err(.status(500, null)) }
+}
+
+test "lists the team"(fakes: [TwoPeople]) {
+    People
+    expect "Remove Ada"
+    expect "Remove Grace"
+}
+
+test "says when removing fails"(fakes: [TwoPeople]) {
+    People
+    click "Remove Ada"
+    expect "Ada is still here"
+    expect called Backend.people.remove
+}
+```
+
+A test that names `fakes:` runs in a browser, where the page makes its
+calls; nothing is sent. A call to an endpoint no fake answers fails the
+test and names it. With a contract from an OpenAPI spec,
+`fake Examples for Backend.people from examples` answers from the spec's
+examples. More in [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes).

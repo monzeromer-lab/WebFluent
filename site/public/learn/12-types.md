@@ -699,8 +699,8 @@ hand types its calls the same way: `get users() at "users" -> [User]`.
 
 ## The checks
 
-The type checker reports these codes. All are errors except `T19`, `T20`
-and `T21`, which are warnings.
+The type checker reports these codes. All are errors except `T19`, which
+is a warning.
 
 | Code | When |
 |---|---|
@@ -722,8 +722,8 @@ and `T21`, which are warnings.
 | `T17` | An async action's result used before it is awaited, or `await` where it cannot run |
 | `T18` | Arithmetic on something that is not a number, or `+` between text and a number |
 | `T19` | A value that may be `null` spliced into text (warning) |
-| `T20` | A list or a record shown as text (warning) |
-| `T21` | A resource `match` with no `error` arm and no `else` (warning) |
+| `T20` | A list or a record shown as text |
+| `T21` | A read's `match` with no `.failed` arm and no `else`: a failed request shows nothing |
 | `T22` | A handler that names more values than its event sends |
 | `T27` | Two values with no type in common made into one: an `if`'s branches, a list's items, the sides of `??` |
 | `T28` | A `Json` value read as a record, a list or a number rather than matched or decoded |

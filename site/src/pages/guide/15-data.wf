@@ -1,6 +1,6 @@
 /// Chapter 15 of the guide, written from md-docs/learn/15-data.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; ask with http in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "ask-on-demand-with-http", label: "Ask on demand with http"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "lists-of-data-a-table-a-tree-a-search", label: "Lists of data: a table, a tree, a search"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a read's three cases — `.loading`, `.failed(e)`, `.loaded(value)` — with `resource` and `match`", "Tell a refresh (`refreshing`, the value stays) from a first load (`.loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Ask on demand with `http` in an action, handle its result, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
+page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; ask with http in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, ask on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "how-the-pieces-fit", label: "How the pieces fit"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "ask-on-demand-with-http", label: "Ask on demand with http"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "lists-of-data-a-table-a-tree-a-search", label: "Lists of data: a table, a tree, a search"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a read's three cases — `.loading`, `.failed(e)`, `.loaded(value)` — with `resource` and `match`", "Tell a refresh (`refreshing`, the value stays) from a first load (`.loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Ask on demand with `http` in an action, handle its result, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about getting data onto a WebFluent page and sending data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a read's `.loading`, `.failed(e)` and `.loaded(value)` cases with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- keep a service's contract from its OpenAPI file, as files `wf api` writes;\n- ask on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
 
@@ -41,6 +41,49 @@ page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "D
                 }
             }
         }
+
+        Heading("How the pieces fit", id: "how-the-pieces-fit").h2
+
+        Markdown("An app that talks to a service has five parts, each in its own place, and each knows only the one below it:")
+
+        Table(caption: "How the pieces fit") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Part").header
+                    Table.Cell("What it is").header
+                    Table.Cell("Where it lives").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("The contract")
+                    Table.Cell("What the service has: its endpoints, their parameters, answers and error statuses, and the types they carry")
+                    Table.Cell { Markdown("`api Backend.people \{ … \}`, written by hand or by `wf api sync` from the service's OpenAPI spec") }
+                }
+                Table.Row {
+                    Table.Cell("The service")
+                    Table.Cell("Where it is and how it is reached: the base, the timeout, retries, middleware, what a write makes stale")
+                    Table.Cell { Markdown("`api Backend(base: …) \{ … \}`") }
+                }
+                Table.Row {
+                    Table.Cell("The data layer")
+                    Table.Cell("The reads the app keeps and the writes it makes, and what each failure means here")
+                    Table.Cell { Markdown("a `store` holding `resource`s and actions") }
+                }
+                Table.Row {
+                    Table.Cell("The view")
+                    Table.Cell("What the reader sees: one arm for each case of a read, one for each way a write can fail")
+                    Table.Cell { Markdown("a `page` or `component` that `match`es") }
+                }
+                Table.Row {
+                    Table.Cell("The test")
+                    Table.Cell { Markdown("The view and the data layer against a `fake` of the contract") }
+                    Table.Cell { Markdown("`tests/`, run by `wf test`") }
+                }
+            }
+        }
+
+        Markdown("A small page may put a `resource` straight in the page and skip the store; the rest stays the same. The parts below go from the bottom up: a read, the service and its contract, writes, then files read at build time. The recipes put them together: [Show the server's field errors on a form](/recipes/form-with-server-errors), [Refresh a list after a write](/recipes/refresh-after-a-write), [Test a page with a fake service](/recipes/test-with-a-fake) and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).")
 
         Heading("Show a request with resource", id: "show-a-request-with-resource").h2
 
@@ -1004,25 +1047,25 @@ page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
 
         Heading("Quiz", id: "quiz").h2
 
-        Quiz("A resource's `match` has a `.loading` arm and a `.loaded` arm, and no other. What happens?", id: "Fetching data#10", choices: [
+        Quiz("A resource's `match` has a `.loading` arm and a `.loaded` arm, and no other. What happens?", id: "Fetching data#11", choices: [
             QuizChoice(text: "The runtime draws an error message for you when the request fails", right: false, why: "The runtime draws only the arms you write."),
             QuizChoice(text: "The build stops with T21", right: true, why: "A failed first load is `.failed(e)`, which no arm takes, so the place would stay empty. Add `.failed(e) \{ … \}` or an `else`."),
             QuizChoice(text: "The `.loading` arm shows until a retry succeeds", right: false, why: "A first load that fails is `.failed(e)`, not `.loading`.")
         ])
 
-        Quiz("A resource is making its very first request. Which is true?", id: "Fetching data#10", choices: [
+        Quiz("A resource is making its very first request. Which is true?", id: "Fetching data#11", choices: [
             QuizChoice(text: "`pending` is true and `isRefreshing` is false", right: true, why: "`pending` covers every request of it, the first load included; `isRefreshing` only a request made again while a value is shown."),
             QuizChoice(text: "`isRefreshing` is true and `pending` is false", right: false, why: "It is the other way round: there is no value yet to refresh."),
             QuizChoice(text: "Both are true", right: false, why: "`isRefreshing` is true only while the read is `.loaded`, and on a first load it is `.loading`.")
         ])
 
-        Quiz("A resource with `refresh: .every(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#10", choices: [
+        Quiz("A resource with `refresh: .every(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#11", choices: [
             QuizChoice(text: "The `.loading` arm, then the new list", right: false, why: "Only a first load, or a request whose address changed, shows `.loading`."),
             QuizChoice(text: "An empty list until the answer arrives", right: false, why: "The value stays while a refresh runs; `name.value` is never cleared by one."),
             QuizChoice(text: "The `.loaded` arm with the old list, then the answer drawn in place", right: true, why: "A refresh stays `.loaded`, with `refreshing` true; rows whose key is still there keep their nodes.")
         ])
 
-        Quiz("The address is `http.get(\"/api/servers?env=\{stage\}\")`, and a button sets `stage` from `\"test\"` to `\"prod\"`. What shows next?", id: "Fetching data#10", choices: [
+        Quiz("The address is `http.get(\"/api/servers?env=\{stage\}\")`, and a button sets `stage` from `\"test\"` to `\"prod\"`. What shows next?", id: "Fetching data#11", choices: [
             QuizChoice(text: "The `.loading` arm, then the production servers", right: true, why: "The request now names something else, so it is a first load; the test servers would be the wrong data."),
             QuizChoice(text: "The test servers, with `refreshing` true, until the production servers arrive", right: false, why: "That is a refresh, which asks again for the same request; this one changed. `placeholder: .previous` would ask for it."),
             QuizChoice(text: "Nothing changes until the reader reloads the page", right: false, why: "An address that reads state is fetched again whenever that state changes.")

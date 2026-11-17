@@ -607,6 +607,34 @@
     "after": ""
    },
    {
+    "title": "Carried to 7 by `wf migrate`",
+    "id": "7.0.0-carried-to-7-by-wf-migrate",
+    "intro": "7.0 has no loose mode, so `wf migrate` carries a 6.x project across.",
+    "items": [
+     {
+      "text": "**Every fix, at once.** The step applies the fix every 7.0 finding\ncarries, again and again until none is left: the request forms (`fetch`\n→ `http.get`, `ready(v)` → `.loaded(v)`, `.data` → `.value`, `on:` →\n`refresh:`, `-> T` → `-> T!`, `:id` → `{id}`, `at` where there was none,\n`headers { }` → `middleware [header(…)]`), what each `state` holds, each\naction returns and fails with (`-> ! E` for a `try` in an action that said\nnothing), each parameter takes, JSDoc for a script, a condition's\ncomparison, a splice or a unit for a conversion (`T34`), `try` where a\nresult's value is wanted, an error enum's `http` case (`N12`).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Then what a person decides**, listed by place — an `on request` hook to\nwrite as middleware, a `paginate:` to move onto its endpoint — and the\nchanges that need no edit: a `POST` is not retried unless `idempotent`,\nnothing is cached unless the server says so, every answer is checked.\n`--check` says what it would fix and writes nothing; a second run finds\nnothing.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**New fixes** in `wf fix` and the editor, from the same work: `T34`,\n`N12`, `N03`, `headers { }`, and `try` for a result's value.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`T20` is an error**: a list or a record shown as text. `lints` and\n`// wf-allow` cannot lower or accept it, nor any other error.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Where a type is unknown",
     "id": "7.0.0-where-a-type-is-unknown",
     "intro": "`wf types --holes` lists every place the checker cannot say what a value\nis — a parameter with no type, a field of a `Map`, a browser global,\n`catch e`, a built-in's prop of no declared type — with its file, line and\nkind, and the count of each kind (`--json` for a tool). A value is counted\nwhere it becomes unknown, not at every place it goes afterwards. Inside the\nchecker, a value an error has already been reported about is no longer\n`Any` but a type of its own, which agrees with everything as `Any` did, so\nthe count holds only what the program leaves untyped.",
@@ -627,7 +655,7 @@
     "after": ""
    }
   ],
-  "count": 94
+  "count": 98
  },
  {
   "version": "6.2.0",

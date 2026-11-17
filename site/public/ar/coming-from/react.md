@@ -114,3 +114,32 @@ component Counter(start: Number = 0) {
   المُصرِّف.
 - **الحدث مصرَّح به.** المستدعي الذي يعالج `on chnage` يحصل على `E103` وقت
   البناء، بدل معالج لا يعمل أبدًا.
+
+## البيانات كما يفعلها TanStack Query
+
+TanStack Query ذاكرةٌ للطلبات التي يطلبها المكوّن. في WebFluent تتوزّع
+المهام نفسها كلٌّ في مكانه: ما تملكه الخدمة عقدٌ، وكيف تُبلَغ هو الخدمة،
+وما تقرؤه الصفحة `resource` — قيمةٌ واحدة لها ثلاث حالات.
+
+| TanStack Query | WebFluent |
+|---|---|
+| `useQuery({ queryKey: ["users", page], queryFn })` | `resource users = Backend.users.list(page: page)`: الوسائط متتبَّعة، فتغيّر `page` يعيد الطلب |
+| `isPending` و`isError` و`data` و`error` | قيمةٌ واحدة: `match users { .loading … .failed(e) … .loaded(list) … }`؛ و`match` بلا `.failed` لا يُبنى |
+| `isFetching` والبيانات على الشاشة | `.loaded(list, refreshing, stale)`: القائمة باقية و`refreshing` صحيحة |
+| `staleTime` و`gcTime` | ما يقوله `Cache-Control` من الخادم (RFC 9111)، أو `cache: .swr(60.seconds)` على نقطة النهاية |
+| `refetchOnWindowFocus` و`refetchInterval` | `refresh: .onFocus` و`refresh: .every(30.seconds)` |
+| `useMutation({ mutationFn })` | إجراءٌ يستدعي نقطة النهاية ويطابق نتيجتها بـ`match` |
+| `queryClient.invalidateQueries(["users"])` بعد التعديل | `invalidates [list]` على الكتابة في العقد: كل قراءةٍ لها تُعاد، بلا استدعاءٍ يُكتب |
+| `onMutate` بلقطةٍ و`onError` يتراجع | `let undo = Backend.users.list.update(list => …)` ثم `undo()` إن فشلت الكتابة |
+| `useInfiniteQuery` مع `getNextPageParam` | `pages .cursor(param: after, next: p => p.next)` على نقطة النهاية؛ و`users.loadMore()` و`users.hasMore` |
+| `retry: 3` | `retry: .backoff(times: 3)` على الخدمة لما يصحّ إرساله مرتين؛ و`POST` فقط إن كانت نقطة النهاية `idempotent` |
+| `error` من نوع `unknown` أو `Error` | `-> User ! CreateUserError`: تعدادُ أخطاءٍ فيه حالةٌ لكل حالةٍ يجيب بها الخادم، تُطابَق واحدةً واحدة |
+| `openapi-typescript` و`orval` | `wf api add openapi.json`: العقد ملفاتٍ، يُفحص في CI بـ`wf api check` |
+| Mock Service Worker في الاختبارات | `fake` للعقد يُلزمه المترجم به، ويُسمّى في `fakes:` الاختبار |
+
+- **لا مفاتيح للاستعلامات.** القراءة تُعرف بنقطة نهايتها ووسائطها، وقارئان
+  للعنوان نفسه يرسلان طلبًا واحدًا.
+- **الإبطال جزءٌ من العقد**، يُقال مرةً بجانب الكتابة ويُفحص: قراءةٌ ليست
+  في المجموعة خطأ `N05`.
+- **الخطأ مكتوب النوع.** كل حالةٍ يعلنها الخادم حالةٌ في التعداد، و`match`
+  يُسقط واحدةً لا يُبنى.

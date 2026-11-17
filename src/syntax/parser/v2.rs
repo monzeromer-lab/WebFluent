@@ -2566,6 +2566,7 @@ impl ParserV2 {
         let mut endpoints = Vec::new();
         let mut invalidations = Vec::new();
         let mut pagination = Vec::new();
+        let mut headers_span = Span::default();
         if self.eat(&TokenType::OpenBrace) {
             while !self.check(&TokenType::CloseBrace) && !self.at_end() {
                 let doc = self.take_docs();
@@ -2573,6 +2574,7 @@ impl ParserV2 {
                 match word.as_str() {
                     // `headers { Authorization: "Bearer {token}" }`.
                     "headers" => {
+                        let headers_mark = self.mark();
                         self.advance();
                         self.expect(&TokenType::OpenBrace, "`{` after `headers`")?;
                         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
@@ -2582,6 +2584,7 @@ impl ParserV2 {
                             self.eat(&TokenType::Comma);
                         }
                         self.expect(&TokenType::CloseBrace, "`}`")?;
+                        headers_span = self.span_since(headers_mark);
                     }
                     // `on request(r) { … }`, `on response(r)`, `on error(e)`.
                     "on" => hooks.push(self.parse_handler()?),
@@ -2651,6 +2654,7 @@ impl ParserV2 {
             from,
             invalidations,
             pagination,
+            headers_span,
         }))
     }
 

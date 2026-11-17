@@ -21,6 +21,7 @@
 
 pub mod externals;
 pub mod project;
+pub mod seven;
 
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};

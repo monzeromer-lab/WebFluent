@@ -53,8 +53,8 @@ pub(crate) fn run_migrate(
         plan.files.len() - changed - failed
     );
     print_four(&plan, check)?;
-    if !check && failed == 0 {
-        print_seven(&plan)?;
+    if failed == 0 {
+        print_seven(&plan, check)?;
     }
     if failed > 0 {
         return Err(WebFluentError::io(format!(
@@ -64,17 +64,49 @@ pub(crate) fn run_migrate(
     Ok(())
 }
 
-/// The step to 7: what a declaration's readers see is declared, so each
-/// state whose first value says nothing is given the type the program
-/// assigns it, and each parameter the type its callers pass — the fixes of
-/// `T25` and `T32`, where the checker is sure of one.
-fn print_seven(plan: &Plan) -> Result<()> {
+/// The step to 7: every finding 7.0 brings that has a fix, fixed — what
+/// each state holds and each parameter takes declared, the request forms
+/// 6.x had rewritten — then what needs a person, by place, and what changed
+/// with no edit to make. With `check`, what it would fix, and nothing
+/// written.
+fn print_seven(plan: &Plan, check: bool) -> Result<()> {
     let Some(dir) = &plan.project_dir else {
         return Ok(()); // a lone file
     };
-    println!("\n  Declaring what each state holds and each parameter takes:");
-    for code in ["T25", "T32"] {
-        super::fix::run_fix(dir, Some(code), false)?;
+    let done = crate::migrate::seven::migrate(dir, check)?;
+    println!("\n  WebFluent 6 → 7:");
+    if done.total() == 0 {
+        println!("    nothing to rewrite");
+    } else {
+        let codes: Vec<String> = done
+            .by_code
+            .iter()
+            .map(|(c, n)| format!("{n} {c}"))
+            .collect();
+        println!(
+            "    {} {} finding(s) in {} file(s): {}",
+            if check { "would fix" } else { "fixed" },
+            done.total(),
+            done.by_file.len(),
+            codes.join(", ")
+        );
+        for file in done.by_file.keys() {
+            println!("      {file}");
+        }
+    }
+    if !check && !done.left.is_empty() {
+        println!(
+            "\n  {} error(s) left, which a person decides:",
+            done.left.len()
+        );
+        for d in &done.left {
+            println!("    {}:{}: error[{}] {}", d.file, d.line, d.code, d.message);
+        }
+        println!("  `wf explain CODE` says what each means and how to write it now.");
+    }
+    println!("\n  Changes that need no edit, and are worth knowing:");
+    for line in crate::migrate::seven::WITHOUT_AN_EDIT {
+        println!("    {line}");
     }
     Ok(())
 }

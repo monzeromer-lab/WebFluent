@@ -50,6 +50,28 @@ This chapter does not cover:
 | A request made when something happens: a save, a delete, a step in a flow | `http.post(…)` in an action | [Ask on demand with http](#ask-on-demand-with-http) |
 | Content that is known at build time | `data` | [Read a file at build time with data](#read-a-file-at-build-time-with-data) |
 
+## How the pieces fit
+
+An app that talks to a service has five parts, each in its own place, and
+each knows only the one below it:
+
+| Part | What it is | Where it lives |
+|---|---|---|
+| The contract | What the service has: its endpoints, their parameters, answers and error statuses, and the types they carry | `api Backend.people { … }`, written by hand or by `wf api sync` from the service's OpenAPI spec |
+| The service | Where it is and how it is reached: the base, the timeout, retries, middleware, what a write makes stale | `api Backend(base: …) { … }` |
+| The data layer | The reads the app keeps and the writes it makes, and what each failure means here | a `store` holding `resource`s and actions |
+| The view | What the reader sees: one arm for each case of a read, one for each way a write can fail | a `page` or `component` that `match`es |
+| The test | The view and the data layer against a `fake` of the contract | `tests/`, run by `wf test` |
+
+A small page may put a `resource` straight in the page and skip the store;
+the rest stays the same. The parts below go from the bottom up: a read,
+the service and its contract, writes, then files read at build time. The
+recipes put them together:
+[Show the server's field errors on a form](../recipes/form-with-server-errors.md),
+[Refresh a list after a write](../recipes/refresh-after-a-write.md),
+[Test a page with a fake service](../recipes/test-with-a-fake.md) and
+[Call a service from its OpenAPI spec](../recipes/service-from-openapi.md).
+
 ## Show a request with `resource`
 
 To fetch data while a page shows, declare a `resource` and show its states

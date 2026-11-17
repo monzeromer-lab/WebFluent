@@ -505,6 +505,27 @@ endpoint it does not answer itself with the spec's example of a success."#),
                     Change(text: #"**A paged read's `.update(change)`** is handed the items it has gathered,
 as the page shows them."#)
                 ]),
+                NotesSection(title: #"Carried to 7 by `wf migrate`"#, id: "7.0.0-carried-to-7-by-wf-migrate", intro: #"7.0 has no loose mode, so `wf migrate` carries a 6.x project across."#, items: [
+                    Change(text: #"**Every fix, at once.** The step applies the fix every 7.0 finding
+carries, again and again until none is left: the request forms (`fetch`
+→ `http.get`, `ready(v)` → `.loaded(v)`, `.data` → `.value`, `on:` →
+`refresh:`, `-> T` → `-> T!`, `:id` → `{id}`, `at` where there was none,
+`headers { }` → `middleware [header(…)]`), what each `state` holds, each
+action returns and fails with (`-> ! E` for a `try` in an action that said
+nothing), each parameter takes, JSDoc for a script, a condition's
+comparison, a splice or a unit for a conversion (`T34`), `try` where a
+result's value is wanted, an error enum's `http` case (`N12`)."#),
+                    Change(text: #"**Then what a person decides**, listed by place — an `on request` hook to
+write as middleware, a `paginate:` to move onto its endpoint — and the
+changes that need no edit: a `POST` is not retried unless `idempotent`,
+nothing is cached unless the server says so, every answer is checked.
+`--check` says what it would fix and writes nothing; a second run finds
+nothing."#),
+                    Change(text: #"**New fixes** in `wf fix` and the editor, from the same work: `T34`,
+`N12`, `N03`, `headers { }`, and `try` for a result's value."#),
+                    Change(text: #"**`T20` is an error**: a list or a record shown as text. `lints` and
+`// wf-allow` cannot lower or accept it, nor any other error."#)
+                ]),
                 NotesSection(title: #"Where a type is unknown"#, id: "7.0.0-where-a-type-is-unknown", intro: #"`wf types --holes` lists every place the checker cannot say what a value
 is — a parameter with no type, a field of a `Map`, a browser global,
 `catch e`, a built-in's prop of no declared type — with its file, line and
@@ -518,7 +539,7 @@ the count holds only what the program leaves untyped."#),
 nothing the compiler writes has called since 3.0. `wf migrate` still
 rewrites that grammar."#)
                 ])
-            ], count: 94), latest: true)
+            ], count: 98), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15", when: "15 November 2026", summary: #"The built-ins work for keyboards, screen readers, touch screens and
 right-to-left pages, and a built-in a later WebFluent adds never changes
@@ -4304,6 +4325,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-pages-lines-and-writes-kept-offline", label: #"Pages, lines, and writes kept offline"#), Anchor(id: "7.0.0-fakes-a-service-answered-in-a-test", label: #"Fakes: a service answered in a test"#), Anchor(id: "7.0.0-a-service-s-contract-written-from-its-openapi-spec", label: #"A service's contract, written from its OpenAPI spec"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "7.0.0-a-write-is-sent-again-only-when-that-is-safe", label: #"A write is sent again only when that is safe"#), Anchor(id: "7.0.0-requests-that-never-went-or-went-wrong", label: #"Requests that never went, or went wrong"#), Anchor(id: "7.0.0-what-the-checker-now-says", label: #"What the checker now says"#), Anchor(id: "7.0.0-types-a-program-can-write", label: #"Types a program can write"#), Anchor(id: "7.0.0-a-call-that-fails-says-how", label: #"A call that fails says how"#), Anchor(id: "7.0.0-asking-with-http", label: #"Asking with `http`"#), Anchor(id: "7.0.0-what-7-0-refuses", label: #"What 7.0 refuses"#), Anchor(id: "7.0.0-the-browser-events-and-the-built-ins-typed", label: #"The browser, events and the built-ins, typed"#), Anchor(id: "7.0.0-a-read-is-one-value", label: #"A read is one value"#), Anchor(id: "7.0.0-what-a-request-passes-through", label: #"What a request passes through"#), Anchor(id: "7.0.0-contracts-and-writes", label: #"Contracts and writes"#), Anchor(id: "7.0.0-declared-where-others-see-it-inferred-where-only-the-body-does", label: #"Declared where others see it, inferred where only the body does"#), Anchor(id: "7.0.0-a-value-is-what-it-says", label: #"A value is what it says"#), Anchor(id: "7.0.0-data-from-outside-held-to-its-type-where-it-comes-in", label: #"Data from outside, held to its type where it comes in"#), Anchor(id: "7.0.0-pages-lines-and-writes-kept-offline", label: #"Pages, lines, and writes kept offline"#), Anchor(id: "7.0.0-fakes-a-service-answered-in-a-test", label: #"Fakes: a service answered in a test"#), Anchor(id: "7.0.0-a-service-s-contract-written-from-its-openapi-spec", label: #"A service's contract, written from its OpenAPI spec"#), Anchor(id: "7.0.0-carried-to-7-by-wf-migrate", label: #"Carried to 7 by `wf migrate`"#), Anchor(id: "7.0.0-where-a-type-is-unknown", label: #"Where a type is unknown"#), Anchor(id: "7.0.0-removed", label: #"Removed"#)], source: "RELEASE_NOTES.md")
     }
 }

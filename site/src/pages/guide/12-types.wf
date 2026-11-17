@@ -561,7 +561,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 
         Heading("The checks", id: "the-checks").h2
 
-        Markdown("The type checker reports these codes. All are errors except `T19`, `T20` and `T21`, which are warnings.")
+        Markdown("The type checker reports these codes. All are errors except `T19`, which is a warning.")
 
         Table(caption: "The checks") {
             Table.Head {
@@ -645,11 +645,11 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T20`") }
-                    Table.Cell("A list or a record shown as text (warning)")
+                    Table.Cell("A list or a record shown as text")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T21`") }
-                    Table.Cell { Markdown("A resource `match` with no `error` arm and no `else` (warning)") }
+                    Table.Cell { Markdown("A read's `match` with no `.failed` arm and no `else`: a failed request shows nothing") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`T22`") }

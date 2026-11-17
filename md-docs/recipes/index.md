@@ -40,6 +40,9 @@ Forms, asking a server, showing what it answers, and writing back.
 - [Page through results](page-through-results.md)
 - [Load more as the reader asks](load-more.md)
 - [Update at once, and roll back on failure](optimistic-updates.md)
+- [Show the server's field errors on a form](form-with-server-errors.md)
+- [Refresh a list after a write](refresh-after-a-write.md)
+- [Call a service from its OpenAPI spec](service-from-openapi.md)
 - [Show what the network is doing](show-the-network.md)
 - [Send a message as the page unloads](send-on-unload.md)
 
@@ -109,6 +112,7 @@ More readers: other languages, and no network.
 Checking that a page does what it should before a reader finds out it does not.
 
 - [Test a page](test-a-page.md)
+- [Test a page with a fake service](test-with-a-fake.md)
 
 ## Ship
 

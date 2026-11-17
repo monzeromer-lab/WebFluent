@@ -1503,6 +1503,7 @@ impl Checker<'_, '_> {
                     ),
                     "Give the number its unit: `500.ms`, `2.seconds`",
                 );
+                self.plan_conversion(number, &Type::Number, &duration);
                 Type::Error
             }
             (BinOp::Add, Type::String, other) | (BinOp::Add, other, Type::String) => {

@@ -1094,13 +1094,13 @@ page P(path: "/", title: "T", description: "D") {
 }
 
 page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as text", description: "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.") {
-    ErrorShell("T20", title: "A list or a record shown as text", severity: "warning", family: "Types", summary: "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.", printed: #"warning[T20]: `tags` is `[String]`, and in text it shows as its items run together with commas
+    ErrorShell("T20", title: "A list or a record shown as text", severity: "error", family: "Types", summary: "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.", printed: #"error[T20]: `tags` is `[String]`, and in text it shows as its items run together with commas
  --> src/App.wf:4:19
   |
 4 |     Text("Tagged {tags}")
   |                   ^^^^
   = help: Show a field of it, or `.join(", ")` a list of text
-  = docs: https://webfluent.monzeromer.dev/errors/T20"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T20.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T20"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T20.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state tags = ["a", "b"]
     Heading("Tags").h1
@@ -1115,7 +1115,7 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
             Markdown("`\{tags.join(\", \")\}` for a list of text; a field of a record.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
-        Markdown("Warning.")
+        Markdown("Error.")
     }
 }
 
@@ -1526,7 +1526,7 @@ page ErrorT34(path: "/errors/T34", title: "T34 — A conversion the language doe
 4 |     Text(due)
   |          ^^^
   = help: Show it through a splice, which says how: `"{due}"`, or `"{due:.date(long)}"`
-  = docs: https://webfluent.monzeromer.dev/errors/T34"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T34.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T34"#, quickfix: "Write `\"\{due\}\"`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T34.md") {
         broken { CodeBlock(#"page P(path: "/", title: "Due", description: "D") {
     state due: Date = @2026-03-14
     Heading("Due").h1
@@ -2365,13 +2365,13 @@ page P(path: "/", title: "T", description: "D") {
 }
 
 page ErrorN03(path: "/errors/N03", title: "N03 — A try with nowhere to pass its error", description: "`try` returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.") {
-    ErrorShell("N03", title: "A try with nowhere to pass its error", severity: "error", family: "Requests", summary: "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.", printed: #"error[N03]: `try` returns `await Backend.user(…)`'s error from the action, and the action declares nothing it returns
-  --> src/App.wf:10:20
-   |
-10 |         let user = try await Backend.user(id: id)
-   |                    ^^^
-   = help: Say what it fails with: `-> User!`, or `match` the result here
-   = docs: https://webfluent.monzeromer.dev/errors/N03"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N03.md") {
+    ErrorShell("N03", title: "A try with nowhere to pass its error", severity: "error", family: "Requests", summary: "`try` gives a result's value, or returns its error from the action it is in, as the action's own. The action must say what it fails with, and that must be able to hold the error: the same type, an `HttpError` into an error enum's `http` case, or another error enum through its `http` case once its other cases are handled.", printed: #"error[N03]: `load` passes a failure up with `try`, and says nothing of what it fails with
+ --> src/App.wf:9:5
+  |
+9 |     action load(id: String) {
+  |     ^^^^^^^^^^^^^^^^^^^^^^^^^
+  = help: Say so: `action load(…) -> !`
+  = docs: https://webfluent.monzeromer.dev/errors/N03"#, quickfix: "Declare `-> !`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N03.md") {
         broken { CodeBlock(#"type User { id: String, name: String }
 
 api Backend(base: "/api") {
@@ -2727,7 +2727,7 @@ page ErrorN12(path: "/errors/N12", title: "N12 — An error enum that is not sha
 3 | enum SaveError {
   | ^^^^^^^^^^^^^^^^
   = help: Add `http(error: HttpError)`: what goes wrong that no case names — no network, a timeout, another status — arrives there
-  = docs: https://webfluent.monzeromer.dev/errors/N12"#, quickfix: "", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N12.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/N12"#, quickfix: "Add `http(error: HttpError)`", lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/N12.md") {
         broken { CodeBlock(#"type Problem2 { title: String }
 
 enum SaveError {

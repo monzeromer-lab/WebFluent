@@ -833,6 +833,9 @@ impl Checker<'_, '_> {
                         .find_map(|alt| super::ty::conversion(&given, alt))
                     {
                         self.error(at, "T34", format!("{what} is `{given}`, {message}"), hint);
+                        if let Some(alt) = alternatives.first() {
+                            self.plan_conversion(value, &given, alt);
+                        }
                         return;
                     }
                     let mut wanted: Vec<String> =

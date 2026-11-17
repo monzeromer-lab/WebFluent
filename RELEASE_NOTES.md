@@ -470,6 +470,30 @@ it can be read, reviewed and diffed.
 - **A paged read's `.update(change)`** is handed the items it has gathered,
   as the page shows them.
 
+## Carried to 7 by `wf migrate`
+
+7.0 has no loose mode, so `wf migrate` carries a 6.x project across.
+
+- **Every fix, at once.** The step applies the fix every 7.0 finding
+  carries, again and again until none is left: the request forms (`fetch`
+  → `http.get`, `ready(v)` → `.loaded(v)`, `.data` → `.value`, `on:` →
+  `refresh:`, `-> T` → `-> T!`, `:id` → `{id}`, `at` where there was none,
+  `headers { }` → `middleware [header(…)]`), what each `state` holds, each
+  action returns and fails with (`-> ! E` for a `try` in an action that said
+  nothing), each parameter takes, JSDoc for a script, a condition's
+  comparison, a splice or a unit for a conversion (`T34`), `try` where a
+  result's value is wanted, an error enum's `http` case (`N12`).
+- **Then what a person decides**, listed by place — an `on request` hook to
+  write as middleware, a `paginate:` to move onto its endpoint — and the
+  changes that need no edit: a `POST` is not retried unless `idempotent`,
+  nothing is cached unless the server says so, every answer is checked.
+  `--check` says what it would fix and writes nothing; a second run finds
+  nothing.
+- **New fixes** in `wf fix` and the editor, from the same work: `T34`,
+  `N12`, `N03`, `headers { }`, and `try` for a result's value.
+- **`T20` is an error**: a list or a record shown as text. `lints` and
+  `// wf-allow` cannot lower or accept it, nor any other error.
+
 ## Where a type is unknown
 
 `wf types --holes` lists every place the checker cannot say what a value

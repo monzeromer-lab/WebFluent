@@ -109,6 +109,8 @@ pub struct ApiDecl {
     pub settings: Vec<(String, Expr)>,
     /// `headers { Authorization: "…" }`.
     pub headers: Vec<(String, Expr)>,
+    /// Where `headers { … }` is written, for the fix that replaces it.
+    pub headers_span: Span,
     /// `on request(r) { … }`, `on response(r)`, `on error(e)`.
     pub hooks: Vec<EventHandler>,
     pub endpoints: Vec<Endpoint>,

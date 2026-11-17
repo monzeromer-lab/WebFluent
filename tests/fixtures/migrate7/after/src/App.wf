@@ -1,0 +1,49 @@
+// A small project written the WebFluent 6 way: `wf migrate` carries it to 7.
+
+type Todo { id: String, title: String }
+type Problem422 { title: String }
+
+enum SaveError {
+    unprocessableContent(problem: Problem422) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    middleware [header("X-Client", "web")]
+    get todos at "todos" -> [Todo]!
+    get todo(id: String) at "todos/{id}" -> Todo!
+    post save(body: Todo) at "save" -> Todo!
+}
+
+store Todos {
+    state items: [Todo] = []
+    state due: Date = @2026-03-14
+
+    action load() -> ! {
+        let got: [Todo] = try await http.get("/api/todos")
+        items = got
+    }
+
+    action count() -> Number {
+        return items.length
+    }
+}
+
+app { Router }
+
+page Home(path: "/", title: "Home", description: "Todos.") {
+    use Todos
+    resource todos: [Todo] = http.get("/api/todos", refresh: .onFocus)
+    state wait = 3.seconds + 500.ms
+    Heading("Todos").h1
+    match todos {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for todo in list by todo.id { Text(todo.title) } }
+    }
+    if Todos.items.length != 0 { Text("Some") }
+    Text("{Todos.due}")
+    Text("{wait.ms()}")
+    Button("Load") { on click { Todos.load() } }
+    Text("{Todos.count()}")
+}

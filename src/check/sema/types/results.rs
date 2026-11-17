@@ -55,6 +55,14 @@ impl Checker<'_, '_> {
                 format!("`{}` names a status, so it is an error enum, and keeps no `http` case", e.name),
                 "Add `http(error: HttpError)`: what goes wrong that no case names — no network, a timeout, another status — arrives there",
             );
+            if http_cases == 0 {
+                self.plan_last(
+                    "Add `http(error: HttpError)`".to_string(),
+                    crate::diagnostics::fixes::Plan::InsertInBlock {
+                        text: "http(error: HttpError)".to_string(),
+                    },
+                );
+            }
         }
         let mut seen: Vec<(u16, &str)> = Vec::new();
         for case in &e.cases {
@@ -162,6 +170,12 @@ impl Checker<'_, '_> {
         match self.declared_returns.last().cloned() {
             // In an action: the error goes up as the action's own.
             Some(Some(Type::Result(_, into))) => self.try_converts(&error, &into, &text),
+            // An action that declares nothing: said once, at the action.
+            Some(None) if !self.untyped_tries.is_empty() => {
+                if let Some(list) = self.untyped_tries.last_mut() {
+                    list.push(error);
+                }
+            }
             Some(declared) => {
                 let says = declared.map_or_else(
                     || "declares nothing it returns".to_string(),

@@ -211,7 +211,7 @@ fn a_case_fits_an_enum_only_when_the_enum_has_it_and_a_function_its_arguments() 
     assert!(with(&src, "T02")[0].contains("`Tone` has no case `.quiet`"));
     // A comparator that takes three arguments where two are given.
     let three = page(
-        "    state xs = [3, 1]\n    derived sorted = xs.slice().sort((a, b, c) => a - b)\n    Text(\"{sorted}\")",
+        "    state xs = [3, 1]\n    derived sorted = xs.slice().sort((a, b, c) => a - b)\n    Text(\"{sorted.length}\")",
     );
     assert!(
         with(&three, "T10")[0].contains("takes 3 arguments, but it is given 2"),
@@ -219,7 +219,7 @@ fn a_case_fits_an_enum_only_when_the_enum_has_it_and_a_function_its_arguments() 
         findings(&three)
     );
     clean(&page(
-        "    state xs = [3, 1]\n    derived sorted = xs.slice().sort((a, b) => a - b)\n    derived big = xs.filter(x => x > 1)\n    Text(\"{sorted}{big}\")",
+        "    state xs = [3, 1]\n    derived sorted = xs.slice().sort((a, b) => a - b)\n    derived big = xs.filter(x => x > 1)\n    Text(\"{sorted.length}{big.length}\")",
     ));
 }
 

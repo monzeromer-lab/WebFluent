@@ -41,6 +41,10 @@ pub fn services(project: &Path) -> Result<std::collections::BTreeMap<String, Api
     Ok(config.apis)
 }
 
+#[allow(
+    unused_imports,
+    reason = "read only through the feature: tests and tools"
+)]
 pub use crate::project::openapi::files::{
     Change, File, Generated, changes, generate, is_generated, marker, stale_services,
 };

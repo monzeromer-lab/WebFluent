@@ -113,3 +113,96 @@ component Counter(start: Number = 0) {
   compiler checks.
 - **The event is declared.** A caller that handles `on chnage` gets `E103`
   at build time, instead of a handler that never runs.
+
+## Data, as TanStack Query does it
+
+TanStack Query is a cache of requests a component asks for. In WebFluent
+the same jobs are split by where they belong: what the service has is a
+contract, how it is reached is the service, and what a page reads is a
+`resource` — one value with three cases.
+
+| TanStack Query | WebFluent |
+|---|---|
+| `useQuery({ queryKey: ["users", page], queryFn })` | `resource users = Backend.users.list(page: page)`: the arguments are followed, so a change of `page` asks again |
+| `isPending`, `isError`, `data`, `error` | one value: `match users { .loading … .failed(e) … .loaded(list) … }`; a `match` that leaves out `.failed` does not build |
+| `isFetching` with data on screen | `.loaded(list, refreshing, stale)`: the list stays, `refreshing` is true |
+| `staleTime`, `gcTime` | what the server's `Cache-Control` says (RFC 9111), or `cache: .swr(60.seconds)` on the endpoint |
+| `refetchOnWindowFocus`, `refetchInterval` | `refresh: .onFocus`, `refresh: .every(30.seconds)` |
+| `useMutation({ mutationFn })` | an action that calls the endpoint and `match`es its result |
+| `queryClient.invalidateQueries(["users"])` after a mutation | `invalidates [list]` on the write, in the contract: every read of it asks again, with no call written |
+| `onMutate` with a snapshot and `onError` rolling back | `let undo = Backend.users.list.update(list => …)`, and `undo()` when the write fails |
+| `useInfiniteQuery` with `getNextPageParam` | `pages .cursor(param: after, next: p => p.next)` on the endpoint; `users.loadMore()`, `users.hasMore` |
+| `retry: 3` | `retry: .backoff(times: 3)` on the service, for what is safe to send twice; a `POST` only when its endpoint is `idempotent` |
+| `error` typed `unknown` or `Error` | `-> User ! CreateUserError`: an error enum with a case for each status the server answers with, matched case by case |
+| `openapi-typescript`, `orval` | `wf api add openapi.json`: the contract as files, checked in CI with `wf api check` |
+| Mock Service Worker in tests | a `fake` of the contract, held to it by the compiler, named in the test's `fakes:` |
+
+The same list, with a create that refreshes it and a field error shown:
+
+```jsx
+function People() {
+  const qc = useQueryClient();
+  const { data, isPending, error } = useQuery({ queryKey: ["people"], queryFn: listPeople });
+  const add = useMutation({
+    mutationFn: createPerson,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["people"] }),
+  });
+  if (isPending) return <Spinner />;
+  if (error) return <Alert>{error.message}</Alert>;
+  return (
+    <>
+      {data.map((p) => <p key={p.id}>{p.name}</p>)}
+      <button onClick={() => add.mutate({ name: "Grace" })}>Add</button>
+      {add.error?.status === 422 && <p>{add.error.body.errors[0].message}</p>}
+    </>
+  );
+}
+```
+
+```wf
+type Person { id: String, name: String }
+type NewPerson { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    post create(body: NewPerson) at "people" -> Person ! CreatePersonError
+        invalidates [list]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add") {
+        on click {
+            match await Backend.people.create(body: NewPerson(name: "Grace")) {
+                .ok(_) { said = "" }
+                .err(.unprocessableContent(p)) { said = p.errors.first()?.message ?? "Check the name" }
+                .err(.http(e)) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}
+```
+
+- **No query keys.** A read is known by its endpoint and its arguments;
+  two readers of one address make one request.
+- **Invalidation is part of the contract**, said once beside the write,
+  and checked: a read the group does not have is `N05`.
+- **The error is typed.** Every status the server declares is a case, and a
+  `match` that misses one does not build.

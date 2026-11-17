@@ -305,6 +305,50 @@ impl Checker<'_, '_> {
     }
 
     /// A fix for the error just reported.
+    /// The fix for a `T34` just reported about `value`: a date shown
+    /// through a splice, a duration said in what it counts, a number given
+    /// its unit.
+    pub(super) fn plan_conversion(
+        &mut self,
+        value: &super::Expr,
+        given: &super::ty::Type,
+        wanted: &super::ty::Type,
+    ) {
+        use super::ty::{Scalar, Type};
+        let text = super::expr_text(value);
+        if text.contains(['\n', '"']) {
+            return;
+        }
+        let simple = matches!(
+            value,
+            super::Expr::Identifier(_)
+                | super::Expr::PropertyAccess(..)
+                | super::Expr::NumberLiteral(_)
+        );
+        let unwrap = |t: &Type| match t {
+            Type::Optional(inner) => (**inner).clone(),
+            other => other.clone(),
+        };
+        let (from, to) = (unwrap(given), unwrap(wanted));
+        let fixed = match (&from, &to) {
+            (Type::Scalar(Scalar::Date | Scalar::Time | Scalar::DateTime), Type::String) => {
+                format!("\"{{{text}}}\"")
+            }
+            (Type::Scalar(Scalar::Duration), Type::Number) if simple => format!("{text}.ms()"),
+            (Type::Scalar(Scalar::Duration), Type::Number) => format!("({text}).ms()"),
+            (Type::Number, Type::Scalar(Scalar::Duration)) if simple => format!("{text}.ms"),
+            (Type::Number, Type::Scalar(Scalar::Duration)) => format!("({text}).ms"),
+            _ => return,
+        };
+        self.plan_last(
+            format!("Write `{fixed}`"),
+            crate::diagnostics::fixes::Plan::Rename {
+                from: text,
+                to: fixed,
+            },
+        );
+    }
+
     pub(super) fn plan_last(&mut self, title: String, plan: crate::diagnostics::fixes::Plan) {
         let list = self.last_list();
         if let Some(d) = list.pop() {

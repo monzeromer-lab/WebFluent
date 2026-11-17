@@ -6672,8 +6672,8 @@ hand types its calls the same way: `get users() at "users" -> [User]`.
 
 ## The checks
 
-The type checker reports these codes. All are errors except `T19`, `T20`
-and `T21`, which are warnings.
+The type checker reports these codes. All are errors except `T19`, which
+is a warning.
 
 | Code | When |
 |---|---|
@@ -6695,8 +6695,8 @@ and `T21`, which are warnings.
 | `T17` | An async action's result used before it is awaited, or `await` where it cannot run |
 | `T18` | Arithmetic on something that is not a number, or `+` between text and a number |
 | `T19` | A value that may be `null` spliced into text (warning) |
-| `T20` | A list or a record shown as text (warning) |
-| `T21` | A resource `match` with no `error` arm and no `else` (warning) |
+| `T20` | A list or a record shown as text |
+| `T21` | A read's `match` with no `.failed` arm and no `else`: a failed request shows nothing |
 | `T22` | A handler that names more values than its event sends |
 | `T27` | Two values with no type in common made into one: an `if`'s branches, a list's items, the sides of `??` |
 | `T28` | A `Json` value read as a record, a list or a number rather than matched or decoded |
@@ -8222,6 +8222,28 @@ This chapter does not cover:
 | One place that describes a service and its endpoints | `api` | [Describe a service with api](#describe-a-service-with-api) |
 | A request made when something happens: a save, a delete, a step in a flow | `http.post(…)` in an action | [Ask on demand with http](#ask-on-demand-with-http) |
 | Content that is known at build time | `data` | [Read a file at build time with data](#read-a-file-at-build-time-with-data) |
+
+## How the pieces fit
+
+An app that talks to a service has five parts, each in its own place, and
+each knows only the one below it:
+
+| Part | What it is | Where it lives |
+|---|---|---|
+| The contract | What the service has: its endpoints, their parameters, answers and error statuses, and the types they carry | `api Backend.people { … }`, written by hand or by `wf api sync` from the service's OpenAPI spec |
+| The service | Where it is and how it is reached: the base, the timeout, retries, middleware, what a write makes stale | `api Backend(base: …) { … }` |
+| The data layer | The reads the app keeps and the writes it makes, and what each failure means here | a `store` holding `resource`s and actions |
+| The view | What the reader sees: one arm for each case of a read, one for each way a write can fail | a `page` or `component` that `match`es |
+| The test | The view and the data layer against a `fake` of the contract | `tests/`, run by `wf test` |
+
+A small page may put a `resource` straight in the page and skip the store;
+the rest stays the same. The parts below go from the bottom up: a read,
+the service and its contract, writes, then files read at build time. The
+recipes put them together:
+[Show the server's field errors on a form](/recipes/form-with-server-errors),
+[Refresh a list after a write](/recipes/refresh-after-a-write),
+[Test a page with a fake service](/recipes/test-with-a-fake) and
+[Call a service from its OpenAPI spec](/recipes/service-from-openapi).
 
 ## Show a request with `resource`
 
@@ -10574,6 +10596,9 @@ Forms, asking a server, showing what it answers, and writing back.
 - [Page through results](/recipes/page-through-results)
 - [Load more as the reader asks](/recipes/load-more)
 - [Update at once, and roll back on failure](/recipes/optimistic-updates)
+- [Show the server's field errors on a form](/recipes/form-with-server-errors)
+- [Refresh a list after a write](/recipes/refresh-after-a-write)
+- [Call a service from its OpenAPI spec](/recipes/service-from-openapi)
 - [Show what the network is doing](/recipes/show-the-network)
 - [Send a message as the page unloads](/recipes/send-on-unload)
 
@@ -10643,6 +10668,7 @@ More readers: other languages, and no network.
 Checking that a page does what it should before a reader finds out it does not.
 
 - [Test a page](/recipes/test-a-page)
+- [Test a page with a fake service](/recipes/test-with-a-fake)
 
 ## Ship
 
@@ -14182,6 +14208,80 @@ To change the query from an action instead of a link, call
 
 ---
 
+# Show the server's field errors on a form
+
+https://webfluent.monzeromer.dev/recipes/form-with-server-errors
+
+A form checks what it can before it sends (see
+[Show validation messages on a form](/recipes/validation-messages)), but only the
+server knows that an address is taken. When it answers `422` with the
+fields that failed, put each message under its field.
+
+**Needs:** a server that answers `POST /api/people` with the person it
+made, or `422` and `{ "errors": [{ "field": "email", "message": "…" }] }`.
+It claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
+```wf
+type Person { id: String, name: String, email: String }
+type NewPerson { name: String, email: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+/// Why adding someone can be refused: each status the server answers with,
+/// and `http` for the rest.
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    conflict(problem: Problem) on 409
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    post createPerson(body: NewPerson) at "people" -> Person ! CreatePersonError
+}
+
+page Join(path: "/", title: "Join", description: "Add yourself to the team.") {
+    state name = ""
+    state email = ""
+    state said = ""
+    validate name { required }
+    validate email { required  email }
+
+    Heading("Join the team").h1
+    Form(bind: form) {
+        on submit {
+            match await Backend.createPerson(body: NewPerson(name: name, email: email)) {
+                .ok(p) {
+                    said = "Welcome, {p.name}."
+                    form.reset()
+                }
+                .err(.unprocessableContent(problem)) {
+                    // Each field's message, by the field's name.
+                    form.apply(problem.errors.reduce((byField: [String: String], e: FieldError) => byField.with(e.field, e.message), {}))
+                }
+                .err(.conflict(problem)) { said = problem.detail ?? "You are already on the team." }
+                .err(.http(e)) { said = e.message }
+            }
+        }
+        Input(bind: name, label: "Name")
+        Input(bind: email, label: "Email").email
+        Button("Join", type: .submit, disabled: !form.valid).primary
+    }
+    Text(said)
+}
+```
+
+`form.apply(errors)` takes each field's message by the field's name and
+shows it under the control whose `name:` (or whose bound state) is that
+field, with the same accessible plumbing a `validate` rule uses; the focus
+goes to the first. The `match` covers every case of `Person !
+CreatePersonError`, so a status the server adds later is a build error
+here, not a silent nothing.
+
+
+
+---
+
 # Hand an element to a script
 
 https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script
@@ -16210,6 +16310,84 @@ platform itself.
 
 ---
 
+# Refresh a list after a write
+
+https://webfluent.monzeromer.dev/recipes/refresh-after-a-write
+
+After adding a todo, the list should show it, without a `reload()` written
+after every write. Say once, in the contract, which reads a write makes
+stale: when the write succeeds, every `resource` over one of them asks
+again, and the answer is drawn in place.
+
+**Needs:** a server with `GET /api/todos`, `POST /api/todos` and
+`DELETE /api/todos/<id>`. It claims `/`: paste it into a new project, or
+replace the starter's `src/pages/Home.wf` with it.
+
+```wf
+type Todo { id: String, title: String }
+type NewTodo { title: String }
+
+api Backend(base: "/api") { }
+
+api Backend.todos {
+    get list() at "todos" -> [Todo]!
+    post create(body: NewTodo) at "todos" -> Todo!
+        invalidates [list]
+    delete remove(id: String) at "todos/{id}" -> !
+        invalidates [list]
+}
+
+page Todos(path: "/", title: "Todos", description: "Todos that stay current.") {
+    state draft = ""
+    state said = ""
+    resource todos = Backend.todos.list()
+
+    Heading("Todos").h1
+    Input(bind: draft, label: "New todo")
+    Button("Add").primary {
+        on click {
+            match await Backend.todos.create(body: NewTodo(title: draft)) {
+                .ok(_) { draft = "" }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    match todos {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list, refreshing) {
+            if refreshing { Spinner.sm }
+            for todo in list by todo.id {
+                Row(justify: .between) {
+                    Text(todo.title)
+                    Button("Remove {todo.title}") {
+                        on click {
+                            match await Backend.todos.remove(id: todo.id) {
+                                .ok { }
+                                .err(e) { said = e.message }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Text(said)
+}
+```
+
+The list stays on the screen while it asks again — the read is `.loaded`
+with `refreshing` true — and a row whose key is still there keeps its
+nodes. A write's `invalidates` names reads of its own group, each with the
+write's own parameters as its arguments (`invalidates [list, byId(id)]`);
+a name it does not have is `N05`. For a contract `wf api` writes, say the
+same in the service's `invalidations { }` (see
+[Call a service from its OpenAPI spec](/recipes/service-from-openapi)).
+
+
+
+---
+
 # Render a template with data
 
 https://webfluent.monzeromer.dev/recipes/render-a-template
@@ -17908,6 +18086,85 @@ with the request.
 
 ---
 
+# Call a service from its OpenAPI spec
+
+https://webfluent.monzeromer.dev/recipes/service-from-openapi
+
+When the service publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let
+it write the contract: every endpoint, parameter, answer and error status,
+typed.
+
+**Needs:** the spec as a file in the project — the compiler never fetches,
+so download it first:
+
+```bash
+curl -o openapi.json https://api.example.com/openapi.json
+wf api add openapi.json --name Backend
+```
+
+`add` records the service in `webfluent.app.json`, writes
+`src/api/backend/service.wf` once — yours, where the base and the
+middleware go — and writes the contract into `src/api/backend/generated/`,
+one file a tag and `types.wf`. Call it like any `api`:
+
+```wf
+// What `wf api sync` writes, for a spec with a `people` tag:
+type Person { id: String, name: String }
+type PersonPage { items: [Person], nextCursor: String? }
+
+enum GetPersonError {
+    notFound(problem: Problem) on 404
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") {
+    // Yours: what a write makes stale and how a read pages, for the
+    // generated endpoints.
+    pagination {
+        people.listPeople pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)
+    }
+}
+
+api Backend.people {
+    get listPeople(q: String?, after: String?) at "people" -> PersonPage!
+    get getPerson(id: String) at "people/{id}" -> Person ! GetPersonError
+}
+
+page People(path: "/", title: "People", description: "Everyone on the team.") {
+    resource people = Backend.people.listPeople()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    if people.hasMore {
+        Button("More") { on click { people.loadMore() } }
+    }
+}
+```
+
+When the spec changes, run `wf api sync` and read the diff: a field
+renamed, a status added, is a build error where the program relies on the
+old one. In CI, `wf api check` fails while the files are behind the spec,
+and `wf check` warns `N07`.
+
+```bash
+wf api sync
+wf api check
+```
+
+A generated file is never edited — `sync` rewrites the folder whole, and
+refuses to touch a file in it without its marker. Customise beside it: a
+`type` of the program's own wins over the spec's, an endpoint the spec
+lacks goes in a group of your own, and `invalidations { }` and
+`pagination { }` go in `service.wf`. More in
+[Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file).
+
+
+
+---
+
 # Carry an element across a route change
 
 https://webfluent.monzeromer.dev/recipes/shared-element
@@ -19128,6 +19385,81 @@ on a Mac and Ctrl elsewhere, so a shortcut is tested by pressing it.
 
 ---
 
+# Test a page with a fake service
+
+https://webfluent.monzeromer.dev/recipes/test-with-a-fake
+
+A page that reads a service has nothing to show in a test until something
+answers. A `fake` answers a group's endpoints in place of the network, and
+the compiler holds it to the contract: every endpoint it answers, every
+parameter it reads, every answer's type.
+
+**Needs:** the page in `src/`, the fake and the tests under `tests/`; run
+them with `wf test`. Here they are one file, for the sake of the example.
+
+```wf
+type Person { id: String, name: String }
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    delete remove(id: String) at "people/{id}" -> !
+        invalidates [list]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) {
+            for p in list by p.id {
+                Button("Remove {p.name}") {
+                    on click {
+                        match await Backend.people.remove(id: p.id) {
+                            .ok { said = "{p.name} removed" }
+                            .err(_) { said = "{p.name} is still here" }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Text(said)
+}
+
+fake TwoPeople for Backend.people {
+    list() { .ok([Person(id: "1", name: "Ada"), Person(id: "2", name: "Grace")]) }
+    remove(id) { .err(.status(500, null)) }
+}
+
+test "lists the team"(fakes: [TwoPeople]) {
+    People
+    expect "Remove Ada"
+    expect "Remove Grace"
+}
+
+test "says when removing fails"(fakes: [TwoPeople]) {
+    People
+    click "Remove Ada"
+    expect "Ada is still here"
+    expect called Backend.people.remove
+}
+```
+
+A test that names `fakes:` runs in a browser, where the page makes its
+calls; nothing is sent. A call to an endpoint no fake answers fails the
+test and names it. With a contract from an OpenAPI spec,
+`fake Examples for Backend.people from examples` answers from the spec's
+examples. More in [Testing](/learn/16-testing#answer-a-service-with-fakes).
+
+
+
+---
+
 # Translate a site
 
 https://webfluent.monzeromer.dev/recipes/translate-a-site
@@ -20152,6 +20484,99 @@ component Counter(start: Number = 0) {
   compiler checks.
 - **The event is declared.** A caller that handles `on chnage` gets `E103`
   at build time, instead of a handler that never runs.
+
+## Data, as TanStack Query does it
+
+TanStack Query is a cache of requests a component asks for. In WebFluent
+the same jobs are split by where they belong: what the service has is a
+contract, how it is reached is the service, and what a page reads is a
+`resource` — one value with three cases.
+
+| TanStack Query | WebFluent |
+|---|---|
+| `useQuery({ queryKey: ["users", page], queryFn })` | `resource users = Backend.users.list(page: page)`: the arguments are followed, so a change of `page` asks again |
+| `isPending`, `isError`, `data`, `error` | one value: `match users { .loading … .failed(e) … .loaded(list) … }`; a `match` that leaves out `.failed` does not build |
+| `isFetching` with data on screen | `.loaded(list, refreshing, stale)`: the list stays, `refreshing` is true |
+| `staleTime`, `gcTime` | what the server's `Cache-Control` says (RFC 9111), or `cache: .swr(60.seconds)` on the endpoint |
+| `refetchOnWindowFocus`, `refetchInterval` | `refresh: .onFocus`, `refresh: .every(30.seconds)` |
+| `useMutation({ mutationFn })` | an action that calls the endpoint and `match`es its result |
+| `queryClient.invalidateQueries(["users"])` after a mutation | `invalidates [list]` on the write, in the contract: every read of it asks again, with no call written |
+| `onMutate` with a snapshot and `onError` rolling back | `let undo = Backend.users.list.update(list => …)`, and `undo()` when the write fails |
+| `useInfiniteQuery` with `getNextPageParam` | `pages .cursor(param: after, next: p => p.next)` on the endpoint; `users.loadMore()`, `users.hasMore` |
+| `retry: 3` | `retry: .backoff(times: 3)` on the service, for what is safe to send twice; a `POST` only when its endpoint is `idempotent` |
+| `error` typed `unknown` or `Error` | `-> User ! CreateUserError`: an error enum with a case for each status the server answers with, matched case by case |
+| `openapi-typescript`, `orval` | `wf api add openapi.json`: the contract as files, checked in CI with `wf api check` |
+| Mock Service Worker in tests | a `fake` of the contract, held to it by the compiler, named in the test's `fakes:` |
+
+The same list, with a create that refreshes it and a field error shown:
+
+```jsx
+function People() {
+  const qc = useQueryClient();
+  const { data, isPending, error } = useQuery({ queryKey: ["people"], queryFn: listPeople });
+  const add = useMutation({
+    mutationFn: createPerson,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["people"] }),
+  });
+  if (isPending) return <Spinner />;
+  if (error) return <Alert>{error.message}</Alert>;
+  return (
+    <>
+      {data.map((p) => <p key={p.id}>{p.name}</p>)}
+      <button onClick={() => add.mutate({ name: "Grace" })}>Add</button>
+      {add.error?.status === 422 && <p>{add.error.body.errors[0].message}</p>}
+    </>
+  );
+}
+```
+
+```wf
+type Person { id: String, name: String }
+type NewPerson { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    post create(body: NewPerson) at "people" -> Person ! CreatePersonError
+        invalidates [list]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add") {
+        on click {
+            match await Backend.people.create(body: NewPerson(name: "Grace")) {
+                .ok(_) { said = "" }
+                .err(.unprocessableContent(p)) { said = p.errors.first()?.message ?? "Check the name" }
+                .err(.http(e)) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}
+```
+
+- **No query keys.** A read is known by its endpoint and its arguments;
+  two readers of one address make one request.
+- **Invalidation is part of the contract**, said once beside the write,
+  and checked: a read the group does not have is `N05`.
+- **The error is typed.** Every status the server declares is a case, and a
+  `match` that misses one does not build.
 
 
 
@@ -23867,7 +24292,7 @@ wf serve
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf render TEMPLATE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
-| `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2, 3 or 4.1 project forward |
+| `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2, 3, 4.1 or 6 project forward |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to preview it |
 | `wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]` | Lists `public/` and where each file is used, or what the image pipeline makes of one picture |
 | `wf theme [-d, --dir DIR] [--json]` | Shows the theme the build uses: every token, declared or inherited, where each is used, and its contrast |
@@ -24490,7 +24915,7 @@ wf migrate
 wf migrate --wfx
 ```
 
-`wf migrate` makes three passes, in this order:
+`wf migrate` makes four passes, in this order:
 
 1. **4.1 → 4.2**, first, because 4.2 refuses `external`. A remote module
    becomes a `meta.scripts` entry. A local one becomes a plain script under
@@ -24510,6 +24935,13 @@ wf migrate --wfx
    or a link that ran one. Finally it lists the changes that need no edit:
    a store is built on first read rather than at boot, a `persist` value
    follows the site's other tabs, and `WF.store`/`WF.host` were renamed.
+4. **6 → 7** applies every fix the findings 7.0 brings carry — the request
+   forms 6.x had (`N08`), what each declaration holds, returns and fails
+   with (`T25`, `T26`, `N03`, `T32`, `T31`), the comparison a condition
+   meant (`T29`), a splice or a unit (`T34`) — until nothing is left to
+   fix, then lists every error a person decides, by place, and the changes
+   that need no edit. With `--check` it says what it would fix and writes
+   nothing.
 
 See also: [Upgrading](/errors/upgrading).
 

@@ -533,7 +533,7 @@ impl<'a> Spec<'a> {
                     ParamLocation::Cookie((pname != raw).then(|| raw.to_string())),
                 )),
                 _ if pname != raw => {
-                    locations.push((pname.clone(), ParamLocation::Query(raw.to_string())))
+                    locations.push((pname.clone(), ParamLocation::Query(raw.to_string())));
                 }
                 _ => {}
             }
@@ -1720,6 +1720,7 @@ pub fn group_decl(service: &str, group: &Group, span: Span) -> ApiDecl {
         name: format!("{service}.{}", group.name),
         settings: Vec::new(),
         headers: Vec::new(),
+        headers_span: Span::dummy(),
         hooks: Vec::new(),
         endpoints: group
             .endpoints

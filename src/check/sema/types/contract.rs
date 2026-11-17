@@ -215,7 +215,7 @@ impl Checker<'_, '_> {
                 format!("Write `at \"{}\"`", e.name),
                 Plan::InsertBefore {
                     anchor: "->".to_string(),
-                    text: format!("at \"{}\" ", e.name),
+                    text: format!(" at \"{}\"", e.name),
                 },
             );
         }

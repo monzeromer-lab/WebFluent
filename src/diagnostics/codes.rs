@@ -337,7 +337,7 @@ pub static CODES: &[CodeInfo] = &[
     ),
     code(
         "T20",
-        Warning,
+        Error,
         "A list or a record shown as text",
         "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.",
     ),

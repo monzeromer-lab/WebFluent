@@ -3777,6 +3777,7 @@ And what the type checker finds:
 | `T13` | A name, or a function called, that nothing declares — a ReferenceError in the browser. `event` (`e`), `value` and `key` are names only inside a handler. Not applied to a template rendered with data |
 | `T14` | A comparison that is always the same: `"1" == 1`, a record against a string, an enum against a case it does not have |
 | `T15` | A `match` with no `else` that misses a case of the enum, the result or the read, or one with a case twice. A `match` expression that covers every case needs no `else` |
+| `T20` | A list or a record shown as text — a list's items run together, a record shows `[object Object]` |
 | `T21` | A `match` over a read with no `.failed` arm and no `else`: a failed request shows nothing |
 | `T16` | A method a number, a string or a list does not have, with the nearest one that it does (`joined` → `join`) |
 | `T17` | An async action's result used before it is awaited; `await` outside an action, a handler, a timer or a hook (in a `derived` value or an effect); `.pending` on an action that awaits nothing |
@@ -3893,7 +3894,6 @@ paint alike.
 | `R04` | A relative `src:`/`href:` literal on a nested route, which resolves against the page's address |
 | `F04` | `Checkbox(checked: x)` with no `bind:` and no `on change`: the box toggles, the state does not |
 | `F05` | A `Select` whose bound state starts as none of its options |
-| `T20` | A list or a record shown as text — a list's items run together, a record shows `[object Object]` |
 | `D01` | A site-relative `src:`, `poster:`, `captions:`, `transcript:` or `spawn(…)` naming a file `public/` does not have |
 | `D03` | A `persist` in a component placed more than once, or in a loop, which every instance shares; `key:` gives each its own (`persist open = false { key: item.id }`) |
 | `D04` | A persisted value's shape changed since the last build with no `version:` raised (the shapes are kept in `.wf-cache/persist.json`) |
@@ -3930,7 +3930,17 @@ the editor's quick fixes apply the ones with a known fix. While a project
 catches up, `lints` lowers what ships no broken page and `// wf-allow(CODE)`
 accepts one finding on one line.
 
-`wf migrate [path] [--check] [--stdout]` does three things.
+**WebFluent 6 → 7** is strict, with no loose mode: what 6.x accepted and
+7.0 refuses is an error with its fix, and `wf migrate` applies those fixes
+until none is left — the request forms (`fetch` → `http.get`, `ready(v)` →
+`.loaded(v)`, `-> T` → `-> T!`, `:id` → `{id}`, `headers { }` →
+`middleware [header(…)]`), what each `state` holds, each action returns and
+fails with, each parameter takes, a condition's comparison, a splice or a
+unit, `try` for a result's value, an error enum's `http` case — then lists
+what a person decides. `lints` and `// wf-allow` cannot lower an error, and
+`T20` is one.
+
+`wf migrate [path] [--check] [--stdout]` does four things.
 
 **WebFluent 2 → 3** rewrites every `.wf` under `src/` in place, with a
 note for anything that needed a decision. It is a change of spelling and
@@ -3955,6 +3965,9 @@ a plain script under `src/` with its `export`s off and its declared
 signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element`
 call `Element("tag", …)`. It lists every `.js` already under `src/`, which
 now ships on every page.
+
+**WebFluent 6 → 7** runs last, over the project, as said above; `--check`
+says what it would fix and writes nothing.
 
 ## Configuration Reference (webfluent.app.json)
 

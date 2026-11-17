@@ -125,6 +125,7 @@ mod list_folds;
 mod markdown;
 #[path = "migrate_equivalence.rs"]
 mod migrate_equivalence;
+mod migrate_seven;
 #[path = "module_layers.rs"]
 mod module_layers;
 #[path = "motion.rs"]

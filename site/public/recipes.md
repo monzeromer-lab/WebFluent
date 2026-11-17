@@ -39,6 +39,9 @@ Forms, asking a server, showing what it answers, and writing back.
 - [Page through results](https://webfluent.monzeromer.dev/recipes/page-through-results.md)
 - [Load more as the reader asks](https://webfluent.monzeromer.dev/recipes/load-more.md)
 - [Update at once, and roll back on failure](https://webfluent.monzeromer.dev/recipes/optimistic-updates.md)
+- [Show the server's field errors on a form](https://webfluent.monzeromer.dev/recipes/form-with-server-errors.md)
+- [Refresh a list after a write](https://webfluent.monzeromer.dev/recipes/refresh-after-a-write.md)
+- [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)
 - [Show what the network is doing](https://webfluent.monzeromer.dev/recipes/show-the-network.md)
 - [Send a message as the page unloads](https://webfluent.monzeromer.dev/recipes/send-on-unload.md)
 
@@ -108,6 +111,7 @@ More readers: other languages, and no network.
 Checking that a page does what it should before a reader finds out it does not.
 
 - [Test a page](https://webfluent.monzeromer.dev/recipes/test-a-page.md)
+- [Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md)
 
 ## Ship
 

@@ -202,6 +202,20 @@ impl Checker<'_, '_> {
                 ),
                 &format!("Write `middleware [{}]` in its place", steps.join(", ")),
             );
+            // Its place, unless the service already names its middleware.
+            if a.headers_span.end > a.headers_span.start
+                && !a.settings.iter().any(|(k, _)| k == "middleware")
+            {
+                let text = format!("middleware [{}]", steps.join(", "));
+                self.plan_last(
+                    format!("Write `{text}`"),
+                    crate::diagnostics::fixes::Plan::Replace {
+                        start: a.headers_span.start as usize,
+                        end: a.headers_span.end as usize,
+                        text,
+                    },
+                );
+            }
         }
         for hook in &a.hooks {
             let now = match hook.event.as_str() {

@@ -960,6 +960,10 @@ struct Checker<'a, 'p> {
     /// What the action being checked declares it returns (`-> T`), beside
     /// `returns`; `None` where nothing is declared.
     declared_returns: Vec<Option<Type>>,
+    /// The errors each action being read passes up with `try` while it
+    /// declares nothing it returns: said once, at the action, with the
+    /// `-> ! E` that says so.
+    untyped_tries: Vec<Vec<Type>>,
     /// The span of the statement or argument being checked: where an
     /// expression's error lands, since expressions carry no span.
     current_span: Span,
@@ -1039,6 +1043,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             component: None,
             returns: Vec::new(),
             declared_returns: Vec::new(),
+            untyped_tries: Vec::new(),
             current_span: Span::dummy(),
             in_args: false,
             async_ok: false,
@@ -1272,12 +1277,30 @@ impl<'a, 'p> Checker<'a, 'p> {
             },
             _ => String::new(),
         };
+        // A result where its value is wanted: `try` gives the value, and
+        // passes the failure up.
+        let result_of_wanted =
+            matches!(given, Type::Result(value, _) if value.assignable_to(wanted));
+        let hint = if result_of_wanted {
+            "Take its value with `try`, which passes a failure up: `let rows: [Row] = try await http.get(url)`".to_string()
+        } else {
+            hint
+        };
         self.error(
             span,
             "T01",
             format!("{what} is `{given}`, but `{wanted}` is wanted"),
             &hint,
         );
+        if result_of_wanted {
+            self.plan_last(
+                "Write `try await`".to_string(),
+                crate::diagnostics::fixes::Plan::Rename {
+                    from: "await".to_string(),
+                    to: "try await".to_string(),
+                },
+            );
+        }
     }
 
     /// Why a map literal's shape — or a record — does not fit where the

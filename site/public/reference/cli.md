@@ -37,7 +37,7 @@ wf serve
 | `wf audit [PATH] [--json]` | Lists what the project trusts |
 | `wf fmt [PATH] [--check] [--stdout] [--to wf\|wfx]` | Formats sources, or switches their layout |
 | `wf render TEMPLATE [--data JSON] [-f, --format FORMAT] [-o, --output OUT] [--page NAME] [--lang LANG] [--theme NAME] [--token NAME=VALUE]` | Renders a template with data |
-| `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2, 3 or 4.1 project forward |
+| `wf migrate [PATH] [--check] [--stdout] [--wfx]` | Carries a WebFluent 2, 3, 4.1 or 6 project forward |
 | `wf commands [--json]` | Describes every command: its options, what it writes, and how to preview it |
 | `wf assets [-d, --dir DIR] [--unused] [--plan PATH] [--json]` | Lists `public/` and where each file is used, or what the image pipeline makes of one picture |
 | `wf theme [-d, --dir DIR] [--json]` | Shows the theme the build uses: every token, declared or inherited, where each is used, and its contrast |
@@ -660,7 +660,7 @@ wf migrate
 wf migrate --wfx
 ```
 
-`wf migrate` makes three passes, in this order:
+`wf migrate` makes four passes, in this order:
 
 1. **4.1 → 4.2**, first, because 4.2 refuses `external`. A remote module
    becomes a `meta.scripts` entry. A local one becomes a plain script under
@@ -680,6 +680,13 @@ wf migrate --wfx
    or a link that ran one. Finally it lists the changes that need no edit:
    a store is built on first read rather than at boot, a `persist` value
    follows the site's other tabs, and `WF.store`/`WF.host` were renamed.
+4. **6 → 7** applies every fix the findings 7.0 brings carry — the request
+   forms 6.x had (`N08`), what each declaration holds, returns and fails
+   with (`T25`, `T26`, `N03`, `T32`, `T31`), the comparison a condition
+   meant (`T29`), a splice or a unit (`T34`) — until nothing is left to
+   fix, then lists every error a person decides, by place, and the changes
+   that need no edit. With `--check` it says what it would fix and writes
+   nothing.
 
 See also: [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md).
 
