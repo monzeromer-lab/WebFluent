@@ -1,21 +1,28 @@
-//! `wf docs [-d DIR] [-o OUT]`: the component gallery ([`crate::gallery`]),
-//! written as `index.html`.
+//! `wf docs [-d DIR] [-o OUT]`: the project's components, documented as
+//! the reference documents the built-ins ([`crate::docs`]).
 
 use std::path::Path;
 
 use crate::diagnostics::error::Result;
 
 pub(crate) fn run_docs(project_dir: &Path, out: &Path) -> Result<()> {
-    let (html, builtins, declared) = crate::gallery::for_project(project_dir);
-    std::fs::create_dir_all(out)?;
-    let file = out.join("index.html");
-    std::fs::write(&file, html)?;
+    let out = if out.is_absolute() {
+        out.to_path_buf()
+    } else {
+        project_dir.join(out)
+    };
+    let written = crate::docs::write(project_dir, &out)?;
     println!(
-        "  docs: {builtins} built-in components{} → {}",
-        declared
-            .map(|n| format!(", {n} of the project's"))
-            .unwrap_or_default(),
-        file.display()
+        "  docs: {} component(s), {} example(s){} → {}",
+        written.components,
+        written.examples,
+        if written.made > 0 {
+            format!(" and {} made from props", written.made)
+        } else {
+            String::new()
+        },
+        written.out.display()
     );
+    println!("  Serve the folder to read it: its pages are linked from the site's root.");
     Ok(())
 }

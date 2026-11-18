@@ -27,15 +27,25 @@ Stack(gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `source` | `Picture or String  (positional)` | An `image` the program declares, or a URL |
-| `src:` | `String` | Image URL |
-| `sizes:` | `String` | How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px` |
-| `placeholder:` | `.blur .color .none` | What fills the box while the image loads |
-| `alt:` | `String` | Text alternative; empty for a purely decorative image |
-| `width:` | `Number` | Intrinsic width |
-| `height:` | `Number` | Intrinsic height |
-| `loading:` | `.lazy .eager` | Unset, the first image on a page is eager at high priority and the rest lazy |
-| `shape:` | `.rounded .circle` | Shape |
+| `source` | `Picture or String (positional)` | An `image` the program declares (a `<picture>` at every width the build wrote), or a URL |
+| `src:` | `String` | The picture's address. A literal path of `public/` to a PNG, JPEG, GIF or WebP is processed by the build like an `image`; an SVG, a URL or a `data:image/…` is used as written |
+| `sizes:` | `String` | How wide it will be shown, so the browser picks one of the widths the build wrote: `(max-width: 768px) 100vw, 1200px`; for a processed picture |
+| `placeholder:` | `one of its cases` | What fills the box of a processed picture while it loads, cleared when it lands. Written as a flag, `.blur`, or by name, `placeholder: .blur`.
+
+- `.blur`: A 16-pixel-wide blurred copy, inlined in the page
+- `.color`: The picture's average colour
+- `.none` (the default): Nothing (the default) |
+| `alt:` | `String` | Text alternative; `""` for a purely decorative image (`A01` when left out) |
+| `width:` | `Number` | The `<img>`'s `width` in px, so its box is reserved before it loads; ignored on a processed picture, which carries the file's real size |
+| `height:` | `Number` | The `<img>`'s `height` in px, so its box is reserved before it loads; ignored on a processed picture, which carries the file's real size |
+| `loading:` | `one of its cases` | When the browser fetches it. Written as a flag, `.lazy`, or by name, `loading: .lazy`.
+
+- `.lazy`: When it nears the viewport
+- `.eager`: At once |
+| `shape:` | `one of its cases` | Its corners. Written as a flag, `.rounded`, or by name, `shape: .rounded`.
+
+- `.rounded`: Rounded corners (`radius-md`)
+- `.circle`: Clipped to a circle (an ellipse, unless it is square) |
 
 ## Flags
 

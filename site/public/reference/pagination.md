@@ -22,10 +22,10 @@ Text("Showing page {page} of 12").muted.sm
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The current page, from 1 |
-| `pages:` | `Number  (required)` | How many pages there are |
-| `siblings:` | `Number` | How many pages either side of the current one it shows (unset, 1) |
-| `label:` | `String` | Its name for a screen reader; unset, `Pagination` |
+| `bind:` | `State (required)` | A Number state, the current page counted from 1: the buttons write it |
+| `pages:` | `Number (required)` | How many pages there are; the last button and Next stop there |
+| `siblings:` | `Number` | How many page buttons it shows on each side of the current one; the first and last always show, `…` stands for the rest |
+| `label:` | `String` | Its accessible name (`aria-label` on its `<nav>`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

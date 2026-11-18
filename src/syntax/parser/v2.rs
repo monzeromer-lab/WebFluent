@@ -25,7 +25,7 @@
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::v2::LexerV2;
 use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, FakeDecl, FakeAnswer, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Invalidation, InvalidTarget, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
+use crate::syntax::parser::ast::{Program, Statement, Span, EventDecl, SlotDecl, ComponentDecl, Declaration, ExampleDecl, PageDecl, Expr, StringPart, LayoutRef, PropDecl, StatementKind, ComponentRef, HeadTag, Arg, TypeRef, StoreDecl, AppDecl, ThemeToken, ThemeDecl, TypeDecl, FieldDecl, KeyFrame, AnimationDecl, DataDecl, Step, TestDecl, FakeDecl, FakeAnswer, ConstDecl, EnumCase, EnumDecl, EffectDecl, TimerStmt, UseDecl, ConnectionKind, ShowStmt, UIElement, StateDecl, StoreScope, PersistPolicy, Migration, DerivedDecl, ActionDecl, ParamDecl, ApiDecl, Endpoint, MiddlewareDecl, ParamLocation, Invalidation, InvalidTarget, Rule, ValidateDecl, ConnectionDecl, ResourceDecl, RequestSource, FetchOption, IfStmt, ForStmt, MatchArm, MatchStmt, ArmPattern, Pattern, SlotFill, EventHandler, TryStmt, EmitStmt, Assignment, StyleBlock, MediaQuery, PseudoBlock, StyleProperty, TransitionBlock, TransitionProperty, BinOp, UnaryOp};
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -201,9 +201,11 @@ pub const DECLARATION_WORDS: &[&str] = &[
     "const",
     "animation",
     "test",
+    "example",
     "data",
     "image",
     "fake",
+    "middleware",
     "external",
 ];
 const STATEMENT_WORDS: &[&str] = &[
@@ -611,6 +613,12 @@ impl ParserV2 {
                 "animation" => self.parse_animation_decl(doc)?,
                 "test" if matches!(self.kind_at(1), TokenType::StringLiteral(_)) => {
                     self.parse_test_decl()?
+                }
+                "example"
+                    if matches!(self.kind_at(1), TokenType::Identifier(_))
+                        && matches!(self.kind_at(2), TokenType::StringLiteral(_)) =>
+                {
+                    self.parse_example_decl(doc)?
                 }
                 "fake" if matches!(self.kind_at(1), TokenType::Identifier(_)) => {
                     self.parse_fake_decl(doc)?
@@ -1441,6 +1449,69 @@ impl ParserV2 {
             body,
             steps,
             span: self.span_since(mark),
+        }))
+    }
+
+    /// `example UserCard "A designer"(fakes: [OneUser]) { … }`.
+    fn parse_example_decl(&mut self, doc: Option<String>) -> Result<Declaration> {
+        let mark = self.mark();
+        self.expect_word("example")?;
+        let component = self.expect_ident("the component it shows")?;
+        let name = match self.kind().clone() {
+            TokenType::StringLiteral(s) => {
+                self.advance();
+                string_text(&s)
+            }
+            _ => return Err(self.error("Expected what the example shows, in quotes".into())),
+        };
+        let mut fakes = Vec::new();
+        if self.eat(&TokenType::OpenParen) {
+            while !self.check(&TokenType::CloseParen) && !self.at_end() {
+                let key = self.expect_ident("`fakes`")?;
+                self.expect(&TokenType::Colon, "`:`")?;
+                let value = self.parse_expression()?;
+                let names = match (&*key, &value) {
+                    ("fakes", Expr::ListLiteral(items)) => items
+                        .iter()
+                        .map(|i| match i {
+                            Expr::Identifier(n) => Some(n.clone()),
+                            _ => None,
+                        })
+                        .collect::<Option<Vec<_>>>(),
+                    _ => None,
+                };
+                let Some(names) = names else {
+                    return Err(self.error_with_hint(
+                        format!("`{key}:` is not something an example takes"),
+                        "An example takes `fakes: [OneUser]`, what answers the endpoints it calls",
+                    ));
+                };
+                fakes.extend(names);
+                if !self.check(&TokenType::CloseParen) {
+                    self.expect(&TokenType::Comma, "`,`")?;
+                }
+            }
+            self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+        let (body, body_span) = self.parse_render_block(Body::Test)?;
+        // A step is a test's: an example shows, it does not act.
+        if body.iter().any(|stmt| {
+            matches!(&stmt.kind, StatementKind::UIElement(el)
+                if matches!(&el.component, ComponentRef::BuiltIn(m) if m.starts_with("__")))
+        }) {
+            return Err(self.error_with_hint(
+                format!("example {component} \"{name}\" acts or expects: that is a test"),
+                "An example only draws: leave `expect`, `click`, `type` and `press` to a `test`",
+            ));
+        }
+        Ok(Declaration::Example(ExampleDecl {
+            component,
+            name,
+            doc,
+            fakes,
+            body,
+            span: self.span_since(mark),
+            body_span,
         }))
     }
 

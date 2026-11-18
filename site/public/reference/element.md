@@ -24,7 +24,7 @@ Element("stripe-pricing-table", pricingTableId: "prctbl_1Pq", publishableKey: "p
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `tag` | `String  (positional)` | The custom element's tag: lower case, with a hyphen, as every custom element's is |
+| `tag` | `String (positional)` | The custom element's tag: lower case, with a hyphen, as every custom element's is (`E116` otherwise) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

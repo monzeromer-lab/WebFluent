@@ -27,9 +27,9 @@ Row(gap: .lg, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `value:` | `Number` | How far along; unset, it turns |
-| `max:` | `Number` | The value when full (unset, 100) |
-| `label:` | `String` | What is progressing, for a screen reader |
+| `value:` | `Number` | How far along, out of `max:`, clamped to the ring; unset or `null`, the ring turns without a value |
+| `max:` | `Number` | The value at which the ring is full; `0` or not a number counts as 100 |
+| `label:` | `String` | What is progressing: the progress bar's accessible name (`aria-label`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

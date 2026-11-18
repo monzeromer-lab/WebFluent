@@ -27,10 +27,10 @@ Row(gap: .md, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `height:` | `String` | CSS height |
-| `width:` | `String` | CSS width |
-| `size:` | `String` | Diameter of a `circle` |
-| `circle:` | `Bool` | A round placeholder |
+| `height:` | `String` | Its height, a CSS length (`"20px"`, `"1.5rem"`); a value that reads state follows it |
+| `width:` | `String` | Its width, a CSS length (`"200px"`, `"60%"`) |
+| `size:` | `String` | The diameter of a `.circle`, a CSS length, used for any of `width:` and `height:` not given; ignored without `.circle` |
+| `circle:` | `Bool` | Round instead of a rounded rectangle, for an avatar's place. Written as a flag, `.circle`, or `circle: true`. |
 
 ## Flags
 

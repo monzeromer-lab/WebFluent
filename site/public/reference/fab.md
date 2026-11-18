@@ -26,8 +26,8 @@ Text(said).muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `icon:` | `String  (required)` | Its icon |
-| `label:` | `String  (required)` | What it does, for a screen reader and its tooltip |
+| `icon:` | `String (required)` | The icon on the round button, one of the built-in icon names; required with `label:`, or the call draws as a plain element |
+| `label:` | `String (required)` | What the button does: its accessible name and tooltip (`aria-label`, `title`); never shown |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -49,8 +49,8 @@ Fab.Action(_ label: String, icon: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | What it does |
-| `icon:` | `String` | Its icon |
+| `label` | `String (positional)` | The action's words, shown beside its icon while the dial is open |
+| `icon:` | `String` | An icon before the words, one of the built-in icon names |
 
 ## Drawn for it
 

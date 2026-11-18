@@ -30,10 +30,14 @@ Text(said).muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `title:` | `String` | Heading shown at the top |
-| `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `visible:` | `State` | Whether it is open: a `Bool` state, written back `false` when Escape, a press on the backdrop or its close button shuts it; a condition opens it but is not written |
+| `title:` | `String` | The heading at the top, and the accessible name; a value that reads state follows it; a `AlertDialog.Title` block draws the heading instead |
+| `dismiss:` | `one of its cases` | What closes it besides the page's own button and `visible:`; an alert dialog is answered, so a press beside it does nothing unless it says `.any`. Written as a flag, `.any`, or by name, `dismiss: .any`.
+
+- `.any`: Escape, or a press outside it
+- `.escape` (the default): Escape only: a press outside is the page's
+- `.none`: Neither: only the page's own button closes it, for what must be answered |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control; when it closes the focus goes back where it was |
 
 ## Flags
 

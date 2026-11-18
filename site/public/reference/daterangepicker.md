@@ -22,11 +22,11 @@ Text("{period.start:.date(medium)} to {period.end:.date(medium)}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The range: `{ start, end }` |
-| `label:` | `String  (required)` | What the range is |
-| `min:` | `Date` | The first day that can be chosen |
-| `max:` | `Date` | The last day that can be chosen |
-| `presets:` | `[RangePreset]` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
+| `bind:` | `State (required)` | The state it reads and writes: a `{ start, end }` of `Date`s, `end` null until the second day; the panel closes once both are chosen |
+| `label:` | `String (required)` | What the range is: the button's words (`Stay: 3 Mar 2026 – 9 Mar 2026` once chosen) and the panel's name |
+| `min:` | `Date` | The first day that can be chosen in either month |
+| `max:` | `Date` | The last day that can be chosen in either month |
+| `presets:` | `[RangePreset]` | Buttons above the months, each a range a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`, in the order listed |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

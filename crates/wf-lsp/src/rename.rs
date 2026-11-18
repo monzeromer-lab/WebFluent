@@ -114,6 +114,19 @@ pub fn uses(project: &Project, target: &Location, word: &str) -> Vec<(Url, Range
         let src: &str = &other.source;
         // A script is JavaScript, a page in Markdown is Markdown: neither is
         // WebFluent's to read for names.
+        // What a script declares is named in scripts too, which only the
+        // script's own reading finds.
+        if crate::scripts::is_script(project, ix) {
+            if crate::scripts::declaration(project, word).as_ref() == Some(target) {
+                for (line, col) in webfluent::project_js::scan::uses_of(src, word) {
+                    out.push((
+                        other.uri.clone(),
+                        other.index.word_range_at_line_col(src, line, col),
+                    ));
+                }
+            }
+            continue;
+        }
         let Some(toks) = analysis::tokens_of(other) else {
             continue;
         };
@@ -272,7 +285,7 @@ fn whole_word(text: &str, word: &str) -> Option<usize> {
     None
 }
 
-fn is_identifier(name: &str) -> bool {
+pub(crate) fn is_identifier(name: &str) -> bool {
     let mut chars = name.chars();
     matches!(chars.next(), Some(c) if c.is_alphabetic() || c == '_')
         && chars.all(|c| c.is_alphanumeric() || c == '_')

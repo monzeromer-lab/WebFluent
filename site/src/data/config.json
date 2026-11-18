@@ -21,7 +21,7 @@
    "section": "project",
    "type": "string",
    "default": "",
-   "summary": "The project's name, used where a title or a site name is not given."
+   "summary": "Which `theme` declaration is the site's. A project with exactly one need not name it; with none, the baseline applies."
   },
   {
    "path": "version",
@@ -29,7 +29,7 @@
    "section": "project",
    "type": "string",
    "default": "0.1.0",
-   "summary": "The project's version, as its author numbers it."
+   "summary": "The project's version, as you number it. Nothing in the build reads it."
   },
   {
    "path": "author",
@@ -37,7 +37,7 @@
    "section": "project",
    "type": "string",
    "default": "",
-   "summary": "Who wrote it."
+   "summary": "Who wrote it. Nothing in the build reads it."
   },
   {
    "path": "theme.name",
@@ -61,7 +61,7 @@
    "section": "theme",
    "type": "string",
    "default": "null",
-   "summary": "The `theme` declaration that stands in when the reader prefers dark, or `setTheme(\"dark\")` asks."
+   "summary": "The `theme` declaration that stands in for dark mode: when the reader prefers dark, or `setTheme(\"dark\")` asks (Styling)."
   },
   {
    "path": "theme.tokens",
@@ -77,7 +77,7 @@
    "section": "build",
    "type": "string",
    "default": "./build",
-   "summary": "The directory the site is written to, inside the project (outside it only with `--allow-output-outside`)."
+   "summary": "Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` (CLI)."
   },
   {
    "path": "build.output_type",
@@ -85,7 +85,7 @@
    "section": "build",
    "type": "\"spa\" | \"static\" | \"pdf\" | \"slides\" | \"elements\"",
    "default": "spa",
-   "summary": "What the project builds: a single page, a static site, a PDF, a slide deck, or custom elements."
+   "summary": "What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements (PDF and slides, custom elements)."
   },
   {
    "path": "build.minify",
@@ -93,7 +93,7 @@
    "section": "build",
    "type": "boolean",
    "default": "true",
-   "summary": "Minify the JavaScript and CSS; off, the output is readable and larger."
+   "summary": "Strips comments and whitespace from the scripts and stylesheets. Off, the output is readable and larger."
   },
   {
    "path": "build.sourcemap",
@@ -101,7 +101,7 @@
    "section": "build",
    "type": "boolean",
    "default": "false",
-   "summary": "Write source maps beside the JavaScript, so the browser's tools show the `.wf` lines."
+   "summary": "Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged."
   },
   {
    "path": "build.ssg",
@@ -109,7 +109,7 @@
    "section": "build",
    "type": "boolean",
    "default": "false",
-   "summary": "Pre-render every page as HTML, so it is read before any script runs."
+   "summary": "Pre-renders every page to its own HTML file, so it is read before any script runs (Static sites and SPAs)."
   },
   {
    "path": "build.base_path",
@@ -125,7 +125,7 @@
    "section": "build",
    "type": "\"file\" | \"directory\"",
    "default": "null",
-   "summary": "How a route's address is written so it never redirects: `file` keeps `/contact`, `directory` names it `/contact/`."
+   "summary": "How a route's address avoids a redirect on a host that adds a trailing slash. `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages (Deploy to GitHub Pages)."
   },
   {
    "path": "build.csp",
@@ -133,7 +133,7 @@
    "section": "build",
    "type": "boolean",
    "default": "false",
-   "summary": "Ship a strict content security policy: a third-party script is then blocked unless the policy names it."
+   "summary": "Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy (Security)."
   },
   {
    "path": "build.split",
@@ -149,7 +149,7 @@
    "section": "build",
    "type": "boolean",
    "default": "true",
-   "summary": "Write a gzipped copy of every text file beside it, for hosts that serve one."
+   "summary": "Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one."
   },
   {
    "path": "build.budget",
@@ -165,7 +165,7 @@
    "section": "build",
    "type": "\"auto\" | \"full\"",
    "default": "auto",
-   "summary": "`auto` ships only the runtime the program reaches; `full` all of it, for a script that calls it in ways the build cannot see."
+   "summary": "`auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see (Call WF from a script)."
   },
   {
    "path": "build.elements",
@@ -189,7 +189,7 @@
    "section": "build",
    "type": "\"webp\" | \"png\" | \"jpeg\"",
    "default": "[\"webp\"]",
-   "summary": "The formats an image is written in, best first."
+   "summary": "The formats every `image` is written in, best first, as well as its original."
   },
   {
    "path": "build.media.widths",
@@ -205,7 +205,7 @@
    "section": "build",
    "type": "integer (1–100)",
    "default": "78",
-   "summary": "How much an image keeps when it is re-encoded, 1 to 100."
+   "summary": "The encoding quality. WebP and JPEG are lossy at it. A file no smaller than the original is not written."
   },
   {
    "path": "build.pdf.page_size",
@@ -213,7 +213,7 @@
    "section": "build",
    "type": "string",
    "default": "A4",
-   "summary": "The page: `A4`, `Letter`, or a width and height in points."
+   "summary": "`A3`, `A4`, `A5`, `A6`, `B5`, `Letter`, `Legal`, `Tabloid` (or `Ledger`), `Executive`, or two lengths (`\"210mm 297mm\"`, `\"800x600\"`). A `Document(size:)` overrides it."
   },
   {
    "path": "build.pdf.margins.top",
@@ -253,7 +253,7 @@
    "section": "build",
    "type": "string",
    "default": "Helvetica",
-   "summary": "The font text is set in when nothing says otherwise."
+   "summary": "The document's family when its stylesheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`."
   },
   {
    "path": "build.pdf.default_font_size",
@@ -333,7 +333,7 @@
    "section": "build",
    "type": "number",
    "default": "60.0",
-   "summary": "The margin around every slide, in points."
+   "summary": "The space around each slide's content, in points. What runs past it is clipped."
   },
   {
    "path": "build.slides.show_slide_numbers",
@@ -365,7 +365,7 @@
    "section": "build",
    "type": "string",
    "default": "null",
-   "summary": "The colour of the numbers and the footer; unset, chosen from each slide's background."
+   "summary": "The colour of the numbers and the footer. Unset, it flips between dark and light on each slide's background."
   },
   {
    "path": "build.slides.output_filename",
@@ -405,7 +405,7 @@
    "section": "dev",
    "type": "boolean",
    "default": "true",
-   "summary": "Reload the page in the browser when a build finishes."
+   "summary": "Rebuilds on a save, reloads open tabs, and draws a failed build's error over the page."
   },
   {
    "path": "meta.title",
@@ -429,7 +429,7 @@
    "section": "meta",
    "type": "string",
    "default": "en",
-   "summary": "The language the pages are written in, as a tag: `en`, `ar`, `pt-BR`."
+   "summary": "The document's language: `en`, `ar`, `pt-BR`. A page written in another language says so with its own `lang:`."
   },
   {
    "path": "meta.favicon",
@@ -437,7 +437,7 @@
    "section": "meta",
    "type": "file",
    "default": "",
-   "summary": "The icon a tab shows: a file in `public/` or a URL."
+   "summary": "The icon a browser tab shows: a file in `public/` — an SVG scales to every size — or a URL."
   },
   {
    "path": "meta.touch_icon",
@@ -445,7 +445,7 @@
    "section": "meta",
    "type": "file",
    "default": "",
-   "summary": "The icon a phone puts on its home screen: a 180×180 PNG in `public/`."
+   "summary": "The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`."
   },
   {
    "path": "meta.site_url",
@@ -453,7 +453,7 @@
    "section": "meta",
    "type": "string",
    "default": "",
-   "summary": "The site's own origin — `https://example.com` — without which no canonical link or sitemap is written."
+   "summary": "The site's absolute address, such as `https://example.com`. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed."
   },
   {
    "path": "meta.site_name",
@@ -469,7 +469,7 @@
    "section": "meta",
    "type": "\"organization\" | \"person\"",
    "default": "organization",
-   "summary": "Whether the site belongs to an organisation or a person, for the structured data it publishes."
+   "summary": "Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (Search and link previews)."
   },
   {
    "path": "meta.same_as",
@@ -493,7 +493,7 @@
    "section": "meta",
    "type": "map",
    "default": "null",
-   "summary": "More of what the owner is, as schema.org properties: an email, a logo, where they work."
+   "summary": "More about the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above; naming one here is `E111`."
   },
   {
    "path": "meta.image",
@@ -501,7 +501,7 @@
    "section": "meta",
    "type": "file",
    "default": "",
-   "summary": "The image a link to a page shows when shared, for a page that does not name its own."
+   "summary": "The sharing image for pages that set none. For an image in `public/`, its size is read into `og:image:width` and `og:image:height`."
   },
   {
    "path": "meta.image_alt",
@@ -509,7 +509,7 @@
    "section": "meta",
    "type": "string",
    "default": "",
-   "summary": "What the sharing image shows, for a reader who cannot see it."
+   "summary": "What that image shows, as `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins."
   },
   {
    "path": "meta.sitemap",
@@ -525,7 +525,7 @@
    "section": "meta",
    "type": "strings",
    "default": "[]",
-   "summary": "Web-font stylesheets to load, by URL, before the site's own styles."
+   "summary": "Web-font stylesheets to link, each with a `preconnect`. Their origins join the policy."
   },
   {
    "path": "meta.preload",
@@ -533,7 +533,7 @@
    "section": "meta",
    "type": "strings",
    "default": "[]",
-   "summary": "Files to fetch early, before the page asks for them: a font, a hero image."
+   "summary": "Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` (Search and link previews)."
   },
   {
    "path": "meta.stylesheets",
@@ -549,7 +549,7 @@
    "section": "meta",
    "type": "scripts",
    "default": "[]",
-   "summary": "Scripts every page loads — a library, an analytics tag — and the globals they define."
+   "summary": "Libraries to load before the project's own scripts (below). Their origins join the policy (JavaScript interop)."
   },
   {
    "path": "meta.integrity",
@@ -565,7 +565,7 @@
    "section": "meta",
    "type": "strings",
    "default": "[]",
-   "summary": "The origins a page may fetch from or connect to, beyond its own, under the security policy."
+   "summary": "Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `\"https://api.example.com\"`, `\"https://*.google-analytics.com\"`, or an app's own scheme alone, `\"ipc:\"`."
   },
   {
    "path": "meta.img",
@@ -573,7 +573,7 @@
    "section": "meta",
    "type": "strings",
    "default": "[]",
-   "summary": "The origins a page may show images from, beyond its own, under the security policy."
+   "summary": "Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `\"https://images.example.com\"`, `\"https://www.googletagmanager.com\"`."
   },
   {
    "path": "meta.frame",
@@ -581,7 +581,7 @@
    "section": "meta",
    "type": "strings",
    "default": "[]",
-   "summary": "The origins a page may show in a frame, under the security policy."
+   "summary": "Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`, or an app's own scheme alone, `\"wfpreview:\"`."
   },
   {
    "path": "meta.wasm",
@@ -589,7 +589,7 @@
    "section": "meta",
    "type": "boolean",
    "default": "false",
-   "summary": "Let a page run WebAssembly, under the security policy."
+   "summary": "The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval`."
   },
   {
    "path": "meta.style_elements",
@@ -597,7 +597,7 @@
    "section": "meta",
    "type": "boolean",
    "default": "false",
-   "summary": "Let a library write `<style>` elements, under the security policy."
+   "summary": "A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only."
   },
   {
    "path": "motion.duration",
@@ -621,7 +621,7 @@
    "section": "env",
    "type": "map",
    "default": "{}",
-   "summary": "Values the program reads as `env.NAME`, set per build."
+   "summary": "Values read as `env.NAME`, fixed at build time. A `.env` file and the shell's variables add to them."
   },
   {
    "path": "public_env",
@@ -669,7 +669,7 @@
    "section": "offline",
    "type": "boolean",
    "default": "false",
-   "summary": "Queue a write made while offline, and send it when the connection returns."
+   "summary": "Keeps a write safe to send twice — a `PUT` or a `DELETE` — that failed for want of a network, and sends it, in order, when the connection returns. A `POST` or a `PATCH` is kept only when its endpoint is marked `idempotent`; any other fails as `.offline(queued: false)`."
   },
   {
    "path": "i18n.default_locale",

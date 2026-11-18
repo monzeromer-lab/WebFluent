@@ -44,7 +44,7 @@ page Team(path: "/", title: "Team", description: "Three people, three cards.") {
     UserCard("Ann", role: "PM").active
 }"#, title: "wf")
 
-        Markdown("The rules for props:\n\n- `_ name: Type` marks the one prop a call may pass positionally. It must be the first prop. Every other prop is passed by name.\n- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a function), `Json`, or a declared `type` or `enum`. See [Types](/learn/12-types) for the whole type language.\n- `= expr` gives a prop a default, so a call may leave it out. A `T?` prop with no default defaults to `null`.\n- A `Bool` prop is set with a flag, `.active`, or by name, `active: false`.\n- A `///` comment above the component or above a prop is its documentation. The editor shows it on hover, and `wf docs` prints it.")
+        Markdown("The rules for props:\n\n- `_ name: Type` marks the one prop a call may pass positionally. It must be the first prop. Every other prop is passed by name.\n- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a function), `Json`, or a declared `type` or `enum`. See [Types](/learn/12-types) for the whole type language.\n- `= expr` gives a prop a default, so a call may leave it out. A `T?` prop with no default defaults to `null`.\n- A `Bool` prop is set with a flag, `.active`, or by name, `active: false`.\n- A `///` comment above the component or above a prop is its documentation. The editor shows it on hover, and `wf docs` writes it on the component's page.")
 
         DocsCallout("**Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](/coming-from/react).", kind: .note)
 
@@ -343,7 +343,35 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 
         Heading("Document it", id: "document-it").h3
 
-        Markdown("A `///` comment above the component, a prop or an event is shown on hover in the editor and in the gallery `wf docs` writes.")
+        Markdown("A `///` comment above the component, a prop or an event is shown on hover in the editor, and on the component's page of the site `wf docs` writes.\n\nAn `example` shows one way to use it. It names the component and says what it shows; its body is a page's — elements, `state`, handlers:")
+
+        DocsCodeBlock(#"/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card {
+        Text(name).bold
+        Text(role).muted
+        if active { Badge("Active").success }
+    }
+}
+
+/// The usual case.
+example UserCard "A designer" {
+    UserCard("Sam", role: "Designer")
+}
+
+example UserCard "Away" {
+    state here = false
+    UserCard("Ada", role: "Engineer", active: here)
+    Button("Back") { on click { here = true } }
+}"#, title: "wf")
+
+        Markdown("An example is checked as a page is — a component nothing declares is `E101`, a wrong value `T01` — and a build leaves it out. `wf docs` draws each one live, in the project's own theme, beside its source; a component with none is drawn from its props, each one it needs given a value of its type. Keep the examples beside the component, or in a file of their own under `src/`. An example only draws: what it does when clicked belongs in a [test](/learn/16-testing).")
+
+        Terminal(lines: [
+                Line(command: "wf docs")
+            ])
+
+        Markdown("The site is written to `docs/` in the design of this reference, light and dark: a page a component, with its examples, props, events, slots and parts, and pages for the project's types, stores and routes. Serve the folder to read it.")
 
         Heading("Other people's code", id: "other-people-s-code").h2
 

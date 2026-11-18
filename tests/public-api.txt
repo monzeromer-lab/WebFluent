@@ -2009,6 +2009,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::js_scan::Typede
 pub fn webfluent::syntax::js_scan::jsdoc_typeref(&str) -> webfluent::syntax::parser::TypeRef
 pub fn webfluent::syntax::js_scan::scan(&str) -> webfluent::syntax::js_scan::Scan
 pub fn webfluent::syntax::js_scan::typedefs(&str) -> alloc::vec::Vec<webfluent::syntax::js_scan::Typedef>
+pub fn webfluent::syntax::js_scan::uses_of(&str, &str) -> alloc::vec::Vec<(usize, usize)>
 pub mod webfluent::syntax::layout
 pub fn webfluent::syntax::layout::to_braces(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
 pub fn webfluent::syntax::layout::to_offside(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
@@ -2285,6 +2286,7 @@ pub webfluent::syntax::parser::ast::Declaration::Component(webfluent::syntax::pa
 pub webfluent::syntax::parser::ast::Declaration::Const(webfluent::syntax::parser::ConstDecl)
 pub webfluent::syntax::parser::ast::Declaration::Data(webfluent::syntax::parser::DataDecl)
 pub webfluent::syntax::parser::ast::Declaration::Enum(webfluent::syntax::parser::EnumDecl)
+pub webfluent::syntax::parser::ast::Declaration::Example(webfluent::syntax::parser::ExampleDecl)
 pub webfluent::syntax::parser::ast::Declaration::Fake(webfluent::syntax::parser::FakeDecl)
 pub webfluent::syntax::parser::ast::Declaration::Middleware(webfluent::syntax::parser::MiddlewareDecl)
 pub webfluent::syntax::parser::ast::Declaration::Page(webfluent::syntax::parser::PageDecl)
@@ -2928,6 +2930,25 @@ impl core::marker::Unpin for webfluent::syntax::parser::EventHandler
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EventHandler
+pub struct webfluent::syntax::parser::ast::ExampleDecl
+pub webfluent::syntax::parser::ast::ExampleDecl::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
+pub webfluent::syntax::parser::ast::ExampleDecl::body_span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::ast::ExampleDecl::component: alloc::string::String
+pub webfluent::syntax::parser::ast::ExampleDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ast::ExampleDecl::fakes: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::ast::ExampleDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ast::ExampleDecl::span: webfluent::syntax::parser::Span
+impl core::clone::Clone for webfluent::syntax::parser::ExampleDecl
+pub fn webfluent::syntax::parser::ExampleDecl::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::ExampleDecl
+pub fn webfluent::syntax::parser::ExampleDecl::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::ExampleDecl
+impl core::marker::Send for webfluent::syntax::parser::ExampleDecl
+impl core::marker::Sync for webfluent::syntax::parser::ExampleDecl
+impl core::marker::Unpin for webfluent::syntax::parser::ExampleDecl
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ExampleDecl
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ExampleDecl
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ExampleDecl
 pub struct webfluent::syntax::parser::ast::FakeAnswer
 pub webfluent::syntax::parser::ast::FakeAnswer::body: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::FakeAnswer::endpoint: alloc::string::String
@@ -3877,6 +3898,7 @@ pub webfluent::syntax::parser::Declaration::Component(webfluent::syntax::parser:
 pub webfluent::syntax::parser::Declaration::Const(webfluent::syntax::parser::ConstDecl)
 pub webfluent::syntax::parser::Declaration::Data(webfluent::syntax::parser::DataDecl)
 pub webfluent::syntax::parser::Declaration::Enum(webfluent::syntax::parser::EnumDecl)
+pub webfluent::syntax::parser::Declaration::Example(webfluent::syntax::parser::ExampleDecl)
 pub webfluent::syntax::parser::Declaration::Fake(webfluent::syntax::parser::FakeDecl)
 pub webfluent::syntax::parser::Declaration::Middleware(webfluent::syntax::parser::MiddlewareDecl)
 pub webfluent::syntax::parser::Declaration::Page(webfluent::syntax::parser::PageDecl)
@@ -4520,6 +4542,25 @@ impl core::marker::Unpin for webfluent::syntax::parser::EventHandler
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::EventHandler
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::EventHandler
+pub struct webfluent::syntax::parser::ExampleDecl
+pub webfluent::syntax::parser::ExampleDecl::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
+pub webfluent::syntax::parser::ExampleDecl::body_span: webfluent::syntax::parser::Span
+pub webfluent::syntax::parser::ExampleDecl::component: alloc::string::String
+pub webfluent::syntax::parser::ExampleDecl::doc: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ExampleDecl::fakes: alloc::vec::Vec<alloc::string::String>
+pub webfluent::syntax::parser::ExampleDecl::name: alloc::string::String
+pub webfluent::syntax::parser::ExampleDecl::span: webfluent::syntax::parser::Span
+impl core::clone::Clone for webfluent::syntax::parser::ExampleDecl
+pub fn webfluent::syntax::parser::ExampleDecl::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::ExampleDecl
+pub fn webfluent::syntax::parser::ExampleDecl::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::ExampleDecl
+impl core::marker::Send for webfluent::syntax::parser::ExampleDecl
+impl core::marker::Sync for webfluent::syntax::parser::ExampleDecl
+impl core::marker::Unpin for webfluent::syntax::parser::ExampleDecl
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::ExampleDecl
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::ExampleDecl
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::ExampleDecl
 pub struct webfluent::syntax::parser::FakeAnswer
 pub webfluent::syntax::parser::FakeAnswer::body: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::FakeAnswer::endpoint: alloc::string::String

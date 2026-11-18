@@ -32,7 +32,7 @@ Unsafe.Html(_ markup: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `markup` | `String  (positional)` | The HTML to insert |
+| `markup` | `String (positional)` | The HTML to insert, as it is: not sanitised (wrap it in `sanitize(…)` unless the project wrote it); every use is a `V03` |
 
 ## What it can raise
 

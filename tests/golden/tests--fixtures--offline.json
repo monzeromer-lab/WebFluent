@@ -17,9 +17,9 @@
     "pages/Home.js.gz": "e9f34f8aed1bffb57f0dfe0fea1a6bfceb816abd7c4b61bdec9b5ab8d14e35ad",
     "pages/Offline.js": "80e598a2270759cb243450d8df9adb77ef74ec390df381ed953b696590237282",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "df1e880187e795a31f1b8c897f08f178f0dfe6c24cb45c677d6a91d044318914",
-    "styles.css.gz": "2de45659e5c3992f53dd598c624d07662dcb3167b172238c5c06276987a565c9",
-    "sw.js": "7abf8ac23cb3807a6747ec5d931330b174fd785e64a123915e62c7d19fe309c0",
-    "sw.js.gz": "f38c62f98a3fe3a58e237aef8a02ddd110e148e585dff8b2eb55f0cbfb37753b"
+    "styles.css": "e6dfc1411128f1401315112fcbdb1f0c0312ba7a90e98faca6849a77d6267b37",
+    "styles.css.gz": "ce67cc97faaafdc6456499ba56b32356ccf626570ea9be143751a16ba7e9c8be",
+    "sw.js": "296cf0b1f17c5cacd9f60316355c752ab641b82e9e5b5905f94e34fe22b979d5",
+    "sw.js.gz": "8f243bb3a592419fbbe2230bb46991643843fa1a08d765e98227807e2feb3ecd"
   }
 }

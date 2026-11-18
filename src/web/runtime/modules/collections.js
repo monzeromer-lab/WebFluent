@@ -498,7 +498,12 @@
         busy.set(true);
         try {
           const result = await opts.search(q);
-          if (mine === asked) found.set(Array.isArray(result) ? result : []);
+          // `search:` may hand back the list, or a call's result: `.ok` of
+          // the list, `.err` of why (`q => Geo.cities(q: q)`). The result
+          // used to be taken for the list, and offered "ok" as an option.
+          const asResult = Array.isArray(result) && result.length === 2 && (result[0] === "err" || (result[0] === "ok" && Array.isArray(result[1])));
+          const list = asResult ? (result[0] === "ok" ? result[1] : []) : result;
+          if (mine === asked) found.set(Array.isArray(list) ? list : []);
         } catch (e) {
           if (mine === asked) found.set([]);
         } finally {

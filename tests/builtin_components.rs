@@ -820,6 +820,9 @@ fn stylesheet_variants_are_reachable_from_the_registry() {
         "exit",  // Toast animation state
         // Row/Stack/Grid `align:` and `justify:` values (see `layout_arg_classes`)
         "start", "end", "stretch", "baseline", "between", "around", "evenly",
+        // `direction: .row` / `.column` (see `layout_arg_classes`)
+        "row", "column", // A dialog's heading row with no title, only its close button
+        "bare",
     ];
 
     let mut unreachable: Vec<String> = Vec::new();

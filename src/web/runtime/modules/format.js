@@ -50,6 +50,8 @@
       case "relative":
         return ago(value);
       default:
+        // Text that is not a number is shown as it is, as the build does.
+        if (style == null && typeof value === "string" && value.trim() !== "" && Number.isNaN(Number(value))) return value;
         return new Intl.NumberFormat(locale).format(Number(value));
     }
   }

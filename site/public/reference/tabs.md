@@ -32,11 +32,17 @@ Text("Open: {tab}").muted.sm
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none |
-| `value:` | `String or Number` | The open tab, read only: `on change(v)` hears the one the reader picks |
-| `orientation:` | `.horizontal .vertical` | Which way the tabs run |
-| `activation:` | `.automatic .manual` | Whether moving the focus opens a tab |
-| `label:` | `String` | The tab strip's accessible name |
+| `bind:` | `State` | The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none; a value no page has opens the first |
+| `value:` | `String or Number` | The open tab, read only: a press does not change it, only `on change(v)` hears the one picked — for a page that sets it itself |
+| `orientation:` | `one of its cases` | Which way the tabs run, and which arrow keys move between them; a flag, `.vertical`. Written as a flag, `.horizontal`, or by name, `orientation: .horizontal`.
+
+- `.horizontal` (the default): Tabs in a row; ArrowLeft and ArrowRight move (the default)
+- `.vertical`: Tabs in a column (`aria-orientation="vertical"`); ArrowUp and ArrowDown move |
+| `activation:` | `one of its cases` | Whether moving the focus opens a tab; a flag, `.manual`. Written as a flag, `.automatic`, or by name, `activation: .automatic`.
+
+- `.automatic` (the default): A tab opens as the focus reaches it (the default)
+- `.manual`: The focus moves alone; Enter or Space opens the tab, for panels slow to draw |
+| `label:` | `String` | The tab strip's accessible name (`aria-label` on its `tablist`) |
 
 ## Flags
 
@@ -66,9 +72,9 @@ Tabs.Page(_ label: String, value: String or Number, disabled: Bool) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The tab's label |
+| `label` | `String (positional)` | The words on its tab button |
 | `value:` | `String or Number` | What the Tabs' `bind:` holds while this tab is open |
-| `disabled:` | `Bool` | Shown, but not opened: the arrow keys pass over it |
+| `disabled:` | `Bool` | Shown, but cannot be opened: the button is disabled and the arrow keys pass over it; `.disabled`, or `disabled: value` to follow state. Written as a flag, `.disabled`, or `disabled: true`. |
 
 Flags: `.disabled`
 

@@ -28,8 +28,8 @@ Button("Finish saving") { on click { saving = false } }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `visible:` | `Bool  (required)` | While it holds, the region is busy |
-| `label:` | `String` | What it is busy with (unset, `Loading`) |
+| `visible:` | `Bool (required)` | While it holds, the region is busy: `aria-busy`, its content `inert`, a spinner and `label:` drawn over it; any `Bool` expression, read and never written. Written as a flag, `.visible`, or `visible: true`. |
+| `label:` | `String` | What it is busy with, shown under the spinner and read by a screen reader |
 
 ## Flags
 

@@ -22,8 +22,8 @@ Presentation {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `src:` | `String` | Image path (required) |
-| `caption:` | `String` | Caption under the image |
+| `src:` | `String` | The picture's path, centred on the slide; a slide with none draws an empty image |
+| `caption:` | `String` | A line under the picture, which is also its `alt` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

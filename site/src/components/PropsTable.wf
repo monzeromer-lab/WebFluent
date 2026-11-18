@@ -1,38 +1,35 @@
 /// The props of one entry, as the reference lists them: the name in mono
-/// link ink, the type or the cases in mono, and one line of meaning.
-/// `nameLabel` and `typeLabel` head the first two columns when its rows are
-/// not props.
-component PropsTable(rows: [PropsRow], caption: String = "Props", nameLabel: String = "", typeLabel: String = "") {
-    DataTable(rows: rows, key: r => r.name, label: caption, class: "props-table") {
-        style {
-            width: 100%
-            border: 1px solid $line
-            border-radius: 0
-            background: $sheet
-            // The same three shares in every table, so the tables of one
-            // page line up, and the meaning has the most room.
-            & table { table-layout: fixed }
-            & th { text-align: start; padding: 8px 12px; background: $ground; border-bottom: 1px solid $line; font-size: 12px; line-height: 18px; font-weight: 600; color: $muted }
-            // On a phone the meaning needs the room; the type is a word.
-            & th:first-child { width: 26% }
-            & th:nth-child(2) { width: 18% }
-            & td { padding: 7px 12px; border-bottom: 1px solid $line; vertical-align: top; font-size: 13px; line-height: 20px; color: $muted }
-            & td:first-child { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $link; overflow-wrap: anywhere }
-            & td:nth-child(2) { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $ink; overflow-wrap: anywhere }
-            & td .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $muted }
-            & td .wf-markdown code { font-size: 12px }
-            & tr:last-child td { border-bottom: 0 }
-        }
-        // `--dir, -d DIR`: each spelling on a line of its own, never broken
-        // at its hyphen.
-        DataTable.Column(if nameLabel != "" { nameLabel } else { t("ref.prop") }) {
-            cell(row) {
-                for spelling, i in row.name.split(", ") by i {
-                    Text(spelling) { style { margin: 0; white-space: nowrap; color: inherit; font: inherit } }
+/// link ink, the type or the cases in mono, what it is when a call leaves it
+/// out (`defaults`), and what it does. `nameLabel` and `typeLabel` head the
+/// first two columns when its rows are not props. Its look is
+/// `.props-table` in blueprint.css, so its two shapes share it.
+component PropsTable(rows: [PropsRow], caption: String = "Props", nameLabel: String = "", typeLabel: String = "", defaults: Bool = false) {
+    if defaults {
+        DataTable(rows: rows, key: r => r.name, label: caption, class: "props-table props-table--defaults") {
+            DataTable.Column(if nameLabel != "" { nameLabel } else { t("ref.prop") }) {
+                cell(row) {
+                    for spelling, i in row.name.split(", ") by i {
+                        Text(spelling, class: "props-table__name")
+                    }
                 }
             }
+            DataTable.Column(if typeLabel != "" { typeLabel } else { t("ref.type") }, value: r => r.type)
+            DataTable.Column(t("ref.default")) { cell(row) { Markdown(if row.default == "" { "—" } else { row.default }) } }
+            DataTable.Column(t("ref.meaning")) { cell(row) { Markdown(row.meaning) } }
         }
-        DataTable.Column(if typeLabel != "" { typeLabel } else { t("ref.type") }, value: r => r.type)
-        DataTable.Column(t("ref.meaning")) { cell(row) { Markdown(row.meaning) } }
+    } else {
+        DataTable(rows: rows, key: r => r.name, label: caption, class: "props-table") {
+            // `--dir, -d DIR`: each spelling on a line of its own, never
+            // broken at its hyphen.
+            DataTable.Column(if nameLabel != "" { nameLabel } else { t("ref.prop") }) {
+                cell(row) {
+                    for spelling, i in row.name.split(", ") by i {
+                        Text(spelling, class: "props-table__name")
+                    }
+                }
+            }
+            DataTable.Column(if typeLabel != "" { typeLabel } else { t("ref.type") }, value: r => r.type)
+            DataTable.Column(t("ref.meaning")) { cell(row) { Markdown(row.meaning) } }
+        }
     }
 }

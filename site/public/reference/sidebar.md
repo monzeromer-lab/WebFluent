@@ -61,9 +61,11 @@ Sidebar.Item(to: Path, icon: String, active: Enum) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
-| `icon:` | `String` | Icon shown before the label |
-| `active:` | `.prefix` | How the link decides it is the current one |
+| `to:` | `Path` | The route it links to, navigated in place; while it matches the current route the item carries `.active` and `aria-current="page"`. Unset, the item is not a link |
+| `icon:` | `String` | The name of a built-in icon, drawn before its words |
+| `active:` | `one of its cases` | How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.
+
+- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms` |
 
 Flags: `.prefix`
 

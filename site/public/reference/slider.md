@@ -22,13 +22,13 @@ Text("Volume: {volume}%").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `min:` | `Number` | Lowest value |
-| `max:` | `Number` | Highest value |
-| `step:` | `Number` | Granularity |
-| `range:` | `Bool` | Two thumbs, a low and a high: `bind:` holds `[low, high]` |
-| `label:` | `String` | Visible label; also the control's accessible name |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `bind:` | `State` | The `Number` state it reads and writes as it is dragged; with `.range` a `[Number]` holding `[low, high]`. Its value is shown beside the track |
+| `min:` | `Number` | The value at the start of the track |
+| `max:` | `Number` | The value at the end of the track |
+| `step:` | `Number` | How far one move of the thumb, or one arrow key, changes the value |
+| `range:` | `Bool` | Two thumbs, a low and a high that cannot pass each other: `bind:` holds `[low, high]`, read as `[min, max]` until it holds two numbers. Written as a flag, `.range`, or `range: true`. |
+| `label:` | `String` | The label drawn above the track and the input's accessible name; with `.range` no label is drawn, and it names the group and each thumb (`Price, lowest`) |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
 
 ## Flags
 

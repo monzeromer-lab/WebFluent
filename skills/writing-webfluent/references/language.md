@@ -47,7 +47,7 @@ wf generate page|component|store|block <name> [-d DIR]  # Scaffold a file, in th
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
-wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
+wf docs [-d DIR] [-o OUT]                 # The project's components documented, each `example` drawn live, in the reference's design
 wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, 4 → 4.2 (`external` rewritten) and 6 → 7
 wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
@@ -230,10 +230,48 @@ spec's example of a success, held to the endpoint's result.
 answering its endpoints, aside from `build/`, and loads every page of
 that — for a site whose API is elsewhere. A build leaves fakes out.
 
-`wf docs` writes `docs/index.html`: a self-contained gallery of every
-built-in — props, cases, flags, events, slots, parts — and of the
-project's own components, enums, types, stores and pages, read from the
-same registry the compiler and the editor read.
+`wf docs` writes `docs/`: a site documenting the project's components
+as the official reference documents the built-ins, in its design (the
+Blueprint theme, its fonts, light and dark). A page a component: its
+`///` comment, its header, every `example` of it drawn live — in a frame
+of the project's own build, its theme, stylesheets and scripts, as tall as
+what it drew — beside its source, then its props (type, what it is when
+left out, each prop's `///`), events, slots, parts, and what places it.
+A component with no example is drawn from its props, each one it needs
+given a value of its type (`title: String` is `"Title"`). The types, the
+stores and the pages have a page each. Serve the folder to read it; a
+second run clears what the first wrote, and nothing else.
+
+`example` shows one way to use a component — what `wf docs` draws, live,
+beside its source. It names the component, says what it shows, and its
+body is a page's: elements, `state`, handlers, the project's stores. It
+is checked as a page is (`E101` for a component nothing declares, `T01`
+for a wrong value), formatted by `wf fmt`, and left out of every build. A
+`///` above it is the words above its frame; `fakes:` answers the
+endpoints it calls, as a test's do. An example only draws: a step
+(`expect`, `click`) is a test's.
+
+```wf
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card { Text(name).bold  Text(role).muted  if active { Badge("Active").success } }
+}
+
+/// The usual case.
+example UserCard "A designer" {
+    UserCard("Sam", role: "Designer")
+}
+
+example UserCard "Away" {
+    state here = false
+    UserCard("Ada", role: "Engineer", active: here)
+    Button("Back") { on click { here = true } }
+}
+```
+
+Keep them beside the component, or in a file of their own under `src/`
+(`src/components/UserCard.examples.wf`).
+
 
 `wf types --json` lists what the project's scripts declare beside its own
 declarations — each function's parameters and return as its JSDoc types

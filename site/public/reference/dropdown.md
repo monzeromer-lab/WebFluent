@@ -27,7 +27,7 @@ Text(said).muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Label of the button that opens it |
+| `label` | `String (positional)` | The words of the button that opens its menu; the first argument, `Dropdown("Actions")`, or by name |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

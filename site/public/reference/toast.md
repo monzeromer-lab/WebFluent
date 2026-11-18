@@ -30,8 +30,13 @@ Text("{archived} archived").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `message` | `String  (positional)` | The message |
-| `tone:` | `.success .danger .warning .info` | Kind of notice |
+| `message` | `String (positional)` | The message, shown above everything for 3 s once the element is drawn, and said to a screen reader; the element itself draws nothing in place |
+| `tone:` | `one of its cases` | The kind of notice, which sets its colours; `.danger` is announced at once, the rest politely. Written as a flag, `.success`, or by name, `tone: .success`.
+
+- `.success`: Green: done, healthy
+- `.danger`: Red: destructive, failed
+- `.warning`: Amber: attention
+- `.info` (the default): Blue: neutral notice |
 
 ## Flags
 

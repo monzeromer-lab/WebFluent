@@ -34,15 +34,21 @@ Document(size: "A4", margin: 56, title: "Invoice INV-2041", author: "Northwind L
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `page_size:` | `.A4 .A3 .A5 .Letter .Legal` | Paper size (also `size:`) |
-| `size:` | `String` | Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm` |
-| `landscape:` | `Bool` | Turn the paper on its side |
-| `margin:` | `Number or String` | The page margins: one length, or top right bottom left (`72`, `20mm 25mm`) |
+| `page_size:` | `one of its cases` | The paper, as a case (also written `size:`, which takes more); unset, the config's `page_size` under `build.pdf`. Written as a flag, `.A4`, or by name, `page_size: .A4`.
+
+- `.A4` (the default): 210 × 297 mm
+- `.A3`: 297 × 420 mm
+- `.A5`: 148 × 210 mm
+- `.Letter`: 8.5 × 11 in
+- `.Legal`: 8.5 × 14 in |
+| `size:` | `String` | The paper: `A3`–`A6`, `B5`, `Letter`, `Legal`, `Tabloid`, `Executive`, or a width and a height, `210mm 297mm` (a bare number is pt); unset, the config's `page_size` under `build.pdf` |
+| `landscape:` | `Bool` | Turn the paper on its side, its longer edge across; `landscape: false` keeps it upright. Written as a flag, `.landscape`, or `landscape: true`. |
+| `margin:` | `Number or String` | The page margins: one length, or two to four as CSS writes them (`72`, `20mm 25mm`); a bare number is pt; unset, the config's `build.pdf.margins` |
 | `title:` | `String` | The file's title, shown by a reader in place of its name |
 | `author:` | `String` | The file's author; several separated by commas |
-| `subject:` | `String` | What the document is about |
+| `subject:` | `String` | What the document is about: the file's description |
 | `keywords:` | `String` | Comma-separated keywords |
-| `lang:` | `String` | The document's language, for screen readers and hyphenation |
+| `lang:` | `String` | The document's language (`en`, `ar`): the file's language, and `ar`, `he`, `fa` or `ur` lays it out right to left |
 
 ## Flags
 

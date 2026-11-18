@@ -28,9 +28,9 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `String or Number or Bool  (positional)` | The code |
-| `block:` | `Bool` | A multi-line block |
-| `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
+| `content` | `String or Number or Bool (positional)` | The code, as text in a monospace font |
+| `block:` | `Bool` | A block of several lines that keeps its line breaks and scrolls sideways, on the terminal colours, rather than a span in a line. Written as a flag, `.block`, or `block: true`. |
+| `language:` | `String` | Colours the code as this language: `wf` (or `wfx`), `json`, `bash` (`sh`, `shell`) or `css`; any other is shown plain |
 
 ## Flags
 

@@ -5,8 +5,8 @@
 //! their props, events, slots and parts, enums with their cases, records
 //! with their fields, stores with their members, pages with their routes —
 //! as one self-contained HTML page, read from the same registry the
-//! compiler and the editor read. `wf docs` writes it; the mobile editor
-//! shows it.
+//! compiler and the editor read. The mobile editor shows it; `wf docs`
+//! writes a site of the project's components instead ([`crate::docs`]).
 
 use std::path::Path;
 

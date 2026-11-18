@@ -572,7 +572,7 @@ fn seed_faults(
 fn is_drawn(d: &Declaration) -> bool {
     matches!(
         d,
-        Declaration::Page(_) | Declaration::App(_) | Declaration::Test(_)
+        Declaration::Page(_) | Declaration::App(_) | Declaration::Test(_) | Declaration::Example(_)
     )
 }
 
@@ -638,14 +638,19 @@ impl Tests {
         }
     }
 
-    /// Run a test that acts in `browser`, its site built under `work`.
-    pub fn run_acting(&self, browser: &mut dyn Browser, test: &TestDecl, work: &Path) -> Outcome {
-        let site = Site {
+    /// What a page of the project is drawn with beside its program.
+    pub fn site(&self) -> Site<'_> {
+        Site {
             theme: &self.theme,
             scripts: &self.scripts,
             i18n: self.i18n.as_ref(),
             styles: &self.styles,
-        };
+        }
+    }
+
+    /// Run a test that acts in `browser`, its site built under `work`.
+    pub fn run_acting(&self, browser: &mut dyn Browser, test: &TestDecl, work: &Path) -> Outcome {
+        let site = self.site();
         match act(browser, &self.declarations_for(test), test, work, &site) {
             Ok(Ok(())) => Outcome::Passed,
             Ok(Err(reasons)) => Outcome::Failed(reasons),
@@ -1378,7 +1383,19 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
 /// names a dark theme nothing declares, and [`CodegenError`](crate::diagnostics::error::WebFluentError::CodegenError) when a
 /// theme's token is not a literal.
 pub fn write_site(program: &Program, dir: &Path, site: &Site<'_>) -> Result<()> {
+    write_site_at(program, dir, site, "")
+}
+
+/// [`write_site`], for a site served under `base` (`/examples/card/1`)
+/// rather than at the root: its files and its route are addressed from
+/// there.
+///
+/// # Errors
+///
+/// What [`write_site`] returns.
+pub fn write_site_at(program: &Program, dir: &Path, site: &Site<'_>, base: &str) -> Result<()> {
     let mut config = crate::project::config::ProjectConfig::default_config("test");
+    config.build.base_path = base.to_string();
     config.theme = site.theme.clone();
     config.i18n = site.i18n.map(|(c, _)| c.clone());
     for script in site.scripts {
@@ -1393,6 +1410,9 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site<'_>) -> Result<()> 
     // write, and the shell would be served in its place.
     config.build.split = false;
     let mut js = crate::web::codegen::JsCodegen::new();
+    if !base.is_empty() {
+        js.set_base_path(base.to_string());
+    }
     // A test's page asks no network: what answers its endpoints is the
     // fakes it names, and a call none answers fails the test.
     js.set_fakes(true);
@@ -1477,20 +1497,67 @@ fn copy_into(from: &Path, to: &Path) -> Result<()> {
 /// The program a test becomes: everything the project declares, and the
 /// test's body as the one page.
 fn as_program(shared: &[Declaration], test: &TestDecl) -> Program {
+    one_page(
+        shared,
+        &test.name,
+        seeded(&test.body, test.data.as_ref()),
+        &test.fakes,
+        test.data.as_ref(),
+        test.span,
+    )
+}
+
+/// An example as a site of one page, written under `dir`: the project's
+/// declarations, and its body as the page, drawn as the project draws its
+/// own — its theme, its scripts, its translations, its styles. What
+/// `wf docs` shows in a frame.
+///
+/// # Errors
+///
+/// What [`write_site`] returns.
+pub fn example_site(
+    shared: &[Declaration],
+    example: &crate::syntax::parser::ast::ExampleDecl,
+    dir: &Path,
+    base: &str,
+    site: &Site<'_>,
+) -> Result<()> {
+    std::fs::create_dir_all(dir).at(dir)?;
+    let mut program = one_page(
+        shared,
+        &example.name,
+        example.body.clone(),
+        &example.fakes,
+        None,
+        example.span,
+    );
+    crate::syntax::prefer_own_components(&mut program);
+    let mut program = crate::check::sema::lower(program);
+    if site.i18n.is_some_and(|(i, _)| i.literals) {
+        crate::project::i18n::literals::translate(&mut program);
+    }
+    write_site_at(&program, dir, site, base)
+}
+
+/// Everything the project declares but what is drawn, and `body` as the
+/// one page, at `/`.
+fn one_page(
+    shared: &[Declaration],
+    title: &str,
+    body: Vec<Statement>,
+    fakes: &[String],
+    data: Option<&Expr>,
+    span: crate::syntax::parser::ast::Span,
+) -> Program {
     let mut declarations: Vec<Declaration> = shared
         .iter()
-        .filter(|d| {
-            !matches!(
-                d,
-                Declaration::Page(_) | Declaration::App(_) | Declaration::Test(_)
-            ) && !matches!(d, Declaration::Fake(f) if !test.fakes.contains(&f.name))
-        })
+        .filter(|d| !is_drawn(d) && !matches!(d, Declaration::Fake(f) if !fakes.contains(&f.name)))
         .cloned()
         .map(|d| match d {
             // `data: { Cart: { items: […] } }` starts the store there, as a
             // test that only looks does.
             Declaration::Store(mut store) => {
-                if let Some(Expr::MapLiteral(pairs)) = &test.data
+                if let Some(Expr::MapLiteral(pairs)) = data
                     && let Some((_, given)) = pairs
                         .iter()
                         .find(|(k, _)| k.trim_matches('"') == store.name)
@@ -1505,7 +1572,7 @@ fn as_program(shared: &[Declaration], test: &TestDecl) -> Program {
     declarations.push(Declaration::Page(PageDecl {
         name: "Test".to_string(),
         path: "/".to_string(),
-        title: Some(test.name.clone()),
+        title: Some(title.to_string()),
         title_expr: None,
         description_expr: None,
         image_expr: None,
@@ -1522,10 +1589,10 @@ fn as_program(shared: &[Declaration], test: &TestDecl) -> Program {
         params: Vec::new(),
         head: Vec::new(),
         paths: None,
-        body: seeded(&test.body, test.data.as_ref()),
-        span: test.span,
-        header_span: test.span,
-        body_span: test.span,
+        body,
+        span,
+        header_span: span,
+        body_span: span,
     }));
     Program { declarations }
 }

@@ -35,10 +35,13 @@ Stack(gap: .sm) {
 |---|---|---|
 | `src:` | `String` | The address of the page it shows |
 | `srcdoc:` | `String` | The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes |
-| `title:` | `String` | What it shows, in a few words: its accessible name |
-| `sandbox:` | `String` | What the framed page may do: `"allow-scripts allow-forms"`; empty, it may do nothing |
-| `allow:` | `String` | The features it may use: `"fullscreen; clipboard-write"` |
-| `loading:` | `.lazy .eager` | Unset, at once |
+| `title:` | `String` | What it shows, in a few words: its accessible name (`A17` without it) |
+| `sandbox:` | `String` | What the framed page may do: `"allow-scripts allow-forms"`; `""`, nothing. Unset, no sandbox, except `srcdoc:` from a value, which gets `""` |
+| `allow:` | `String` | The browser features it may use, a permissions policy: `"fullscreen; clipboard-write"` |
+| `loading:` | `one of its cases` | When the browser fetches the framed page. Written as a flag, `.lazy`, or by name, `loading: .lazy`.
+
+- `.lazy`: When it nears the viewport
+- `.eager`: At once |
 
 ## Flags
 

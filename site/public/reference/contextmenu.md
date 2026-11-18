@@ -51,7 +51,7 @@ ContextMenu.Items(label: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | The menu's name for a screen reader |
+| `label:` | `String` | The menu's accessible name (`aria-label`) |
 
 ## What it can raise
 

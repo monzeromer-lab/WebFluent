@@ -24,9 +24,16 @@ Row(gap: .sm, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The badge text |
-| `tone:` | `.primary .secondary .success .danger .warning .info` | Colour |
-| `pill:` | `Bool` | Fully rounded ends |
+| `label` | `String (positional)` | The badge's text; unset, its block |
+| `tone:` | `one of its cases` | The colour it is filled with, a tone of the theme, its text in the tone's `color-on-*`. Written as a flag, `.primary`, or by name, `tone: .primary`.
+
+- `.primary`: The theme's primary colour
+- `.secondary`: The theme's secondary colour
+- `.success`: Green: done, healthy
+- `.danger`: Red: failed, destructive
+- `.warning`: Amber: needs attention
+- `.info`: Blue: a neutral notice |
+| `pill:` | `Bool` | Fully rounded ends; the full theme already rounds a badge, so it matters with `theme.builtin: "structural"`. Written as a flag, `.pill`, or `pill: true`. |
 
 ## Flags
 

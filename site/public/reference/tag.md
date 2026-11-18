@@ -27,7 +27,7 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The tag text |
+| `label` | `String (positional)` | The tag's text; unset, its block |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

@@ -36,13 +36,13 @@ Text("Open: {file}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `items:` | `[Item]  (required)` | The items at the top |
-| `children:` | `(Item) -> [Item]?  (required)` | An item's children: `f => f.children`; none, or an empty list, for a leaf |
-| `key:` | `(Item) -> String or (Item) -> Number  (required)` | What tells two items apart: `f => f.path` |
-| `bind:` | `State` | The chosen key, or a list of them with `.multiple` |
-| `multiple:` | `Bool` | Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A |
-| `open:` | `[String] or [Number]` | The keys open when it is drawn |
-| `label:` | `String  (required)` | What the tree is, for a screen reader |
+| `items:` | `[Item] (required)` | The items at the top level |
+| `children:` | `(Item) -> [Item]? (required)` | An item's children: `f => f.children`; null or an empty list for a leaf |
+| `key:` | `(Item) -> String or (Item) -> Number (required)` | What tells two items apart: `f => f.path`; what `bind:` and `open:` hold |
+| `bind:` | `State` | The state holding the chosen item's key, written on Enter, Space or a press; with `.multiple`, a list of keys |
+| `multiple:` | `Bool` | Several chosen at once: Space, Shift with an arrow, Ctrl or ⌘ with A; `bind:` holds a list. Written as a flag, `.multiple`, or `multiple: true`. |
+| `open:` | `[String] or [Number]` | The keys of the items open when it is first drawn |
+| `label:` | `String (required)` | What the tree is, its accessible name |
 
 ## Flags
 

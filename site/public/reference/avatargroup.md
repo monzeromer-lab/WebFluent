@@ -27,8 +27,8 @@ AvatarGroup(max: 4, label: "Reviewers") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `max:` | `Number` | How many show before the rest are counted |
-| `label:` | `String` | Who they are, for a screen reader |
+| `max:` | `Number` | How many avatars show; the rest are hidden and counted in one `+N` avatar (read "N more"). `0` shows them all |
+| `label:` | `String` | Who they are: the accessible name of the group (`role="group"`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

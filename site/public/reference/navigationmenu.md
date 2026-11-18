@@ -36,7 +36,7 @@ NavigationMenu(label: "Main") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | The navigation's name for a screen reader (unset, `Main`) |
+| `label:` | `String` | The navigation's accessible name (`aria-label` on its `<nav>`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -58,7 +58,7 @@ NavigationMenu.Item(_ label: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The button's words |
+| `label` | `String (positional)` | The words on the button that opens its panel; the block is the panel |
 
 ### NavigationMenu.Link
 
@@ -70,9 +70,11 @@ NavigationMenu.Link(_ label: String, to: Path, active: Enum)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The link's words |
-| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
-| `active:` | `.prefix` | How the link decides it is the current one |
+| `label` | `String (positional)` | The link's words |
+| `to:` | `Path (required)` | The route it links to, navigated in place; while it matches the current route it carries `.active` and `aria-current="page"` |
+| `active:` | `one of its cases` | How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.
+
+- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms` |
 
 Flags: `.prefix`
 

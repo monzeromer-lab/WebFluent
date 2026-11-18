@@ -32,6 +32,8 @@ pub enum Declaration {
     Animation(AnimationDecl),
     /// `test "…" { … }`.
     Test(TestDecl),
+    /// `example UserCard "A designer" { … }`: what `wf docs` draws.
+    Example(ExampleDecl),
     /// `data posts = "posts.json"`.
     Data(DataDecl),
     Page(PageDecl),
@@ -532,6 +534,25 @@ impl TestDecl {
     pub fn acts(&self) -> bool {
         !self.fakes.is_empty() || self.steps.iter().any(|s| !matches!(s, Step::Expect { .. }))
     }
+}
+
+/// `example UserCard "A designer" { UserCard("Sam", role: "Designer") }`:
+/// one way to use a component, drawn live by `wf docs` beside its source.
+/// Checked as a test's body is, and left out of every build.
+#[derive(Debug, Clone)]
+pub struct ExampleDecl {
+    /// The component it shows.
+    pub component: String,
+    /// What it shows, the heading `wf docs` gives it.
+    pub name: String,
+    /// The `///` comment above it, Markdown.
+    pub doc: Option<String>,
+    /// `fakes: [OneUser]`: what answers the endpoints the body calls.
+    pub fakes: Vec<String>,
+    pub body: Vec<Statement>,
+    pub span: Span,
+    /// Between its braces: the source `wf docs` shows.
+    pub body_span: Span,
 }
 
 /// One line of a test: what it does, or what it expects to see.

@@ -26,11 +26,11 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `value:` | `String or Number or Bool` | The value `bind` takes when this one is chosen |
-| `checked:` | `Bool` | Whether it is checked, when its state is not bound |
-| `label:` | `String` | Visible label; also the control's accessible name |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `bind:` | `State` | The state shared by a group of radios: it holds the chosen radio's `value:`, and radios bound to one state are one group for the arrow keys |
+| `value:` | `String or Number or Bool` | What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked |
+| `checked:` | `Bool` | Whether it is chosen, when no state is bound: shown, not written back. Written as a flag, `.checked`, or `checked: true`. |
+| `label:` | `String` | The words after the button, which a press on also chooses; also its accessible name |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
 
 ## Flags
 

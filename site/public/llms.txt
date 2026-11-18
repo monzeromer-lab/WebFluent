@@ -196,7 +196,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [wf components](https://webfluent.monzeromer.dev/reference/cli/components.md): Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children
 - [wf config](https://webfluent.monzeromer.dev/reference/cli/config.md): Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape
 - [wf context](https://webfluent.monzeromer.dev/reference/cli/context.md): What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld
-- [wf docs](https://webfluent.monzeromer.dev/reference/cli/docs.md): Write a component gallery: every built-in, and what the project declares
+- [wf docs](https://webfluent.monzeromer.dev/reference/cli/docs.md): Document the project's components as a site, each `example` drawn live
 - [wf explain](https://webfluent.monzeromer.dev/reference/cli/explain.md): What a diagnostic code means, a program that draws it, and the fix; with no code, every code
 - [wf fix](https://webfluent.monzeromer.dev/reference/cli/fix.md): Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left
 - [wf fmt](https://webfluent.monzeromer.dev/reference/cli/fmt.md): Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)

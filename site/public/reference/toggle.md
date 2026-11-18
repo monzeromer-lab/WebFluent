@@ -31,9 +31,9 @@ Text("The quick brown fox") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `bind:` | `State  (required)` | The `Bool` state it shows and flips |
-| `icon:` | `String` | An icon before the words |
+| `label` | `String (positional)` | Its words |
+| `bind:` | `State (required)` | The `Bool` state it shows (`aria-pressed`) and flips on each press |
+| `icon:` | `String` | An icon before the words, one of the built-in icon names |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

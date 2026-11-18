@@ -568,6 +568,24 @@ impl Checker<'_, '_> {
                 && !matches!(arg, Arg::Named(k, _) if k == "class")
                 && let Some(prop) = prop
             {
+                // A value per breakpoint is drawn as a stylesheet rule, which
+                // only a layout prop has; anywhere else the map was compiled
+                // into the code as if it were one value.
+                if !matches!(
+                    prop.name,
+                    "gap" | "align" | "justify" | "direction" | "columns" | "span"
+                ) {
+                    self.error(
+                        at_span,
+                        "T01",
+                        format!(
+                            "`{}:` on `{name}` takes one value, not one per breakpoint",
+                            prop.name
+                        ),
+                        "A value per width is for a layout's `gap`, `align`, `justify`, `direction`, `columns` and `span`; give one value, or choose it with `viewport.md`",
+                    );
+                    continue;
+                }
                 let wanted = match prop.ty {
                     PropType::Num => Some(Type::Number),
                     PropType::Str | PropType::File(_) => Some(Type::String),

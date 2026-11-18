@@ -27,7 +27,7 @@ Host(tag: "canvas", aria-label: "A bar at {level}%",
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `tag:` | `String` | The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` |
+| `tag:` | `String` | The element to make: `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`; any other is a `div` (`V10`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

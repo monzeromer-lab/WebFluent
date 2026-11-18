@@ -712,7 +712,7 @@
   {
    "name": "docs",
    "slug": "docs",
-   "summary": "Write a component gallery: every built-in, and what the project declares",
+   "summary": "Document the project's components as a site, each `example` drawn live",
    "writes": "a gallery, in the folder `--out` names",
    "preview": "",
    "usage": "wf docs [options]",
@@ -725,7 +725,7 @@
     {
      "name": "--out, -o OUT",
      "type": "path",
-     "meaning": "Where to write index.html (default: docs/)"
+     "meaning": "Where to write the site (default: docs/)"
     }
    ],
    "subcommands": []

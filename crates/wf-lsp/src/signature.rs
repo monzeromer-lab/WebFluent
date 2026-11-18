@@ -277,7 +277,7 @@ fn describe(
             params.push(Param {
                 label: p.name.to_string(),
                 name: p.name.to_string(),
-                doc: Some(p.summary.to_string()),
+                doc: Some(sig.says(p).to_string()),
             });
         }
         for p in sig.props {
@@ -294,7 +294,7 @@ fn describe(
             params.push(Param {
                 label: format!("{}: {ty}", p.name),
                 name: p.name.to_string(),
-                doc: Some(p.summary.to_string()),
+                doc: Some(sig.says(p).to_string()),
             });
         }
         return Some((

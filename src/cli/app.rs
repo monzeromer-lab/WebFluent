@@ -309,12 +309,12 @@ enum Commands {
         #[arg(long)]
         wfx: bool,
     },
-    /// Write a component gallery: every built-in, and what the project declares
+    /// Document the project's components as a site, each `example` drawn live
     Docs {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
-        /// Where to write index.html (default: docs/)
+        /// Where to write the site (default: docs/)
         #[arg(short, long, default_value = "docs")]
         out: PathBuf,
     },

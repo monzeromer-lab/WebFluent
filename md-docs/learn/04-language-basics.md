@@ -69,6 +69,7 @@ Each keyword declares one kind of thing:
 | `animation` | Keyframes | [Keyframes](../recipes/keyframes.md) |
 | `test` | A render held to expectations and a snapshot | [Testing](16-testing.md) |
 | `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](16-testing.md#answer-a-service-with-fakes) |
+| `example` | One way to use a component, which `wf docs` draws beside its source | [Document it](10-components.md#document-it) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a
 stylesheet the build bundles. A `.js` file is a plain browser script, and its
@@ -124,8 +125,8 @@ component Avatar(_ initials: String) { Text(initials).bold }
 ```
 
 A `///` comment above a declaration, a prop or an event is its documentation.
-The editor shows it on hover, and `wf docs` prints it in the component
-gallery. Above a `state`, `persist`, `derived` or `action`, it documents that
+The editor shows it on hover, and `wf docs` writes it on the component's
+page. Above a `state`, `persist`, `derived` or `action`, it documents that
 member, and the editor shows it wherever the member is used.
 
 ## Bodies

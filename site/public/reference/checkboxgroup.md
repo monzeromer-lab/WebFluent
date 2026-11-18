@@ -26,9 +26,9 @@ Text("Chosen: {channels.join(", ")}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The list of the values ticked |
-| `label:` | `String  (required)` | What is being chosen: the legend |
-| `all:` | `String` | The words of a box that ticks every option at once: `Select all` |
+| `bind:` | `State (required)` | The list state it reads and writes: the `value:` of every option ticked, in the order they were ticked |
+| `label:` | `String (required)` | What is being chosen: drawn as the group's legend, which names it for a screen reader |
+| `all:` | `String` | The words of a first box that ticks every option or none, mixed while some are ticked; only when the options are written out, not drawn by a `for` or an `if` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -50,8 +50,8 @@ CheckboxGroup.Option(_ label: String, value: String or Number or Bool)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `value:` | `String or Number or Bool` | What the list holds while it is ticked; unset, its words |
+| `label` | `String (positional)` | The option's words, beside its box; also its value when it has no `value:` |
+| `value:` | `String or Number or Bool` | What the list holds while it is ticked |
 
 ## Drawn for it
 

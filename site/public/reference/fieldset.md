@@ -30,7 +30,7 @@ Text("{street}, {postcode} {city}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `legend:` | `String  (required)` | What the group is |
+| `legend:` | `String (required)` | What the group is: drawn as its `<legend>`, which names the group for a screen reader |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

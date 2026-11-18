@@ -1817,6 +1817,20 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                 lines_block(lines, 0)
             )
         }
+        Declaration::Example(e) => {
+            let fakes = if e.fakes.is_empty() {
+                String::new()
+            } else {
+                format!("(fakes: [{}])", e.fakes.join(", "))
+            };
+            format!(
+                "{}example {} {}{fakes}{}",
+                doc(e.doc.as_deref(), 0),
+                e.component,
+                text_with_names(&e.name),
+                lines_block(statements(&e.body, Block::Render, 1), 0)
+            )
+        }
         Declaration::Fake(f) => {
             let lines: Vec<String> = f
                 .answers
@@ -2017,6 +2031,7 @@ pub fn body_of(decl: &Declaration) -> Option<&[Statement]> {
         Declaration::Store(s) => &s.body,
         Declaration::App(a) => &a.body,
         Declaration::Test(t) => &t.body,
+        Declaration::Example(t) => &t.body,
         _ => return None,
     })
 }
@@ -2028,6 +2043,7 @@ fn span_of(decl: &Declaration) -> Option<Span> {
         Declaration::Component(c) => Some(c.span),
         Declaration::Store(s) => Some(s.span),
         Declaration::Test(t) => Some(t.span),
+        Declaration::Example(t) => Some(t.span),
         _ => None,
     }
 }
@@ -2228,6 +2244,7 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
         Declaration::Data(x) => x.span,
         Declaration::Animation(a) => a.span,
         Declaration::Test(t) => t.span,
+        Declaration::Example(t) => t.span,
         Declaration::Fake(f) => f.span,
         Declaration::Api(a) => a.span,
         Declaration::Middleware(m) => m.span,

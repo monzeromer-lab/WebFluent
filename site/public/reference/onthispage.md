@@ -32,8 +32,8 @@ Row(gap: .lg, align: .start) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `levels:` | `Number` | How many levels below the title it lists: `2` is `h2` and `h3` (the default 1, `h2` alone) |
-| `label:` | `String` | Its title and name; unset, `On this page` |
+| `levels:` | `Number` | How many heading levels it lists, from `h2`: `1` is `h2` alone, `2` adds `h3`, up to 5 |
+| `label:` | `String` | Its title, and its accessible name (`aria-label` on its `<nav>`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

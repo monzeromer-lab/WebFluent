@@ -30,14 +30,22 @@ Text("Sorted by {sort}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `title:` | `String` | Heading shown at the top |
-| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
-| `side:` | `.bottom .start .end` | The edge it comes in from |
-| `snap:` | `[Number]` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
-| `label:` | `String` | Its accessible name, when it has no `title:` |
-| `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `visible:` | `State` | Whether it is open: a `Bool` state, written back `false` when Escape, a press on the backdrop or its close button shuts it; a condition opens it but is not written |
+| `title:` | `String` | The heading at the top, and the accessible name; a value that reads state follows it; a `Sheet.Title` block draws the heading instead |
+| `closable:` | `Bool` | A close button (×) in the heading row, which closes it as Escape does; with no `title:` the row holds the button alone. Written as a flag, `.closable`, or `closable: true`. |
+| `side:` | `one of its cases` | The edge it slides in from, and is dragged back toward to close. Written as a flag, `.bottom`, or by name, `side: .bottom`.
+
+- `.bottom` (the default): From the bottom of the window, with a drag handle
+- `.start`: From where a line starts: the left, the right in a right-to-left page
+- `.end`: From where a line ends: the right, the left in a right-to-left page |
+| `snap:` | `[Number]` | A bottom sheet's heights, as fractions of the window's (`[0.5, 1]`): it opens at the first written, a drag settles at the nearest; values outside 0–1 are dropped |
+| `label:` | `String` | Its accessible name when it has no `title:`; ignored when it has one |
+| `dismiss:` | `one of its cases` | What closes it besides the page's own button and `visible:`. Written as a flag, `.any`, or by name, `dismiss: .any`.
+
+- `.any` (the default): Escape, or a press outside it
+- `.escape`: Escape only: a press outside is the page's
+- `.none`: Neither, and its handle does not drag it shut: only the page's own button closes it, for what must be answered |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control; when it closes the focus goes back where it was |
 
 ## Flags
 

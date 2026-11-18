@@ -32,8 +32,8 @@ ScrollArea(height: "240px", label: "Changelog") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `offset:` | `String` | How far below the top it sticks, `64px` (unset, 0) |
-| `bottom:` | `Bool` | It sticks to the bottom instead |
+| `offset:` | `String` | A CSS length, `64px`: how far from the top it sticks (from the bottom with `.bottom`) |
+| `bottom:` | `Bool` | It sticks to the bottom of its scrolling parent instead of the top; `.bottom` or `bottom: true`. Written as a flag, `.bottom`, or `bottom: true`. |
 
 ## Flags
 

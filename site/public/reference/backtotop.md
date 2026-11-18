@@ -25,8 +25,8 @@ BackToTop(after: 600, label: "Back to the top")
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | What it says, for a screen reader (unset, `Back to top`) |
-| `after:` | `Number` | How far down it appears, in px (unset, 400) |
+| `label:` | `String` | Its accessible name and tooltip (`aria-label`, `title`); the button shows only an upward chevron |
+| `after:` | `Number` | How far the window must scroll down before it appears, in px; `0` counts as 400 |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

@@ -89,12 +89,12 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     KeywordDoc {
         name: "store",
         summary: "Shared reactive state: `state`, `derived` and `action`s, reached as `Name.member` after `use Name`. It is built the first time something reads it. `store Cart(scope: .route)` drops what it holds when the route changes; `.session` is the tab's; `eager: true` builds it at boot.",
-        example: "store CartStore(scope: .app) {\n    state items = []\n    derived count = items.length\n    action clear() { items = [] }\n}",
+        example: "store CartStore(scope: .app) {\n    state items: [Item] = []\n    derived count = items.length\n    action clear() { items = [] }\n}",
         place: Place::TopLevel,
     },
     KeywordDoc {
         name: "persist",
-        summary: "State kept in the browser's storage across visits. Its block says where (`in: .local` or `.session`), the version of its shape, whether another tab's write is adopted (`sync:`), and how a value an older build wrote is brought forward.",
+        summary: "State kept in the browser's storage across visits. Its block says where (`in: .local`, `.session`, or `.app` — a project script's `window.wfStorage.app`), the version of its shape, whether another tab's write is adopted (`sync:`), and how a value an older build wrote is brought forward.",
         example: "persist items: [Item] = [] {\n    in: .local\n    version: 2\n    migrate 1 -> 2 { old.map(i => Item(id: i.id, qty: i.count)) }\n}",
         place: Place::Body,
     },
@@ -322,8 +322,8 @@ pub const KEYWORDS: &[KeywordDoc] = &[
     },
     KeywordDoc {
         name: "api",
-        summary: "A service, described once: its address, how it is reached (`timeout`, `retry`, `credentials`), hooks on each request and response, and its endpoints. Every call is typed, cached, deduplicated and cancellable. `api B from \"openapi.json\"` reads it from a specification.",
-        example: "api Backend(base: \"/api/v1\") {\n    timeout: 10.seconds\n    get users(page: Number = 1) at \"users\" -> [User]\n    get user(id: String) at \"users/{id}\" -> User\n}",
+        summary: "A service, described once: its address, how it is reached (`timeout`, `retry`, `credentials`), the `middleware [ … ]` every request passes through, and its endpoints — each with the path it is `at` and what it returns and fails with (`-> T!`, `-> T ! E`). Every call is typed, cached, deduplicated and cancellable. `api Backend.users { … }` is a group of its endpoints; `api B from \"openapi.json\"` reads the contract from a specification.",
+        example: "api Backend(base: \"/api/v1\") {\n    timeout: 10.seconds\n    middleware [requestId, bearer(Session.token)]\n    get users(page: Number = 1) at \"users\" -> [User]!\n    get user(id: String) at \"users/{id}\" -> User!\n    post createUser(body: NewUser) at \"users\" -> User!\n        invalidates [users]\n}",
         place: Place::TopLevel,
     },
     KeywordDoc {
@@ -337,6 +337,66 @@ pub const KEYWORDS: &[KeywordDoc] = &[
         summary: "What answers a service's endpoints in a test, in place of the network, held to the group's contract (`N06`): each endpoint it answers, the parameters it reads by name, and the result each gives. A test names it with `fakes: [ … ]`; `wf verify --fakes FILE` builds a site with them.",
         example: "fake OneUser for Backend.users {\n    list(page) { .ok([User(id: \"1\", name: \"Ada\")]) }\n}\n\n// Every endpoint it does not answer itself, from the spec's examples.\nfake Examples for Backend.users from examples",
         place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "example",
+        summary: "One way to use a component, which `wf docs` draws live beside its source: a render body, checked as a page's is and left out of every build. `fakes: [ … ]` names what answers the endpoints its body calls.",
+        example: "example UserCard \"A designer\" {\n    UserCard(\"Sam\", role: \"Designer\")\n}",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "middleware",
+        summary: "A step a service's requests pass through, named in its `middleware [ … ]` list: `req` is the request, `next` the rest of the chain, and it returns what `next` returns — a result — or an answer of its own. The runtime's are `bearer(token)`, `header(name, value)`, `refreshOn401(action)`, `requestId` and `log`.",
+        example: "middleware timed(req, next) {\n    let started = Date.now()\n    let answer = await next(req)\n    log(\"{req.method} {req.url} took {Date.now() - started} ms\")\n    return answer\n}",
+        place: Place::TopLevel,
+    },
+    KeywordDoc {
+        name: "at",
+        summary: "Where an endpoint is: the path the server answers it at, below the service's `base`. A parameter it names in `{name}` goes there; another goes in the query string.",
+        example: "get user(id: String) at \"users/{id}\" -> User!",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "from",
+        summary: "`api Backend from \"openapi.json\"` reads a service's contract from its OpenAPI spec; `fake Examples for Backend.users from examples` answers every endpoint it does not answer itself with the spec's example of a success.",
+        example: "api Backend from \"openapi.json\"(base: env.PUBLIC_API)",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "examples",
+        summary: "After `from` in a `fake`: every endpoint it does not answer itself answers with the spec's example of a success, held to the endpoint's result.",
+        example: "fake Examples for Backend.users from examples",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "invalidates",
+        summary: "What a write makes stale: reads of the same group, each asked with the write's own parameters. Once the write succeeds, every `resource` over one of them asks again, drawn in place (`N05`).",
+        example: "post create(body: NewTodo) at \"todos\" -> Todo!\n    invalidates [list, byId(id)]",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "idempotent",
+        summary: "An endpoint safe to send twice: a `POST` or `PATCH` marked so is retried and kept to replay offline, with one `Idempotency-Key` on every try of a call. Any other write is not (`N09`).",
+        example: "put order(body: Order) at \"orders\" -> Order! idempotent",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "streamed",
+        summary: "An endpoint that answers one JSON value a line, each held to the item type: a read over it is `.loaded` from its first line and grows; `for await line in …` walks the lines as they arrive.",
+        example: "get tail(id: String) at \"logs/{id}\" -> [LogLine]! streamed",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "pages",
+        summary: "How a read gathers its answer a page at a time: `.number(param: page)`, `.cursor(param: after, next: p => p.next, items: p => p.items)` or `.link` (the `Link` header's `rel=\"next\"`). A read of it holds every page's items, with `.loadMore()` and `.hasMore`.",
+        example: "get feed(after: String?) at \"feed\" -> FeedPage!\n    pages .cursor(param: after, next: p => p.nextCursor, items: p => p.posts)",
+        place: Place::Expression,
+    },
+    KeywordDoc {
+        name: "concurrent",
+        summary: "An action every call of which runs, even one with the arguments of a call still running — which otherwise is that call, so a double click submits once.",
+        example: "action poll() concurrent {\n    await Feed.refresh()\n}",
+        place: Place::Expression,
     },
     KeywordDoc {
         name: "validate",
@@ -463,8 +523,22 @@ pub fn keyword_in_test(name: &str) -> Option<&'static KeywordDoc> {
 
 /// The words that are keywords only where a block makes them one: `step`
 /// in a `sequence`, `cleanup` at the end of an `effect`, `catch` after a
-/// `try` — a program may name a value any of them.
-pub const CONTEXTUAL_KEYWORDS: &[&str] = &["step", "cleanup", "catch"];
+/// `try`, and the words of an endpoint's line — a program may name a value
+/// any of them.
+pub const CONTEXTUAL_KEYWORDS: &[&str] = &[
+    "step",
+    "cleanup",
+    "catch",
+    // A service's words: a program may still name a value `pages` or `at`.
+    "at",
+    "from",
+    "examples",
+    "invalidates",
+    "idempotent",
+    "streamed",
+    "pages",
+    "concurrent",
+];
 
 /// Whether a word is one of the language's keywords: every word the
 /// parser's tables name, and the ones this reference documents.
@@ -519,10 +593,10 @@ pub fn tokens() -> &'static [(String, String)] {
         let mut all: Vec<(String, String)> = webfluent::themes::tokens::default_tokens()
             .into_iter()
             .map(|(name, value)| {
-                let doc = TOKEN_DOCS
-                    .iter()
-                    .find(|(n, _)| *n == name)
-                    .map_or_else(|| token_group_doc(&name), |(_, d)| *d);
+                // The compiler's words for it: one table, which the docs
+                // and `wf theme --json` read too.
+                let doc = webfluent::themes::tokens::describe(&name)
+                    .unwrap_or_else(|| token_group_doc(&name));
                 (name, format!("{doc} — `{value}`"))
             })
             .collect();
@@ -557,61 +631,6 @@ fn token_group_doc(name: &str) -> &'static str {
         .map_or("Design token", |(_, doc)| *doc)
 }
 
-/// What the common baseline tokens are for, in this server's words.
-const TOKEN_DOCS: &[(&str, &str)] = &[
-    ("color-primary", "Primary brand colour"),
-    ("color-secondary", "Secondary colour"),
-    ("color-success", "Success colour"),
-    ("color-danger", "Danger / error colour"),
-    ("color-warning", "Warning colour"),
-    ("color-info", "Informational colour"),
-    ("color-background", "Page background"),
-    ("color-surface", "Card and panel surface"),
-    ("color-text", "Body text"),
-    ("color-text-muted", "Secondary text"),
-    ("color-border", "Borders and dividers"),
-    ("font-family", "Body font"),
-    ("font-family-mono", "Monospace font"),
-    ("font-size-xs", "Font size"),
-    ("font-size-sm", "Font size"),
-    ("font-size-base", "Font size (1rem)"),
-    ("font-size-lg", "Font size"),
-    ("font-size-xl", "Font size"),
-    ("font-size-2xl", "Font size"),
-    ("font-size-3xl", "Font size"),
-    ("font-weight-normal", "Font weight"),
-    ("font-weight-medium", "Font weight"),
-    ("font-weight-bold", "Font weight"),
-    ("line-height-tight", "Line height"),
-    ("line-height-normal", "Line height"),
-    ("line-height-loose", "Line height"),
-    ("spacing-xs", "Spacing step"),
-    ("spacing-sm", "Spacing step"),
-    ("spacing-md", "Spacing step (1rem)"),
-    ("spacing-lg", "Spacing step"),
-    ("spacing-xl", "Spacing step"),
-    ("spacing-2xl", "Spacing step"),
-    ("spacing-3xl", "Spacing step"),
-    ("radius-none", "Border radius"),
-    ("radius-sm", "Border radius"),
-    ("radius-md", "Border radius"),
-    ("radius-lg", "Border radius"),
-    ("radius-xl", "Border radius"),
-    ("radius-full", "Pill radius"),
-    ("shadow-none", "No shadow"),
-    ("shadow-sm", "Shadow"),
-    ("shadow-md", "Shadow"),
-    ("shadow-lg", "Shadow"),
-    ("shadow-xl", "Shadow"),
-    ("transition-fast", "Transition duration"),
-    ("transition-normal", "Transition duration"),
-    ("transition-slow", "Transition duration"),
-    (
-        "wf-header-height",
-        "The height of the app's header, which a sticky offset reads",
-    ),
-];
-
 /// The built-in icon names `Icon(…)`, `icon:` and `Sidebar.Item(icon:)` take:
 /// the registry's, which is pinned to the runtime's table.
 pub const ICONS: &[&str] = webfluent::registry::ICONS;
@@ -619,90 +638,143 @@ pub const ICONS: &[&str] = webfluent::registry::ICONS;
 /// CSS properties offered inside `style { }`. Any CSS property is accepted;
 /// these are the ones worth offering.
 pub const CSS_PROPERTIES: &[&str] = &[
+    "accent-color",
+    "align-content",
     "align-items",
     "align-self",
     "animation",
+    "aspect-ratio",
+    "backdrop-filter",
     "background",
     "background-color",
     "background-image",
+    "background-position",
+    "background-repeat",
+    "background-size",
     "border",
     "border-bottom",
+    "border-collapse",
     "border-color",
     "border-left",
     "border-radius",
     "border-right",
+    "border-style",
     "border-top",
     "border-width",
     "bottom",
     "box-shadow",
+    "box-sizing",
+    "caret-color",
+    "clip-path",
     "color",
+    "column-gap",
+    "container-name",
+    "container-type",
+    "content",
     "cursor",
     "display",
+    "fill",
     "filter",
     "flex",
+    "flex-basis",
     "flex-direction",
+    "flex-grow",
+    "flex-shrink",
     "flex-wrap",
     "font-family",
     "font-size",
+    "font-style",
     "font-weight",
     "gap",
     "grid-area",
+    "grid-auto-flow",
+    "grid-auto-rows",
     "grid-column",
     "grid-row",
+    "grid-template-areas",
     "grid-template-columns",
     "grid-template-rows",
     "height",
+    "inset",
+    "inset-block",
+    "inset-inline",
+    "isolation",
     "justify-content",
+    "justify-items",
     "justify-self",
     "left",
     "letter-spacing",
     "line-height",
+    "list-style",
     "margin",
+    "margin-block",
     "margin-bottom",
+    "margin-inline",
     "margin-left",
     "margin-right",
     "margin-top",
+    "max-block-size",
     "max-height",
+    "max-inline-size",
     "max-width",
+    "min-block-size",
     "min-height",
+    "min-inline-size",
     "min-width",
+    "mix-blend-mode",
     "object-fit",
+    "object-position",
     "opacity",
+    "order",
     "outline",
     "outline-offset",
     "overflow",
+    "overflow-wrap",
     "overflow-x",
     "overflow-y",
+    "overscroll-behavior",
     "padding",
+    "padding-block",
     "padding-bottom",
+    "padding-inline",
     "padding-left",
     "padding-right",
     "padding-top",
+    "place-content",
+    "place-items",
     "pointer-events",
     "position",
+    "resize",
     "right",
+    "row-gap",
+    "scroll-behavior",
+    "scroll-margin",
+    "scroll-margin-bottom",
+    "scroll-margin-top",
+    "scroll-padding",
+    "scroll-snap-align",
+    "scroll-snap-type",
+    "stroke",
+    "table-layout",
     "text-align",
     "text-decoration",
+    "text-overflow",
+    "text-shadow",
     "text-transform",
+    "text-wrap",
     "top",
+    "touch-action",
     "transform",
+    "transform-origin",
     "transition",
+    "user-select",
+    "vertical-align",
     "visibility",
     "white-space",
     "width",
+    "will-change",
+    "word-break",
     "z-index",
-];
-
-/// The easing names a `transition` block accepts.
-pub const EASINGS: &[&str] = &[
-    "ease",
-    "linear",
-    "easeIn",
-    "easeOut",
-    "easeInOut",
-    "spring",
-    "bouncy",
-    "smooth",
 ];
 
 /// What each function the language gives a program does, and each value a
@@ -876,6 +948,31 @@ pub const BUILTINS: &[(&str, &str, &str)] = &[
         "The direction of the reader's language: `\"ltr\"` or `\"rtl\"`.",
     ),
     (
+        "http",
+        "http.get(url)",
+        "The built-in service for a request no contract describes: `http.get(url)`, `http.post(url, body: value)`, `http.put`, `http.patch`, `http.delete` — each a promise of a result, `T!`, typed by where it goes.",
+    ),
+    (
+        "toast",
+        "toast(\"Saved\", action: \"Undo\", onAction: restore)",
+        "Shows a toast above everything, a modal included, said to a screen reader; `tone:`, `duration:`, `closable:`, `action:` and `onAction:`. `toast.promise(…)` follows a promise.",
+    ),
+    (
+        "toast.promise",
+        "toast.promise(call, loading: \"Saving…\", done: \"Saved\", failed: \"Not saved\")",
+        "A toast that follows a promise: its `loading:` words while it runs, then `done:` or `failed:`.",
+    ),
+    (
+        "ask",
+        "await ask(\"Delete the project?\", detail: \"…\", yes: \"Delete\", danger: true)",
+        "Draws an alert dialog with two answers, the focus on its no: `true` for yes, `false` for no or Escape.",
+    ),
+    (
+        "announce",
+        "announce(\"3 results\")",
+        "Says something to a screen reader — politely, or at once with `.assertive`.",
+    ),
+    (
         "spawn",
         "spawn(\"/workers/css.js\", restart: 1, timeout: 5000)",
         "Starts a script of `public/` as a Web Worker, for a `worker`.",
@@ -961,7 +1058,7 @@ pub const PERSIST_KEYS: &[(&str, &str, &str)] = &[
     (
         "in",
         "in: .${1:session}",
-        "Where it is kept: `.local` (the default, across visits) or `.session` (this tab).",
+        "Where it is kept: `.local` (the default, across visits), `.session` (this tab), or `.app` — `window.wfStorage.app`, a project script's `{ get, set, watch? }` (an app's own store).",
     ),
     (
         "version",

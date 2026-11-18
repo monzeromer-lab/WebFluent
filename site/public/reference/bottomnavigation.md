@@ -30,7 +30,7 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | The bar's name for a screen reader (unset, `Main`) |
+| `label:` | `String` | The bar's accessible name (`aria-label` on its `<nav>`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -52,10 +52,12 @@ BottomNavigation.Item(_ label: String, to: Path, active: Enum, icon: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
-| `active:` | `.prefix` | How the link decides it is the current one |
-| `icon:` | `String` | The icon over its words |
+| `label` | `String (positional)` | Its words, under the icon |
+| `to:` | `Path (required)` | The route it links to, navigated in place; while it matches the current route it carries `.active` and `aria-current="page"` |
+| `active:` | `one of its cases` | How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.
+
+- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms` |
+| `icon:` | `String` | The name of a built-in icon, drawn over its words |
 
 Flags: `.prefix`
 

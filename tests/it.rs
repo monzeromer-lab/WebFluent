@@ -156,6 +156,8 @@ mod peer;
 mod portal;
 #[path = "printer_corpus.rs"]
 mod printer_corpus;
+#[path = "prop_fixes.rs"]
+mod prop_fixes;
 #[path = "render_cli.rs"]
 mod render_cli;
 #[path = "reprint_corpus.rs"]

@@ -183,35 +183,108 @@ fn markdown_renders_at_build_time_and_a_md_file_is_a_page() {
 }
 
 #[test]
-fn wf_docs_writes_a_gallery_of_the_builtins_and_the_projects_declarations() {
+fn wf_docs_documents_the_project_s_components_with_their_examples_drawn() {
     let dir = scratch("docs");
     std::fs::write(
         dir.join("src/App.wf"),
-        "enum Tone { calm, loud }\ntype Todo { id: String, done: Bool = false }\n/// A chip.\ncomponent Chip(_ label: String, tone: Tone = .calm) {\n    event pick(id: String)\n    slot trailing\n    part Dot { Text(\"·\") }\n    Badge(label) { trailing }\n}\nstore Todos { state items: [Todo] = []\n action add(t: Todo) { items.push(t) } }\npage Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"x\").h1  Chip(\"a\") }\n",
+        "enum Tone { calm, loud }\ntype Todo { id: String, done: Bool = false }\n/// A chip.\ncomponent Chip(_ label: String, tone: Tone = .calm) {\n    event pick(id: String)\n    slot trailing\n    part Dot { Text(\"·\") }\n    Badge(label) { trailing }\n}\n/// A plain box.\ncomponent Boxed(title: String) { Card { Text(title)  children } }\nstore Todos { state items: [Todo] = []\n action add(todo: Todo) { items = items.concat([todo]) } }\npage Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"x\").h1  Chip(\"a\")  Boxed(title: \"b\") { Text(\"c\") }  Button(\"Add\") { on click { Todos.add(Todo(id: \"1\")) } } }\n/// Loud, for what matters.\nexample Chip \"Loud\" {\n    Chip(\"Urgent\", tone: .loud)\n}\n",
     )
     .unwrap();
     let (ok, out) = wf(&dir, &["docs", "-o", "gallery"]);
     assert!(ok, "{out}");
-    let html = std::fs::read_to_string(dir.join("gallery/index.html")).unwrap();
+    assert!(
+        out.contains("2 component(s), 1 example(s) and 1 made from props"),
+        "{out}"
+    );
+    let read = |p: &str| {
+        std::fs::read_to_string(dir.join("gallery").join(p)).unwrap_or_else(|e| panic!("{p}: {e}"))
+    };
+    let chip = read("components/chip/index.html");
     for expected in [
-        "<h1>Built-in components</h1>",
-        "id=\"c-button\"",
-        "<code>Table.Row</code>",
-        "<code>.primary</code>",
-        "<h2>Components</h2>",
-        "<h3>Chip <span class=\"muted\">(_ label)</span></h3><p>A chip.</p>",
-        "<code>on pick</code>",
-        "<code>trailing</code>",
-        "<code>Chip.Dot</code>",
-        "<h2>Enums</h2>",
-        "<code>.loud</code>",
-        "<h2>Types</h2>",
-        "<h2>Stores</h2>",
-        "<code>add</code> <span class=\"muted\">action</span>",
-        "<h2>Pages</h2>",
+        "Chip</h1>",
+        "A chip.",
+        "component Chip(_ label: String, tone: Tone = .calm)",
+        "Loud, for what matters.",
+        "src=\"/examples/chip/1/\"",
+        "<span class=\"wf-tok-str\">&quot;Urgent&quot;</span>",
+        "on pick",
+        "trailing",
+        "Chip.Dot",
+        "Home",
     ] {
-        assert!(html.contains(expected), "{expected} in the gallery");
+        assert!(chip.contains(expected), "{expected} on Chip's page");
     }
+    // The example is a page of the project's own, under its path.
+    let example = read("examples/chip/1/index.html");
+    assert!(
+        example.contains("/examples/chip/1/app.js") && example.contains("docs-frame.js"),
+        "{example}"
+    );
+    assert!(read("examples/chip/1/app.js").contains("Urgent"));
+    // A component with none is given one from its props, with its content.
+    let boxed = read("components/boxed/index.html");
+    assert!(
+        boxed.contains("From its props") && boxed.contains("&quot;Title&quot;"),
+        "{boxed}"
+    );
+    for (page, expected) in [
+        ("types/index.html", ".loud"),
+        ("stores/index.html", "add(todo: Todo)"),
+        ("routes/index.html", "Home"),
+    ] {
+        assert!(read(page).contains(expected), "{expected} in {page}");
+    }
+    // In the reference's design.
+    assert!(read("styles.css").contains("--construction"));
+    // A second run clears what the first wrote, and nothing else.
+    std::fs::write(dir.join("gallery/stale.txt"), "x").unwrap();
+    let (ok, out) = wf(&dir, &["docs", "-o", "gallery"]);
+    assert!(ok, "{out}");
+    assert!(!dir.join("gallery/stale.txt").exists());
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn an_example_is_checked_formatted_and_left_out_of_the_build() {
+    let dir = scratch("examples");
+    let app = "component Card2(_ title: String) { Card { Text(title) } }\npage Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"x\").h1 }\n/// The usual.\nexample Card2 \"Plain\" {\n    Card2(\"Hello from an example\")\n}\n";
+    std::fs::write(dir.join("src/App.wf"), app).unwrap();
+    // Placed by an example only, the component is not unused.
+    let (ok, out) = wf(&dir, &["check"]);
+    assert!(ok, "{out}");
+    assert!(!out.contains("U03"), "{out}");
+    let (ok, out) = wf(&dir, &["build"]);
+    assert!(ok, "{out}");
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    assert!(
+        !js.contains("Hello from an example"),
+        "an example is not built"
+    );
+    let (ok, out) = wf(&dir, &["fmt", "--check"]);
+    assert!(ok, "formatted as written: {out}");
+    // An example of nothing, or of the wrong values, is refused.
+    std::fs::write(
+        dir.join("src/App.wf"),
+        format!("{app}example Nope \"x\" {{ Text(\"a\") }}\nexample Card2 \"Wrong\" {{ Card2(3) }}\nexample Card2 \"Acts\" {{ Card2(\"a\")  click \"a\" }}\n"),
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["check"]);
+    assert!(!ok);
+    assert!(out.contains("acts or expects: that is a test"), "{out}");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        format!(
+            "{app}example Nope \"x\" {{ Text(\"a\") }}\nexample Card2 \"Wrong\" {{ Card2(3) }}\n"
+        ),
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["check"]);
+    assert!(!ok);
+    assert!(
+        out.contains("error[E101]: `Nope` is not a declared component"),
+        "{out}"
+    );
+    assert!(out.contains("error[T01]"), "{out}");
     let _ = std::fs::remove_dir_all(&dir);
 }
 

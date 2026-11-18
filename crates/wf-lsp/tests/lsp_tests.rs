@@ -1265,8 +1265,9 @@ fn a_block_offers_what_it_may_hold() {
         ],
     );
     let api = "api B(base: \"/x\") {\n    get a() at \"a\" -> Map\n}\n";
+    let in_api = offered(api, &api.replace("get a() at \"a\" -> Map", "‸"));
     offers(
-        &offered(api, &api.replace("get a() at \"a\" -> Map", "‸")),
+        &in_api,
         &[
             "timeout",
             "retry",
@@ -1276,9 +1277,10 @@ fn a_block_offers_what_it_may_hold() {
             "get",
             "post",
             "delete",
-            "on",
         ],
     );
+    // 6.x's `on request` hooks are `N08` in 7.0: `middleware [ … ]` says it.
+    assert!(!in_api.iter().any(|l| l == "on"), "{in_api:?}");
     let grid = "    Grid(columns: { base: 1 }) { Text(\"a\") }";
     offers(
         &in_page(grid, &grid.replace("{ base: 1 }", "{ ‸ }")),

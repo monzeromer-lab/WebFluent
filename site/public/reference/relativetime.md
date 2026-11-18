@@ -23,8 +23,8 @@ Stack(gap: .xs) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `when` | `Date or DateTime or String  (positional)` | The moment: a `Date`, a `DateTime` or an ISO string |
-| `datetime:` | `String` | The moment, as a machine reads it. Written for it |
+| `when` | `Date or DateTime or String (positional)` | The moment: a `Date`, a `DateTime` or an ISO string, shown as `3 minutes ago` and kept current; the exact time is its `title` |
+| `datetime:` | `String` | The moment as a machine reads it, the `<time>`'s `datetime` attribute; written from `when` unless given |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

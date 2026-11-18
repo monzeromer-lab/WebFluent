@@ -25,9 +25,9 @@ Text("Showing the {view} view").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The chosen value, or a list of them with `.multiple` |
-| `label:` | `String  (required)` | What the group chooses, for a screen reader |
-| `multiple:` | `Bool` | Several at once: `bind:` is a list |
+| `bind:` | `State (required)` | The chosen item's `value:` (pressing the chosen one again keeps it), or with `.multiple` a list of them, each press adding or taking one |
+| `label:` | `String (required)` | What the group chooses: its accessible name (`aria-label`) |
+| `multiple:` | `Bool` | Several at once: `bind:` holds a list. Written as a flag, `.multiple`, or `multiple: true`. |
 
 ## Flags
 
@@ -53,10 +53,10 @@ ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String,
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
-| `icon:` | `String` | An icon before the words |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `label` | `String (positional)` | Its words |
+| `value:` | `String or Number or Bool (required)` | What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then |
+| `icon:` | `String` | An icon before the words, one of the built-in icon names |
+| `disabled:` | `Bool` | Whether the item is inert: it cannot be pressed and the arrow keys pass over it. Written as a flag, `.disabled`, or `disabled: true`. |
 
 Flags: `.disabled`
 

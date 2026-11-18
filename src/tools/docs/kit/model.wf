@@ -1,0 +1,87 @@
+/// What `wf docs` read from the project, written to `docs.json` beside
+/// these files: the docs site is built over it.
+
+/// A prop, a field, a store member or an event's value: its name, what it
+/// is, what it is when left out, and what its `///` comment says.
+type DocProp {
+    name: String
+    ty: String
+    default: String = ""
+    doc: String = ""
+}
+
+/// One `example` of a component, drawn in a frame of the project's own
+/// build at `src`, beside its source.
+type DocExample {
+    name: String
+    doc: String = ""
+    code: String
+    src: String
+    made: Bool = false
+}
+
+/// An event a component fires, with what it sends.
+type DocEvent {
+    name: String
+    params: String = ""
+}
+
+/// A named slot, and what a scoped one hands its fill.
+type DocSlot {
+    name: String
+    params: String = ""
+}
+
+type DocComponent {
+    name: String
+    slug: String
+    summary: String = ""
+    doc: String = ""
+    file: String = ""
+    signature: String
+    props: [DocProp] = []
+    events: [DocEvent] = []
+    slots: [DocSlot] = []
+    parts: [String] = []
+    examples: [DocExample] = []
+    placedBy: [String] = []
+}
+
+/// A record, an enum or an alias: its cases or fields are its rows.
+type DocType {
+    name: String
+    kind: String
+    doc: String = ""
+    file: String = ""
+    rows: [DocProp] = []
+}
+
+type DocStore {
+    name: String
+    doc: String = ""
+    file: String = ""
+    members: [DocProp] = []
+}
+
+type DocPage {
+    name: String
+    path: String
+    title: String = ""
+    file: String = ""
+}
+
+type Docs {
+    project: String
+    version: String
+    components: [DocComponent] = []
+    types: [DocType] = []
+    stores: [DocStore] = []
+    pages: [DocPage] = []
+}
+
+/// What a frame of an example says of itself: how tall it drew.
+type FrameHeight {
+    wfDocsHeight: Number
+}
+
+data docs: Docs = "docs.json"

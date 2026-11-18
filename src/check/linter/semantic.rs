@@ -75,6 +75,7 @@ pub fn validate_semantics_in(
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Example(_)
             | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };

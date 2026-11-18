@@ -23,9 +23,9 @@ Text(if code.length == 6 { "Checking {code}…" } else { "{left} digit(s) to go"
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The code, as text |
-| `length:` | `Number` | How many digits (unset, 6) |
-| `label:` | `String  (required)` | What the code is, for a screen reader |
+| `bind:` | `State (required)` | The `String` state it reads and writes: the digits typed so far, in order; anything but a digit is dropped |
+| `length:` | `Number` | How many boxes, one digit each |
+| `label:` | `String (required)` | What the code is: the group's name for a screen reader; each box is named `Digit 1 of 6` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

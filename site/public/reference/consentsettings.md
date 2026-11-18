@@ -25,7 +25,7 @@ ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No th
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | What it says (unset, `Cookie settings`) |
+| `label` | `String (positional)` | The button's words; pressing it forgets the reader's answer and shows the page's `ConsentBanner` again |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

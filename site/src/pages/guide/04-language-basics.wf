@@ -105,6 +105,11 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
                     Table.Cell("What answers a service's endpoints in a test, in place of the network")
                     Table.Cell { Markdown("[Answer a service with fakes](/learn/16-testing#answer-a-service-with-fakes)") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`example`") }
+                    Table.Cell { Markdown("One way to use a component, which `wf docs` draws beside its source") }
+                    Table.Cell { Markdown("[Document it](/learn/10-components#document-it)") }
+                }
             }
         }
 
@@ -130,7 +135,7 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
 /// A person's initials, in a circle.
 component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
 
-        Markdown("A `///` comment above a declaration, a prop or an event is its documentation. The editor shows it on hover, and `wf docs` prints it in the component gallery. Above a `state`, `persist`, `derived` or `action`, it documents that member, and the editor shows it wherever the member is used.")
+        Markdown("A `///` comment above a declaration, a prop or an event is its documentation. The editor shows it on hover, and `wf docs` writes it on the component's page. Above a `state`, `persist`, `derived` or `action`, it documents that member, and the editor shows it wherever the member is used.")
 
         Heading("Bodies", id: "bodies").h2
 

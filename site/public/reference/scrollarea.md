@@ -25,9 +25,9 @@ ScrollArea(height: "200px", label: "Build log") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `height:` | `String` | How tall it may grow before it scrolls, `300px` |
-| `label:` | `String  (required)` | What it holds, for a screen reader |
-| `horizontal:` | `Bool` | It scrolls across rather than down |
+| `height:` | `String` | A CSS length, `300px`: its `max-height`, past which it scrolls. Unset, it grows with what is inside unless its parent holds it |
+| `label:` | `String (required)` | The region's accessible name (`aria-label`); it is a Tab stop so a keyboard can scroll it |
+| `horizontal:` | `Bool` | It scrolls across, not down (`overflow-x: auto`, `overflow-y: hidden`), its fades at the start and end. Written as a flag, `.horizontal`, or `horizontal: true`. |
 
 ## Flags
 

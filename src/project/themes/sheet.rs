@@ -57,6 +57,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-row--center { align-items: center; }
 .wf-row--between { justify-content: space-between; }
 .wf-row--end { justify-content: flex-end; }
+/* `Row(direction: .column)`, `Row.column`: which way its children run. */
+.wf-direction--row, .wf-row--row { flex-direction: row; }
+.wf-direction--column, .wf-row--column { flex-direction: column; }
 .wf-align--start { align-items: flex-start; }
 .wf-align--center { align-items: center; }
 .wf-align--end { align-items: flex-end; }
@@ -404,7 +407,9 @@ ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 
 .wf-btn--large { padding: var(--spacing-md) var(--spacing-lg); }
 /*@both*/
 .wf-btn--full { width: 100%; }
-.wf-btn--rounded { border-radius: var(--radius-full); }
+/* `.rounded` rounds the corners more than the default; `.pill` rounds the
+   ends whole. They drew the same. */
+.wf-btn--rounded { border-radius: var(--radius-lg); }
 .wf-btn--pill { border-radius: var(--radius-full); }
 /*@full*/
 .wf-btn--outlined { background: transparent; }
@@ -413,6 +418,12 @@ ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 
 /*@both*/
 .wf-btn--outlined.wf-btn--primary { color: var(--color-primary); background: transparent; }
 .wf-btn--outlined.wf-btn--danger { color: var(--color-danger); background: transparent; }
+/* Every tone, outlined, is its colour on no fill: its on-colour, written on
+   nothing, was white on white. */
+.wf-btn--outlined.wf-btn--secondary { color: var(--color-secondary); background: transparent; }
+.wf-btn--outlined.wf-btn--success { color: var(--color-success); background: transparent; }
+.wf-btn--outlined.wf-btn--warning { color: var(--color-warning); background: transparent; }
+.wf-btn--outlined.wf-btn--info { color: var(--color-info); background: transparent; }
 /* Busy: its work is under way (`loading:`, or a handler's action still
    running). Past a moment — so a quick save does not flicker — its label
    gives way to a spinner, and the button keeps its width. */
@@ -652,6 +663,8 @@ ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 
 .wf-modal__header { padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; }
 /*@both*/
 .wf-modal__header h3 { margin: 0; }
+/* A heading row with only its close button: the button at the end, no rule under it. */
+.wf-modal__header--bare, .wf-dialog__header--bare, .wf-sheet__header--bare { justify-content: flex-end; border-bottom: 0; padding-block-end: 0; }
 .wf-modal__close, .wf-dialog__close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--radius-sm, 4px); background: none; color: inherit; cursor: pointer; opacity: 0.7; }
 .wf-modal__close:hover, .wf-dialog__close:hover { opacity: 1; }
 .wf-modal__body { padding: var(--spacing-md); }

@@ -2,13 +2,13 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "ad635c8aa451e0f856fc8d400010138164de1ed2e6caf6a3a949382178c6deba",
-    "app.js.gz": "cdf543d05fd9e5647c267de0249a4f80b4e6accf12c73883782a69a5f15e0a9f",
+    "app.js": "e98ef7b12a917b67f0272485471018d16a134d32295ac373d3cd78d8999fdf01",
+    "app.js.gz": "e5a17899b07104c5045d8dca9336f960cf03c3d9a92822e99e372fa3283b1f85",
     "index.html": "be19bcf50c442678c12de07d2d7c93cea1b345669b7a95b0f8c359d52d52c867",
     "index.html.gz": "ca0c9186ff9030bd298950ce3c23520db7f0de6f18a2314ae0d5402236baf91a",
     "js/cities.js": "a32af974bfba3d891288b3e2923dd649f4a70955505805cb12fcc6bd35b474db",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "6dcabeb83a600c7b9ba47e0c36dd0380f0b251c5bddeb90c9874411a9676fd03",
-    "styles.css.gz": "90365db00f61f2d4b2c01ca442163f600d7afdf6e64b204a26f1eaed79abd9e8"
+    "styles.css": "27666b52c92332e0537b130ff81e249d08566e95216787525f3d0a974d579b2f",
+    "styles.css.gz": "5ba0a29f8975d0e91b38ec2c48b41056d41f715bee9d606c442c5ed51909d697"
   }
 }

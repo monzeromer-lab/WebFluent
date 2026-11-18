@@ -27,12 +27,23 @@ Row(gap: .sm, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `icon:` | `String` | One of the built-in icon names |
-| `label:` | `String` | Accessible name (`aria-label` and `title`) |
-| `size:` | `.sm .md .lg` | Its size |
-| `tone:` | `.primary .danger` | Colour |
-| `type:` | `.button .submit .reset` | Its role inside a form |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `icon:` | `String` | The icon it shows, one of the built-in icon names; a value that reads state follows it |
+| `label:` | `String` | Its accessible name (`aria-label`) and tooltip (`title`, unless one is written), never visible text; without it the tooltip is the icon's name and it has no name (`A02`) |
+| `size:` | `one of its cases` | Its square size. Written as a flag, `.sm`, or by name, `size: .sm`.
+
+- `.sm`: 28px
+- `.md` (the default): 36px, the default
+- `.lg`: 48px |
+| `tone:` | `one of its cases` | The icon's colour; the button stays transparent. Written as a flag, `.primary`, or by name, `tone: .primary`.
+
+- `.primary`: The brand colour
+- `.danger`: Red: destructive |
+| `type:` | `one of its cases` | What it does inside a form; any button not `.submit` or `.reset` never submits one. Written as a flag, `.button`, or by name, `type: .button`.
+
+- `.button` (the default): A plain button
+- `.submit`: Submits the enclosing form
+- `.reset`: Resets the enclosing form |
+| `disabled:` | `Bool` | Whether it is inert: it cannot be pressed or focused. Written as a flag, `.disabled`, or `disabled: true`. |
 
 ## Flags
 

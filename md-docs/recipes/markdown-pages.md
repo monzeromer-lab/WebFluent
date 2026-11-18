@@ -106,5 +106,5 @@ the same kind of component a `.wf` page names as its `layout:`
 `DocsShell`, `slot` declares the default slot and `children` is where the
 page's body lands, beside the sidebar.
 
-(`wf docs` is something else: a gallery of every component the project can
-use — [CLI](../reference/cli.md#wf-docs).)
+(`wf docs` is something else: a site documenting the project's own
+components, each `example` drawn live — [CLI](../reference/cli.md#wf-docs).)

@@ -51,6 +51,7 @@ pub fn lint_unused_in(
             Declaration::App(a) => &a.body,
             Declaration::Store(s) => &s.body,
             Declaration::Test(t) => &t.body,
+            Declaration::Example(t) => &t.body,
             _ => continue,
         };
         placed_components(body, &mut placed);
@@ -86,6 +87,7 @@ pub fn lint_unused_in(
             Declaration::App(a) => &a.body,
             Declaration::Store(s) => &s.body,
             Declaration::Test(t) => &t.body,
+            Declaration::Example(t) => &t.body,
             _ => continue,
         };
         let mut reads = Reads::default();

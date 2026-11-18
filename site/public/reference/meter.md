@@ -25,13 +25,13 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `value:` | `Number` | The level |
-| `min:` | `Number` | The bottom of the range (unset, 0) |
-| `max:` | `Number` | The top of the range (unset, 1) |
-| `low:` | `Number` | Under this, it is low |
-| `high:` | `Number` | Over this, it is high |
-| `optimum:` | `Number` | The best level |
-| `label:` | `String` | What it measures, for a screen reader |
+| `value:` | `Number` | The level, between `min:` and `max:` (the native `<meter>`'s `value`) |
+| `min:` | `Number` | The bottom of the range |
+| `max:` | `Number` | The top of the range |
+| `low:` | `Number` | Below this the level counts as low, and its colour says so |
+| `high:` | `Number` | Above this the level counts as high, and its colour says so |
+| `optimum:` | `Number` | The best level: which part of the range (low, middle, high) is drawn as good |
+| `label:` | `String` | What it measures: its accessible name (`aria-label`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

@@ -32,12 +32,12 @@ Text(toured).muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `open:` | `State  (required)` | Whether the tour is showing; written `false` when it ends |
-| `back:` | `String` | The back button's words (unset, `Back`) |
-| `next:` | `String` | The next button's words (unset, `Next`) |
-| `done:` | `String` | The last step's button's words (unset, `Done`) |
-| `close:` | `String` | The close button's name (unset, `End the tour`) |
-| `of:` | `String` | The word in `2 of 5` (unset, `of`) |
+| `open:` | `State (required)` | Whether the tour is showing: a `Bool` state, set back to `false` when it ends (Done, Escape or the close button); it starts at the first step each time it opens |
+| `back:` | `String` | The back button's words; hidden on the first step |
+| `next:` | `String` | The next button's words, on every step but the last |
+| `done:` | `String` | The last step's button's words; pressing it ends the tour and fires `on finish` |
+| `close:` | `String` | The close button's accessible name (it shows ×) |
+| `of:` | `String` | The word in the step count, `2 of 5` |
 
 ## Events
 
@@ -64,8 +64,8 @@ Tour.Step(target: Element, title: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `target:` | `Element  (required)` | The element it points at: a `ref:` |
-| `title:` | `String` | Its heading |
+| `target:` | `Element (required)` | The element the step points at and lights up, by its `ref:` (even one written further down); unset, the card sits mid-window with nothing lit |
+| `title:` | `String` | The step's heading, drawn as an `h2` above its block, and the card's accessible name |
 
 ## What it can raise
 

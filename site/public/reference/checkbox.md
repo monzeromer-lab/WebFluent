@@ -26,10 +26,10 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `checked:` | `Bool` | Whether it is checked, when its state is not bound |
-| `label:` | `String` | Visible label; also the control's accessible name |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `bind:` | `State` | The `Bool` state it reads and writes: true while ticked |
+| `checked:` | `Bool` | Whether it is ticked, when no state is bound: shown, not written back — handle `on change` to keep it (`F04` otherwise). Written as a flag, `.checked`, or `checked: true`. |
+| `label:` | `String` | The words after the box, which a press on also ticks; also its accessible name |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
 
 ## Flags
 

@@ -30,7 +30,7 @@ Portal(into: panel) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `into:` | `Element?  (required)` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
+| `into:` | `Element? (required)` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

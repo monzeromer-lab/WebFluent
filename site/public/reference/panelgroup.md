@@ -35,9 +35,9 @@ PanelGroup(bind: sizes, label: "Resize the sidebar") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | The panels' sizes, in percent: `[30, 70]` |
-| `vertical:` | `Bool` | One above another |
-| `label:` | `String` | What the handles resize, for a screen reader |
+| `bind:` | `State` | A list of Numbers, each panel's size in percent, `[30, 70]`, written as they move; a list of another length is ignored |
+| `vertical:` | `Bool` | Panels one above another; the handles move up and down. Written as a flag, `.vertical`, or `vertical: true`. |
+| `label:` | `String` | Each handle's accessible name (`aria-label`): what it resizes |
 
 ## Flags
 
@@ -67,8 +67,8 @@ PanelGroup.Panel(min: Number, collapsible: Bool) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `min:` | `Number` | The least it may be, in percent (unset, 10) |
-| `collapsible:` | `Bool` | Enter or a double press on the handle after it folds it away, and again brings it back |
+| `min:` | `Number` | The least it may be, in percent of the group |
+| `collapsible:` | `Bool` | Enter or a double press on the handle after it folds it away, its share to its neighbour; again brings it back. Written as a flag, `.collapsible`, or `collapsible: true`. |
 
 Flags: `.collapsible`
 

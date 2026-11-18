@@ -32,7 +32,7 @@ Masonry(columns: { base: 1, sm: 2, md: 3 }) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Number` | How many columns (unset, 3) — or one per breakpoint, `{ base: 1, md: 3 }` |
+| `columns:` | `Number` | How many columns at most (CSS `columns`), each at least 12rem wide, so a narrow box has fewer; or one per breakpoint, `{ base: 1, md: 3 }` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

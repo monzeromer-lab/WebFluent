@@ -28,12 +28,12 @@ Lightbox(label: "Launch week", previous: "Previous photo", next: "Next photo", c
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | What the pictures are, for a screen reader (unset, `Pictures`) |
-| `previous:` | `String` | The previous button's name (unset, `Previous picture`) |
-| `next:` | `String` | The next button's name (unset, `Next picture`) |
-| `close:` | `String` | The close button's name (unset, `Close`) |
-| `zoom:` | `String` | The zoom button's name (unset, `Zoom`) |
-| `of:` | `String` | The word in `2 of 5` (unset, `of`) |
+| `label:` | `String` | What the pictures are: the accessible name of the full-screen dialog they open in |
+| `previous:` | `String` | The previous button's accessible name, in your words |
+| `next:` | `String` | The next button's accessible name, in your words |
+| `close:` | `String` | The close button's accessible name, in your words |
+| `zoom:` | `String` | The zoom button's accessible name, in your words |
+| `of:` | `String` | The word between the two numbers of the counter, `2 of 5` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

@@ -24,11 +24,11 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `src:` | `String` | Audio URL |
-| `controls:` | `Bool` | Show the browser's playback controls |
-| `autoplay:` | `Bool` | Start playing when shown |
-| `loop:` | `Bool` | Start again when it ends |
-| `transcript:` | `String` | A link to what was said, shown beneath the player |
+| `src:` | `String` | The audio's address |
+| `controls:` | `Bool` | The browser's playback controls; without them the player shows nothing. Written as a flag, `.controls`, or `controls: true`. |
+| `autoplay:` | `Bool` | Start playing when shown; most browsers refuse until the reader has interacted with the page. Written as a flag, `.autoplay`, or `autoplay: true`. |
+| `loop:` | `Bool` | Start again when it ends. Written as a flag, `.loop`, or `loop: true`. |
+| `transcript:` | `String` | The address of what was said, linked as `Read the transcript` beneath the player; without it, `A09` |
 
 ## Flags
 

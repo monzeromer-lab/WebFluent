@@ -1614,9 +1614,11 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         // its entries in the page, with no button, its `label:` loose text
         // above them. A menu opened by state is its list alone.
         "Menu" | "Dropdown" => {
+            // A `Dropdown`'s positional is its `label:`, as on the live page.
             let given = |key: &str| {
                 ui.args.iter().find_map(|a| match a {
                     Arg::Named(k, v) if k == key => Some(v),
+                    Arg::Positional(v) if key == "label" && name == "Dropdown" => Some(v),
                     _ => None,
                 })
             };
@@ -1774,7 +1776,8 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                         Arg::Named(k, v) if k == "disabled" => eval(v, &ctx.scope),
                         _ => None,
                     })
-                    .is_some_and(|v| v == Static::Bool(true));
+                    .is_some_and(|v| v == Static::Bool(true))
+                    || page.modifiers.iter().any(|m| m == "disabled");
                 let (class, selected, stop) = if i == open {
                     ("wf-tabs__tab active", "true", "0")
                 } else {
@@ -2415,6 +2418,9 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                             attrs.push(format!("maxlength=\"{}\"", html_escape(&s)));
                         }
                     }
+                    // A button goes there when pressed, as the live page
+                    // has it; `href` is not a button's.
+                    "to" if matches!(name, "Button" | "IconButton") => {}
                     "to" => {
                         if let Some(s) =
                             address_text(val, &ctx.scope).or_else(|| static_attr(val, &ctx.scope))
@@ -3045,11 +3051,10 @@ fn render_media<C: Paint>(name: &str, class: &str, ui: &UIElement, ctx: &mut C) 
     let mut out = format!("<{tag} {}{own}>", attrs.join(" "));
     if let Some(captions) = named("captions").and_then(|v| static_attr(v, &ctx.scope)) {
         out.push_str(&format!(
-            "<track kind=\"captions\" src=\"{}\" srclang=\"{}\" default />",
+            // No `srclang`: captions are in the page's language, which the
+            // browser reads from the document. It said "en" on every page.
+            "<track kind=\"captions\" src=\"{}\" default />",
             html_escape(crate::project::url::guard(&captions)),
-            // The captions are in the page's language; the browser reads
-            // the document's own when this says nothing more.
-            "en"
         ));
     }
     out.push_str(&format!("</{tag}>"));
@@ -3112,11 +3117,18 @@ fn render_picture<C: Paint>(class: &str, ui: &UIElement, ctx: &mut C) -> String 
         img.push(format!("sizes=\"{}\"", html_escape(sizes)));
     }
     img.push("decoding=\"async\"".to_string());
-    // The page's first image is the one its largest paint waits for.
-    if ctx.images == 0 {
-        img.push("loading=\"eager\" fetchpriority=\"high\"".to_string());
-    } else {
-        img.push("loading=\"lazy\"".to_string());
+    // The page's first image is the one its largest paint waits for —
+    // unless `loading:` says otherwise, as it does on the live page.
+    let asked = named("loading").and_then(|v| match v {
+        Expr::StringLiteral(s) => Some(s.clone()),
+        Expr::EnumCase(c) => Some(c.clone()),
+        _ => None,
+    });
+    match asked.as_deref() {
+        Some("eager") => img.push("loading=\"eager\"".to_string()),
+        Some("lazy") => img.push("loading=\"lazy\"".to_string()),
+        _ if ctx.images == 0 => img.push("loading=\"eager\" fetchpriority=\"high\"".to_string()),
+        _ => img.push("loading=\"lazy\"".to_string()),
     }
     ctx.images += 1;
 

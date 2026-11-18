@@ -25,8 +25,13 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `message` | `String  (positional)` | The message |
-| `tone:` | `.success .danger .warning .info` | Kind of notice |
+| `message` | `String (positional)` | The message; its block, when it has one, follows it |
+| `tone:` | `one of its cases` | The kind of notice, which sets its colours; `.danger` and `.warning` are announced at once (`role="alert"`), the rest politely (`role="status"`). Written as a flag, `.success`, or by name, `tone: .success`.
+
+- `.success`: Green: done, healthy
+- `.danger`: Red: destructive, failed
+- `.warning`: Amber: attention
+- `.info`: Blue: neutral notice |
 
 ## Flags
 

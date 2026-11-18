@@ -20,9 +20,15 @@ Callout("Run `wf check` before you push: every finding has a **code**, and [a pa
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | What it says |
-| `kind:` | `.note .tip .important .warning .caution` | What kind of note it is |
-| `title:` | `String` | Its title; unset, the kind's word (`Tip`) |
+| `text` | `String (positional)` | What it says, as Markdown: a `code` span, **bold** and a link show as such; markup in it is shown, not run. Its block follows |
+| `kind:` | `one of its cases` | What kind of note it is: its colour, its icon and its title's word. Written as a flag, `.note`, or by name, `kind: .note`.
+
+- `.note` (the default): Context worth having: blue, an info icon, `Note` (the default)
+- `.tip`: A way to do it better or sooner: green, `Tip`
+- `.important`: Something to know before going on: the primary colour, `Important`
+- `.warning`: A way to lose work or ship a bug: amber, `Warning`
+- `.caution`: A way to lose data or expose a secret: red, `Caution` |
+| `title:` | `String` | The words of its title row, after the kind's icon; a `Callout.Title` block written by hand draws the row instead |
 
 ## Flags
 

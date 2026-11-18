@@ -139,14 +139,18 @@ impl JsCodegen {
                 },
             );
             let label = self.live(&label);
-            let disabled = page_arg(tab, "disabled").map_or(String::new(), |d| {
-                let d = self.emit_expr(&d);
-                if self.is_reactive(&d) {
-                    format!(", disabled: () => !!({d})")
-                } else {
-                    format!(", disabled: !!({d})")
-                }
-            });
+            // `Tabs.Page(…).disabled` as a flag too: it was read by name only.
+            let flagged = tab.modifiers.iter().any(|m| m == "disabled");
+            let disabled = page_arg(tab, "disabled")
+                .or_else(|| flagged.then_some(Expr::BoolLiteral(true)))
+                .map_or(String::new(), |d| {
+                    let d = self.emit_expr(&d);
+                    if self.is_reactive(&d) {
+                        format!(", disabled: () => !!({d})")
+                    } else {
+                        format!(", disabled: !!({d})")
+                    }
+                });
             // The Tab stop and the arrow keys are `WF.tabs`' (`roving`).
             let btn_var = self.fresh_var();
             self.emit_line(&format!(
@@ -380,9 +384,18 @@ impl JsCodegen {
                         } else {
                             "WF._basePath + ".to_string()
                         };
+                        // A single-page build routes the press, as a
+                        // `Link` does; a plain href reloaded the page.
+                        let routed = if self.ssg_mode {
+                            String::new()
+                        } else {
+                            format!(
+                                ", \"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({href}); }}"
+                            )
+                        };
                         self.emit_line(&format!(
-                            "const {} = WF.el(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{}{} }});",
-                            item_var, bp, href, self.wf_node_inline(ui_child)
+                            "const {} = WF.el(\"a\", {{ className: \"wf-breadcrumb__item\", href: {}{}{}{} }});",
+                            item_var, bp, href, routed, self.wf_node_inline(ui_child)
                         ));
                     } else {
                         self.emit_line(&format!(

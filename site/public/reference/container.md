@@ -28,7 +28,7 @@ Container {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `fluid:` | `Bool` | Full width, no maximum |
+| `fluid:` | `Bool` | Drops the 1200px maximum width, so it spans its parent; the side padding stays. Written as a flag, `.fluid`, or `fluid: true`. |
 
 ## Flags
 

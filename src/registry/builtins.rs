@@ -2794,7 +2794,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::Elements,
     )
-    .html("p", "wf-callout__title"),
+    .html("div", "wf-callout__title"),
     comp(
         "Kbd",
         "Content",

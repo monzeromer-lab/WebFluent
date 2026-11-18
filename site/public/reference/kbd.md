@@ -23,7 +23,7 @@ Stack(gap: .xs) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `keys` | `String  (positional)` | The combination, as `on key` names it: `mod+k`, `shift+Enter` |
+| `keys` | `String (positional)` | The combination, as `on key` names it (`mod+k`, `shift+Enter`), written as this system writes it: `⌘K` on a Mac, `Ctrl+K` elsewhere and in the static paint |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

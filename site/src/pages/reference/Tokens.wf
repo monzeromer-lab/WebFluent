@@ -1,8 +1,8 @@
 // Every token of the baseline theme, by group: written by scripts/docsite/reference.py from `wf theme --json`;
 // edit the compiler or the script, not this file.
 
-page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.") {
-    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 87 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "tokens-color", label: "color"), Anchor(id: "tokens-spacing", label: "spacing"), Anchor(id: "tokens-font-size", label: "font-size"), Anchor(id: "tokens-line-height", label: "line-height"), Anchor(id: "tokens-radius", label: "radius"), Anchor(id: "tokens-shadow", label: "shadow"), Anchor(id: "tokens-transition", label: "transition"), Anchor(id: "tokens-font", label: "font"), Anchor(id: "tokens-motion", label: "motion"), Anchor(id: "tokens-other", label: "other"), Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "every-built-in-follows-the-theme", label: "Every built-in follows the theme"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], source: "md-docs/reference/design-tokens.md") {
+page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token: its default value, what it is for, which built-ins draw from it, and how a style block or a stylesheet reads it.") {
+    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 87 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "every-built-in-follows-the-theme", label: "Every built-in follows the theme"), Anchor(id: "short-names", label: "Short names"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "tokens-color", label: "Colour"), Anchor(id: "tokens-spacing", label: "Spacing"), Anchor(id: "tokens-font-size", label: "Font size"), Anchor(id: "tokens-line-height", label: "Line height"), Anchor(id: "tokens-radius", label: "Radius"), Anchor(id: "tokens-shadow", label: "Shadow"), Anchor(id: "tokens-transition", label: "Transition"), Anchor(id: "tokens-font", label: "Font"), Anchor(id: "tokens-motion", label: "Motion"), Anchor(id: "tokens-other", label: "Other")], source: "md-docs/reference/design-tokens.md") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter lists every design token of the baseline theme with its value, and how a style reads one. A *design token* is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.\n\nA `theme` declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on `:root`:")
@@ -76,529 +76,6 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
 
                 Markdown("The built-ins draw their colours, sizes, radii, fonts and motion from these tokens and nothing else, so a theme restyles every one of them, the ones a page adds later included. A tone's label is a token too: `color-on-primary` is what a primary button, badge, pressed toggle, current page or selected day writes on `color-primary`, and so for `secondary`, `success`, `danger`, `warning` and `info`. A theme with a light primary names a dark `color-on-primary`, and `A13` holds each pair to WCAG AA where a page draws it. An alert's tint, a focus ring and a highlighted match are worked out from the tone and the page's colours (`color-mix`), so a dark theme gets dark alerts without naming any; `color-backdrop` dims the page behind a modal, a dialog, a sheet and a drawer. The only colours that stay fixed are the ones over a picture: a carousel's and a lightbox's controls.")
 
-                Heading("The baseline", id: "the-baseline").h2
-
-                Markdown("The tables below are written from the compiler's baseline theme, and the test suite checks them against it.")
-
-                Heading("Colour", id: "colour").h3
-
-                Table(caption: "Colour") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`color-backdrop`") }
-                            Table.Cell { Markdown("`rgb(0 0 0 / 0.5)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-background`") }
-                            Table.Cell { Markdown("`#FFFFFF`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-border`") }
-                            Table.Cell { Markdown("`#E2E8F0`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-danger`") }
-                            Table.Cell { Markdown("`#EF4444`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-info`") }
-                            Table.Cell { Markdown("`#06B6D4`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-on-danger`") }
-                            Table.Cell { Markdown("`#FFFFFF`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-on-info`") }
-                            Table.Cell { Markdown("`#FFFFFF`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-on-primary`") }
-                            Table.Cell { Markdown("`#FFFFFF`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-on-secondary`") }
-                            Table.Cell { Markdown("`#FFFFFF`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-on-success`") }
-                            Table.Cell { Markdown("`#FFFFFF`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-on-warning`") }
-                            Table.Cell { Markdown("`#000000`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-primary`") }
-                            Table.Cell { Markdown("`#3B82F6`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-secondary`") }
-                            Table.Cell { Markdown("`#64748B`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-success`") }
-                            Table.Cell { Markdown("`#22C55E`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-surface`") }
-                            Table.Cell { Markdown("`#F8FAFC`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-text`") }
-                            Table.Cell { Markdown("`#0F172A`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-text-muted`") }
-                            Table.Cell { Markdown("`#64748B`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`color-warning`") }
-                            Table.Cell { Markdown("`#F59E0B`") }
-                        }
-                    }
-                }
-
-                Heading("Font", id: "font").h3
-
-                Table(caption: "Font") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`font-family`") }
-                            Table.Cell { Markdown("`system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-family-mono`") }
-                            Table.Cell { Markdown("`ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-2xl`") }
-                            Table.Cell { Markdown("`clamp(1.5rem, 1.25rem + 1.25vw, 2rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-3xl`") }
-                            Table.Cell { Markdown("`clamp(1.75rem, 1.38rem + 1.88vw, 2.5rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-base`") }
-                            Table.Cell { Markdown("`1rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-lg`") }
-                            Table.Cell { Markdown("`clamp(1.125rem, 1.06rem + 0.31vw, 1.25rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-sm`") }
-                            Table.Cell { Markdown("`0.875rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-xl`") }
-                            Table.Cell { Markdown("`clamp(1.25rem, 1.13rem + 0.63vw, 1.5rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-size-xs`") }
-                            Table.Cell { Markdown("`0.75rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-weight-bold`") }
-                            Table.Cell { Markdown("`700`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-weight-medium`") }
-                            Table.Cell { Markdown("`500`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`font-weight-normal`") }
-                            Table.Cell { Markdown("`400`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`line-height-loose`") }
-                            Table.Cell { Markdown("`1.75`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`line-height-normal`") }
-                            Table.Cell { Markdown("`1.5`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`line-height-tight`") }
-                            Table.Cell { Markdown("`1.25`") }
-                        }
-                    }
-                }
-
-                Heading("Spacing", id: "spacing").h3
-
-                Table(caption: "Spacing") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-2xl`") }
-                            Table.Cell { Markdown("`clamp(2rem, 1.5rem + 2.5vw, 3rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-3xl`") }
-                            Table.Cell { Markdown("`clamp(2.5rem, 1.75rem + 3.75vw, 4rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-lg`") }
-                            Table.Cell { Markdown("`1.5rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-md`") }
-                            Table.Cell { Markdown("`1rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-sm`") }
-                            Table.Cell { Markdown("`0.5rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-xl`") }
-                            Table.Cell { Markdown("`clamp(1.5rem, 1.25rem + 1.25vw, 2rem)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`spacing-xs`") }
-                            Table.Cell { Markdown("`0.25rem`") }
-                        }
-                    }
-                }
-
-                Heading("Radius", id: "radius").h3
-
-                Table(caption: "Radius") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`radius-full`") }
-                            Table.Cell { Markdown("`9999px`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`radius-lg`") }
-                            Table.Cell { Markdown("`1rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`radius-md`") }
-                            Table.Cell { Markdown("`0.5rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`radius-none`") }
-                            Table.Cell { Markdown("`0`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`radius-sm`") }
-                            Table.Cell { Markdown("`0.25rem`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`radius-xl`") }
-                            Table.Cell { Markdown("`1.5rem`") }
-                        }
-                    }
-                }
-
-                Heading("Shadow", id: "shadow").h3
-
-                Table(caption: "Shadow") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`shadow-lg`") }
-                            Table.Cell { Markdown("`0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`shadow-md`") }
-                            Table.Cell { Markdown("`0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`shadow-none`") }
-                            Table.Cell { Markdown("`none`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`shadow-sm`") }
-                            Table.Cell { Markdown("`0 1px 2px 0 rgba(0,0,0,0.05)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`shadow-xl`") }
-                            Table.Cell { Markdown("`0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)`") }
-                        }
-                    }
-                }
-
-                Heading("Motion", id: "motion").h3
-
-                Table(caption: "Motion") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`animation-duration-fast`") }
-                            Table.Cell { Markdown("`150ms`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`animation-duration-normal`") }
-                            Table.Cell { Markdown("`300ms`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`animation-duration-slow`") }
-                            Table.Cell { Markdown("`500ms`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`animation-easing-bounce`") }
-                            Table.Cell { Markdown("`cubic-bezier(0.68, -0.55, 0.265, 1.55)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`animation-easing-default`") }
-                            Table.Cell { Markdown("`cubic-bezier(0.4, 0, 0.2, 1)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`animation-easing-spring`") }
-                            Table.Cell { Markdown("`cubic-bezier(0.175, 0.885, 0.32, 1.275)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`transition-fast`") }
-                            Table.Cell { Markdown("`150ms ease`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`transition-normal`") }
-                            Table.Cell { Markdown("`250ms ease`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`transition-slow`") }
-                            Table.Cell { Markdown("`350ms ease`") }
-                        }
-                    }
-                }
-
-                Heading("Easing", id: "easing").h3
-
-                Table(caption: "Easing") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`ease-in`") }
-                            Table.Cell { Markdown("`cubic-bezier(0.4, 0, 1, 1)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`ease-out`") }
-                            Table.Cell { Markdown("`cubic-bezier(0, 0, 0.2, 1)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`ease-spring`") }
-                            Table.Cell { Markdown("`linear(0, 0.006, 0.079, 0.234, 0.44, 0.652, 0.828, 0.947, 1.008, 1.025, 1.016, 1)`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`ease-standard`") }
-                            Table.Cell { Markdown("`cubic-bezier(0.2, 0, 0, 1)`") }
-                        }
-                    }
-                }
-
-                Heading("Breakpoints", id: "breakpoints").h3
-
-                Table(caption: "Breakpoints") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`screen-lg`") }
-                            Table.Cell { Markdown("`1024px`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`screen-md`") }
-                            Table.Cell { Markdown("`768px`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`screen-sm`") }
-                            Table.Cell { Markdown("`640px`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`screen-xl`") }
-                            Table.Cell { Markdown("`1280px`") }
-                        }
-                    }
-                }
-
-                Heading("Code", id: "code").h3
-
-                Table(caption: "Code") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`syntax-comment`") }
-                            Table.Cell { Markdown("`#959BA1`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`syntax-function`") }
-                            Table.Cell { Markdown("`#6FD3E6`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`syntax-keyword`") }
-                            Table.Cell { Markdown("`#8FBDE7`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`syntax-number`") }
-                            Table.Cell { Markdown("`#E0B070`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`syntax-punct`") }
-                            Table.Cell { Markdown("`#B3BAC0`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`syntax-string`") }
-                            Table.Cell { Markdown("`#7FD6A8`") }
-                        }
-                    }
-                }
-
-                Heading("Terminal", id: "terminal").h3
-
-                Table(caption: "Terminal") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`term-bg`") }
-                            Table.Cell { Markdown("`#1B1F22`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`term-dim`") }
-                            Table.Cell { Markdown("`#959BA1`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`term-ink`") }
-                            Table.Cell { Markdown("`#E6E9EC`") }
-                        }
-                    }
-                }
-
-                Heading("Stacking", id: "stacking").h3
-
-                Table(caption: "Stacking") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`z-drawer`") }
-                            Table.Cell { Markdown("`200`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`z-dropdown`") }
-                            Table.Cell { Markdown("`1000`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`z-modal`") }
-                            Table.Cell { Markdown("`1300`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`z-skip-link`") }
-                            Table.Cell { Markdown("`10000`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`z-sticky`") }
-                            Table.Cell { Markdown("`100`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`z-toast`") }
-                            Table.Cell { Markdown("`1400`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`z-tooltip`") }
-                            Table.Cell { Markdown("`1500`") }
-                        }
-                    }
-                }
-
-                Heading("Targets", id: "targets").h3
-
-                Table(caption: "Targets") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`target-min`") }
-                            Table.Cell { Markdown("`24px`") }
-                        }
-                        Table.Row {
-                            Table.Cell { Markdown("`target-min-touch`") }
-                            Table.Cell { Markdown("`44px`") }
-                        }
-                    }
-                }
-
-                Heading("Layout", id: "layout").h3
-
-                Table(caption: "Layout") {
-                    Table.Head {
-                        Table.Row {
-                            Table.Cell("Token").header
-                            Table.Cell("Baseline").header
-                        }
-                    }
-                    Table.Body {
-                        Table.Row {
-                            Table.Cell { Markdown("`wf-header-height`") }
-                            Table.Cell { Markdown("`56px`") }
-                        }
-                    }
-                }
-
-                Markdown("87 tokens in all.")
-
                 Heading("Short names", id: "short-names").h2
 
                 Markdown("In a `style \{ \}` block, a short name is resolved through the group of the property it is given to: `$lg` on `padding` is `spacing-lg`, and on `border-radius` it is `radius-lg`.")
@@ -662,558 +139,657 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
 
             }
         }
-        Heading("color", id: "tokens-color", class: "bp-mono").h2
-        Table(caption: "The color tokens", class: "bp-table") {
+        Heading("The baseline", id: "the-baseline").h2
+        Markdown(t("tokens.baseline"), class: "bp-prose")
+        Heading("Colour", id: "tokens-color").h3
+        Table(caption: "The Colour tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$color-backdrop") }
+                    Table.Cell { Code("color-backdrop") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: rgb(0 0 0 / 0.5) } }  Code("rgb(0 0 0 / 0.5)") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("What dims the page behind a modal, a dialog, a sheet and a drawer") }
+                    Table.Cell("Sidebar, Modal, Dialog, Sheet")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-background") }
+                    Table.Cell { Code("color-background") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("The page behind everything") }
+                    Table.Cell("Navbar, Tooltip, Input, Select, Switch, FileUpload, Alert, Toast +13")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-border") }
+                    Table.Cell { Code("color-border") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #E2E8F0 } }  Code("#E2E8F0") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("A line between things: a field's edge, a divider, a card's border") }
+                    Table.Cell("Divider, Navbar, Sidebar, Breadcrumb, Menu, Popover, Tabs, Card +37")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-danger") }
+                    Table.Cell { Code("color-danger") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #EF4444 } }  Code("#EF4444") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Failed, destructive, invalid: a danger button, an error message") }
+                    Table.Cell("Menu, Badge, Button, IconButton, Dropdown, Input, Alert, Toast +5")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-info") }
+                    Table.Cell { Code("color-info") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #06B6D4 } }  Code("#06B6D4") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("For information: an info badge or alert, a note callout") }
+                    Table.Cell("Badge, Button, Alert, Toast, Icon, Callout, Markdown")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-on-danger") }
+                    Table.Cell { Code("color-on-danger") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text and icons written on `color-danger`; A13 checks the pair") }
+                    Table.Cell("Badge, Button, Toast")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-on-info") }
+                    Table.Cell { Code("color-on-info") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text and icons written on `color-info`; A13 checks the pair") }
+                    Table.Cell("Badge, Button, Toast")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-on-primary") }
+                    Table.Cell { Code("color-on-primary") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text and icons written on `color-primary`; A13 checks the pair") }
+                    Table.Cell("Sidebar, Badge, Avatar, Button, Chip, Toggle, Pagination, Stepper +1")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-on-secondary") }
+                    Table.Cell { Code("color-on-secondary") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text and icons written on `color-secondary`; A13 checks the pair") }
+                    Table.Cell("Badge, Button")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-on-success") }
+                    Table.Cell { Code("color-on-success") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #FFFFFF } }  Code("#FFFFFF") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text and icons written on `color-success`; A13 checks the pair") }
+                    Table.Cell("Badge, Button, Toast, Stepper")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-on-warning") }
+                    Table.Cell { Code("color-on-warning") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #000000 } }  Code("#000000") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text and icons written on `color-warning`; A13 checks the pair") }
+                    Table.Cell("Badge, Button, Toast")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-primary") }
+                    Table.Cell { Code("color-primary") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #3B82F6 } }  Code("#3B82F6") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("The main tone: a primary button, a link, a focus ring, what is chosen or current") }
+                    Table.Cell("Navbar, Sidebar, Link, Tabs, Badge, Avatar, Button, IconButton +35")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-secondary") }
+                    Table.Cell { Code("color-secondary") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #64748B } }  Code("#64748B") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("A quieter tone, for a secondary button or badge") }
+                    Table.Cell("Badge, Button, Icon, Markdown")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-success") }
+                    Table.Cell { Code("color-success") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #22C55E } }  Code("#22C55E") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Done, passing, saved: a success badge, alert or toast") }
+                    Table.Cell("Badge, Button, Alert, Toast, Icon, Callout, Stat, Stepper +1")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-surface") }
+                    Table.Cell { Code("color-surface") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #F8FAFC } }  Code("#F8FAFC") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("What sits on the page: a card, a menu, a popover, a table header") }
+                    Table.Cell("Navbar, Sidebar, Menu, Popover, Card, Table, Badge, Tag +25")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-text") }
+                    Table.Cell { Code("color-text") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #0F172A } }  Code("#0F172A") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("The text") }
+                    Table.Cell("Navbar, Sidebar, Breadcrumb, Menu, Popover, Tabs, Badge, Tooltip +19")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-text-muted") }
+                    Table.Cell { Code("color-text-muted") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #64748B } }  Code("#64748B") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Text that matters less: a hint, a caption, `.muted`") }
+                    Table.Cell("Navbar, Breadcrumb, Menu, Tabs, Table, List, Dropdown, Input +15")
                 }
                 Table.Row {
-                    Table.Cell { Code("$color-warning") }
+                    Table.Cell { Code("color-warning") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #F59E0B } }  Code("#F59E0B") } }
-                    Table.Cell("color, background, background-color, border, border-color, outline")
+                    Table.Cell { Markdown("Needs attention: a warning badge or alert, a rating's stars") }
+                    Table.Cell("Badge, Button, Alert, Toast, Icon, Callout, Rating, Markdown")
                 }
             }
         }
-        Heading("spacing", id: "tokens-spacing", class: "bp-mono").h2
-        Table(caption: "The spacing tokens", class: "bp-table") {
+        Heading("Spacing", id: "tokens-spacing").h3
+        Table(caption: "The Spacing tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$spacing-2xl") }
+                    Table.Cell { Code("spacing-2xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(2rem, 1.5rem + 2.5vw, 3rem)") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("A section's spacing, growing with the screen") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$spacing-3xl") }
+                    Table.Cell { Code("spacing-3xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(2.5rem, 1.75rem + 3.75vw, 4rem)") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("A page's largest spacing, growing with the screen") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$spacing-lg") }
+                    Table.Cell { Code("spacing-lg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1.5rem") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("A large gap: `gap: .lg`, between sections") }
+                    Table.Cell("Grid, Spacer, Navbar, Menu, Button, Dropdown, Dialog, OnThisPage +3")
                 }
                 Table.Row {
-                    Table.Cell { Code("$spacing-md") }
+                    Table.Cell { Code("spacing-md") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1rem") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("The usual gap: `gap: .md`, a card's padding") }
+                    Table.Cell("Grid, Spacer, Divider, Navbar, Sidebar, Menu, Tabs, Card +35")
                 }
                 Table.Row {
-                    Table.Cell { Code("$spacing-sm") }
+                    Table.Cell { Code("spacing-sm") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0.5rem") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("A small gap: `gap: .sm`, a control's padding") }
+                    Table.Cell("Grid, Spacer, Navbar, Sidebar, Menu, Popover, Tabs, Card +54")
                 }
                 Table.Row {
-                    Table.Cell { Code("$spacing-xl") }
+                    Table.Cell { Code("spacing-xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(1.5rem, 1.25rem + 1.25vw, 2rem)") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("An extra-large gap, growing with the screen") }
+                    Table.Cell("Grid, Spacer, EmptyState, OnThisPage")
                 }
                 Table.Row {
-                    Table.Cell { Code("$spacing-xs") }
+                    Table.Cell { Code("spacing-xs") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0.25rem") } }
-                    Table.Cell("gap, row-gap, column-gap, inset, top, right")
+                    Table.Cell { Markdown("The smallest gap: `gap: .xs`, `$xs` in a padding") }
+                    Table.Cell("Grid, Spacer, Navbar, Sidebar, Breadcrumb, Menu, Tooltip, Tag +41")
                 }
             }
         }
-        Heading("font-size", id: "tokens-font-size", class: "bp-mono").h2
-        Table(caption: "The font-size tokens", class: "bp-table") {
+        Heading("Font size", id: "tokens-font-size").h3
+        Table(caption: "The Font size tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$font-size-2xl") }
+                    Table.Cell { Code("font-size-2xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(1.5rem, 1.25rem + 1.25vw, 2rem)") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("A heading (`h3`, `h2`), growing with the screen") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-size-3xl") }
+                    Table.Cell { Code("font-size-3xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(1.75rem, 1.38rem + 1.88vw, 2.5rem)") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("The page's heading (`h1`), growing with the screen") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-size-base") }
+                    Table.Cell { Code("font-size-base") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1rem") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("Body text") }
+                    Table.Cell("Tabs, Button, IconButton, Input, Select, Checkbox, Radio")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-size-lg") }
+                    Table.Cell { Code("font-size-lg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(1.125rem, 1.06rem + 0.31vw, 1.25rem)") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("Large text: `.lg`, a lede") }
+                    Table.Cell("Navbar, Sidebar, Avatar, Button, IconButton, Input, Alert, Toast +3")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-size-sm") }
+                    Table.Cell { Code("font-size-sm") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0.875rem") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("Small text: `.sm`, a hint, a table header") }
+                    Table.Cell("Navbar, Breadcrumb, Table, Avatar, Tag, Button, Input, Slider +16")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-size-xl") }
+                    Table.Cell { Code("font-size-xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(1.25rem, 1.13rem + 0.63vw, 1.5rem)") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("A small heading (`h4`)") }
+                    Table.Cell("IconButton, Icon")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-size-xs") }
+                    Table.Cell { Code("font-size-xs") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0.75rem") } }
-                    Table.Cell("font-size")
+                    Table.Cell { Markdown("The smallest text: a badge, a caption") }
+                    Table.Cell("Sidebar, Menu, Badge, Avatar, Tooltip, Tag, Dropdown, Chip +1")
                 }
             }
         }
-        Heading("line-height", id: "tokens-line-height", class: "bp-mono").h2
-        Table(caption: "The line-height tokens", class: "bp-table") {
+        Heading("Line height", id: "tokens-line-height").h3
+        Table(caption: "The Line height tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$line-height-loose") }
+                    Table.Cell { Code("line-height-loose") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1.75") } }
-                    Table.Cell("line-height")
+                    Table.Cell { Markdown("Line height for long reading") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$line-height-normal") }
+                    Table.Cell { Code("line-height-normal") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1.5") } }
-                    Table.Cell("line-height")
+                    Table.Cell { Markdown("Body text's line height") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$line-height-tight") }
+                    Table.Cell { Code("line-height-tight") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1.25") } }
-                    Table.Cell("line-height")
+                    Table.Cell { Markdown("Headings' line height") }
+                    Table.Cell("—")
                 }
             }
         }
-        Heading("radius", id: "tokens-radius", class: "bp-mono").h2
-        Table(caption: "The radius tokens", class: "bp-table") {
+        Heading("Radius", id: "tokens-radius").h3
+        Table(caption: "The Radius tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$radius-full") }
+                    Table.Cell { Code("radius-full") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("9999px") } }
-                    Table.Cell("border-radius")
+                    Table.Cell { Markdown("A pill or a circle: `.pill`, an avatar") }
+                    Table.Cell("Badge, Avatar, Button, Input, Switch, Progress, Chip")
                 }
                 Table.Row {
-                    Table.Cell { Code("$radius-lg") }
+                    Table.Cell { Code("radius-lg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1rem") } }
-                    Table.Cell("border-radius")
+                    Table.Cell { Markdown("Rounder corners: a modal, a sheet") }
+                    Table.Cell("Button, Modal, Dialog, Sheet")
                 }
                 Table.Row {
-                    Table.Cell { Code("$radius-md") }
+                    Table.Cell { Code("radius-md") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0.5rem") } }
-                    Table.Cell("border-radius")
+                    Table.Cell { Markdown("The usual corners: a button, a field, a card") }
+                    Table.Cell("Navbar, Sidebar, Menu, Popover, Card, Tag, Button, IconButton +26")
                 }
                 Table.Row {
-                    Table.Cell { Code("$radius-none") }
+                    Table.Cell { Code("radius-none") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0") } }
-                    Table.Cell("border-radius")
+                    Table.Cell { Markdown("Square corners") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$radius-sm") }
+                    Table.Cell { Code("radius-sm") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0.25rem") } }
-                    Table.Cell("border-radius")
+                    Table.Cell { Markdown("Slightly rounded: a badge, a checkbox, code") }
+                    Table.Cell("Tooltip, FileUpload, Modal, Carousel, Code, Kbd, Listbox, Tree +6")
                 }
                 Table.Row {
-                    Table.Cell { Code("$radius-xl") }
+                    Table.Cell { Code("radius-xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1.5rem") } }
-                    Table.Cell("border-radius")
+                    Table.Cell { Markdown("Very round corners") }
+                    Table.Cell("—")
                 }
             }
         }
-        Heading("shadow", id: "tokens-shadow", class: "bp-mono").h2
-        Table(caption: "The shadow tokens", class: "bp-table") {
+        Heading("Shadow", id: "tokens-shadow").h3
+        Table(caption: "The Shadow tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$shadow-lg") }
+                    Table.Cell { Code("shadow-lg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)") } }
-                    Table.Cell("box-shadow")
+                    Table.Cell { Markdown("A popover, a dropdown, a toast") }
+                    Table.Cell("Menu, Popover, Dropdown, Toast, NavigationMenu, HoverCard, Tour, ConsentBanner +3")
                 }
                 Table.Row {
-                    Table.Cell { Code("$shadow-md") }
+                    Table.Cell { Code("shadow-md") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)") } }
-                    Table.Cell("box-shadow")
+                    Table.Cell { Markdown("`Card.elevated`, a menu") }
+                    Table.Cell("Card, Fab")
                 }
                 Table.Row {
-                    Table.Cell { Code("$shadow-none") }
+                    Table.Cell { Code("shadow-none") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("none") } }
-                    Table.Cell("box-shadow")
+                    Table.Cell { Markdown("No shadow") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$shadow-sm") }
+                    Table.Cell { Code("shadow-sm") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0 1px 2px 0 rgba(0,0,0,0.05)") } }
-                    Table.Cell("box-shadow")
+                    Table.Cell { Markdown("A slight lift: a button, a field") }
+                    Table.Cell("Switch, Sticky")
                 }
                 Table.Row {
-                    Table.Cell { Code("$shadow-xl") }
+                    Table.Cell { Code("shadow-xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)") } }
-                    Table.Cell("box-shadow")
+                    Table.Cell { Markdown("A modal, a dialog, a sheet") }
+                    Table.Cell("Modal, Dialog, Sheet")
                 }
             }
         }
-        Heading("transition", id: "tokens-transition", class: "bp-mono").h2
-        Table(caption: "The transition tokens", class: "bp-table") {
+        Heading("Transition", id: "tokens-transition").h3
+        Table(caption: "The Transition tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$transition-fast") }
+                    Table.Cell { Code("transition-fast") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("150ms ease") } }
-                    Table.Cell("transition")
+                    Table.Cell { Markdown("A quick change: a hover, a press") }
+                    Table.Cell("Navbar, Sidebar, Menu, Tabs, Button, IconButton, Dropdown, Input +8")
                 }
                 Table.Row {
-                    Table.Cell { Code("$transition-normal") }
+                    Table.Cell { Code("transition-normal") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("250ms ease") } }
-                    Table.Cell("transition")
+                    Table.Cell { Markdown("The usual change: an open, a slide") }
+                    Table.Cell("Sheet, Progress, Carousel, Accordion")
                 }
                 Table.Row {
-                    Table.Cell { Code("$transition-slow") }
+                    Table.Cell { Code("transition-slow") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("350ms ease") } }
-                    Table.Cell("transition")
+                    Table.Cell { Markdown("A deliberate change") }
+                    Table.Cell("—")
                 }
             }
         }
-        Heading("font", id: "tokens-font", class: "bp-mono").h2
-        Table(caption: "The font tokens", class: "bp-table") {
+        Heading("Font", id: "tokens-font").h3
+        Table(caption: "The Font tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$font-family") }
+                    Table.Cell { Code("font-family") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("The text's typeface") }
+                    Table.Cell("Tabs, Button, Input, Select, Toast")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-family-mono") }
+                    Table.Cell { Code("font-family-mono") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Code's typeface: `Code`, `CodeBlock`, `Kbd`") }
+                    Table.Cell("Code, CodeBlock, Kbd, ColorPicker, Markdown")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-weight-bold") }
+                    Table.Cell { Code("font-weight-bold") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("700") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`.bold`, a heading, a title") }
+                    Table.Cell("Navbar, Sidebar, Link, Table, Avatar, Toast, Callout, EmptyState +10")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-weight-medium") }
+                    Table.Cell { Code("font-weight-medium") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("500") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("A label's or a button's weight") }
+                    Table.Cell("Navbar, Breadcrumb, Tabs, Badge, Button, Input, Slider, Accordion +6")
                 }
                 Table.Row {
-                    Table.Cell { Code("$font-weight-normal") }
+                    Table.Cell { Code("font-weight-normal") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("400") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Body text's weight") }
+                    Table.Cell("—")
                 }
             }
         }
-        Heading("motion", id: "tokens-motion", class: "bp-mono").h2
+        Heading("Motion", id: "tokens-motion").h3
         Table(caption: "The motion tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$animation-duration-fast") }
+                    Table.Cell { Code("animation-duration-fast") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("150ms") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`.fast` and `speed: .fast`") }
+                    Table.Cell("Modal, Dialog")
                 }
                 Table.Row {
-                    Table.Cell { Code("$animation-duration-normal") }
+                    Table.Cell { Code("animation-duration-normal") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("300ms") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("An animation's length when it says nothing") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$animation-duration-slow") }
+                    Table.Cell { Code("animation-duration-slow") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("500ms") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`.slow` and `speed: .slow`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$animation-easing-bounce") }
+                    Table.Cell { Code("animation-easing-bounce") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("cubic-bezier(0.68, -0.55, 0.265, 1.55)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`easing: .bouncy`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$animation-easing-default") }
+                    Table.Cell { Code("animation-easing-default") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("cubic-bezier(0.4, 0, 0.2, 1)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("An animation's easing when it says nothing") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$animation-easing-spring") }
+                    Table.Cell { Code("animation-easing-spring") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("cubic-bezier(0.175, 0.885, 0.32, 1.275)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`easing: .spring`, sampled into `linear()`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$ease-in") }
+                    Table.Cell { Code("ease-in") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("cubic-bezier(0.4, 0, 1, 1)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`easing: .easeIn`: something leaving") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$ease-out") }
+                    Table.Cell { Code("ease-out") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("cubic-bezier(0, 0, 0.2, 1)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`easing: .easeOut`: something arriving") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$ease-spring") }
+                    Table.Cell { Code("ease-spring") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("linear(0, 0.006, 0.079, 0.234, 0.44, 0.652, 0.828, 0.947, 1.008, 1.025, 1.016, 1)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("A spring that overshoots and settles") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$ease-standard") }
+                    Table.Cell { Code("ease-standard") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("cubic-bezier(0.2, 0, 0, 1)") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`easing: .standard`: the default for motion that moves") }
+                    Table.Cell("Modal, Dialog")
                 }
             }
         }
-        Heading("other", id: "tokens-other", class: "bp-mono").h2
+        Heading("Other", id: "tokens-other").h3
         Table(caption: "The other tokens", class: "bp-table") {
             Table.Head {
                 Table.Row {
                     Table.Cell(t("tokens.token")).header
                     Table.Cell(t("tokens.value")).header
-                    Table.Cell(t("tokens.drawn")).header
+                    Table.Cell(t("tokens.for")).header
+                    Table.Cell(t("tokens.usedby")).header
                 }
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Code("$screen-lg") }
+                    Table.Cell { Code("screen-lg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1024px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where `lg` starts: `\{ lg: … \}`, `@lg \{ \}`, `viewport.lg`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$screen-md") }
+                    Table.Cell { Code("screen-md") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("768px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where `md` starts: `\{ md: … \}`, `@md \{ \}`, `viewport.md`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$screen-sm") }
+                    Table.Cell { Code("screen-sm") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("640px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where `sm` starts: `\{ sm: … \}`, `@sm \{ \}`, `viewport.sm`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$screen-xl") }
+                    Table.Cell { Code("screen-xl") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1280px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where `xl` starts: `\{ xl: … \}`, `@xl \{ \}`, `viewport.xl`") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$syntax-comment") }
+                    Table.Cell { Code("syntax-comment") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#959BA1") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`CodeBlock`'s comments") }
+                    Table.Cell("Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$syntax-function") }
+                    Table.Cell { Code("syntax-function") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#6FD3E6") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`CodeBlock`'s calls and element names") }
+                    Table.Cell("Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$syntax-keyword") }
+                    Table.Cell { Code("syntax-keyword") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#8FBDE7") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`CodeBlock`'s keywords") }
+                    Table.Cell("Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$syntax-number") }
+                    Table.Cell { Code("syntax-number") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#E0B070") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`CodeBlock`'s numbers") }
+                    Table.Cell("Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$syntax-punct") }
+                    Table.Cell { Code("syntax-punct") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#B3BAC0") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`CodeBlock`'s punctuation") }
+                    Table.Cell("Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$syntax-string") }
+                    Table.Cell { Code("syntax-string") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#7FD6A8") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("`CodeBlock`'s strings") }
+                    Table.Cell("Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$target-min") }
+                    Table.Cell { Code("target-min") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("24px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("The least size of anything a pointer presses (WCAG 2.2's 24px)") }
+                    Table.Cell("Link, Menu, Tag, Checkbox, Radio, Switch, Slider, Alert +22")
                 }
                 Table.Row {
-                    Table.Cell { Code("$target-min-touch") }
+                    Table.Cell { Code("target-min-touch") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("44px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("The least size of anything a finger presses (44px)") }
+                    Table.Cell("BottomNavigation, Lightbox, Fab, BackToTop")
                 }
                 Table.Row {
-                    Table.Cell { Code("$term-bg") }
+                    Table.Cell { Code("term-bg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#1B1F22") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("A terminal block's background") }
+                    Table.Cell("Code, CodeBlock, Markdown")
                 }
                 Table.Row {
-                    Table.Cell { Code("$term-dim") }
+                    Table.Cell { Code("term-dim") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#959BA1") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("A terminal block's quieter text: a prompt, a comment") }
+                    Table.Cell("CodeBlock, Highlight")
                 }
                 Table.Row {
-                    Table.Cell { Code("$term-ink") }
+                    Table.Cell { Code("term-ink") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#E6E9EC") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("A terminal block's text") }
+                    Table.Cell("Code, CodeBlock, Markdown")
                 }
                 Table.Row {
-                    Table.Cell { Code("$wf-header-height") }
+                    Table.Cell { Code("wf-header-height") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("56px") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("How far a sticky element sits below the page's sticky header") }
+                    Table.Cell("Sidebar")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-drawer") }
+                    Table.Cell { Code("z-drawer") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("200") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where a drawer, a `Sidebar` on a narrow screen, stacks") }
+                    Table.Cell("Sidebar")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-dropdown") }
+                    Table.Cell { Code("z-dropdown") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1000") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where a dropdown not in the top layer stacks") }
+                    Table.Cell("NavigationMenu")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-modal") }
+                    Table.Cell { Code("z-modal") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1300") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where a modal not in the top layer stacks") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-skip-link") }
+                    Table.Cell { Code("z-skip-link") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("10000") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where the skip link stacks, above everything") }
+                    Table.Cell("—")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-sticky") }
+                    Table.Cell { Code("z-sticky") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("100") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where a sticky header or `Sticky` stacks") }
+                    Table.Cell("Navbar, AppShell, BottomNavigation, Sticky, Fab, BackToTop")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-toast") }
+                    Table.Cell { Code("z-toast") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1400") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where the toasts stack") }
+                    Table.Cell("Toast, ConsentBanner")
                 }
                 Table.Row {
-                    Table.Cell { Code("$z-tooltip") }
+                    Table.Cell { Code("z-tooltip") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1500") } }
-                    Table.Cell("")
+                    Table.Cell { Markdown("Where a tooltip not in the top layer stacks") }
+                    Table.Cell("—")
                 }
             }
         }

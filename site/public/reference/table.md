@@ -34,7 +34,7 @@ Table(caption: "Regions") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `caption:` | `String` | Accessible name of the table (rendered visually hidden) |
+| `caption:` | `String` | The table's accessible name, drawn as a `<caption>` that is visually hidden |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -80,8 +80,8 @@ Table.Cell(_ content: String or Number or Bool, header: Bool) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `String or Number or Bool  (positional)` | The cell's content |
-| `header:` | `Bool` | Render as a `<th>` |
+| `content` | `String or Number or Bool (positional)` | The cell's text: a string, number or boolean; unset, its block |
+| `header:` | `Bool` | Drawn as a header cell, `<th scope="col">`, outside a `Table.Head` too (a cell a component draws). Written as a flag, `.header`, or `header: true`. |
 
 Flags: `.header`
 

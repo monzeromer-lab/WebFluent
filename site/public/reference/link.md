@@ -28,9 +28,11 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The link text |
-| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
-| `active:` | `.prefix` | How the link decides it is the current one |
+| `label` | `String (positional)` | The link's words; a block written after it may be its content instead |
+| `to:` | `Path` | The route or address it goes to, navigated in place; while it matches the current route the link carries `.active` and `aria-current="page"` |
+| `active:` | `one of its cases` | How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.
+
+- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms` |
 
 ## Flags
 

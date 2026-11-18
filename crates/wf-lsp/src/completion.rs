@@ -43,6 +43,16 @@ pub fn provide_completions(
     file_ix: usize,
     position: Position,
 ) -> Vec<CompletionItem> {
+    // One item a label: a word that is both a keyword and a function
+    // (`navigate`, `log`), or a store named in scope and declared, is
+    // offered once — the first, most specific, entry.
+    let mut seen = std::collections::HashSet::new();
+    let mut items = completions(project, file_ix, position);
+    items.retain(|item| seen.insert(item.label.clone()));
+    items
+}
+
+fn completions(project: &Project, file_ix: usize, position: Position) -> Vec<CompletionItem> {
     let file = &project.files[file_ix];
     let source: &str = &file.source;
     let Some(offset) = file.index.position_to_offset(source, position) else {
@@ -87,7 +97,11 @@ pub fn provide_completions(
         })
         .filter(|t| t.offset < offset && t.end >= offset);
     let anchor = typing.map_or(offset, |t| t.offset);
-    let previous: Vec<&Token> = tokens.iter().filter(|t| t.end <= anchor).collect();
+    // The end of the file is no token a completion reads.
+    let previous: Vec<&Token> = tokens
+        .iter()
+        .filter(|t| t.end <= anchor && !matches!(t.token_type, TokenType::Eof))
+        .collect();
     let last = previous.last().copied();
     let before_last = previous.len().checked_sub(2).map(|i| previous[i]);
 
@@ -152,6 +166,17 @@ pub fn provide_completions(
     if let Some(items) = connection_opener(&previous) {
         return items;
     }
+    // `middleware [‸`, `fakes: [‸`, `invalidates [‸`: what the list names.
+    if let Some(items) = bracket_list(project, file_ix, &previous, anchor) {
+        return items;
+    }
+    // `example ‸` at the top level: the component it shows.
+    if let Some(TokenType::Identifier(w)) = last.map(|t| &t.token_type)
+        && w == "example"
+        && statement_start(&previous, 1)
+    {
+        return project_components(project);
+    }
 
     let mut items = Vec::new();
 
@@ -188,11 +213,14 @@ pub fn provide_completions(
             }
             _ => {}
         }
-        if matches!(decl, Declaration::Api(_)) {
-            return api_body();
+        if let Declaration::Api(api) = decl {
+            return api_body(api, &previous);
         }
     }
     match decl {
+        // A fake's block: the endpoints it may answer, and in an answer what
+        // the answer may read.
+        Declaration::Fake(fake) => return fake_items(project, fake, &previous, anchor),
         // A value written at the top level: what it may read.
         Declaration::Const(_) | Declaration::Data(_) => {
             let mut items = top_level_names(project);
@@ -308,7 +336,10 @@ pub fn provide_completions(
 
     // In a body: what a statement can start with, and the names in scope.
     let in_store = matches!(decl, Declaration::Store(_));
-    let imperative = path.iter().any(|s| imperative_body(s, anchor));
+    // A middleware's body is a handler's: it does things, and reads its
+    // request and the rest of the chain.
+    let imperative = matches!(decl, Declaration::Middleware(_))
+        || path.iter().any(|s| imperative_body(s, anchor));
     let context = if imperative {
         Context::Imperative
     } else {
@@ -316,9 +347,26 @@ pub fn provide_completions(
             Declaration::Store(_) => Context::Store,
             Declaration::Component(_) => Context::Component,
             Declaration::Test(_) => Context::Test,
+            Declaration::Example(_) => Context::Example,
             _ => Context::Page,
         }
     };
+    if let Declaration::Middleware(m) = decl {
+        for (param, what) in m
+            .handler
+            .params
+            .iter()
+            .zip(["the request", "the rest of the chain"])
+        {
+            items.push(CompletionItem {
+                label: param.clone(),
+                kind: Some(CompletionItemKind::VARIABLE),
+                detail: Some(format!("parameter — {what}")),
+                sort_text: Some(format!("0{param}")),
+                ..Default::default()
+            });
+        }
+    }
     let spot = Spot {
         context,
         in_element: in_element_block(&previous),
@@ -354,18 +402,31 @@ pub fn provide_completions(
 /// (`built_in_functions`, the browser's values, the language's own), with
 /// this server's words for each where it has them.
 fn builtin_items() -> Vec<CompletionItem> {
-    let functions = webfluent::sema::types::built_in_functions();
+    // `fetch` is in the compiler's table only so that 6.x's calls are
+    // reported (`N08`): a program writes `http.get(…)`, never it.
+    let functions: Vec<&str> = webfluent::sema::types::built_in_functions()
+        .iter()
+        .copied()
+        .filter(|name| *name != "fetch")
+        .chain(OVERLAY_FUNCTIONS.iter().copied())
+        .collect();
     let values = webfluent::codegen::js::BROWSER_VALUES;
-    let mut names: Vec<&str> = functions.to_vec();
-    for name in values.iter().chain(reference::LANGUAGE_VALUES) {
+    let mut names: Vec<&str> = functions.clone();
+    for name in values
+        .iter()
+        .chain(reference::LANGUAGE_VALUES)
+        .chain(["http"].iter())
+    {
         if !names.contains(name) {
             names.push(name);
         }
     }
-    names
+    let mut items: Vec<CompletionItem> = names
         .into_iter()
         .map(|name| {
-            let value = values.contains(&name) || reference::LANGUAGE_VALUES.contains(&name);
+            let value = values.contains(&name)
+                || reference::LANGUAGE_VALUES.contains(&name)
+                || name == "http";
             let callable = functions.contains(&name) && !value;
             let (usage, doc) = match reference::builtin(name) {
                 Some((_, usage, doc)) => (usage.to_string(), doc.to_string()),
@@ -379,6 +440,65 @@ fn builtin_items() -> Vec<CompletionItem> {
                 ),
             };
             builtin_item(name, callable, usage, doc)
+        })
+        .collect();
+    items.extend(browser_globals());
+    items
+}
+
+/// The functions the language gives a program that a program may still
+/// name something of its own (`state toast`): the compiler's
+/// `OVERLAY_FUNCTIONS`, which it keeps to itself. A test holds this list to
+/// what the checker accepts.
+pub const OVERLAY_FUNCTIONS: &[&str] = &["toast", "ask", "announce"];
+
+/// The browser's globals the checker types, each as it is written.
+fn browser_globals() -> Vec<CompletionItem> {
+    crate::browser::table()
+        .globals
+        .iter()
+        .map(|g| CompletionItem {
+            label: g.name.clone(),
+            kind: Some(if g.function {
+                CompletionItemKind::FUNCTION
+            } else {
+                CompletionItemKind::VARIABLE
+            }),
+            detail: Some(if g.function {
+                g.signature.clone()
+            } else {
+                format!("{} — the browser's", g.ty)
+            }),
+            insert_text: g.function.then(|| format!("{}($0)", g.name)),
+            insert_text_format: g.function.then_some(InsertTextFormat::SNIPPET),
+            sort_text: Some(format!("5{}", g.name)),
+            ..Default::default()
+        })
+        .collect()
+}
+
+/// What an object of the browser's has after a dot: `localStorage.` a
+/// `Storage`'s `getItem`, `setItem`, …
+fn browser_members(object: &str) -> Vec<CompletionItem> {
+    crate::browser::table()
+        .members(object)
+        .into_iter()
+        .map(|m| CompletionItem {
+            label: m.name.clone(),
+            kind: Some(if m.method {
+                CompletionItemKind::METHOD
+            } else {
+                CompletionItemKind::FIELD
+            }),
+            detail: Some(format!("{} — {object}", m.signature)),
+            insert_text: Some(if m.method {
+                format!("{}($0)", m.name)
+            } else {
+                m.name.clone()
+            }),
+            insert_text_format: Some(InsertTextFormat::SNIPPET),
+            sort_text: Some(format!("0{}", m.name)),
+            ..Default::default()
         })
         .collect()
 }
@@ -428,7 +548,8 @@ fn connection_opener(previous: &[&Token]) -> Option<Vec<CompletionItem>> {
 }
 
 /// The names the program declares at its top level that a value may read:
-/// its constants, `data` and images.
+/// its constants, `data` and images, its services, stores, record types
+/// and enums.
 fn top_level_names(project: &Project) -> Vec<CompletionItem> {
     project
         .program
@@ -441,11 +562,34 @@ fn top_level_names(project: &Project) -> Vec<CompletionItem> {
                     (d.name.clone(), format!("image from `{}`", d.file))
                 }
                 Declaration::Data(d) => (d.name.clone(), format!("data from `{}`", d.file)),
+                // A service (its groups are reached through it), a store, a
+                // record built by name and an enum read by its cases.
+                Declaration::Api(a) if !a.name.contains('.') => {
+                    (a.name.clone(), "service".to_string())
+                }
+                Declaration::Store(s) => (s.name.clone(), "store".to_string()),
+                Declaration::Enum(e) => (e.name.clone(), "enum".to_string()),
+                Declaration::Type(t) => {
+                    return Some(CompletionItem {
+                        label: t.name.clone(),
+                        kind: Some(CompletionItemKind::STRUCT),
+                        detail: Some("type — built with its fields by name".to_string()),
+                        insert_text: Some(format!("{}($0)", t.name)),
+                        insert_text_format: Some(InsertTextFormat::SNIPPET),
+                        sort_text: Some(format!("1{}", t.name)),
+                        ..Default::default()
+                    });
+                }
                 _ => return None,
+            };
+            let kind = match d {
+                Declaration::Api(_) | Declaration::Store(_) => CompletionItemKind::MODULE,
+                Declaration::Enum(_) => CompletionItemKind::ENUM,
+                _ => CompletionItemKind::CONSTANT,
             };
             Some(CompletionItem {
                 label: name.clone(),
-                kind: Some(CompletionItemKind::CONSTANT),
+                kind: Some(kind),
                 detail: Some(what),
                 sort_text: Some(format!("1{name}")),
                 ..Default::default()
@@ -897,12 +1041,26 @@ fn after_dot(
                 && let Some(service) = ident(4)
                 && let Some(group) = api_named(project, &format!("{service}.{word}"))
             {
-                return api_members(group);
+                return api_members(project, group);
+            }
+            // `http.` — the verbs; `toast.` — what a toast does besides.
+            if !dot(3)
+                && let Some(items) = builtin_members(word)
+            {
+                return items;
+            }
+            // `window.localStorage.`, `document.body.`: a browser object
+            // reached through another.
+            if let Some(chain) = name_chain(previous)
+                && chain.len() > 1
+                && let Some(object) = crate::browser::table().object_of_chain(&chain)
+            {
+                return browser_members(object);
             }
             if word.chars().next().is_some_and(char::is_uppercase) {
-                // `Backend.` — its endpoints.
+                // `Backend.` — its endpoints and its groups.
                 if let Some(api) = api_named(project, word) {
-                    return api_members(api);
+                    return api_members(project, api);
                 }
                 // `Card.` — its parts, and its flags; `Store.` — its members.
                 if let Some(store) = project.program.declarations.iter().find_map(|d| match d {
@@ -916,6 +1074,12 @@ fn after_dot(
                 }
                 let mut items = parts(word);
                 items.extend(flags(project, word));
+                // `Math.`, `JSON.`, `Date.`: a browser object.
+                if items.is_empty()
+                    && let Some(object) = crate::browser::table().object_of_chain(&[word])
+                {
+                    return browser_members(object);
+                }
                 return items;
             }
             // `.primary.` — another flag of the same element.
@@ -967,8 +1131,9 @@ fn api_named<'a>(project: &'a Project, name: &str) -> Option<&'a ApiDecl> {
     })
 }
 
-/// `Backend.`: the service's endpoints, and what the whole service offers.
-fn api_members(api: &ApiDecl) -> Vec<CompletionItem> {
+/// `Backend.`: the service's endpoints, its groups, and what the whole
+/// service offers.
+fn api_members(project: &Project, api: &ApiDecl) -> Vec<CompletionItem> {
     let mut items: Vec<CompletionItem> = api
         .endpoints
         .iter()
@@ -1000,6 +1165,27 @@ fn api_members(api: &ApiDecl) -> Vec<CompletionItem> {
             }
         })
         .collect();
+    // `api Backend.todos { … }`: a group, reached as `Backend.todos`.
+    let prefix = format!("{}.", api.name);
+    for decl in &project.program.declarations {
+        if let Declaration::Api(group) = decl
+            && let Some(rest) = group.name.strip_prefix(&prefix)
+            && !rest.contains('.')
+        {
+            items.push(CompletionItem {
+                label: rest.to_string(),
+                kind: Some(CompletionItemKind::MODULE),
+                detail: Some(format!(
+                    "group of {} — {} endpoint(s)",
+                    api.name,
+                    group.endpoints.len()
+                )),
+                documentation: group.doc.clone().map(Documentation::String),
+                sort_text: Some(format!("0{rest}")),
+                ..Default::default()
+            });
+        }
+    }
     items.push(CompletionItem {
         label: "invalidate".to_string(),
         kind: Some(CompletionItemKind::METHOD),
@@ -1011,9 +1197,16 @@ fn api_members(api: &ApiDecl) -> Vec<CompletionItem> {
     items
 }
 
-/// `Backend.users.`: what an endpoint offers besides being called.
+/// `Backend.users.`: what an endpoint offers besides being called — what
+/// the checker types on one (`update`, `invalidate`, `prefetch`, `key`,
+/// `url`, `pending`, and `progress`).
 fn endpoint_members() -> Vec<CompletionItem> {
     [
+        (
+            "update",
+            true,
+            "show a change before the server agrees, in every resource over it; returns what takes it back",
+        ),
         (
             "invalidate",
             true,
@@ -1022,11 +1215,6 @@ fn endpoint_members() -> Vec<CompletionItem> {
         ("prefetch", true, "ask now for what will be wanted soon"),
         ("key", true, "the cache key of a call"),
         ("url", true, "the address a call goes to"),
-        (
-            "lines",
-            true,
-            "every line of a streamed response, as it arrives",
-        ),
         ("pending", false, "whether a call of it is under way"),
         ("progress", false, "how far an upload has got, 0 to 1"),
     ]
@@ -1039,15 +1227,91 @@ fn endpoint_members() -> Vec<CompletionItem> {
             CompletionItemKind::PROPERTY
         }),
         detail: Some(doc.to_string()),
-        insert_text: Some(if *call {
-            format!("{name}($0)")
-        } else {
-            name.to_string()
+        insert_text: Some(match (*name, *call) {
+            ("update", _) => "update(${1:list} => $0)".to_string(),
+            (_, true) => format!("{name}($0)"),
+            (_, false) => name.to_string(),
         }),
         insert_text_format: Some(InsertTextFormat::SNIPPET),
         ..Default::default()
     })
     .collect()
+}
+
+/// What a name the language has offers after a dot: `http.` its verbs,
+/// `toast.` its `promise`.
+fn builtin_members(word: &str) -> Option<Vec<CompletionItem>> {
+    let entries: Vec<(&str, String, String)> = match word {
+        "http" => ["get", "post", "put", "patch", "delete"]
+            .iter()
+            .map(|verb| {
+                let body = if *verb == "get" {
+                    format!("{verb}(\"${{1:/api/}}\")")
+                } else {
+                    format!("{verb}(\"${{1:/api/}}\", body: ${{2:value}})")
+                };
+                (
+                    *verb,
+                    format!("http.{verb}(url…) — a promise of a result, `T!`"),
+                    body,
+                )
+            })
+            .collect(),
+        "toast" => vec![(
+            "promise",
+            "toast.promise(call, loading: …, done: …, failed: …)".to_string(),
+            "promise(${1:call}, loading: \"${2:Saving…}\", done: \"${3:Saved}\", failed: \"${4:Not saved}\")"
+                .to_string(),
+        )],
+        _ => return None,
+    };
+    Some(
+        entries
+            .into_iter()
+            .map(|(name, detail, body)| CompletionItem {
+                label: name.to_string(),
+                kind: Some(CompletionItemKind::METHOD),
+                detail: Some(detail),
+                insert_text: Some(body),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                ..Default::default()
+            })
+            .collect(),
+    )
+}
+
+/// The names joined by dots that end just before the last dot of
+/// `previous`: `["window", "localStorage"]` for `window.localStorage.`.
+fn name_chain<'a>(previous: &[&'a Token]) -> Option<Vec<&'a str>> {
+    let n = previous.len();
+    if !matches!(previous.last()?.token_type, TokenType::Dot) {
+        return None;
+    }
+    let mut chain = Vec::new();
+    let mut ix = n.checked_sub(2)?;
+    loop {
+        let TokenType::Identifier(name) = &previous[ix].token_type else {
+            return None;
+        };
+        chain.push(name.as_str());
+        if ix >= 2 && matches!(previous[ix - 1].token_type, TokenType::Dot) {
+            ix -= 2;
+        } else {
+            // A chain that is a member of something else (`x().a.`) is not
+            // one of the browser's.
+            if ix >= 1
+                && matches!(
+                    previous[ix - 1].token_type,
+                    TokenType::Dot | TokenType::OptionalChain
+                )
+            {
+                return None;
+            }
+            break;
+        }
+    }
+    chain.reverse();
+    Some(chain)
 }
 
 /// A dot that opens a value: `state t: Tone = .`, `if t == .`, `animate: .`,
@@ -1297,34 +1561,341 @@ fn validate_rules() -> Vec<CompletionItem> {
         .collect()
 }
 
-/// An `api` block: its settings, an endpoint by its verb, a hook.
-fn api_body() -> Vec<CompletionItem> {
-    let mut items: Vec<CompletionItem> = reference::API_SETTINGS
+/// An `api` block: a service's settings and its endpoints by their verbs; a
+/// group's endpoints alone, since what a request is sent with is its
+/// service's (`N08`). Just after an endpoint, what may follow it on its
+/// own lines: `idempotent`, `streamed`, `invalidates`, `pages`.
+fn api_body(api: &ApiDecl, previous: &[&Token]) -> Vec<CompletionItem> {
+    let mut items: Vec<CompletionItem> = Vec::new();
+    let last_end = previous.last().map_or(0, |t| t.end);
+    let after_endpoint = api
+        .endpoints
         .iter()
-        .map(|(name, body, doc)| CompletionItem {
-            documentation: Some(Documentation::String(doc.to_string())),
-            kind: Some(CompletionItemKind::PROPERTY),
-            ..snippet(name, first_sentence(doc), body)
-        })
-        .collect();
+        .any(|e| e.span.end as usize == last_end);
+    if after_endpoint {
+        items.extend(
+            [
+                (
+                    "idempotent",
+                    "idempotent",
+                    "safe to send twice: retried, and kept to replay offline",
+                ),
+                (
+                    "streamed",
+                    "streamed",
+                    "answers a JSON value a line, each read as it arrives",
+                ),
+                (
+                    "invalidates",
+                    "invalidates [${1:list}]",
+                    "the reads of this group the write makes stale",
+                ),
+                (
+                    "pages .number",
+                    "pages .number(param: ${1:page})",
+                    "a page at a time, by number, ending at the first empty page",
+                ),
+                (
+                    "pages .cursor",
+                    "pages .cursor(param: ${1:after}, next: p => p.${2:nextCursor}, items: p => p.${3:items})",
+                    "a page at a time, by the cursor each page names",
+                ),
+                (
+                    "pages .link",
+                    "pages .link",
+                    "a page at a time, by the `Link` header's `rel=\"next\"`",
+                ),
+            ]
+            .iter()
+            .map(|(label, body, doc)| CompletionItem {
+                kind: Some(CompletionItemKind::KEYWORD),
+                sort_text: Some(format!("0{label}")),
+                ..snippet(label, doc, body)
+            }),
+        );
+    }
+    // A group (`api Backend.todos { }`) sends what its service sends.
+    if !api.name.contains('.') {
+        items.extend(
+            reference::API_SETTINGS
+                .iter()
+                .map(|(name, body, doc)| CompletionItem {
+                    documentation: Some(Documentation::String(doc.to_string())),
+                    kind: Some(CompletionItemKind::PROPERTY),
+                    sort_text: Some(format!("2{name}")),
+                    ..snippet(name, first_sentence(doc), body)
+                }),
+        );
+    }
     for verb in webfluent::syntax::parser::v2::HTTP_VERBS {
+        let returns = if *verb == "delete" { "" } else { "${4:Item}" };
         items.push(CompletionItem {
             kind: Some(CompletionItemKind::KEYWORD),
+            sort_text: Some(format!("1{verb}")),
             ..snippet(
                 verb,
                 &format!(
                     "an endpoint the service answers with {}",
                     verb.to_uppercase()
                 ),
-                &format!("{verb} ${{1:name}}(${{2}}) -> ${{3:Map}}"),
+                &format!("{verb} ${{1:name}}(${{2}}) at \"${{3:path}}\" -> {returns}!"),
             )
         });
     }
-    items.push(snippet(
-        "on",
-        "a hook on every request, response or error",
-        "on ${1|request,response,error|}(${2:r}) {\n\t$0\n}",
-    ));
+    items
+}
+
+/// Inside a `[…]` that names things: `middleware [‸` the steps a request
+/// passes through, `fakes: [‸` the project's fakes, `invalidates [‸` the
+/// reads of the endpoint's group. `None` anywhere else.
+fn bracket_list(
+    project: &Project,
+    file_ix: usize,
+    previous: &[&Token],
+    anchor: usize,
+) -> Option<Vec<CompletionItem>> {
+    let mut depth = 0i32;
+    let mut open = None;
+    for (ix, token) in previous.iter().enumerate().rev() {
+        match token.token_type {
+            TokenType::CloseBracket | TokenType::CloseParen => depth += 1,
+            TokenType::OpenBracket if depth == 0 => {
+                open = Some(ix);
+                break;
+            }
+            TokenType::OpenBracket | TokenType::OpenParen if depth > 0 => depth -= 1,
+            TokenType::OpenParen | TokenType::OpenBrace | TokenType::CloseBrace => return None,
+            _ => {}
+        }
+    }
+    let open = open?;
+    // Only at a name's place: first, or after a comma.
+    if !matches!(
+        previous.last().map(|t| &t.token_type),
+        Some(TokenType::OpenBracket | TokenType::Comma)
+    ) {
+        return None;
+    }
+    let word = |back: usize| match open.checked_sub(back).map(|i| &previous[i].token_type) {
+        Some(TokenType::Identifier(w)) => Some(w.as_str()),
+        _ => None,
+    };
+    let colon = matches!(
+        open.checked_sub(1).map(|i| &previous[i].token_type),
+        Some(TokenType::Colon)
+    );
+    let item = |label: &str, kind: CompletionItemKind, detail: String, insert: Option<String>| {
+        CompletionItem {
+            label: label.to_string(),
+            kind: Some(kind),
+            detail: Some(detail),
+            insert_text_format: insert.as_ref().map(|_| InsertTextFormat::SNIPPET),
+            insert_text: insert,
+            ..Default::default()
+        }
+    };
+    if word(1) == Some("middleware") {
+        let mut items: Vec<CompletionItem> = project
+            .program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Middleware(m) => Some(item(
+                    &m.name,
+                    CompletionItemKind::FUNCTION,
+                    "middleware of the project's".to_string(),
+                    None,
+                )),
+                _ => None,
+            })
+            .collect();
+        items.extend(MIDDLEWARE.iter().map(|(name, body, doc)| {
+            item(
+                name,
+                CompletionItemKind::FUNCTION,
+                (*doc).to_string(),
+                Some((*body).to_string()),
+            )
+        }));
+        return Some(items);
+    }
+    if colon && word(2) == Some("fakes") {
+        return Some(
+            project
+                .program
+                .declarations
+                .iter()
+                .filter_map(|d| match d {
+                    Declaration::Fake(f) => Some(item(
+                        &f.name,
+                        CompletionItemKind::CLASS,
+                        format!("fake for {}", f.target),
+                        None,
+                    )),
+                    _ => None,
+                })
+                .collect(),
+        );
+    }
+    if word(1) == Some("invalidates")
+        && let Some(decl_ix) = analysis::declaration_at(project, file_ix, anchor)
+        && let Declaration::Api(api) = &project.program.declarations[decl_ix]
+    {
+        return Some(
+            api.endpoints
+                .iter()
+                .filter(|e| e.method.eq_ignore_ascii_case("get"))
+                .map(|e| {
+                    item(
+                        &e.name,
+                        CompletionItemKind::METHOD,
+                        format!(
+                            "{} {} — a read of {}",
+                            e.method.to_lowercase(),
+                            e.name,
+                            api.name
+                        ),
+                        None,
+                    )
+                })
+                .collect(),
+        );
+    }
+    None
+}
+
+/// The runtime's middleware, each with how it is written and what it does.
+const MIDDLEWARE: &[(&str, &str, &str)] = &[
+    (
+        "bearer",
+        "bearer(${1:Session.token})",
+        "`Authorization: Bearer …`, when there is a token",
+    ),
+    (
+        "header",
+        "header(\"${1:X-Client}\", ${2:\"web\"})",
+        "a header on every request",
+    ),
+    (
+        "refreshOn401",
+        "refreshOn401(${1:Session.refresh})",
+        "on a 401, run the action once and send the request again",
+    ),
+    (
+        "requestId",
+        "requestId",
+        "an `X-Request-Id` on every request",
+    ),
+    ("log", "log", "every request and its answer, in the console"),
+];
+
+/// The components the project declares, for `example ‸`.
+fn project_components(project: &Project) -> Vec<CompletionItem> {
+    project
+        .program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c) if !c.name.contains('.') => Some(CompletionItem {
+                label: c.name.clone(),
+                kind: Some(CompletionItemKind::CLASS),
+                detail: Some("component — what the example shows".to_string()),
+                insert_text: Some(format!(
+                    "{} \"${{1:What it shows}}\" {{\n\t{}($0)\n}}",
+                    c.name, c.name
+                )),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                ..Default::default()
+            }),
+            _ => None,
+        })
+        .collect()
+}
+
+/// A `fake`'s block: directly in it, the endpoints of its group it does not
+/// answer yet, each written as an answer; in an answer's parentheses, the
+/// endpoint's parameters; in an answer's block, what the answer may read.
+fn fake_items(
+    project: &Project,
+    fake: &webfluent::syntax::parser::ast::FakeDecl,
+    previous: &[&Token],
+    anchor: usize,
+) -> Vec<CompletionItem> {
+    let group = api_named(project, &fake.target);
+    // How many blocks deep the cursor is, counted from the fake's header.
+    let mut depth = 0i32;
+    for t in previous
+        .iter()
+        .filter(|t| t.offset >= fake.span.start as usize)
+    {
+        match t.token_type {
+            TokenType::OpenBrace => depth += 1,
+            TokenType::CloseBrace => depth -= 1,
+            _ => {}
+        }
+    }
+    if depth <= 1 {
+        let Some(group) = group else {
+            return Vec::new();
+        };
+        if let Some(ParenOwner::Call | ParenOwner::Unknown) = open_paren_owner(previous) {
+            // `list(‸`: the parameters, by name.
+            let name = call_name(previous).unwrap_or_default();
+            return group
+                .endpoints
+                .iter()
+                .filter(|e| e.name == name)
+                .flat_map(|e| e.params.iter())
+                .map(|p| CompletionItem {
+                    label: p.name.clone(),
+                    kind: Some(CompletionItemKind::VARIABLE),
+                    detail: Some(format!("{} — parameter of {name}", type_name(&p.prop_type))),
+                    ..Default::default()
+                })
+                .collect();
+        }
+        return group
+            .endpoints
+            .iter()
+            .filter(|e| !fake.answers.iter().any(|a| a.endpoint == e.name))
+            .map(|e| {
+                let params: Vec<&str> = e.params.iter().map(|p| p.name.as_str()).collect();
+                CompletionItem {
+                    label: e.name.clone(),
+                    kind: Some(CompletionItemKind::METHOD),
+                    detail: Some(format!(
+                        "{} {}{} — an endpoint of {}",
+                        e.method.to_lowercase(),
+                        e.name,
+                        e.returns
+                            .as_ref()
+                            .map(|t| format!(" -> {}", type_name(t)))
+                            .unwrap_or_default(),
+                        fake.target
+                    )),
+                    insert_text: Some(format!("{}({}) {{ .ok($0) }}", e.name, params.join(", "))),
+                    insert_text_format: Some(InsertTextFormat::SNIPPET),
+                    ..Default::default()
+                }
+            })
+            .collect();
+    }
+    // In an answer: its parameters, and what any value may read.
+    let mut items: Vec<CompletionItem> = fake
+        .answers
+        .iter()
+        .filter(|a| analysis::contains(a.span, anchor.saturating_sub(1)))
+        .flat_map(|a| a.params.iter())
+        .map(|p| CompletionItem {
+            label: p.clone(),
+            kind: Some(CompletionItemKind::VARIABLE),
+            detail: Some("parameter of the answer".to_string()),
+            sort_text: Some(format!("0{p}")),
+            ..Default::default()
+        })
+        .collect();
+    items.extend(top_level_names(project));
+    items.extend(builtin_items());
     items
 }
 
@@ -1585,7 +2156,14 @@ fn value_members(
         ];
         match b.kind {
             BindingKind::Action => {
-                return handle(&[("pending", false, "whether a call of it is under way")]);
+                return handle(&[
+                    ("pending", false, "whether a call of it is under way"),
+                    (
+                        "result",
+                        false,
+                        "its last outcome, `.ok(value)` or `.err(error)` — `null` before it has run",
+                    ),
+                ]);
             }
             BindingKind::Socket | BindingKind::Peer => {
                 let mut items = handle(&connection);
@@ -1651,6 +2229,12 @@ fn value_members(
         None => top_level_type(project, name).or_else(|| types::browser_value_type(name)),
     };
     let Some(ty) = ty else {
+        // `localStorage.`, `navigator.`: a browser object the checker types.
+        if binding.is_none()
+            && let Some(object) = crate::browser::table().object_of_chain(&[name])
+        {
+            return browser_members(object);
+        }
         return Vec::new();
     };
     let mut items = Vec::new();
@@ -1772,7 +2356,7 @@ fn flags(project: &Project, name: &str) -> Vec<CompletionItem> {
                     label: prop.name.to_string(),
                     kind: Some(CompletionItemKind::ENUM_MEMBER),
                     detail: Some(format!("{}: true", prop.name)),
-                    documentation: Some(Documentation::String(prop.summary.to_string())),
+                    documentation: Some(Documentation::String(sig.says(prop).to_string())),
                     sort_text: Some(format!("{}{}", rank(prop), prop.name)),
                     ..Default::default()
                 }),
@@ -1782,7 +2366,11 @@ fn flags(project: &Project, name: &str) -> Vec<CompletionItem> {
                             label: case.name.to_string(),
                             kind: Some(CompletionItemKind::ENUM_MEMBER),
                             detail: Some(format!("{}: .{}", prop.name, case.name)),
-                            documentation: Some(Documentation::String(case.summary.to_string())),
+                            documentation: Some(Documentation::String(
+                                sig.says_case(prop, case.name)
+                                    .unwrap_or(case.summary)
+                                    .to_string(),
+                            )),
                             sort_text: Some(format!("{}{}", rank(prop), case.name)),
                             ..Default::default()
                         });
@@ -2173,7 +2761,7 @@ fn top_level() -> Vec<CompletionItem> {
             let body = match k.name {
                 "page" => "page ${1:Name}(path: \"${2:/}\", title: \"${3:$1}\", description: \"${4}\") {\n\t$0\n}",
                 "component" => "component ${1:Name}(${2:label}: ${3:String}) {\n\t$0\n}",
-                "store" => "store ${1:Name}Store {\n\tstate ${2:items} = ${3:[]}\n\t$0\n}",
+                "store" => "store ${1:Name}Store {\n\tstate ${2:items}: ${3:[String]} = ${4:[]}\n\t$0\n}",
                 "theme" => "theme ${1:Brand} {\n\tcolor-primary: ${2:#3B82F6}\n\t$0\n}",
                 "app" => "app {\n\t$0\n\tRouter\n}",
                 "type" => "type ${1:Name} {\n\t${2:id}: ${3:String}\n}",
@@ -2182,9 +2770,11 @@ fn top_level() -> Vec<CompletionItem> {
                 "const" => "const ${1:NAME} = ${2:value}",
                 "data" => "data ${1:name} = \"${2:data.json}\"",
                 "image" => "image ${1:name} = \"${2:media/photo.jpg}\"",
-                "api" => "api ${1:Backend}(base: \"${2:/api}\") {\n\tget ${3:items}() -> ${4:[Map]}\n}",
+                "api" => "api ${1:Backend}(base: \"${2:/api}\") {\n\tget ${3:items}() at \"${4:items}\" -> ${5:[String]}!\n}",
                 "test" => "test \"${1:what it does}\" {\n\t$0\n}",
                 "fake" => "fake ${1:Name} for ${2:Backend} {\n\t${3:endpoint}() { .ok($0) }\n}",
+                "example" => "example ${1:Component} \"${2:What it shows}\" {\n\t$1($0)\n}",
+                "middleware" => "middleware ${1:name}(req, next) {\n\t$0\n\treturn await next(req)\n}",
                 other => other,
             };
             CompletionItem {
@@ -2601,7 +3191,10 @@ fn element_props(project: &Project, name: &str, previous: &[&Token]) -> Vec<Comp
             label: format!("{}:", prop.name),
             kind: Some(CompletionItemKind::PROPERTY),
             detail: Some(detail),
-            documentation: Some(Documentation::String(prop.summary.to_string())),
+            documentation: Some(Documentation::String(match sig.default_of(prop) {
+                Some(d) => format!("{}\n\nUnset: {d}.", sig.says(prop)),
+                None => sig.says(prop).to_string(),
+            })),
             insert_text: Some(insert),
             sort_text: Some(format!("{}{}", rank(prop), prop.name)),
             ..Default::default()
@@ -2836,6 +3429,9 @@ enum Context {
     Imperative,
     /// A `test "…" { }` body.
     Test,
+    /// An `example Component "…" { }` body: what a page draws, without a
+    /// page's `head`.
+    Example,
 }
 
 /// The place a statement is being written: the kind of body, and what
@@ -2866,13 +3462,14 @@ fn keywords(spot: Spot) -> Vec<CompletionItem> {
         match w {
             "navigate" | "log" | "emit" => false,
             "style" | "transition" => spot.in_element,
-            "head" => !component,
+            // A page's own: a test or an example draws no document head.
+            "head" => !component && spot.context == Context::Page,
             _ if component_only(w) => component,
             _ => true,
         }
     };
     let mut words: Vec<&str> = match spot.context {
-        Context::Page | Context::Test => BODY_KEYWORDS
+        Context::Page | Context::Test | Context::Example => BODY_KEYWORDS
             .iter()
             .copied()
             .filter(|w| render(w, false))
@@ -2910,7 +3507,7 @@ fn keywords(spot: Spot) -> Vec<CompletionItem> {
             .collect(),
         Context::Imperative => {
             let mut words: Vec<&str> = IMPERATIVE_KEYWORDS.to_vec();
-            words.extend(["await", "navigate", "log"]);
+            words.extend(["match", "for await", "await", "navigate", "log"]);
             if spot.in_effect {
                 words.push("cleanup");
             }
@@ -2959,6 +3556,37 @@ fn keywords(spot: Spot) -> Vec<CompletionItem> {
                     ..Default::default()
                 }),
         );
+        // The other forms of `expect`.
+        items.extend(
+            [
+                (
+                    "expect not",
+                    "expect not \"${1:text}\"",
+                    "what the page must not show",
+                ),
+                (
+                    "expect focus",
+                    "expect focus \"${1:Name}\"",
+                    "what has the focus is called that",
+                ),
+                (
+                    "expect called",
+                    "expect called ${1:Backend}.${2:endpoint}",
+                    "whether the page has asked that endpoint",
+                ),
+                (
+                    "expect not called",
+                    "expect not called ${1:Backend}.${2:endpoint}",
+                    "that the page has not asked that endpoint",
+                ),
+            ]
+            .iter()
+            .map(|(label, body, doc)| CompletionItem {
+                kind: Some(CompletionItemKind::KEYWORD),
+                sort_text: Some(format!("2{label}")),
+                ..snippet(label, doc, body)
+            }),
+        );
     }
     items
 }
@@ -3006,6 +3634,7 @@ fn keyword_snippet(name: &str) -> String {
         "return" => "return ${1:value}".into(),
         "await" => "await ${1:call}".into(),
         "try" => "try {\n\t$1\n} catch ${2:e} {\n\t$0\n}".into(),
+        "for await" => "for await ${1:line} in ${2:Backend}.${3:tail}($4) {\n\t$0\n}".into(),
         "expect" => "expect \"${1:text}\"".into(),
         "click" => "click \"${1:Save}\"".into(),
         "type" => "type \"${1:text}\" into \"${2:Label}\"".into(),

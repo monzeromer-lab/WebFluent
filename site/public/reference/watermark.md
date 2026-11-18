@@ -24,8 +24,14 @@ Document(title: "Contract draft") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The text |
-| `on:` | `.all .first .rest .odd .even` | Which pages it is drawn on |
+| `text` | `String (positional)` | The text: 72pt, bold, 8% black, rotated behind the content (`.wf-watermark` restyles it) |
+| `on:` | `one of its cases` | Which pages it is drawn on. Written as a flag, `.all`, or by name, `on: .all`.
+
+- `.all` (the default): Every page
+- `.first`: The first page only
+- `.rest`: Every page but the first
+- `.odd`: Odd pages (1, 3, 5 …)
+- `.even`: Even pages |
 
 ## Flags
 

@@ -22,8 +22,8 @@ Presentation {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | The title |
-| `subtitle:` | `String` | The subtitle |
+| `title` | `String (positional)` | The title, an `<h1>` centred on the slide |
+| `subtitle:` | `String` | A line under the title |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

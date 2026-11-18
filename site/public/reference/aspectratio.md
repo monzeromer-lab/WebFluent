@@ -27,7 +27,7 @@ Grid(columns: 2, gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `ratio:` | `Number  (required)` | Its width over its height, `16 / 9` |
+| `ratio:` | `Number (required)` | Its width over its height, `16 / 9` (CSS `aspect-ratio`): a literal is a rule of the sheet, one that reads state follows it |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

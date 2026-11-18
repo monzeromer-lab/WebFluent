@@ -1,10 +1,10 @@
 # wf docs
 
-> Write a component gallery: every built-in, and what the project declares
+> Document the project's components as a site, each `example` drawn live
 
 The page: https://webfluent.monzeromer.dev/reference/cli/docs
 
-Write a component gallery: every built-in, and what the project declares
+Document the project's components as a site, each `example` drawn live
 
 ```bash
 wf docs [options]
@@ -15,17 +15,26 @@ wf docs [options]
 | Option | Meaning |
 |---|---|
 | `--dir, -d DIR` | Project directory (default: current directory) |
-| `--out, -o OUT` | Where to write index.html (default: docs/) |
+| `--out, -o OUT` | Where to write the site (default: docs/) |
 
 **Writes:** a gallery, in the folder `--out` names
 
-Writes a self-contained component gallery.
+Documents the project's components as a site, in the design of this
+reference.
 
 ```bash
 wf docs
-wf docs -o gallery
+wf docs -o component-docs
 ```
 
-The gallery shows every built-in — props, cases, flags, events, slots,
-parts — and every component, enum, type, store and page the project
-declares, with their `///` documentation.
+A page a component: its `///` comment and header, every
+[`example`](../learn/10-components.md#document-it) of it drawn live beside
+its source — in a frame of the project's own build, with its theme,
+stylesheets and scripts — then its props (type, what it is when left out,
+each prop's `///`), events, slots, parts and what places it. A component
+with no example is drawn from its props. The types, stores and pages each
+have a page.
+
+The project is checked first, and an error stops it, as a build does.
+Serve the folder to read it. A second run clears what the first wrote; a
+folder it did not write is left alone.

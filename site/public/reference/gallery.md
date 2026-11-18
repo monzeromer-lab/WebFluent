@@ -29,8 +29,8 @@ Gallery(columns: { base: 2, md: 4 }, ratio: 1) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `columns:` | `Number` | How many across — or one per breakpoint, `{ base: 2, md: 4 }`; unset, as many as fit |
-| `ratio:` | `Number` | Each picture's shape, `4 / 3` (unset, `1`) |
+| `columns:` | `Number` | How many pictures across, or one per breakpoint (`{ base: 2, md: 4 }`); unset, as many columns at least 10rem wide as fit |
+| `ratio:` | `Number` | Each picture's shape, width over height (`4 / 3`, `16 / 9`); each is cropped to it (`object-fit: cover`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

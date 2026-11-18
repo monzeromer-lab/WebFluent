@@ -10,8 +10,10 @@
 //! merges them in the compiler's order, remembering which file each
 //! declaration came from so a diagnostic or a definition can be routed back.
 //!
-//! A `.wf` file outside any project's `src/` (a template, a scratch file) is a
-//! project of one.
+//! A file under `tests/` is read with `src/`, as `wf test` reads it, so its
+//! tests reach the project's components, stores and services. A `.wf` file
+//! outside any project's `src/` and `tests/` (a template, a scratch file) is
+//! a project of one.
 //!
 //! Everything is read through a [`Vfs`]: the disk for the server, and for an
 //! editor that links the analysis, the disk with its buffers laid over it
@@ -289,7 +291,11 @@ impl Project {
         let mut env_names: Vec<String> = Vec::new();
         let mut project_config: Option<ProjectConfig> = None;
         let (theme, paths, stylesheets) = match &root {
-            Some(root) if path.starts_with(root.join("src")) => {
+            // A file of `tests/` is read as `wf test` reads it: in the
+            // project it belongs to, `src/` and itself.
+            Some(root)
+                if path.starts_with(root.join("src")) || path.starts_with(root.join("tests")) =>
+            {
                 let config = ProjectConfig::load_via(vfs, root).ok().map(|mut c| {
                     c.resolve_env_via(vfs, root, std::env::vars());
                     c
@@ -323,7 +329,13 @@ impl Project {
                 project_config = config;
                 let src = root.join("src");
                 let mut paths = source_files(vfs, &src);
-                if !paths.iter().any(|p| p == &path) {
+                // The file asked about is one of them — a `.wf` file not
+                // saved yet, a test — unless it is a script or a stylesheet,
+                // which is the project's but not WebFluent.
+                let webfluent = path
+                    .extension()
+                    .is_none_or(|e| e == "wf" || e == "wfx" || e == "md");
+                if webfluent && !paths.iter().any(|p| p == &path) {
                     paths.push(path);
                 }
                 stylesheet_files = webfluent::codegen::project_css::find_stylesheets_via(vfs, &src)
@@ -340,6 +352,15 @@ impl Project {
                         });
                 script_paths = webfluent::project_js::find_scripts_via(vfs, &src);
                 (theme, paths, stylesheets)
+            }
+            // A file of no WebFluent project is read alone — unless it is a
+            // script (or anything else that is not `.wf`, `.wfx` or `.md`),
+            // which is nobody's to read as WebFluent.
+            _ if !path
+                .extension()
+                .is_none_or(|e| e == "wf" || e == "wfx" || e == "md") =>
+            {
+                (ThemeConfig::default(), Vec::new(), String::new())
             }
             _ => (ThemeConfig::default(), vec![path], String::new()),
         };
@@ -384,7 +405,13 @@ impl Project {
         // names it makes global — the build's reading of it, so the editor
         // and the compiler agree on what is in scope.
         for script_path in script_paths {
-            let Some(source) = cache.read(vfs, &script_path) else {
+            // An open script is what its buffer says, saved or not.
+            let open = open_text(&script_path);
+            let is_open = open.is_some();
+            let Some(source) = open
+                .map(|o| o.text)
+                .or_else(|| cache.read(vfs, &script_path))
+            else {
                 continue;
             };
             let scan = webfluent::project_js::scan::scan(&source);
@@ -410,7 +437,7 @@ impl Project {
                 parsed: Ok(Arc::new(Program {
                     declarations: vec![declaration],
                 })),
-                open: false,
+                open: is_open,
                 stale: false,
                 script: true,
                 markdown: false,

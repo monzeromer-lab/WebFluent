@@ -211,19 +211,51 @@ impl JsCodegen {
 
         self.emit_line(&format!("{var}.appendChild({track_var});"));
 
-        let autoplay = ui.args.iter().any(|a| {
-            matches!(a, Arg::Named(k, v) if k == "autoplay" && matches!(v, Expr::BoolLiteral(true)))
-        });
+        // A literal, or any value: `autoplay: playing`, `interval: pace`
+        // compiled to `false` and `5000`. Read when the carousel is drawn.
+        let autoplay = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Named(k, Expr::BoolLiteral(b)) if k == "autoplay" => Some(b.to_string()),
+                Arg::Named(k, v) if k == "autoplay" => {
+                    let v = self.emit_expr(v);
+                    Some(format!("!!({v})"))
+                }
+                _ => None,
+            })
+            .or_else(|| {
+                ui.modifiers
+                    .iter()
+                    .any(|m| m == "autoplay")
+                    .then(|| "true".to_string())
+            })
+            .unwrap_or_else(|| "false".to_string());
         let interval = ui
             .args
             .iter()
             .find_map(|a| match a {
                 Arg::Named(k, Expr::NumberLiteral(n)) if k == "interval" => {
-                    Some(crate::project::builtin::carousel_interval(*n))
+                    Some(crate::project::builtin::carousel_interval(*n).to_string())
+                }
+                // `-5000` is a number written with a sign: held as one.
+                Arg::Named(k, Expr::UnaryOp(crate::syntax::parser::ast::UnaryOp::Neg, n))
+                    if k == "interval" && matches!(**n, Expr::NumberLiteral(_)) =>
+                {
+                    let n = if let Expr::NumberLiteral(n) = **n {
+                        n
+                    } else {
+                        0.0
+                    };
+                    Some(crate::project::builtin::carousel_interval(-n).to_string())
+                }
+                Arg::Named(k, v) if k == "interval" => {
+                    let v = self.emit_expr(v);
+                    Some(format!("(Number({v}) || 5000)"))
                 }
                 _ => None,
             })
-            .unwrap_or(5000);
+            .unwrap_or_else(|| "5000".to_string());
         let label = ui
             .args
             .iter()
@@ -353,6 +385,10 @@ impl JsCodegen {
     ) {
         let tag = crate::project::builtin::builtin_to_html(name).0;
         self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {attrs});"));
+        // What becomes a track and a link is no attribute of the player.
+        self.emit_line(&format!(
+            "{var}.removeAttribute(\"captions\"); {var}.removeAttribute(\"transcript\");"
+        ));
         // `on ended`, `on timeupdate`: the player's, as on one without
         // captions.
         self.emit_root_handlers(var, ui, false);

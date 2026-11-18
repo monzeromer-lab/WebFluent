@@ -344,6 +344,7 @@ fn walk_program<'a>(
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Example(_)
             | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
@@ -409,6 +410,7 @@ fn decl_owner_name(decl: &Declaration) -> Option<&str> {
         | Declaration::Const(_)
         | Declaration::Animation(_)
         | Declaration::Test(_)
+        | Declaration::Example(_)
         | Declaration::Fake(_)
         | Declaration::Data(_) => None,
     }

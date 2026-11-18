@@ -166,10 +166,14 @@ pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
         let value = match val {
             Expr::Identifier(id) => id.as_str(),
             Expr::StringLiteral(s) => s.as_str(),
+            Expr::EnumCase(c) => c.as_str(),
             _ => continue,
         };
         let ok = match key.as_str() {
             "gap" => matches!(value, "xs" | "sm" | "md" | "lg" | "xl"),
+            // `Row(direction: .column)`: only a value per breakpoint was
+            // drawn; one value wrote a `direction` attribute and nothing else.
+            "direction" => matches!(value, "row" | "column"),
             "align" => matches!(value, "start" | "center" | "end" | "stretch" | "baseline"),
             "justify" => matches!(
                 value,

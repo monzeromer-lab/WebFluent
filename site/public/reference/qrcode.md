@@ -28,9 +28,9 @@ Card.outlined {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `value` | `String  (positional)` | What it encodes |
-| `color:` | `String` | The colour of the dark modules |
-| `background:` | `String` | The colour behind them |
+| `value` | `String (positional)` | What it encodes, a URL or any text, known when the page is built (`E109` on a page otherwise); error correction level M, a 4-module quiet zone |
+| `color:` | `String` | The colour of the dark modules, a CSS colour; anything else is the default |
+| `background:` | `String` | The colour behind them, a CSS colour; anything else is the default |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

@@ -27,13 +27,13 @@ Text("Reviewers: {picked.join(", ")}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The keys of what is chosen |
-| `options:` | `[Item]  (required)` | Everything that can be chosen |
-| `text:` | `(Item) -> String` | What an option says: `o => o.name` (unset, the option) |
-| `key:` | `(Item) -> String or (Item) -> Number` | What identifies an option: `o => o.id` (unset, the option) |
-| `label:` | `String  (required)` | What is being chosen |
-| `from:` | `String` | The first list's heading (unset, `Available`) |
-| `to:` | `String` | The second list's heading (unset, `Chosen`) |
+| `bind:` | `State (required)` | A list state holding the keys of the chosen options, kept in the order of `options:`; anything else reads as nothing chosen |
+| `options:` | `[Item] (required)` | Everything that can be chosen, in the order both lists show it |
+| `text:` | `(Item) -> String` | What an option says: `o => o.name` |
+| `key:` | `(Item) -> String or (Item) -> Number` | What identifies an option, and what `bind:` holds for it: `o => o.id` |
+| `label:` | `String (required)` | What is being chosen: the name of the whole control |
+| `from:` | `String` | The heading over the list of what is not chosen |
+| `to:` | `String` | The heading over the list of what is chosen |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

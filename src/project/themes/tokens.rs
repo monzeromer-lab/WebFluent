@@ -192,3 +192,116 @@ pub fn default_tokens() -> HashMap<String, String> {
 
     t
 }
+
+/// What a baseline token is for, in one line: the docs' token tables, `wf
+/// theme --json` and the editor's hover read it from here. `None` for a
+/// name that is not a baseline token (a theme's own).
+pub fn describe(name: &str) -> Option<&'static str> {
+    Some(match name {
+        "color-primary" => {
+            "The main tone: a primary button, a link, a focus ring, what is chosen or current"
+        }
+        "color-secondary" => "A quieter tone, for a secondary button or badge",
+        "color-success" => "Done, passing, saved: a success badge, alert or toast",
+        "color-danger" => "Failed, destructive, invalid: a danger button, an error message",
+        "color-warning" => "Needs attention: a warning badge or alert, a rating's stars",
+        "color-info" => "For information: an info badge or alert, a note callout",
+        "color-background" => "The page behind everything",
+        "color-surface" => "What sits on the page: a card, a menu, a popover, a table header",
+        "color-text" => "The text",
+        "color-text-muted" => "Text that matters less: a hint, a caption, `.muted`",
+        "color-border" => "A line between things: a field's edge, a divider, a card's border",
+        "color-on-primary" => "Text and icons written on `color-primary`; A13 checks the pair",
+        "color-on-secondary" => "Text and icons written on `color-secondary`; A13 checks the pair",
+        "color-on-success" => "Text and icons written on `color-success`; A13 checks the pair",
+        "color-on-danger" => "Text and icons written on `color-danger`; A13 checks the pair",
+        "color-on-warning" => "Text and icons written on `color-warning`; A13 checks the pair",
+        "color-on-info" => "Text and icons written on `color-info`; A13 checks the pair",
+        "color-backdrop" => "What dims the page behind a modal, a dialog, a sheet and a drawer",
+        "font-family" => "The text's typeface",
+        "font-family-mono" => "Code's typeface: `Code`, `CodeBlock`, `Kbd`",
+        "font-size-xs" => "The smallest text: a badge, a caption",
+        "font-size-sm" => "Small text: `.sm`, a hint, a table header",
+        "font-size-base" => "Body text",
+        "font-size-lg" => "Large text: `.lg`, a lede",
+        "font-size-xl" => "A small heading (`h4`)",
+        "font-size-2xl" => "A heading (`h3`, `h2`), growing with the screen",
+        "font-size-3xl" => "The page's heading (`h1`), growing with the screen",
+        "font-weight-normal" => "Body text's weight",
+        "font-weight-medium" => "A label's or a button's weight",
+        "font-weight-bold" => "`.bold`, a heading, a title",
+        "line-height-tight" => "Headings' line height",
+        "line-height-normal" => "Body text's line height",
+        "line-height-loose" => "Line height for long reading",
+        "spacing-xs" => "The smallest gap: `gap: .xs`, `$xs` in a padding",
+        "spacing-sm" => "A small gap: `gap: .sm`, a control's padding",
+        "spacing-md" => "The usual gap: `gap: .md`, a card's padding",
+        "spacing-lg" => "A large gap: `gap: .lg`, between sections",
+        "spacing-xl" => "An extra-large gap, growing with the screen",
+        "spacing-2xl" => "A section's spacing, growing with the screen",
+        "spacing-3xl" => "A page's largest spacing, growing with the screen",
+        "radius-none" => "Square corners",
+        "radius-sm" => "Slightly rounded: a badge, a checkbox, code",
+        "radius-md" => "The usual corners: a button, a field, a card",
+        "radius-lg" => "Rounder corners: a modal, a sheet",
+        "radius-xl" => "Very round corners",
+        "radius-full" => "A pill or a circle: `.pill`, an avatar",
+        "shadow-none" => "No shadow",
+        "shadow-sm" => "A slight lift: a button, a field",
+        "shadow-md" => "`Card.elevated`, a menu",
+        "shadow-lg" => "A popover, a dropdown, a toast",
+        "shadow-xl" => "A modal, a dialog, a sheet",
+        "transition-fast" => "A quick change: a hover, a press",
+        "transition-normal" => "The usual change: an open, a slide",
+        "transition-slow" => "A deliberate change",
+        "animation-duration-fast" => "`.fast` and `speed: .fast`",
+        "animation-duration-normal" => "An animation's length when it says nothing",
+        "animation-duration-slow" => "`.slow` and `speed: .slow`",
+        "animation-easing-default" => "An animation's easing when it says nothing",
+        "animation-easing-bounce" => "`easing: .bouncy`",
+        "animation-easing-spring" => "`easing: .spring`, sampled into `linear()`",
+        "ease-standard" => "`easing: .standard`: the default for motion that moves",
+        "ease-out" => "`easing: .easeOut`: something arriving",
+        "ease-in" => "`easing: .easeIn`: something leaving",
+        "ease-spring" => "A spring that overshoots and settles",
+        "screen-sm" => "Where `sm` starts: `{ sm: … }`, `@sm { }`, `viewport.sm`",
+        "screen-md" => "Where `md` starts: `{ md: … }`, `@md { }`, `viewport.md`",
+        "screen-lg" => "Where `lg` starts: `{ lg: … }`, `@lg { }`, `viewport.lg`",
+        "screen-xl" => "Where `xl` starts: `{ xl: … }`, `@xl { }`, `viewport.xl`",
+        "wf-header-height" => "How far a sticky element sits below the page's sticky header",
+        "term-bg" => "A terminal block's background",
+        "term-ink" => "A terminal block's text",
+        "term-dim" => "A terminal block's quieter text: a prompt, a comment",
+        "syntax-keyword" => "`CodeBlock`'s keywords",
+        "syntax-string" => "`CodeBlock`'s strings",
+        "syntax-number" => "`CodeBlock`'s numbers",
+        "syntax-function" => "`CodeBlock`'s calls and element names",
+        "syntax-punct" => "`CodeBlock`'s punctuation",
+        "syntax-comment" => "`CodeBlock`'s comments",
+        "z-sticky" => "Where a sticky header or `Sticky` stacks",
+        "z-drawer" => "Where a drawer, a `Sidebar` on a narrow screen, stacks",
+        "z-dropdown" => "Where a dropdown not in the top layer stacks",
+        "z-modal" => "Where a modal not in the top layer stacks",
+        "z-toast" => "Where the toasts stack",
+        "z-tooltip" => "Where a tooltip not in the top layer stacks",
+        "z-skip-link" => "Where the skip link stacks, above everything",
+        "target-min" => "The least size of anything a pointer presses (WCAG 2.2's 24px)",
+        "target-min-touch" => "The least size of anything a finger presses (44px)",
+        _ => return None,
+    })
+}
+
+#[cfg(test)]
+mod describe_tests {
+    #[test]
+    fn every_baseline_token_says_what_it_is_for() {
+        let missing: Vec<String> = super::default_tokens()
+            .into_keys()
+            .filter(|k| super::describe(k).is_none())
+            .collect();
+        assert!(
+            missing.is_empty(),
+            "these tokens say nothing of what they are for: {missing:?}"
+        );
+    }
+}

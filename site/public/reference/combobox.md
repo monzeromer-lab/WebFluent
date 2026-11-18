@@ -28,15 +28,15 @@ Text("Chosen: {city}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The chosen option's key (or the option itself without `key:`), or a list with `.multiple` |
-| `options:` | `[Item]` | Every option, filtered as the reader types |
-| `search:` | `(String) -> [Item] or (String) -> [Item]!` | Options asked for as the reader types: `q => Geo.cities(q: q)` |
-| `text:` | `(Item) -> String  (required)` | An option's words: `p => p.name` |
-| `key:` | `(Item) -> String or (Item) -> Number` | What tells two options apart: `p => p.id` |
-| `debounce:` | `Number or Duration` | How long the typing rests before `search:` is asked (unset, 200ms) |
-| `multiple:` | `Bool` | Several at once, each a chip |
-| `label:` | `String  (required)` | Its name for a screen reader |
-| `placeholder:` | `String` | Shown while it is empty |
+| `bind:` | `State (required)` | The state it reads and writes: the chosen option's key (the option itself without `key:`), or with `.multiple` a list of keys in the order chosen |
+| `options:` | `[Item]` | Every option, filtered as the reader types to those whose words contain what is typed, case ignored; use this or `search:` |
+| `search:` | `(String) -> [Item] or (String) -> [Item]!` | Options asked for as the reader types, each time the typing rests for `debounce:`: a function of the text giving a list, or an endpoint's call (`q => Geo.cities(q: q)`), whose `.ok` list is shown and whose failure shows none |
+| `text:` | `(Item) -> String (required)` | An option's words, shown in the list and in the field once chosen: `p => p.name` |
+| `key:` | `(Item) -> String or (Item) -> Number` | What tells two options apart, and what `bind:` holds: `p => p.id` |
+| `debounce:` | `Number or Duration` | How long the typing must rest before `search:` is asked: a `Duration` (`250.ms`) or milliseconds |
+| `multiple:` | `Bool` | Several at once, each a chip with a button to take it out; Backspace in the empty field takes the last back. Written as a flag, `.multiple`, or `multiple: true`. |
+| `label:` | `String (required)` | Its name for a screen reader: the field's and the list's (`aria-label`) |
+| `placeholder:` | `String` | Shown in the field while it is empty |
 
 ## Flags
 

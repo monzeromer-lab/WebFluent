@@ -1407,6 +1407,7 @@ pub fn declaration_name(d: &Declaration) -> Option<&str> {
         Declaration::Api(a) => &a.name,
         Declaration::Middleware(m) => &m.name,
         Declaration::Test(t) => &t.name,
+        Declaration::Example(t) => &t.name,
         Declaration::Fake(f) => &f.name,
         Declaration::App(_) => "app",
         Declaration::Script(_) => return None,
@@ -1534,6 +1535,7 @@ fn statement_at_mut(
             Declaration::Store(s) => &mut s.body,
             Declaration::App(a) => &mut a.body,
             Declaration::Test(t) => &mut t.body,
+            Declaration::Example(t) => &mut t.body,
             _ => continue,
         };
         if let Some(found) = find(body, Block::Render, start, end) {

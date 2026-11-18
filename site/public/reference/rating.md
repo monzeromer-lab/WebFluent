@@ -22,11 +22,11 @@ Text("You gave it {stars} of 5").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The rating, a `Number` |
-| `max:` | `Number` | How many stars (unset, 5) |
-| `label:` | `String  (required)` | What is being rated, for a screen reader |
-| `half:` | `Bool` | Half stars too |
-| `readonly:` | `Bool` | Shown, not chosen |
+| `bind:` | `State (required)` | The `Number` state it reads and writes: how many stars are chosen (halves with `.half`), 0 for none |
+| `max:` | `Number` | How many stars it draws, and the highest rating |
+| `label:` | `String (required)` | What is being rated: the group's name, read once; with `.readonly` it says `Quality: 4 out of 5` |
+| `half:` | `Bool` | Half stars too: the rating moves in steps of 0.5 rather than 1. Written as a flag, `.half`, or `half: true`. |
+| `readonly:` | `Bool` | Shown, not chosen: drawn as an image (`role="img"`) that says the rating, with no stops for Tab. Written as a flag, `.readonly`, or `readonly: true`. |
 
 ## Flags
 

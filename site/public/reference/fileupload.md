@@ -26,12 +26,12 @@ if let p = photo {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `accept:` | `String` | Accepted types, e.g. `image/*` or `.pdf,.doc` |
-| `label:` | `String` | Visible label; also the control's accessible name |
-| `multiple:` | `Bool` | Accept several files |
-| `disabled:` | `Bool` | Whether the control is inert |
-| `bind:` | `State` | The chosen files: a `File`, or a list of them with `.multiple` |
-| `dropzone:` | `Bool` | An area files are dropped on or chosen into, each shown with its preview and a button to take it out |
+| `accept:` | `String` | The kinds of file it offers: MIME types or extensions, comma-separated (`image/*`, `.pdf,.doc`) |
+| `label:` | `String` | The label drawn above the file input and its accessible name; with `.dropzone`, the words of its Choose button |
+| `multiple:` | `Bool` | Several files at once: `bind:` holds a `[File]`, and with `.dropzone` each choice adds to the list. Written as a flag, `.multiple`, or `multiple: true`. |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
+| `bind:` | `State` | The state the choice is written to: a `File?` (`null` when none), or a `[File]` with `.multiple` |
+| `dropzone:` | `Bool` | An area files are dropped on or chosen into, each listed with its name, a preview if it is an image, and a button to take it out. Written as a flag, `.dropzone`, or `dropzone: true`. |
 
 ## Flags
 

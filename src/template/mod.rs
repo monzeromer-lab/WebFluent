@@ -2298,7 +2298,8 @@ fn render_paged(
                     attrs.push((attr.to_string(), case(v)));
                 }
             }
-            if modifier("landscape") || named(ctx, "landscape").is_some() {
+            // `landscape: false` is portrait: a value was taken for true.
+            if modifier("landscape") || named(ctx, "landscape").is_some_and(|v| v != "false") {
                 attrs.push(("data-landscape".to_string(), "true".to_string()));
             }
             // A document in a right-to-left language reads right to left.

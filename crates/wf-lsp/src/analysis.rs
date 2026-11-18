@@ -30,17 +30,6 @@ pub fn declaration_at(project: &Project, file_ix: usize, offset: usize) -> Optio
     let mut app: Option<usize> = None;
     for (ix, decl) in project.declarations_of(file_ix) {
         match decl {
-            Declaration::Page(p) if contains(p.span, offset) => return Some(ix),
-            Declaration::Component(c) if contains(c.span, offset) => return Some(ix),
-            Declaration::Store(s) if contains(s.span, offset) => return Some(ix),
-            Declaration::Theme(t) if contains(t.span, offset) => return Some(ix),
-            Declaration::Test(t) if contains(t.span, offset) => return Some(ix),
-            Declaration::Type(t) if contains(t.span, offset) => return Some(ix),
-            Declaration::Enum(e) if contains(e.span, offset) => return Some(ix),
-            Declaration::Api(a) if contains(a.span, offset) => return Some(ix),
-            Declaration::Const(c) if contains(c.span, offset) => return Some(ix),
-            Declaration::Data(d) if contains(d.span, offset) => return Some(ix),
-            Declaration::Animation(a) if contains(a.span, offset) => return Some(ix),
             Declaration::App(a) => {
                 let start = a.body.first().map(|s| s.span.start as usize);
                 let end = a.body.last().map(|s| s.span.end as usize);
@@ -52,7 +41,14 @@ pub fn declaration_at(project: &Project, file_ix: usize, offset: usize) -> Optio
                 }
                 app = Some(ix);
             }
-            _ => {}
+            // Every other kind by its whole extent — a `middleware`, a
+            // `fake` and an `example` as much as a page — read from the
+            // compiler's one list, so a kind it adds is found here too.
+            other => {
+                if decl_span(other).is_some_and(|span| contains(span, offset)) {
+                    return Some(ix);
+                }
+            }
         }
     }
     app

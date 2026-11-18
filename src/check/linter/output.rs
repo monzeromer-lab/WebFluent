@@ -146,6 +146,22 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<Diagnostic>) {
                 ));
             }
         }
+        // A grid draws 1 to 12 equal columns; any other count had no rule
+        // and fell back to one column, with nothing said.
+        "Grid" => {
+            if let Some(n) = named(el, "columns").and_then(number)
+                && !(n.fract() == 0.0 && (1.0..=12.0).contains(&n))
+            {
+                out.push(crate::diagnostics::finding(
+                    "T01",
+                    format!("`columns` of Grid is {n}, but a whole number from 1 to 12 is wanted"),
+                    file,
+                    line,
+                    col,
+                    "`columns: 3` is three equal columns; a value per width, `{ base: 1, md: 3 }`",
+                ));
+            }
+        }
         _ => {}
     }
 }

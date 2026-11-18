@@ -793,6 +793,17 @@ pub fn check_sources_with<'s>(
                 cx.report_untyped();
                 cx.pop_scope();
             }
+            // An example's body is checked as a page's: it is one, under
+            // `wf docs`.
+            Declaration::Example(e) => {
+                cx.push_scope();
+                cx.bound = bound_names(&e.body);
+                cx.written = written_names(&e.body);
+                cx.declare_hoisted(&e.body);
+                cx.statements(&e.body, Body::Page);
+                cx.report_untyped();
+                cx.pop_scope();
+            }
             Declaration::App(a) => {
                 cx.push_scope();
                 cx.written = written_names(&a.body);

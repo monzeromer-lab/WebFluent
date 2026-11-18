@@ -30,8 +30,12 @@ Stack {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `transition:` | `.none .fade .slide` | How a route change moves between pages |
-| `duration:` | `String` | How long each half of the transition plays, e.g. `200ms` |
+| `transition:` | `one of its cases` | How a route change moves between pages, through the browser's View Transitions where it has them; none for a reader who asks for less motion. Written as a flag, `.none`, or by name, `transition: .none`.
+
+- `.none` (the default): The next page replaces the last at once
+- `.fade`: The last page fades out, the next fades in
+- `.slide`: The last page slides out to the left, the next in from the right |
+| `duration:` | `String` | How long each half of the transition plays, a CSS time, `200ms` |
 
 ## Flags
 

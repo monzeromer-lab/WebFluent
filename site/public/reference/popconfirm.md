@@ -31,10 +31,10 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title:` | `String  (required)` | The question |
-| `yes:` | `String` | The yes button's words (unset, `Yes`) |
-| `no:` | `String` | The no button's words (unset, `Cancel`) |
-| `danger:` | `Bool` | What yes does cannot be taken back: drawn in the danger colour |
+| `title:` | `String (required)` | The question, in a layer above the first button of its block when that button is pressed |
+| `yes:` | `String` | The yes button's words; pressing it fires `on confirm` |
+| `no:` | `String` | The no button's words, which has the focus when it opens; pressing it or Escape fires `on cancel` |
+| `danger:` | `Bool` | What yes does cannot be taken back: the yes button is drawn in the danger colour, not the primary, and the question in bold. Written as a flag, `.danger`, or `danger: true`. |
 
 ## Flags
 

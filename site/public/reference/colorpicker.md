@@ -23,9 +23,9 @@ Text("Chosen: {accent}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The colour, `#rrggbb` |
-| `label:` | `String  (required)` | What the colour is for |
-| `swatches:` | `[String]` | The colours offered first: a list of `#rrggbb` |
+| `bind:` | `State (required)` | The `String` state it reads and writes: always a lowercase `#rrggbb`; a value that is not a hex colour shows as `#000000` |
+| `label:` | `String (required)` | What the colour is for: the group's name, and the start of its picker's and hex field's names |
+| `swatches:` | `[String]` | The colours offered as buttons before the picker: `#rrggbb` or `#rgb`; anything else is left out, and with none the row is hidden |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

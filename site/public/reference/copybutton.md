@@ -23,9 +23,9 @@ Row(gap: .sm, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words; unset, `Copy` |
-| `value:` | `String or Number  (required)` | What it copies |
-| `copied:` | `String` | What it says once it has copied; unset, `Copied` |
+| `label` | `String (positional)` | Its words |
+| `value:` | `String or Number (required)` | What it copies, read when it is pressed; a value that reads state copies what it holds then |
+| `copied:` | `String` | What it says for 1.6 s once it has copied, also announced to a screen reader |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

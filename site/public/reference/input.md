@@ -26,22 +26,40 @@ Stack(gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `reveal:` | `Bool` | A password's button to show it and hide it again, said to a screen reader |
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
+| `reveal:` | `Bool` | With `.password`: a Show/Hide button after the field that shows the password as text and hides it again, pressed (`aria-pressed`) while it shows. Written as a flag, `.reveal`, or `reveal: true`. |
+| `bind:` | `State` | The state it reads and writes as you type: a `String`, a `Number` with `.number` (`null` when emptied), a `Date` with `.date`, a `Time` with `.time`, a `DateTime` with `.datetime` |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
-| `type:` | `.text .email .password .number .search .tel .url .date .time .datetime .color` | What the field holds |
+| `type:` | `one of its cases` | What the field holds, and so the keyboard and picker a browser offers; it also sets what `bind:` holds. Written as a flag, `.text`, or by name, `type: .text`.
+
+- `.text` (the default): Plain text
+- `.email`: An email address
+- `.password`: A password, its characters hidden
+- `.number`: A number: `bind:` holds a `Number`
+- `.search`: A search query
+- `.tel`: A phone number
+- `.url`: A URL
+- `.date`: A day, from the browser's date picker: `bind:` holds a `Date`
+- `.time`: A time of day: `bind:` holds a `Time`
+- `.datetime`: A day and a time (`datetime-local`): `bind:` holds a `DateTime`
+- `.color`: A colour, from the browser's picker, as `#rrggbb` |
 | `placeholder:` | `String` | Hint shown while the field is empty |
-| `value:` | `String or Number` | The control's value, when its state is not bound |
-| `min:` | `Number or String` | Lowest value |
-| `max:` | `Number or String` | Highest value |
-| `step:` | `Number` | Granularity |
-| `required:` | `Bool` | Whether the form refuses to submit without it |
-| `disabled:` | `Bool` | Whether the control is inert |
-| `size:` | `.sm .md .lg` | Its size |
-| `width:` | `.full` | Width |
-| `rounded:` | `Bool` | Rounded corners |
+| `value:` | `String or Number` | The text it starts with, when no state is bound; `bind:` takes its place |
+| `min:` | `Number or String` | The lowest value a `.number`, `.date` or `.time` field takes: a number, or a date or time as text (`"2026-01-01"`) |
+| `max:` | `Number or String` | The highest value a `.number`, `.date` or `.time` field takes: a number, or a date or time as text |
+| `step:` | `Number` | How far the arrow keys and the spinner move a `.number` value (seconds for `.time`) |
+| `required:` | `Bool` | Whether the browser refuses to submit the form while it is empty. Written as a flag, `.required`, or `required: true`. |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
+| `size:` | `one of its cases` | Its padding and text size. Written as a flag, `.sm`, or by name, `size: .sm`.
+
+- `.sm`: Less padding, smaller text
+- `.md` (the default): The default size
+- `.lg`: More padding, larger text |
+| `width:` | `one of its cases` | Its width. Written as a flag, `.full`, or by name, `width: .full`.
+
+- `.full`: The whole width of its container (an input already is, outside a row) |
+| `rounded:` | `Bool` | Fully rounded ends, a pill shape. Written as a flag, `.rounded`, or `rounded: true`. |
 
 ## Flags
 

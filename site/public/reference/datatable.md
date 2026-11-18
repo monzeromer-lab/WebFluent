@@ -30,13 +30,13 @@ Text("{chosen.length} chosen").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `rows:` | `[Item]  (required)` | The records |
-| `key:` | `(Item) -> String or (Item) -> Number  (required)` | What tells two rows apart: `r => r.id` |
-| `bind:` | `State` | The chosen row's key, or a list of them with `.multiple` |
-| `multiple:` | `Bool` | Several rows at once |
-| `label:` | `String  (required)` | What the table is: its caption, read by a screen reader |
-| `filter:` | `String` | Only the rows whose columns hold this text, its case ignored |
-| `pageSize:` | `Number` | Rows a page: the rest are on pages behind Previous and Next |
+| `rows:` | `[Item] (required)` | The records, a row each |
+| `key:` | `(Item) -> String or (Item) -> Number (required)` | What tells two rows apart: `r => r.id`; what `bind:` holds, and what keeps a row's nodes as it moves |
+| `bind:` | `State` | The state holding the chosen row's key (a radio a row), or with `.multiple` a list of keys (a box a row and one for all); without it, no column to choose |
+| `multiple:` | `Bool` | Several rows at once, with a box in the header that takes them all. Written as a flag, `.multiple`, or `multiple: true`. |
+| `label:` | `String (required)` | What the table is: its caption, visually hidden, read by a screen reader |
+| `filter:` | `String` | Only the rows where a column's `value:` holds this text, its case ignored; a column with only `cell` is not searched. A change goes back to page 1 |
+| `pageSize:` | `Number` | Rows a page, behind Previous and Next with `1–20 of 54`; 0 shows every row. Whether there are pages is decided when it is drawn |
 
 ## Flags
 
@@ -62,9 +62,9 @@ DataTable.Column(_ title: String, value: (Item) -> String or (Item) -> Number or
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | Its header |
-| `value:` | `(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money` | What the column holds for a row: `r => r.service` |
-| `sortable:` | `Bool` | Its header sorts the rows by its `value:` |
+| `title` | `String (positional)` | Its header |
+| `value:` | `(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money` | What the column holds for a row: `r => r.service`; shown as text unless `cell(r)` draws it, and what sorting and `filter:` read |
+| `sortable:` | `Bool` | Its header is a button that sorts the rows by its `value:`, ascending then descending (`aria-sort`); needs `value:`. Written as a flag, `.sortable`, or `sortable: true`. |
 
 Flags: `.sortable`
 

@@ -39,7 +39,7 @@ Text(said).muted.sm
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | The bar's name for a screen reader |
+| `label:` | `String` | The bar's accessible name (`aria-label` on its `menubar`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -61,7 +61,7 @@ Menubar.Menu(_ label: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The button's words |
+| `label` | `String (positional)` | The words on its button, and the name of the menu it opens |
 
 ## What it can raise
 

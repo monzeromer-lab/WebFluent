@@ -25,7 +25,13 @@ Text("Last deployed 3 hours ago.").muted.sm
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `size:` | `.xs .sm .md .lg .xl` | How much space |
+| `size:` | `one of its cases` | How tall the empty block is, from the theme's spacing scale; written as a flag, `Spacer.lg`. Written as a flag, `.xs`, or by name, `size: .xs`.
+
+- `.xs`: `$spacing-xs`, 0.25rem
+- `.sm`: `$spacing-sm`, 0.5rem
+- `.md` (the default): `$spacing-md`, 1rem (the default)
+- `.lg`: `$spacing-lg`, 1.5rem
+- `.xl`: `$spacing-xl`, 1.5–2rem, growing with the screen |
 
 ## Flags
 

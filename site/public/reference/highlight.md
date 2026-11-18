@@ -25,8 +25,8 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The text |
-| `query:` | `String` | What to mark |
+| `text` | `String (positional)` | The text, every match of `query:` in it wrapped in `<mark>` |
+| `query:` | `String` | What to mark: every match, its case ignored, after trimming; empty marks nothing |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

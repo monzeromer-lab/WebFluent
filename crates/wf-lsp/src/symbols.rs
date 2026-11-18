@@ -348,6 +348,55 @@ fn declaration_symbol(
                 Vec::new(),
             )
         }
+        // A step every request of a service passes through.
+        Declaration::Middleware(m) => {
+            let range = index.span_to_range(source, m.span);
+            symbol(
+                m.name.clone(),
+                "Middleware",
+                SymbolKind::FUNCTION,
+                range,
+                range,
+                statement_symbols(&m.handler.body, source, index),
+            )
+        }
+        // What answers a group's endpoints in a test, and each it answers.
+        Declaration::Fake(f) => {
+            let range = index.span_to_range(source, f.span);
+            symbol(
+                f.name.clone(),
+                &format!("fake for {}", f.target),
+                SymbolKind::OBJECT,
+                range,
+                index.span_to_range(source, f.header_span),
+                f.answers
+                    .iter()
+                    .map(|a| {
+                        let at = index.span_to_range(source, a.span);
+                        symbol(
+                            format!("{}({})", a.endpoint, a.params.join(", ")),
+                            "answer",
+                            SymbolKind::METHOD,
+                            at,
+                            at,
+                            Vec::new(),
+                        )
+                    })
+                    .collect(),
+            )
+        }
+        // One way to use a component, which `wf docs` draws.
+        Declaration::Example(e) => {
+            let range = index.span_to_range(source, e.span);
+            symbol(
+                format!("example {} \"{}\"", e.component, e.name),
+                "Example",
+                SymbolKind::EVENT,
+                range,
+                range,
+                statement_symbols(&e.body, source, index),
+            )
+        }
         _ => return None,
     })
 }
@@ -594,6 +643,16 @@ pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformatio
             ),
             Declaration::Data(d) => (d.name.clone(), SymbolKind::CONSTANT, d.span, "Data"),
             Declaration::Api(a) => (a.name.clone(), SymbolKind::INTERFACE, a.span, "Api"),
+            Declaration::Middleware(m) => {
+                (m.name.clone(), SymbolKind::FUNCTION, m.span, "Middleware")
+            }
+            Declaration::Fake(f) => (f.name.clone(), SymbolKind::OBJECT, f.header_span, "Fake"),
+            Declaration::Example(e) => (
+                format!("example {} \"{}\"", e.component, e.name),
+                SymbolKind::EVENT,
+                e.span,
+                "Example",
+            ),
             Declaration::App(app) => {
                 let Some(first) = app.body.first() else {
                     continue;

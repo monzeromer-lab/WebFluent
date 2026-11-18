@@ -123,15 +123,30 @@ def own_flags(c: dict, universal: set) -> list:
 
 
 def prop_row(p: dict, positional: bool = False) -> dict:
+    meaning = p["summary"]
     if p.get("cases"):
-        ty = " ".join(f".{c['name']}" for c in p["cases"])
+        ty = "one of its cases"
+        # Each case, what it means, and how it is written: as a flag when
+        # the case alone names this prop, else by name.
+        flagged = any(c.get("flag") for c in p["cases"])
+        lines = [f"- `.{c['name']}`{' (the default)' if c.get('default') else ''}: {c['summary']}"
+                 for c in p["cases"] if c["name"]]
+        how = (f"Written as a flag, `.{p['cases'][0]['name']}`, or by name, `{p['name']}: .{p['cases'][0]['name']}`."
+               if flagged else f"Written by name: `{p['name']}: .{p['cases'][0]['name']}`.")
+        meaning = meaning.rstrip(".") + ". " + how + "\n\n" + "\n".join(lines)
     else:
         ty = p["type"]
+        if ty == "Bool" and p.get("flag"):
+            meaning = meaning.rstrip(".") + f". Written as a flag, `.{p['name']}`, or `{p['name']}: true`."
     if positional:
-        ty += "  (positional)"
+        ty += " (positional)"
     elif p.get("required"):
-        ty += "  (required)"
-    return {"name": p["name"] if positional else f"{p['name']}:", "type": ty, "meaning": p["summary"]}
+        ty += " (required)"
+    default = p.get("default") or ""
+    if p.get("cases") and not default:
+        default = next((f".{c['name']}" for c in p["cases"] if c.get("default")), "")
+    return {"name": p["name"] if positional else f"{p['name']}:", "type": ty, "meaning": meaning,
+            "default": "—" if p.get("required") or positional and not default else default}
 
 
 def signature(c: dict) -> str:
@@ -387,9 +402,44 @@ def config(data: list) -> dict:
     return {"count": len(items), "sections": sections, "items": items}
 
 
+# The engine's sheet sections that are no built-in: what every page gets.
+NOT_BUILT_INS = {"Reset", "Normalize", "Layout", "Off-canvas controls", "Drag", "Layer", "Typography",
+                 "Responsive", "Animation Keyframes", "Animation Utility Classes", "Focus Visibility",
+                 "Hit Areas", "Touch Targets", "Reduced Motion", "Skip Link", "Highlight Marks",
+                 "Reveal", "Autosize", "Range Slider", "Drop Zone"}
+
+
+def token_users() -> dict:
+    """Which built-ins draw from each token: the sections of the engine's
+    sheet (`src/project/themes/sheet.rs`) whose rules read `var(--name)`."""
+    sheet = (ROOT / "src" / "project" / "themes" / "sheet.rs").read_text()
+    users: dict = {}
+    section = None
+    for line in sheet.split("\n"):
+        m = re.match(r"^/\* ─── ([A-Za-z .,/&-]+?) ─", line)
+        if m:
+            section = m.group(1).strip()
+            continue
+        if not section or section in NOT_BUILT_INS:
+            continue
+        name = section.replace(" ", "")
+        for tok in re.findall(r"var\(--([a-z0-9-]+)", line):
+            users.setdefault(tok, [])
+            if name not in users[tok]:
+                users[tok].append(name)
+    return users
+
+
+GROUP_TITLES = {"color": "Colour", "font": "Font", "font-size": "Font size", "line-height": "Line height",
+                "spacing": "Spacing", "radius": "Radius", "shadow": "Shadow", "transition": "Transition",
+                "animation": "Animation", "ease": "Easing", "screen": "Breakpoints", "syntax": "Code",
+                "term": "Terminal", "z": "Stacking", "target": "Targets", "layout": "Layout"}
+
+
 def tokens(data: dict) -> dict:
     # The baseline theme's tokens: what every project starts with. A token
     # only the site declares is the site's, not the language's.
+    users = token_users()
     items = []
     for t in data["tokens"]:
         if t["baseline"] is None:
@@ -399,7 +449,8 @@ def tokens(data: dict) -> dict:
             "group": t["group"],
             "value": t["baseline"],
             "color": t["group"] == "color",
-            "drawnBy": ", ".join(t["drawn_by"][:6]),
+            "summary": t.get("summary") or "",
+            "usedBy": ", ".join(users.get(t["name"], [])[:8]) + (f" +{len(users[t['name']]) - 8}" if len(users.get(t["name"], [])) > 8 else ""),
         })
     groups = []
     for t in items:
@@ -485,7 +536,9 @@ def describe(text: str) -> str:
 
 
 def rows(items: list) -> str:
-    return "[" + ", ".join(f"{{ name: {q(r['name'])}, type: {q(r['type'])}, meaning: {q(r['meaning'])} }}" for r in items) + "]"
+    return "[" + ", ".join(
+        f"{{ name: {q(r['name'])}, type: {q(r['type'])}, meaning: {q(r['meaning'])}"
+        + (f", default: {q(r['default'])}" if r.get("default") else "") + " }" for r in items) + "]"
 
 
 def prop_rows(items: list) -> str:
@@ -678,7 +731,7 @@ def part_section(p: dict, owner: dict) -> list:
            f'        Text({q(p["plain"])})',
            f'        Code({q(p["signature"])}).block']
     if p["props"]:
-        out.append(f'        PropsTable(rows: {rows(p["props"])}, caption: {q("Props of " + p["name"])})')
+        out.append(f'        PropsTable(rows: {rows(p["props"])}, caption: {q("Props of " + p["name"])}, defaults: true)')
     if p["flags"]:
         out.append("        Row(gap: .sm) {")
         out.append("            style { gap: 8px; flex-wrap: wrap }")
@@ -793,7 +846,7 @@ def builtin_page(c: dict, by_slug: dict, universal: list, parts: list = ()) -> l
         out.append("        }")
     out.append('        Heading(t("ref.tab.props"), id: "props").h2')
     if c["props"]:
-        out.append(f'        PropsTable(rows: {rows(c["props"])}, caption: {q("Props of " + c["name"])})')
+        out.append(f'        PropsTable(rows: {rows(c["props"])}, caption: {q("Props of " + c["name"])}, defaults: true)')
     else:
         out.append('        Text(t("ref.noprops"), class: "bp-small")')
     out.append(f'        Markdown(t("ref.attrs", {{ families: {q(", ".join(c["attributes"]))}, n: {len(universal)}, '
@@ -1082,20 +1135,17 @@ def table(caption: str, heads: list, body: list) -> list:
 
 def config_file(cfg: dict) -> str:
     out = [HEAD.format(what="Every key of webfluent.app.json, by section", source="wf config schema --json")]
+    # The chapter's tables are the listing — each key with its type,
+    # default and what it does — and tests hold them to the schema; a
+    # second, terser table of every key below them said it all again.
     prose_sections, prose = prose_block("/reference/config")
-    sections = [(f"keys-{s}", s) for s in cfg["sections"]] + prose_sections
+    sections = prose_sections
     page = [
         'page ConfigPage(path: "/reference/config", title: "Configuration — Reference", description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.") {',
         f'    ReferenceItemShell(t("config.title"), summary: t("config.lede", {{ count: {cfg["count"]} }}), signature: "webfluent.app.json", group: t("config.title"), '
         f'entries: REFERENCE_PAGES, sections: {anchors(sections)}, source: "md-docs/reference/configuration.md") {{',
         *prose,
     ]
-    for s in cfg["sections"]:
-        page.append(f'        Heading({q(s)}, id: "keys-{s}", class: "bp-mono").h2')
-        body = [[f"Table.Cell {{ Code({q(k['path'])}) }}", f"Table.Cell {{ Code({q(k['type'])}) }}",
-                 f"Table.Cell {{ Code({q(k['default'] or chr(34) * 2)}) }}", f"Table.Cell({q(k['summary'])})"]
-                for k in cfg["items"] if k["section"] == s]
-        page += table(f"The {s} keys", ['t("config.key")', 't("ref.type")', 't("config.default")', 't("ref.meaning")'], body)
     page += ["    }", "}"]
     out.append("\n".join(page) + "\n")
     return "\n".join(out)
@@ -1103,16 +1153,22 @@ def config_file(cfg: dict) -> str:
 
 def tokens_file(tok: dict) -> str:
     out = [HEAD.format(what="Every token of the baseline theme, by group", source="wf theme --json")]
-    prose_sections, prose = prose_block("/reference/tokens")
-    sections = [(f"tokens-{g}", g) for g in tok["groups"]] + prose_sections
+    # The chapter's prose, without its own tables of the baseline: this
+    # page draws them once, below, with what each is for and who reads it.
+    strip = lambda md: re.sub(r"## The baseline\n.*?<!-- /tokens -->\n", "", md, flags=re.S)
+    prose_sections, prose = prose_block("/reference/tokens", strip)
+    groups = [(f"tokens-{g}", GROUP_TITLES.get(g, g.capitalize())) for g in tok["groups"]]
+    sections = prose_sections + [("the-baseline", "The baseline")] + groups
     page = [
-        'page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.") {',
+        'page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token: its default value, what it is for, which built-ins draw from it, and how a style block or a stylesheet reads it.") {',
         f'    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", {{ count: {tok["count"]} }}), signature: "theme Brand \\{{ color-primary: #3B82F6 \\}}", group: t("tokens.title"), '
         f'entries: REFERENCE_PAGES, sections: {anchors(sections)}, source: "md-docs/reference/design-tokens.md") {{',
         *prose,
+        '        Heading("The baseline", id: "the-baseline").h2',
+        '        Markdown(t("tokens.baseline"), class: "bp-prose")',
     ]
     for g in tok["groups"]:
-        page.append(f'        Heading({q(g)}, id: "tokens-{g}", class: "bp-mono").h2')
+        page.append(f'        Heading({q(GROUP_TITLES.get(g, g.capitalize()))}, id: "tokens-{g}").h3')
         body = []
         for t in tok["items"]:
             if t["group"] != g:
@@ -1120,10 +1176,11 @@ def tokens_file(tok: dict) -> str:
             swatch = ""
             if t["color"]:
                 swatch = f'Text("", aria-hidden: "true") {{ style {{ flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: {t["value"]} }} }}  '
-            body.append([f"Table.Cell {{ Code({q('$' + t['name'])}) }}",
+            body.append([f"Table.Cell {{ Code({q(t['name'])}) {{ style {{ white-space: nowrap }} }} }}",
                          f"Table.Cell {{ Row(align: .center, gap: .xs) {{ style {{ flex-wrap: nowrap; gap: 8px; & p {{ margin: 0 }} }} {swatch}Code({q(t['value'])}) }} }}",
-                         f"Table.Cell({q(t['drawnBy'])})"])
-        page += table(f"The {g} tokens", ['t("tokens.token")', 't("tokens.value")', 't("tokens.drawn")'], body)
+                         f"Table.Cell {{ Markdown({q(t['summary'])}) }}",
+                         f"Table.Cell({q(t['usedBy'] or '—')})"])
+        page += table(f"The {GROUP_TITLES.get(g, g)} tokens", ['t("tokens.token")', 't("tokens.value")', 't("tokens.for")', 't("tokens.usedby")'], body)
     page += ["    }", "}"]
     out.append("\n".join(page) + "\n")
     return "\n".join(out)

@@ -29,7 +29,7 @@ Row(gap: .md, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The words |
+| `text` | `String (positional)` | The words a screen reader reads and the page does not show; unset, its block |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

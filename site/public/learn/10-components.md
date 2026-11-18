@@ -85,7 +85,8 @@ The rules for props:
   with no default defaults to `null`.
 - A `Bool` prop is set with a flag, `.active`, or by name, `active: false`.
 - A `///` comment above the component or above a prop is its
-  documentation. The editor shows it on hover, and `wf docs` prints it.
+  documentation. The editor shows it on hover, and `wf docs` writes it on
+  the component's page.
 
 > [!NOTE]
 > **Coming from React?** There is no `...rest` that forwards whatever the
@@ -477,7 +478,49 @@ or lives in a store.
 ### Document it
 
 A `///` comment above the component, a prop or an event is shown on hover
-in the editor and in the gallery `wf docs` writes.
+in the editor, and on the component's page of the site `wf docs` writes.
+
+An `example` shows one way to use it. It names the component and says what
+it shows; its body is a page's — elements, `state`, handlers:
+
+```wf
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card {
+        Text(name).bold
+        Text(role).muted
+        if active { Badge("Active").success }
+    }
+}
+
+/// The usual case.
+example UserCard "A designer" {
+    UserCard("Sam", role: "Designer")
+}
+
+example UserCard "Away" {
+    state here = false
+    UserCard("Ada", role: "Engineer", active: here)
+    Button("Back") { on click { here = true } }
+}
+```
+
+An example is checked as a page is — a component nothing declares is
+`E101`, a wrong value `T01` — and a build leaves it out. `wf docs` draws
+each one live, in the project's own theme, beside its source; a component
+with none is drawn from its props, each one it needs given a value of its
+type. Keep the examples beside the component, or in a file of their own
+under `src/`. An example only draws: what it does when clicked belongs in a
+[test](https://webfluent.monzeromer.dev/learn/16-testing.md).
+
+```bash
+wf docs
+```
+
+The site is written to `docs/` in the design of this reference, light and
+dark: a page a component, with its examples, props, events, slots and
+parts, and pages for the project's types, stores and routes. Serve the
+folder to read it.
 
 ## Other people's code
 

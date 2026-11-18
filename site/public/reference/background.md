@@ -29,7 +29,13 @@ Document(title: "Q3 report") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `on:` | `.all .first .rest .odd .even` | Which pages it is drawn on |
+| `on:` | `one of its cases` | Which pages it is drawn on, behind the content, edge to edge. Written as a flag, `.all`, or by name, `on: .all`.
+
+- `.all` (the default): Every page
+- `.first`: The first page only
+- `.rest`: Every page but the first
+- `.odd`: Odd pages (1, 3, 5 …)
+- `.even`: Even pages |
 
 ## Flags
 

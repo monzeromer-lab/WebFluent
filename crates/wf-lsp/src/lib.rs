@@ -1,6 +1,7 @@
 pub mod analysis;
 #[cfg(feature = "server")]
 pub mod backend;
+pub mod browser;
 pub mod classes;
 pub mod code_actions;
 pub mod completion;
@@ -14,6 +15,7 @@ pub mod line_index;
 pub mod project;
 pub mod reference;
 pub mod rename;
+pub mod scripts;
 pub mod semantic;
 pub mod signature;
 pub mod symbols;

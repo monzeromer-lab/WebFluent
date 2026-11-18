@@ -85,6 +85,7 @@ pub fn lint_vocabulary_with(
             | Declaration::Const(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Example(_)
             | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
@@ -153,6 +154,7 @@ fn global_names(program: &Program) -> HashSet<String> {
             | Declaration::Middleware(_)
             | Declaration::Animation(_)
             | Declaration::Test(_)
+            | Declaration::Example(_)
             | Declaration::Fake(_) => {}
         }
     }

@@ -21,16 +21,16 @@ Video(src: "/media/launch.mp4", poster: "/og.png", captions: "/media/launch.en.v
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `src:` | `String` | Video URL |
-| `controls:` | `Bool` | Show the browser's playback controls |
-| `autoplay:` | `Bool` | Start playing when shown |
-| `poster:` | `String` | The frame shown before it plays |
-| `muted:` | `Bool` | Start with the sound off |
-| `loop:` | `Bool` | Start again when it ends |
-| `playsinline:` | `Bool` | Play where it sits, rather than full screen |
-| `captions:` | `String` | A WebVTT file of captions, which becomes a `<track>` |
-| `width:` | `Number` | Intrinsic width |
-| `height:` | `Number` | Intrinsic height |
+| `src:` | `String` | The video's address |
+| `controls:` | `Bool` | The browser's playback controls; without them, `A09`. Written as a flag, `.controls`, or `controls: true`. |
+| `autoplay:` | `Bool` | Start playing when shown; browsers allow it only for a `.muted` video. Written as a flag, `.autoplay`, or `autoplay: true`. |
+| `poster:` | `String` | The picture shown before it plays |
+| `muted:` | `Bool` | Start with the sound off. Written as a flag, `.muted`, or `muted: true`. |
+| `loop:` | `Bool` | Start again when it ends. Written as a flag, `.loop`, or `loop: true`. |
+| `playsinline:` | `Bool` | Play where it sits on a phone, rather than full screen. Written as a flag, `.playsinline`, or `playsinline: true`. |
+| `captions:` | `String` | A WebVTT file of captions, which becomes a default `<track kind="captions">`; without it, `A09` |
+| `width:` | `Number` | The player's `width` in px |
+| `height:` | `Number` | The player's `height` in px |
 
 ## Flags
 

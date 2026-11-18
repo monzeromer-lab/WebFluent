@@ -26,7 +26,7 @@ DescriptionList.grid {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `grid:` | `Bool` | Each term beside its value |
+| `grid:` | `Bool` | Each term beside its value, in two columns (the terms as wide as the widest); unset, each term above its value. Written as a flag, `.grid`, or `grid: true`. |
 
 ## Flags
 
@@ -52,8 +52,8 @@ DescriptionList.Item(_ term: String, value: String or Number or Bool) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `term` | `String  (positional)` | What it is |
-| `value:` | `String or Number or Bool` | Its value, as text; unset, its block |
+| `term` | `String (positional)` | What it is: the term (`<dt>`) |
+| `value:` | `String or Number or Bool` | Its value, shown as text in the `<dd>`; unset, the item's block is the value |
 
 ## Drawn for it
 

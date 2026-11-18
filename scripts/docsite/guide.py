@@ -214,7 +214,13 @@ def slug(text: str) -> str:
 
 def plain(text: str) -> str:
     """Heading text without its Markdown marks."""
-    return re.sub(r"[`*_]", "", text).strip()
+    # A mark inside code is the code's (`public_env`); outside, `*` and an
+    # `_` at a word's edge are emphasis.
+    parts = re.split(r"(`[^`]*`)", text)
+    return "".join(
+        p.strip("`") if p.startswith("`") else re.sub(r"\*|(?<!\w)_|_(?!\w)", "", p)
+        for p in parts
+    ).strip()
 
 
 def snippet(text: str, limit: int = 160) -> str:

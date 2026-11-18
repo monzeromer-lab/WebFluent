@@ -71,7 +71,8 @@ data showcase: [Example] = "showcase.json"
 type PropsRow {
     name: String,
     type: String,
-    meaning: String
+    meaning: String,
+    default: String = ""
 }
 
 /// One control of a Stage: a prop's name, its kind (`enum`, `bool`), the

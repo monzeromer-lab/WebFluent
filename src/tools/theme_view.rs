@@ -47,6 +47,8 @@ pub struct Token {
     /// The properties whose group resolves it from a bare `$name`:
     /// `spacing-md` is drawn by `padding`, `margin`, `gap` …
     pub drawn_by: Vec<&'static str>,
+    /// What a baseline token is for, in a line; empty for a theme's own.
+    pub summary: &'static str,
     /// Every place the project names it.
     pub uses: Vec<Use>,
 }
@@ -325,6 +327,7 @@ pub fn view(
                 } else {
                     Vec::new()
                 },
+                summary: crate::project::themes::tokens::describe(name).unwrap_or(""),
                 uses: uses.get(name).cloned().unwrap_or_default(),
             }
         })

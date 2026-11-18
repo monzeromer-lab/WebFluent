@@ -35,7 +35,11 @@ Card.elevated {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `surface:` | `.flat .elevated .outlined` | Surface treatment |
+| `surface:` | `one of its cases` | How it stands off the page. Written as a flag, `.flat`, or by name, `surface: .flat`.
+
+- `.flat`: No border and no shadow
+- `.elevated`: No border, raised with a shadow
+- `.outlined`: A border on a transparent background, no shadow |
 
 ## Flags
 

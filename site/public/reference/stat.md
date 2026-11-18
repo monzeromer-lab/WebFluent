@@ -24,11 +24,17 @@ Grid(columns: { base: 1, md: 3 }, gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | What the figure is |
-| `value:` | `Number or Money or String  (required)` | The figure |
-| `format:` | `.number .integer .currency .percent .compact` | How the figure is written, as `format` writes it |
-| `change:` | `Number` | How it moved, as a fraction: `0.124` is up 12.4% |
-| `trend:` | `[Number]` | Its recent values, drawn as a sparkline under it: `[31, 40, 28, 51]` |
+| `label` | `String (positional)` | What the figure is, small and muted above it |
+| `value:` | `Number or Money or String (required)` | The figure, large; `format:` says how it is written |
+| `format:` | `one of its cases` | How the figure is written, as `format(value, .style)` writes it in the page's locale. Written as a flag, `.number`, or by name, `format: .number`.
+
+- `.number`: Grouped digits: `1,234.5`
+- `.integer`: A whole number: `1,235`
+- `.currency`: Money, in the page's currency (a `Money` in its own)
+- `.percent`: A fraction as a percentage: `0.25` is `25%`
+- `.compact`: Short: `1.2K` |
+| `change:` | `Number` | How it moved, as a fraction (`0.124` is `▲ 12.4%`, green; a negative one `▼`, red), read "Up" or "Down" by a screen reader |
+| `trend:` | `[Number]` | Its recent values, drawn as a 120×28 sparkline under it when the page is built (`E109` when not known then): `[31, 40, 28, 51]` |
 
 ## Flags
 
@@ -54,7 +60,7 @@ Stat.Label(_ text: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The label |
+| `text` | `String (positional)` | The label |
 
 ### Stat.Value
 
@@ -66,7 +72,7 @@ Stat.Value(_ text: String or Number)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String or Number  (positional)` | The figure |
+| `text` | `String or Number (positional)` | The figure |
 
 ### Stat.Change
 
@@ -78,7 +84,7 @@ Stat.Change(_ text: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The change |
+| `text` | `String (positional)` | The change |
 
 ## What it can raise
 

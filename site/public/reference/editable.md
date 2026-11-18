@@ -22,9 +22,9 @@ Text("Saved as “{project}”").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The text |
-| `label:` | `String  (required)` | What the text is, for a screen reader |
-| `placeholder:` | `String` | Shown while it is empty |
+| `bind:` | `State (required)` | The `String` state it shows and writes; Enter or leaving the field writes what was typed, Escape leaves it as it was |
+| `label:` | `String (required)` | What the text is: the field's name, and the button's (`Name: Ada, edit`) for a screen reader |
+| `placeholder:` | `String` | Shown in place of the text while it is empty, and in the field while editing |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

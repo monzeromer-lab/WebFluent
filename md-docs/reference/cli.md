@@ -51,7 +51,7 @@ wf serve
 | `wf scope FILE:LINE[:COL] [-d, --dir DIR] [--data JSON] [--json]` | Lists the names that can be read at a place, each with its type and where it comes from |
 | `wf rules [-d, --dir DIR] [--json]` | Lists the `validate` rules, the named patterns, when a form shows its messages, and every state held to a rule |
 | `wf components [-d, --dir DIR] [--json]` | Lists every component a call can name — the built-ins and the project's — with what each takes |
-| `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
+| `wf docs [-d, --dir DIR] [-o, --out OUT]` | Documents the project's components, each `example` drawn live |
 | `wf registry [--json]` | Describes every built-in |
 | `wf types [PATH] [--json] [--holes]` | Describes what the project declares, or every place a value's type is unknown |
 
@@ -1029,23 +1029,32 @@ library has it as `webfluent::registry::schema::of_project_via` (with the `inter
 
 ### `wf docs`
 
-Writes a self-contained component gallery.
+Documents the project's components as a site, in the design of this
+reference.
 
 **Usage:** `wf docs [OPTIONS]`
 
 | Option | Value | Default | Meaning |
 |---|---|---|---|
 | `-d`, `--dir` | a directory | `.` | The project. |
-| `-o`, `--out` | a directory | `docs` | Where to write `index.html`. |
+| `-o`, `--out` | a directory | `docs` | Where to write the site. |
 
 ```bash
 wf docs
-wf docs -o gallery
+wf docs -o component-docs
 ```
 
-The gallery shows every built-in — props, cases, flags, events, slots,
-parts — and every component, enum, type, store and page the project
-declares, with their `///` documentation.
+A page a component: its `///` comment and header, every
+[`example`](../learn/10-components.md#document-it) of it drawn live beside
+its source — in a frame of the project's own build, with its theme,
+stylesheets and scripts — then its props (type, what it is when left out,
+each prop's `///`), events, slots, parts and what places it. A component
+with no example is drawn from its props. The types, stores and pages each
+have a page.
+
+The project is checked first, and an error stops it, as a build does.
+Serve the folder to read it. A second run clears what the first wrote; a
+folder it did not write is left alone.
 
 ### `wf registry`
 

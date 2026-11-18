@@ -520,8 +520,11 @@
   // `.number` input used to store "3", so `qty + 1` was "31".
   function bound(t) {
     if (t.tagName === "SELECT") {
+      const of = (o) => ("_wfValue" in o ? o._wfValue : o.value);
+      // `Select(…).multiple` holds every choice; it held the first.
+      if (t.multiple) return [...t.selectedOptions].map(of);
       const o = t.selectedOptions[0];
-      return o ? ("_wfValue" in o ? o._wfValue : o.value) : null;
+      return o ? of(o) : null;
     }
     if (t.type === "number" || t.type === "range") {
       return t.value === "" || !Number.isFinite(t.valueAsNumber) ? null : t.valueAsNumber;

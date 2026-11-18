@@ -34,9 +34,9 @@ CommandPalette(open: palette, label: "Commands", placeholder: "Type a command or
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `open:` | `State  (required)` | The state that shows it, written back when it closes |
-| `label:` | `String` | Its name and the field's; unset, `Commands` |
-| `placeholder:` | `String` | Shown in the field; unset, `Type a command or search…` |
+| `open:` | `State (required)` | A Bool state that shows it (a modal), written `false` when it closes — Escape, a press outside, a choice |
+| `label:` | `String` | Its title, and the name of its field and its list |
+| `placeholder:` | `String` | Shown in the empty field |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -58,7 +58,7 @@ CommandPalette.Group(_ title: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | Its heading |
+| `title` | `String (positional)` | Its heading, and the group's accessible name |
 
 ### CommandPalette.Item
 
@@ -70,9 +70,9 @@ CommandPalette.Item(_ label: String, icon: String, shortcut: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words, which the typing matches |
-| `icon:` | `String` | An icon before the words |
-| `shortcut:` | `String` | Its keys, shown at its end as this system writes them |
+| `label` | `String (positional)` | Its words, which the typing matches |
+| `icon:` | `String` | The name of a built-in icon, drawn before its words |
+| `shortcut:` | `String` | Its keys, shown at its end as this system writes them (`⌘H`); only shown — the key is not bound |
 
 Events: `select`
 

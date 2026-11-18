@@ -131,6 +131,15 @@ impl JsCodegen {
                 ));
             }
             self.emit_line(&format!("{content_var}.appendChild({header_var});"));
+        } else if ui.modifiers.iter().any(|m| m == "closable") {
+            // `.closable` with no title (a sheet named by `label:`): the
+            // close button in a heading row of its own. It was drawn only
+            // with a title, so the flag did nothing.
+            let header_var = self.fresh_var();
+            self.emit_line(&format!(
+                "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header {class}__header--bare\" }}, WF.el(\"button\", {{ className: \"{class}__close\", type: \"button\", \"aria-label\": \"Close\", \"on:click\": () => ({var}._wfShut ? {var}._wfShut() : {var}.close()) }}, WF.el(\"i\", {{ className: \"wf-icon\", \"data-icon\": \"close\" }})));"
+            ));
+            self.emit_line(&format!("{content_var}.appendChild({header_var});"));
         }
 
         let body_var = self.fresh_var();
@@ -417,10 +426,13 @@ impl JsCodegen {
         // What the button says: `trigger:` (a `Dropdown`'s `label:`). A
         // `Menu`'s `label:` is the list's accessible name, so a menu that
         // state opens — with no trigger — draws no button.
+        // A `Dropdown`'s positional is its label too: `Dropdown("Actions")`
+        // drew a button that said "Menu".
         let label = ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == "trigger" || (k == "label" && name == "Dropdown") => {
                 Some(self.emit_expr(v))
             }
+            Arg::Positional(v) if name == "Dropdown" => Some(self.emit_expr(v)),
             _ => None,
         });
         let named = if name == "Menu" {

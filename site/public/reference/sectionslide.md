@@ -22,8 +22,14 @@ Presentation {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The label |
-| `tone:` | `.primary .success .danger .warning .info` | Colour of the band |
+| `label` | `String (positional)` | The label, an `<h2>` centred on the band |
+| `tone:` | `one of its cases` | The colour of the band, which fills the slide; the label is white (black on `warning`). Written as a flag, `.primary`, or by name, `tone: .primary`.
+
+- `.primary`: The theme's primary colour
+- `.success`: Green
+- `.danger`: Red
+- `.warning`: Amber, with black text
+- `.info`: Blue |
 
 ## Flags
 

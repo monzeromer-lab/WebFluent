@@ -25,8 +25,8 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `value:` | `Number` | Current value |
-| `max:` | `Number` | Value at 100% |
+| `value:` | `Number` | How far along, out of `max:`; unset, the bar shows activity with no amount (indeterminate); a value that reads state follows it |
+| `max:` | `Number` | The value at which the bar is full (the native `<progress>`'s `max`); with it unset `value:` is a fraction of 1 |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

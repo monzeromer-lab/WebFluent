@@ -26,13 +26,13 @@ CodeBlock("""
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `code` | `String  (positional)` | The code |
-| `highlight:` | `[Number]` | The lines to mark, counted from 1: `[3, 4]` |
-| `files:` | `[CodeFile]` | A tab for each file: `[{ name: "App.wf", code: app, language: "wf" }, …]` |
-| `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
-| `title:` | `String` | The file name or the language, in the bar |
-| `copy:` | `Bool` | A button in the bar that copies the code |
-| `lines:` | `Bool` | Line numbers beside it |
+| `code` | `String (positional)` | The code, shown as written in a block that scrolls sideways |
+| `highlight:` | `[Number]` | The lines to mark, counted from 1: `[3, 4]`; each gets a tint and a bar in the primary colour |
+| `files:` | `[CodeFile]` | A tab for each file, each its own code block: `[{ name: "App.wf", code: app, language: "wf" }, …]`; `.copy` and `.lines` apply to each |
+| `language:` | `String` | Colours the code as this language: `wf` (or `wfx`), `json`, `bash` (`sh`, `shell`) or `css`; any other is shown plain |
+| `title:` | `String` | The file name or the language, in the bar above the code; with `files:`, the tab list's accessible name |
+| `copy:` | `Bool` | A button in the bar that copies the code and says `Copied`. Written as a flag, `.copy`, or `copy: true`. |
+| `lines:` | `Bool` | Line numbers in a column beside the code, hidden from screen readers. Written as a flag, `.lines`, or `lines: true`. |
 
 ## Flags
 
@@ -62,7 +62,7 @@ CodeBlock.Lines(_ text: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The numbers, a line each |
+| `text` | `String (positional)` | The numbers, one a line |
 
 ## Drawn for it
 

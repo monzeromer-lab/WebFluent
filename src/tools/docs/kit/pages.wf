@@ -1,0 +1,155 @@
+/// What the project's components are, each a card with what it says of
+/// itself and how many examples show it.
+page Overview(path: "/", title: "{docs.project} — Components", description: "The components of {docs.project}, each drawn live with its props, events and slots.") {
+    Body {
+        Lead(docs.project, kind: "Components", summary: "{docs.components.length} components, {docs.components.map(c => c.examples.length).sum()} examples drawn live in the project's own theme.")
+
+        if docs.components.length == 0 {
+            EmptyState(icon: "layers", title: "No components yet", text: "A `component` the project declares is listed here, with its props and its examples.")
+        } else {
+            Grid(columns: { base: 1, md: 2, xl: 3 }, gap: .md) {
+                for c in docs.components by c.slug {
+                    Link(to: "/components/{c.slug}", class: "bp-card") {
+                        style { display: flex; flex-direction: column; gap: 6px; padding: 16px; text-decoration: none; color: $ink }
+                        Row(align: .center, gap: .sm) {
+                            style { justify-content: space-between }
+                            Text(c.name) { style { font-weight: 650; font-size: 16px } }
+                            if c.examples.length > 0 {
+                                Text(if c.examples.length == 1 { "1 example" } else { "{c.examples.length} examples" }, class: "bp-label")
+                            }
+                        }
+                        Text(if c.summary == "" { "No `///` comment yet." } else { c.summary }, class: "bp-muted") { style { font-size: 14px } }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// One component: its examples, drawn live, then everything a call can
+/// give it and hear from it.
+page ComponentDoc(path: "/components/:slug", slug: String, paths: docs.components.map(c => c.slug), title: "{docs.components.find(c => c.slug == slug)?.name ?? slug} — {docs.project}", description: "{docs.components.find(c => c.slug == slug)?.summary ?? ""}") {
+    Body {
+        if let c = docs.components.find(x => x.slug == slug) {
+            Lead(c.name, kind: "Component", summary: c.doc, file: c.file)
+            Code(c.signature, class: "bp-ltr", dir: "ltr", tabindex: "0") {
+                style { align-self: flex-start; max-width: 100%; overflow-x: auto; padding: 6px 10px; border: 1px solid $line; border-radius: 4px; background: $raised; color: $ink; font-size: 13px; white-space: pre }
+            }
+
+            Section(if c.examples.length == 1 { "Example" } else { "Examples" }, id: "examples")
+            if c.examples.length == 0 {
+                Callout("Write one beside the component: `example {c.name} \"What it shows\" \{ {c.name}(…) \}`. A required prop with no value to make up is why none was drawn for it.", title: "No example yet")
+            }
+            for e, i in c.examples by i {
+                ExampleCard(e)
+            }
+
+            Section("Props", id: "props")
+            if c.props.length == 0 {
+                Text("It takes none.", class: "bp-muted")
+            } else {
+                Rows(rows: c.props, label: "Props of {c.name}")
+            }
+
+            if c.events.length > 0 {
+                Section("Events", id: "events")
+                Table(caption: "Events of {c.name}") {
+                    Table.Head { Table.Row { Table.Cell("Event")  Table.Cell("Sends") } }
+                    Table.Body {
+                        for ev in c.events by ev.name {
+                            Table.Row {
+                                Table.Cell { Code("on {ev.name}") }
+                                Table.Cell { Code(if ev.params == "" { "—" } else { ev.params }) }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if c.slots.length > 0 {
+                Section("Slots", id: "slots")
+                Table(caption: "Slots of {c.name}") {
+                    Table.Head { Table.Row { Table.Cell("Slot")  Table.Cell("Hands its fill") } }
+                    Table.Body {
+                        for sl in c.slots by sl.name {
+                            Table.Row {
+                                Table.Cell { Code(sl.name) }
+                                Table.Cell { Code(if sl.params == "" { "—" } else { sl.params }) }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if c.parts.length > 0 {
+                Section("Parts", id: "parts")
+                Row(gap: .sm) { for p in c.parts by p { Code("{c.name}.{p}") } }
+            }
+
+            if c.placedBy.length > 0 {
+                Section("Placed by", id: "placed-by")
+                Row(gap: .sm) { for p in c.placedBy by p { Code(p) } }
+            }
+        } else {
+            Lead(slug, kind: "Component")
+        }
+    }
+}
+
+/// The records, enums and aliases the project declares.
+page Types(path: "/types", title: "Types — {docs.project}", description: "The records, enums and aliases of {docs.project}.") {
+    Body {
+        Lead("Types", kind: docs.project, summary: "The records, enums and aliases the project declares, with their fields and cases.")
+        for ty in docs.types by ty.name {
+            Section(ty.name, id: ty.name.toLowerCase())
+            Row(class: "bp-labels") {
+                Text(ty.kind, class: "bp-label")
+                if ty.file != "" { Text(ty.file, class: "bp-label bp-mono") }
+            }
+            if ty.doc != "" { Markdown(ty.doc) }
+            if ty.rows.length > 0 {
+                Rows(rows: ty.rows, label: "{ty.kind} {ty.name}", name: if ty.kind == "enum" { "Case" } else { "Field" }, ty: if ty.kind == "enum" { "Carries" } else { "Type" })
+            }
+        }
+    }
+}
+
+/// The stores, each with what it holds and what it does.
+page Stores(path: "/stores", title: "Stores — {docs.project}", description: "The stores of {docs.project}.") {
+    Body {
+        Lead("Stores", kind: docs.project, summary: "What the project's pages share: each store's state, derived values and actions.")
+        for st in docs.stores by st.name {
+            Section(st.name, id: st.name.toLowerCase())
+            if st.file != "" { Row(class: "bp-labels") { Text(st.file, class: "bp-label bp-mono") } }
+            if st.doc != "" { Markdown(st.doc) }
+            Rows(rows: st.members, label: "Members of {st.name}", name: "Member", ty: "Kind")
+        }
+    }
+}
+
+/// Every page, by its route.
+page Routes(path: "/routes", title: "Pages — {docs.project}", description: "The pages of {docs.project}, by route.") {
+    Body {
+        Lead("Pages", kind: docs.project, summary: "Every page the project declares, by the route it answers.")
+        Table(caption: "Pages of {docs.project}") {
+            Table.Head { Table.Row { Table.Cell("Route")  Table.Cell("Page")  Table.Cell("Title")  Table.Cell("File") } }
+            Table.Body {
+                for p in docs.pages by p.name {
+                    Table.Row {
+                        Table.Cell { Code(p.path) }
+                        Table.Cell(p.name)
+                        Table.Cell(p.title)
+                        Table.Cell { Text(p.file, class: "bp-mono") }
+                    }
+                }
+            }
+        }
+    }
+}
+
+page Missing(path: "*", title: "Not here — {docs.project}", description: "No page of the docs answers this address.", noindex: true) {
+    Body {
+        Lead("Not here", kind: docs.project, summary: "No page of these docs answers this address.")
+        Link("Back to the components", to: "/")
+    }
+}

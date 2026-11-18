@@ -33,7 +33,7 @@ Text("Reviewed by") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `delay:` | `Number` | How long the pointer rests before it shows, in ms (unset, 500) |
+| `delay:` | `Number` | How long the pointer rests on the control before the card shows, in ms; focus shows it at once, and it goes 300 ms after the pointer leaves both |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

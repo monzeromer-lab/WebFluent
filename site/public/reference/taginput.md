@@ -22,8 +22,8 @@ Text("{tags.length} tag(s): {tags.join(", ")}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The list of the words |
-| `label:` | `String  (required)` | What the words are, for a screen reader |
+| `bind:` | `State (required)` | The `[String]` state it reads and writes: the words, in the order added; a word already there is not added again |
+| `label:` | `String (required)` | What the words are: the field's name for a screen reader |
 | `placeholder:` | `String` | Shown while the field is empty |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).

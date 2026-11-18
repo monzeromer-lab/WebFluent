@@ -40,7 +40,7 @@ Breadcrumb.Item(to: Path) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `to:` | `Path` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
+| `to:` | `Path` | The route the step links to, followed through the router as a `Link` is. Without it the step is the current page, `aria-current="page"` |
 
 ## What it can raise
 

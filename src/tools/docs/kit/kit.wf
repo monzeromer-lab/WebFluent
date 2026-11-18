@@ -1,0 +1,148 @@
+/// The frame of every page: the bar with the project's name, the index of
+/// what it declares, and the page beside it — the official reference's
+/// Blueprint, worn by a project's own documentation.
+app {
+    Link("Skip to the content", to: "#docs-main", class: "bp-skip")
+
+    Row(align: .center, role: "banner", class: "bp-header") {
+        style { position: sticky; top: 0; z-index: 100; flex-wrap: nowrap; height: $header-h; border-bottom: 1px solid $line; background: $ground }
+        Row(align: .center, class: "bp-wrap") {
+            style { flex-wrap: nowrap; height: 100%; gap: 12px }
+            Link(to: "/") {
+                style { display: flex; align-items: center; gap: 10px; min-height: 40px; color: $ink; text-decoration: none; & p { margin: 0 } }
+                Text(docs.project) { style { font-size: 16px; font-weight: 650; letter-spacing: -0.01em } }
+                Text("Components", class: "bp-label")
+            }
+            Row(align: .center, gap: .sm) {
+                style { flex: 1 1 auto; justify-content: flex-end; flex-wrap: nowrap }
+                Link("WebFluent {docs.version}", to: "https://webfluent.monzeromer.dev/reference", class: "bp-label bp-num", target: "_blank")
+                ThemeSwitch
+            }
+        }
+    }
+
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 40px } }
+        DocsIndex
+        // One per page: the skip link's target.
+        // wf-allow(A16)
+        Stack(role: "main", id: "docs-main", tabindex: "-1", class: "bp-main") {
+            style { flex: 1 1 auto; min-width: 0; gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+            Router
+        }
+    }
+}
+
+/// Night or Day; Night unless the reader chose. The icon is the theme the
+/// page is in, the name the theme it switches to.
+component ThemeSwitch {
+    derived day = theme == "light"
+    IconButton(icon: if day { "sun" } else { "moon" }, label: if day { "Night" } else { "Day" }, class: "bp-icon-button") {
+        on click { setTheme(if day { "dark" } else { "light" }) }
+    }
+}
+
+/// Every component, then the types, the stores and the pages, the current
+/// one ruled in cyan; a filter once there are more than eight.
+component DocsIndex {
+    state q = ""
+    derived term = q.trim().toLowerCase()
+    derived shown = docs.components.filter(c => term == "" || c.name.toLowerCase().includes(term))
+
+    Stack(gap: .sm, role: "navigation", aria-label: "Contents", class: "bp-sidebar") {
+        style { display: none; gap: 12px; width: 232px; flex-shrink: 0; align-self: flex-start; position: sticky; top: $header-h; max-height: calc(100vh - 60px); overflow-y: auto; box-sizing: border-box; padding: 24px 12px 32px 0; @md { display: flex } }
+        if docs.components.length > 8 {
+            Row(align: .center, gap: .sm, class: "bp-field") {
+                style { & input { flex: 1 1 auto; min-width: 0; height: 36px; padding: 0; border: 0; outline: none; background: transparent; color: $ink; font-family: inherit; font-size: 14px } }
+                Icon("filter")
+                Input(bind: q, placeholder: "Filter", aria-label: "Filter the components", type: "search")
+            }
+        }
+        Stack(class: "bp-navlist") {
+            Link("Overview", to: "/", class: "bp-navlink")
+            if shown.length > 0 {
+                Text("Components", class: "bp-navgroup")
+                for c in shown by c.slug {
+                    Link(c.name, to: "/components/{c.slug}", class: "bp-navlink")
+                }
+            }
+            Text("The project", class: "bp-navgroup")
+            if docs.types.length > 0 { Link("Types", to: "/types", class: "bp-navlink") }
+            if docs.stores.length > 0 { Link("Stores", to: "/stores", class: "bp-navlink") }
+            if docs.pages.length > 0 { Link("Pages", to: "/routes", class: "bp-navlink") }
+        }
+    }
+}
+
+/// A page's column, in the reference's rhythm.
+component Body {
+    Stack {
+        style { gap: 24px; min-width: 0 }
+        children
+    }
+}
+
+/// A page's heading: what it is, its name, what it says of itself.
+component Lead(_ name: String, kind: String, summary: String = "", file: String = "") {
+    Stack(gap: .sm) {
+        style { gap: 12px }
+        Row(class: "bp-labels") {
+            Text(kind, class: "bp-label")
+            if file != "" { Text(file, class: "bp-label bp-mono") }
+        }
+        Heading(name).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
+        if summary != "" {
+            Markdown(summary, class: "bp-lede")
+        }
+    }
+}
+
+/// A section's heading, with the anchor the index of the page links to.
+component Section(_ title: String, id: String) {
+    Heading(title, id: id).h2 { style { margin: 16px 0 0; font-size: 24px; line-height: 1.2; font-weight: 650; scroll-margin-top: 80px } }
+}
+
+/// One example: the component drawn in the project's own build — its
+/// theme, its stylesheets, its scripts — in a frame as tall as what it
+/// drew, and its source under it.
+component ExampleCard(_ example: DocExample) {
+    state height = 120
+
+    Stack(gap: .sm) {
+        style { gap: 10px }
+        Row(align: .center, gap: .sm) {
+            Heading(example.name).h3 { style { margin: 0; font-size: 17px; font-weight: 650 } }
+            if example.made { Text("From its props", class: "bp-label") }
+        }
+        if example.doc != "" { Markdown(example.doc) }
+        Stack(class: "bp-sheet") {
+            style { gap: 0; overflow: hidden }
+            Stack(class: "bp-stage bp-grid") {
+                style { border: 0; border-radius: 0; padding: 0 }
+                Frame(src: example.src, title: "{example.name}, drawn") {
+                    style { display: block; width: 100%; height: {height}px; border: 0; background: transparent }
+                    on message(m) {
+                        match FrameHeight.decode(m.data) {
+                            .ok(f) { height = Math.max(48, Math.ceil(f.wfDocsHeight)) }
+                            .err(_) { }
+                        }
+                    }
+                }
+            }
+            CodeBlock(example.code, language: "wf").copy {
+                style { margin: 0; border: 0; border-top: 1px solid $line; border-radius: 0 }
+            }
+        }
+    }
+}
+
+/// Rows of names, what each is, what it is when left out, and what it
+/// says of itself.
+component Rows(rows: [DocProp], label: String, name: String = "Prop", ty: String = "Type") {
+    DataTable(rows: rows, key: r => r.name, label: label, class: "props-table props-table--defaults") {
+        DataTable.Column(name) { cell(row) { Text(row.name, class: "props-table__name") } }
+        DataTable.Column(ty) { cell(row) { Code(row.ty) } }
+        DataTable.Column("Unset") { cell(row) { Text(if row.default == "" { "—" } else { row.default }, class: "bp-mono") } }
+        DataTable.Column("Meaning") { cell(row) { Markdown(if row.doc == "" { "—" } else { row.doc }) } }
+    }
+}

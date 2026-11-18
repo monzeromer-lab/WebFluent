@@ -53,7 +53,7 @@ Each keyword, and where it starts a statement:
 
 | Keyword | Where | Starts |
 |---|---|---|
-| `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation`, `test` | top of a file | a declaration |
+| `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation`, `test`, `example` | top of a file | a declaration |
 | `get`, `post`, `put`, `patch`, `delete`, `head`, `options`, with `at`, `in`, `invalidates`, `pages`, `idempotent`, `streamed` | an `api` body | an endpoint |
 | `middleware`, `invalidations`, `pagination` | an `api` body | what every request passes through; what a group's writes make stale; how its reads page |
 | `on` | after an error enum's case | the status the case stands for: `on 404`, `on 4XX` |
@@ -110,6 +110,7 @@ data name: Type = "file.json"
 image name = "picture.jpg"
 animation Name { from { css } 50% { css } to { css } }
 test "name"(data: { … }, fakes: [Fake, …]) { render block and test steps }
+example Component "what it shows"(fakes: [Fake, …]) { render block }
 ```
 
 An *error enum* is an enum whose cases name statuses with `on`: one
@@ -285,6 +286,10 @@ written:
 
 `test "name"(fakes: [Fake])` answers the endpoints of a `fake`'s group in
 place of the network; `data: { … }` seeds the body's state.
+
+`example Component "what it shows" { … }` is one way to use a component,
+drawn by `wf docs`: a render block with no steps, checked as a page's body
+and left out of every build.
 
 ## Expressions
 

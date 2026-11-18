@@ -458,6 +458,7 @@ pub fn decl_span(decl: &Declaration) -> Option<Span> {
         Declaration::Data(d) => d.span,
         Declaration::Animation(a) => a.span,
         Declaration::Test(t) => t.span,
+        Declaration::Example(t) => t.span,
         Declaration::Fake(f) => f.span,
         Declaration::App(a) => {
             let first = a.body.first()?.span;
@@ -785,6 +786,7 @@ pub mod paths {
             Declaration::Component(c) => &c.name,
             Declaration::Store(s) => &s.name,
             Declaration::Test(t) => &t.name,
+            Declaration::Example(t) => &t.name,
             _ => "the app",
         }
     }

@@ -122,6 +122,27 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             }
             Declaration::Component(c) => (&c.body, Some(c)),
             Declaration::App(a) => (&a.body, None),
+            // An example names the component it shows, which must be one.
+            Declaration::Example(e) => {
+                if !decls.components.contains_key(e.component.as_str()) {
+                    findings.errors.push(
+                        Diagnostic::coded(
+                            "E101",
+                            format!(
+                                "`{}` is not a declared component, so this example shows nothing",
+                                e.component
+                            ),
+                            &file,
+                            e.span.line as usize,
+                            e.span.col as usize,
+                        )
+                        .with_hint(
+                            "`example Name \"…\" { … }` names one of the project's components",
+                        ),
+                    );
+                }
+                (&e.body, None)
+            }
             Declaration::Store(s) => (&s.body, None),
             Declaration::Theme(_)
             | Declaration::Type(_)
@@ -1131,6 +1152,7 @@ pub fn lower(mut program: Program) -> Program {
             Declaration::Page(p) => &mut p.body,
             Declaration::Component(c) => &mut c.body,
             Declaration::App(a) => &mut a.body,
+            Declaration::Example(e) => &mut e.body,
             _ => continue,
         };
         expand::expand(body, &mut expanded);
@@ -1151,6 +1173,7 @@ pub fn lower(mut program: Program) -> Program {
             Declaration::Component(c) => &mut c.body,
             Declaration::App(a) => &mut a.body,
             Declaration::Store(s) => &mut s.body,
+            Declaration::Example(e) => &mut e.body,
             Declaration::Theme(_)
             | Declaration::Type(_)
             | Declaration::Enum(_)

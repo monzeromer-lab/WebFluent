@@ -31,7 +31,7 @@ Stack(gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `ordered:` | `Bool` | Numbered (`<ol>`) |
+| `ordered:` | `Bool` | Numbered: an `<ol>` whose items are counted `1.`, `2.` …; unset, a `<ul>` with no markers. Written as a flag, `.ordered`, or `ordered: true`. |
 
 ## Flags
 

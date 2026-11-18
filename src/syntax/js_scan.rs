@@ -685,6 +685,29 @@ fn is_ident_part(c: char) -> bool {
 // ─── The top level ───────────────────────────────────────────────────
 
 /// Read `source` for the names it makes global.
+/// Where `name` is written as a name in `source`, 1-based line and
+/// character column: its declaration and every use — not in a string, a
+/// comment or a template's text, and not a member (`x.name`, `x?.name`). A
+/// `${…}` inside a template is code, and is read.
+pub fn uses_of(source: &str, name: &str) -> Vec<(usize, usize)> {
+    let (tokens, _) = Lexer::new(source).run();
+    let mut out = Vec::new();
+    for (i, t) in tokens.iter().enumerate() {
+        let Tok::Ident(word) = &t.tok else { continue };
+        if word != name {
+            continue;
+        }
+        let member = i
+            .checked_sub(1)
+            .and_then(|p| tokens.get(p))
+            .is_some_and(|p| matches!(p.tok, Tok::Punct("." | "?.")));
+        if !member {
+            out.push((t.line, t.col));
+        }
+    }
+    out
+}
+
 pub fn scan(source: &str) -> Scan {
     let (tokens, problems) = Lexer::new(source).run();
     let mut out = Scan {
@@ -1262,6 +1285,12 @@ mod tests {
         let s = scan(src);
         assert!(s.problems.is_empty(), "{:?}", s.problems);
         s.names.into_iter().map(|n| n.name).collect()
+    }
+
+    #[test]
+    fn a_name_s_uses_are_code_never_text_or_a_member() {
+        let src = "function tilt(n) { return n }\n// tilt in a comment\nconst a = \"tilt\";\nconst b = `x ${tilt(2)} tilt`;\nlet c = obj.tilt + obj?.tilt;\ntilt(1);\n";
+        assert_eq!(uses_of(src, "tilt"), vec![(1, 10), (4, 16), (6, 1)]);
     }
 
     #[test]

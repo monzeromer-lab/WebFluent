@@ -32,10 +32,10 @@ VirtualList(rowHeight: 36, reveal: picked, label: "Commits") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `rowHeight:` | `Number` | Every row's height, in px: the fast path. Unset, each row is measured |
-| `estimate:` | `Number` | The height a row not yet drawn stands for, in px. Unset, 32 |
-| `reveal:` | `String or Number` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
-| `label:` | `String` | What the list is, for a screen reader |
+| `rowHeight:` | `Number` | Every row's height, in px: the fast path. Unset, each row is measured once drawn |
+| `estimate:` | `Number` | The height a row not yet drawn stands for while there is no `rowHeight`, in px |
+| `reveal:` | `String or Number` | A row's key, as its `for … by` gives it: when it changes, that row is scrolled into view — the selection, the current match |
+| `label:` | `String` | The scrolling box's accessible name (`aria-label`): what the list is, for a screen reader |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

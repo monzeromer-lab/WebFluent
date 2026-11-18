@@ -22,6 +22,7 @@ pub fn body_of(decl: &Declaration) -> &[Statement] {
         | Declaration::Fake(_)
         | Declaration::Data(_) => &[],
         Declaration::Test(t) => &t.body,
+        Declaration::Example(t) => &t.body,
         Declaration::Middleware(m) => &m.handler.body,
     }
 }

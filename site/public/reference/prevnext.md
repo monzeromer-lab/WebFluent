@@ -23,7 +23,7 @@ PrevNext {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | Its name for a screen reader (unset, `Pages`) |
+| `label:` | `String` | Its accessible name (`aria-label` on its `<nav>`) |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -45,9 +45,9 @@ PrevNext.Prev(_ title: String, to: Path, label: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | The page's title |
-| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
-| `label:` | `String` | The word above the title (unset, `Previous`) |
+| `title` | `String (positional)` | The previous page's title, shown bold under the word |
+| `to:` | `Path (required)` | The route of the previous page, linked with `rel="prev"` and navigated in place |
+| `label:` | `String` | The small word above the title |
 
 ### PrevNext.Next
 
@@ -59,9 +59,9 @@ PrevNext.Next(_ title: String, to: Path, label: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | The page's title |
-| `to:` | `Path  (required)` | Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"` |
-| `label:` | `String` | The word above the title (unset, `Next`) |
+| `title` | `String (positional)` | The next page's title, shown bold under the word |
+| `to:` | `Path (required)` | The route of the next page, linked with `rel="next"` and navigated in place |
+| `label:` | `String` | The small word above the title |
 
 ## What it can raise
 

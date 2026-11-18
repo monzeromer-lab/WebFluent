@@ -24,11 +24,17 @@ Row(gap: .md, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `src:` | `String` | Image URL |
-| `alt:` | `String` | Text alternative for the image |
-| `initials:` | `String` | Letters shown when there is no image |
-| `size:` | `.sm .md .lg` | Its size |
-| `tone:` | `.primary` | Colour of the initials |
+| `src:` | `String` | The picture's address, cropped to the circle; a `data:image/…` address is taken. With it, `initials:` is not shown |
+| `alt:` | `String` | What the picture shows, its `alt`; empty for a picture the name beside it already says |
+| `initials:` | `String` | The letters shown when there is no `src:` |
+| `size:` | `one of its cases` | How large the circle is. Written as a flag, `.sm`, or by name, `size: .sm`.
+
+- `.sm`: 32px
+- `.md` (the default): 40px, the default
+- `.lg`: 56px |
+| `tone:` | `one of its cases` | The colour behind the initials. Written as a flag, `.primary`, or by name, `tone: .primary`.
+
+- `.primary`: The theme's primary colour, the initials in `color-on-primary` |
 
 ## Flags
 

@@ -30,15 +30,32 @@ Popover(visible: open, anchor: branchBtn, placement: .bottomStart, label: "Branc
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `anchor:` | `Element or Point` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
-| `at:` | `Point` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
-| `placement:` | `.bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
-| `offset:` | `Number` | How far from the anchor, in px |
-| `label:` | `String` | What it is, for a screen reader: its accessible name |
-| `arrow:` | `Bool` | A point toward the anchor |
-| `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
-| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+| `visible:` | `State` | Whether it is open: a `Bool` state, written back `false` when Escape or a press outside closes it (as `dismiss:` allows); a condition opens it but is not written |
+| `anchor:` | `Element or Point` | What it is placed against and follows as the page scrolls: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`; its control gets `aria-controls` and `aria-expanded` |
+| `at:` | `Point` | A point to place it at, `{ x: e.clientX, y: e.clientY }` — where the pointer asked for a context menu; the same option as `anchor:`, so give one or the other |
+| `placement:` | `one of its cases` | Where it goes against its anchor; it flips to the other side when there is no room, and slides along its side to stay on screen. Written as a flag, `.bottom`, or by name, `placement: .bottom`.
+
+- `.bottom`: Below, centred
+- `.bottomStart` (the default): Below, from its start
+- `.bottomEnd`: Below, to its end
+- `.top`: Above, centred
+- `.topStart`: Above, from its start
+- `.topEnd`: Above, to its end
+- `.left`: Before it, centred
+- `.leftStart`: Before it, from its top
+- `.leftEnd`: Before it, to its bottom
+- `.right`: After it, centred
+- `.rightStart`: After it, from its top
+- `.rightEnd`: After it, to its bottom |
+| `offset:` | `Number` | The gap between it and its anchor, in px |
+| `label:` | `String` | Its accessible name; one drawn as a dialog (no other `role:`) without it is `A18` |
+| `arrow:` | `Bool` | A small point on the side toward its anchor, following the placement it lands on. Written as a flag, `.arrow`, or `arrow: true`. |
+| `dismiss:` | `one of its cases` | What closes it besides `visible:`; `on close` hears `"escape"` or `"outside"`. Written as a flag, `.any`, or by name, `dismiss: .any`.
+
+- `.any` (the default): Escape, or a press outside it
+- `.escape`: Escape only: a press outside is the page's
+- `.none`: Neither: only the page's own button closes it, for what must be answered |
+| `initialFocus:` | `Element` | What takes the focus when it opens, by its `ref:`; unset, its first control, else the popover itself |
 
 ## Flags
 

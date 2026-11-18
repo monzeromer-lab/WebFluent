@@ -322,7 +322,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
             Link(to: "/reference/cli/docs") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
                 Text("wf docs", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
-                Text("Write a component gallery: every built-in, and what the project declares", class: "bp-small")
+                Text("Document the project's components as a site, each `example` drawn live", class: "bp-small")
             }
             Link(to: "/reference/cli/registry") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
@@ -835,22 +835,22 @@ page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference
     }
 }
 
-page CliDocs(path: "/reference/cli/docs", title: "wf docs — Reference", description: "wf docs: Write a component gallery: every built-in, and what the project declares. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf docs", summary: "Write a component gallery: every built-in, and what the project declares", signature: "wf docs [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
+page CliDocs(path: "/reference/cli/docs", title: "wf docs — Reference", description: "wf docs: Document the project's components as a site, each example drawn live. What it writes, and every option it takes.") {
+    ReferenceItemShell("wf docs", summary: "Document the project's components as a site, each `example` drawn live", signature: "wf docs [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "a gallery, in the folder `--out` names" }), class: "bp-prose")
         Stack(gap: .lg, class: "bp-prose") {
-            Markdown("Writes a self-contained component gallery.")
+            Markdown("Documents the project's components as a site, in the design of this reference.")
 
             Terminal(lines: [
                     Line(command: "wf docs"),
-                Line(command: "wf docs -o gallery")
+                Line(command: "wf docs -o component-docs")
                 ])
 
-            Markdown("The gallery shows every built-in — props, cases, flags, events, slots, parts — and every component, enum, type, store and page the project declares, with their `///` documentation.")
+            Markdown("A page a component: its `///` comment and header, every [`example`](/learn/10-components#document-it) of it drawn live beside its source — in a frame of the project's own build, with its theme, stylesheets and scripts — then its props (type, what it is when left out, each prop's `///`), events, slots, parts and what places it. A component with no example is drawn from its props. The types, stores and pages each have a page.\n\nThe project is checked first, and an error stops it, as a build does. Serve the folder to read it. A second run clears what the first wrote; a folder it did not write is left alone.")
 
         }
         Heading(t("cli.options"), id: "options").h2
-        PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--out, -o OUT", type: "path", meaning: "Where to write index.html (default: docs/)" }], caption: "Options of wf docs", nameLabel: t("cli.option"))
+        PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--out, -o OUT", type: "path", meaning: "Where to write the site (default: docs/)" }], caption: "Options of wf docs", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
     }
 }

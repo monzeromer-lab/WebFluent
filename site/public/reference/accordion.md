@@ -31,7 +31,7 @@ Accordion.single {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `single:` | `Bool` | One open at a time: opening one closes the others |
+| `single:` | `Bool` | One open at a time: opening one closes the others (every item given one `name`). Written as a flag, `.single`, or `single: true`. |
 
 ## Flags
 
@@ -57,9 +57,9 @@ Accordion.Item(_ title: String, open: Bool, name: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | What a reader presses |
-| `open:` | `Bool` | Open when it is drawn |
-| `name:` | `String` | Items of one name open one at a time: what `.single` writes |
+| `title` | `String (positional)` | What a reader presses: the `<summary>` |
+| `open:` | `Bool` | Open when it is drawn; the reader opens and closes it after. Written as a flag, `.open`, or `open: true`. |
+| `name:` | `String` | Items of one name open one at a time, as `<details name>` does: what `.single` writes for you |
 
 Flags: `.open`
 

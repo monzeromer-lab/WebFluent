@@ -22,16 +22,16 @@ Text("{feedback.length} of 280 characters").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
+| `bind:` | `State` | The `String` state it reads and writes as you type |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
 | `placeholder:` | `String` | Hint shown while the field is empty |
-| `rows:` | `Number` | How many lines it shows |
-| `maxLength:` | `Number` | The most characters it takes |
-| `required:` | `Bool` | Whether the form refuses to submit without it |
-| `autosize:` | `Bool` | Grows with its text, from `rows:` up |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `rows:` | `Number` | How many lines tall it is drawn; never less than 6rem |
+| `maxLength:` | `Number` | The most characters it takes; a count beneath it (`12 / 200`) says how many are used, read politely |
+| `required:` | `Bool` | Whether the browser refuses to submit the form while it is empty. Written as a flag, `.required`, or `required: true`. |
+| `autosize:` | `Bool` | Grows taller with its text, from `rows:` up, rather than scrolling. Written as a flag, `.autosize`, or `autosize: true`. |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
 
 ## Flags
 

@@ -25,9 +25,9 @@ if count > 0 { Text("{count} project(s) asked for").muted }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `icon:` | `String` | An icon's name, drawn large above the title |
-| `title:` | `String  (required)` | What is missing: `No projects yet` |
-| `text:` | `String` | A sentence on what to do about it |
+| `icon:` | `String` | An icon's name, drawn large and muted above the title, hidden from screen readers |
+| `title:` | `String (required)` | What is missing: `No projects yet`, in bold |
+| `text:` | `String` | A sentence on what to do about it, muted, under the title |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
@@ -49,7 +49,7 @@ EmptyState.Title(_ text: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The title |
+| `text` | `String (positional)` | The title |
 
 ### EmptyState.Text
 
@@ -61,7 +61,7 @@ EmptyState.Text(_ text: String)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The sentence |
+| `text` | `String (positional)` | The sentence |
 
 ### EmptyState.Actions
 

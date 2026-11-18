@@ -297,7 +297,17 @@ fn callout(el: &mut UIElement) {
         _ => ("info", "Note"),
     };
     let title = take(el, "title").map_or_else(|| lit(word), |e| src(&e));
-    let mut head = format!("Callout.Title({title}) {{ Icon({}) }}\n", lit(icon));
+    // A `Callout.Title { … }` written by hand is its title row: the one
+    // made from the kind was drawn above it as well.
+    let own_title = el.children.iter().any(|s| {
+        matches!(&s.kind, StatementKind::UIElement(u)
+            if matches!(&u.component, ComponentRef::SubComponent(o, p) if o == "Callout" && p == "Title"))
+    });
+    let mut head = if own_title {
+        String::new()
+    } else {
+        format!("Callout.Title({title}) {{ Icon({}) }}\n", lit(icon))
+    };
     // Its text is Markdown, as the alerts it is modelled on are: a
     // `code` span, a **word** or a [link](/learn) shows as one. The text
     // is escaped first, so markup in it is shown, never run.
@@ -358,9 +368,12 @@ fn stat(el: &mut UIElement) {
     let count = take(el, "count").map(|e| format!(", count: {}", src(&e)));
     let mut out = format!("Stat.Label({label})\n");
     if let Some(value) = take(el, "value") {
+        // Unset, `format(value)`: a number as the locale writes it, money
+        // with its currency. The raw value showed `[object Object]` for
+        // money.
         let shown = match style {
             Some(s) => format!("format({}, .{s})", src(&value)),
-            None => src(&value),
+            None => format!("format({})", src(&value)),
         };
         out.push_str(&format!(
             "Stat.Value({shown}{})\n",
@@ -840,8 +853,9 @@ fn stepper(el: &mut UIElement) {
             continue;
         }
         let title = take_positional(step).map_or_else(|| lit(""), |t| src(&t));
-        let done = take(step, "done").map_or_else(|| "false".to_string(), |e| src(&e));
-        let error = take(step, "error").map_or_else(|| "false".to_string(), |e| src(&e));
+        // `.done` and `.error` as flags too: they were read by name only.
+        let done = take_flag(step, "done").map_or_else(|| "false".to_string(), |e| src(&e));
+        let error = take_flag(step, "error").map_or_else(|| "false".to_string(), |e| src(&e));
         let disabled = if linear {
             format!(", disabled: {i} > ({b})")
         } else {
@@ -903,6 +917,7 @@ fn number_input(el: &mut UIElement) {
                 if wfKey.key == "PageUp" {{ wfKey.preventDefault()  {b} = {up10} }}
                 if wfKey.key == "PageDown" {{ wfKey.preventDefault()  {b} = {down10} }}
             }}
+            on change {{ if {b} != null {{ {b} = {held} }} }}
         }}
         NumberInput.Decrease(type: "button", tabindex: "-1", aria-label: "Decrease", disabled: ({b}) <= {lo}) {{
             on click {{ {b} = {down} }}
@@ -918,6 +933,7 @@ fn number_input(el: &mut UIElement) {
         down10 = clamp(&format!("({b}) - ({step}) * 10")),
         up = clamp(&format!("({b}) + ({step})")),
         down = clamp(&format!("({b}) - ({step})")),
+        held = clamp(&b),
     ));
     let mut seq = 0;
     expand(&mut children, &mut seq);
@@ -1585,7 +1601,13 @@ fn scroll_area(el: &mut UIElement) {
 
 /// `Sticky(offset: "64px") { … }`.
 fn sticky(el: &mut UIElement) {
-    let side = if el.modifiers.iter().any(|m| m == "bottom") {
+    // `.bottom` or `bottom: true`: the offset is from that edge. The named
+    // form set the class and left the offset on `top`.
+    let named = el
+        .args
+        .iter()
+        .any(|a| matches!(a, Arg::Named(k, Expr::BoolLiteral(true)) if k == "bottom"));
+    let side = if named || el.modifiers.iter().any(|m| m == "bottom") {
         "bottom"
     } else {
         "top"

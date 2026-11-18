@@ -16,8 +16,9 @@ use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::{
     CodeAction, CodeActionKind, CodeActionOptions, CodeActionOrCommand, CodeActionParams,
-    CodeActionProviderCapability, CodeActionResponse, CompletionOptions, CompletionParams,
-    CompletionResponse, Diagnostic, DidChangeTextDocumentParams, DidChangeWatchedFilesParams,
+    CodeActionProviderCapability, CodeActionResponse, CodeLens, CodeLensOptions, CodeLensParams,
+    CompletionOptions, CompletionParams, CompletionResponse, Diagnostic,
+    DidChangeTextDocumentParams, DidChangeWatchedFilesParams,
     DidChangeWatchedFilesRegistrationOptions, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DidSaveTextDocumentParams, DocumentFormattingParams,
     DocumentHighlight, DocumentHighlightParams, DocumentRangeFormattingParams,
@@ -161,11 +162,50 @@ impl Backend {
         project
     }
 
-    /// The project and the index of `uri` in it.
+    /// The project and the index of `uri` in it — a WebFluent file: a
+    /// script is JavaScript, which nothing that reads `.wf` may be handed
+    /// ([`Backend::locate_script`]).
     fn locate(&self, uri: &Url) -> Option<(Arc<Project>, usize)> {
         let project = self.project(uri);
         let ix = project.file_index(uri)?;
-        Some((project, ix))
+        (!project.files[ix].script).then_some((project, ix))
+    }
+
+    /// The project and the index of `uri` in it, when it is one of the
+    /// project's scripts.
+    fn locate_script(&self, uri: &Url) -> Option<(Arc<Project>, usize)> {
+        let project = self.project(uri);
+        let ix = project.file_index(uri)?;
+        crate::scripts::is_script(&project, ix).then_some((project, ix))
+    }
+
+    /// `webfluent/scriptUses`: each name the script at `uri` declares, with
+    /// every place that uses it.
+    ///
+    /// # Errors
+    ///
+    /// None: a request for what is not a project's script answers an empty
+    /// list.
+    pub async fn script_uses(&self, params: serde_json::Value) -> Result<serde_json::Value> {
+        let Some(uri) = params
+            .get("uri")
+            .and_then(|u| u.as_str())
+            .and_then(|u| Url::parse(u).ok())
+        else {
+            return Ok(serde_json::Value::Array(Vec::new()));
+        };
+        let Some((project, ix)) = self.locate_script(&uri) else {
+            return Ok(serde_json::Value::Array(Vec::new()));
+        };
+        // An editor that asks has the script open: what of it is unused is
+        // shown with the lenses.
+        self.publish(&project).await;
+        Ok(serde_json::Value::Array(
+            crate::scripts::script_names(&project, ix)
+                .iter()
+                .map(crate::scripts::ScriptName::to_json)
+                .collect(),
+        ))
     }
 
     /// Records the buffer's text and re-reports the project's open files —
@@ -214,7 +254,24 @@ impl Backend {
 
     async fn publish(&self, project: &Project) {
         let per_file = project_diagnostics(project);
-        for (file, diagnostics) in project.files.iter().zip(per_file) {
+        for (ix, (file, mut diagnostics)) in project.files.iter().zip(per_file).enumerate() {
+            // A script's names nothing uses are faded, open or not: its
+            // editor may be showing it without having handed it over.
+            if crate::scripts::is_script(project, ix) {
+                diagnostics.extend(crate::scripts::unused(project, ix));
+                if self
+                    .published
+                    .get(&file.uri)
+                    .is_some_and(|p| *p.value() == diagnostics)
+                {
+                    continue;
+                }
+                self.published.insert(file.uri.clone(), diagnostics.clone());
+                self.client
+                    .publish_diagnostics(file.uri.clone(), diagnostics, None)
+                    .await;
+                continue;
+            }
             if file.open {
                 self.published.insert(file.uri.clone(), diagnostics.clone());
                 self.client
@@ -301,6 +358,10 @@ impl LanguageServer for Backend {
                     prepare_provider: Some(true),
                     work_done_progress_options: WorkDoneProgressOptions::default(),
                 })),
+                // On a script: where each name it declares is used.
+                code_lens_provider: Some(CodeLensOptions {
+                    resolve_provider: Some(false),
+                }),
                 code_action_provider: Some(CodeActionProviderCapability::Options(
                     CodeActionOptions {
                         code_action_kinds: Some(vec![
@@ -379,8 +440,20 @@ impl LanguageServer for Backend {
         self.publish(&project).await;
     }
 
-    async fn did_change_watched_files(&self, _: DidChangeWatchedFilesParams) {
+    async fn did_change_watched_files(&self, params: DidChangeWatchedFilesParams) {
         self.invalidate();
+        // A script saved: its project says again what of it is unused, an
+        // editor showing only the script included.
+        for change in &params.changes {
+            let is_script = change.uri.to_file_path().ok().is_some_and(|p| {
+                p.extension()
+                    .is_some_and(|e| e == "js" || e == "mjs" || e == "cjs")
+            });
+            if is_script && self.locate_script(&change.uri).is_some() {
+                let project = self.project(&change.uri);
+                self.publish(&project).await;
+            }
+        }
         // A script, a stylesheet or a closed `.wf` file changed on disk: what
         // the open files say may have changed with it — a call to a function
         // a script no longer declares, a class a sheet no longer defines.
@@ -431,6 +504,13 @@ impl LanguageServer for Backend {
 
     async fn hover(&self, params: HoverParams) -> Result<Option<Hover>> {
         let uri = params.text_document_position_params.text_document.uri;
+        if let Some((project, ix)) = self.locate_script(&uri) {
+            return Ok(crate::scripts::hover(
+                &project,
+                ix,
+                params.text_document_position_params.position,
+            ));
+        }
         Ok(self.locate(&uri).and_then(|(project, ix)| {
             provide_hover(&project, ix, params.text_document_position_params.position)
         }))
@@ -478,6 +558,13 @@ impl LanguageServer for Backend {
         &self,
         params: TextDocumentPositionParams,
     ) -> Result<Option<PrepareRenameResponse>> {
+        if let Some((project, ix)) = self.locate_script(&params.text_document.uri) {
+            return Ok(crate::scripts::prepare_rename(
+                &project,
+                ix,
+                params.position,
+            ));
+        }
         Ok(self
             .locate(&params.text_document.uri)
             .and_then(|(project, ix)| prepare_rename(&project, ix, params.position)))
@@ -485,6 +572,18 @@ impl LanguageServer for Backend {
 
     async fn rename(&self, params: RenameParams) -> Result<Option<WorkspaceEdit>> {
         let position = params.text_document_position.position;
+        if let Some((project, ix)) =
+            self.locate_script(&params.text_document_position.text_document.uri)
+        {
+            return match crate::scripts::rename(&project, ix, position, &params.new_name) {
+                Ok(edit) => Ok(Some(edit)),
+                Err(message) => Err(tower_lsp::jsonrpc::Error {
+                    code: tower_lsp::jsonrpc::ErrorCode::InvalidRequest,
+                    message: message.into(),
+                    data: None,
+                }),
+            };
+        }
         let Some((project, ix)) = self.locate(&params.text_document_position.text_document.uri)
         else {
             return Ok(None);
@@ -502,6 +601,15 @@ impl LanguageServer for Backend {
     async fn references(&self, params: ReferenceParams) -> Result<Option<Vec<Location>>> {
         let uri = params.text_document_position.text_document.uri;
         let position = params.text_document_position.position;
+        if let Some((project, ix)) = self.locate_script(&uri) {
+            let found = crate::scripts::references(
+                &project,
+                ix,
+                position,
+                params.context.include_declaration,
+            );
+            return Ok((!found.is_empty()).then_some(found));
+        }
         let Some((project, ix)) = self.locate(&uri) else {
             return Ok(None);
         };
@@ -516,11 +624,24 @@ impl LanguageServer for Backend {
     ) -> Result<Option<Vec<DocumentHighlight>>> {
         let uri = params.text_document_position_params.text_document.uri;
         let position = params.text_document_position_params.position;
+        if let Some((project, ix)) = self.locate_script(&uri) {
+            let found: Vec<DocumentHighlight> = crate::scripts::highlights(&project, ix, position)
+                .into_iter()
+                .map(|range| DocumentHighlight { range, kind: None })
+                .collect();
+            return Ok((!found.is_empty()).then_some(found));
+        }
         let Some((project, ix)) = self.locate(&uri) else {
             return Ok(None);
         };
         let found = crate::rename::highlights(&project, ix, position);
         Ok((!found.is_empty()).then_some(found))
+    }
+
+    async fn code_lens(&self, params: CodeLensParams) -> Result<Option<Vec<CodeLens>>> {
+        Ok(self
+            .locate_script(&params.text_document.uri)
+            .map(|(project, ix)| crate::scripts::lenses(&project, ix)))
     }
 
     async fn signature_help(&self, params: SignatureHelpParams) -> Result<Option<SignatureHelp>> {

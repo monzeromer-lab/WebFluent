@@ -25,9 +25,9 @@ Text("Chosen: {color}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | Visible label; also the control's accessible name |
-| `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
-| `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
+| `label:` | `String` | The label above the control; it names the first control in the block (`aria-labelledby`), and a press on it focuses that control |
+| `hint:` | `String` | Help text under the control, linked to the first control in the block by `aria-describedby` |
+| `error:` | `String` | Error text under the control: `null` or empty for none; while there is one it shows, is announced, and marks the control `aria-invalid` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

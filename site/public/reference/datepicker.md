@@ -26,11 +26,11 @@ if let d = start {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `label:` | `String` | Visible label; also the control's accessible name |
-| `min:` | `String` | Earliest date, `YYYY-MM-DD` |
-| `max:` | `String` | Latest date, `YYYY-MM-DD` |
-| `disabled:` | `Bool` | Whether the control is inert |
+| `bind:` | `State` | The `Date?` state it reads and writes: the day chosen, `null` when the field is emptied |
+| `label:` | `String` | The label drawn above the field; also its accessible name |
+| `min:` | `String` | The earliest day the picker offers, `YYYY-MM-DD` |
+| `max:` | `String` | The latest day the picker offers, `YYYY-MM-DD` |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
 
 ## Flags
 

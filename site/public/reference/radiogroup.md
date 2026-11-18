@@ -26,9 +26,9 @@ Text("Chosen: {plan}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The chosen value |
-| `label:` | `String  (required)` | What is being chosen: the group's legend |
-| `cards:` | `Bool` | Each option a card, its hint beneath its words |
+| `bind:` | `State (required)` | The state it reads and writes: the chosen option's `value:` (a `String`, `Number` or `Bool`) |
+| `label:` | `String (required)` | What is being chosen: drawn as the group's legend, which names it for a screen reader |
+| `cards:` | `Bool` | Each option drawn as a card, its hint beneath its words. Written as a flag, `.cards`, or `cards: true`. |
 
 ## Flags
 
@@ -54,9 +54,9 @@ RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
-| `hint:` | `String` | A line beneath it, read with it |
+| `label` | `String (positional)` | The option's words, beside its radio |
+| `value:` | `String or Number or Bool (required)` | What `bind:` holds when it is chosen |
+| `hint:` | `String` | A line beneath its words, read with the option (`aria-description`) |
 
 ## Drawn for it
 

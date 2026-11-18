@@ -124,14 +124,14 @@ pub const FIELDS: &[Field] = &[
     f(
         "name",
         String,
-        "The project's name, used where a title or a site name is not given.",
+        "Which `theme` declaration is the site's. A project with exactly one need not name it; with none, the baseline applies.",
     ),
     f(
         "version",
         String,
-        "The project's version, as its author numbers it.",
+        "The project's version, as you number it. Nothing in the build reads it.",
     ),
-    f("author", String, "Who wrote it."),
+    f("author", String, "Who wrote it. Nothing in the build reads it."),
     // ── Theme ──
     f(
         "theme.name",
@@ -146,7 +146,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "theme.dark",
         String,
-        "The `theme` declaration that stands in when the reader prefers dark, or `setTheme(\"dark\")` asks.",
+        "The `theme` declaration that stands in for dark mode: when the reader prefers dark, or `setTheme(\"dark\")` asks (Styling).",
     ),
     f(
         "theme.tokens",
@@ -157,27 +157,27 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.output",
         String,
-        "The directory the site is written to, inside the project (outside it only with `--allow-output-outside`).",
+        "Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` (CLI).",
     ),
     f(
         "build.output_type",
         Enum(OUTPUT_TYPES),
-        "What the project builds: a single page, a static site, a PDF, a slide deck, or custom elements.",
+        "What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements (PDF and slides, custom elements).",
     ),
     f(
         "build.minify",
         Bool,
-        "Minify the JavaScript and CSS; off, the output is readable and larger.",
+        "Strips comments and whitespace from the scripts and stylesheets. Off, the output is readable and larger.",
     ),
     f(
         "build.sourcemap",
         Bool,
-        "Write source maps beside the JavaScript, so the browser's tools show the `.wf` lines.",
+        "Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged.",
     ),
     f(
         "build.ssg",
         Bool,
-        "Pre-render every page as HTML, so it is read before any script runs.",
+        "Pre-renders every page to its own HTML file, so it is read before any script runs (Static sites and SPAs).",
     ),
     f(
         "build.base_path",
@@ -187,12 +187,12 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.clean_urls",
         Enum(CLEAN_URLS),
-        "How a route's address is written so it never redirects: `file` keeps `/contact`, `directory` names it `/contact/`.",
+        "How a route's address avoids a redirect on a host that adds a trailing slash. `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages (Deploy to GitHub Pages).",
     ),
     f(
         "build.csp",
         Bool,
-        "Ship a strict content security policy: a third-party script is then blocked unless the policy names it.",
+        "Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy (Security).",
     ),
     f(
         "build.split",
@@ -202,7 +202,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.compress",
         Bool,
-        "Write a gzipped copy of every text file beside it, for hosts that serve one.",
+        "Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one.",
     ),
     f(
         "build.budget",
@@ -212,7 +212,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.runtime",
         Enum(RUNTIMES),
-        "`auto` ships only the runtime the program reaches; `full` all of it, for a script that calls it in ways the build cannot see.",
+        "`auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see (Call WF from a script).",
     ),
     f(
         "build.elements",
@@ -228,7 +228,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.media.formats",
         Strings,
-        "The formats an image is written in, best first.",
+        "The formats every `image` is written in, best first, as well as its original.",
     ),
     f(
         "build.media.widths",
@@ -238,13 +238,13 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.media.quality",
         Integer { min: 1, max: 100 },
-        "How much an image keeps when it is re-encoded, 1 to 100.",
+        "The encoding quality. WebP and JPEG are lossy at it. A file no smaller than the original is not written.",
     ),
     // ── PDF ──
     f(
         "build.pdf.page_size",
         String,
-        "The page: `A4`, `Letter`, or a width and height in points.",
+        "`A3`, `A4`, `A5`, `A6`, `B5`, `Letter`, `Legal`, `Tabloid` (or `Ledger`), `Executive`, or two lengths (`\"210mm 297mm\"`, `\"800x600\"`). A `Document(size:)` overrides it.",
     ),
     f(
         "build.pdf.margins.top",
@@ -269,7 +269,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.pdf.default_font",
         String,
-        "The font text is set in when nothing says otherwise.",
+        "The document's family when its stylesheets name none: a standard name (`Helvetica`, `Times`, `Courier` — Liberation, built in) or a family under `fonts/`.",
     ),
     f(
         "build.pdf.default_font_size",
@@ -320,7 +320,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.slides.margin",
         Number,
-        "The margin around every slide, in points.",
+        "The space around each slide's content, in points. What runs past it is clipped.",
     ),
     f(
         "build.slides.show_slide_numbers",
@@ -340,7 +340,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "build.slides.chrome_color",
         String,
-        "The colour of the numbers and the footer; unset, chosen from each slide's background.",
+        "The colour of the numbers and the footer. Unset, it flips between dark and light on each slide's background.",
     ),
     f(
         "build.slides.output_filename",
@@ -366,7 +366,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "dev.hot_reload",
         Bool,
-        "Reload the page in the browser when a build finishes.",
+        "Rebuilds on a save, reloads open tabs, and draws a failed build's error over the page.",
     ),
     // ── Meta ──
     f(
@@ -382,22 +382,22 @@ pub const FIELDS: &[Field] = &[
     f(
         "meta.lang",
         String,
-        "The language the pages are written in, as a tag: `en`, `ar`, `pt-BR`.",
+        "The document's language: `en`, `ar`, `pt-BR`. A page written in another language says so with its own `lang:`.",
     ),
     f(
         "meta.favicon",
         File(FileKind::Icon),
-        "The icon a tab shows: a file in `public/` or a URL.",
+        "The icon a browser tab shows: a file in `public/` — an SVG scales to every size — or a URL.",
     ),
     f(
         "meta.touch_icon",
         File(FileKind::Image),
-        "The icon a phone puts on its home screen: a 180×180 PNG in `public/`.",
+        "The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`.",
     ),
     f(
         "meta.site_url",
         String,
-        "The site's own origin — `https://example.com` — without which no canonical link or sitemap is written.",
+        "The site's absolute address, such as `https://example.com`. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed.",
     ),
     f(
         "meta.site_name",
@@ -407,7 +407,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "meta.owner",
         Enum(OWNERS),
-        "Whether the site belongs to an organisation or a person, for the structured data it publishes.",
+        "Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (Search and link previews).",
     ),
     f(
         "meta.same_as",
@@ -422,17 +422,17 @@ pub const FIELDS: &[Field] = &[
     f(
         "meta.owner_details",
         Map,
-        "More of what the owner is, as schema.org properties: an email, a logo, where they work.",
+        "More about the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above; naming one here is `E111`.",
     ),
     f(
         "meta.image",
         File(FileKind::Image),
-        "The image a link to a page shows when shared, for a page that does not name its own.",
+        "The sharing image for pages that set none. For an image in `public/`, its size is read into `og:image:width` and `og:image:height`.",
     ),
     f(
         "meta.image_alt",
         String,
-        "What the sharing image shows, for a reader who cannot see it.",
+        "What that image shows, as `og:image:alt` and `twitter:image:alt`. A page's `image_alt:` wins.",
     ),
     f(
         "meta.sitemap",
@@ -442,12 +442,12 @@ pub const FIELDS: &[Field] = &[
     f(
         "meta.fonts",
         Strings,
-        "Web-font stylesheets to load, by URL, before the site's own styles.",
+        "Web-font stylesheets to link, each with a `preconnect`. Their origins join the policy.",
     ),
     f(
         "meta.preload",
         Strings,
-        "Files to fetch early, before the page asks for them: a font, a hero image.",
+        "Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` (Search and link previews).",
     ),
     f(
         "meta.stylesheets",
@@ -457,7 +457,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "meta.scripts",
         Scripts,
-        "Scripts every page loads — a library, an analytics tag — and the globals they define.",
+        "Libraries to load before the project's own scripts (below). Their origins join the policy (JavaScript interop).",
     ),
     f(
         "meta.integrity",
@@ -467,27 +467,27 @@ pub const FIELDS: &[Field] = &[
     f(
         "meta.connect",
         Strings,
-        "The origins a page may fetch from or connect to, beyond its own, under the security policy.",
+        "Origins a page may send requests to besides its own — an API elsewhere, an analytics endpoint — as the policy's `connect-src`: `\"https://api.example.com\"`, `\"https://*.google-analytics.com\"`, or an app's own scheme alone, `\"ipc:\"`.",
     ),
     f(
         "meta.img",
         Strings,
-        "The origins a page may show images from, beyond its own, under the security policy.",
+        "Origins a page may load images from besides its own and `data:` — a CDN, a tag's tracking pixel — as the policy's `img-src`: `\"https://images.example.com\"`, `\"https://www.googletagmanager.com\"`.",
     ),
     f(
         "meta.frame",
         Strings,
-        "The origins a page may show in a frame, under the security policy.",
+        "Origins a page may embed in a frame besides its own — a video player, a map — as the policy's `frame-src`: `\"https://www.youtube-nocookie.com\"`, or an app's own scheme alone, `\"wfpreview:\"`.",
     ),
     f(
         "meta.wasm",
         Bool,
-        "Let a page run WebAssembly, under the security policy.",
+        "The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval`.",
     ),
     f(
         "meta.style_elements",
         Bool,
-        "Let a library write `<style>` elements, under the security policy.",
+        "A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only.",
     ),
     // ── Motion ──
     f(
@@ -504,7 +504,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "env",
         Map,
-        "Values the program reads as `env.NAME`, set per build.",
+        "Values read as `env.NAME`, fixed at build time. A `.env` file and the shell's variables add to them.",
     ),
     f(
         "public_env",
@@ -538,7 +538,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "offline.sync",
         Bool,
-        "Queue a write made while offline, and send it when the connection returns.",
+        "Keeps a write safe to send twice — a `PUT` or a `DELETE` — that failed for want of a network, and sends it, in order, when the connection returns. A `POST` or a `PATCH` is kept only when its endpoint is marked `idempotent`; any other fails as `.offline(queued: false)`.",
     ),
     // ── Languages ──
     f(

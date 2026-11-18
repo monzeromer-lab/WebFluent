@@ -24,12 +24,16 @@ if let d = delivery {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The chosen day, range or days |
-| `mode:` | `.single .range .multiple` | How many days it holds |
-| `min:` | `Date` | The first day that can be chosen |
-| `max:` | `Date` | The last day that can be chosen |
-| `disabled:` | `[Date] or (Date) -> Bool` | Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6` |
-| `label:` | `String` | Its name for a screen reader; unset, `Calendar` |
+| `bind:` | `State (required)` | The state it reads and writes, by `mode:`: a `Date?`, a `{ start, end }` of `Date`s (`end` null until the second day), or a `[Date]` kept in order |
+| `mode:` | `one of its cases` | How many days it holds. Written as a flag, `.single`, or by name, `mode: .single`.
+
+- `.single` (the default): One day: `bind:` is a `Date`
+- `.range`: A first and a last day: `{ start, end }`; a third press starts again
+- `.multiple`: Any number of days: a list, a press adding or removing one |
+| `min:` | `Date` | The first day that can be chosen; days before it are shown but cannot be chosen |
+| `max:` | `Date` | The last day that can be chosen; days after it are shown but cannot be chosen |
+| `disabled:` | `[Date] or (Date) -> Bool` | Days that cannot be chosen: a list of them, or a test of a day, `d => d.weekday() >= 6` |
+| `label:` | `String` | Its name for a screen reader, read once when it is drawn |
 
 ## Flags
 

@@ -154,7 +154,7 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Markdown("The API is on another origin, and that server does not allow requests from yours.\n\nAllow your origin on the server, or serve the API from the same origin ([Fetching data](/learn/15-data#call-an-api-on-another-origin), [Deploying](/recipes/api-on-the-same-origin)).")
 
-        Heading("env.MYVALUE is a compile error", id: "env-myvalue-is-a-compile-error").h3
+        Heading("env.MY_VALUE is a compile error", id: "env-my-value-is-a-compile-error").h3
 
         Markdown("A page may only read public names, because every value it reads ends up in the bundle, where anyone can read it (`E108`).\n\nIf anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in `public_env` ([Environments](/recipes)). If not, keep it on the server.")
 

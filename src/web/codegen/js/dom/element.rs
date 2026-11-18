@@ -1072,9 +1072,15 @@ impl JsCodegen {
                         "to" => {
                             let v = self.route_value(val);
                             *link_to = Some(v.clone());
-                            if self.ssg_mode {
+                            if self.ssg_mode && !matches!(name, "Button" | "IconButton") {
                                 // SSG: plain links with base path prepended
                                 attrs.push(format!("href: WF._basePath + {v}"));
+                            } else if matches!(name, "Button" | "IconButton") {
+                                // A button is no link: an `href` on it goes
+                                // nowhere, so a press navigates.
+                                attrs.push(format!(
+                                    "\"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({v}); }}"
+                                ));
                             } else {
                                 attrs.push(format!("href: {v}"));
                                 attrs.push(format!(

@@ -32,8 +32,8 @@ Markdown("""
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The Markdown text |
-| `inert:` | `Bool` | Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out |
+| `text` | `String (positional)` | The Markdown, drawn as HTML at build time and live; it is escaped first, so HTML in it is shown, not run |
+| `inert:` | `Bool` | Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out. Written as a flag, `.inert`, or `inert: true`. |
 
 ## Flags
 

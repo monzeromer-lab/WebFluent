@@ -1983,6 +1983,7 @@ Each keyword declares one kind of thing:
 | `animation` | Keyframes | [Keyframes](/recipes/keyframes) |
 | `test` | A render held to expectations and a snapshot | [Testing](/learn/16-testing) |
 | `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](/learn/16-testing#answer-a-service-with-fakes) |
+| `example` | One way to use a component, which `wf docs` draws beside its source | [Document it](/learn/10-components#document-it) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a
 stylesheet the build bundles. A `.js` file is a plain browser script, and its
@@ -2038,8 +2039,8 @@ component Avatar(_ initials: String) { Text(initials).bold }
 ```
 
 A `///` comment above a declaration, a prop or an event is its documentation.
-The editor shows it on hover, and `wf docs` prints it in the component
-gallery. Above a `state`, `persist`, `derived` or `action`, it documents that
+The editor shows it on hover, and `wf docs` writes it on the component's
+page. Above a `state`, `persist`, `derived` or `action`, it documents that
 member, and the editor shows it wherever the member is used.
 
 ## Bodies
@@ -4845,7 +4846,8 @@ The rules for props:
   with no default defaults to `null`.
 - A `Bool` prop is set with a flag, `.active`, or by name, `active: false`.
 - A `///` comment above the component or above a prop is its
-  documentation. The editor shows it on hover, and `wf docs` prints it.
+  documentation. The editor shows it on hover, and `wf docs` writes it on
+  the component's page.
 
 > [!NOTE]
 > **Coming from React?** There is no `...rest` that forwards whatever the
@@ -5237,7 +5239,49 @@ or lives in a store.
 ### Document it
 
 A `///` comment above the component, a prop or an event is shown on hover
-in the editor and in the gallery `wf docs` writes.
+in the editor, and on the component's page of the site `wf docs` writes.
+
+An `example` shows one way to use it. It names the component and says what
+it shows; its body is a page's — elements, `state`, handlers:
+
+```wf
+/// A person, at a glance.
+component UserCard(_ name: String, role: String, active: Bool = true) {
+    Card {
+        Text(name).bold
+        Text(role).muted
+        if active { Badge("Active").success }
+    }
+}
+
+/// The usual case.
+example UserCard "A designer" {
+    UserCard("Sam", role: "Designer")
+}
+
+example UserCard "Away" {
+    state here = false
+    UserCard("Ada", role: "Engineer", active: here)
+    Button("Back") { on click { here = true } }
+}
+```
+
+An example is checked as a page is — a component nothing declares is
+`E101`, a wrong value `T01` — and a build leaves it out. `wf docs` draws
+each one live, in the project's own theme, beside its source; a component
+with none is drawn from its props, each one it needs given a value of its
+type. Keep the examples beside the component, or in a file of their own
+under `src/`. An example only draws: what it does when clicked belongs in a
+[test](/learn/16-testing).
+
+```bash
+wf docs
+```
+
+The site is written to `docs/` in the design of this reference, light and
+dark: a page a component, with its examples, props, events, slots and
+parts, and pages for the project's types, stores and routes. Serve the
+folder to read it.
 
 ## Other people's code
 
@@ -14868,8 +14912,8 @@ the same kind of component a `.wf` page names as its `layout:`
 `DocsShell`, `slot` declares the default slot and `children` is where the
 page's body lands, beside the sidebar.
 
-(`wf docs` is something else: a gallery of every component the project can
-use — [CLI](/reference/cli#wf-docs).)
+(`wf docs` is something else: a site documenting the project's own
+components, each `example` drawn live — [CLI](/reference/cli#wf-docs).)
 
 
 
@@ -22785,7 +22829,7 @@ Each keyword, and where it starts a statement:
 
 | Keyword | Where | Starts |
 |---|---|---|
-| `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation`, `test` | top of a file | a declaration |
+| `page`, `component`, `store`, `app`, `theme`, `type`, `enum`, `api`, `middleware`, `fake`, `const`, `data`, `image`, `animation`, `test`, `example` | top of a file | a declaration |
 | `get`, `post`, `put`, `patch`, `delete`, `head`, `options`, with `at`, `in`, `invalidates`, `pages`, `idempotent`, `streamed` | an `api` body | an endpoint |
 | `middleware`, `invalidations`, `pagination` | an `api` body | what every request passes through; what a group's writes make stale; how its reads page |
 | `on` | after an error enum's case | the status the case stands for: `on 404`, `on 4XX` |
@@ -22842,6 +22886,7 @@ data name: Type = "file.json"
 image name = "picture.jpg"
 animation Name { from { css } 50% { css } to { css } }
 test "name"(data: { … }, fakes: [Fake, …]) { render block and test steps }
+example Component "what it shows"(fakes: [Fake, …]) { render block }
 ```
 
 An *error enum* is an enum whose cases name statuses with `on`: one
@@ -23017,6 +23062,10 @@ written:
 
 `test "name"(fakes: [Fake])` answers the endpoints of a `fake`'s group in
 place of the network; `data: { … }` seeds the body's state.
+
+`example Component "what it shows" { … }` is one way to use a component,
+drawn by `wf docs`: a render block with no steps, checked as a page's body
+and left out of every build.
 
 ## Expressions
 
@@ -23273,8 +23322,9 @@ As a project grows, these habits keep it readable:
 - **Keep shared types together**, in a `types.wf` per area, so the
   editor's go-to-definition lands somewhere predictable.
 - **Document as you declare.** A `///` comment above a component, a prop,
-  an event or a type shows on hover and in `wf docs`, the gallery of
-  everything the project declares.
+  an event or a type shows on hover and in `wf docs`, the site that
+  documents the project's components; an `example` beside a component is
+  drawn there live.
 - **Hold every file to the formatter.** `wf fmt --check` in CI keeps every
   file in one layout ([Testing](/learn/16-testing#run-the-checks-in-ci)).
 
@@ -24501,7 +24551,7 @@ wf serve
 | `wf scope FILE:LINE[:COL] [-d, --dir DIR] [--data JSON] [--json]` | Lists the names that can be read at a place, each with its type and where it comes from |
 | `wf rules [-d, --dir DIR] [--json]` | Lists the `validate` rules, the named patterns, when a form shows its messages, and every state held to a rule |
 | `wf components [-d, --dir DIR] [--json]` | Lists every component a call can name — the built-ins and the project's — with what each takes |
-| `wf docs [-d, --dir DIR] [-o, --out OUT]` | Writes a gallery of every component |
+| `wf docs [-d, --dir DIR] [-o, --out OUT]` | Documents the project's components, each `example` drawn live |
 | `wf registry [--json]` | Describes every built-in |
 | `wf types [PATH] [--json] [--holes]` | Describes what the project declares, or every place a value's type is unknown |
 
@@ -25479,23 +25529,32 @@ library has it as `webfluent::registry::schema::of_project_via` (with the `inter
 
 ### `wf docs`
 
-Writes a self-contained component gallery.
+Documents the project's components as a site, in the design of this
+reference.
 
 **Usage:** `wf docs [OPTIONS]`
 
 | Option | Value | Default | Meaning |
 |---|---|---|---|
 | `-d`, `--dir` | a directory | `.` | The project. |
-| `-o`, `--out` | a directory | `docs` | Where to write `index.html`. |
+| `-o`, `--out` | a directory | `docs` | Where to write the site. |
 
 ```bash
 wf docs
-wf docs -o gallery
+wf docs -o component-docs
 ```
 
-The gallery shows every built-in — props, cases, flags, events, slots,
-parts — and every component, enum, type, store and page the project
-declares, with their `///` documentation.
+A page a component: its `///` comment and header, every
+[`example`](/learn/10-components#document-it) of it drawn live beside
+its source — in a frame of the project's own build, with its theme,
+stylesheets and scripts — then its props (type, what it is when left out,
+each prop's `///`), events, slots, parts and what places it. A component
+with no example is drawn from its props. The types, stores and pages each
+have a page.
+
+The project is checked first, and an error stops it, as a build does.
+Serve the folder to read it. A second run clears what the first wrote; a
+folder it did not write is left alone.
 
 ### `wf registry`
 
@@ -26103,155 +26162,155 @@ test suite checks them against it.
 
 ### Colour
 
-| Token | Baseline |
-|---|---|
-| `color-backdrop` | `rgb(0 0 0 / 0.5)` |
-| `color-background` | `#FFFFFF` |
-| `color-border` | `#E2E8F0` |
-| `color-danger` | `#EF4444` |
-| `color-info` | `#06B6D4` |
-| `color-on-danger` | `#FFFFFF` |
-| `color-on-info` | `#FFFFFF` |
-| `color-on-primary` | `#FFFFFF` |
-| `color-on-secondary` | `#FFFFFF` |
-| `color-on-success` | `#FFFFFF` |
-| `color-on-warning` | `#000000` |
-| `color-primary` | `#3B82F6` |
-| `color-secondary` | `#64748B` |
-| `color-success` | `#22C55E` |
-| `color-surface` | `#F8FAFC` |
-| `color-text` | `#0F172A` |
-| `color-text-muted` | `#64748B` |
-| `color-warning` | `#F59E0B` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `color-backdrop` | `rgb(0 0 0 / 0.5)` | What dims the page behind a modal, a dialog, a sheet and a drawer |
+| `color-background` | `#FFFFFF` | The page behind everything |
+| `color-border` | `#E2E8F0` | A line between things: a field's edge, a divider, a card's border |
+| `color-danger` | `#EF4444` | Failed, destructive, invalid: a danger button, an error message |
+| `color-info` | `#06B6D4` | For information: an info badge or alert, a note callout |
+| `color-on-danger` | `#FFFFFF` | Text and icons written on `color-danger`; A13 checks the pair |
+| `color-on-info` | `#FFFFFF` | Text and icons written on `color-info`; A13 checks the pair |
+| `color-on-primary` | `#FFFFFF` | Text and icons written on `color-primary`; A13 checks the pair |
+| `color-on-secondary` | `#FFFFFF` | Text and icons written on `color-secondary`; A13 checks the pair |
+| `color-on-success` | `#FFFFFF` | Text and icons written on `color-success`; A13 checks the pair |
+| `color-on-warning` | `#000000` | Text and icons written on `color-warning`; A13 checks the pair |
+| `color-primary` | `#3B82F6` | The main tone: a primary button, a link, a focus ring, what is chosen or current |
+| `color-secondary` | `#64748B` | A quieter tone, for a secondary button or badge |
+| `color-success` | `#22C55E` | Done, passing, saved: a success badge, alert or toast |
+| `color-surface` | `#F8FAFC` | What sits on the page: a card, a menu, a popover, a table header |
+| `color-text` | `#0F172A` | The text |
+| `color-text-muted` | `#64748B` | Text that matters less: a hint, a caption, `.muted` |
+| `color-warning` | `#F59E0B` | Needs attention: a warning badge or alert, a rating's stars |
 
 ### Font
 
-| Token | Baseline |
-|---|---|
-| `font-family` | `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` |
-| `font-family-mono` | `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace` |
-| `font-size-2xl` | `clamp(1.5rem, 1.25rem + 1.25vw, 2rem)` |
-| `font-size-3xl` | `clamp(1.75rem, 1.38rem + 1.88vw, 2.5rem)` |
-| `font-size-base` | `1rem` |
-| `font-size-lg` | `clamp(1.125rem, 1.06rem + 0.31vw, 1.25rem)` |
-| `font-size-sm` | `0.875rem` |
-| `font-size-xl` | `clamp(1.25rem, 1.13rem + 0.63vw, 1.5rem)` |
-| `font-size-xs` | `0.75rem` |
-| `font-weight-bold` | `700` |
-| `font-weight-medium` | `500` |
-| `font-weight-normal` | `400` |
-| `line-height-loose` | `1.75` |
-| `line-height-normal` | `1.5` |
-| `line-height-tight` | `1.25` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `font-family` | `system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif` | The text's typeface |
+| `font-family-mono` | `ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace` | Code's typeface: `Code`, `CodeBlock`, `Kbd` |
+| `font-size-2xl` | `clamp(1.5rem, 1.25rem + 1.25vw, 2rem)` | A heading (`h3`, `h2`), growing with the screen |
+| `font-size-3xl` | `clamp(1.75rem, 1.38rem + 1.88vw, 2.5rem)` | The page's heading (`h1`), growing with the screen |
+| `font-size-base` | `1rem` | Body text |
+| `font-size-lg` | `clamp(1.125rem, 1.06rem + 0.31vw, 1.25rem)` | Large text: `.lg`, a lede |
+| `font-size-sm` | `0.875rem` | Small text: `.sm`, a hint, a table header |
+| `font-size-xl` | `clamp(1.25rem, 1.13rem + 0.63vw, 1.5rem)` | A small heading (`h4`) |
+| `font-size-xs` | `0.75rem` | The smallest text: a badge, a caption |
+| `font-weight-bold` | `700` | `.bold`, a heading, a title |
+| `font-weight-medium` | `500` | A label's or a button's weight |
+| `font-weight-normal` | `400` | Body text's weight |
+| `line-height-loose` | `1.75` | Line height for long reading |
+| `line-height-normal` | `1.5` | Body text's line height |
+| `line-height-tight` | `1.25` | Headings' line height |
 
 ### Spacing
 
-| Token | Baseline |
-|---|---|
-| `spacing-2xl` | `clamp(2rem, 1.5rem + 2.5vw, 3rem)` |
-| `spacing-3xl` | `clamp(2.5rem, 1.75rem + 3.75vw, 4rem)` |
-| `spacing-lg` | `1.5rem` |
-| `spacing-md` | `1rem` |
-| `spacing-sm` | `0.5rem` |
-| `spacing-xl` | `clamp(1.5rem, 1.25rem + 1.25vw, 2rem)` |
-| `spacing-xs` | `0.25rem` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `spacing-2xl` | `clamp(2rem, 1.5rem + 2.5vw, 3rem)` | A section's spacing, growing with the screen |
+| `spacing-3xl` | `clamp(2.5rem, 1.75rem + 3.75vw, 4rem)` | A page's largest spacing, growing with the screen |
+| `spacing-lg` | `1.5rem` | A large gap: `gap: .lg`, between sections |
+| `spacing-md` | `1rem` | The usual gap: `gap: .md`, a card's padding |
+| `spacing-sm` | `0.5rem` | A small gap: `gap: .sm`, a control's padding |
+| `spacing-xl` | `clamp(1.5rem, 1.25rem + 1.25vw, 2rem)` | An extra-large gap, growing with the screen |
+| `spacing-xs` | `0.25rem` | The smallest gap: `gap: .xs`, `$xs` in a padding |
 
 ### Radius
 
-| Token | Baseline |
-|---|---|
-| `radius-full` | `9999px` |
-| `radius-lg` | `1rem` |
-| `radius-md` | `0.5rem` |
-| `radius-none` | `0` |
-| `radius-sm` | `0.25rem` |
-| `radius-xl` | `1.5rem` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `radius-full` | `9999px` | A pill or a circle: `.pill`, an avatar |
+| `radius-lg` | `1rem` | Rounder corners: a modal, a sheet |
+| `radius-md` | `0.5rem` | The usual corners: a button, a field, a card |
+| `radius-none` | `0` | Square corners |
+| `radius-sm` | `0.25rem` | Slightly rounded: a badge, a checkbox, code |
+| `radius-xl` | `1.5rem` | Very round corners |
 
 ### Shadow
 
-| Token | Baseline |
-|---|---|
-| `shadow-lg` | `0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)` |
-| `shadow-md` | `0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)` |
-| `shadow-none` | `none` |
-| `shadow-sm` | `0 1px 2px 0 rgba(0,0,0,0.05)` |
-| `shadow-xl` | `0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `shadow-lg` | `0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1)` | A popover, a dropdown, a toast |
+| `shadow-md` | `0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1)` | `Card.elevated`, a menu |
+| `shadow-none` | `none` | No shadow |
+| `shadow-sm` | `0 1px 2px 0 rgba(0,0,0,0.05)` | A slight lift: a button, a field |
+| `shadow-xl` | `0 20px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)` | A modal, a dialog, a sheet |
 
 ### Motion
 
-| Token | Baseline |
-|---|---|
-| `animation-duration-fast` | `150ms` |
-| `animation-duration-normal` | `300ms` |
-| `animation-duration-slow` | `500ms` |
-| `animation-easing-bounce` | `cubic-bezier(0.68, -0.55, 0.265, 1.55)` |
-| `animation-easing-default` | `cubic-bezier(0.4, 0, 0.2, 1)` |
-| `animation-easing-spring` | `cubic-bezier(0.175, 0.885, 0.32, 1.275)` |
-| `transition-fast` | `150ms ease` |
-| `transition-normal` | `250ms ease` |
-| `transition-slow` | `350ms ease` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `animation-duration-fast` | `150ms` | `.fast` and `speed: .fast` |
+| `animation-duration-normal` | `300ms` | An animation's length when it says nothing |
+| `animation-duration-slow` | `500ms` | `.slow` and `speed: .slow` |
+| `animation-easing-bounce` | `cubic-bezier(0.68, -0.55, 0.265, 1.55)` | `easing: .bouncy` |
+| `animation-easing-default` | `cubic-bezier(0.4, 0, 0.2, 1)` | An animation's easing when it says nothing |
+| `animation-easing-spring` | `cubic-bezier(0.175, 0.885, 0.32, 1.275)` | `easing: .spring`, sampled into `linear()` |
+| `transition-fast` | `150ms ease` | A quick change: a hover, a press |
+| `transition-normal` | `250ms ease` | The usual change: an open, a slide |
+| `transition-slow` | `350ms ease` | A deliberate change |
 
 ### Easing
 
-| Token | Baseline |
-|---|---|
-| `ease-in` | `cubic-bezier(0.4, 0, 1, 1)` |
-| `ease-out` | `cubic-bezier(0, 0, 0.2, 1)` |
-| `ease-spring` | `linear(0, 0.006, 0.079, 0.234, 0.44, 0.652, 0.828, 0.947, 1.008, 1.025, 1.016, 1)` |
-| `ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `ease-in` | `cubic-bezier(0.4, 0, 1, 1)` | `easing: .easeIn`: something leaving |
+| `ease-out` | `cubic-bezier(0, 0, 0.2, 1)` | `easing: .easeOut`: something arriving |
+| `ease-spring` | `linear(0, 0.006, 0.079, 0.234, 0.44, 0.652, 0.828, 0.947, 1.008, 1.025, 1.016, 1)` | A spring that overshoots and settles |
+| `ease-standard` | `cubic-bezier(0.2, 0, 0, 1)` | `easing: .standard`: the default for motion that moves |
 
 ### Breakpoints
 
-| Token | Baseline |
-|---|---|
-| `screen-lg` | `1024px` |
-| `screen-md` | `768px` |
-| `screen-sm` | `640px` |
-| `screen-xl` | `1280px` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `screen-lg` | `1024px` | Where `lg` starts: `{ lg: … }`, `@lg { }`, `viewport.lg` |
+| `screen-md` | `768px` | Where `md` starts: `{ md: … }`, `@md { }`, `viewport.md` |
+| `screen-sm` | `640px` | Where `sm` starts: `{ sm: … }`, `@sm { }`, `viewport.sm` |
+| `screen-xl` | `1280px` | Where `xl` starts: `{ xl: … }`, `@xl { }`, `viewport.xl` |
 
 ### Code
 
-| Token | Baseline |
-|---|---|
-| `syntax-comment` | `#959BA1` |
-| `syntax-function` | `#6FD3E6` |
-| `syntax-keyword` | `#8FBDE7` |
-| `syntax-number` | `#E0B070` |
-| `syntax-punct` | `#B3BAC0` |
-| `syntax-string` | `#7FD6A8` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `syntax-comment` | `#959BA1` | `CodeBlock`'s comments |
+| `syntax-function` | `#6FD3E6` | `CodeBlock`'s calls and element names |
+| `syntax-keyword` | `#8FBDE7` | `CodeBlock`'s keywords |
+| `syntax-number` | `#E0B070` | `CodeBlock`'s numbers |
+| `syntax-punct` | `#B3BAC0` | `CodeBlock`'s punctuation |
+| `syntax-string` | `#7FD6A8` | `CodeBlock`'s strings |
 
 ### Terminal
 
-| Token | Baseline |
-|---|---|
-| `term-bg` | `#1B1F22` |
-| `term-dim` | `#959BA1` |
-| `term-ink` | `#E6E9EC` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `term-bg` | `#1B1F22` | A terminal block's background |
+| `term-dim` | `#959BA1` | A terminal block's quieter text: a prompt, a comment |
+| `term-ink` | `#E6E9EC` | A terminal block's text |
 
 ### Stacking
 
-| Token | Baseline |
-|---|---|
-| `z-drawer` | `200` |
-| `z-dropdown` | `1000` |
-| `z-modal` | `1300` |
-| `z-skip-link` | `10000` |
-| `z-sticky` | `100` |
-| `z-toast` | `1400` |
-| `z-tooltip` | `1500` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `z-drawer` | `200` | Where a drawer, a `Sidebar` on a narrow screen, stacks |
+| `z-dropdown` | `1000` | Where a dropdown not in the top layer stacks |
+| `z-modal` | `1300` | Where a modal not in the top layer stacks |
+| `z-skip-link` | `10000` | Where the skip link stacks, above everything |
+| `z-sticky` | `100` | Where a sticky header or `Sticky` stacks |
+| `z-toast` | `1400` | Where the toasts stack |
+| `z-tooltip` | `1500` | Where a tooltip not in the top layer stacks |
 
 ### Targets
 
-| Token | Baseline |
-|---|---|
-| `target-min` | `24px` |
-| `target-min-touch` | `44px` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `target-min` | `24px` | The least size of anything a pointer presses (WCAG 2.2's 24px) |
+| `target-min-touch` | `44px` | The least size of anything a finger presses (44px) |
 
 ### Layout
 
-| Token | Baseline |
-|---|---|
-| `wf-header-height` | `56px` |
+| Token | Baseline | What it is for |
+|---|---|---|
+| `wf-header-height` | `56px` | How far a sticky element sits below the page's sticky header |
 
 87 tokens in all.
 

@@ -22,6 +22,7 @@
 
 pub(crate) mod browser;
 pub mod builtins;
+pub mod prop_docs;
 pub mod requests;
 pub use crate::tools::registry_json as json;
 pub use crate::tools::registry_schema as schema;
@@ -474,6 +475,25 @@ impl ComponentSig {
     }
 
     /// The qualified name: `Card.Header` for a part, `Card` otherwise.
+    /// What `prop` does on this built-in: its own words
+    /// ([`prop_docs`]), or the shared declaration's.
+    pub fn says(&self, prop: &PropSig) -> &'static str {
+        prop_docs::of(&self.qualified(), prop.name).map_or(prop.summary, |d| d.summary)
+    }
+
+    /// What `prop` is when a call leaves it out, when that is worth saying.
+    pub fn default_of(&self, prop: &PropSig) -> Option<&'static str> {
+        prop_docs::of(&self.qualified(), prop.name)
+            .map(|d| d.default)
+            .filter(|d| !d.is_empty())
+    }
+
+    /// What the case `case` of `prop` means on this built-in.
+    pub fn says_case(&self, prop: &PropSig, case: &str) -> Option<&'static str> {
+        prop_docs::of(&self.qualified(), prop.name)
+            .and_then(|d| d.cases.iter().find(|(n, _)| *n == case).map(|(_, s)| *s))
+    }
+
     pub fn qualified(&self) -> String {
         match self.owner {
             Some(owner) => format!("{owner}.{}", self.name),

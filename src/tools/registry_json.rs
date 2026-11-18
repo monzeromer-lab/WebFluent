@@ -102,6 +102,9 @@ fn flags_of(sig: &'static ComponentSig, prop: &'static PropSig) -> Vec<Value> {
 }
 
 fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
+    // What it does on this built-in: the shared declaration's words, or the
+    // component's own (`registry::prop_docs`).
+    let doc = sig.and_then(|s| crate::registry::prop_docs::of(&s.qualified(), prop.name));
     let (ty, cases): (&str, Option<Vec<Value>>) = match prop.ty {
         PropType::Str | PropType::File(_) => ("String", None),
         PropType::Num => ("Number", None),
@@ -123,10 +126,19 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
                             && sig.is_none_or(|s| {
                                 matches!(s.flag(c.name), crate::registry::Flag::Case(..))
                             });
+                        let said = doc
+                            .and_then(|d| d.cases.iter().find(|(n, _)| *n == c.name))
+                            .map_or(c.summary, |(_, s)| *s);
+                        // The default case is the one the prop's default
+                        // names; one that says none is no case at all.
+                        let default = match doc {
+                            Some(d) => default_case(d.default) == c.name,
+                            None => c.legacy.is_empty(),
+                        };
                         json!({
                             "name": c.name,
-                            "summary": c.summary,
-                            "default": c.legacy.is_empty(),
+                            "summary": said,
+                            "default": default,
                             "flag": flag,
                         })
                     })
@@ -138,7 +150,7 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
         "name": prop.name,
         "type": ty,
         "cases": cases,
-        "summary": prop.summary,
+        "summary": doc.map_or(prop.summary, |d| d.summary),
         "sink": match prop.sink {
             Sink::Attr => "attribute",
             Sink::Class => "class",
@@ -147,6 +159,8 @@ fn prop_json(prop: &PropSig, sig: Option<&'static ComponentSig>) -> Value {
         "flag": prop.shorthand && matches!(prop.ty, PropType::Bool),
         // Whether a call must give it: `Portal`'s `into:`.
         "required": prop.required,
+        // What it is when a call leaves it out, as a reader writes it.
+        "default": doc.map(|d| d.default).filter(|d| !d.is_empty()),
         // The kind of file a picker offers for it: `image`, `video` …
         "file": match prop.ty {
             PropType::File(kind) => Some(kind.word()),
@@ -388,6 +402,16 @@ pub(crate) fn uses_children(body: &[Statement]) -> bool {
         StatementKind::Match(m) => m.arms.iter().any(|a| uses_children(&a.body)),
         _ => false,
     })
+}
+
+/// The case a default names: `md`, `` `.md` ``, `stretch (the CSS
+/// default)` — its first word, without a backtick or a dot.
+fn default_case(default: &str) -> &str {
+    let d = default.trim_start_matches(['`', '.']);
+    let end = d
+        .find(|c: char| !(c.is_ascii_alphanumeric() || c == '-'))
+        .unwrap_or(d.len());
+    &d[..end]
 }
 
 #[cfg(test)]

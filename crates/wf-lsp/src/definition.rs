@@ -35,6 +35,14 @@ pub fn find_definition(
             .and_then(|class| crate::classes::location(project, class))
             .map(GotoDefinitionResponse::Scalar);
     }
+    // `t("nav.home")`: the message, in the default locale's table.
+    if let Some(key) = translation_key_at(source, &tokens, offset) {
+        return message_location(project, &key).map(GotoDefinitionResponse::Scalar);
+    }
+    // `$color-primary`: the token, where the project's theme declares it.
+    if let Some(name) = design_token_at(source, &tokens, offset) {
+        return theme_token_location(project, &name);
+    }
     // A string's text names nothing; its `{…}` splices are code.
     if (analysis::in_string(&tokens, offset) && !analysis::in_splice(source, &tokens, offset))
         || analysis::in_comment(source, &tokens, offset)
@@ -83,6 +91,40 @@ pub fn definition_at(
             && layout.name == word
         {
             return declaration_location(project, word, Kind::Component);
+        }
+
+        // `example UserCard "…"`: the component it shows.
+        if let Declaration::Example(e) = decl
+            && e.component == word
+            && offset < e.body_span.start as usize
+        {
+            return declaration_location(project, word, Kind::Component);
+        }
+
+        // `invalidates [list]`, `pages`, an endpoint named in its own
+        // service's block: that endpoint.
+        if let Declaration::Api(a) = decl
+            && !source[..range.start].trim_end().ends_with('.')
+            && let Some(e) = a.endpoints.iter().find(|e| e.name == word)
+        {
+            return Some(location(project, project.decl_file[decl_ix], e.span).into());
+        }
+
+        // `fake OneUser for Backend.users { list(page) { … } }`: the group
+        // it answers for, and each endpoint it answers.
+        if let Declaration::Fake(f) = decl {
+            if analysis::contains(f.header_span, offset)
+                && let Some(found) = api_location(project, &f.target)
+            {
+                return Some(found);
+            }
+            if let Some(answer) = f
+                .answers
+                .iter()
+                .find(|a| a.endpoint == word && a.span.start as usize == range.start)
+            {
+                return endpoint_location(project, &f.target, &answer.endpoint);
+            }
         }
 
         // `event toggle(…)` and `emit toggle(…)` in a component, and the
@@ -193,7 +235,31 @@ pub fn definition_at(
                 .chars()
                 .rev()
                 .collect();
-            if let Some(found) = endpoint_location(project, &owner_name, word) {
+            // `Backend.todos.create`: the group is the whole chain before
+            // the dot, `Backend.todos`; in a service's own block a group is
+            // named without the service, `people.listPeople`.
+            let chain: String = before_dot
+                .chars()
+                .rev()
+                .take_while(|c| c.is_alphanumeric() || *c == '_' || *c == '.')
+                .collect::<String>()
+                .chars()
+                .rev()
+                .collect();
+            let mut owners = vec![chain.trim_matches('.').to_string()];
+            if let Declaration::Api(a) = decl {
+                owners.push(format!("{}.{owner_name}", a.name));
+            }
+            owners.push(owner_name.clone());
+            for owner in &owners {
+                if let Some(found) = endpoint_location(project, owner, word) {
+                    return Some(found);
+                }
+            }
+            // `Backend.todos`: the group itself.
+            if !owner_name.is_empty()
+                && let Some(found) = api_location(project, &format!("{}.{word}", owners[0]))
+            {
                 return Some(found);
             }
             // `post.title`, for a value the checker types as a record: the
@@ -282,6 +348,21 @@ fn endpoint_location(project: &Project, api: &str, name: &str) -> Option<GotoDef
                 .iter()
                 .find(|e| e.name == name)
                 .map(|e| location(project, project.decl_file[ix], e.span).into()),
+            _ => None,
+        })
+}
+
+/// The service or group called `name`: `Backend`, `Backend.todos`.
+fn api_location(project: &Project, name: &str) -> Option<GotoDefinitionResponse> {
+    project
+        .program
+        .declarations
+        .iter()
+        .enumerate()
+        .find_map(|(ix, decl)| match decl {
+            Declaration::Api(a) if a.name == name => {
+                Some(location(project, project.decl_file[ix], a.span).into())
+            }
             _ => None,
         })
 }
@@ -509,6 +590,10 @@ fn declaration_location(
             Declaration::Const(c) if c.name == name && kind == Kind::Any => Some((ix, c.span)),
             Declaration::Data(d) if d.name == name && kind == Kind::Any => Some((ix, d.span)),
             Declaration::Api(a) if a.name == name && kind == Kind::Any => Some((ix, a.span)),
+            Declaration::Middleware(m) if m.name == name && kind == Kind::Any => Some((ix, m.span)),
+            Declaration::Fake(f) if f.name == name && kind == Kind::Any => {
+                Some((ix, f.header_span))
+            }
             _ => None,
         })?;
     Some(location(project, project.decl_file[ix], span).into())
@@ -520,4 +605,96 @@ fn location(project: &Project, file_ix: usize, span: Span) -> Location {
         uri: file.uri.clone(),
         range: file.index.span_to_range(&file.source, span),
     }
+}
+
+/// The key of the `t("…")` whose string `offset` is in.
+fn translation_key_at(source: &str, tokens: &[Token], offset: usize) -> Option<String> {
+    use webfluent::syntax::lexer::TokenType;
+    let ix = tokens.iter().position(|t| {
+        matches!(t.token_type, TokenType::StringLiteral(_)) && t.offset < offset && offset < t.end
+    })?;
+    let open = ix.checked_sub(1).map(|i| &tokens[i].token_type);
+    let callee = ix.checked_sub(2).map(|i| &tokens[i].token_type);
+    let dot = ix.checked_sub(3).map(|i| &tokens[i].token_type);
+    if !matches!(open, Some(TokenType::OpenParen))
+        || !matches!(callee, Some(TokenType::Identifier(t)) if t == "t")
+        || matches!(dot, Some(TokenType::Dot | TokenType::OptionalChain))
+    {
+        return None;
+    }
+    let text = source.get(tokens[ix].offset..tokens[ix].end)?;
+    let key = text
+        .trim_start_matches('#')
+        .trim_matches('#')
+        .trim_matches('"');
+    (!key.is_empty() && !key.contains('{')).then(|| key.to_string())
+}
+
+/// Where the default locale's translations hold `key`: the line of its
+/// entry in `<i18n.dir>/<default_locale>.json`.
+fn message_location(project: &Project, key: &str) -> Option<Location> {
+    let root = project.root.as_ref()?;
+    let i18n = project.config.as_ref()?.i18n.as_ref()?;
+    let path = root
+        .join(&i18n.dir)
+        .join(format!("{}.json", i18n.default_locale));
+    let text = std::fs::read_to_string(&path).ok()?;
+    // The entry is the key, quoted, then a colon: `"nav.home": "Home"`.
+    let quoted = format!("\"{key}\"");
+    let at = text
+        .match_indices(&quoted)
+        .map(|(i, _)| i)
+        .find(|i| text[i + quoted.len()..].trim_start().starts_with(':'))?;
+    let index = crate::line_index::LineIndex::new(&text);
+    Some(Location {
+        uri: lsp_types::Url::from_file_path(&path).ok()?,
+        range: Range {
+            start: index.offset_to_position(&text, at),
+            end: index.offset_to_position(&text, at + quoted.len()),
+        },
+    })
+}
+
+/// The design token `$name` at `offset`: its own token, or a `$name`
+/// inside a raw style value, where only the text says so.
+fn design_token_at(source: &str, tokens: &[Token], offset: usize) -> Option<String> {
+    use webfluent::syntax::lexer::TokenType;
+    match analysis::token_at(tokens, offset).map(|t| &t.token_type) {
+        Some(TokenType::DesignToken(name)) => Some(name.trim_start_matches('$').to_string()),
+        Some(TokenType::RawValue(_)) => {
+            let (word, range) = word_at(source, offset)?;
+            source[..range.start]
+                .ends_with('$')
+                .then(|| word.to_string())
+        }
+        _ => None,
+    }
+}
+
+/// The token `name` in the project's `theme` — by its whole name, or the
+/// short one a property's group resolves (`$xl` is `spacing-xl`).
+fn theme_token_location(project: &Project, name: &str) -> Option<GotoDefinitionResponse> {
+    let themes = || {
+        project
+            .program
+            .declarations
+            .iter()
+            .enumerate()
+            .filter_map(|(ix, d)| match d {
+                Declaration::Theme(t) => Some((ix, t)),
+                _ => None,
+            })
+    };
+    let suffix = format!("-{name}");
+    let (ix, token) = themes()
+        .find_map(|(ix, t)| t.tokens.iter().find(|k| k.name == name).map(|k| (ix, k)))
+        .or_else(|| {
+            themes().find_map(|(ix, t)| {
+                t.tokens
+                    .iter()
+                    .find(|k| k.name.ends_with(&suffix))
+                    .map(|k| (ix, k))
+            })
+        })?;
+    Some(location(project, project.decl_file[ix], token.span).into())
 }

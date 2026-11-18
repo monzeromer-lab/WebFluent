@@ -6,6 +6,7 @@ pub mod api;
 pub mod audit;
 pub mod browser;
 pub mod commands;
+pub mod docs;
 pub mod gallery;
 pub mod generate;
 pub mod init;

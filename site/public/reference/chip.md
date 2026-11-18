@@ -30,10 +30,10 @@ Stack(gap: .sm, align: .start) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `icon:` | `String` | An icon before the words |
-| `selected:` | `Bool` | Pressed: a filter that is on. Makes it a toggle button |
-| `removable:` | `Bool` | A button that removes it, named `Remove {label}`, firing `on remove` |
+| `label` | `String (positional)` | Its words |
+| `icon:` | `String` | An icon's name, drawn before the words |
+| `selected:` | `Bool` | Pressed (`aria-pressed`): a filter that is on, filled in the primary colour. Given at all, true or false, it makes the chip a toggle button. Written as a flag, `.selected`, or `selected: true`. |
+| `removable:` | `Bool` | A button after the words, named `Remove {label}`, that fires `on remove`. Written as a flag, `.removable`, or `removable: true`. |
 
 ## Flags
 
@@ -59,7 +59,7 @@ Chip.Action(_ text: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | Its words |
+| `text` | `String (positional)` | Its words |
 
 ### Chip.Label
 
@@ -71,7 +71,7 @@ Chip.Label(_ text: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | Its words |
+| `text` | `String (positional)` | Its words |
 
 ### Chip.Remove
 

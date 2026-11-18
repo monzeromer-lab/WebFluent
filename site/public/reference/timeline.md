@@ -46,8 +46,8 @@ Timeline.Item(_ title: String, at: Date or DateTime or String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title` | `String  (positional)` | What happened |
-| `at:` | `Date or DateTime or String` | When: a `Date`, a `DateTime` or an ISO string, written as a date |
+| `title` | `String (positional)` | What happened, in bold above the date |
+| `at:` | `Date or DateTime or String` | When: a `Date`, a `DateTime` or an ISO string, written as a medium date (`Jan 2, 2026`) in a `<time datetime>` |
 
 ## Drawn for it
 

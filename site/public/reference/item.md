@@ -31,8 +31,8 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `title:` | `String` | What it is |
-| `description:` | `String` | A line more, muted |
+| `title:` | `String` | What it is: a bold line before the rest of its block |
+| `description:` | `String` | A line under the title, small and muted |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

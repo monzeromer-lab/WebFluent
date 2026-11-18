@@ -29,12 +29,12 @@ Stack(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `data` | `[Number]  (positional)` | The numbers: a list |
-| `bar:` | `Bool` | Bars rather than a line |
-| `width:` | `Number` | Its width in px (unset, 80) |
-| `height:` | `Number` | Its height in px (unset, 20) |
-| `color:` | `String` | Its colour (unset, the text's) |
-| `label:` | `String` | What it shows, for a screen reader |
+| `data` | `[Number] (positional)` | The numbers, a list, drawn as an SVG when the page is built, so they must be known then (`E109` otherwise); scaled from the least to the most |
+| `bar:` | `Bool` | Bars from zero rather than a line. Written as a flag, `.bar`, or `bar: true`. |
+| `width:` | `Number` | Its width in px; 0 or less is the default |
+| `height:` | `Number` | Its height in px; 0 or less is the default |
+| `color:` | `String` | The line's or the bars' colour, a CSS colour (`#0F766E`, `var(--color-primary)`); anything else is the default, the text's colour (`currentColor`) |
+| `label:` | `String` | What it shows, as the picture's accessible name (`role="img"`) |
 
 ## Flags
 

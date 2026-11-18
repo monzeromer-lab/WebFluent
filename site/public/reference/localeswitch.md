@@ -23,7 +23,7 @@ Row(gap: .sm, align: .center, justify: .between) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | The group's name for a screen reader; unset, `Language` |
+| `label:` | `String` | The group's accessible name; the group draws one button per `i18n.locales` entry, and nothing with fewer than two |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

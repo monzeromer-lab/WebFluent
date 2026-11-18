@@ -37,8 +37,12 @@ Text(if sent == "" { "Not signed in yet." } else { sent }).muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)` |
-| `show:` | `.onBlur .onSubmit .live` | When a `validate` block's message is shown |
+| `bind:` | `State` | A name for a handle on the form, not a state: `form.valid`, `form.errors`, `form.touched`, `form.pending`, `form.values` by field name, `form.reset()`, `form.submit()`, `form.apply(serverErrors)` |
+| `show:` | `one of its cases` | When a `validate` block's message is shown on its field. Written as a flag, `.onBlur`, or by name, `show: .onBlur`.
+
+- `.onBlur` (the default): Once the reader has left the field (the default)
+- `.onSubmit`: Only after a submit
+- `.live`: As they type |
 
 ## Flags
 

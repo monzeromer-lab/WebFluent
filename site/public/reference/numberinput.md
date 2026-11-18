@@ -22,11 +22,11 @@ Text("Total: ${tickets * 45}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The `Number` it holds |
-| `min:` | `Number` | The lowest it goes |
-| `max:` | `Number` | The highest it goes |
-| `step:` | `Number` | How far a press moves it (unset, 1) |
-| `label:` | `String` | Visible label; also the control's accessible name |
+| `bind:` | `State (required)` | The `Number` state it reads and writes; typing writes `null` when the field is emptied, and a number past `min:` or `max:` is brought back within them when it changes |
+| `min:` | `Number` | The lowest value: − is disabled there, and the buttons and PageDown never go below it (a typed value is not held to it) |
+| `max:` | `Number` | The highest value: + is disabled there, and the buttons and PageUp never go above it (a typed value is not held to it) |
+| `step:` | `Number` | How far −, + and the arrow keys move it; PageUp and PageDown move ten steps |
+| `label:` | `String` | Visible label; also the input's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).

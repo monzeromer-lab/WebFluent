@@ -189,8 +189,9 @@ As a project grows, these habits keep it readable:
 - **Keep shared types together**, in a `types.wf` per area, so the
   editor's go-to-definition lands somewhere predictable.
 - **Document as you declare.** A `///` comment above a component, a prop,
-  an event or a type shows on hover and in `wf docs`, the gallery of
-  everything the project declares.
+  an event or a type shows on hover and in `wf docs`, the site that
+  documents the project's components; an `example` beside a component is
+  drawn there live.
 - **Hold every file to the formatter.** `wf fmt --check` in CI keeps every
   file in one layout ([Testing](../learn/16-testing.md#run-the-checks-in-ci)).
 

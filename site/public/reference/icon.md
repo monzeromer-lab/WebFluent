@@ -25,10 +25,21 @@ Row(gap: .lg, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `name` | `String  (positional)` | The icon name |
-| `size:` | `.sm .md .lg` | Its size |
-| `tone:` | `.primary .secondary .success .danger .warning .info` | Colour |
-| `muted:` | `Bool` | Dimmed, for secondary text |
+| `name` | `String (positional)` | One of the 83 built-in icon names (`home`, `search`, `chevron-down` …), drawn inline as SVG; another is `V08` and draws nothing |
+| `size:` | `one of its cases` | How large it is, against the text around it. Written as a flag, `.sm`, or by name, `size: .sm`.
+
+- `.sm`: `font-size-sm` (0.875rem)
+- `.md` (the default): The text's own size, 1em (the default)
+- `.lg`: `font-size-xl` |
+| `tone:` | `one of its cases` | Its colour, a tone of the theme. Written as a flag, `.primary`, or by name, `tone: .primary`.
+
+- `.primary`: The theme's primary colour
+- `.secondary`: The theme's secondary colour
+- `.success`: Green: done, healthy
+- `.danger`: Red: destructive, failed
+- `.warning`: Amber: needs attention
+- `.info`: Blue: a neutral notice |
+| `muted:` | `Bool` | In `color-text-muted`, for something secondary. Written as a flag, `.muted`, or `muted: true`. |
 
 ## Flags
 

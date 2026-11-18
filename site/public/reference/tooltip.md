@@ -26,10 +26,23 @@ Row(gap: .sm) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The tooltip text |
-| `shortcut:` | `String` | The keys that do the same, `mod+s`, shown as a chip as this system writes them |
-| `placement:` | `.bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
-| `delay:` | `Number` | How long a hover waits before it shows, in ms. Unset, 500 |
+| `text` | `String (positional)` | The tooltip's words, shown above everything at the control in its block and linked to it by `aria-describedby` |
+| `shortcut:` | `String` | The keys that do the same, `mod+s`, shown as a chip as this system writes them and set as the control's `aria-keyshortcuts` |
+| `placement:` | `one of its cases` | Where it goes against its control; it flips to the other side when there is no room. Written as a flag, `.bottom`, or by name, `placement: .bottom`.
+
+- `.bottom`: Below, centred
+- `.bottomStart`: Below, from its start
+- `.bottomEnd`: Below, to its end
+- `.top` (the default): Above, centred (the default)
+- `.topStart`: Above, from its start
+- `.topEnd`: Above, to its end
+- `.left`: Before it, centred
+- `.leftStart`: Before it, from its top
+- `.leftEnd`: Before it, to its bottom
+- `.right`: After it, centred
+- `.rightStart`: After it, from its top
+- `.rightEnd`: After it, to its bottom |
+| `delay:` | `Number` | How long a hover waits before it shows, in ms; keyboard focus shows it at once |
 
 ## Flags
 

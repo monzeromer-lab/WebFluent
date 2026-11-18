@@ -23,7 +23,7 @@ Blockquote {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `content` | `String or Number or Bool  (positional)` | The quoted text |
+| `content` | `String or Number or Bool (positional)` | The quoted text; unset, its block |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

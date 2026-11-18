@@ -51,6 +51,7 @@ not on your `PATH`.
 | Semantic tokens | A name is coloured by what it resolves to: a component, a type, a store, a prop or a state |
 | Document and workspace symbols | The outline, and a search over the project's declarations |
 | Code actions | The fixes the compiler attaches to a finding (quick fix), all of a file's fixes at once (fix all), and **Extract component** |
+| Your own scripts | In a `.js` file under `src/`: a lens over each function, class or value it declares saying how many times the project uses it, find-references reaching the pages that call it, a hover listing them, a faded hint on what nothing uses, and a rename that changes the calls too |
 
 ### In detail
 
@@ -88,6 +89,18 @@ What the table sums up, request by request.
   the type of a `state`, `derived` value or `let` written without one, and a name
   is coloured by what it resolves to: a component, a type, a store, a prop
   or a state.
+- **Your own scripts.** A function a `.js` file under `src/` declares is
+  called from `.wf` files, which no JavaScript tool reads, so to the
+  script's editor it looks unused. The server follows each name the script
+  declares to every page, component and store that calls it — resolved as
+  go-to-definition resolves them, so a local of the same name is not one —
+  and to the project's other scripts. Over each declaration a lens says
+  where it is used (`Used 3 times in WebFluent`), find-references lists the
+  pages beside the scripts, a hover names the places, and a name nothing
+  uses is faded with a hint. A rename, from the script or from a page,
+  changes the declaration and every call. In VS Code the script stays the
+  TypeScript service's (its formatting and highlighting are untouched) and
+  the lenses follow a save; Zed attaches the server to JavaScript too.
 - **Document symbols** and the outline.
 - **Quick fixes**, from the compiler's own findings: the nearest name for a
   misspelt field, member, method, variable, component or flag; `?.` for a

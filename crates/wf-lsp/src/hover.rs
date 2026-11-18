@@ -548,6 +548,8 @@ fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declarat
         Declaration::Animation(a) => a.name == name,
         Declaration::Data(d) => d.name == name,
         Declaration::Api(a) => a.name == name,
+        Declaration::Middleware(m) => m.name == name,
+        Declaration::Fake(f) => f.name == name,
         // A script's names are found by `Project::script_name`.
         _ => false,
     })
@@ -648,13 +650,13 @@ fn builtin_doc(project: &Project, sig: &'static ComponentSig) -> String {
     out.push_str(&format!("\n```wf\n{usage}\n```\n"));
 
     if let Some(p) = &sig.positional {
-        out.push_str(&format!("\nPositional: `{}` — {}  \n", p.name, p.summary));
+        out.push_str(&format!("\nPositional: `{}` — {}  \n", p.name, sig.says(p)));
     }
     let own: Vec<&PropSig> = sig.props.iter().collect();
     if !own.is_empty() {
         out.push_str("\n**Props**\n");
         for p in own {
-            out.push_str(&format!("- `{}` — {}\n", prop_usage(p), p.summary));
+            out.push_str(&format!("- `{}` — {}\n", prop_usage(p), sig.says(p)));
         }
     }
     let flags: Vec<String> = sig
@@ -983,6 +985,39 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
                 }
             )
         }
+        Declaration::Middleware(m) => format!(
+            "**{}** — middleware{}{declared}\n\nEvery request of a service that names it in `middleware [ … ]` passes through it: `{}` is the request, `{}` the rest of the chain, and it returns what `next` returns — a result — or one of its own.",
+            m.name,
+            m.doc
+                .as_ref()
+                .map(|d| format!("\n\n{d}"))
+                .unwrap_or_default(),
+            m.handler.params.first().map_or("req", String::as_str),
+            m.handler.params.get(1).map_or("next", String::as_str),
+        ),
+        Declaration::Fake(f) => format!(
+            "**{}** — fake for `{}`{}{declared}\n\nAnswers {}{} in place of the network, for a test or an example that names it in `fakes: [ … ]`.",
+            f.name,
+            f.target,
+            f.doc
+                .as_ref()
+                .map(|d| format!("\n\n{d}"))
+                .unwrap_or_default(),
+            if f.answers.is_empty() {
+                "no endpoint itself".to_string()
+            } else {
+                f.answers
+                    .iter()
+                    .map(|a| format!("`{}`", a.endpoint))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            },
+            if f.from_examples {
+                ", and every other endpoint with its spec's example"
+            } else {
+                ""
+            },
+        ),
         _ => String::new(),
     }
 }
@@ -1084,7 +1119,8 @@ fn flag_doc(project: &Project, name: &str, component: &ComponentRef) -> String {
         return match sig.flag(name) {
             Flag::Bool(prop) => format!(
                 "**.{name}** — `{}: true` on `{component_name}`\n\n{}",
-                prop.name, prop.summary
+                prop.name,
+                sig.says(prop)
             ),
             Flag::Case(prop, case) => {
                 let others: Vec<String> = match prop.ty {
@@ -1153,10 +1189,12 @@ fn case_doc(project: &Project, component: &ComponentRef, key: &str, case: &str) 
         && let Some(prop) = sig.prop(key)
         && let PropType::Enum(cases) = prop.ty
     {
-        let doc = cases
-            .iter()
-            .find(|c| c.name == case)
-            .map_or("Not one of its cases.", |c| c.summary);
+        let doc = sig.says_case(prop, case).unwrap_or_else(|| {
+            cases
+                .iter()
+                .find(|c| c.name == case)
+                .map_or("Not one of its cases.", |c| c.summary)
+        });
         return format!("**.{case}** — `{key}` of `{component_name}`\n\n{doc}");
     }
     if let ComponentRef::UserDefined(user) = component
@@ -1211,10 +1249,14 @@ fn argument_doc(project: &Project, component: &ComponentRef, name: &str) -> Stri
                 }
                 (Sink::Special, _) => "Read by the element itself.",
             };
+            let unset = sig
+                .default_of(prop)
+                .map(|d| format!("\n\nUnset: {d}."))
+                .unwrap_or_default();
             return format!(
-                "**{name}:** — `{}` of `{component_name}`\n\n{}\n\n{how}",
+                "**{name}:** — `{}` of `{component_name}`\n\n{}{unset}\n\n{how}",
                 prop_usage(prop),
-                prop.summary
+                sig.says(prop)
             );
         }
         if name.starts_with("aria-") || name.starts_with("data-") {

@@ -35,13 +35,13 @@ Row {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `min:` | `Number` | The smallest size, in px |
-| `max:` | `Number` | The largest size, in px |
-| `reset:` | `Number` | The size a double-click or Enter goes back to, taken as written: `0` can mean the region's default share |
-| `label:` | `String` | What it resizes, for a screen reader |
-| `horizontal:` | `Bool` | Between two regions one above the other: it moves up and down |
-| `reverse:` | `Bool` | On the start side of what it sizes — a pane on the right, a panel below — so a drag toward the start grows it |
+| `bind:` | `State` | A Number of px it reads and writes: the size of the region beside it, which your own `style { width: {side}px }` applies; without it the handle does nothing |
+| `min:` | `Number` | The smallest size it writes, in px; Home goes there |
+| `max:` | `Number` | The largest size it writes, in px; End goes there |
+| `reset:` | `Number` | The size a double-click or Enter writes, taken as written (not held to `min:`): `0` can mean the region's default share. Unset, neither does anything |
+| `label:` | `String` | The handle's accessible name (`aria-label`): what it resizes, for a screen reader |
+| `horizontal:` | `Bool` | A bar between two regions one above the other: it moves up and down, and the arrow keys are Up and Down. Written as a flag, `.horizontal`, or `horizontal: true`. |
+| `reverse:` | `Bool` | It sizes the region after it, not before — a pane on the right, a panel below — so a drag toward the start grows it. Written as a flag, `.reverse`, or `reverse: true`. |
 
 ## Flags
 

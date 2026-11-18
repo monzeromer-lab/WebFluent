@@ -27,8 +27,8 @@ Document(title: "Employee handbook") {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `levels:` | `Number` | How deep it lists: 1 is the `h1`s only (default 3) |
-| `title:` | `String` | A heading above the list |
+| `levels:` | `Number` | The deepest heading level listed: `1` is the `h1`s only, `2` adds the `h2`s |
+| `title:` | `String` | A heading (`<h2>`) above the list |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

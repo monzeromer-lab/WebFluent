@@ -27,9 +27,9 @@ Text("Chosen: {fruit}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State  (required)` | The chosen value, or a list of them with `.multiple` |
-| `label:` | `String  (required)` | What is being chosen, for a screen reader |
-| `multiple:` | `Bool` | Several at once: `bind:` is a list |
+| `bind:` | `State (required)` | The state it reads and writes: the chosen option's `value:`, or with `.multiple` a list of them in the order they were chosen |
+| `label:` | `String (required)` | What is being chosen: the list's accessible name (`aria-label`) |
+| `multiple:` | `Bool` | Several at once: `bind:` is a list; Space toggles, Shift with an arrow takes the next one in, Ctrl/⌘+A all. Written as a flag, `.multiple`, or `multiple: true`. |
 
 ## Flags
 
@@ -55,10 +55,10 @@ Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, a
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | Its words |
-| `value:` | `String or Number or Bool  (required)` | What `bind:` holds when it is chosen |
-| `icon:` | `String` | An icon before the words |
-| `aria-disabled:` | `String` | `"true"`: shown, passed over, never chosen |
+| `label` | `String (positional)` | The option's words; a letter typed goes to the next option they start with |
+| `value:` | `String or Number or Bool (required)` | What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen) |
+| `icon:` | `String` | The name of a built-in icon drawn before its words |
+| `aria-disabled:` | `String` | `"true"`: shown, passed over by the arrow keys, never chosen |
 
 ## What it can raise
 

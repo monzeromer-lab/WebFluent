@@ -421,3 +421,24 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-stage__subject > :is(progress, meter, hr, .wf-progress, .wf-meter, .wf-divider, .wf-skeleton, .wf-spacer, .wf-aspect-ratio, .wf-aspect) { width: min(100%, 420px); }
 /* A grid, a masonry or a gallery spans the stage: its cells size from it. */
 .bp-stage__subject > :is(.wf-grid, .wf-masonry, .wf-gallery) { width: min(100%, 720px); }
+
+/* The reference's props tables (PropsTable): the same shares in every
+   table, so the tables of one page line up and the meaning has the most
+   room; with a Default column, four. */
+.props-table { width: 100%; border: 1px solid var(--line); border-radius: 0; background: var(--sheet); }
+.props-table table { table-layout: fixed; }
+.props-table th { text-align: start; padding: 8px 12px; background: var(--ground); border-bottom: 1px solid var(--line); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--muted); }
+.props-table th:first-child { width: 26%; }
+.props-table th:nth-child(2) { width: 18%; }
+.props-table--defaults th:first-child { width: 19%; }
+.props-table--defaults th:nth-child(2) { width: 14%; }
+.props-table--defaults th:nth-child(3) { width: 18%; }
+.props-table td { padding: 7px 12px; border-bottom: 1px solid var(--line); vertical-align: top; font-size: 13px; line-height: 20px; color: var(--muted); }
+.props-table td:first-child { font-family: var(--font-family-mono); font-size: 12px; line-height: 18px; color: var(--link); overflow-wrap: anywhere; }
+.props-table td:nth-child(2) { font-family: var(--font-family-mono); font-size: 12px; line-height: 18px; color: var(--ink); overflow-wrap: anywhere; }
+.props-table td .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: var(--muted); }
+.props-table td .wf-markdown ul { margin: 6px 0 0; padding-inline-start: 18px; }
+.props-table td .wf-markdown li { font-size: 13px; line-height: 20px; color: var(--muted); }
+.props-table td .wf-markdown code { font-size: 12px; }
+.props-table tr:last-child td { border-bottom: 0; }
+.props-table__name { margin: 0; white-space: nowrap; color: inherit; font: inherit; }

@@ -37,8 +37,8 @@ Row(gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `span:` | `Number` | How many of the 12 grid columns to span |
-| `stacks:` | `Bool` | Reflow on a narrow screen: a Row becomes a column, a Grid one column |
+| `span:` | `Number` | How many of the row's 12 columns it takes, a whole number 1–12 (`T01` otherwise), less its share of the gap; or a value per breakpoint |
+| `stacks:` | `Bool` | Full width below 768px; a `span` of 3 or 4 is half the width below 1024px. Written as a flag, `.stacks`, or `stacks: true`. |
 
 ## Flags
 

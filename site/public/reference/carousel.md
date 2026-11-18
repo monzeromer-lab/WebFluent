@@ -35,9 +35,9 @@ Carousel(label: "Featured work", autoplay: true, interval: 6000) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label:` | `String` | Accessible name of the region |
-| `autoplay:` | `Bool` | Advance automatically |
-| `interval:` | `Number` | Milliseconds between slides |
+| `label:` | `String` | The region's accessible name |
+| `autoplay:` | `Bool` | Advance by itself every `interval:`, with a pause button; it waits while hovered, focused or in a hidden tab, and never runs under reduced motion; `.autoplay`, or a value that reads state. Written as a flag, `.autoplay`, or `autoplay: true`. |
+| `interval:` | `Number` | Milliseconds between slides while it plays, 1 to 2147483647; under 1, 5000 |
 
 ## Flags
 

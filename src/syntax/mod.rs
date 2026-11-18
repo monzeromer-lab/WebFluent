@@ -195,6 +195,7 @@ pub fn prefer_own_components(program: &mut Program) {
             Declaration::Store(s) => &mut s.body,
             Declaration::App(a) => &mut a.body,
             Declaration::Test(t) => &mut t.body,
+            Declaration::Example(t) => &mut t.body,
             _ => continue,
         };
         redirect(body, &own);

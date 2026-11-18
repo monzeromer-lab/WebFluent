@@ -45,6 +45,7 @@ const DECLARATIONS: &[&str] = &[
     "api",
     "middleware",
     "fake",
+    "example",
     "page",
     "component",
     "store",
@@ -608,11 +609,16 @@ fn the_design_tokens_chapter_is_the_baseline() {
         if members.is_empty() {
             continue;
         }
-        table.push_str(&format!("### {group}\n\n| Token | Baseline |\n|---|---|\n"));
+        table.push_str(&format!(
+            "### {group}\n\n| Token | Baseline | What it is for |\n|---|---|---|\n"
+        ));
         for n in members {
             table.push_str(&format!(
-                "| `{n}` | `{}` |\n",
-                tokens[*n].replace('|', "\\|")
+                "| `{n}` | `{}` | {} |\n",
+                tokens[*n].replace('|', "\\|"),
+                webfluent::themes::tokens::describe(n)
+                    .unwrap_or("")
+                    .replace('|', "\\|")
             ));
             placed.push(n);
         }
@@ -620,11 +626,14 @@ fn the_design_tokens_chapter_is_the_baseline() {
     }
     let rest: Vec<&&String> = names.iter().filter(|n| !placed.contains(n)).collect();
     if !rest.is_empty() {
-        table.push_str("### Layout\n\n| Token | Baseline |\n|---|---|\n");
+        table.push_str("### Layout\n\n| Token | Baseline | What it is for |\n|---|---|---|\n");
         for n in rest {
             table.push_str(&format!(
-                "| `{n}` | `{}` |\n",
-                tokens[*n].replace('|', "\\|")
+                "| `{n}` | `{}` | {} |\n",
+                tokens[*n].replace('|', "\\|"),
+                webfluent::themes::tokens::describe(n)
+                    .unwrap_or("")
+                    .replace('|', "\\|")
             ));
         }
         table.push('\n');
@@ -1532,6 +1541,54 @@ fn every_chapter_says_where_it_lives() {
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// The configuration chapter is the site's only listing of the settings:
+/// every key `wf config schema` has is in one of its tables, under its own
+/// name or its section's (`build.pdf` lists `page_size`).
+#[test]
+fn the_configuration_chapter_lists_every_setting() {
+    let text = chapter("/configuration");
+    let mut section = String::new();
+    let mut listed: Vec<String> = Vec::new();
+    for line in text.lines() {
+        if let Some(h) = line
+            .strip_prefix("## ")
+            .or_else(|| line.strip_prefix("### "))
+        {
+            // A section's own heading lists it: `## \`lints\``.
+            section = h.trim().trim_matches('`').to_string();
+            listed.push(section.clone());
+            continue;
+        }
+        // A row may name several keys: `| \`width\`, \`height\` | …`.
+        if let Some(first) = line.strip_prefix('|').and_then(|r| r.split('|').next()) {
+            for key in first.split(',').map(|k| k.trim().trim_matches('`')) {
+                if !key.is_empty() && !key.contains(' ') {
+                    listed.push(key.to_string());
+                    listed.push(format!("{section}.{key}"));
+                }
+            }
+        }
+    }
+    let missing: Vec<&str> = webfluent::config::schema::FIELDS
+        .iter()
+        .map(|f| f.path)
+        .filter(|path| {
+            let mut parents = vec![*path];
+            // `build.pdf.margins.top` is listed as `margins` under `build.pdf`.
+            let mut at = *path;
+            while let Some((head, _)) = at.rsplit_once('.') {
+                parents.push(head);
+                at = head;
+            }
+            !parents.iter().any(|p| listed.iter().any(|l| l == p))
+        })
+        .collect();
+    assert!(
+        missing.is_empty(),
+        "md-docs/reference/configuration.md lists no row for these settings: {missing:?}"
+    );
 }
 
 /// The configuration chapter's defaults are the compiler's: the config a

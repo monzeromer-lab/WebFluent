@@ -346,6 +346,14 @@ pub fn format(
         Input::Text(t) => t.trim().parse::<f64>().ok(),
     };
     match style {
+        // Text that is not a number is shown as it is: `format(label)` of
+        // what a page already wrote out, `Stat(value: "$1,234.50")`.
+        None if matches!(value, Input::Text(t) if as_number(value).is_none() && !t.trim().is_empty()) => {
+            Some(match value {
+                Input::Text(t) => t.clone(),
+                Input::Number(n) => n.to_string(),
+            })
+        }
         None | Some("number") => Some(number(as_number(value)?, None, locale)),
         Some("integer") => Some(number(as_number(value)?.round(), Some(0), locale)),
         Some("decimal") => Some(number(

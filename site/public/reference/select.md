@@ -26,13 +26,13 @@ Text("Chosen: {region}").muted
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `bind:` | `State` | State variable the control reads and writes (two-way) |
-| `value:` | `String or Number` | The control's value, when its state is not bound |
+| `bind:` | `State` | The state it reads and writes: the chosen option's `value:` as it was written (a `String`, `Number` or `Bool`), or its label when it has none |
+| `value:` | `String or Number` | The option chosen at first, by its value, when no state is bound |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
 | `error:` | `String` | Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid` |
-| `disabled:` | `Bool` | Whether the control is inert |
-| `multiple:` | `Bool` | Allow several choices |
+| `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |
+| `multiple:` | `Bool` | A list box that takes several choices; a bound `[String]` state holds every one chosen. Written as a flag, `.multiple`, or `multiple: true`. |
 
 ## Flags
 
@@ -66,8 +66,8 @@ Select.Option(_ label: String, value: String or Number or Bool)
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `label` | `String  (positional)` | The visible label |
-| `value:` | `String or Number or Bool` | The value `bind` takes when this one is chosen; the label when absent |
+| `label` | `String (positional)` | The words the option shows; also its value when it has no `value:` |
+| `value:` | `String or Number or Bool` | What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`) |
 
 ## What it can raise
 

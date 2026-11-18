@@ -12,16 +12,19 @@
     live(box);
     const opts = options || {};
     const side = opts.side || "bottom";
-    const snaps = (opts.snap || []).map(Number).filter((n) => n > 0 && n <= 1).sort((a, b) => a - b);
+    const given = (opts.snap || []).map(Number).filter((n) => n > 0 && n <= 1);
+    const snaps = given.slice().sort((a, b) => a - b);
     box.setAttribute("data-side", side);
-    let at = 0;
+    // It opens at the first point written, which need not be the smallest.
+    const first = given.length ? snaps.indexOf(given[0]) : 0;
+    let at = first;
     const fit = () => {
       if (side !== "bottom" || !snaps.length || !box.style) return;
       box.style.height = `${snaps[at] * 100}dvh`;
     };
     fit();
     box.addEventListener("close", () => {
-      at = 0;
+      at = first;
       fit();
     });
     // How far a move went toward the edge the sheet closes to.
@@ -62,7 +65,10 @@
       box.removeAttribute("data-dragging");
       set(0);
       const quick = Date.now() - t < 250 && moved > 40;
-      if (moved > size * 0.3 || quick) {
+      // A sheet that only its own button closes (`dismiss: .none`) is not
+      // dragged shut: it springs back.
+      const shuts = box.getAttribute && box.getAttribute("closedby") !== "none";
+      if (shuts && (moved > size * 0.3 || quick)) {
         if (box._wfShut) box._wfShut();
         return;
       }

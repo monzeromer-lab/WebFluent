@@ -24,7 +24,11 @@ Row(gap: .lg, align: .center) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `size:` | `.sm .md .lg` | Its size |
+| `size:` | `one of its cases` | Its diameter. Written as a flag, `.sm`, or by name, `size: .sm`.
+
+- `.sm`: 16px
+- `.md` (the default): 24px, the default
+- `.lg`: 40px |
 
 ## Flags
 

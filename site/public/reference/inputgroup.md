@@ -50,7 +50,7 @@ InputGroup.Addon(_ text: String) { … }
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `text` | `String  (positional)` | The text |
+| `text` | `String (positional)` | The words drawn beside the input, inside the group's box: `https://`, `.com`, `kg` |
 
 ### InputGroup.Clear
 

@@ -26,9 +26,28 @@ Stack(gap: .md) {
 
 | Prop | Type | Meaning |
 |---|---|---|
-| `gap:` | `.xs .sm .md .lg .xl` | Space between children |
-| `align:` | `.start .center .end .stretch .baseline` | Cross-axis alignment |
-| `justify:` | `.start .center .end .between .around .evenly` | Main-axis distribution |
+| `gap:` | `one of its cases` | Space between its children, from the theme's spacing scale (`wf-gap--*`, `gap:`); a flag (`.lg`) or a value per breakpoint (`{ base: .sm, lg: .lg }`). Written as a flag, `.xs`, or by name, `gap: .xs`.
+
+- `.xs`: Extra small: `$spacing-xs`, 0.25rem
+- `.sm`: Small: `$spacing-sm`, 0.5rem
+- `.md` (the default): Medium: `$spacing-md`, 1rem (the default)
+- `.lg`: Large: `$spacing-lg`, 1.5rem
+- `.xl`: Extra large: `$spacing-xl`, 1.5–2rem, growing with the screen |
+| `align:` | `one of its cases` | Where its children sit across it (horizontally): `.stretch` makes each child full width (`align-items`); a flag for `.stretch`/`.baseline`, or a value per breakpoint. Written as a flag, `.start`, or by name, `align: .start`.
+
+- `.start`: `align-items: flex-start`
+- `.center`: `align-items: center`
+- `.end`: `align-items: flex-end`
+- `.stretch` (the default): `align-items: stretch`: each child fills that axis
+- `.baseline`: `align-items: baseline`: text baselines line up |
+| `justify:` | `one of its cases` | How its children share the free space down the column, seen only when it is taller than its children (`justify-content`); a flag for `.between`/`.around`/`.evenly`, or a value per breakpoint. Written as a flag, `.start`, or by name, `justify: .start`.
+
+- `.start` (the default): `justify-content: flex-start`: packed at the start
+- `.center`: `justify-content: center`
+- `.end`: `justify-content: flex-end`: packed at the end
+- `.between`: `justify-content: space-between`: the first and last at the edges
+- `.around`: `justify-content: space-around`: equal space around each
+- `.evenly`: `justify-content: space-evenly`: equal space everywhere |
 
 ## Flags
 
