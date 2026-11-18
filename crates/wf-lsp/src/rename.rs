@@ -234,25 +234,29 @@ fn occurrences(source: &str, tokens: &[Token], word: &str) -> Vec<usize> {
         match &token.token_type {
             TokenType::Identifier(name) if name == word => out.push(token.offset),
             TokenType::StringLiteral(_) => {
-                let text = &source[token.offset..token.end.min(source.len())];
+                let Some(text) = source.get(token.offset..token.end.min(source.len())) else {
+                    continue;
+                };
+                // By character: a string holds any script, and a byte
+                // inside one (Arabic, an emoji) is no place to look.
                 let mut depth = 0usize;
-                let mut i = 0;
-                let bytes = text.as_bytes();
-                while i < bytes.len() {
-                    match bytes[i] {
-                        b'{' => depth += 1,
-                        b'}' => depth = depth.saturating_sub(1),
+                let mut skip_to = 0;
+                for (i, c) in text.char_indices() {
+                    if i < skip_to {
+                        continue;
+                    }
+                    match c {
+                        '{' => depth += 1,
+                        '}' => depth = depth.saturating_sub(1),
                         _ if depth > 0
                             && text[i..].starts_with(word)
                             && whole_at(text, i, word.len()) =>
                         {
                             out.push(token.offset + i);
-                            i += word.len();
-                            continue;
+                            skip_to = i + word.len();
                         }
                         _ => {}
                     }
-                    i += 1;
                 }
             }
             _ => {}
@@ -261,21 +265,33 @@ fn occurrences(source: &str, tokens: &[Token], word: &str) -> Vec<usize> {
     out
 }
 
-fn is_word_byte(b: u8) -> bool {
-    b.is_ascii_alphanumeric() || b == b'_'
+/// A character a name may hold, in any script (`state عددٌ`): a letter, a
+/// digit, `_`, or a mark of its letters.
+fn is_name_char(c: char) -> bool {
+    c.is_alphanumeric() || c == '_' || is_mark(c)
 }
 
+/// A combining mark — Arabic's short vowels among them — which belongs to
+/// the letter before it.
+fn is_mark(c: char) -> bool {
+    matches!(c, '\u{0300}'..='\u{036F}' | '\u{0610}'..='\u{061A}' | '\u{064B}'..='\u{065F}' | '\u{0670}' | '\u{06D6}'..='\u{06ED}')
+}
+
+/// Whether `text[at..at + len]` stands as a whole name: no name character
+/// on either side. `at` and `at + len` are character boundaries, or the
+/// answer is no.
 fn whole_at(text: &str, at: usize, len: usize) -> bool {
-    let bytes = text.as_bytes();
-    let before = at == 0 || !is_word_byte(bytes[at - 1]);
-    let after = at + len >= bytes.len() || !is_word_byte(bytes[at + len]);
-    before && after
+    let (Some(before), Some(after)) = (text.get(..at), text.get(at + len..)) else {
+        return false;
+    };
+    !before.chars().next_back().is_some_and(is_name_char)
+        && !after.chars().next().is_some_and(is_name_char)
 }
 
 /// The first whole-word occurrence of `word` in `text`.
 fn whole_word(text: &str, word: &str) -> Option<usize> {
     let mut from = 0;
-    while let Some(i) = text[from..].find(word) {
+    while let Some(i) = text.get(from..)?.find(word) {
         let at = from + i;
         if whole_at(text, at, word.len()) {
             return Some(at);
