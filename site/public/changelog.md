@@ -4,6 +4,18 @@
 
 The page: https://webfluent.monzeromer.dev/changelog
 
+A fix to the language server.
+
+- **Arabic in a splice no longer crashes the server.** Finding a name's
+  uses reads every string of the project for the name in its `{…}`
+  splices, and it read them a byte at a time: a letter outside ASCII —
+  any Arabic, which the docs site is full of — ended the server. It reads
+  them by character now, and a name's edges are any script's letters, so
+  in `{أname}` the Arabic letter belongs to the name.
+- The VS Code and Zed extensions fetch wf-lsp 7.1.1.
+
+# WebFluent v7.1.0 Release Notes
+
 A project's components documented as the reference documents the
 built-ins, each drawn live; editors that know all of 7.0, and a script's
 functions followed into the pages that call them; and every prop of every

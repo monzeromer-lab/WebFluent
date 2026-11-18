@@ -8,7 +8,8 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
-                ReleaseNotes(version: "7.1.0", id: "7.1.0"),
+                ReleaseNotes(version: "7.1.1", id: "7.1.1"),
+                ReleaseNotes(version: "7.1.0", id: "7.1.0", date: "2026-11-18"),
                 ReleaseNotes(version: "7.0.1", id: "7.0.1", date: "2026-11-17"),
                 ReleaseNotes(version: "7.0.0", id: "7.0.0", date: "2026-11-17"),
                 ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15"),
@@ -77,7 +78,17 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                 }
             }
 
-            ReleaseEntry(ReleaseNotes(version: "7.1.0", id: "7.1.0", summary: #"A project's components documented as the reference documents the
+            ReleaseEntry(ReleaseNotes(version: "7.1.1", id: "7.1.1", summary: #"A fix to the language server.
+
+- **Arabic in a splice no longer crashes the server.** Finding a name's
+  uses reads every string of the project for the name in its `{…}`
+  splices, and it read them a byte at a time: a letter outside ASCII —
+  any Arabic, which the docs site is full of — ended the server. It reads
+  them by character now, and a name's edges are any script's letters, so
+  in `{أname}` the Arabic letter belongs to the name.
+- The VS Code and Zed extensions fetch wf-lsp 7.1.1."#, count: 0))
+
+            ReleaseEntry(ReleaseNotes(version: "7.1.0", id: "7.1.0", date: "2026-11-18", when: "18 November 2026", summary: #"A project's components documented as the reference documents the
 built-ins, each drawn live; editors that know all of 7.0, and a script's
 functions followed into the pages that call them; and every prop of every
 built-in said in full."#, sections: [
@@ -142,7 +153,7 @@ keeps the `loading:` it is given; `landscape: false` is portrait."#),
                     Change(text: #"A `Grid` of more than twelve columns, and a value per breakpoint on a
 prop that is not a layout's, are `T01`."#)
                 ])
-            ], count: 14))
+            ], count: 14), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "7.0.1", id: "7.0.1", date: "2026-11-17", when: "17 November 2026", summary: #"Fixes found by reading every page of the guide against 7.0 and building
 its examples, and the three open issues."#, sections: [
@@ -185,7 +196,7 @@ arms or gradual typing are rewritten; the grammar reference covers the
 service, type and test syntax; the skill covers the request contract,
 fakes, `wf api add`, `wf migrate` and the theme's tokens. The installers
 suggest pinning `v7.0.1`, and the editor follows a YAML OpenAPI spec."#)
-            ], count: 9), latest: true)
+            ], count: 9))
 
             ReleaseEntry(ReleaseNotes(version: "7.0.0", id: "7.0.0", date: "2026-11-17", when: "17 November 2026", summary: #"7.0 is strict, and a request is a contract. Every value has a type the
 program can name — `Any` and `Map` are gone, signatures are declared,
@@ -4509,6 +4520,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        DocsOnThisPage(sections: [Anchor(id: "7.1.0-example-and-wf-docs-in-the-reference-s-design", label: #"`example`, and `wf docs` in the reference's design"#), Anchor(id: "7.1.0-editors", label: #"Editors"#), Anchor(id: "7.1.0-the-reference", label: #"The reference"#), Anchor(id: "7.1.0-fixes", label: #"Fixes"#)], source: "RELEASE_NOTES.md")
+        DocsOnThisPage(sections: [], source: "RELEASE_NOTES.md")
     }
 }

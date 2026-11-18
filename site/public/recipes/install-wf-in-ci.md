@@ -12,7 +12,7 @@ You need a project that builds with `wf build` on your own machine, and a
 build machine with `curl` and `bash`.
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.1.0 bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.1.1 bash
 ~/.webfluent/bin/wf build
 ```
 
