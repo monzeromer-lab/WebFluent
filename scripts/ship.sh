@@ -144,6 +144,10 @@ python3 scripts/showcase.py | tail -n1
 # The site builds; .github/workflows/pages.yml builds it again, with the
 # compiler the Playground loads, and deploys it.
 target/release/wf build -d site --allow-output-outside | tail -n1
+# The site states the version on every page, and CI holds what the site
+# builds to its golden manifest: renew it with the version, or the release
+# commit fails CI.
+UPDATE_GOLDEN=1 cargo test --release --quiet --test it -- golden:: >/dev/null
 
 step "Release preflight"
 scripts/release-preflight.sh "$tag" || { restore; stop "the preflight failed; every file is back as it was"; }
@@ -164,7 +168,7 @@ fi
 
 step "Commit, push, tag"
 git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml \
-    bindings/node/package.json skills RELEASE_NOTES.md site md-docs
+    bindings/node/package.json skills RELEASE_NOTES.md site md-docs tests/golden
 if git diff --cached --quiet; then
     [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
     echo "  ..  the release commit is already made"
