@@ -1,3 +1,75 @@
+# WebFluent v7.1.0 Release Notes
+
+A project's components documented as the reference documents the
+built-ins, each drawn live; editors that know all of 7.0, and a script's
+functions followed into the pages that call them; and every prop of every
+built-in said in full.
+
+## `example`, and `wf docs` in the reference's design
+
+- **`example Component "what it shows" { … }`** shows one way to use a
+  component. Its body is a page's — elements, `state`, handlers, stores —
+  checked as a page is (a component nothing declares is `E101`, a wrong
+  value `T01`), formatted by `wf fmt`, and left out of every build. A
+  `///` above it is the words beside it; `fakes:` answers what it calls.
+- **`wf docs` writes a site**, in the design of the official reference —
+  its theme, its fonts, Night and Day. A page a component: its `///`
+  comment and header, every example drawn live in a frame of the
+  project's own build (its theme, stylesheets and scripts) beside its
+  source, then its props with their types, what each is when left out and
+  each prop's `///`, its events, slots and parts, and what places it. The
+  types, stores and pages have pages of their own. A component with no
+  example is drawn from its props.
+
+## Editors
+
+- **Your own scripts.** In a `.js` file under `src/`, each function, class
+  or value it declares says where the project uses it: a lens (`Used 3
+  times in WebFluent`), find-references that reach the pages calling it, a
+  hover naming them, a faded hint on what nothing uses, and a rename — from
+  the script or from a page — that changes the declaration and every call.
+  VS Code leaves the script to its TypeScript service and draws the lenses
+  over it; Zed attaches the server to JavaScript.
+- **The language server knows all of 7.0**: `middleware`, `fake` and
+  `example` in the outline, go-to-definition, references, rename,
+  completion and hover; a `tests/` file read with its project; an api
+  group's endpoints; browser globals and their members; `toast`, `ask`,
+  `announce` and `http`; `t("key")` goes to the key and `$token` to the
+  theme; its snippets write what 7.0 checks.
+- **The grammars** (Tree-sitter, Zed, VS Code) parse and colour `example`,
+  `middleware`, `fake` and the service words, read `w / 2 + h / 2` as
+  division and `{key: value}` in prose as text, and know `Json`. The
+  extensions fetch wf-lsp 7.1.0.
+
+## The reference
+
+- **Every prop of every built-in** says what it does, what it is when left
+  out, and what each of its cases means — one table that the docs, `wf
+  registry --json` and the editor's hover all read.
+- **The design tokens** page says what each token is for and which
+  built-ins draw from it; **the configuration** page names every setting.
+
+## Fixes
+
+- A `Dropdown`'s first argument is its label; a `Button(to:)` navigates
+  without a stray `href`; `.rounded` is rounder corners, not a pill; an
+  outlined secondary, success, warning or info button is coloured.
+- A `.closable` dialog with no title still has its close button; a sheet
+  opens at its first snap point, and one that may not be dismissed cannot
+  be dragged shut.
+- A multiple `Select` binds every choice; a `NumberInput` is held to its
+  `min:` and `max:`; a `Combobox` search answered by an endpoint shows its
+  list.
+- `direction: .column` turns a `Row`; a `Tabs.Page`'s `.disabled` and a
+  `Stepper.Step`'s `.done` and `.error` flags are read; `Sticky(bottom:
+  true)` sticks to the bottom; a `Carousel`'s `autoplay:` may follow state;
+  a hand-written `Callout.Title` is the only title.
+- `Stat` with no `format:` writes its value as `format` does; `Image`
+  keeps the `loading:` it is given; `landscape: false` is portrait.
+- `format(value)` shows text that is not a number as it is.
+- A `Grid` of more than twelve columns, and a value per breakpoint on a
+  prop that is not a layout's, are `T01`.
+
 # WebFluent v7.0.1 Release Notes
 
 Fixes found by reading every page of the guide against 7.0 and building

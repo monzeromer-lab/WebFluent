@@ -8,6 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
+                ReleaseNotes(version: "7.1.0", id: "7.1.0"),
                 ReleaseNotes(version: "7.0.1", id: "7.0.1", date: "2026-11-17"),
                 ReleaseNotes(version: "7.0.0", id: "7.0.0", date: "2026-11-17"),
                 ReleaseNotes(version: "6.2.0", id: "6.2.0", date: "2026-11-15"),
@@ -75,6 +76,73 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                     Link("RELEASE_NOTES.md", href: "{REPO}/blob/master/RELEASE_NOTES.md")
                 }
             }
+
+            ReleaseEntry(ReleaseNotes(version: "7.1.0", id: "7.1.0", summary: #"A project's components documented as the reference documents the
+built-ins, each drawn live; editors that know all of 7.0, and a script's
+functions followed into the pages that call them; and every prop of every
+built-in said in full."#, sections: [
+                NotesSection(title: #"`example`, and `wf docs` in the reference's design"#, id: "7.1.0-example-and-wf-docs-in-the-reference-s-design", items: [
+                    Change(text: #"**`example Component "what it shows" { … }`** shows one way to use a
+component. Its body is a page's — elements, `state`, handlers, stores —
+checked as a page is (a component nothing declares is `E101`, a wrong
+value `T01`), formatted by `wf fmt`, and left out of every build. A
+`///` above it is the words beside it; `fakes:` answers what it calls."#),
+                    Change(text: #"**`wf docs` writes a site**, in the design of the official reference —
+its theme, its fonts, Night and Day. A page a component: its `///`
+comment and header, every example drawn live in a frame of the
+project's own build (its theme, stylesheets and scripts) beside its
+source, then its props with their types, what each is when left out and
+each prop's `///`, its events, slots and parts, and what places it. The
+types, stores and pages have pages of their own. A component with no
+example is drawn from its props."#)
+                ]),
+                NotesSection(title: #"Editors"#, id: "7.1.0-editors", items: [
+                    Change(text: #"**Your own scripts.** In a `.js` file under `src/`, each function, class
+or value it declares says where the project uses it: a lens (`Used 3
+times in WebFluent`), find-references that reach the pages calling it, a
+hover naming them, a faded hint on what nothing uses, and a rename — from
+the script or from a page — that changes the declaration and every call.
+VS Code leaves the script to its TypeScript service and draws the lenses
+over it; Zed attaches the server to JavaScript."#),
+                    Change(text: #"**The language server knows all of 7.0**: `middleware`, `fake` and
+`example` in the outline, go-to-definition, references, rename,
+completion and hover; a `tests/` file read with its project; an api
+group's endpoints; browser globals and their members; `toast`, `ask`,
+`announce` and `http`; `t("key")` goes to the key and `$token` to the
+theme; its snippets write what 7.0 checks."#),
+                    Change(text: #"**The grammars** (Tree-sitter, Zed, VS Code) parse and colour `example`,
+`middleware`, `fake` and the service words, read `w / 2 + h / 2` as
+division and `{key: value}` in prose as text, and know `Json`. The
+extensions fetch wf-lsp 7.1.0."#)
+                ]),
+                NotesSection(title: #"The reference"#, id: "7.1.0-the-reference", items: [
+                    Change(text: #"**Every prop of every built-in** says what it does, what it is when left
+out, and what each of its cases means — one table that the docs, `wf
+registry --json` and the editor's hover all read."#),
+                    Change(text: #"**The design tokens** page says what each token is for and which
+built-ins draw from it; **the configuration** page names every setting."#)
+                ]),
+                NotesSection(title: #"Fixes"#, id: "7.1.0-fixes", items: [
+                    Change(text: #"A `Dropdown`'s first argument is its label; a `Button(to:)` navigates
+without a stray `href`; `.rounded` is rounder corners, not a pill; an
+outlined secondary, success, warning or info button is coloured."#),
+                    Change(text: #"A `.closable` dialog with no title still has its close button; a sheet
+opens at its first snap point, and one that may not be dismissed cannot
+be dragged shut."#),
+                    Change(text: #"A multiple `Select` binds every choice; a `NumberInput` is held to its
+`min:` and `max:`; a `Combobox` search answered by an endpoint shows its
+list."#),
+                    Change(text: #"`direction: .column` turns a `Row`; a `Tabs.Page`'s `.disabled` and a
+`Stepper.Step`'s `.done` and `.error` flags are read; `Sticky(bottom:
+true)` sticks to the bottom; a `Carousel`'s `autoplay:` may follow state;
+a hand-written `Callout.Title` is the only title."#),
+                    Change(text: #"`Stat` with no `format:` writes its value as `format` does; `Image`
+keeps the `loading:` it is given; `landscape: false` is portrait."#),
+                    Change(text: #"`format(value)` shows text that is not a number as it is."#),
+                    Change(text: #"A `Grid` of more than twelve columns, and a value per breakpoint on a
+prop that is not a layout's, are `T01`."#)
+                ])
+            ], count: 14))
 
             ReleaseEntry(ReleaseNotes(version: "7.0.1", id: "7.0.1", date: "2026-11-17", when: "17 November 2026", summary: #"Fixes found by reading every page of the guide against 7.0 and building
 its examples, and the three open issues."#, sections: [
@@ -4441,6 +4509,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        DocsOnThisPage(sections: [Anchor(id: "7.0.1-tests-act-as-a-reader-can", label: #"Tests act as a reader can"#), Anchor(id: "7.0.1-the-runtime-and-the-checker", label: #"The runtime and the checker"#), Anchor(id: "7.0.1-docs-the-agent-reference-and-the-skill", label: #"Docs, the agent reference and the skill"#)], source: "RELEASE_NOTES.md")
+        DocsOnThisPage(sections: [Anchor(id: "7.1.0-example-and-wf-docs-in-the-reference-s-design", label: #"`example`, and `wf docs` in the reference's design"#), Anchor(id: "7.1.0-editors", label: #"Editors"#), Anchor(id: "7.1.0-the-reference", label: #"The reference"#), Anchor(id: "7.1.0-fixes", label: #"Fixes"#)], source: "RELEASE_NOTES.md")
     }
 }
