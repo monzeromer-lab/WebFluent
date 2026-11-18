@@ -463,3 +463,28 @@ fn a_button_named_only_for_a_screen_reader_has_text() {
     let found = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string());
     assert!(!found.iter().any(|d| d.code == "A05"), "{found:?}");
 }
+
+#[test]
+fn a_callouts_text_is_markdown_and_its_markup_is_shown() {
+    let html = crate::common::ssg_html(&home(
+        "    Callout(\"Run `wf check` first, then [read the guide](/).\").tip\n    Callout(\"Plain <b>markup</b>\").warning",
+    ));
+    assert!(
+        html.contains("<code>wf check</code>"),
+        "code shows as code: {html}"
+    );
+    assert!(html.contains("href=\"/\""), "a link is a link: {html}");
+    assert!(
+        html.contains("&lt;b&gt;markup&lt;/b&gt;"),
+        "markup is shown, never run: {html}"
+    );
+}
+
+#[test]
+fn a_sortable_header_is_drawn_as_the_others_are() {
+    let css = webfluent::themes::component_css();
+    assert!(
+        css.contains(".wf-data-table__sort {") && css.contains("text-transform: inherit"),
+        "a sortable header's button takes the header's case: {css}"
+    );
+}

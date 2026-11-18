@@ -279,8 +279,9 @@ fn element_of(stmts: &mut [Statement]) -> Option<&mut UIElement> {
 
 // ─── Each built-in ──────────────────────────────────────────────────────────
 
-/// `Callout("Run wf check first.", title: "Tip").tip`: a note, its title
-/// row an icon and the kind's word (or `title:`), then its text and block.
+/// `Callout("Run `wf check` first.", title: "Tip").tip`: a note, its
+/// title row an icon and the kind's word (or `title:`), then its text (as
+/// Markdown) and block.
 fn callout(el: &mut UIElement) {
     let kind = case(
         el,
@@ -297,8 +298,11 @@ fn callout(el: &mut UIElement) {
     };
     let title = take(el, "title").map_or_else(|| lit(word), |e| src(&e));
     let mut head = format!("Callout.Title({title}) {{ Icon({}) }}\n", lit(icon));
+    // Its text is Markdown, as the alerts it is modelled on are: a
+    // `code` span, a **word** or a [link](/learn) shows as one. The text
+    // is escaped first, so markup in it is shown, never run.
     if let Some(text) = take_positional(el) {
-        head.push_str(&format!("Text({})\n", src(&text)));
+        head.push_str(&format!("Markdown({})\n", src(&text)));
     }
     let mut children = parse(&head);
     children.append(&mut el.children);

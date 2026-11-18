@@ -23,8 +23,9 @@ fn a_callout_is_a_note_with_its_kinds_icon_and_word() {
         assert!(html.contains("data-icon=\"warning\""), "{html}");
         assert!(html.contains("Warning\n"), "the kind's word: {html}");
         assert!(html.contains("Heads up"), "{html}");
+        // Its text is Markdown: a paragraph of it.
         assert!(
-            html.contains("<p class=\"wf-text\">Check first.</p>"),
+            html.contains("<div class=\"wf-markdown\">") && html.contains("<p>Check first.</p>"),
             "{html}"
         );
     }

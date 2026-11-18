@@ -167,7 +167,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Button](https://webfluent.monzeromer.dev/reference/button.md): A button: its label or block is what it shows, on click what it does.
 - [ButtonGroup](https://webfluent.monzeromer.dev/reference/buttongroup.md): Buttons joined into one row.
 - [Calendar](https://webfluent.monzeromer.dev/reference/calendar.md): A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a { start, end } with .range, a list with .multiple.
-- [Callout](https://webfluent.monzeromer.dev/reference/callout.md): A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.
+- [Callout](https://webfluent.monzeromer.dev/reference/callout.md): A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (code, **bold**, a link), or its block.
 - [Callout.Title](https://webfluent.monzeromer.dev/reference/callout-title.md): Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.
 - [Card](https://webfluent.monzeromer.dev/reference/card.md): Card surface with optional header, body and footer sections.
 - [Card.Body](https://webfluent.monzeromer.dev/reference/card-body.md): The card's content area.

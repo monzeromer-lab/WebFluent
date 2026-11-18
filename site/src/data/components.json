@@ -9304,8 +9304,8 @@
    "family": "Content",
    "owner": "",
    "ownerSlug": "",
-   "summary": "A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.",
-   "plain": "A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.",
+   "summary": "A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (`code`, **bold**, a link), or its block.",
+   "plain": "A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (code, **bold**, a link), or its block.",
    "signature": "Callout(_ text: String, kind: Enum, title: String) { … }",
    "block": true,
    "legacy": false,
@@ -9389,8 +9389,12 @@
     "data"
    ],
    "cssClass": "wf-callout",
-   "example": "Callout(\"Every finding has a code, and a page that says how to fix it.\", title: \"Before you push\").tip {\n    Link(\"Read about the checks\", to: \"/errors\")\n}",
+   "example": "Callout(\"Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it.\", title: \"Before you push\").tip",
    "variations": [
+    [
+     "A block below its text",
+     "Callout(\"Every finding has a code.\").note {\n    Link(\"Read about the checks\", to: \"/errors\")\n}"
+    ],
     [
      "Every kind",
      "Stack(gap: .sm) {\n    Callout(\"Drafts are kept for 30 days.\").note\n    Callout(\"Press mod+k to search.\").tip\n    Callout(\"A route change drops a route store.\").important\n    Callout(\"The key is shown only once.\").warning\n    Callout(\"Deleting a project deletes its builds.\").caution\n}"

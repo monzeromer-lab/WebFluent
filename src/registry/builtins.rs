@@ -2761,7 +2761,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Callout",
         "Content",
-        "A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.",
+        "A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (`code`, **bold**, a link), or its block.",
         Some(special("text", PropType::Str, "What it says")),
         &[
             variant(

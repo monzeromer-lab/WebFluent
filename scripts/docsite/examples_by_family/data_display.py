@@ -342,10 +342,11 @@ DataTable(rows: people, key: p => p.id, bind: picked, label: "People", filter: q
         ],
     },
     "Callout": {
-        "code": '''Callout("Every finding has a code, and a page that says how to fix it.", title: "Before you push").tip {
-    Link("Read about the checks", to: "/errors")
-}''',
+        "code": '''Callout("Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it.", title: "Before you push").tip''',
         "variations": [
+            ("A block below its text", '''Callout("Every finding has a code.").note {
+    Link("Read about the checks", to: "/errors")
+}'''),
             ("Every kind", '''Stack(gap: .sm) {
     Callout("Drafts are kept for 30 days.").note
     Callout("Press mod+k to search.").tip

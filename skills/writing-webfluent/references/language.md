@@ -2399,7 +2399,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 
 | Component | Usage |
 |-----------|-------|
-| `Callout` | `Callout("Run wf check first.", title: "Before you push").tip` — a note set apart, its text plain, `role="note"`: `.note` (default), `.tip`, `.important`, `.warning`, `.caution`, each with its icon and word (or `title:`); its block follows its text; `Callout.Title { … }` written by hand draws the title row instead |
+| `Callout` | `Callout("Run `wf check` first.", title: "Before you push").tip` — a note set apart, its text Markdown, `role="note"`: `.note` (default), `.tip`, `.important`, `.warning`, `.caution`, each with its icon and word (or `title:`); its block follows its text; `Callout.Title { … }` written by hand draws the title row instead |
 | `Kbd` | `Kbd("mod+k")` — a `<kbd>`, written as this system writes it (`⌘K`, `Ctrl+K`; the static paint and a PDF write `Ctrl+K`) |
 | `EmptyState` | `EmptyState(icon: "folder", title: "No projects yet", text: "Create one.") { Button("New project").primary }` — what a list shows with nothing in it; the block is its actions |
 | `Stat` | `Stat("Revenue", value: total, format: .currency, change: 0.124, count: "600ms")` — a figure, its label, and which way it moved (`▲ 12.4%`, read "Up 12.4%"); `format:` is `.number`, `.integer`, `.currency`, `.percent`, `.compact`; `trend: [31, 40, 28]` draws its recent values as a sparkline under it |

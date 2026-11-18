@@ -937,6 +937,12 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-callout > * { margin: 0; color: var(--color-text); }
 .wf-callout__title { display: flex; align-items: center; gap: var(--spacing-xs); font-weight: var(--font-weight-bold); color: inherit; }
 .wf-callout > .wf-callout__title { color: inherit; }
+/* Its text is Markdown: a paragraph with no margin of its own. */
+.wf-callout > .wf-markdown > :first-child { margin-top: 0; }
+.wf-callout > .wf-markdown > :last-child { margin-bottom: 0; }
+/* A link in a callout reads as a link: the rule above gives every child the
+   text's colour, a link included, which then looked like plain words. */
+.wf-callout a, .wf-callout .wf-link { color: var(--color-primary); text-decoration: underline; text-underline-offset: 2px; }
 .wf-callout { color: var(--color-info); }
 .wf-callout[data-kind="tip"] { color: var(--color-success); }
 .wf-callout[data-kind="important"] { color: var(--color-primary); }
@@ -1171,7 +1177,7 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-data-table__where { font-variant-numeric: tabular-nums; }
 .wf-data-table__table { width: 100%; }
 .wf-data-table__table thead th { position: sticky; top: 0; z-index: 1; }
-.wf-data-table__sort { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: inherit; cursor: pointer; min-height: var(--target-min); }
+.wf-data-table__sort { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: inherit; text-transform: inherit; letter-spacing: inherit; cursor: pointer; min-height: var(--target-min); }
 .wf-data-table__sort::after { content: "↕" / ""; opacity: 0.4; font-size: 0.85em; }
 th[aria-sort="ascending"] > .wf-data-table__sort::after { content: "↑" / ""; opacity: 1; }
 th[aria-sort="descending"] > .wf-data-table__sort::after { content: "↓" / ""; opacity: 1; }

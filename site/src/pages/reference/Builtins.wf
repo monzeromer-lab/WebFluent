@@ -415,7 +415,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/callout", class: "bp-card") {
                 Text("Callout", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (code, **bold**, a link), or its block.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/kbd", class: "bp-card") {
                 Text("Kbd", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -5123,10 +5123,10 @@ page BuiltinQrcode(path: "/reference/qrcode", title: "QrCode — Reference", des
 }
 
 page BuiltinCallout(path: "/reference/callout", title: "Callout — Reference", description: "Callout: A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its…") {
-    state stageText = "Every finding has a code, and a page that says how to fix it."
+    state stageText = "Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it."
     state stageKind = "tip"
     state stageTitle = "Before you push"
-    ReferenceItemShell("Callout", summary: "A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.", signature: "Callout(_ text: String, kind: Enum, title: String) \{ … \}", since: "6.2.0", outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "callout-title", label: "Callout.Title")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Callout", summary: "A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (code, **bold**, a link), or its block.", signature: "Callout(_ text: String, kind: Enum, title: String) \{ … \}", since: "6.2.0", outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "callout-title", label: "Callout.Title")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Callout") {
                 controls {
@@ -5134,13 +5134,13 @@ page BuiltinCallout(path: "/reference/callout", title: "Callout — Reference", 
                     StageControl({ name: "kind", kind: "enum", options: ["note", "tip", "important", "warning", "caution"], value: "note", sink: "class" }, live: true, current: stageKind) { on pick(v) { stageKind = v } }
                     StageControl({ name: "title", kind: "string", options: [], value: "" }, live: true, current: stageTitle) { on pick(v) { stageTitle = v } }
                 }
-                Callout(stageText, kind: stageKind, title: stageTitle) {
-                    Link("Read about the checks", to: "/errors")
-                }
+                Callout(stageText, kind: stageKind, title: stageTitle)
             }
         }
         Heading(t("ref.example"), id: "example").h2
-        DocsCodeBlock(#"Callout("Every finding has a code, and a page that says how to fix it.", title: "Before you push").tip {
+        DocsCodeBlock(#"Callout("Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it.", title: "Before you push").tip"#, title: "wf")
+        Text("A block below its text") { style { margin: 8px 0 0; font-weight: 600 } }
+        DocsCodeBlock(#"Callout("Every finding has a code.").note {
     Link("Read about the checks", to: "/errors")
 }"#, title: "wf")
         Text("Every kind") { style { margin: 8px 0 0; font-weight: 600 } }

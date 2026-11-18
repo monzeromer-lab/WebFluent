@@ -4342,16 +4342,14 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Callout
 
-A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.
+A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (`code`, **bold**, a link), or its block.
 
 ```
 Callout(text, kind: …, title: …) { … }
 ```
 
 ```wf
-Callout("Every finding has a code, and a page that says how to fix it.", title: "Before you push").tip {
-    Link("Read about the checks", to: "/errors")
-}
+Callout("Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it.", title: "Before you push").tip
 ```
 
 Renders with the class `wf-callout`.
