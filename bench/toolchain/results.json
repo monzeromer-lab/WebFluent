@@ -1,0 +1,93 @@
+{
+  "measuredAt": "2026-11-19T08:57:36.770Z",
+  "runs": 3,
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "cores": 16,
+    "memoryGiB": 31,
+    "os": "Linux 7.0.0-43-generic",
+    "node": "v22.23.5",
+    "npm": "10.9.9"
+  },
+  "wfBinaryBytes": 35789360,
+  "tools": {
+    "webfluent": {
+      "label": "WebFluent",
+      "installMs": 0,
+      "nodeModulesBytes": 0,
+      "packages": 0,
+      "version": "wf 7.1.1",
+      "buildMs": 30.864672,
+      "shippedJs": {
+        "raw": 94038,
+        "gzip": 29540
+      },
+      "devReadyMs": 55.1947540000001
+    },
+    "astro": {
+      "label": "Astro",
+      "installMs": 2303.368494999999,
+      "nodeModulesBytes": 285228819,
+      "packages": 243,
+      "version": "7.4.13",
+      "buildMs": 836.8261390000007,
+      "shippedJs": {
+        "raw": 0,
+        "gzip": 0
+      },
+      "devReadyMs": 2029.6400570000005
+    },
+    "next": {
+      "label": "Next.js",
+      "installMs": 4414.0069289999665,
+      "nodeModulesBytes": 540598604,
+      "packages": 646,
+      "version": "16.4.6",
+      "buildMs": 4544.3955549999955,
+      "shippedJs": {
+        "raw": 587306,
+        "gzip": 180298
+      },
+      "devReadyMs": 2662.606139999989
+    },
+    "sveltekit": {
+      "label": "SvelteKit",
+      "installMs": 1616.1210509999655,
+      "nodeModulesBytes": 104793339,
+      "packages": 63,
+      "version": "3.4.0",
+      "buildMs": 2246.2881449999986,
+      "shippedJs": {
+        "raw": 85011,
+        "gzip": 33143
+      },
+      "devReadyMs": 1186.4570620000013
+    },
+    "nuxt": {
+      "label": "Nuxt",
+      "installMs": 3179.1601040000096,
+      "nodeModulesBytes": 196649208,
+      "packages": 600,
+      "version": "4.6.4",
+      "buildMs": 4026.2899050000124,
+      "shippedJs": {
+        "raw": 172442,
+        "gzip": 63086
+      },
+      "devReadyMs": 3058.3995240000077
+    },
+    "react": {
+      "label": "React + Vite",
+      "installMs": 913.2149380000192,
+      "nodeModulesBytes": 145047189,
+      "packages": 35,
+      "version": "19.3.1",
+      "buildMs": 434.4013649999979,
+      "shippedJs": {
+        "raw": 222447,
+        "gzip": 68356
+      },
+      "devReadyMs": 384.92443499999354
+    }
+  }
+}

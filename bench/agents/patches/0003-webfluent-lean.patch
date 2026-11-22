@@ -1,0 +1,49 @@
+From 568fb5e60034ea84042204f4e6266291770e4121 Mon Sep 17 00:00:00 2001
+From: bench <bench@localhost>
+Date: Wed, 18 Nov 2026 18:57:38 +0200
+Subject: [PATCH] webfluent-lean: the same prompt, a local checkout's skill and
+ compiler
+
+---
+ bench/container/setup-tooling.sh | 10 ++++++++++
+ bench/frameworks.mjs             |  3 +++
+ 2 files changed, 13 insertions(+)
+
+diff --git a/bench/container/setup-tooling.sh b/bench/container/setup-tooling.sh
+index 4f2aaef..2050087 100755
+--- a/bench/container/setup-tooling.sh
++++ b/bench/container/setup-tooling.sh
+@@ -99,6 +99,16 @@ case "$FRAMEWORK" in
+     record "$(jq -nc --arg v "$(wf --version)" '{kind: "compiler", name: "wf", version: $v}')"
+     skill monzeromer-lab/WebFluent --skill writing-webfluent
+     ;;
++  webfluent-lean)
++    # The skill of a local checkout, which the image carries in ~/skill-lean (see
++    # bench/agents/workshop.mjs), and the compiler built from the same checkout.
++    record "$(jq -nc --arg v "$(wf --version)" --arg c "$(cat "$HOME/skill-lean/.checkout" 2>/dev/null)" '{kind: "compiler", name: "wf", version: $v, build: "local checkout", checkout: $c}')"
++    record "$(jq -nc --arg c "$(cat "$HOME/skill-lean/.checkout" 2>/dev/null)" '{kind: "skill", repo: "local checkout", path: "skills/writing-webfluent", checkout: $c}')"
++    mkdir -p .claude/skills
++    rm -rf .claude/skills/writing-webfluent
++    cp -r "$HOME/skill-lean" .claude/skills/writing-webfluent
++    rm -f .claude/skills/writing-webfluent/.checkout
++    ;;
+   tanstack-start | solidstart | qwik | gracile | vanilla)
+     # No official agent tooling (TanStack removed its MCP server in favour of its CLI).
+     ;;
+diff --git a/bench/frameworks.mjs b/bench/frameworks.mjs
+index 79db3f5..2fab87e 100644
+--- a/bench/frameworks.mjs
++++ b/bench/frameworks.mjs
+@@ -14,6 +14,9 @@ export const FRAMEWORKS = {
+   'hono-htmx': 'Hono and htmx',
+   vanilla: 'vanilla JavaScript or TypeScript with Vite, without a UI framework',
+   webfluent: 'WebFluent',
++  // The same prompt, with the skill and compiler of a local checkout: an A/B of a change
++  // to WebFluent's agent docs before it is released.
++  'webfluent-lean': 'WebFluent',
+ };
+ 
+ // The only thing that differs between agents is the framework label.
+-- 
+2.53.0
+

@@ -1,0 +1,17 @@
+{
+  "name": "WebFluent-keyed",
+  "build": {
+    "output": "./build",
+    "ssg": false,
+    "base_path": "/frameworks/keyed/webfluent/build",
+    "csp": true
+  },
+  "meta": {
+    "title": "WebFluent-\"keyed\"",
+    "description": "The js-framework-benchmark, in WebFluent.",
+    "lang": "en",
+    "stylesheets": ["/css/currentStyle.css"],
+    "sitemap": false
+  },
+  "theme": { "builtin": "structural" }
+}

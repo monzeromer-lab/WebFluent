@@ -1,0 +1,42 @@
+From 0575843aa6c4753f469ed62e32b510b2d0bd1f82 Mon Sep 17 00:00:00 2001
+From: bench <bench@localhost>
+Date: Wed, 18 Nov 2026 15:33:59 +0200
+Subject: [PATCH] run-agent.sh: paths from the environment, for a Workshop
+
+---
+ bench/container/run-agent.sh | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/bench/container/run-agent.sh b/bench/container/run-agent.sh
+index b8cc207..9d3c841 100755
+--- a/bench/container/run-agent.sh
++++ b/bench/container/run-agent.sh
+@@ -14,11 +14,13 @@ set -euo pipefail
+ : "${PROMPT:?PROMPT is required}"
+ : "${MODEL:?MODEL is required}"
+ : "${EFFORT:?EFFORT is required}"
+-OUT=/out
+-WORK=/home/agent/work
++# Defaults are the container's; a Workshop sets them (bench/agents/workshop.mjs).
++OUT="${OUT:-/out}"
++WORK="${WORK:-/home/agent/work}"
++HERE="$(cd "$(dirname "$0")" && pwd)"
+ mkdir -p "$OUT"
+ 
+-/home/agent/setup-tooling.sh "$FRAMEWORK" /home/agent/mcp.json "$OUT/tooling-versions.json" > "$OUT/tooling.log" 2>&1
++WORK="$WORK" "$HERE/setup-tooling.sh" "$FRAMEWORK" "$HERE/mcp.json" "$OUT/tooling-versions.json" > "$OUT/tooling.log" 2>&1
+ 
+ {
+   echo "framework=$FRAMEWORK"
+@@ -41,7 +43,7 @@ if [ "$FRAMEWORK" = sveltekit ]; then STRICT_MCP=(); fi
+ set +e
+ claude -p "$PROMPT" \
+   --model "$MODEL" --effort "$EFFORT" \
+-  --mcp-config /home/agent/mcp.json "${STRICT_MCP[@]}" \
++  --mcp-config "$HERE/mcp.json" "${STRICT_MCP[@]}" \
+   --dangerously-skip-permissions \
+   --output-format stream-json --verbose \
+   > "$OUT/transcript.jsonl" 2> "$OUT/claude-stderr.log"
+-- 
+2.53.0
+

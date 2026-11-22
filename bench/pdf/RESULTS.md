@@ -12,7 +12,7 @@ both variable TrueType). WebFluent on the left, Chrome on the right:
 
 ![Page 1, WebFluent left, Chrome right](side-by-side.png)
 
-Measured on 2026-10-06. Every number below comes from one run of
+Measured on 2026-11-19. Every number below comes from one run of
 `just bench-pdf` on the machine described; raw timings are in
 [`results.json`](results.json).
 
@@ -22,7 +22,7 @@ Measured on 2026-10-06. Every number below comes from one run of
 
 | | Download | On disk |
 |---|---:|---:|
-| `wf` 5.3.0 (`wf-v5.3.0-x86_64-linux.tar.gz`) | 9.5 MiB | 22.8 MiB |
+| `wf` 7.1.1 (`wf-v7.1.1-x86_64-linux.tar.gz`) | 12.9 MiB | 34.2 MiB |
 | `npm install puppeteer@25.12.0` (default: npm packages + Chrome for Testing + chrome-headless-shell 154.0.8037.57) | 305.7 MiB | 678.9 MiB |
 | — of which Chrome for Testing | 187.1 MiB | 392.6 MiB |
 | — of which chrome-headless-shell | 114.9 MiB | 261.4 MiB |
@@ -34,9 +34,9 @@ Measured on 2026-10-06. Every number below comes from one run of
 
 | | Median | Range | Peak memory (PSS) | Peak memory (RSS) |
 |---|---:|---:|---:|---:|
-| `wf render` (CLI) | 75.3 ms | 73.0 ms – 514 ms | 28.7 MiB | 31.4 MiB |
-| Puppeteer + Chrome (default headless) | 581 ms | 570 ms – 598 ms | 424.1 MiB | 1164.0 MiB |
-| Puppeteer + chrome-headless-shell | 395 ms | 366 ms – 415 ms | 273.3 MiB | 649.2 MiB |
+| `wf render` (CLI) | 76.9 ms | 67.4 ms – 88.6 ms | 66.2 MiB | 68.8 MiB |
+| Puppeteer + Chrome (default headless) | 557 ms | 541 ms – 582 ms | 432.1 MiB | 1241.1 MiB |
+| Puppeteer + chrome-headless-shell | 374 ms | 360 ms – 386 ms | 278.9 MiB | 680.0 MiB |
 
 ### 100 warm renders (one long-lived process)
 
@@ -46,10 +46,10 @@ renders, then 100 measured ones, one after another.
 
 | | Total | Median | p95 | Setup | Peak memory (PSS) | Peak memory (RSS) |
 |---|---:|---:|---:|---:|---:|---:|
-| WebFluent Rust API (`Template::render_pdf`) | 4.37 s | 43.4 ms | 47.4 ms | 0.8 ms | 27.4 MiB | 29.8 MiB |
-| Puppeteer + Chrome, one tab reused | 9.00 s | 88.2 ms | 99.0 ms | 199 ms | 538.0 MiB | 1281.6 MiB |
-| Puppeteer + chrome-headless-shell, one tab reused | 6.70 s | 66.8 ms | 70.5 ms | 69.7 ms | 427.5 MiB | 808.0 MiB |
-| Puppeteer + Chrome, a new tab per render | 13.92 s | 140 ms | 148 ms | 202 ms | 758.9 MiB | 2700.0 MiB |
+| WebFluent Rust API (`Template::render_pdf`) | 5.43 s | 53.9 ms | 56.7 ms | 1.7 ms | 28.7 MiB | 31.2 MiB |
+| Puppeteer + Chrome, one tab reused | 8.56 s | 85.0 ms | 91.0 ms | 190 ms | 549.8 MiB | 1356.3 MiB |
+| Puppeteer + chrome-headless-shell, one tab reused | 6.52 s | 65.1 ms | 68.9 ms | 67.1 ms | 337.4 MiB | 739.4 MiB |
+| Puppeteer + Chrome, a new tab per render | 13.33 s | 134 ms | 142 ms | 189 ms | 762.5 MiB | 2835.3 MiB |
 
 ### The documents
 
@@ -65,10 +65,10 @@ Each is rounded in Chrome's favour and set against the *fastest* or
 *smallest* Chrome configuration measured, not the default one. Say "on this
 invoice, on this machine".
 
-- **Install:** the `wf` Linux download is 9.5 MiB; a default `npm install puppeteer` downloads 305.7 MiB (12.1× more than `wf` even counting only its smaller browser, chrome-headless-shell).
-- **Cold render:** `wf render` produced the invoice PDF in a median 75.3 ms from process start, against 395 ms for a fresh Node process launching chrome-headless-shell through Puppeteer — 5.2× faster.
-- **Warm renders:** rendering the same invoice 100 times in-process took 4.37 s with WebFluent's Rust API (median 43.4 ms each) and 6.70 s with Puppeteer reusing one browser (median 66.8 ms) — 1.5× faster per render.
-- **Memory:** a cold `wf render` peaked at 28.7 MiB; Puppeteer and its browser processes together at 273.3 MiB (PSS). Warm, 27.4 MiB against 427.5 MiB.
+- **Install:** the `wf` Linux download is 12.9 MiB; a default `npm install puppeteer` downloads 305.7 MiB (8.8× more than `wf` even counting only its smaller browser, chrome-headless-shell).
+- **Cold render:** `wf render` produced the invoice PDF in a median 76.9 ms from process start, against 374 ms for a fresh Node process launching chrome-headless-shell through Puppeteer — 4.8× faster.
+- **Warm renders:** rendering the same invoice 100 times in-process took 5.43 s with WebFluent's Rust API (median 53.9 ms each) and 6.52 s with Puppeteer reusing one browser (median 65.1 ms) — 1.2× faster per render.
+- **Memory:** a cold `wf render` peaked at 66.2 MiB; Puppeteer and its browser processes together at 278.9 MiB (PSS). Warm, 28.7 MiB against 337.4 MiB.
 - **Output:** the same 4-page invoice is 41 KiB from WebFluent and 355 KiB from Chrome (see the caveat on fonts below).
 
 Don't quote any ratio as true of PDFs in general: it is one document, and a
@@ -111,7 +111,7 @@ or the warm ones without "warm".
   its unpacked contents. Puppeteer: the Chrome for Testing archives it
   downloads, the packed npm tarballs its lock file names, and what all of
   it takes on disk afterwards.
-- The `wf` measured is built from this checkout (`b3aa5f95`) with
+- The `wf` measured is built from this checkout (`dd19c8be7`) with
   `cargo build --release`, the same code the release binary is built from.
 
 ## Machine
@@ -120,9 +120,9 @@ or the warm ones without "warm".
 |---|---|
 | CPU | Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz, 16 logical CPUs |
 | RAM | 30.6 GiB |
-| OS | Ubuntu 26.04.1 LTS, Linux 7.0.0-34-generic |
-| Load average (1/5/15 min) | before: 2.28 / 5.68 / 17.98; after: 2.75 / 4.84 / 16.42 |
-| wf | 5.3.0 (b3aa5f95), rustc 1.99.0 (b940084d7 2026-09-28) |
+| OS | Ubuntu 26.04.1 LTS, Linux 7.0.0-43-generic |
+| Load average (1/5/15 min) | before: 1.23 / 2.46 / 1.71; after: 2.14 / 2.41 / 1.76 |
+| wf | 7.1.1 (dd19c8be7), rustc 1.100.0 (0ef1bc386 2026-11-09) |
 | Node | v22.23.0 |
 | Puppeteer | 25.12.0 |
 | Chrome | Chrome/154.0.8037.57 (Chrome for Testing), HeadlessChrome/154.0.8037.57 (chrome-headless-shell) |

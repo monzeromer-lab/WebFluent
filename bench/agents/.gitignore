@@ -1,0 +1,6 @@
+.upstream/
+.lawson-results/
+# A batch's sessions (transcripts, the apps the agents wrote) stay local; its
+# results.json, the summary bench/report.mjs reads, is kept.
+runs/*/*
+!runs/*/results.json

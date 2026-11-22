@@ -1,0 +1,69 @@
+{
+  "framework": "WebFluent",
+  "version": "7.1.1",
+  "checked": "2026-11-22",
+  "items": {
+    "htmlLang": {
+      "level": "default",
+      "how": "meta.lang, which wf init writes, and a page's own lang:.",
+      "source": "https://webfluent.monzeromer.dev/learn/05-pages-and-routing"
+    },
+    "title": {
+      "level": "default",
+      "how": "Each page's title:, which every page declares.",
+      "source": "https://webfluent.monzeromer.dev/learn/05-pages-and-routing"
+    },
+    "description": {
+      "level": "default",
+      "how": "Each page's description:, else meta.description; S02 warns of a page with none.",
+      "source": "https://webfluent.monzeromer.dev/recipes/search-and-link-previews"
+    },
+    "contentInHtml": {
+      "level": "default",
+      "how": "A static build paints every page into its HTML (wf init -t static).",
+      "source": "https://webfluent.monzeromer.dev/learn/05-pages-and-routing",
+      "note": "The single-page template draws in the browser instead."
+    },
+    "openGraph": {
+      "level": "default",
+      "how": "Built from each page's title, description and image.",
+      "source": "https://webfluent.monzeromer.dev/recipes/search-and-link-previews"
+    },
+    "skipLink": {
+      "level": "default",
+      "how": "Every page gets a skip link to its main content.",
+      "source": "https://webfluent.monzeromer.dev/about/accessibility"
+    },
+    "csp": {
+      "level": "default",
+      "how": "build.csp, which wf init turns on, writes the policy and holds the build to it.",
+      "source": "https://webfluent.monzeromer.dev/about/security"
+    },
+    "frameOptions": {
+      "level": "default",
+      "how": "With the policy, frame-ancestors and X-Frame-Options in _headers.",
+      "source": "https://webfluent.monzeromer.dev/about/security",
+      "note": "A header file, for a host that reads one; wf start serves it."
+    },
+    "robots": {
+      "level": "default",
+      "how": "Every build writes robots.txt.",
+      "source": "https://webfluent.monzeromer.dev/learn/01-getting-started"
+    },
+    "sitemap": {
+      "level": "setting",
+      "how": "meta.site_url: the build writes sitemap.xml from the site's routes.",
+      "source": "https://webfluent.monzeromer.dev/recipes/search-and-link-previews"
+    },
+    "canonical": {
+      "level": "setting",
+      "how": "meta.site_url: every page gets its canonical link.",
+      "source": "https://webfluent.monzeromer.dev/recipes/search-and-link-previews"
+    },
+    "jsonLd": {
+      "level": "setting",
+      "how": "meta.site_url: every page gets WebSite, owner, WebPage and breadcrumb JSON-LD.",
+      "source": "https://webfluent.monzeromer.dev/recipes/search-and-link-previews"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "framework": "React + Vite",
+  "version": "React 19.3, Vite 8.3",
+  "checked": "2026-11-22",
+  "items": {
+    "htmlLang": {
+      "level": "default",
+      "how": "The template's index.html writes <html lang=\"en\">.",
+      "source": "https://github.com/vitejs/vite/blob/main/packages/create-vite/template-react/index.html",
+      "note": "The same on every route; nothing sets it per page."
+    },
+    "title": {
+      "level": "default",
+      "how": "The template's index.html has a fixed <title>; React 19 renders a <title> from a component.",
+      "source": "https://react.dev/reference/react-dom/components/title",
+      "note": "A title per page exists only once JavaScript has run."
+    },
+    "description": {
+      "level": "manual",
+      "how": "A <meta name=\"description\"> rendered from a component, which React 19 puts in the head.",
+      "source": "https://react.dev/reference/react-dom/components/meta",
+      "note": "In a client-only app it is not in the HTML the server sends. React 19 puts a tag rendered from a component in the head, but the tag itself is written by hand."
+    },
+    "contentInHtml": {
+      "level": "manual",
+      "how": "The template is a client-only app: the server sends an empty <div id=\"root\">.",
+      "source": "https://vite.dev/guide/ssr",
+      "note": "Vite's server rendering is a low-level API wired up by hand."
+    },
+    "openGraph": {
+      "level": "manual",
+      "how": "og:* <meta> rendered from a component.",
+      "source": "https://react.dev/reference/react-dom/components/meta",
+      "note": "Link previews run no JavaScript, so in a client-only app they never see it. React 19 puts a tag rendered from a component in the head, but the tag itself is written by hand."
+    },
+    "skipLink": {
+      "level": "manual",
+      "how": "Written by hand.",
+      "source": "https://react.dev/reference/react-dom/components"
+    },
+    "csp": {
+      "level": "manual",
+      "how": "The policy written by hand as a header or meta tag.",
+      "source": "https://vite.dev/guide/features#content-security-policy-csp",
+      "note": "html.cspNonce only adds a nonce to Vite's own tags."
+    },
+    "frameOptions": {
+      "level": "manual",
+      "how": "A header set on the host or server.",
+      "source": "https://vite.dev/guide/static-deploy"
+    },
+    "robots": {
+      "level": "manual",
+      "how": "A robots.txt written by hand in public/.",
+      "source": "https://vite.dev/guide/assets#the-public-directory"
+    },
+    "sitemap": {
+      "level": "manual",
+      "how": "Written by hand in public/, or a third-party plugin.",
+      "source": "https://vite.dev/guide/assets#the-public-directory"
+    },
+    "canonical": {
+      "level": "manual",
+      "how": "A <link rel=\"canonical\"> rendered from a component.",
+      "source": "https://react.dev/reference/react-dom/components/link",
+      "note": "In a client-only app it is not in the HTML the server sends. React 19 puts a tag rendered from a component in the head, but the tag itself is written by hand."
+    },
+    "jsonLd": {
+      "level": "manual",
+      "how": "A <script type=\"application/ld+json\"> written by hand in JSX.",
+      "source": "https://react.dev/reference/react-dom/components/script"
+    }
+  }
+}

@@ -1,0 +1,237 @@
+From 17121c33f3f013d2fabfb93f92a6b7a5ca12a051 Mon Sep 17 00:00:00 2001
+From: bench <bench@localhost>
+Date: Wed, 18 Nov 2026 15:16:19 +0200
+Subject: [PATCH] Add WebFluent; run on a subscription; podman or docker
+
+---
+ bench/container/Containerfile.base | 13 +++++++++
+ bench/container/setup-tooling.sh   |  7 +++++
+ bench/frameworks.mjs               |  1 +
+ bench/measure.mjs                  |  5 +++-
+ bench/run.mjs                      | 43 +++++++++++++++++++++---------
+ template/SPEC.md                   |  1 +
+ 6 files changed, 57 insertions(+), 13 deletions(-)
+
+diff --git a/bench/container/Containerfile.base b/bench/container/Containerfile.base
+index 86dae61..ffab52f 100644
+--- a/bench/container/Containerfile.base
++++ b/bench/container/Containerfile.base
+@@ -23,6 +23,19 @@ RUN test -n "$NODE_VERSION" || { echo "NODE_VERSION build arg is required" >&2;
+  && rm "${TARBALL}" \
+  && node --version && npm --version
+ 
++# The WebFluent compiler, for the webfluent agent and for testing and measuring its app.
++# Pinned by run.mjs (--wf-version); checked against the release's SHA256SUMS.
++ARG WF_VERSION=7.0.1
++RUN TARBALL="wf-v${WF_VERSION}-x86_64-linux.tar.gz" \
++ && BASE="https://github.com/monzeromer-lab/WebFluent/releases/download/v${WF_VERSION}" \
++ && cd /tmp \
++ && curl -fsSLO "${BASE}/${TARBALL}" \
++ && curl -fsSL "${BASE}/SHA256SUMS" | grep " ${TARBALL}\$" | sha256sum -c - \
++ && tar -xzf "${TARBALL}" \
++ && install -m 0755 "$(find /tmp -name wf -type f -perm -u+x | head -n 1)" /usr/local/bin/wf \
++ && rm -rf /tmp/* \
++ && wf --version
++
+ RUN apt-get update \
+  && npx -y playwright@${PLAYWRIGHT_VERSION} install-deps chromium \
+  && rm -rf /var/lib/apt/lists/*
+diff --git a/bench/container/setup-tooling.sh b/bench/container/setup-tooling.sh
+index a381177..4f2aaef 100755
+--- a/bench/container/setup-tooling.sh
++++ b/bench/container/setup-tooling.sh
+@@ -92,6 +92,13 @@ case "$FRAMEWORK" in
+     # up front because agents don't always use create-react-router. Docs ship in node_modules.
+     skill remix-run/react-router --skill react-router
+     ;;
++  webfluent)
++    # https://github.com/monzeromer-lab/WebFluent/tree/master/skills (the skill `wf init` also
++    # writes into a new project), installed up front because agents don't always use `wf init`.
++    # The compiler itself is in the base image (Containerfile.base), so the tests can build.
++    record "$(jq -nc --arg v "$(wf --version)" '{kind: "compiler", name: "wf", version: $v}')"
++    skill monzeromer-lab/WebFluent --skill writing-webfluent
++    ;;
+   tanstack-start | solidstart | qwik | gracile | vanilla)
+     # No official agent tooling (TanStack removed its MCP server in favour of its CLI).
+     ;;
+diff --git a/bench/frameworks.mjs b/bench/frameworks.mjs
+index 1b67c35..79db3f5 100644
+--- a/bench/frameworks.mjs
++++ b/bench/frameworks.mjs
+@@ -13,6 +13,7 @@ export const FRAMEWORKS = {
+   gracile: 'Gracile with Lit',
+   'hono-htmx': 'Hono and htmx',
+   vanilla: 'vanilla JavaScript or TypeScript with Vite, without a UI framework',
++  webfluent: 'WebFluent',
+ };
+ 
+ // The only thing that differs between agents is the framework label.
+diff --git a/bench/measure.mjs b/bench/measure.mjs
+index 6d3aba5..ebf99d8 100755
+--- a/bench/measure.mjs
++++ b/bench/measure.mjs
+@@ -111,7 +111,7 @@ function codeStats() {
+   const provided = new Set(fs.readdirSync(designDir).filter((f) => f.endsWith('.css')).map((f) => fs.readFileSync(path.join(designDir, f), 'utf8')));
+   let lines = 0;
+   for (const f of files) {
+-    if (!/\.([cm]?[jt]sx?|vue|svelte|astro|html|css|scss)$/.test(f) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(f)) continue;
++    if (!/\.([cm]?[jt]sx?|vue|svelte|astro|html|css|scss|wf|wfx)$/.test(f) || /\.(test|spec)\.[cm]?[jt]sx?$/.test(f)) continue;
+     const text = fs.readFileSync(path.join(appDir, f), 'utf8');
+     if (provided.has(text) || /automatically generated|auto-generated|@generated|do not edit/i.test(text.slice(0, 500))) continue;
+     lines += text.split('\n').filter((l) => l.trim()).length;
+@@ -126,6 +126,9 @@ function codeStats() {
+       installed[dep] = null;
+     }
+   }
++  // A WebFluent app's compiler is not an npm package: record the one that built it.
++  const wf = spawnSync('wf', ['--version'], { encoding: 'utf8' });
++  if (wf.status === 0) installed.wf = wf.stdout.trim().replace(/^wf /, '');
+   return { sourceLines: lines, installed };
+ }
+ 
+diff --git a/bench/run.mjs b/bench/run.mjs
+index cfd9089..804ab3d 100755
+--- a/bench/run.mjs
++++ b/bench/run.mjs
+@@ -35,6 +35,9 @@
+ //   --no-measure            stop after the agent runs
+ //   --measure-failed        also measure apps that failed the final tests (skipped by default)
+ //   --out=DIR               where run directories go (default ./runs)
++//   --images-only           with --append-to: build the images and stop
++//   --wf-version=V          WebFluent release for the base image (default 7.0.1)
++//   --engine=podman|docker  container engine (default podman; docker must run rootful)
+ //
+ // Credentials: ANTHROPIC_API_KEY or CLAUDE_CODE_OAUTH_TOKEN (from `claude setup-token`) in
+ // the environment. It's handed to the agent containers as an environment variable, never
+@@ -82,7 +85,11 @@ const config = {
+   model: opts.model ?? 'claude-opus-5-5',
+   effort: opts.effort ?? 'medium',
+   claudeVersion: opts['claude-version'] ?? '2.1.310',
++  wfVersion: opts['wf-version'] ?? '7.0.1',
++  engine: opts.engine ?? 'podman',
+ };
++const ENGINE = config.engine;
++if (!['podman', 'docker'].includes(ENGINE)) throw new Error('--engine must be podman or docker');
+ 
+ // ---------- Helpers ----------
+ 
+@@ -114,7 +121,8 @@ function runLogged(cmd, args, logFile, { env, timeoutMs, onTimeout } = {}) {
+ // written to mounted directories are owned by you on the host.
+ // Rootful Podman (running as root) can't do that, so the directories are opened up instead.
+ const rootful = process.getuid?.() === 0;
+-const userns = rootful ? [] : ['--userns=keep-id:uid=1000,gid=1000'];
++// Docker (rootful) maps uid 1000 in the container to uid 1000 on the host by itself.
++const userns = rootful || ENGINE === 'docker' ? [] : ['--userns=keep-id:uid=1000,gid=1000'];
+ const writableDir = (dir) => {
+   fs.mkdirSync(dir, { recursive: true });
+   if (rootful) fs.chmodSync(dir, 0o777);
+@@ -130,17 +138,20 @@ function preflight() {
+   if (process.versions.node !== NODE_VERSION) {
+     log(`Note: host Node is ${process.versions.node}; containers use ${NODE_VERSION} (.nvmrc). Run \`nvm use\` to match.`);
+   }
+-  const podman = spawnSync('podman', ['--version'], { encoding: 'utf8' });
+-  if (podman.status !== 0) throw new Error('podman not found on PATH');
++  const podman = spawnSync(ENGINE, ['--version'], { encoding: 'utf8' });
++  if (podman.status !== 0) throw new Error(`${ENGINE} not found on PATH, or not usable by this user`);
+   return podman.stdout.trim();
+ }
+ 
+ // Returns the name of the environment variable holding the credentials. Not the
+ // ~/.claude/.credentials.json login: its refresh token is replaced whenever it's used, so a
+ // copy handed to one container stops working for the next.
++// This fork runs on a Claude subscription only: an API key would bill per token, so its
++// presence is an error rather than a choice.
+ function credentialName() {
+-  for (const name of ['ANTHROPIC_API_KEY', 'CLAUDE_CODE_OAUTH_TOKEN']) if (process.env[name]) return name;
+-  throw new Error('No Claude credentials: set ANTHROPIC_API_KEY, or CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`');
++  if (process.env.ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY is set: this fork runs on the subscription only. Unset it.');
++  if (process.env.CLAUDE_CODE_OAUTH_TOKEN) return 'CLAUDE_CODE_OAUTH_TOKEN';
++  throw new Error('No Claude credentials: set CLAUDE_CODE_OAUTH_TOKEN from `claude setup-token`');
+ }
+ 
+ // ---------- Step 1: images ----------
+@@ -155,9 +166,9 @@ function buildImages(runDir, { agent = true, key = agent ? 'images' : 'measureOn
+   const cacheArgs = opts['no-cache'] ? ['--no-cache', '--pull=always'] : [];
+   const build = (image, file, context, buildArgs = []) => {
+     log(`Building ${image}`);
+-    sh('podman', ['build', ...cacheArgs, '-t', image, '-f', file, ...buildArgs, context]);
++    sh(ENGINE, ['build', ...cacheArgs, '-t', image, '-f', file, ...buildArgs, context]);
+   };
+-  build(IMAGES.base, path.join(BENCH, 'container/Containerfile.base'), ctx, ['--build-arg', `NODE_VERSION=${NODE_VERSION}`]);
++  build(IMAGES.base, path.join(BENCH, 'container/Containerfile.base'), ctx, ['--build-arg', `NODE_VERSION=${NODE_VERSION}`, '--build-arg', `WF_VERSION=${config.wfVersion}`]);
+   if (agent) {
+     build(IMAGES.agent, path.join(BENCH, 'container/Containerfile.agent'), path.join(BENCH, 'container'), [
+       '--build-arg', `BASE=${IMAGES.base}`,
+@@ -179,7 +190,7 @@ const harnessState = () => ({
+ // A measure-only run also records the harness that did the measuring.
+ function recordImages(runDir, key, images) {
+   const inspect = (image, format) =>
+-    spawnSync('podman', ['image', 'inspect', image, '--format', format], { encoding: 'utf8' }).stdout.trim() || null;
++    spawnSync(ENGINE, ['image', 'inspect', image, '--format', format], { encoding: 'utf8' }).stdout.trim() || null;
+   const file = path.join(runDir, 'config.json');
+   const config = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')) : {};
+   config[key] = {
+@@ -210,13 +221,13 @@ async function runAgent(runId, iterDir, framework, credential) {
+     EFFORT: config.effort,
+   };
+   log(`Agent start: ${path.basename(iterDir)}`);
+-  const code = await runLogged('podman', args, path.join(iterDir, 'container.log'), {
++  const code = await runLogged(ENGINE, args, path.join(iterDir, 'container.log'), {
+     env,
+     timeoutMs: config.agentTimeoutMin * 60_000,
+     onTimeout: () => {
+       log(`Agent timeout: ${path.basename(iterDir)} after ${config.agentTimeoutMin} min`);
+       fs.writeFileSync(path.join(iterDir, 'TIMED_OUT'), `${config.agentTimeoutMin} minutes\n`);
+-      spawnSync('podman', ['stop', '-t', '10', name]);
++      spawnSync(ENGINE, ['stop', '-t', '10', name]);
+     },
+   });
+   log(`Agent done:  ${path.basename(iterDir)} (container exit ${code})`);
+@@ -241,7 +252,7 @@ async function testApp(iterDir) {
+   fs.mkdirSync(app, { recursive: true }); // without an app, the tests fail with "No app found"
+   log(`Tests start: ${path.basename(iterDir)}`);
+   const code = await runLogged(
+-    'podman',
++    ENGINE,
+     ['run', '--rm', ...containerArgs, ...blockPokeapi, '-v', `${app}:/src:ro,Z`, IMAGES.base, 'bash', '-c', 'cp -r /src app && npm test'],
+     path.join(iterDir, 'agent/final-test.log'),
+   );
+@@ -282,7 +293,7 @@ async function measure(iterDir) {
+ 
+   log(`Measure start: ${path.basename(iterDir)}`);
+   const code = await runLogged(
+-    'podman',
++    ENGINE,
+     [
+       'run', '--rm', ...containerArgs,
+       '-v', `${repo}:/repo:Z`, '-v', `${results}:/results:Z`,
+@@ -318,6 +329,14 @@ async function main() {
+ 
+   const podmanVersion = preflight();
+ 
++  // Builds the images and records them in an existing run directory, running no agent.
++  if (opts['images-only']) {
++    if (!opts['append-to']) throw new Error('--images-only needs --append-to=DIR');
++    buildImages(path.resolve(opts['append-to']));
++    log('Images built');
++    return;
++  }
++
+   if (opts['measure-only']) {
+     const runDir = path.resolve(opts['measure-only']);
+     if (!opts['skip-image-build']) buildImages(runDir, { agent: false });
+diff --git a/template/SPEC.md b/template/SPEC.md
+index 2e27b20..3991fa1 100644
+--- a/template/SPEC.md
++++ b/template/SPEC.md
+@@ -240,6 +240,7 @@ typography closely; pixel-for-pixel equality isn't required.
+ ## Environment
+ 
+ - Node.js 24 and npm. You may install other package managers or tools.
++- The WebFluent compiler, `wf`, is installed (run `wf --help`).
+ - [`agent-browser`](https://github.com/vercel-labs/agent-browser) is installed for looking
+   at pages in a headless browser (run `agent-browser --help`). Playwright's Chromium is
+   installed for the tests.
+-- 
+2.53.0
+

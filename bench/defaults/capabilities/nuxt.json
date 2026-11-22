@@ -1,0 +1,19 @@
+{
+  "framework": "Nuxt",
+  "version": "4.6.x",
+  "checked": "2026-11-22",
+  "items": {
+    "htmlLang": { "level": "setting", "how": "app.head.htmlAttrs.lang in nuxt.config.", "source": "https://nuxt.com/docs/4.x/getting-started/seo-meta", "note": "Nothing is written by default." },
+    "title": { "level": "api", "how": "useHead({ title }) or useSeoMeta({ title }) on each page.", "source": "https://nuxt.com/docs/4.x/getting-started/seo-meta", "note": "The starter's page sets one." },
+    "description": { "level": "api", "how": "useSeoMeta({ description }) on each page.", "source": "https://nuxt.com/docs/4.x/getting-started/seo-meta" },
+    "contentInHtml": { "level": "default", "how": "Universal rendering, the default, server-renders each page.", "source": "https://nuxt.com/docs/4.x/guide/concepts/rendering" },
+    "openGraph": { "level": "api", "how": "useSeoMeta's og fields (ogTitle, ogDescription, ogImage).", "source": "https://nuxt.com/docs/4.x/getting-started/seo-meta" },
+    "skipLink": { "level": "manual", "how": "Written by hand.", "source": "https://nuxt.com/docs/4.x/api/components/nuxt-route-announcer" },
+    "csp": { "level": "manual", "how": "A policy string written by hand into routeRules headers.", "source": "https://nuxt.com/docs/4.x/guide/concepts/rendering", "note": "The usual module, nuxt-security, is a community package." },
+    "frameOptions": { "level": "manual", "how": "A header written by hand into routeRules headers.", "source": "https://nuxt.com/docs/4.x/guide/concepts/rendering" },
+    "robots": { "level": "default", "how": "The starter ships public/robots.txt.", "source": "https://github.com/nuxt/starter/tree/v4/public", "note": "From the template, not the framework." },
+    "sitemap": { "level": "manual", "how": "A file or server route written by hand, or a community module.", "source": "https://nuxt.com/modules/sitemap", "note": "@nuxtjs/sitemap is a community module (Nuxt SEO), not the core team's." },
+    "canonical": { "level": "manual", "how": "useHead({ link: [{ rel: 'canonical', href }] }), the link written by hand.", "source": "https://nuxt.com/docs/4.x/api/composables/use-head" },
+    "jsonLd": { "level": "manual", "how": "A useHead script entry of type application/ld+json, written by hand.", "source": "https://nuxt.com/docs/4.x/getting-started/seo-meta", "note": "nuxt-schema-org is a community module." }
+  }
+}

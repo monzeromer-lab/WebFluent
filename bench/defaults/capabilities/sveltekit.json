@@ -1,0 +1,19 @@
+{
+  "framework": "SvelteKit",
+  "version": "3.4.x",
+  "checked": "2026-11-22",
+  "items": {
+    "htmlLang": { "level": "default", "how": "The starter's src/app.html writes <html lang=\"en\">.", "source": "https://svelte.dev/docs/kit/accessibility" },
+    "title": { "level": "manual", "how": "A <title> written in <svelte:head> on each page, as the SEO docs advise; the starter has none.", "source": "https://svelte.dev/docs/kit/seo", "note": "<svelte:head> is Svelte's general head element, nothing specific to titles." },
+    "description": { "level": "manual", "how": "A <meta name=\"description\"> written in <svelte:head>.", "source": "https://svelte.dev/docs/kit/seo" },
+    "contentInHtml": { "level": "default", "how": "Every page is server-rendered by default.", "source": "https://svelte.dev/docs/kit/seo" },
+    "openGraph": { "level": "manual", "how": "og:* tags written in <svelte:head>.", "source": "https://svelte.dev/docs/kit/seo" },
+    "skipLink": { "level": "manual", "how": "Written by hand in the layout.", "source": "https://svelte.dev/docs/kit/accessibility" },
+    "csp": { "level": "setting", "how": "The csp option emits the policy, with nonces or hashes for SvelteKit's own scripts and styles.", "source": "https://svelte.dev/docs/kit/configuration", "note": "Off unless configured; a header on dynamic pages, a meta tag on prerendered ones." },
+    "frameOptions": { "level": "setting", "how": "frame-ancestors in the csp option's directives.", "source": "https://svelte.dev/docs/kit/configuration", "note": "Only where the policy goes out as a header; a prerendered page's meta tag cannot carry it." },
+    "robots": { "level": "default", "how": "The starter ships static/robots.txt.", "source": "https://svelte.dev/docs/kit/project-structure", "note": "From the template, not the framework." },
+    "sitemap": { "level": "manual", "how": "A sitemap.xml/+server.js endpoint that writes the XML by hand, as the SEO docs show.", "source": "https://svelte.dev/docs/kit/seo" },
+    "canonical": { "level": "manual", "how": "A <link rel=\"canonical\"> written in <svelte:head>.", "source": "https://svelte.dev/docs/kit/seo" },
+    "jsonLd": { "level": "manual", "how": "A <script type=\"application/ld+json\"> written by hand.", "source": "https://svelte.dev/docs/kit/seo" }
+  }
+}

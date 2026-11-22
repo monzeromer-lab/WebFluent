@@ -1,0 +1,95 @@
+/// js-framework-benchmark, keyed: a store of rows, drawn by one keyed `for`.
+
+type Row { id: Number, label: String }
+
+const ADJECTIVES = ["pretty", "large", "big", "small", "tall", "short", "long", "handsome", "plain", "quaint", "clean", "elegant", "easy", "angry", "crazy", "helpful", "mushy", "odd", "unsightly", "adorable", "important", "inexpensive", "cheap", "expensive", "fancy"]
+const COLOURS = ["red", "yellow", "blue", "green", "pink", "brown", "purple", "brown", "white", "black", "orange"]
+const NOUNS = ["table", "chair", "house", "bbq", "desk", "car", "pony", "cookie", "sandwich", "burger", "pizza", "mouse", "keyboard"]
+
+store Bench {
+    state rows: [Row] = []
+    state selected: Number = 0
+    state nextId: Number = 1
+
+    action build(count: Number) -> [Row] {
+        let start = nextId
+        nextId = nextId + count
+        return (0..count).map(i => Row(id: start + i, label: "{pick(ADJECTIVES)} {pick(COLOURS)} {pick(NOUNS)}"))
+    }
+    action pick(words: [String]) -> String {
+        return words.at(Math.round(Math.random() * 1000) % words.length) ?? ""
+    }
+    action run() {
+        rows = build(1000)
+        selected = 0
+    }
+    action runLots() {
+        rows = build(10000)
+        selected = 0
+    }
+    action add() { rows = rows.concat(build(1000)) }
+    action everyTenth() {
+        rows = rows.map((r, i) => if i % 10 == 0 { Row(id: r.id, label: "{r.label} !!!") } else { r })
+    }
+    action clear() { rows = [] }
+    action swap() {
+        if rows.length > 998 {
+            if let a = rows.at(1) {
+                if let b = rows.at(998) {
+                    rows = rows.map((r, i) => if i == 1 { b } else if i == 998 { a } else { r })
+                }
+            }
+        }
+    }
+    action remove(id: Number) { rows = rows.filter(r => r.id != id) }
+    action select(id: Number) { selected = id }
+}
+
+component Action(_ label: String, id: String) {
+    event press()
+    Stack(class: "col-sm-6 smallpad") {
+        Button(label, id: id, class: "btn btn-primary btn-block") { on click { emit press() } }
+    }
+}
+
+page Main(path: "/", title: "WebFluent-\"keyed\"", description: "The js-framework-benchmark, in WebFluent.") {
+    use Bench
+    Stack(id: "main") {
+        Stack(class: "container") {
+            Stack(class: "jumbotron") {
+                Stack(class: "row") {
+                    Stack(class: "col-md-6") { Heading("WebFluent-\"keyed\"").h1 }
+                    Stack(class: "col-md-6") {
+                        Stack(class: "row") {
+                            Action("Create 1,000 rows", id: "run") { on press { Bench.run() } }
+                            Action("Create 10,000 rows", id: "runlots") { on press { Bench.runLots() } }
+                            Action("Append 1,000 rows", id: "add") { on press { Bench.add() } }
+                            Action("Update every 10th row", id: "update") { on press { Bench.everyTenth() } }
+                            Action("Clear", id: "clear") { on press { Bench.clear() } }
+                            Action("Swap Rows", id: "swaprows") { on press { Bench.swap() } }
+                        }
+                    }
+                }
+            }
+            Table(caption: "Rows", class: "table table-hover table-striped test-data") {
+                Table.Body {
+                    for row in Bench.rows by row.id {
+                        Table.Row(class: if Bench.selected == row.id { "danger" } else { "" }) {
+                            Table.Cell("{row.id}", class: "col-md-1")
+                            Table.Cell(class: "col-md-4") {
+                                Link(row.label, to: "#") { on click(e) { e.preventDefault()  Bench.select(row.id) } }
+                            }
+                            Table.Cell(class: "col-md-1") {
+                                Link(to: "#", aria-label: "Remove") {
+                                    on click(e) { e.preventDefault()  Bench.remove(row.id) }
+                                    Host(tag: "span", class: "glyphicon glyphicon-remove", aria-hidden: "true")
+                                }
+                            }
+                            Table.Cell(class: "col-md-6")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

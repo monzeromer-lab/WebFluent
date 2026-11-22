@@ -1,0 +1,297 @@
+{
+  "benchmark": "agents/pokedex",
+  "batch": "tools2-ab",
+  "summarizedAt": "2026-11-18T20:54:57.032Z",
+  "config": {
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "claudeVersion": "2.1.310",
+    "wfVersion": "7.1.1",
+    "engine": "workshop",
+    "seed": 5
+  },
+  "harness": {
+    "repo": "https://github.com/nolanlawson/agent-framework-benchmark",
+    "commit": "b95ada03930ca3670c8ff6377c3af815df0ac040",
+    "resultsRepo": "https://github.com/nolanlawson/agent-framework-benchmark-results",
+    "resultsCommit": "4c2c18c3a993606feca4bd8d9894a73dc5b1936f",
+    "license": "Apache-2.0, as the harness's package.json declares (there is no LICENSE file)"
+  },
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "cores": 16,
+    "memoryGiB": 31,
+    "os": "Linux 7.0.0-43-generic",
+    "loadavg": [
+      5.18,
+      2.79,
+      2.03
+    ]
+  },
+  "definitions": {
+    "tokens.total": "input + output + cache reads + cache writes, as the harness's tokens.mjs adds them",
+    "costUSD": "Claude Code's own total_cost_usd: list prices, cache pricing included. API-equivalent; the runs were on a subscription",
+    "passed": "the harness's hidden Playwright tests, run against the app in a fresh container with changed API data"
+  },
+  "summary": {
+    "webfluent-lean": {
+      "planned": 3,
+      "n": 3,
+      "passed": 3,
+      "passRate": 1,
+      "passRateCi95": [
+        0.43849391955098227,
+        1
+      ],
+      "setAside": 0,
+      "tokens": {
+        "total": {
+          "n": 3,
+          "median": 15630401,
+          "iqr": [
+            15546963,
+            16345305.5
+          ],
+          "ci95": [
+            15463525,
+            17060210
+          ],
+          "min": 15463525,
+          "max": 17060210
+        },
+        "input": {
+          "n": 3,
+          "median": 192,
+          "iqr": [
+            186,
+            193
+          ],
+          "ci95": [
+            180,
+            194
+          ],
+          "min": 180,
+          "max": 194
+        },
+        "cacheWrite": {
+          "n": 3,
+          "median": 230907,
+          "iqr": [
+            228278.5,
+            238765.5
+          ],
+          "ci95": [
+            225650,
+            246624
+          ],
+          "min": 225650,
+          "max": 246624
+        },
+        "cacheRead": {
+          "n": 3,
+          "median": 15337703,
+          "iqr": [
+            15247492,
+            16038514.5
+          ],
+          "ci95": [
+            15157281,
+            16739326
+          ],
+          "min": 15157281,
+          "max": 16739326
+        },
+        "output": {
+          "n": 3,
+          "median": 74068,
+          "iqr": [
+            70461,
+            74612.5
+          ],
+          "ci95": [
+            66854,
+            75157
+          ],
+          "min": 66854,
+          "max": 75157
+        }
+      },
+      "costUSD": {
+        "n": 3,
+        "median": 6.382572200000001,
+        "iqr": [
+          6.2965843999999995,
+          6.592778700000002
+        ],
+        "ci95": [
+          6.210596599999998,
+          6.802985200000002
+        ],
+        "min": 6.210596599999998,
+        "max": 6.802985200000002
+      },
+      "wallMin": {
+        "n": 3,
+        "median": 15.30495,
+        "iqr": [
+          15.209483333333333,
+          15.758908333333334
+        ],
+        "ci95": [
+          15.114016666666666,
+          16.212866666666667
+        ],
+        "min": 15.114016666666666,
+        "max": 16.212866666666667
+      },
+      "turns": {
+        "n": 3,
+        "median": 119,
+        "iqr": [
+          118,
+          123.5
+        ],
+        "ci95": [
+          117,
+          128
+        ],
+        "min": 117,
+        "max": 128
+      },
+      "toolCalls": {
+        "n": 3,
+        "median": 108,
+        "iqr": [
+          107.5,
+          111
+        ],
+        "ci95": [
+          107,
+          114
+        ],
+        "min": 107,
+        "max": 114
+      },
+      "sourceLines": {
+        "n": 3,
+        "median": 1602,
+        "iqr": [
+          1534.5,
+          1625.5
+        ],
+        "ci95": [
+          1467,
+          1649
+        ],
+        "min": 1467,
+        "max": 1649
+      },
+      "lighthouse": {
+        "performance": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        },
+        "accessibility": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        },
+        "lcp": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        },
+        "scriptBytes": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        }
+      },
+      "lawson": null
+    }
+  },
+  "sessions": [
+    {
+      "id": 1,
+      "framework": "webfluent-lean",
+      "dir": "webfluent-lean-1",
+      "attempts": 1,
+      "passed": true,
+      "timedOut": false,
+      "claudeCode": "2.1.310 (Claude Code)",
+      "tokens": {
+        "input": 194,
+        "output": 66854,
+        "cacheRead": 15337703,
+        "cacheWrite": 225650,
+        "total": 15630401
+      },
+      "costUSD": 6.210596599999998,
+      "wallMin": 15.30495,
+      "turns": 128,
+      "toolCalls": 114,
+      "lighthouse": null,
+      "sourceLines": 1602,
+      "installed": null
+    },
+    {
+      "id": 2,
+      "framework": "webfluent-lean",
+      "dir": "webfluent-lean-2",
+      "attempts": 1,
+      "passed": true,
+      "timedOut": false,
+      "claudeCode": "2.1.310 (Claude Code)",
+      "tokens": {
+        "input": 192,
+        "output": 74068,
+        "cacheRead": 16739326,
+        "cacheWrite": 246624,
+        "total": 17060210
+      },
+      "costUSD": 6.802985200000002,
+      "wallMin": 16.212866666666667,
+      "turns": 119,
+      "toolCalls": 108,
+      "lighthouse": null,
+      "sourceLines": 1467,
+      "installed": null
+    },
+    {
+      "id": 3,
+      "framework": "webfluent-lean",
+      "dir": "webfluent-lean-3",
+      "attempts": 1,
+      "passed": true,
+      "timedOut": false,
+      "claudeCode": "2.1.310 (Claude Code)",
+      "tokens": {
+        "input": 180,
+        "output": 75157,
+        "cacheRead": 15157281,
+        "cacheWrite": 230907,
+        "total": 15463525
+      },
+      "costUSD": 6.382572200000001,
+      "wallMin": 15.114016666666666,
+      "turns": 117,
+      "toolCalls": 107,
+      "lighthouse": null,
+      "sourceLines": 1649,
+      "installed": null
+    }
+  ]
+}

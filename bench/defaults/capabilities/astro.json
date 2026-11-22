@@ -1,0 +1,19 @@
+{
+  "framework": "Astro",
+  "version": "7.4.x",
+  "checked": "2026-11-22",
+  "items": {
+    "htmlLang": { "level": "default", "how": "The starter's layout writes <html lang=\"en\">.", "source": "https://github.com/withastro/astro/blob/main/examples/basics/src/layouts/Layout.astro", "note": "The template writes it, not the framework." },
+    "title": { "level": "default", "how": "The starter's layout writes a fixed <title>; a title per page is written by hand.", "source": "https://github.com/withastro/astro/blob/main/examples/basics/src/layouts/Layout.astro" },
+    "description": { "level": "manual", "how": "A <meta name=\"description\"> written in the layout's head.", "source": "https://docs.astro.build/en/basics/layouts/" },
+    "contentInHtml": { "level": "default", "how": "Components render to HTML at build time; no client JS unless a client:* directive asks.", "source": "https://docs.astro.build/en/concepts/islands/" },
+    "openGraph": { "level": "manual", "how": "og:* tags written by hand in the layout's head.", "source": "https://docs.astro.build/en/reference/api-reference/#url" },
+    "skipLink": { "level": "manual", "how": "Written by hand.", "source": "https://docs.astro.build/en/basics/layouts/" },
+    "csp": { "level": "setting", "how": "security.csp: true in astro.config hashes Astro's scripts and styles into a policy meta tag.", "source": "https://docs.astro.build/en/reference/configuration-reference/#securitycsp", "note": "Stable since Astro 6; a meta tag, not active in astro dev." },
+    "frameOptions": { "level": "manual", "how": "A header set at the host or in middleware; a meta-tag policy cannot carry frame-ancestors.", "source": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/frame-ancestors" },
+    "robots": { "level": "manual", "how": "A file in public/, or a generic endpoint that writes one.", "source": "https://docs.astro.build/en/guides/integrations-guide/sitemap/" },
+    "sitemap": { "level": "official", "how": "The official @astrojs/sitemap integration, with site set.", "source": "https://docs.astro.build/en/guides/integrations-guide/sitemap/" },
+    "canonical": { "level": "manual", "how": "A <link rel=\"canonical\"> written by hand from Astro.url and site.", "source": "https://docs.astro.build/en/reference/configuration-reference/#site" },
+    "jsonLd": { "level": "manual", "how": "A <script type=\"application/ld+json\"> written by hand with set:html.", "source": "https://docs.astro.build/en/reference/directives-reference/#sethtml" }
+  }
+}

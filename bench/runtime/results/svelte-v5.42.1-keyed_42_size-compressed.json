@@ -1,0 +1,1 @@
+{"framework":"svelte-v5.42.1-keyed","keyed":true,"benchmark":"42_size-compressed","type":"size","values":{"DEFAULT":{"min":9.7,"max":9.7,"median":9.7,"mean":9.7,"stddev":null,"values":[9.7]}}}

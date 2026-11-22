@@ -1,0 +1,1 @@
+{"framework":"react-hooks-v19.2.0-keyed","keyed":true,"benchmark":"41_size-uncompressed","type":"size","values":{"DEFAULT":{"min":190.3,"max":190.3,"median":190.3,"mean":190.3,"stddev":null,"values":[190.3]}}}

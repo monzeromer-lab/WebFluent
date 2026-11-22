@@ -1,0 +1,19 @@
+{
+  "framework": "Next.js",
+  "version": "16.4.6",
+  "checked": "2026-11-22",
+  "items": {
+    "htmlLang": { "level": "default", "how": "The create-next-app root layout writes <html lang=\"en\">; change it in that JSX.", "source": "https://github.com/vercel/next.js/blob/canary/packages/create-next-app/templates/app-tw/ts/app/layout.tsx", "note": "The template writes it, not the framework; no App Router setting." },
+    "title": { "level": "api", "how": "Export metadata = { title } or generateMetadata() from a layout or page.", "source": "https://nextjs.org/docs/app/api-reference/functions/generate-metadata#title", "note": "The starter ships a placeholder, \"Create Next App\"." },
+    "description": { "level": "api", "how": "The description field of the metadata export.", "source": "https://nextjs.org/docs/app/api-reference/functions/generate-metadata#description", "note": "The starter ships a placeholder." },
+    "contentInHtml": { "level": "default", "how": "App Router pages are server components, prerendered or server-rendered.", "source": "https://nextjs.org/docs/app/getting-started/server-and-client-components" },
+    "openGraph": { "level": "api", "how": "The openGraph field of metadata, or an opengraph-image file.", "source": "https://nextjs.org/docs/app/api-reference/functions/generate-metadata#opengraph" },
+    "skipLink": { "level": "manual", "how": "Written by hand in the root layout.", "source": "https://nextjs.org/docs/architecture/accessibility" },
+    "csp": { "level": "manual", "how": "The policy string written by hand, sent from headers() in next.config or proxy.ts.", "source": "https://nextjs.org/docs/app/guides/content-security-policy", "note": "The framework adds its nonce to its own scripts when a policy carries one." },
+    "frameOptions": { "level": "manual", "how": "X-Frame-Options or frame-ancestors added by hand in headers().", "source": "https://nextjs.org/docs/app/api-reference/config/next-config-js/headers" },
+    "robots": { "level": "api", "how": "An app/robots.txt or app/robots.ts file.", "source": "https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots" },
+    "sitemap": { "level": "api", "how": "An app/sitemap.ts file that lists the URLs.", "source": "https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap", "note": "The URLs are listed by the developer, not taken from the routes." },
+    "canonical": { "level": "api", "how": "alternates.canonical in each page's metadata.", "source": "https://nextjs.org/docs/app/api-reference/functions/generate-metadata#alternates" },
+    "jsonLd": { "level": "manual", "how": "A <script type=\"application/ld+json\"> rendered by hand, escaped by the developer.", "source": "https://nextjs.org/docs/app/guides/json-ld" }
+  }
+}

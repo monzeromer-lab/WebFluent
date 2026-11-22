@@ -1,0 +1,12 @@
+{
+  "name": "webfluent-bench-defaults",
+  "private": true,
+  "description": "What each framework's starter gets right with nothing configured: Lighthouse and the defaults a search engine, a screen reader and a browser look for.",
+  "type": "module",
+  "scripts": {
+    "bench": "node run.mjs"
+  },
+  "devDependencies": {
+    "lighthouse": "^12.6.0"
+  }
+}

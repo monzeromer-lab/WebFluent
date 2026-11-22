@@ -73,12 +73,12 @@ showcase *args:
 
 # Then write the release notes' section, and `just preflight vVERSION`.
 # Set the crates, the Node binding and the agents' skill (its version, and
-# its copy of AGENTS.md) to VERSION, and the lock file with them
+# its reference, a file a section of AGENTS.md) to VERSION, and the lock file with them
 bump version:
     sed -i '0,/^version = ".*"/s//version = "{{version}}"/' Cargo.toml
     sed -i '0,/"version": ".*"/s//"version": "{{version}}"/' bindings/node/package.json
     sed -i -E 's/^(  version: )"[0-9]+\.[0-9]+\.[0-9]+"/\1"{{version}}"/; s/(the reference of WebFluent )[0-9]+\.[0-9]+\.[0-9]+/\1{{version}}/' skills/writing-webfluent/SKILL.md
-    cp AGENTS.md skills/writing-webfluent/references/language.md
+    WF_BLESS_SKILL=1 cargo test --quiet --test it the_writing_webfluent_skill_is_true_of_this_version
     cargo update -w --quiet
     @grep -H '^version' Cargo.toml crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml
     @grep -H '"version"' bindings/node/package.json
@@ -173,6 +173,48 @@ bench-pdf:
     cargo build --release --locked --manifest-path bench/pdf/rust/Cargo.toml
     cd bench/pdf && npm ci --no-audit --no-fund
     node bench/pdf/run.mjs
+
+# Install, build and dev-server times of each framework's starter
+bench-toolchain *args:
+    cargo build --release --locked --bin wf
+    node bench/toolchain/run.mjs {{args}}
+
+# (bench-toolchain makes the starters this reads)
+# Lighthouse on each starter, and the defaults its server sends
+bench-defaults *args:
+    cargo build --release --locked --bin wf
+    cd bench/defaults && npm ci --no-audit --no-fund
+    node bench/defaults/run.mjs {{args}}
+
+# js-framework-benchmark, keyed, in headless Chrome (bench/runtime/run.sh)
+bench-runtime *frameworks:
+    cargo build --release --locked --bin wf
+    bash bench/runtime/run.sh {{frameworks}}
+
+# Every benchmark's results into site/src/benchmarks.json, for /benchmarks
+bench-report:
+    node bench/report.mjs
+
+# Agent benchmarks on the Claude subscription (bench/agents/README.md).
+# Plan a batch: comma-separated frameworks, runs of each, shuffled once
+bench-agents-plan name frameworks runs *args:
+    node bench/agents/queue.mjs plan --name={{name}} --frameworks={{frameworks}} --runs={{runs}} {{args}}
+
+# Build a batch's containers
+bench-agents-images name:
+    node bench/agents/queue.mjs images --name={{name}}
+
+# Run a batch's sessions, waiting out usage limits; safe to stop and resume
+bench-agents-run name *args:
+    node bench/agents/queue.mjs run --name={{name}} {{args}}
+
+# Lighthouse and lines of code for a batch's passing apps
+bench-agents-measure name:
+    node bench/agents/queue.mjs measure --name={{name}}
+
+# A batch's results.json: medians, intervals, and Lawson's medians beside them
+bench-agents-summary name:
+    node bench/agents/summarize.mjs --name={{name}}
 
 # Formatting, clippy and the build, one by one, as CI runs them
 # (`just check --fix` formats first; `just check --test` runs the tests too)

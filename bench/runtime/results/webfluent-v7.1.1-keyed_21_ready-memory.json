@@ -1,0 +1,1 @@
+{"framework":"webfluent-v7.1.1-keyed","keyed":true,"benchmark":"21_ready-memory","type":"memory","values":{"DEFAULT":{"min":0.7105779647827148,"max":0.7105779647827148,"median":0.7105779647827148,"mean":0.7105779647827148,"stddev":null,"values":[0.7105779647827148]}}}

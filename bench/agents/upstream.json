@@ -1,0 +1,7 @@
+{
+  "repo": "https://github.com/nolanlawson/agent-framework-benchmark",
+  "commit": "b95ada03930ca3670c8ff6377c3af815df0ac040",
+  "resultsRepo": "https://github.com/nolanlawson/agent-framework-benchmark-results",
+  "resultsCommit": "4c2c18c3a993606feca4bd8d9894a73dc5b1936f",
+  "license": "Apache-2.0, as the harness's package.json declares (there is no LICENSE file)"
+}

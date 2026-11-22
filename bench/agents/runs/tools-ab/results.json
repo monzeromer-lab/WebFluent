@@ -1,0 +1,274 @@
+{
+  "benchmark": "agents/pokedex",
+  "batch": "tools-ab",
+  "summarizedAt": "2026-11-18T20:53:59.072Z",
+  "config": {
+    "model": "claude-opus-5-5",
+    "effort": "high",
+    "claudeVersion": "2.1.310",
+    "wfVersion": "7.1.1",
+    "engine": "workshop",
+    "seed": 4
+  },
+  "harness": {
+    "repo": "https://github.com/nolanlawson/agent-framework-benchmark",
+    "commit": "b95ada03930ca3670c8ff6377c3af815df0ac040",
+    "resultsRepo": "https://github.com/nolanlawson/agent-framework-benchmark-results",
+    "resultsCommit": "4c2c18c3a993606feca4bd8d9894a73dc5b1936f",
+    "license": "Apache-2.0, as the harness's package.json declares (there is no LICENSE file)"
+  },
+  "machine": {
+    "cpu": "Intel(R) Core(TM) i7-10700 CPU @ 2.90GHz",
+    "cores": 16,
+    "memoryGiB": 31,
+    "os": "Linux 7.0.0-43-generic",
+    "loadavg": [
+      4.8,
+      2.26,
+      1.82
+    ]
+  },
+  "definitions": {
+    "tokens.total": "input + output + cache reads + cache writes, as the harness's tokens.mjs adds them",
+    "costUSD": "Claude Code's own total_cost_usd: list prices, cache pricing included. API-equivalent; the runs were on a subscription",
+    "passed": "the harness's hidden Playwright tests, run against the app in a fresh container with changed API data"
+  },
+  "summary": {
+    "webfluent-lean": {
+      "planned": 3,
+      "n": 2,
+      "passed": 2,
+      "passRate": 1,
+      "passRateCi95": [
+        0.34237195288961925,
+        1
+      ],
+      "setAside": 0,
+      "tokens": {
+        "total": {
+          "n": 2,
+          "median": 21029323,
+          "iqr": [
+            19885670.5,
+            22172975.5
+          ],
+          "ci95": [
+            18742018,
+            23316628
+          ],
+          "min": 18742018,
+          "max": 23316628
+        },
+        "input": {
+          "n": 2,
+          "median": 233,
+          "iqr": [
+            225.5,
+            240.5
+          ],
+          "ci95": [
+            218,
+            248
+          ],
+          "min": 218,
+          "max": 248
+        },
+        "cacheWrite": {
+          "n": 2,
+          "median": 261923,
+          "iqr": [
+            253508,
+            270338
+          ],
+          "ci95": [
+            245093,
+            278753
+          ],
+          "min": 245093,
+          "max": 278753
+        },
+        "cacheRead": {
+          "n": 2,
+          "median": 20682659.5,
+          "iqr": [
+            19550617.25,
+            21814701.75
+          ],
+          "ci95": [
+            18418575,
+            22946744
+          ],
+          "min": 18418575,
+          "max": 22946744
+        },
+        "output": {
+          "n": 2,
+          "median": 84507.5,
+          "iqr": [
+            81319.75,
+            87695.25
+          ],
+          "ci95": [
+            78132,
+            90883
+          ],
+          "min": 78132,
+          "max": 90883
+        }
+      },
+      "costUSD": {
+        "n": 2,
+        "median": 7.9229979,
+        "iqr": [
+          7.565484450000001,
+          8.28051135
+        ],
+        "ci95": [
+          7.207971000000002,
+          8.638024799999998
+        ],
+        "min": 7.207971000000002,
+        "max": 8.638024799999998
+      },
+      "wallMin": {
+        "n": 2,
+        "median": 20.0033,
+        "iqr": [
+          19.651625,
+          20.354975
+        ],
+        "ci95": [
+          19.29995,
+          20.70665
+        ],
+        "min": 19.29995,
+        "max": 20.70665
+      },
+      "turns": {
+        "n": 2,
+        "median": 145.5,
+        "iqr": [
+          140.75,
+          150.25
+        ],
+        "ci95": [
+          136,
+          155
+        ],
+        "min": 136,
+        "max": 155
+      },
+      "toolCalls": {
+        "n": 2,
+        "median": 134.5,
+        "iqr": [
+          129.25,
+          139.75
+        ],
+        "ci95": [
+          124,
+          145
+        ],
+        "min": 124,
+        "max": 145
+      },
+      "sourceLines": {
+        "n": 2,
+        "median": 1489,
+        "iqr": [
+          1417.5,
+          1560.5
+        ],
+        "ci95": [
+          1346,
+          1632
+        ],
+        "min": 1346,
+        "max": 1632
+      },
+      "lighthouse": {
+        "performance": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        },
+        "accessibility": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        },
+        "lcp": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        },
+        "scriptBytes": {
+          "n": 0,
+          "median": null,
+          "iqr": null,
+          "ci95": null,
+          "min": null,
+          "max": null
+        }
+      },
+      "lawson": null
+    }
+  },
+  "sessions": [
+    {
+      "id": 1,
+      "framework": "webfluent-lean",
+      "dir": "webfluent-lean-1",
+      "attempts": 1,
+      "passed": true,
+      "timedOut": false,
+      "claudeCode": "2.1.310 (Claude Code)",
+      "tokens": {
+        "input": 248,
+        "output": 90883,
+        "cacheRead": 22946744,
+        "cacheWrite": 278753,
+        "total": 23316628
+      },
+      "costUSD": 8.638024799999998,
+      "wallMin": 20.70665,
+      "turns": 155,
+      "toolCalls": 145,
+      "lighthouse": null,
+      "sourceLines": 1632,
+      "installed": null
+    },
+    {
+      "id": 2,
+      "framework": "webfluent-lean",
+      "dir": "webfluent-lean-2",
+      "attempts": 1,
+      "passed": true,
+      "timedOut": false,
+      "claudeCode": "2.1.310 (Claude Code)",
+      "tokens": {
+        "input": 218,
+        "output": 78132,
+        "cacheRead": 18418575,
+        "cacheWrite": 245093,
+        "total": 18742018
+      },
+      "costUSD": 7.207971000000002,
+      "wallMin": 19.29995,
+      "turns": 136,
+      "toolCalls": 124,
+      "lighthouse": null,
+      "sourceLines": 1346,
+      "installed": null
+    }
+  ]
+}

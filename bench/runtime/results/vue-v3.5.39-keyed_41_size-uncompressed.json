@@ -1,0 +1,1 @@
+{"framework":"vue-v3.5.39-keyed","keyed":true,"benchmark":"41_size-uncompressed","type":"size","values":{"DEFAULT":{"min":64.3,"max":64.3,"median":64.3,"mean":64.3,"stddev":null,"values":[64.3]}}}

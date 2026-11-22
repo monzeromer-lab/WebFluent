@@ -1,0 +1,277 @@
+{
+  "measuredAt": "2026-11-22T21:48:44.626Z",
+  "runs": 3,
+  "chrome": "Google Chrome 158.0.8127.36",
+  "tools": {
+    "webfluent": {
+      "label": "WebFluent",
+      "defaults": {
+        "csp": true,
+        "frameOptions": true,
+        "htmlLang": true,
+        "title": true,
+        "description": true,
+        "canonical": false,
+        "openGraph": true,
+        "jsonLd": false,
+        "skipLink": true,
+        "sitemap": false,
+        "robots": true,
+        "contentInHtml": false
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 1,
+        "bestPractices": 1,
+        "seo": 1,
+        "lcp": 1350.4626,
+        "fcp": 900.4626000000001,
+        "tbt": 0,
+        "cls": 0,
+        "scriptBytes": 26722,
+        "bytes": 35230
+      },
+      "lighthouseRuns": 3
+    },
+    "webfluent-static": {
+      "label": "WebFluent (static)",
+      "defaults": {
+        "csp": true,
+        "frameOptions": true,
+        "htmlLang": true,
+        "title": true,
+        "description": true,
+        "canonical": false,
+        "openGraph": true,
+        "jsonLd": false,
+        "skipLink": true,
+        "sitemap": false,
+        "robots": true,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 1,
+        "bestPractices": 1,
+        "seo": 1,
+        "lcp": 1072.553,
+        "fcp": 750.4889000000001,
+        "tbt": 0,
+        "cls": 0.05944526219901997,
+        "scriptBytes": 20869,
+        "bytes": 28948
+      },
+      "lighthouseRuns": 3
+    },
+    "webfluent-site": {
+      "label": "WebFluent (static, site_url)",
+      "defaults": {
+        "csp": true,
+        "frameOptions": true,
+        "htmlLang": true,
+        "title": true,
+        "description": true,
+        "canonical": true,
+        "openGraph": true,
+        "jsonLd": true,
+        "skipLink": true,
+        "sitemap": true,
+        "robots": true,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 1,
+        "bestPractices": 1,
+        "seo": 1,
+        "lcp": 1200.4905,
+        "fcp": 750.5024000000001,
+        "tbt": 0,
+        "cls": 0,
+        "scriptBytes": 20869,
+        "bytes": 29156
+      },
+      "lighthouseRuns": 3
+    },
+    "astro-site": {
+      "label": "Astro (site)",
+      "defaults": {
+        "csp": false,
+        "frameOptions": false,
+        "htmlLang": true,
+        "title": true,
+        "description": false,
+        "canonical": false,
+        "openGraph": false,
+        "jsonLd": false,
+        "skipLink": false,
+        "sitemap": false,
+        "robots": false,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 1,
+        "bestPractices": 1,
+        "seo": 0.9,
+        "lcp": 901.1157000000001,
+        "fcp": 600.76785,
+        "tbt": 64,
+        "cls": 0,
+        "scriptBytes": 0,
+        "bytes": 2500
+      },
+      "lighthouseRuns": 3
+    },
+    "astro": {
+      "label": "Astro",
+      "defaults": {
+        "csp": false,
+        "frameOptions": false,
+        "htmlLang": true,
+        "title": true,
+        "description": false,
+        "canonical": false,
+        "openGraph": false,
+        "jsonLd": false,
+        "skipLink": false,
+        "sitemap": false,
+        "robots": false,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 1,
+        "bestPractices": 1,
+        "seo": 0.9,
+        "lcp": 901.3964000000001,
+        "fcp": 600.7219,
+        "tbt": 82,
+        "cls": 0,
+        "scriptBytes": 0,
+        "bytes": 2500
+      },
+      "lighthouseRuns": 3
+    },
+    "next": {
+      "label": "Next.js",
+      "defaults": {
+        "csp": false,
+        "frameOptions": false,
+        "htmlLang": true,
+        "title": true,
+        "description": true,
+        "canonical": false,
+        "openGraph": false,
+        "jsonLd": false,
+        "skipLink": false,
+        "sitemap": false,
+        "robots": false,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 0.98,
+        "accessibility": 1,
+        "bestPractices": 1,
+        "seo": 1,
+        "lcp": 2301.84825,
+        "fcp": 904.5654999999999,
+        "tbt": 70,
+        "cls": 0,
+        "scriptBytes": 143608,
+        "bytes": 207427
+      },
+      "lighthouseRuns": 3
+    },
+    "sveltekit": {
+      "label": "SvelteKit",
+      "defaults": {
+        "csp": false,
+        "frameOptions": false,
+        "htmlLang": true,
+        "title": false,
+        "description": false,
+        "canonical": false,
+        "openGraph": false,
+        "jsonLd": false,
+        "skipLink": false,
+        "sitemap": false,
+        "robots": true,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 0.94,
+        "bestPractices": 1,
+        "seo": 0.82,
+        "lcp": 1204.7644,
+        "fcp": 1204.7644,
+        "tbt": 0,
+        "cls": 0,
+        "scriptBytes": 36267,
+        "bytes": 38035
+      },
+      "lighthouseRuns": 3
+    },
+    "nuxt": {
+      "label": "Nuxt",
+      "defaults": {
+        "csp": false,
+        "frameOptions": false,
+        "htmlLang": false,
+        "title": true,
+        "description": false,
+        "canonical": false,
+        "openGraph": false,
+        "jsonLd": false,
+        "skipLink": false,
+        "sitemap": false,
+        "robots": true,
+        "contentInHtml": true
+      },
+      "lighthouse": {
+        "performance": 0.98,
+        "accessibility": 0.9,
+        "bestPractices": 1,
+        "seo": 0.91,
+        "lcp": 2117.4620999999997,
+        "fcp": 1653.3249,
+        "tbt": 0,
+        "cls": 0,
+        "scriptBytes": 160143,
+        "bytes": 211701
+      },
+      "lighthouseRuns": 3
+    },
+    "react": {
+      "label": "React + Vite",
+      "defaults": {
+        "csp": false,
+        "frameOptions": false,
+        "htmlLang": true,
+        "title": true,
+        "description": false,
+        "canonical": false,
+        "openGraph": false,
+        "jsonLd": false,
+        "skipLink": false,
+        "sitemap": false,
+        "robots": false,
+        "contentInHtml": false
+      },
+      "lighthouse": {
+        "performance": 1,
+        "accessibility": 0.94,
+        "bestPractices": 1,
+        "seo": 0.75,
+        "lcp": 1502.92515,
+        "fcp": 1201.9501,
+        "tbt": 0,
+        "cls": 0,
+        "scriptBytes": 68956,
+        "bytes": 93315
+      },
+      "lighthouseRuns": 3
+    }
+  }
+}
