@@ -4,12 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/route-transitions
 
-Fade or slide from one page to the next, on every route change, by giving
-the `Router` a `transition:` and a `duration:` in `app`:
+Fade or slide from one page to the next, on every route change, by giving the `Router` a `transition:` and a `duration:` in `app`:
 
-**Needs:** nothing besides the code, which is a whole project's `app` and
-pages: paste it into a new project, replacing `src/App.wf` and
-`src/pages/Home.wf`.
+**Needs:** nothing besides the code, which is a whole project's `app` and pages: paste it into a new project, replacing `src/App.wf` and `src/pages/Home.wf`.
 
 ```wf
 app {
@@ -26,19 +23,11 @@ page About(path: "/about", title: "About", description: "Who we are.") { Heading
 
 ## How it works
 
-- `transition:` is `.fade`, `.slide` or `.none` (the next page replaces the
-  last at once). `duration:` is how long the change takes.
-- On each route change the old page plays out and the new one in; then
-  focus and scroll settle and the new title is announced.
-- Where the browser has the View Transitions API, the change plays through
-  it: the browser's own crossfade, or the slide the engine's stylesheet
-  defines for `[data-wf-transition="slide"]`. Your own
-  `::view-transition-*` rules in a project stylesheet may restyle either.
-  In other browsers, a class-based animation plays instead.
+- `transition:` is `.fade`, `.slide` or `.none` (the next page replaces the last at once). `duration:` is how long the change takes.
+- On each route change the old page plays out and the new one in; then focus and scroll settle and the new title is announced.
+- Where the browser has the View Transitions API, the change plays through it: the browser's own crossfade, or the slide the engine's stylesheet defines for `[data-wf-transition="slide"]`. Your own `::view-transition-*` rules in a project stylesheet may restyle either. In other browsers, a class-based animation plays instead.
 
-A reader who asked for reduced motion gets no route transition: the next
-page replaces the last at once
-([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).
+A reader who asked for reduced motion gets no route transition: the next page replaces the last at once ([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).
 
 ## Variations
 

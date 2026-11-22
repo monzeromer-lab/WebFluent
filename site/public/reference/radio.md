@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/radio
 One choice of a group; every radio bound to the same state is one group.
 
 ```wf
-Radio(bind: State, value: String or Number or Bool, checked: Bool, …)
+Radio(bind: State, value: String or Number or Bool or Bound, checked: Bool, …)
 ```
 
 ## Example
@@ -27,7 +27,7 @@ Stack(gap: .sm) {
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | The state shared by a group of radios: it holds the chosen radio's `value:`, and radios bound to one state are one group for the arrow keys |
-| `value:` | `String or Number or Bool` | What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked |
+| `value:` | `String or Number or Bool or Bound` | What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked; a case (`.food`) when `bind:` holds an enum (`Bound`) |
 | `checked:` | `Bool` | Whether it is chosen, when no state is bound: shown, not written back. Written as a flag, `.checked`, or `checked: true`. |
 | `label:` | `String` | The words after the button, which a press on also chooses; also its accessible name |
 | `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`. |

@@ -4,11 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/reference/expressions
 
-An expression is anything that has a value: a prop's value, a condition,
-the right side of a `state` or a `derived`, or the inside of `{…}` in a
-string. Remember one thing: wherever WebFluent wants a value, any
-expression in this chapter can stand there, and it stays live when it reads
-state.
+An expression is anything that has a value: a prop's value, a condition, the right side of a `state` or a `derived`, or the inside of `{…}` in a string. Remember one thing: wherever WebFluent wants a value, any expression in this chapter can stand there, and it stays live when it reads state.
 
 In this chapter:
 
@@ -22,9 +18,7 @@ In this chapter:
 
 ## A first example
 
-This page works out a total from state and shows it. It uses a list
-literal, a lambda, a method, arithmetic, an `if` expression and a
-formatted splice:
+This page works out a total from state and shows it. It uses a list literal, a lambda, a method, arithmetic, an `if` expression and a formatted splice:
 
 ```wf
 page Basket(path: "/basket", title: "Basket", description: "What the basket holds.") {
@@ -40,18 +34,15 @@ page Basket(path: "/basket", title: "Basket", description: "What the basket hold
 
 The page shows `3 items, $18.00` and `Member price`:
 
-- `[4.5, 12, 3.5]` is a list literal, and `prices.sum()` is one of the
-  helpers lists have.
+- `[4.5, 12, 3.5]` is a list literal, and `prices.sum()` is one of the helpers lists have.
 - `if member { … } else { … }` is a value: the block that runs gives it.
 - `{total:.currency}` is a splice that formats its value as money.
 
-When `member` or `prices` changes, `subtotal`, `total` and both texts
-follow.
+When `member` or `prices` changes, `subtotal`, `total` and both texts follow.
 
 ## Literals
 
-A literal writes a value directly. This page declares one of each of the
-everyday kinds:
+A literal writes a value directly. This page declares one of each of the everyday kinds:
 
 ```wf
 page Literals(path: "/literals", title: "Literals", description: "One value of each kind.") {
@@ -72,18 +63,11 @@ page Literals(path: "/literals", title: "Literals", description: "One value of e
 
 How each kind behaves:
 
-- **Strings** are double-quoted and read the escapes `\n`, `\t`, `\r`,
-  `\\`, `\"`, `\{` and `\}`. A raw string `#"…"#` and a block string
-  `"""…"""` are in
-  [Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#three-ways-to-write-one).
-- **Lists and maps** may span lines and take a trailing comma. A map
-  literal has the shape it was written with, so the checker can read
-  `owner.name` and refuse a misspelled field.
-- **`null`** is the absence of a value. Only a type that ends in `?`
-  holds it.
+- **Strings** are double-quoted and read the escapes `\n`, `\t`, `\r`, `\\`, `\"`, `\{` and `\}`. A raw string `#"…"#` and a block string `"""…"""` are in [Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#three-ways-to-write-one).
+- **Lists and maps** may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read `owner.name` and refuse a misspelled field.
+- **`null`** is the absence of a value. Only a type that ends in `?` holds it.
 
-The language's own types have literals too
-([Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it)):
+The language's own types have literals too ([Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it)):
 
 ```wf
 page Typed(path: "/typed", title: "Typed", description: "Literals of the built-in types.") {
@@ -100,8 +84,7 @@ page Typed(path: "/typed", title: "Typed", description: "Literals of the built-i
 
 ## Interpolation
 
-`"{expr}"` puts the value of an expression into a string. Anything that
-shows text accepts one, and the text follows the state it reads:
+`"{expr}"` puts the value of an expression into a string. Anything that shows text accepts one, and the text follows the state it reads:
 
 ```wf
 page Greeting(path: "/greeting", title: "Greeting", description: "Text built from state.") {
@@ -115,24 +98,17 @@ page Greeting(path: "/greeting", title: "Greeting", description: "Text built fro
 }
 ```
 
-The page shows `Hello, Sam`, `You have 3 items`, `Total: $29.97` and
-`Next: 4`.
+The page shows `Hello, Sam`, `You have 3 items`, `Total: $29.97` and `Next: 4`.
 
-Any expression may go inside `{…}`: a call, a method chain, an `if`, even a
-string of its own. `"{nickname ?? "none"}"` and `"{if ok { "yes" } else { "no" }}"`
-both work. The rules:
+Any expression may go inside `{…}`: a call, a method chain, an `if`, even a string of its own. `"{nickname ?? "none"}"` and `"{if ok { "yes" } else { "no" }}"` both work. The rules:
 
 - The group must close on the same line.
-- A splice opens with a name, a `(` or a `[`. Anything else in braces —
-  `"{key: value}"` in prose, a fragment of code, `"{"` alone — stays text.
-- For a long expression, declare a `derived` value and splice its name, as
-  `noun` above. It reads better and the checker names it in a message.
+- A splice opens with a name, a `(` or a `[`. Anything else in braces — `"{key: value}"` in prose, a fragment of code, `"{"` alone — stays text.
+- For a long expression, declare a `derived` value and splice its name, as `noun` above. It reads better and the checker names it in a message.
 
 ### Showing a value a particular way
 
-A splice may say how to show its value: `{value:.style}`, or
-`{value:.style(option)}`. It is `format(value, .style, option)` written
-where the value is read.
+A splice may say how to show its value: `{value:.style}`, or `{value:.style(option)}`. It is `format(value, .style, option)` written where the value is read.
 
 ```wf
 page Receipt(path: "/receipt", title: "Receipt", description: "An order, formatted.") {
@@ -148,14 +124,10 @@ page Receipt(path: "/receipt", title: "Receipt", description: "An order, formatt
 }
 ```
 
-The styles and their options are those of `format`, listed under
-[`format` and `ago`](#format-and-ago). The value is an expression like any
-other, so `{order.total:.currency}` and `{rows.sum():.compact}` both work.
+The styles and their options are those of `format`, listed under [`format` and `ago`](#format-and-ago). The value is an expression like any other, so `{order.total:.currency}` and `{rows.sum():.compact}` both work.
 
 > [!WARNING]
-> A splice must open with a name, a `(` or a `[`, so `"{0.256:.percent}"`
-> shows as written. Give the number a name first — `derived ratio = 0.256`,
-> then `{ratio:.percent}` — or wrap it: `{(0.256):.percent}`.
+> A splice must open with a name, a `(` or a `[`, so `"{0.256:.percent}"` shows as written. Give the number a name first — `derived ratio = 0.256`, then `{ratio:.percent}` — or wrap it: `{(0.256):.percent}`.
 
 ## Operators
 
@@ -190,39 +162,20 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
 
 How they behave:
 
-- `+` adds two numbers or joins two strings. A string and a number are
-  not joined: `"Total: " + n` is a `T18`, and a splice says how the number
-  shows, `"Total: {n}"`. Arithmetic on anything but numbers is a `T18`
-  too.
-- `!`, `&&` and `||` take a `Bool` (a `Bool?` counts, its `null` false).
-  A number, a string or a value that may be null is a `T29`: write what
-  the condition asks — `count != 0`, `name != ""`, `user != null` — and
-  use `??`, not `||`, for a fallback.
-- `==` compares values. Two records with the same fields are not `==`
-  unless they are the same object, so compare their ids.
-- Against a `null` literal, `==` and `!=` also match a value that is
-  absent, such as a query key the address does not have.
-- `a ?? b` is `b` when `a` is `null`. `a?.b`, `a?.m()` and `a?.[i]` read
-  through a `null` and give `null` instead of failing.
-- A range is the whole numbers from `a` up to `b`, without `b` for `..` and
-  with it for `..=`.
+- `+` adds two numbers or joins two strings. A string and a number are not joined: `"Total: " + n` is a `T18`, and a splice says how the number shows, `"Total: {n}"`. Arithmetic on anything but numbers is a `T18` too.
+- `!`, `&&` and `||` take a `Bool` (a `Bool?` counts, its `null` false). A number, a string or a value that may be null is a `T29`: write what the condition asks — `count != 0`, `name != ""`, `user != null` — and use `??`, not `||`, for a fallback.
+- `==` compares values. Two records with the same fields are not `==` unless they are the same object, so compare their ids.
+- Against a `null` literal, `==` and `!=` also match a value that is absent, such as a query key the address does not have.
+- `a ?? b` is `b` when `a` is `null`. `a?.b`, `a?.m()` and `a?.[i]` read through a `null` and give `null` instead of failing.
+- A range is the whole numbers from `a` up to `b`, without `b` for `..` and with it for `..=`.
 
 ### The types an expression must have
 
-Every expression has one type the program can name, and the checker holds
-each place to it:
+Every expression has one type the program can name, and the checker holds each place to it:
 
-- **A condition is a `Bool`.** `if`, `show`, `!`, `&&` and `||` read a
-  `Bool`; `if count { … }` is a `T29`, whose fix writes `if count != 0`.
-- **A value made of several has one type.** The branches of an `if` or a
-  `match`, the items of a list and the two sides of `??` must agree:
-  `if ok { 1 } else { "none" }` is a `T27`. `null` on one side makes the
-  value `T?`.
-- **No conversion happens by itself.** A `Date`, `Time` or `DateTime` where
-  a `String` is wanted is a `T34`, because it has more than one spelling:
-  `Text(due)` becomes `Text("{due}")` or `Text("{due:.date(long)}")`. A
-  `Duration` and a `Number` do not mix either: `3.seconds + 500` is a
-  `T34`, and `3.seconds + 500.ms` adds.
+- **A condition is a `Bool`.** `if`, `show`, `!`, `&&` and `||` read a `Bool`; `if count { … }` is a `T29`, whose fix writes `if count != 0`.
+- **A value made of several has one type.** The branches of an `if` or a `match`, the items of a list and the two sides of `??` must agree: `if ok { 1 } else { "none" }` is a `T27`. `null` on one side makes the value `T?`.
+- **No conversion happens by itself.** A `Date`, `Time` or `DateTime` where a `String` is wanted is a `T34`, because it has more than one spelling: `Text(due)` becomes `Text("{due}")` or `Text("{due:.date(long)}")`. A `Duration` and a `Number` do not mix either: `3.seconds + 500` is a `T34`, and `3.seconds + 500.ms` adds.
 
 ```wf expect=T29
 page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.") {
@@ -234,15 +187,11 @@ page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.")
 
 ### Precedence
 
-Precedence, strongest first: `!`, unary `-` and `await`; then `* / %`;
-`+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So
-`1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. The full
-table is in [Grammar](https://webfluent.monzeromer.dev/reference/grammar.md#expressions).
+Precedence, strongest first: `!`, unary `-` and `await`; then `* / %`; `+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. The full table is in [Grammar](https://webfluent.monzeromer.dev/reference/grammar.md#expressions).
 
 ## Choosing a value
 
-`if` and `match` are expressions when they stand where a value is
-expected. Each arm's block is its value:
+`if` and `match` are expressions when they stand where a value is expected. Each arm's block is its value:
 
 ```wf
 enum Level { low, mid, high }
@@ -263,16 +212,12 @@ The rules:
 - Every arm gives the same type, or `null` (`T27`).
 - An `if` with no `else` is `null` when its condition fails.
 - `if let x = v { a } else { b }` binds `x` when `v` is not `null`.
-- A `match` on an enum, as a value or as a statement, needs an arm for
-  every case or an `else` (`T15`). One that covers every case needs no
-  `else`.
-- A case with a payload binds one name in a `match` expression:
-  `match status { .failed(reason) { reason } else { "" } }`.
+- A `match` on an enum, as a value or as a statement, needs an arm for every case or an `else` (`T15`). One that covers every case needs no `else`.
+- A case with a payload binds one name in a `match` expression: `match status { .failed(reason) { reason } else { "" } }`.
 
 ## Fields, calls and methods
 
-A field is read with `.`, an item with `[i]`, and a method is called with
-`.name(…)`. This page filters, maps and joins a list of records:
+A field is read with `.`, an item with `[i]`, and a method is called with `.name(…)`. This page filters, maps and joins a list of records:
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
@@ -291,64 +236,31 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 }
 ```
 
-A lambda is written `x => expr`, `(a, b) => expr` or `() => expr`. Its body
-is one expression; when it must do more, it calls an action. To return a
-map, write the parameters in parentheses: `(x) => { key: x }`. A
-parameter's type comes from what the method expects, so `todo` above is a
-`Todo`.
+A lambda is written `x => expr`, `(a, b) => expr` or `() => expr`. Its body is one expression; when it must do more, it calls an action. To return a map, write the parameters in parentheses: `(x) => { key: x }`. A parameter's type comes from what the method expects, so `todo` above is a `Todo`.
 
-A member something declares wins over a helper of the same name. A store
-may name an action `preview`, `first` or `truncate`: `OpenFiles.preview(path)`
-calls that action, with its arguments, from a page or from another store,
-and a worker's `css.last(kind)` is the worker's own `last`. The helpers
-below are for lists and strings.
+A member something declares wins over a helper of the same name. A store may name an action `preview`, `first` or `truncate`: `OpenFiles.preview(path)` calls that action, with its arguments, from a page or from another store, and a worker's `css.last(kind)` is the worker's own `last`. The helpers below are for lists and strings.
 
 ### String methods
 
-`length`, `trim()`, `trimStart()`, `trimEnd()`, `toLowerCase()`,
-`toUpperCase()`, `capitalize()`, `truncate(n)`, `dedent()`, `lines()`,
-`words()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`,
-`lastIndexOf(s)`, `slice(a, b)`, `substring(a, b)`, `charAt(i)`, `at(i)`,
-`replace(a, b)`, `replaceAll(a, b)`, `split(sep)`, `padStart(n, c)`,
-`padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`,
-`match(re)`, `search(re)`.
+`length`, `trim()`, `trimStart()`, `trimEnd()`, `toLowerCase()`, `toUpperCase()`, `capitalize()`, `truncate(n)`, `dedent()`, `lines()`, `words()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`, `lastIndexOf(s)`, `slice(a, b)`, `substring(a, b)`, `charAt(i)`, `at(i)`, `replace(a, b)`, `replaceAll(a, b)`, `split(sep)`, `padStart(n, c)`, `padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`, `match(re)`, `search(re)`.
 
-`dedent()` takes the common indentation off a block of text — the
-indentation a string carried in from a file or an API keeps and a reader
-does not want. `lines()` splits a text by line ending, and `words()` by
-runs of whitespace.
+`dedent()` takes the common indentation off a block of text — the indentation a string carried in from a file or an API keeps and a reader does not want. `lines()` splits a text by line ending, and `words()` by runs of whitespace.
 
 ### List methods
 
-`length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `some(f)`,
-`every(f)`, `includes(x)`, `indexOf(x)`, `reduce(f, init)`, `join(sep)`,
-`slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `sortBy(f)`,
-`groupBy(f)`, `unique()`, `take(n)`, `first()`, `last()`, `sum()`,
-`flatMap(f)`, and, in an action or a handler, `push(x)` and `remove(i)`.
+`length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `some(f)`, `every(f)`, `includes(x)`, `indexOf(x)`, `reduce(f, init)`, `join(sep)`, `slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `sortBy(f)`, `groupBy(f)`, `unique()`, `take(n)`, `first()`, `last()`, `sum()`, `flatMap(f)`, and, in an action or a handler, `push(x)` and `remove(i)`.
 
-`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `sum`,
-`capitalize`, `truncate`, `dedent`, `lines` and `words` are WebFluent's
-own; the rest are the browser's. Every one of them also runs at build time,
-so the pre-rendered page shows the result. [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#list-methods)
-says what each returns.
+`sortBy`, `groupBy`, `unique`, `take`, `first`, `last`, `sum`, `capitalize`, `truncate`, `dedent`, `lines` and `words` are WebFluent's own; the rest are the browser's. Every one of them also runs at build time, so the pre-rendered page shows the result. [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#list-methods) says what each returns.
 
-On a state, `sort` and `reverse` read in an expression work on a copy, so
-reading a sorted list never changes the list. As a statement, `push`,
-`remove` and `sort` give the state a new list, so whatever reads it
-repaints.
+On a state, `sort` and `reverse` read in an expression work on a copy, so reading a sorted list never changes the list. As a statement, `push`, `remove` and `sort` give the state a new list, so whatever reads it repaints.
 
 ### Number methods
 
-`toFixed(n)`, `toPrecision(n)`, `toString()`. To convert, use
-`Number("12")` for a string to a number, and `"{n}"` or `String(n)` for a
-number to a string. `Math.round`, `Math.max` and the rest are available as
-`Math.*`.
+`toFixed(n)`, `toPrecision(n)`, `toString()`. To convert, use `Number("12")` for a string to a number, and `"{n}"` or `String(n)` for a number to a string. `Math.round`, `Math.max` and the rest are available as `Math.*`.
 
-## `format` and `ago`
+## format and ago
 
-`format(value, .style, option)` writes a number, a date or money as text in
-the reader's locale. The locale is the i18n locale when the project has
-one, and the document's language otherwise. This page shows each style:
+`format(value, .style, option)` writes a number, a date or money as text in the reader's locale. The locale is the i18n locale when the project has one, and the document's language otherwise. This page shows each style:
 
 ```wf
 page Formats(path: "/formats", title: "Formats", description: "Every style of format.") {
@@ -387,23 +299,15 @@ The styles, and the option each takes:
 | `.date`, `.time`, `.datetime` | `Mar 14, 2026`, `9:30 AM` | `"short"`, `"medium"`, `"long"` or `"full"` |
 | `.relative` | `3 days ago` | — |
 
-A pattern string in place of a style writes a date with these letters:
-`yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a`. A `Money` value
-needs no style: `format(price)` writes it in its own currency.
+A pattern string in place of a style writes a date with these letters: `yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a`. A `Money` value needs no style: `format(price)` writes it in its own currency.
 
-`ago(date)` gives the distance from now in words: `now` under 45 seconds,
-then `5 minutes ago`, `yesterday`, `in 2 days`. `ago(date, moment)`
-measures from a moment of your own.
+`ago(date)` gives the distance from now in words: `now` under 45 seconds, then `5 minutes ago`, `yesterday`, `in 2 days`. `ago(date, moment)` measures from a moment of your own.
 
-The pre-rendered page formats with a built-in table of the common locales
-and currencies. Once the page's script runs, the browser's `Intl` takes
-over and corrects any difference. A change of locale redraws every
-formatted text.
+The pre-rendered page formats with a built-in table of the common locales and currencies. Once the page's script runs, the browser's `Intl` takes over and corrects any difference. A change of locale redraws every formatted text.
 
 ## Regular expressions
 
-`/…/flags` is a regular expression. This page checks an address as the
-reader types it:
+`/…/flags` is a regular expression. This page checks an address as the reader types it:
 
 ```wf
 page Signup(path: "/signup", title: "Sign up", description: "An address, checked as it is typed.") {
@@ -420,16 +324,12 @@ page Signup(path: "/signup", title: "Sign up", description: "An address, checked
 What each use gives:
 
 - `re.test(s)` is a `Bool`.
-- `s.match(re)` and `re.exec(s)` are a `[String]?`: the match and its
-  groups, or `null`.
-- `s.replace(re, "x")` and `s.replaceAll(re, "x")` are a `String`;
-  `s.split(re)` is a `[String]`; `s.search(re)` is a `Number`.
+- `s.match(re)` and `re.exec(s)` are a `[String]?`: the match and its groups, or `null`.
+- `s.replace(re, "x")` and `s.replaceAll(re, "x")` are a `String`; `s.split(re)` is a `[String]`; `s.search(re)` is a `Number`.
 
 ## Tokens as values
 
-`$name` names a design token from the theme ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)). In
-a style it becomes the token's CSS variable. As a value it is a reference
-to that variable, so a prop or a state that takes a colour takes a token:
+`$name` names a design token from the theme ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)). In a style it becomes the token's CSS variable. As a value it is a reference to that variable, so a prop or a state that takes a colour takes a token:
 
 ```wf
 page Callout(path: "/callout", title: "Callout", description: "A border coloured by a token.") {
@@ -444,15 +344,11 @@ page Callout(path: "/callout", title: "Callout", description: "A border coloured
 
 When the theme changes `color-primary`, the border changes with it.
 
-As a value there is no property to say which group a short name belongs
-to, so `$primary` is read as the one group that has it, the colours:
-`$color-primary`. A short name several groups have (`$md` is a spacing, a
-radius and a shadow) is written in full: `$spacing-md`.
+As a value there is no property to say which group a short name belongs to, so `$primary` is read as the one group that has it, the colours: `$color-primary`. A short name several groups have (`$md` is a spacing, a radius and a shadow) is written in full: `$spacing-md`.
 
-## `await`
+## await
 
-`await` waits for a promise inside an action or a handler, and makes the
-action asynchronous. While a call of it runs, `name.pending` is `true`:
+`await` waits for a promise inside an action or a handler, and makes the action asynchronous. While a call of it runs, `name.pending` is `true`:
 
 ```wf
 type Row { id: String }
@@ -472,17 +368,11 @@ page Report(path: "/report", title: "Report", description: "Rows loaded on reque
 }
 ```
 
-`http.get(url)`, `http.post(url, body: value)` and the other verbs are a
-promise of a result: the answer, typed where it goes, or an `HttpError`.
-`try` gives the answer or passes the failure up from the action, which
-says what it fails with (`-> !`). `await` outside an action, a handler,
-a timer or a hook is a `T17`. [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md) has `resource`, the
-declarative way to load data.
+`http.get(url)`, `http.post(url, body: value)` and the other verbs are a promise of a result: the answer, typed where it goes, or an `HttpError`. `try` gives the answer or passes the failure up from the action, which says what it fails with (`-> !`). `await` outside an action, a handler, a timer or a hook is a `T17`. [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md) has `resource`, the declarative way to load data.
 
 ## Constants
 
-`const` declares a value for the whole project. Every page, component and
-store reads it by name, and the build inlines it into the bundle:
+`const` declares a value for the whole project. Every page, component and store reads it by name, and the build inlines it into the bundle:
 
 ```wf
 const MAX_ROWS = 50
@@ -495,24 +385,17 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
 }
 ```
 
-A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an
-`X01`. `env.NAME` reads a value fixed at build time — from the config's
-`env` map, a `.env` file or the shell — and `env` holds exactly the names
-the build knows, so one nothing sets is a `T05`:
+A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an `X01`. `env.NAME` reads a value fixed at build time — from the config's `env` map, a `.env` file or the shell — and `env` holds exactly the names the build knows, so one nothing sets is a `T05`:
 
 ```json
 { "env": { "PUBLIC_API_URL": "/api" } }
 ```
- A page may read only a public name,
-one that begins `PUBLIC_` or that `public_env` lists;
-[Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md) has the rules.
+
+ A page may read only a public name, one that begins `PUBLIC_` or that `public_env` lists; [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md) has the rules.
 
 ## Built-in functions
 
-These functions are everything the language adds to what the browser
-already has. Anything else followed by parentheses is a method, an action,
-a component or one of the browser's own globals. [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#functions)
-has an entry for each.
+These functions are everything the language adds to what the browser already has. Anything else followed by parentheses is a method, an action, a component or one of the browser's own globals. [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#functions) has an entry for each.
 
 | Name | Does |
 |---|---|
@@ -532,15 +415,7 @@ has an entry for each.
 | `http.get(url, options)` | Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) |
 
-The browser's own globals need no prefix and compile to themselves, typed
-by the language's table of the browser: `window`, `document`, `console`,
-`localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `Object`,
-`Array`, `Number`, `navigator`, `location`, `history`, `performance`,
-`screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and
-the other names [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#browser-globals) lists. A global
-the table does not type — `crypto`, `Promise`, `Map`, `URL` — is a `T30`;
-reach it from a project script whose JSDoc types it. `fetch(…)` is gone
-(`N08`): a request is `http.get(…)`.
+The browser's own globals need no prefix and compile to themselves, typed by the language's table of the browser: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `Object`, `Array`, `Number`, `navigator`, `location`, `history`, `performance`, `screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and the other names [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md#browser-globals) lists. A global the table does not type — `crypto`, `Promise`, `Map`, `URL` — is a `T30`; reach it from a project script whose JSDoc types it. `fetch(…)` is gone (`N08`): a request is `http.get(…)`.
 
 ## Summary
 
@@ -559,9 +434,4 @@ reach it from a project script whose JSDoc types it. `fetch(…)` is gone
 | `await expr` | The result of a promise, in an action or a handler |
 | `const NAME = expr` | A value the whole project reads |
 
-[Grammar](https://webfluent.monzeromer.dev/reference/grammar.md#expressions) has the full precedence table, and
-[Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md) every function, value and method.
-
-## Next
-
-[Styling](https://webfluent.monzeromer.dev/learn/13-styling.md).
+[Grammar](https://webfluent.monzeromer.dev/reference/grammar.md#expressions) has the full precedence table, and [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md) every function, value and method.

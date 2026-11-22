@@ -4,13 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/tween-on-change
 
-Animate a style property as state changes it — a panel growing taller, a
-colour shifting — rather than an element arriving. Add a `transition { }`
-block that names the property and how long it takes. Press **Toggle** and
-the card grows to show the rest of its text:
+Animate a style property as state changes it — a panel growing taller, a colour shifting — rather than an element arriving. Add a `transition { }` block that names the property and how long it takes. Press **Toggle** and the card grows to show the rest of its text:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
@@ -27,14 +23,8 @@ page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
 
 ## How it works
 
-- The `style { }` value of `max-height` reads `open`, so it follows the
-  state: `3rem` closed, `20rem` open ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
-- `transition { max-height: 250ms ease-in-out }` tweens that property
-  whenever its value changes, over 250ms. Each line names a property, then
-  its length and easing; a design token may stand for either.
-- An element's block is ordered `style`, then `transition`, then its
-  handlers and children.
+- The `style { }` value of `max-height` reads `open`, so it follows the state: `3rem` closed, `20rem` open ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- `transition { max-height: 250ms ease-in-out }` tweens that property whenever its value changes, over 250ms. Each line names a property, then its length and easing; a design token may stand for either.
+- An element's block is ordered `style`, then `transition`, then its handlers and children.
 
-A reader who asked for reduced motion gets no tween: the card changes
-height at once
-([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).
+A reader who asked for reduced motion gets no tween: the card changes height at once ([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).

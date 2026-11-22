@@ -4,24 +4,16 @@
 
 The page: https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf
 
-يبني هذا الدرس **Shelf**، موقعًا صغيرًا يسرد كتبًا تستحق القراءة،
-ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة،
-وتنتهي بما يجب أن تراه.
+يبني هذا الدرس **Shelf**، موقعًا صغيرًا يسرد كتبًا تستحق القراءة، ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة، وتنتهي بما يجب أن تراه.
 
 > [!NOTE]
-> لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته
-> الإنجليزية.
+> لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.
 
 ## ما ستبنيه
 
-في Shelf صفحة رئيسية تسرد الكتب مع مربع بحث، وصفحة لكل كتاب، وصفحة
-**Your shelf** فيها الكتب التي حفظها القارئ، ونموذج لاقتراح كتاب، وسمة
-بوضع داكن، واختبار ينقر، ونشر على GitHub Pages.
+في Shelf صفحة رئيسية تسرد الكتب مع مربع بحث، وصفحة لكل كتاب، وصفحة **Your shelf** فيها الكتب التي حفظها القارئ، ونموذج لاقتراح كتاب، وسمة بوضع داكن، واختبار ينقر، ونشر على GitHub Pages.
 
-في الطريق تستخدم معظم ما يحتاجه موقع حقيقي: بيانات ذات أنواع تُقرأ وقت
-البناء، ومكوّنًا يُعاد استخدامه، وصفحة لكل كتاب، ومخزنًا (store) يحفظ
-اختيارات القارئ، ونموذجًا يُتحقَّق منه، وسمة، واختبارًا، ونشرًا. كل خطوة
-تربط الفصل الذي يشرح فكرتها بالتفصيل.
+في الطريق تستخدم معظم ما يحتاجه موقع حقيقي: بيانات ذات أنواع تُقرأ وقت البناء، ومكوّنًا يُعاد استخدامه، وصفحة لكل كتاب، ومخزنًا (store) يحفظ اختيارات القارئ، ونموذجًا يُتحقَّق منه، وسمة، واختبارًا، ونشرًا. كل خطوة تربط الفصل الذي يشرح فكرتها بالتفصيل.
 
 يستغرق نحو نصف ساعة، إضافة إلى النشر.
 
@@ -29,29 +21,22 @@ The page: https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf
 
 تحتاج إلى:
 
-- `wf` مثبّتًا وموجودًا في `PATH` ([البدء](https://webfluent.monzeromer.dev/ar/learn/01-getting-started.md)).
-  على Windows، اكتب `webfluent` حيث يكتب هذا الدرس `wf`.
-- Chrome أو Chromium على الجهاز، للاختبار الذي ينقر
-  ([الخطوة 9](#الخطوة-9-اختبر-بطاقة-الكتاب)) ولـ`wf verify`
-  ([الخطوة 10](#الخطوة-10-ابن-الموقع-وتحقق-منه)). إن كان مثبّتًا في
-  مكان غير معتاد، فاجعل متغير البيئة `WF_CHROME` يشير إليه.
+- `wf` مثبّتًا وموجودًا في `PATH` ([البدء](https://webfluent.monzeromer.dev/ar/learn/01-getting-started.md)). على Windows، اكتب `webfluent` حيث يكتب هذا الدرس `wf`.
+- Chrome أو Chromium على الجهاز، للاختبار الذي ينقر ([الخطوة 9](#الخطوة-9-اختبر-بطاقة-الكتاب)) ولـ`wf verify` ([الخطوة 10](#الخطوة-10-ابن-الموقع-وتحقق-منه)). إن كان مثبّتًا في مكان غير معتاد، فاجعل متغير البيئة `WF_CHROME` يشير إليه.
 - للنشر: حساب على GitHub ومستودع اسمه `shelf`.
 
 لا تحتاج إلى معرفة WebFluent بعد.
 
 ## الخطوة 1: أنشئ المشروع
 
-ابدأ من القالب `static`، الذي يُصيِّر كل صفحة مسبقًا إلى HTML —
-وهذا مناسب لموقع يصل إليه الناس عبر البحث:
+ابدأ من القالب `static`، الذي يُصيِّر كل صفحة مسبقًا إلى HTML — وهذا مناسب لموقع يصل إليه الناس عبر البحث:
 
 ```bash
 wf init shelf -t static
 cd shelf
 ```
 
-ستكتب كل ملف بنفسك، لذا احذف ما وضعه القالب في `src/`
-واختباراته في `tests/` (فهي تختبر صفحات القالب). ثم استبدل
-`webfluent.app.json` بما يلي:
+ستكتب كل ملف بنفسك، لذا احذف ما وضعه القالب في `src/` واختباراته في `tests/` (فهي تختبر صفحات القالب). ثم استبدل `webfluent.app.json` بما يلي:
 
 ```json
 {
@@ -65,12 +50,9 @@ cd shelf
 }
 ```
 
-يُصيِّر `ssg` كل صفحة مسبقًا. ويُرفق `csp` سياسة Content-Security-Policy،
-ويجعل البناء يفحص مخرجاته بها. يسرد [الإعدادات](https://webfluent.monzeromer.dev/reference/config.md)
-كل مفتاح.
+يُصيِّر `ssg` كل صفحة مسبقًا. ويُرفق `csp` سياسة Content-Security-Policy، ويجعل البناء يفحص مخرجاته بها. يسرد [الإعدادات](https://webfluent.monzeromer.dev/reference/config.md) كل مفتاح.
 
-**تحقّق:** شغّل `wf check`. يطبع `IO Error: No .wf files found in src/` —
-وهذا صحيح، لأن `src/` فارغ حتى الخطوة التالية.
+**تحقّق:** شغّل `wf check`. يطبع `IO Error: No .wf files found in src/` — وهذا صحيح، لأن `src/` فارغ حتى الخطوة التالية.
 
 ## الخطوة 2: صِف الكتب
 
@@ -110,19 +92,13 @@ type Book {
 data books: [Book] = "books.json"
 ```
 
-`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة
-`book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت
-البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل
-الصفحة. ([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)،
-[جلب البيانات](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data).)
+`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة `book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل الصفحة. ([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)، [جلب البيانات](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data).)
 
 **تحقّق:** شغّل `wf check`. يطبع `No problems in shelf.`
 
 ## الخطوة 3: احفظ رفّ القارئ في مخزن
 
-ما يحتفظ به القارئ يجب أن يبقى بعد إعادة التحميل وأن يكون هو نفسه في كل صفحة،
-لذا يوضع في مخزن، وتحفظ `persist` قيمته. أنشئ
-`src/stores/Shelf.wf`:
+ما يحتفظ به القارئ يجب أن يبقى بعد إعادة التحميل وأن يكون هو نفسه في كل صفحة، لذا يوضع في مخزن، وتحفظ `persist` قيمته. أنشئ `src/stores/Shelf.wf`:
 
 ```wf
 /// The books the reader wants to read, kept across visits.
@@ -140,25 +116,16 @@ store Shelf {
 }
 ```
 
-`persist` حالة (`state`) تُحفظ في تخزين المتصفح وتُقرأ من جديد في
-الزيارة التالية؛ والتغيير الذي يحدث في تبويب آخر يصل إلى هنا أيضًا. ويُعاد
-حساب `derived count` كلما تغيّر `saved`. ([المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md).)
+`persist` حالة (`state`) تُحفظ في تخزين المتصفح وتُقرأ من جديد في الزيارة التالية؛ والتغيير الذي يحدث في تبويب آخر يصل إلى هنا أيضًا. ويُعاد حساب `derived count` كلما تغيّر `saved`. ([المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md).)
 
 > [!NOTE]
-> **قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ
-> حول التطبيق، وحفظها ليس `useEffect` يكتب في
-> `localStorage`. يُقرأ الـ`store` باسمه حيثما استُخدم،
-> و`persist` تتولّى الحفظ. انظر [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
+> **قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ`store` باسمه حيثما استُخدم، و`persist` تتولّى الحفظ. انظر [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
-**تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`:
-`` `Shelf.count` is declared but never read `` ومثله
-لـ`Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول
-التحذيران.
+**تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`: `` `Shelf.count` is declared but never read `` ومثله لـ`Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول التحذيران.
 
 ## الخطوة 4: اعرض كتابًا بمكوّن
 
-كل كتاب يُعرض بالطريقة نفسها، لذا هو مكوّن. أنشئ
-`src/components/BookCard.wf`:
+كل كتاب يُعرض بالطريقة نفسها، لذا هو مكوّن. أنشئ `src/components/BookCard.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -181,29 +148,17 @@ component BookCard(_ book: Book) {
 }
 ```
 
-- `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها:
-  `BookCard(book)`.
-- `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة
-  بأعلام. يعرف المُصرِّف خصائص كل منها، ويرفض علمًا لا
-  يقبله.
-- يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if`
-  مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر
-  النص ولا يُعاد رسم شيء آخر.
+- `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها: `BookCard(book)`.
+- `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة بأعلام. يعرف المُصرِّف خصائص كل منها، ويرفض علمًا لا يقبله.
+- يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if` مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر النص ولا يُعاد رسم شيء آخر.
 
 ([المكوّنات](https://webfluent.monzeromer.dev/learn/10-components.md)، [العناصر](https://webfluent.monzeromer.dev/learn/06-elements.md).)
 
-**تحقّق:** شغّل `wf check`. يُبلغ عن تحذيرين ولا خطأ:
-`` warning[U03]: `BookCard` is declared but never placed `` و
-`` warning[U04]: `Shelf.count` is declared but never read ``. لا شيء يضع
-البطاقة بعد، ولا شيء يعرض العدد؛ والخطوة التالية تفعل الأمرين.
-وتربط البطاقة أيضًا بـ`/books/…`، وهي صفحة لا وجود لها بعد. يفحص
-المُصرِّف كل رابط مقابل الصفحات التي تعلنها، لكن فيما يرسمه الموقع فقط،
-فلا يقول شيئًا إلى أن توضع البطاقة.
+**تحقّق:** شغّل `wf check`. يُبلغ عن تحذيرين ولا خطأ: `` warning[U03]: `BookCard` is declared but never placed `` و `` warning[U04]: `Shelf.count` is declared but never read ``. لا شيء يضع البطاقة بعد، ولا شيء يعرض العدد؛ والخطوة التالية تفعل الأمرين. وتربط البطاقة أيضًا بـ`/books/…`، وهي صفحة لا وجود لها بعد. يفحص المُصرِّف كل رابط مقابل الصفحات التي تعلنها، لكن فيما يرسمه الموقع فقط، فلا يقول شيئًا إلى أن توضع البطاقة.
 
 ## الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب
 
-تسرد الصفحة الرئيسية الكتب مع مربع بحث. أنشئ
-`src/pages/Home.wf`:
+تسرد الصفحة الرئيسية الكتب مع مربع بحث. أنشئ `src/pages/Home.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -228,16 +183,11 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 
 - يُبقي `bind: q` الحقل والحالة متطابقين، في الاتجاهين.
 - `found` مشتقة من `q`، فالكتابة تضيّق القائمة وأنت تكتب.
-- `for … by book.slug` حلقة ذات مفاتيح: البطاقة التي تبقى في القائمة تحتفظ
-  بعنصرها بدل أن يُعاد بناؤه.
-- `Grid(columns: { base: 1, md: 2 })` عمود واحد على الهاتف وعمودان ابتداءً من
-  نقطة التوقف `md`. يحمل HTML المُصيَّر مسبقًا هذا التخطيط أصلًا، فلا حاجة
-  إلى سكربت.
+- `for … by book.slug` حلقة ذات مفاتيح: البطاقة التي تبقى في القائمة تحتفظ بعنصرها بدل أن يُعاد بناؤه.
+- `Grid(columns: { base: 1, md: 2 })` عمود واحد على الهاتف وعمودان ابتداءً من نقطة التوقف `md`. يحمل HTML المُصيَّر مسبقًا هذا التخطيط أصلًا، فلا حاجة إلى سكربت.
 
 > [!NOTE]
-> **قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى
-> `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر
-> [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
+> **قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
 ثم أضف صفحة لكل كتاب، `src/pages/BookPage.wf`:
 
@@ -266,27 +216,17 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 ```
 
 - `:slug` في المسار معامل ذو نوع للصفحة.
-- يخبر `paths:` البناءَ الثابت بالقيم التي يُصيِّرها: ملف HTML لكل
-  كتاب، `books/a-pattern-language/index.html` وهكذا.
-- قد لا يجد `books.find(…)` شيئًا، لذا `book` من النوع `Book?` (إما `Book` أو
-  `null`). يربطه `if let b = book` فقط حين يكون موجودًا. وقراءة
-  `book.title` دون هذا الفحص خطأ تصريف (`T04`).
-- يضيف `head { … }` وسومًا إلى `<head>` هذه الصفحة — هنا، العنوان الذي تظهر به
-  معاينة الرابط حين يُشارَك.
+- يخبر `paths:` البناءَ الثابت بالقيم التي يُصيِّرها: ملف HTML لكل كتاب، `books/a-pattern-language/index.html` وهكذا.
+- قد لا يجد `books.find(…)` شيئًا، لذا `book` من النوع `Book?` (إما `Book` أو `null`). يربطه `if let b = book` فقط حين يكون موجودًا. وقراءة `book.title` دون هذا الفحص خطأ تصريف (`T04`).
+- يضيف `head { … }` وسومًا إلى `<head>` هذه الصفحة — هنا، العنوان الذي تظهر به معاينة الرابط حين يُشارَك.
 
 ([الصفحات والتوجيه](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md).)
 
-**تحقّق:** شغّل `wf serve` وافتح `http://localhost:3000`. ترى
-**Books worth reading** و`3 of 3 books` وثلاث بطاقات. اكتب `norman` في
-مربع البحث: تبقى بطاقة واحدة، ويصير العدد `1 of 3 books`. انقر **Want to read** على بطاقة فيتغيّر
-نصها إلى **On your shelf**. انقر عنوان كتاب فتُفتح صفحته،
-مع مسار تنقّل (breadcrumb) يعود إلى القائمة. لا يُبلغ `wf check` الآن إلا عن تحذير `U04`
-الخاص بـ`Shelf.count`؛ والخطوة 6 تستخدمه.
+**تحقّق:** شغّل `wf serve` وافتح `http://localhost:3000`. ترى **Books worth reading** و`3 of 3 books` وثلاث بطاقات. اكتب `norman` في مربع البحث: تبقى بطاقة واحدة، ويصير العدد `1 of 3 books`. انقر **Want to read** على بطاقة فيتغيّر نصها إلى **On your shelf**. انقر عنوان كتاب فتُفتح صفحته، مع مسار تنقّل (breadcrumb) يعود إلى القائمة. لا يُبلغ `wf check` الآن إلا عن تحذير `U04` الخاص بـ`Shelf.count`؛ والخطوة 6 تستخدمه.
 
 ## الخطوة 6: أضف صفحة الرفّ وإطار الموقع
 
-تعرض صفحة الرفّ الكتب التي حفظها القارئ. أنشئ
-`src/pages/ShelfPage.wf`:
+تعرض صفحة الرفّ الكتب التي حفظها القارئ. أنشئ `src/pages/ShelfPage.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -307,8 +247,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 }
 ```
 
-أضف صفحة للعناوين التي لا تطالب بها صفحة أخرى، `src/pages/NotFound.wf`.
-يطابق `path: "*"` أي شيء، ويكتبها البناء الثابت باسم `404.html`:
+أضف صفحة للعناوين التي لا تطالب بها صفحة أخرى، `src/pages/NotFound.wf`. يطابق `path: "*"` أي شيء، ويكتبها البناء الثابت باسم `404.html`:
 
 ```wf
 page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
@@ -319,8 +258,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives at this
 }
 ```
 
-أخيرًا، الإطار الذي تتشاركه كل الصفحات، `src/App.wf`. `Router` هو حيث تُرسم
-الصفحة الحالية:
+أخيرًا، الإطار الذي تتشاركه كل الصفحات، `src/App.wf`. `Router` هو حيث تُرسم الصفحة الحالية:
 
 ```wf
 // … reads what the other steps declare
@@ -337,11 +275,7 @@ app {
 }
 ```
 
-**تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن
-شريط تنقّل. ضع كتابين على رفّك: يصير الرابط
-**Your shelf (2)**. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان
-هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives
-here**.
+**تحقّق:** يطبع `wf check` الرسالة `No problems in shelf.` صار لكل صفحة الآن شريط تنقّل. ضع كتابين على رفّك: يصير الرابط **Your shelf (2)**. افتحه، ثم أعد تحميل الصفحة — لا يزال الكتابان هناك. افتح `http://localhost:3000/nowhere` فترى **Nothing lives here**.
 
 ## الخطوة 7: أضف نموذجًا لاقتراح كتاب
 
@@ -377,10 +311,7 @@ page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us wh
 }
 ```
 
-تقع كتلة `validate` بجانب الحالة التي تحرسها، ويعرض عنصر التحكم المربوط بتلك
-الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`،
-وتُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل
-فيه مشكلة ولا يشغّل `on submit`. ([النماذج](https://webfluent.monzeromer.dev/learn/14-forms.md).)
+تقع كتلة `validate` بجانب الحالة التي تحرسها، ويعرض عنصر التحكم المربوط بتلك الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`، وتُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل فيه مشكلة ولا يشغّل `on submit`. ([النماذج](https://webfluent.monzeromer.dev/learn/14-forms.md).)
 
 ثم اربط الصفحة من الإطار. أضف الرابط الثالث إلى `src/App.wf`:
 
@@ -400,14 +331,9 @@ app {
 }
 ```
 
-**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج
-فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت
-**Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل
-مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.
+**تحقّق:** انقر **Suggest a book**، ثم **Send the suggestion** والنموذج فارغ. لا يُرسَل النموذج: تظهر **Which book?** تحت **Title**، و**Who wrote it?** تحت **Author**. املأ الحقلين وأرسل مرة أخرى. ترى **Thank you — we will take a look.**، ويصير النموذج فارغًا.
 
-الموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في
-هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في
-ملف خاص بها،
+الموقع الحقيقي يرسل الاقتراح إلى مكان ما. لا تحتاج إلى خادم خلفي في هذا الدرس، لذا هذا الجزء لما بعد: صِف الخدمة مرة واحدة، في ملف خاص بها،
 
 ```wf
 // … in src/api.wf, beside the pages
@@ -427,15 +353,13 @@ on submit {
 }
 ```
 
-يأخذ `try` قيمة الاستدعاء، أو يوقف المعالج عند الفشل ويُبلغ عنه، فلا تصير
-`sent` صحيحة إلا حين يصل الاقتراح.
+يأخذ `try` قيمة الاستدعاء، أو يوقف المعالج عند الفشل ويُبلغ عنه، فلا تصير `sent` صحيحة إلا حين يصل الاقتراح.
 
 ([البيانات وواجهات API](https://webfluent.monzeromer.dev/learn/15-data.md)، [البيئات والأسرار](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).)
 
 ## الخطوة 8: امنح الموقع سمة
 
-تغيّر السمة رموز التصميم (design tokens) التي يُرسم بها كل عنصر مدمج. أنشئ
-`src/theme.wf`:
+تغيّر السمة رموز التصميم (design tokens) التي يُرسم بها كل عنصر مدمج. أنشئ `src/theme.wf`:
 
 ```wf
 theme Paper {
@@ -453,8 +377,7 @@ theme Ink {
 }
 ```
 
-ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً
-و`Ink` سمةً داكنة:
+ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً و`Ink` سمةً داكنة:
 
 ```json
 {
@@ -469,15 +392,9 @@ theme Ink {
 }
 ```
 
-القارئ الذي ضُبط نظامه على الوضع الداكن يحصل على `Ink`، قبل الرسم الأول
-ودون وميض للسمة الفاتحة. والرمز الذي لا تسمّيه يحتفظ بقيمته
-الأساسية. ([التنسيق](https://webfluent.monzeromer.dev/learn/13-styling.md).)
+القارئ الذي ضُبط نظامه على الوضع الداكن يحصل على `Ink`، قبل الرسم الأول ودون وميض للسمة الفاتحة. والرمز الذي لا تسمّيه يحتفظ بقيمته الأساسية. ([التنسيق](https://webfluent.monzeromer.dev/learn/13-styling.md).)
 
-**تحقّق:** الروابط وزر **Send the suggestion** بنفسجية،
-والنص بخط ذي زوائد (serif). حوّل
-نظامك إلى الوضع الداكن فتصير الصفحة داكنة. إن توقّف البناء برسالة
-``No `theme Paper` is declared in this project``، فالإعدادات تسمّي سمة
-لا يعلنها `src/theme.wf`: تحقّق من اسم الملف ومن التهجئة.
+**تحقّق:** الروابط وزر **Send the suggestion** بنفسجية، والنص بخط ذي زوائد (serif). حوّل نظامك إلى الوضع الداكن فتصير الصفحة داكنة. إن توقّف البناء برسالة ``No `theme Paper` is declared in this project``، فالإعدادات تسمّي سمة لا يعلنها `src/theme.wf`: تحقّق من اسم الملف ومن التهجئة.
 
 ## الخطوة 9: اختبر بطاقة الكتاب
 
@@ -506,11 +423,7 @@ test "a book goes on the shelf, and comes off again" {
 wf test
 ```
 
-يُصيِّر الاختبار الأول البطاقة ويقرأ ما تعرضه. ويكتب أيضًا
-لقطة (snapshot) تقارن بها المرة التالية. أما الاختبار الثاني **فينقر**، لذا
-يعمل في Chrome بلا واجهة (headless)، بالمُصرِّف ووقت التشغيل نفسيهما اللذين يحصل
-عليهما القارئ. تُوجد الأزرار بنصها، كما يجدها القارئ.
-([الاختبار](https://webfluent.monzeromer.dev/learn/16-testing.md).)
+يُصيِّر الاختبار الأول البطاقة ويقرأ ما تعرضه. ويكتب أيضًا لقطة (snapshot) تقارن بها المرة التالية. أما الاختبار الثاني **فينقر**، لذا يعمل في Chrome بلا واجهة (headless)، بالمُصرِّف ووقت التشغيل نفسيهما اللذين يحصل عليهما القارئ. تُوجد الأزرار بنصها، كما يجدها القارئ. ([الاختبار](https://webfluent.monzeromer.dev/learn/16-testing.md).)
 
 **تحقّق:** ينتهي التشغيل الأول بما يلي:
 
@@ -520,38 +433,26 @@ wf test
 2 passed, 0 failed, 1 snapshot(s) written
 ```
 
-شغّل `wf test` مرة أخرى فيصير السطر الأول `ok`: يطابق التصيير
-لقطته.
+شغّل `wf test` مرة أخرى فيصير السطر الأول `ok`: يطابق التصيير لقطته.
 
-إن قال الاختبار الثاني إنه لا يوجد متصفح، فثبّت Chrome أو Chromium، أو
-اضبط `WF_CHROME` على مساره.
+إن قال الاختبار الثاني إنه لا يوجد متصفح، فثبّت Chrome أو Chromium، أو اضبط `WF_CHROME` على مساره.
 
 ## الخطوة 10: ابنِ الموقع وتحقّق منه
 
-أوقف خادم التطوير، ثم ابنِ الموقع وحمّل كل صفحة في متصفح
-حقيقي:
+أوقف خادم التطوير، ثم ابنِ الموقع وحمّل كل صفحة في متصفح حقيقي:
 
 ```bash
 wf build
 wf verify
 ```
 
-يكتب `wf build` المجلد `build/`، وهو مجلد HTML وCSS وJavaScript يستطيع أي
-مضيف ثابت تقديمه، ويطبع كل تحذير، مثل `alt` مفقود، أو
-صفحة بلا وصف، أو حالة لا يقرؤها شيء. ويحمّل `wf verify` كل
-صفحة في متصفح حقيقي ويفشل عند خطأ سكربت، أو طلب فاشل، أو
-صفحة فارغة.
+يكتب `wf build` المجلد `build/`، وهو مجلد HTML وCSS وJavaScript يستطيع أي مضيف ثابت تقديمه، ويطبع كل تحذير، مثل `alt` مفقود، أو صفحة بلا وصف، أو حالة لا يقرؤها شيء. ويحمّل `wf verify` كل صفحة في متصفح حقيقي ويفشل عند خطأ سكربت، أو طلب فاشل، أو صفحة فارغة.
 
-**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحوي `build/`
-`index.html` و`shelf/index.html` و`suggest/index.html` و`404.html` وملف
-`books/<slug>/index.html` لكل كتاب. يسرد `wf verify` ستة مسارات، كلٌّ منها `ok`،
-وينتهي بـ`6 page(s), 0 problem(s)`.
+**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحوي `build/` `index.html` و`shelf/index.html` و`suggest/index.html` و`404.html` وملف `books/<slug>/index.html` لكل كتاب. يسرد `wf verify` ستة مسارات، كلٌّ منها `ok`، وينتهي بـ`6 page(s), 0 problem(s)`.
 
 ## الخطوة 11: انشر على GitHub Pages
 
-أي مضيف ثابت يقدّم `build/`. على GitHub Pages، يعيش موقع المشروع تحت
-`https://<you>.github.io/shelf/`، لذا أخبر البناء بمساره الفرعي
-وعنوانه. أضف هذه المفاتيح إلى `webfluent.app.json`، مع إبقاء البقية:
+أي مضيف ثابت يقدّم `build/`. على GitHub Pages، يعيش موقع المشروع تحت `https://<you>.github.io/shelf/`، لذا أخبر البناء بمساره الفرعي وعنوانه. أضف هذه المفاتيح إلى `webfluent.app.json`، مع إبقاء البقية:
 
 ```json
 {
@@ -560,11 +461,9 @@ wf verify
 }
 ```
 
-يضيف `base_path` بادئة إلى كل رابط وملف. ويفعّل `site_url` الروابط
-القانونية (canonical)، وخريطة الموقع، وعناوين Open Graph المطلقة.
+يضيف `base_path` بادئة إلى كل رابط وملف. ويفعّل `site_url` الروابط القانونية (canonical)، وخريطة الموقع، وعناوين Open Graph المطلقة.
 
-ثم أضف سير عمل (workflow) يبني الموقع وينشره مع كل دفع (push) إلى
-`main`، `.github/workflows/pages.yml`:
+ثم أضف سير عمل (workflow) يبني الموقع وينشره مع كل دفع (push) إلى `main`، `.github/workflows/pages.yml`:
 
 ```yaml
 name: Deploy
@@ -592,20 +491,13 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-ادفع المشروع إلى مستودع `shelf`. في
-**Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.
+ادفع المشروع إلى مستودع `shelf`. في **Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.
 
-**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا،
-ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**.
-تغطي الوصفات [Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md)
-و[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md)
-و[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md)
-و[nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md) ومضيفين آخرين.
+**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا، ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**. تغطي الوصفات [Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md) و[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md) و[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md) و[nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md) ومضيفين آخرين.
 
 ## البرنامج كاملًا
 
-كل ملف `.wf` مما سبق، في قائمة واحدة. هذا هو البرنامج الذي بنته الخطوات،
-مع أول الاختبارين:
+كل ملف `.wf` مما سبق، في قائمة واحدة. هذا هو البرنامج الذي بنته الخطوات، مع أول الاختبارين:
 
 ```wf
 type Book {
@@ -801,8 +693,7 @@ Shelf موقع كامل، وكل جزء منه يستخدم فكرة واحدة 
 
 ## أخطاء شائعة
 
-قراءة قيمة قد تكون مفقودة. لا يجد `books.find(…)` شيئًا حين لا يحمل أي
-كتاب هذا الـ slug، لذا `book` من النوع `Book?`:
+قراءة قيمة قد تكون مفقودة. لا يجد `books.find(…)` شيئًا حين لا يحمل أي كتاب هذا الـ slug، لذا `book` من النوع `Book?`:
 
 ```wf expect=T04
 type Book { slug: String, title: String }
@@ -815,11 +706,9 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 }
 ```
 
-اربطه بـ`if let b = book { Heading(b.title).h1 }`، كما تفعل الخطوة 5، أو
-اقرأه بـ`book?.title ?? "Book"` ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
+اربطه بـ`if let b = book { Heading(b.title).h1 }`، كما تفعل الخطوة 5، أو اقرأه بـ`book?.title ?? "Book"` ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
 
-حقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي
-خطأ في الموضع الذي يُكتب فيه:
+حقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي خطأ في الموضع الذي يُكتب فيه:
 
 ```wf expect=T05
 type Book { slug: String, title: String }
@@ -836,8 +725,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 
 استخدم الاسم الذي تقترحه الرسالة، `book.title` ([T05](https://webfluent.monzeromer.dev/errors/T05.md)).
 
-عضو مخزن لا يعلنه المخزن. لدى `Shelf` الأعضاء `saved` و`count`
-و`toggle`، ولا شيء غيرها:
+عضو مخزن لا يعلنه المخزن. لدى `Shelf` الأعضاء `saved` و`count` و`toggle`، ولا شيء غيرها:
 
 ```wf expect=T06
 store Shelf {
@@ -855,11 +743,9 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 }
 ```
 
-اقرأ عضوًا يعلنه المخزن، أو أعلن العضو الذي تحتاجه:
-`derived count = saved.length` ([T06](https://webfluent.monzeromer.dev/errors/T06.md)).
+اقرأ عضوًا يعلنه المخزن، أو أعلن العضو الذي تحتاجه: `derived count = saved.length` ([T06](https://webfluent.monzeromer.dev/errors/T06.md)).
 
-للمضيّ أبعد: إن كنت تعرف React أو Vue أو Svelte، فإن [قادم من React أو Vue أو
-Svelte](https://webfluent.monzeromer.dev/ar/coming-from/react.md) يطابق ما تعرفه على WebFluent.
+للمضيّ أبعد: إن كنت تعرف React أو Vue أو Svelte، فإن [قادم من React أو Vue أو Svelte](https://webfluent.monzeromer.dev/ar/coming-from/react.md) يطابق ما تعرفه على WebFluent.
 
 ## التالي
 

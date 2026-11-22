@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""Write the error pages' data, and the list of codes on the errors index.
+"""Write the error pages, from the compiler's own explanation of each code.
 
 - `site/src/data/errors.json`: one entry per code, from `wf explain --json`
-  and the code's page, `md-docs/errors/CODE.md`, split into what the error
-  template draws — the program that draws the code, what the compiler
-  prints for it, the program put right (its ```` ```wf fixed ```` block),
-  why the rule exists, and the fix.
+  — each code's explanation (`src/diagnostics/explain/CODE.md`, which the
+  compiler embeds and `wf explain CODE` prints) split into what the error
+  template draws: the program that draws the code, what the compiler prints
+  for it, the program put right (its ```` ```wf fixed ```` block), why the
+  rule exists, and the fix.
 - `site/src/pages/ErrorPages.wf`: a page per code, its text written into
   the page itself, so each page's words travel in its own chunk rather
-  than in every page's `app.js` (a `data` file is inlined there); and
-  `ERROR_INDEX`, the sidebar's list of codes, which every error page shares.
-- `md-docs/errors/diagnostics.md`: the list of every code by family,
-  between `<!-- codes … -->` and `<!-- /codes -->`.
+  than in every page's `app.js` (a `data` file is inlined there);
+  and `ERROR_INDEX`, the sidebar's list of codes, which every error page
+  shares.
+- `site/src/pages/guide/43-diagnostics.wf`, the diagnostics chapter: only
+  each family's list of codes, between `// ── codes: FAMILY ──` and
+  `// ── end of the codes ──`; the rest of the page is written by hand.
 
 `WF_ERRORS_OUT` writes both into that directory instead (for
 `cargo xtask site --check`); `WF_BIN` names the `wf`. Rerun with
 `cargo xtask site`.
 """
-import importlib.util
+import sys
 import json
 import os
 import re
@@ -26,21 +29,13 @@ import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-ERRORS = ROOT / "md-docs" / "errors"
-INDEX = ERRORS / "diagnostics.md"
 OUT = Path(os.environ["WF_ERRORS_OUT"]) if os.environ.get("WF_ERRORS_OUT") else None
 wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
 
-_spec = importlib.util.spec_from_file_location("guide", Path(__file__).resolve().parent / "guide.py")
-guide = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(guide)
-_spec = importlib.util.spec_from_file_location("fences", Path(__file__).resolve().parent / "fences.py")
-fences = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(fences)
-
-OPEN = "<!-- codes: written by scripts/docsite/errors.py -->"
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import sitepages  # noqa: E402
 
 # Under every example: where it runs as shown. Pasted beside the pages of
 # a project `wf init` made, most examples draw `S04` or `E102` instead.
@@ -48,17 +43,12 @@ TRY_IT = (
     "Each example is a whole program: it is all of `src/App.wf` in a project "
     "with no other `.wf` file ([trying an example](/errors#trying-an-example))."
 )
-CLOSE = "<!-- /codes -->"
 
 
-def front_matter(text: str) -> tuple[dict, str]:
-    head, body = text[4:].split("\n---\n", 1)
-    meta = {}
-    for line in head.splitlines():
-        key, _, value = line.partition(":")
-        value = value.strip()
-        meta[key.strip()] = json.loads(value) if value[:1] == '"' else value
-    return meta, body
+def fence_of(info: str) -> dict:
+    """What a fence's words say of its block: `wf expect=T04`, `wf fixed`."""
+    words = info.split()
+    return {"expect": next((w[7:] for w in words if w.startswith("expect=")), None), "fixed": "fixed" in words}
 
 
 def blocks(body: str):
@@ -90,16 +80,16 @@ def split(code: str, body: str) -> dict:
     body = re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1)
     broken, printed, fixed, rest, lang = "", "", "", [], "wf"
     for info, text in blocks(body):
-        fence = fences.parse(info) if info != "prose" else None
+        fence = fence_of(info) if info != "prose" else None
         if info == "prose":
             rest.append(text)
-        elif fence.expect and not broken:
+        elif fence["expect"] and not broken:
             broken = text
             # An example in the indented layout is titled as one.
             lang = info.split()[0]
         elif info == "text" and broken and not printed:
             printed = text
-        elif fence.fixed and broken and not fixed:
+        elif fence["fixed"] and broken and not fixed:
             fixed = text
         else:
             rest.append(f"```{info}\n{text}\n```")
@@ -158,10 +148,8 @@ def main():
     raw_titles = {e["code"]: e["title"] for e in explained}
     entries, families = [], []
     for e in explained:
-        page = ERRORS / f"{e['code']}.md"
-        meta, body = front_matter(page.read_text())
-        parts = split(e["code"], body)
-        group = meta["family"]
+        parts = split(e["code"], e["section"])
+        group = e["group"]
         if not families or families[-1][0] != group:
             families.append((group, []))
         families[-1][1].append(e["code"])
@@ -174,7 +162,8 @@ def main():
             "group": group,
             "summary": e["summary"],
             "lowerable": e["lowerable"],
-            "description": meta.get("description", e["summary"]),
+            "description": e.get("description") or e["summary"],
+            "source": e["source"],
             "printed": parts["printed"],
             "broken": parts["broken"],
             "fixed": parts["fixed"],
@@ -185,35 +174,54 @@ def main():
             "related": related(e["code"], parts["why"] + " " + parts["fix"], titles),
         })
 
-    # The index's list: each family's heading and the line under it, as the
-    # page has them, and every code in the compiler's order.
-    index = INDEX.read_text()
-    a, b = index.index(OPEN) + len(OPEN), index.index(CLOSE)
-    intros = dict(re.findall(r"^### (.+)\n\n(?!- \[)(.+(?:\n.+)*)\n", index[a:b], re.M))
-    listing = []
-    for group, codes in families:
-        listing += ["", f"### {group}", ""]
-        if intros.get(group):
-            listing += [intros[group], ""]
-        listing += [f"- [{c}]({c}.md) — {raw_titles[c]}" for c in codes]
-    new_index = index[:a] + "\n".join(listing) + "\n\n" + index[b:]
-
+    # Each family's codes, as the diagnostics chapter lists them.
+    listing = {group: "\n".join(f"- [{c}](/errors/{c}) — {raw_titles[c]}" for c in codes) for group, codes in families}
     data = json.dumps(entries, indent=1, ensure_ascii=False) + "\n"
     pages = page_file(entries)
+    chapter = diagnostics_chapter(listing)
     if OUT:
         OUT.mkdir(parents=True, exist_ok=True)
         (OUT / "errors.json").write_text(data)
-        (OUT / "diagnostics.md").write_text(new_index)
         (OUT / "ErrorPages.wf").write_text(pages)
         fmt(OUT / "ErrorPages.wf")
+        (OUT / "43-diagnostics.wf").write_text(chapter)
     else:
         target = ROOT / "site" / "src" / "data" / "errors.json"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(data)
-        INDEX.write_text(new_index)
         (ROOT / "site" / "src" / "pages" / "ErrorPages.wf").write_text(pages)
         fmt(ROOT / "site" / "src" / "pages" / "ErrorPages.wf")
+        CHAPTER.write_text(chapter)
     print(f"wrote {len(entries)} error pages' data")
+
+
+CHAPTER = ROOT / "site" / "src" / "pages" / "guide" / "43-diagnostics.wf"
+# A family's codes on the diagnostics chapter: the part between
+# `// ── codes: Types ──` and `// ── end of the codes ──`, written again here.
+CODES = re.compile(r"^([ \t]*)// ── codes: (?P<group>[^─\n]+?) ──[^\n]*\n.*?^[ \t]*// ── end of the codes ──[^\n]*\n", re.M | re.S)
+
+
+def diagnostics_chapter(listing: dict) -> str:
+    """The diagnostics chapter, `/errors`, with each family's list of codes
+    written again from the compiler. The rest of the page is written by
+    hand; a family it has no part for is an error, so no code goes
+    unlisted."""
+    text = CHAPTER.read_text()
+    seen = []
+
+    def fill(m):
+        ind, group = m.group(1), m.group("group").strip()
+        if group not in listing:
+            raise SystemExit(f"{CHAPTER.relative_to(ROOT)}: `{group}` is no family `wf explain --json` names")
+        seen.append(group)
+        return (f"{ind}// ── codes: {group} ── written by scripts/docsite/errors.py from `wf explain --json`\n"
+                f"{ind}Markdown({q(listing[group])})\n{ind}// ── end of the codes ──\n")
+
+    text = CODES.sub(fill, text)
+    missing = [g for g in listing if g not in seen]
+    if missing:
+        raise SystemExit(f"{CHAPTER.relative_to(ROOT)}: no `// ── codes: … ──` part for {missing}")
+    return text
 
 
 def fmt(path: Path) -> None:
@@ -221,16 +229,16 @@ def fmt(path: Path) -> None:
 
 
 def q(text: str) -> str:
-    return '"' + guide.wf_string(text) + '"'
+    return '"' + sitepages.wf_string(text) + '"'
 
 
 def page_file(entries: list) -> str:
     """Every code's page, its words written in."""
     out = [
         "// A page for every code the compiler reports, at `/errors/CODE`: written",
-        "// by scripts/docsite/errors.py from `wf explain --json` and each code's",
-        "// page, `md-docs/errors/CODE.md`; edit those, not this file. The index,",
-        "// `/errors`, is the guide's diagnostics chapter.",
+        "// by scripts/docsite/errors.py from `wf explain --json`, whose words are",
+        "// src/diagnostics/explain/CODE.md; edit those, not this file. The index,",
+        "// `/errors`, is the guide's diagnostics chapter, 43-diagnostics.wf.",
         "",
         "/// The error pages' sidebar: every code, by family.",
         "const ERROR_INDEX: [IndexEntry] = [",
@@ -256,19 +264,19 @@ def page_file(entries: list) -> str:
         example = bool(e["broken"] and e["fixed"])
         out.append(
             f'page Error{e["code"]}(path: "/errors/{e["code"]}", title: {q(title)}, '
-            f'description: {q(guide.snippet(e["description"]))}) {{'
+            f'description: {q(sitepages.snippet(e["description"]))}) {{'
         )
         out.append(
             f'    ErrorShell("{e["code"]}", title: {q(e["plain"])}, severity: "{e["severity"]}", '
-            f'family: {q(e["group"])}, summary: {q(e["summary"])}, printed: {guide.wf_raw(e["printed"])}, '
+            f'family: {q(e["group"])}, summary: {q(e["summary"])}, printed: {sitepages.wf_raw(e["printed"])}, '
             f'quickfix: {q(e["quickfix"])}, lowerable: {"true" if e["lowerable"] else "false"}, why: {"true" if e["why"] else "false"}, '
             f'example: {"true" if example else "false"}, families: ERROR_INDEX, related: [{related}], sections: [{sections}], '
-            f'source: "md-docs/errors/{e["code"]}.md") {{'
+            f'source: {q(e["source"])}) {{'
         )
         if example:
             # The broken program beside the fixed one, what the fix is under them.
-            out.append(f'        broken {{ DocsCodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])}) }}')
-            out.append(f'        fixed {{ DocsCodeBlock({guide.wf_raw(e["fixed"])}, title: {q(e["lang"])}) }}')
+            out.append(f'        broken {{ DocsCodeBlock({sitepages.wf_raw(e["broken"])}, title: {q(e["lang"])}) }}')
+            out.append(f'        fixed {{ DocsCodeBlock({sitepages.wf_raw(e["fixed"])}, title: {q(e["lang"])}) }}')
             out.append("        note {")
             out.append(f'            Markdown({q(e["fix"])})')
             out.append(f'            Markdown({q(TRY_IT)}) {{ style {{ font-size: 14px; color: $muted }} }}')
@@ -278,7 +286,7 @@ def page_file(entries: list) -> str:
             out.append("            Stack(gap: .sm) {")
             if e["broken"]:
                 out.append('                Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }')
-                out.append(f'                DocsCodeBlock({guide.wf_raw(e["broken"])}, title: {q(e["lang"])})')
+                out.append(f'                DocsCodeBlock({sitepages.wf_raw(e["broken"])}, title: {q(e["lang"])})')
             out.append(f'                Markdown({q(e["fix"])})')
             out.append("            }")
             out.append("        }")

@@ -4,9 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/call-wf-from-a-script
 
-The runtime is `window.WF`. A script under `src/`, the console, or a
-library's callback can call it. This page has a button that copies the
-page's address, and the script it calls says so with the runtime's toast:
+The runtime is `window.WF`. A script under `src/`, the console, or a library's callback can call it. This page has a button that copies the page's address, and the script it calls says so with the runtime's toast:
 
 **Needs:** the script `src/share.js`, shown below.
 
@@ -18,8 +16,7 @@ page Article(path: "/article", title: "Slow roasting", description: "Why we take
 }
 ```
 
-The script is a plain file under `src/`
-([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)):
+The script is a plain file under `src/` ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)):
 
 ```js
 // src/share.js
@@ -38,29 +35,14 @@ async function shareLink() {
 
 ## How it works
 
-- `WF` is on `window` once `app.js` has run, so any script may call it
-  while the page is open. `WF.toast(message, { tone, duration })` shows a
-  toast in a tone (`"info"` by default) for `duration` milliseconds (3000
-  by default); `action:` and `onAction:` add a button to it, as `toast(…)`
-  does in a handler.
-- Other calls a script makes the same way: `WF.navigate("/about")` moves
-  to another route, and `WF.storeSnapshot("Cart")` reads what a store
-  holds. The [runtime reference](https://webfluent.monzeromer.dev/reference/runtime.md) lists every
-  function.
-- A build keeps only the runtime modules its code reaches, and it reads
-  your scripts under `src/` for that too: the `WF.toast` written in
-  `src/share.js` keeps the toast module in the build, though no `.wf` code
-  uses it.
+- `WF` is on `window` once `app.js` has run, so any script may call it while the page is open. `WF.toast(message, { tone, duration })` shows a toast in a tone (`"info"` by default) for `duration` milliseconds (3000 by default); `action:` and `onAction:` add a button to it, as `toast(…)` does in a handler.
+- Other calls a script makes the same way: `WF.navigate("/about")` moves to another route, and `WF.storeSnapshot("Cart")` reads what a store holds. The [runtime reference](https://webfluent.monzeromer.dev/reference/runtime.md) lists every function.
+- A build keeps only the runtime modules its code reaches, and it reads your scripts under `src/` for that too: the `WF.toast` written in `src/share.js` keeps the toast module in the build, though no `.wf` code uses it.
 
 > [!WARNING]
-> A call the build cannot read is not counted: a script in `public/` or
-> from another origin, a `WF[name]` built at run time, or the console. If
-> it reaches a module nothing else uses, set `"build": { "runtime": "full" }`,
-> or the call fails in the browser.
+> A call the build cannot read is not counted: a script in `public/` or from another origin, a `WF[name]` built at run time, or the console. If it reaches a module nothing else uses, set `"build": { "runtime": "full" }`, or the call fails in the browser.
 
-A script from another origin must be listed in `meta.scripts`, which widens
-the policy for it. The build's CSP check refuses an inline `<script>`
-([Security](https://webfluent.monzeromer.dev/about/security.md#the-content-security-policy)).
+A script from another origin must be listed in `meta.scripts`, which widens the policy for it. The build's CSP check refuses an inline `<script>` ([Security](https://webfluent.monzeromer.dev/about/security.md#the-content-security-policy)).
 
 ## Troubleshooting
 

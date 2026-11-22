@@ -1,5 +1,6 @@
-// The recipes, by group: written from md-docs/recipes/ by
-// scripts/docsite/recipes.py; edit the recipes, not this file.
+// `/recipes`, and `RECIPE_INDEX`, the list of every recipe by group that
+// the index and each recipe's sidebar draw. A recipe added under
+// `pages/recipes/` is added here, in its group.
 
 /// Every recipe, by group: the sidebar of each recipe's page.
 const RECIPE_INDEX: [IndexEntry] = [

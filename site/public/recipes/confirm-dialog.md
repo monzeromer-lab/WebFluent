@@ -4,12 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/confirm-dialog
 
-Before a reader deletes something, ask them. This component wraps an
-`AlertDialog` with **Cancel** and **Confirm** buttons and tells the page which
-one was pressed, so every destructive action on the site asks the same way:
+Before a reader deletes something, ask them. This component wraps an `AlertDialog` with **Cancel** and **Confirm** buttons and tells the page which one was pressed, so every destructive action on the site asks the same way:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
@@ -42,28 +39,15 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 
 ## How it works
 
-- `Confirm` takes the question as its positional `title`, whether it shows
-  as `visible`, and a `danger` prop that turns the confirm button red.
-  `tone:` picks the button's case from a condition instead of a fixed flag.
-- It declares two [events](https://webfluent.monzeromer.dev/learn/10-components.md#events), `confirm` and
-  `cancel`, and each button fires one with `emit`. The component decides
-  nothing; the page does.
-- `slot` declares a default [slot](https://webfluent.monzeromer.dev/learn/10-components.md#slots), and
-  `children` places it inside the dialog. The caller's block fills it, so
-  the question's detail is the caller's to write.
-- The page owns `asking`. **Delete account** sets it, and both handlers
-  clear it, which closes the
-  [dialog](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus).
-- An `AlertDialog` is one to a screen reader, read with its body. Escape
-  closes it, and a press beside it does not: an answer is a button. Its
-  `on close` runs however it closes, so Escape fires `cancel` too and the
-  page clears `asking`; without it, `asking` would stay `true` and the next
-  **Delete account** would change nothing.
+- `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.
+- It declares two [events](https://webfluent.monzeromer.dev/learn/10-components.md#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.
+- `slot` declares a default [slot](https://webfluent.monzeromer.dev/learn/10-components.md#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.
+- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus).
+- An `AlertDialog` is one to a screen reader, read with its body. Escape closes it, and a press beside it does not: an answer is a button. Its `on close` runs however it closes, so Escape fires `cancel` too and the page clears `asking`; without it, `asking` would stay `true` and the next **Delete account** would change nothing.
 
 ## One question, from a handler
 
-When the question is asked once, from one handler, `await ask(…)` draws the
-alert dialog itself and is the answer:
+When the question is asked once, from one handler, `await ask(…)` draws the alert dialog itself and is the answer:
 
 ```wf
 page Account(path: "/", title: "Account", description: "Close your account.") {
@@ -80,5 +64,4 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 }
 ```
 
-The focus starts on **Cancel**, the answer that loses nothing, and goes
-back to the button once it is answered.
+The focus starts on **Cancel**, the answer that loses nothing, and goes back to the button once it is answered.

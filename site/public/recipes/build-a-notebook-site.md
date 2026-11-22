@@ -4,41 +4,26 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/build-a-notebook-site
 
-**What you will build.** A notebook kept in public — notes from a garden, a
-kitchen and a few trips — built as a static site. The notes are a JSON file
-the build reads. Every page, including one page per note, is written out
-as HTML that a search engine can read. The one thing a reader changes, the
-notes they save for later, stays in their browser. The finished project is
-[`examples/tutorials/medium-field-notes`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes).
-
-**Time:** about an hour.
+**What you will build.** A notebook kept in public — notes from a garden, a kitchen and a few trips — built as a static site. The notes are a JSON file the build reads. Every page, including one page per note, is written out as HTML that a search engine can read. The one thing a reader changes, the notes they save for later, stays in their browser. The finished project is [`examples/tutorials/medium-field-notes`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes).  **Time:** about an hour.
 
 ## Before you start
 
-You need `wf`, Chrome and a copy of the repository
-(see [Before you start](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial).
+You need `wf`, Chrome and a copy of the repository (see [Before you start](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial).
 
-**This tutorial is read along, not typed along.** Each step shows the part
-of a file that teaches something new, not every line of it, so the
-snippets alone do not make a working project. Open the finished project,
-run it, and read each file as its step comes up:
+**This tutorial is read along, not typed along.** Each step shows the part of a file that teaches something new, not every line of it, so the snippets alone do not make a working project. Open the finished project, run it, and read each file as its step comes up:
 
 ```bash
 cd WebFluent/examples/tutorials/medium-field-notes
 wf serve
 ```
 
-To build it yourself instead, run the `wf init` in Step 1, then copy each
-file from `examples/tutorials/medium-field-notes` into your project as its
-step names it, and run `wf check` after each step.
+To build it yourself instead, run the `wf init` in Step 1, then copy each file from `examples/tutorials/medium-field-notes` into your project as its step names it, and run `wf check` after each step.
 
-The Todos tutorial explains state, stores and components; this one
-assumes them.
+The Todos tutorial explains state, stores and components; this one assumes them.
 
 ## Step 1: Create a static project and its look
 
-The project started from the `static` template (if you are building it
-yourself, this is where you start):
+The project started from the `static` template (if you are building it yourself, this is where you start):
 
 ```bash
 wf init field-notes -t static
@@ -71,12 +56,8 @@ The project's `webfluent.app.json`:
 }
 ```
 
-- `"ssg": true` pre-renders every page to its own `index.html`. When the
-  page loads, the script takes it over in place — *hydration*
-  ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
-- `site_url` lets the build write what search engines and link previews
-  read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and
-  `robots.txt` ([Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)).
+- `"ssg": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
+- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)).
 
 The dark theme names only the tokens that change:
 
@@ -97,13 +78,9 @@ theme Dusk {
 }
 ```
 
-The light theme, `Meadow`, sets the same names. A theme may declare tokens
-of its own, such as `paper-raised` and `tag-bg`. The project's stylesheet,
-`src/styles.css`, reads every colour as a token (`var(--tag-bg)`), so the
-dark theme needs no rule of its own ([Design tokens](https://webfluent.monzeromer.dev/reference/tokens.md)).
+The light theme, `Meadow`, sets the same names. A theme may declare tokens of its own, such as `paper-raised` and `tag-bg`. The project's stylesheet, `src/styles.css`, reads every colour as a token (`var(--tag-bg)`), so the dark theme needs no rule of its own ([Design tokens](https://webfluent.monzeromer.dev/reference/tokens.md)).
 
-**Check it:** with `wf serve` running, set your system to dark mode. The
-page turns dark green and cream without a reload.
+**Check it:** with `wf serve` running, set your system to dark mode. The page turns dark green and cream without a reload.
 
 ## Step 2: Type the data
 
@@ -126,30 +103,17 @@ type Note {
 data notes: [Note] = "notes.json"
 ```
 
-- `data` reads a JSON file at build time. The result is a constant, typed
-  by the annotation, inlined into the bundle and seeded into every
-  pre-rendered page ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)).
-- The checker holds the program to `Note`: a page that reads `note.titel`
-  is an error where it is written.
-- `date` is a `Date`: a plain `"2026-03-08"` string the language knows how
-  to format. `{note.date:.date(long)}` shows `March 8, 2026`.
+- `data` reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)).
+- The checker holds the program to `Note`: a page that reads `note.titel` is an error where it is written.
+- `date` is a `Date`: a plain `"2026-03-08"` string the language knows how to format. `{note.date:.date(long)}` shows `March 8, 2026`.
 
 `src/notes.json` holds seven notes, each with a Markdown `body`.
 
-**Check it:** `wf check` ends with `no problems`. (It also prints one
-`V11` note: the project's own `Sheet`, the layout of Step 3, takes the
-place of the built-in `Sheet`.) If one note
-in `notes.json` has a field that `Note` does not declare, the check reports
-`T05` at the `data` line and names the field; if a note leaves out a field
-`Note` requires, it reports `T33` there and names the place
-(`$[0].summary is missing`).
+**Check it:** `wf check` ends with `no problems`. (It also prints one `V11` note: the project's own `Sheet`, the layout of Step 3, takes the place of the built-in `Sheet`.) If one note in `notes.json` has a field that `Note` does not declare, the check reports `T05` at the `data` line and names the field; if a note leaves out a field `Note` requires, it reports `T33` there and names the place (`$[0].summary is missing`).
 
 ## Step 3: Write the shell and a layout
 
-The `app` declaration wraps every page. The current page is drawn where
-`Router` stands, inside `<main>`, so the skip link each page carries jumps
-past the navigation ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md)). The
-start of `src/App.wf`:
+The `app` declaration wraps every page. The current page is drawn where `Router` stands, inside `<main>`, so the skip link each page carries jumps past the navigation ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md)). The start of `src/App.wf`:
 
 ```wf
 // src/App.wf
@@ -180,14 +144,10 @@ app {
 ```
 
 - The link whose `to:` is the page shown is marked `aria-current="page"`.
-- `ThemeToggle` is one button: a moon in a light page and a sun in a dark
-  one, named for the theme it switches to. It calls `setTheme`, and the
-  reader's choice is kept across visits.
-- `Router(transition: .fade, duration: "160ms")` fades one page out and
-  the next in.
+- `ThemeToggle` is one button: a moon in a light page and a sun in a dark one, named for the theme it switches to. It calls `setTheme`, and the reader's choice is kept across visits.
+- `Router(transition: .fade, duration: "160ms")` fades one page out and the next in.
 
-Each page names the column it is set in with `layout:` — a component whose
-default slot is the page:
+Each page names the column it is set in with `layout:` — a component whose default slot is the page:
 
 ```wf
 // src/components/Sheet.wf
@@ -201,9 +161,7 @@ component Sheet(wide: Bool = false) {
 }
 ```
 
-**Check it:** the navbar shows **Notes**, **Tags**, **Saved** and
-**About**. Click **Tags**: the page fades over, and the **Tags** link is
-marked as the current page.
+**Check it:** the navbar shows **Notes**, **Tags**, **Saved** and **About**. Click **Tags**: the page fades over, and the **Tags** link is marked as the current page.
 
 ## Step 4: Build a card
 
@@ -234,20 +192,15 @@ component NoteCard(
 }
 ```
 
-- A `///` comment above a component or a prop is its documentation. Your
-  editor shows it when you hover a call ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
-- A splice may say how to show its value: `{note.date:.date(long)}` is
-  `format(note.date, .date, "long")`, written where it is read
-  ([Expressions](https://webfluent.monzeromer.dev/reference/expressions.md)).
+- A `///` comment above a component or a prop is its documentation. Your editor shows it when you hover a call ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
+- A splice may say how to show its value: `{note.date:.date(long)}` is `format(note.date, .date, "long")`, written where it is read ([Expressions](https://webfluent.monzeromer.dev/reference/expressions.md)).
 - `TagList` is a row of `#tag` links to `/?tag=…`.
 
-**Check it:** the front page shows a card per note, each with a line such
-as `March 8, 2026 · 4 min read`, a title, a summary and its tags.
+**Check it:** the front page shows a card per note, each with a line such as `March 8, 2026 · 4 min read`, a title, a summary and its tags.
 
 ## Step 5: Search and filter the front page
 
-The front page lists every note, narrowed by a search box and by the tag in
-the address. `NoteFinder` works the list out:
+The front page lists every note, narrowed by a search box and by the tag in the address. `NoteFinder` works the list out:
 
 ```wf
 // src/components/NoteFinder.wf
@@ -264,15 +217,9 @@ the address. `NoteFinder` works the list out:
     derived allTags = all.flatMap(n => n.tags).unique().sort()
 ```
 
-`q` is bound to the search box, and everything else follows it. `sortBy`,
-`flatMap` and `unique` are list helpers the language brings. Each also runs
-at build time, so the pre-rendered page shows the sorted list
-([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)).
+`q` is bound to the search box, and everything else follows it. `sortBy`, `flatMap` and `unique` are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)).
 
-A static site adds one idea here. Its HTML is written once, before any
-reader arrives, so the HTML cannot depend on what only the browser knows,
-such as the address's query or what is in storage. So the finder draws
-every note and hides the ones that do not match:
+A static site adds one idea here. Its HTML is written once, before any reader arrives, so the HTML cannot depend on what only the browser knows, such as the address's query or what is in storage. So the finder draws every note and hides the ones that do not match:
 
 ```wf
 // src/components/NoteFinder.wf
@@ -285,9 +232,7 @@ every note and hides the ones that do not match:
             }
 ```
 
-The HTML then holds every note, for a reader without script and for a
-search engine, and the filter applies the moment the page is live. The
-front page hands the finder the address's tag:
+The HTML then holds every note, for a reader without script and for a search engine, and the filter applies the moment the page is live. The front page hands the finder the address's tag:
 
 ```wf
 // src/pages/Home.wf
@@ -296,13 +241,9 @@ front page hands the finder the address's tag:
         NoteFinder(notes, tag: query.tag ?? "")
 ```
 
-**Check it:** the front page reads `7 of 7 notes`. Type `tomato` in the
-search box, and the count and the cards narrow as you type. Open
-`/?tag=garden`, and only the notes tagged `garden` show. Run `wf build` and
-open `build/index.html` in a text editor: all seven notes are in it.
+**Check it:** the front page reads `7 of 7 notes`. Type `tomato` in the search box, and the count and the cards narrow as you type. Open `/?tag=garden`, and only the notes tagged `garden` show. Run `wf build` and open `build/index.html` in a text editor: all seven notes are in it.
 
-If a filtered list is empty in the built HTML, you probably filtered the
-`for` itself by `query`; hide the cards instead, as above.
+If a filtered list is empty in the built HTML, you probably filtered the `for` itself by `query`; hide the cards instead, as above.
 
 ## Step 6: Give each note a page
 
@@ -321,11 +262,8 @@ page NotePage(path: "/notes/:slug", slug: String,
 ```
 
 - `:slug` in the path is a typed parameter of the page.
-- `paths:` names the values a static build renders the page for: one
-  `notes/<slug>/index.html` per note, each listed in the sitemap
-  ([Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)).
-- `title:` and `description:` may be worked out from the parameters, so
-  each note's search result shows its own title and summary.
+- `paths:` names the values a static build renders the page for: one `notes/<slug>/index.html` per note, each listed in the sitemap ([Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)).
+- `title:` and `description:` may be worked out from the parameters, so each note's search result shows its own title and summary.
 
 The body of the page is the note's Markdown:
 
@@ -334,14 +272,9 @@ The body of the page is the note's Markdown:
             Markdown(n.body)
 ```
 
-`Markdown` renders headings, lists, quotes, emphasis and links, at build
-time and live. It escapes the text first, so HTML in a note is shown, not
-run ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md)). Below the note, `related` lists the three
-newest notes that share a tag with it — a `derived` value like any other.
+`Markdown` renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md)). Below the note, `related` lists the three newest notes that share a tag with it — a `derived` value like any other.
 
-**Check it:** click a note's title. Its page shows the whole note, and the
-browser tab shows its title followed by `— Field Notes`. After `wf build`,
-`build/notes/` holds seven folders, one per note.
+**Check it:** click a note's title. Its page shows the whole note, and the browser tab shows its title followed by `— Field Notes`. After `wf build`, `build/notes/` holds seven folders, one per note.
 
 ## Step 7: List the tags, and write a page in Markdown
 
@@ -354,16 +287,12 @@ The Tags page groups the notes under each tag:
                 derived filed = notes.filter(n => n.tags.includes(tag)).sortBy(n => n.date).reverse()
 ```
 
-- A layout prop takes one value per breakpoint: one column on a phone, two
-  from `md` up. It compiles to a media query, so the first paint is already
-  right ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- A layout prop takes one value per breakpoint: one column on a phone, two from `md` up. It compiles to a media query, so the first paint is already right ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 - A `derived` value inside a `for` is worked out for each item.
 
-The About page is not a `.wf` file at all. `src/about.md` is a page: its
-front matter names its path, title, description and layout, and the rest
-is its Markdown:
+The About page is not a `.wf` file at all. `src/about.md` is a page: its front matter names its path, title, description and layout, and the rest is its Markdown:
 
-```markdown
+```md
 ---
 path: /about
 title: About — Field Notes
@@ -373,9 +302,7 @@ layout: Sheet
 # About
 ```
 
-**Check it:** `/tags` shows one card per tag, in one column on a narrow
-window and two on a wide one. `/about` shows the About page in the same
-column as the others.
+**Check it:** `/tags` shows one card per tag, in one column on a narrow window and two on a wide one. `/about` shows the About page in the same column as the others.
 
 ## Step 8: Keep the reader's saved notes
 
@@ -390,11 +317,9 @@ store Saved {
     derived count = slugs.length
 ```
 
-`persist` keeps the list in the browser across visits. There is no
-account, and nothing is sent anywhere ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
+`persist` keeps the list in the browser across visits. There is no account, and nothing is sent anywhere ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
 
-The button that saves a note says whether it is pressed, the way assistive
-technology reads it:
+The button that saves a note says whether it is pressed, the way assistive technology reads it:
 
 ```wf
 // src/components/SaveButton.wf
@@ -411,20 +336,13 @@ component SaveButton(_ slug: String, title: String) {
 }
 ```
 
-`aria-pressed` follows the state, and `styles.css` styles the pressed
-button with `[aria-pressed="true"]`, so the look and the meaning are one
-attribute ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)). The Saved page lists
-`notes.filter(n => Saved.slugs.includes(n.slug))`, and the navbar's badge
-shows `Saved.count`.
+`aria-pressed` follows the state, and `styles.css` styles the pressed button with `[aria-pressed="true"]`, so the look and the meaning are one attribute ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)). The Saved page lists `notes.filter(n => Saved.slugs.includes(n.slug))`, and the navbar's badge shows `Saved.count`.
 
-**Check it:** click **Save** on a card. It reads **Saved**, and the navbar
-shows a `1` badge beside **Saved**. Reload the page: the note is still
-saved, and `/saved` lists it.
+**Check it:** click **Save** on a card. It reads **Saved**, and the navbar shows a `1` badge beside **Saved**. Reload the page: the note is still saved, and `/saved` lists it.
 
 ## Step 9: Test it, and run the checks a static site needs
 
-A test reads the project's `data` file, as any page does
-([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)):
+A test reads the project's `data` file, as any page does ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)):
 
 ```wf
 // tests/NoteFinder.wf
@@ -439,8 +357,7 @@ test "a search that matches nothing says so, and clears" {
 }
 ```
 
-The project has six tests. Run them, check with warnings counted as
-failures, build, and load the result in a browser:
+The project has six tests. Run them, check with warnings counted as failures, build, and load the result in a browser:
 
 ```bash
 wf test
@@ -449,24 +366,15 @@ wf build
 wf verify
 ```
 
-`wf verify` loads every route of the built site in a headless Chrome —
-each note's page at its `paths:` value — and fails on an error, a missing
-file or a page that draws nothing ([Command line](https://webfluent.monzeromer.dev/reference/cli.md)).
+`wf verify` loads every route of the built site in a headless Chrome — each note's page at its `paths:` value — and fails on an error, a missing file or a page that draws nothing ([Command line](https://webfluent.monzeromer.dev/reference/cli.md)).
 
-**Check it:** `wf test` reports `6 passed`, `wf build` reports `SSG:
-pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`.
-`build/` is ready for any static host.
+**Check it:** `wf test` reports `6 passed`, `wf build` reports `SSG: pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`. `build/` is ready for any static host.
 
 ## What you built
 
-- A static build, with canonical addresses, a sitemap and link previews
-  ([Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)).
+- A static build, with canonical addresses, a sitemap and link previews ([Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md)).
 - Typed data read from a JSON file at build time ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)).
-- A shell, and a layout every page names
-  ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md)).
-- A page per note from one `:slug` page and `paths:`, and a page written in
-  Markdown ([Write a page as a Markdown file](https://webfluent.monzeromer.dev/recipes/markdown-pages.md)).
-- A search and a filter that work in pre-rendered HTML
-  ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
-- A reader's saved list, with a pressed state assistive technology reads
-  ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)).
+- A shell, and a layout every page names ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md)).
+- A page per note from one `:slug` page and `paths:`, and a page written in Markdown ([Write a page as a Markdown file](https://webfluent.monzeromer.dev/recipes/markdown-pages.md)).
+- A search and a filter that work in pre-rendered HTML ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
+- A reader's saved list, with a pressed state assistive technology reads ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)).

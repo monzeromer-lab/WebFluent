@@ -4,11 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/render-a-template
 
-A template is a `.wf` file with a `page`, rendered once with the data you
-hand it: an invoice, an email, a block of a page your server already
-draws. `wf render` turns it into HTML, a fragment, a PDF or slides. You
-need the `wf` command installed
-([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md#install)).
+A template is a `.wf` file with a `page`, rendered once with the data you hand it: an invoice, an email, a block of a page your server already draws. `wf render` turns it into HTML, a fragment, a PDF or slides. You need the `wf` command installed ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md#install)).
 
 ```wf
 type Customer { name: String }
@@ -35,8 +31,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.",
 }
 ```
 
-The data is a JSON object, saved here as `invoice.json` beside the
-template, `invoice.wf`:
+The data is a JSON object, saved here as `invoice.json` beside the template, `invoice.wf`:
 
 ```json
 {
@@ -49,28 +44,17 @@ template, `invoice.wf`:
 }
 ```
 
-This command renders the template with the data and prints the markup to
-standard output:
+This command renders the template with the data and prints the markup to standard output:
 
 ```bash
 wf render invoice.wf --data invoice.json --format html-fragment
 ```
 
-Rendered, the page reads `Invoice #INV-001`, `Bill to: Acme Corp`, one table
-row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.
-
 ## How it works
 
-The page says what data it takes, as its parameters: `number`, `customer`,
-`items`, `total` and `paid`, each of its type. Every render holds the data
-to them first, and data that does not fit is refused with the place it goes
-wrong — `T33: the data is not what `Invoice` takes: $.items[0].price is
-missing` — rather than drawn as an empty cell. A name the page reads that
-is neither a parameter nor declared is `T13`, found when the template is
-loaded. Keys the page does not take, such as `locale`, are passed through.
-A template uses
-the static subset of the language: no handlers, stores, `resource` or
-motion (see [What a template may use](#what-a-template-may-use)).
+Rendered, the page reads `Invoice #INV-001`, `Bill to: Acme Corp`, one table row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.
+
+The page says what data it takes, as its parameters: `number`, `customer`, `items`, `total` and `paid`, each of its type. Every render holds the data to them first, and data that does not fit is refused with the place it goes wrong — `T33: the data is not what `Invoice` takes: $.items[0].price is missing` — rather than drawn as an empty cell. A name the page reads that is neither a parameter nor declared is `T13`, found when the template is loaded. Keys the page does not take, such as `locale`, are passed through. A template uses the static subset of the language: no handlers, stores, `resource` or motion (see [What a template may use](#what-a-template-may-use)).
 
 `wf render` takes these options:
 
@@ -84,28 +68,11 @@ motion (see [What a template may use](#what-a-template-may-use)).
 | `--lang ar` | Sets the document's language, `<html lang>` (default: the page's `lang:`, else `en`) |
 | `--page Name` | Chooses the page to render when the template has several |
 
-A template that names a component nothing declares, or a flag a component
-does not take, is refused, as a build would refuse it.
-
-## Variations
-
-The template may also be a directory. Every `.wf` and `.wfx` file under it
-renders as one template, with components shared, and `--page Name`
-chooses the page. This command renders the `Invoice` page of `templates/`
-to a PDF, in Arabic:
-
-```bash
-wf render templates/ --page Invoice --lang ar --data invoice.json --format pdf -o invoice.pdf
-```
-
-To render from a program instead of the command line, use the Rust crate
-([Render templates from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md)) or the Node binding
-([Render templates from Node](https://webfluent.monzeromer.dev/recipes/render-from-node.md)).
+A template that names a component nothing declares, or a flag a component does not take, is refused, as a build would refuse it.
 
 ## What a template may use
 
-A template uses the static subset of the language, because there is no
-browser to run the rest:
+A template uses the static subset of the language, because there is no browser to run the rest:
 
 | Supported | Not supported |
 |---|---|
@@ -116,22 +83,13 @@ browser to run the rest:
 | `type`s, `const`s, `data` files and components | Animations |
 | `state` and `derived` values (see below) | A `resource`'s request |
 
-A `state` is its first value, and a `derived` value is what that works out
-to. So a page may work out its totals once, in order, and show them
-anywhere. A value the data hands over wins over either.
+A `state` is its first value, and a `derived` value is what that works out to. So a page may work out its totals once, in order, and show them anywhere. A value the data hands over wins over either.
 
-A `resource` sends no request at render time, so it draws its `.loading`
-arm, unless the data gives it a value by its name: `{ "users": {
-"loaded": [ … ] } }` draws `.loaded`, and `{ "users": { "failed": { … } } }`
-draws `.failed`. What `loaded` holds is held to the read's type (`T33`).
+A `resource` sends no request at render time, so it draws its `.loading` arm, unless the data gives it a value by its name: `{ "users": { "loaded": [ … ] } }` draws `.loaded`, and `{ "users": { "failed": { … } } }` draws `.failed`. What `loaded` holds is held to the read's type (`T33`).
 
-A template may declare `type`s and a `theme` like any file. `data` files
-are read relative to the template. `format` and `ago` speak the data's
-`locale` key when it has one, and English otherwise.
+A template may declare `type`s and a `theme` like any file. `data` files are read relative to the template. `format` and `ago` speak the data's `locale` key when it has one, and English otherwise.
 
-A template may read private `env` names
-([Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md)): it runs on your
-server, where a secret stays secret.
+A template may read private `env` names ([Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md)): it runs on your server, where a secret stays secret.
 
 ## Pick an output for the job
 
@@ -152,3 +110,13 @@ server, where a secret stays secret.
 | A `{name}` renders empty | A page that declares no parameters reads whatever it is given: the data has no top-level key `name`. Declare the page's parameters, and the render says so instead |
 | `format` writes the wrong language | Add a `locale` key to the data |
 | The render fails with `E120` or `E121` | The template nests too deeply, or the render does too much; see [Limits of one render](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#limits-of-one-render) |
+
+## Variations
+
+The template may also be a directory. Every `.wf` and `.wfx` file under it renders as one template, with components shared, and `--page Name` chooses the page. This command renders the `Invoice` page of `templates/` to a PDF, in Arabic:
+
+```bash
+wf render templates/ --page Invoice --lang ar --data invoice.json --format pdf -o invoice.pdf
+```
+
+To render from a program instead of the command line, use the Rust crate ([Render templates from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md)) or the Node binding ([Render templates from Node](https://webfluent.monzeromer.dev/recipes/render-from-node.md)).

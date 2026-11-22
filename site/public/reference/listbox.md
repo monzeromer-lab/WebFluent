@@ -50,13 +50,13 @@ Written under its name, inside `Listbox`.
 One option: its words, and the value bind: holds when it is chosen.
 
 ```wf
-Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, aria-disabled: String) { … }
+Listbox.Option(_ label: String, value: String or Number or Bool or Bound, icon: String, aria-disabled: String) { … }
 ```
 
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String (positional)` | The option's words; a letter typed goes to the next option they start with |
-| `value:` | `String or Number or Bool (required)` | What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen) |
+| `value:` | `String or Number or Bool or Bound (required)` | What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen); a case (`.food`) when `bind:` holds an enum (`Bound`) |
 | `icon:` | `String` | The name of a built-in icon drawn before its words |
 | `aria-disabled:` | `String` | `"true"`: shown, passed over by the arrow keys, never chosen |
 

@@ -1,6 +1,5 @@
-/// Chapter 16 of the guide, written from md-docs/learn/16-testing.md by
-/// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn16Testing(path: "/learn/16-testing", title: "Testing", description: "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.", layout: DocsShell("Testing", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", source: "md-docs/learn/16-testing.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "write-a-test-that-looks", label: "Write a test that looks"), Anchor(id: "write-a-test-that-acts", label: "Write a test that acts"), Anchor(id: "seed-data-and-stores", label: "Seed data and stores"), Anchor(id: "test-a-whole-page", label: "Test a whole page"), Anchor(id: "answer-a-service-with-fakes", label: "Answer a service with fakes"), Anchor(id: "run-the-tests", label: "Run the tests"), Anchor(id: "check-every-page-with-wf-verify", label: "Check every page with wf verify"), Anchor(id: "run-the-checks-in-ci", label: "Run the checks in CI"), Anchor(id: "choose-what-to-test", label: "Choose what to test"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Write a `test` that renders a component and holds it to `expect` and a snapshot", "Seed a test's values and stores with `data:`", "Click, type and press keys through a page with steps that run in headless Chrome", "Answer a service with a `fake`, and check what was called with `expect called`", "Load every built page with `wf verify`, and run it all in CI"], prevTo: "/learn/15-data", prevLabel: t("ch.15"), nextTo: "/learn/17-pdf-and-slides", nextLabel: t("ch.17"))) {
+/// Chapter 16 of the guide. This page is its source: edit it here.
+page Learn16Testing(path: "/learn/16-testing", title: "Testing", description: "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.", layout: DocsShell("Testing", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", source: "site/src/pages/guide/16-testing.wf", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "write-a-test-that-looks", label: "Write a test that looks"), Anchor(id: "write-a-test-that-acts", label: "Write a test that acts"), Anchor(id: "seed-data-and-stores", label: "Seed data and stores"), Anchor(id: "test-a-whole-page", label: "Test a whole page"), Anchor(id: "answer-a-service-with-fakes", label: "Answer a service with fakes"), Anchor(id: "run-the-tests", label: "Run the tests"), Anchor(id: "check-every-page-with-wf-verify", label: "Check every page with wf verify"), Anchor(id: "run-the-checks-in-ci", label: "Run the checks in CI"), Anchor(id: "choose-what-to-test", label: "Choose what to test"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Write a `test` that renders a component and holds it to `expect` and a snapshot", "Seed a test's values and stores with `data:`", "Click, type and press keys through a page with steps that run in headless Chrome", "Answer a service with a `fake`, and check what was called with `expect called`", "Load every built page with `wf verify`, and run it all in CI"], prevTo: "/learn/15-data", prevLabel: t("ch.15"), nextTo: "/learn/17-pdf-and-slides", nextLabel: t("ch.17"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about testing a WebFluent project: render a component and check what it shows, click and type through a page in a real browser, and load every page of the built site to catch errors before a reader does.\n\nYou write tests in WebFluent itself, as `test \"name\" \{ … \}` declarations. A test renders something — a component, a fragment of a page, a whole page — and holds it to what it must and must not show. A test that clicks or types runs in a headless browser. `wf verify` then loads every page of the built site in one.")
 
@@ -246,7 +245,7 @@ fake Refusing for Backend.people from examples {
     createPerson(body) { .err(.status(503, null)) }
 }"#, title: "wf")
 
-        Markdown("Here `Backend.people` is written by hand for the sake of the example; with `wf api` it is the generated file, and the examples are the spec's.\n\n`expect called Backend.people.create` passes once the page has asked that endpoint; `expect not called` passes while it has not. Use them to check that a write went out, or that a form did not send what it should not.\n\nA fake that does not fit its contract is `N06`, with what is wrong: an endpoint the group does not have, a parameter it does not take, an answer of the wrong type. So is a test's `fakes:` naming no fake, two fakes answering one endpoint, and an `expect called` naming no endpoint.\n\nPut fakes beside the tests that use them, under `tests/`. A fake in `src/` is checked like any declaration, and a build leaves it out.")
+        Markdown("Here `Backend.people` is written by hand for the sake of the example; with `wf api` it is the generated file, and the examples are the spec's.\n\n`expect called Backend.people.create` passes once the page has asked that endpoint; `expect not called` passes while it has not. Use them to check that a write went out, or that a form did not send what it should not.\n\nA fake that does not fit its contract is `N06`, with what is wrong: an endpoint the group does not have, a parameter it does not take, an answer of the wrong type. So is a test's `fakes:` naming no fake, two fakes answering one endpoint, and an `expect called` naming no endpoint.\n\nPut fakes beside the tests that use them, under `tests/`, or in a file of their own there (`tests/fakes.wf`): a test may name a fake any file under `tests/` declares, and one beside it wins over another file's. A fake in `src/` is checked like any declaration, and a build leaves it out.")
 
         Heading("Run the tests", id: "run-the-tests").h2
 
@@ -278,7 +277,7 @@ fake Refusing for Backend.people from examples {
                 Line(command: "wf build && wf verify")
             ])
 
-        Markdown("`wf verify` serves the build and opens every route in headless Chrome. It fails on:\n\n- an uncaught exception or a `console.error`;\n- a request that failed, or an image that did not load;\n- a page that rendered no text.\n\nFor each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:\n\n- `--budget 400` fails a route that takes more than 400 ms to paint;\n- `--json` prints the report for a pipeline;\n- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept;\n- `--fakes tests/fakes.wf` builds the site with the fakes that file declares answering its endpoints, and loads that — for a site whose API is elsewhere, or not running. It writes that build aside and removes it after; the project's own `build/` is not touched.\n\n[CLI](/reference/cli#wf-verify) has the details.")
+        Markdown("`wf verify` serves the build and opens every route in headless Chrome. It fails on:\n\n- an uncaught exception or a `console.error`;\n- a request that failed, or an image that did not load;\n- a page that rendered no text.\n\nFor each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:\n\n- `--budget 400` fails a route that takes more than 400 ms to paint;\n- `--json` prints the report for a pipeline;\n- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept;\n- `--fakes tests/fakes.wf` builds the site with the fakes that file declares answering its endpoints, and loads that — for a site whose API is elsewhere, or not running. It writes that build aside and removes it after; the project's own `build/` is not touched.\n\n[CLI](/reference/cli/verify) has the details.")
 
         Heading("Run the checks in CI", id: "run-the-checks-in-ci").h2
 
@@ -324,7 +323,7 @@ jobs:
     Heading("Tasks").h1
     Input(bind: draft)
     Text("Next: {draft}")
-}"#, title: "wf · draws A03")
+}"#, title: "wf", expect: "A03")
 
         Markdown("Give it `label: \"New task\"`, and the test types `into \"New task\"` ([A03](/errors/A03)).\n\n**A button with no text.** `click \"…\"` finds a button by its text, and an empty one has nothing to find:")
 
@@ -333,7 +332,7 @@ jobs:
     Heading("Tasks").h1
     Text("{count} done")
     Button { on click { count = count + 1 } }
-}"#, title: "wf · draws A05")
+}"#, title: "wf", expect: "A05")
 
         Markdown("Write its text, `Button(\"Mark done\")`, or give it an `aria-label:` ([A05](/errors/A05)).\n\n**An icon button with no label.** An `IconButton` shows no text, so its `label:` is the only name a step can use:")
 
@@ -342,7 +341,7 @@ jobs:
     Heading("Tasks").h1
     Text("{count} done")
     IconButton(icon: "plus") { on click { count = count + 1 } }
-}"#, title: "wf · draws A02")
+}"#, title: "wf", expect: "A02")
 
         Markdown("Add `label: \"Add one\"`, and click it with `click \"Add one\"` ([A02](/errors/A02)).\n\nGoing further: [Security](/about/security) covers what the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.")
     }

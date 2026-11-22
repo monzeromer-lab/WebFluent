@@ -1,6 +1,6 @@
-/// Tutorial: Todos, in ar: written from md-docs/ar/learn/03-tutorial-todos.md by
-/// scripts/docsite/guide.py; edit the translation, not this file.
-page Learn03TutorialTodosAr(path: "/ar/learn/03-tutorial-todos", title: "درس: قائمة المهام", description: "درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.", lang: "ar", translates: Learn03TutorialTodos, layout: DocsShell("درس: قائمة المهام", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ قائمة مهام تبقى في متصفح القارئ: أنواع، ومخزن يتذكّر، ومكوّن، ومرشّح في العنوان، واختبارات تنقر.", source: "md-docs/ar/learn/03-tutorial-todos.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-أعطه-مظهرا-خاصا-به", label: "الخطوة 2: أعطه مظهرًا خاصًا به"), Anchor(id: "الخطوة-3-صف-المهمة", label: "الخطوة 3: صِف المهمة"), Anchor(id: "الخطوة-4-اكتب-مخزنا-يتذكر", label: "الخطوة 4: اكتب مخزنًا يتذكّر"), Anchor(id: "الخطوة-5-ابن-صفا-واحدا", label: "الخطوة 5: ابنِ صفًا واحدًا"), Anchor(id: "الخطوة-6-اكتب-الصفحة", label: "الخطوة 6: اكتب الصفحة"), Anchor(id: "الخطوة-7-اكتب-الاختبارات", label: "الخطوة 7: اكتب الاختبارات"), Anchor(id: "الخطوة-8-ابنه", label: "الخطوة 8: ابنِه"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["صِف البيانات بـ`type` و`enum`", "احفظ قائمة عبر إعادة التحميل في مخزن بـ`persist`، لا تغيّرها إلا إجراءاته", "أعطِ كل صف من القائمة `state` خاصة به في مكوّن", "اربط القائمة بمفتاح بـ`for … by`، واحفظ المرشّح في العنوان بـ`query`", "اختبر صفحة بالكتابة والنقر، بـ`wf test`"], book: GUIDE_AR, other: "/learn/03-tutorial-todos", lang: "ar", prevTo: "/ar/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
+/// Chapter 3 of the guide, in Arabic: the translation of
+/// `03-tutorial-todos.wf`. This page is its source; edit it here.
+page Learn03TutorialTodosAr(path: "/ar/learn/03-tutorial-todos", title: "درس: قائمة المهام", description: "درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.", lang: "ar", translates: Learn03TutorialTodos, layout: DocsShell("درس: قائمة المهام", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ قائمة مهام تبقى في متصفح القارئ: أنواع، ومخزن يتذكّر، ومكوّن، ومرشّح في العنوان، واختبارات تنقر.", source: "site/src/pages/guide/03-tutorial-todos-ar.wf", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-أعطه-مظهرا-خاصا-به", label: "الخطوة 2: أعطه مظهرًا خاصًا به"), Anchor(id: "الخطوة-3-صف-المهمة", label: "الخطوة 3: صِف المهمة"), Anchor(id: "الخطوة-4-اكتب-مخزنا-يتذكر", label: "الخطوة 4: اكتب مخزنًا يتذكّر"), Anchor(id: "الخطوة-5-ابن-صفا-واحدا", label: "الخطوة 5: ابنِ صفًا واحدًا"), Anchor(id: "الخطوة-6-اكتب-الصفحة", label: "الخطوة 6: اكتب الصفحة"), Anchor(id: "الخطوة-7-اكتب-الاختبارات", label: "الخطوة 7: اكتب الاختبارات"), Anchor(id: "الخطوة-8-ابنه", label: "الخطوة 8: ابنِه"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["صِف البيانات بـ`type` و`enum`", "احفظ قائمة عبر إعادة التحميل في مخزن بـ`persist`، لا تغيّرها إلا إجراءاته", "أعطِ كل صف من القائمة `state` خاصة به في مكوّن", "اربط القائمة بمفتاح بـ`for … by`، واحفظ المرشّح في العنوان بـ`query`", "اختبر صفحة بالكتابة والنقر، بـ`wf test`"], book: GUIDE_AR, other: "/learn/03-tutorial-todos", lang: "ar", prevTo: "/ar/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
     Stack(gap: .lg) {
         Markdown("يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store) ومكوّن ومرشّح في العنوان واختبارات تنقر.")
 
@@ -376,7 +376,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
     }
     Heading("Todos").h1
     Text(label)
-}"#, title: "wf · draws T15")
+}"#, title: "wf", expect: "T15")
 
         Markdown("أضف الفرع الناقص، `.all \{ \"All\" \}`، أو فرع `else` ([T15](/errors/T15)).\n\nقائمة بلا `by`. دون مفتاح، يُعاد رسم الصف الذي يحمل عنصر تحكم كلما تغيّرت القائمة، فيفقد المربع الذي كان القارئ يستعمله موضعه:")
 
@@ -388,7 +388,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
     for todo in items {
         Checkbox(label: todo.title)
     }
-}"#, title: "wf · draws U09")
+}"#, title: "wf", expect: "U09")
 
         Markdown("اجعل مفتاح القائمة ما يميّز كل عنصر: `for todo in items by todo.id` ([U09](/errors/U09)).\n\nعنصر تحكم مربوط بقيمة `derived`. يكتب `bind:` إلى ما يسمّيه، والقيمة المشتقة تُحسَب ولا يُسنَد إليها أبدًا:")
 
@@ -401,7 +401,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
     use Todos
     Heading("Todos").h1
     Input(bind: Todos.open, label: "Open")
-}"#, title: "wf · draws F01")
+}"#, title: "wf", expect: "F01")
 
         Markdown("اربط `state`، كما تربط الصفحة `draft`، وغيّر المخزن عبر إجراءاته ([F01](/errors/F01)).\n\nللمضيّ أبعد: يبني [Field Notes](/recipes/build-a-notebook-site) موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.")
 

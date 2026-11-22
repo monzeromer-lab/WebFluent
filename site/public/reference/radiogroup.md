@@ -49,13 +49,13 @@ Written under its name, inside `RadioGroup`.
 One choice: its words, its value, and a hint said with it.
 
 ```wf
-RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) { … }
+RadioGroup.Option(_ label: String, value: String or Number or Bool or Bound, hint: String) { … }
 ```
 
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String (positional)` | The option's words, beside its radio |
-| `value:` | `String or Number or Bool (required)` | What `bind:` holds when it is chosen |
+| `value:` | `String or Number or Bool or Bound (required)` | What `bind:` holds when it is chosen; a case (`.food`) when `bind:` holds an enum (`Bound`) |
 | `hint:` | `String` | A line beneath its words, read with the option (`aria-description`) |
 
 ## Drawn for it

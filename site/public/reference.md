@@ -4,8 +4,6 @@
 
 The page: https://webfluent.monzeromer.dev/reference
 
-Generated from the compiler's registry (`wf registry --json`) by `scripts/docsite/components.py`, with an example of each from `scripts/docsite/examples.py`; edit those, not this file.
-
 Every component is written `Name(positional, prop: value).flag { block }`. A **prop** is passed by name; the one **positional** prop, where there is one, comes first and unnamed. A **flag** is written after the parentheses with a dot: a `Bool` prop, or a case of one of the element's enum props (`Button("x").primary.lg`). An **enum prop** takes a case written `.case` (`Row(gap: .md)`). Every element also takes the universal props and events listed at the end, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).
 
 ## Contents
@@ -3077,7 +3075,7 @@ Renders with the class `wf-select`.
 
 - `Select.Option(label, value: …)` — One choice: the visible label, and the value sent with the form.
   - `label:` `String` — The words the option shows; also its value when it has no `value:`
-  - `value:` `String or Number or Bool` — What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`)
+  - `value:` `String or Number or Bool or Bound` — What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`); a case (`.food`) when `bind:` holds an enum (`Bound`)
 
 Takes a block of children.
 
@@ -3137,7 +3135,7 @@ Renders with the class `wf-radio`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `bind:` | `State` | The state shared by a group of radios: it holds the chosen radio's `value:`, and radios bound to one state are one group for the arrow keys |
-| `value:` | `String or Number or Bool` | What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked |
+| `value:` | `String or Number or Bool or Bound` | What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked; a case (`.food`) when `bind:` holds an enum (`Bound`) |
 | `checked:` | `Bool` | Whether it is chosen, when no state is bound: shown, not written back |
 | `label:` | `String` | The words after the button, which a press on also chooses; also its accessible name |
 | `disabled:` | `Bool` | Whether the control is inert: it cannot be focused or changed, and a form does not send it |
@@ -3494,7 +3492,7 @@ Renders with the class `wf-radio-group`.
 
 - `RadioGroup.Option(label, value: …, hint: …) { … }` — One choice: its words, its value, and a hint said with it.
   - `label:` `String` — The option's words, beside its radio
-  - `value:` `String or Number or Bool` — What `bind:` holds when it is chosen
+  - `value:` `String or Number or Bool or Bound` — What `bind:` holds when it is chosen; a case (`.food`) when `bind:` holds an enum (`Bound`)
   - `hint:` `String` — A line beneath its words, read with the option (`aria-description`)
 - `RadioGroup.Legend(text) { … }` — Its legend. Drawn for it.
   - `text:` `String` — The legend's words: the group's name
@@ -3529,6 +3527,8 @@ Renders with the class `wf-number-input`.
 | `step:` | `Number` | How far −, + and the arrow keys move it; PageUp and PageDown move ten steps |
 | `label:` | `String` | Visible label; also the input's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
+| `decrease:` | `String` | The − button's accessible name, in the page's words: `t("qty.less")` |
+| `increase:` | `String` | The + button's accessible name, in the page's words |
 
 **Parts:**
 
@@ -3567,6 +3567,8 @@ Renders with the class `wf-calendar`.
 | `max:` | `Date` | The last day that can be chosen; days after it are shown but cannot be chosen |
 | `disabled:` | `[Date] or (Date) -> Bool` | Days that cannot be chosen: a list of them, or a test of a day, `d => d.weekday() >= 6` |
 | `label:` | `String` | Its name for a screen reader, read once when it is drawn |
+| `previous:` | `String` | The previous month button's accessible name, in the page's words |
+| `next:` | `String` | The next month button's accessible name, in the page's words: `t("calendar.next")` |
 
 **Flags:** `.single` `.range` `.multiple`
 
@@ -3605,7 +3607,7 @@ Renders with the class `wf-listbox`.
 
 - `Listbox.Option(label, value: …, icon: …, aria-disabled: …) { … }` — One option: its words, and the value `bind:` holds when it is chosen.
   - `label:` `String` — The option's words; a letter typed goes to the next option they start with
-  - `value:` `String or Number or Bool` — What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen)
+  - `value:` `String or Number or Bool or Bound` — What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen); a case (`.food`) when `bind:` holds an enum (`Bound`)
   - `icon:` `String` — The name of a built-in icon drawn before its words
   - `aria-disabled:` `String` — `"true"`: shown, passed over by the arrow keys, never chosen
 
@@ -3649,6 +3651,8 @@ Renders with the class `wf-combobox`.
 
 **Flags:** `.multiple`
 
+**Events of its own:** `on select`
+
 Attribute families: `global`, `aria`, `data`.
 
 ### CheckboxGroup
@@ -3681,7 +3685,7 @@ Renders with the class `wf-checkbox-group`.
 
 - `CheckboxGroup.Option(label, value: …)` — One box: its words and its value.
   - `label:` `String` — The option's words, beside its box; also its value when it has no `value:`
-  - `value:` `String or Number or Bool` — What the list holds while it is ticked
+  - `value:` `String or Number or Bool or Bound` — What the list holds while it is ticked; a case (`.food`) when `bind:` holds an enum (`Bound`)
 - `CheckboxGroup.Legend(text) { … }` — Its legend. Drawn for it.
   - `text:` `String` — The legend's words: the group's name
 
@@ -3988,7 +3992,7 @@ Renders with the class `wf-toggle-group`.
 
 - `ToggleGroup.Item(label, value: …, icon: …, disabled: …)` — One choice: its words, and the value `bind:` holds when it is chosen.
   - `label:` `String` — Its words
-  - `value:` `String or Number or Bool` — What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then
+  - `value:` `String or Number or Bool or Bound` — What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then; a case (`.food`) when `bind:` holds an enum (`Bound`)
   - `icon:` `String` — An icon before the words, one of the built-in icon names
   - `disabled:` `Bool` — Whether the item is inert: it cannot be pressed and the arrow keys pass over it
   - flags: `.disabled`
@@ -4271,7 +4275,7 @@ Markdown("""
 
     - write a page in **src/pages**
     - run `wf serve` and open it
-    - read [the guide](https://webfluent.monzeromer.dev/learn.md) when you are stuck
+    - read [the guide](/learn) when you are stuck
 
     ```wf
     page Home(path: "/", title: "Home") { Heading("Hello").h1 }
@@ -4345,7 +4349,7 @@ Callout(text, kind: …, title: …) { … }
 ```
 
 ```wf
-Callout("Run `wf check` before you push: every finding has a **code**, and [a page](https://webfluent.monzeromer.dev/errors.md) that says how to fix it.", title: "Before you push").tip
+Callout("Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it.", title: "Before you push").tip
 ```
 
 Renders with the class `wf-callout`.
@@ -5214,7 +5218,3 @@ Events every element accepts in an `on … { }` handler:
 The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)` draw; any other name shows as the word, and the compiler warns.
 
 `close` `menu` `search` `home` `user` `settings` `check` `plus` `minus` `edit` `trash` `star` `heart` `mail` `bell` `download` `upload` `eye` `link` `calendar` `filter` `chevron-down` `chevron-right` `chevron-left` `info` `warning` `arrow-left` `arrow-right` `logout` `copy` `sun` `moon` `folder` `folder-plus` `folder-off` `file` `file-plus` `refresh` `alert-circle` `clock` `dot` `diff` `book` `git-pull-request` `pin` `git-branch` `more-horizontal` `window-minimize` `window-maximize` `outline` `help-circle` `collapse-all` `locate` `chevron-up` `globe` `external-link` `panel-down` `panel-up` `code` `monitor` `git-commit` `play` `layers` `insert` `grid` `list` `square` `pill` `image` `sparkle` `lock` `type` `pointer` `reach` `frame` `line` `pipette` `comment` `hand` `zoom` `ruler` `eye-off` `unlock`
-
-## Next
-
-[CLI](https://webfluent.monzeromer.dev/reference/cli.md).

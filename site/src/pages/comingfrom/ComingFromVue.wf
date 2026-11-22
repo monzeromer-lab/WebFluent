@@ -1,7 +1,7 @@
-// A cheat sheet, written from md-docs/coming-from/vue.md by
-// scripts/docsite/comingfrom.py; edit the sheet, not this file.
+// A cheat sheet for a reader who knows another framework. This page is
+// its source: edit it here.
 page ComingFromVue(path: "/coming-from/vue", title: "WebFluent for Vue developers", description: "Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.") {
-    ComingFromShell("WebFluent for Vue developers", summary: "Vue's single-file components, refs, computed values, slots and `v-model` all have a close match in WebFluent. The difference to hold on to is that WebFluent is a compiler with typed markup: there is no `.value`, no template language beside the script, and every prop, slot and event is checked at build time.", from: "Vue", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "the-map", label: t("coming.map")), Anchor(id: "things-that-work-differently", label: t("coming.differences")), Anchor(id: "a-component-ported", label: t("coming.port"))], source: "md-docs/coming-from/vue.md") {
+    ComingFromShell("WebFluent for Vue developers", summary: "Vue's single-file components, refs, computed values, slots and `v-model` all have a close match in WebFluent. The difference to hold on to is that WebFluent is a compiler with typed markup: there is no `.value`, no template language beside the script, and every prop, slot and event is checked at build time.", from: "Vue", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "the-map", label: t("coming.map")), Anchor(id: "things-that-work-differently", label: t("coming.differences")), Anchor(id: "a-component-ported", label: t("coming.port")), Anchor(id: "data-from-a-service", label: "Data, from a service")], source: "site/src/pages/comingfrom/ComingFromVue.wf") {
         differences {
             Markdown("**One file, one language.** A component is declared in `.wf` with its state, its markup and its handlers together; there is no `<template>`, no `<script>` block and no `.value` to remember. A component's body runs once, and only what reads a changed value updates.\n\n**The markup is typed.** The compiler knows the props, flags, events and slots of every built-in and of every component you declare. A misspelled prop, an unknown flag (`Button(\"Save\").primray`) or a handler for an event the component does not fire stops the build, with the fix suggested.\n\n**Typed without a second language.** There is no `lang=\"ts\"` and no `vue-tsc`: a `.wf` file is typed by the compiler that builds it. The checker infers what it can and asks you to write the rest: a state whose first value says nothing (`state items: [Todo] = []`), an action that returns (`-> Number`), a parameter. There is no `any`: JSON whose shape is open is `Json`, matched or decoded (`User.decode(raw)`) before it is read, and no setting turns the checks off.\n\n**Pages own their routes.** There is no router file. Each `page` names its `path:`, and the compiler builds the router from every page.\n\n**No imports.** Every file under `src/` is part of one program, so a component declared anywhere is usable everywhere, and two declarations of one name are an error.\n\n**Styles are on the element.** A `style \{ \}` block is CSS for that element, with design tokens (`$surface`) and nesting (`&:hover`); there is no `<style scoped>`, and what a selector over many elements needs goes in a `.css` file under `src/`.\n\n**Using it inside a Vue app.** Publish components as custom elements and use their tags in a template ([Publish components as custom elements](/recipes/publish-custom-elements)).")
 
@@ -46,6 +46,53 @@ component Counter(start: Number = 0) {
 
             Markdown("- **No `.value`.** A state is read and assigned by its name.\n- **`derived` replaces `computed`**, and knows what it reads.\n- **The event is declared** where the component is, and checked where it is handled.")
 
+            Heading("Data, from a service", id: "data-from-a-service").h2
+
+            Markdown("VueUse's `useFetch` hands back separate refs for the data, the error and whether a request is running, and the type of the data is whatever you assert:")
+
+            DocsCodeBlock(#"<script setup lang="ts">
+import { useFetch } from "@vueuse/core";
+const { data, error, isFetching } = useFetch("/api/people").json<Person[]>();
+</script>
+
+<template>
+  <p v-if="isFetching">Loading…</p>
+  <p v-else-if="error">{{ error }}</p>
+  <p v-else v-for="p in data" :key="p.id">{{ p.name }}</p>
+</template>"#, title: "vue")
+
+            Markdown("In WebFluent the service is described once, in an `api` block, and a page reads it with a `resource`:")
+
+            DocsCodeBlock(#"type Person { id: String, name: String }
+type NewPerson { name: String }
+
+api Backend(base: "/api") {
+    get people() at "people" -> [Person]!
+    post addPerson(body: NewPerson) at "people" -> Person!
+        invalidates [people]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add Grace") {
+        on click {
+            match await Backend.addPerson(body: NewPerson(name: "Grace")) {
+                .ok(p) { said = "Added {p.name}" }
+                .err(e) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}"#, title: "wf")
+
+            Markdown("- **The contract is written once.** `-> [Person]!` says what the endpoint answers and that it may fail; what arrives is checked against it, and a server that breaks it fails as `.decode`. A service with an OpenAPI spec gets this block written for it by `wf api add`.\n- **A read is one value.** A `match` that leaves out `.failed` does not build, so the page always says what happens when the request fails.\n- **A call answers with a result.** `.ok(p)` or `.err(e)`, never a throw; `e` is an `HttpError` (offline, a timeout, a status) with a `.message`.\n- **`invalidates [people]`** on the write asks the list again once the write succeeds, with no refetch written by hand.\n- **A test needs no server.** A `fake` answers the endpoints, held to the same contract ([Testing](/learn/16-testing)).")
         }
         CheatRow("A value that changes", theirs: "const n = ref(0)", ours: "state n = 0", language: "vue")
         CheatRow("Changing it", theirs: "n.value++", ours: "n = n + 1", language: "vue")

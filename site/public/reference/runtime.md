@@ -4,14 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/reference/runtime
 
-This chapter is the reference for `window.WF`, the runtime every compiled
-page calls. Look up a function here when a script of your own, a library's
-callback or the browser's console needs to do what a page does — navigate,
-show a toast, read a store.
+This chapter is the reference for `window.WF`, the runtime every compiled page calls. Look up a function here when a script of your own, a library's callback or the browser's console needs to do what a page does — navigate, show a toast, read a store.
 
-`app.js` opens with the runtime, and the page reaches it as `window.WF`.
-This plain script, in `src/`, moves to a route, shows a toast and logs what
-a store holds:
+`app.js` opens with the runtime, and the page reaches it as `window.WF`. This plain script, in `src/`, moves to a route, shows a toast and logs what a store holds:
 
 ```js
 // src/support.js
@@ -26,26 +21,13 @@ function openHelp() {
 
 These rules apply to every function in this chapter:
 
-- **Who calls it.** The compiled pages call the runtime. So may a project
-  script under `src/` or in `meta.scripts`, a library's callback, or you in
-  the browser's console.
-- **Which functions to call.** Most names here are what the compiler emits
-  for a language feature, listed so you can read the output. The ones
-  meant for your own code are marked **●**.
-- **Modules.** The runtime is a set of feature modules. Each table names
-  the module a function belongs to, and a build ships only the modules its
-  own code reaches. The project's own scripts count: a `WF.toast(…)` in
-  `src/support.js` ships `toast`. Only a call the build cannot see — a name
-  built from a string, a script loaded from another origin — needs
-  `"build": { "runtime": "full" }`
-  ([Call WF from a script](https://webfluent.monzeromer.dev/recipes/call-wf-from-a-script.md)).
+- **Who calls it.** The compiled pages call the runtime. So may a project script under `src/` or in `meta.scripts`, a library's callback, or you in the browser's console.
+- **Which functions to call.** Most names here are what the compiler emits for a language feature, listed so you can read the output. The ones meant for your own code are marked **●**.
+- **Modules.** The runtime is a set of feature modules. Each table names the module a function belongs to, and a build ships only the modules its own code reaches. The project's own scripts count: a `WF.toast(…)` in `src/support.js` ships `toast`. Only a call the build cannot see — a name built from a string, a script loaded from another origin — needs `"build": { "runtime": "full" }` ([Call WF from a script](https://webfluent.monzeromer.dev/recipes/call-wf-from-a-script.md)).
 
 ## Events the runtime dispatches
 
-`wf:render` is dispatched on `document` once a drawing lands: the first
-mount, the takeover of a pre-rendered page, and every route change. Its
-`detail` is `{ route, params }`. A script that finds elements itself
-listens for it:
+`wf:render` is dispatched on `document` once a drawing lands: the first mount, the takeover of a pre-rendered page, and every route change. Its `detail` is `{ route, params }`. A script that finds elements itself listens for it:
 
 ```js
 // src/highlight-tables.js
@@ -211,9 +193,7 @@ What the control-flow statements and slots compile to.
 
 ## Results and JSON
 
-A result is `["ok", value]` (`"ok"` when it holds nothing) or
-`["err", error]`; an enum's case with a payload is `[case, …payload]` and a
-bare case its name.
+A result is `["ok", value]` (`"ok"` when it holds nothing) or `["err", error]`; an enum's case with a payload is `[case, …payload]` and a bare case its name.
 
 | Function | Module | What it does |
 |---|---|---|
@@ -234,8 +214,7 @@ bare case its name.
 | `sanitize(html)` ● | `sanitize` | Markup through the allow-list. |
 | `jsonAttr(raw)` | `core` | An attribute holding JSON, as the prop it stands for. |
 
-`safeUrl` and `sanitize` each have a build-time twin, and both twins are
-held to one shared table of cases.
+`safeUrl` and `sanitize` each have a build-time twin, and both twins are held to one shared table of cases.
 
 ## Text and formatting
 
@@ -281,15 +260,6 @@ Each of these is a function of the value it works on.
 | `hoverCard(node, delay)`, `loadingOverlay(node, read)`, `lightbox(node, label)`, `tour(node, read, targets)` | `covers` | What `HoverCard`, `LoadingOverlay`, `Lightbox` and `Tour` compile to. |
 | `__debug`, `__reg` | `debug` | For WebFluent Studio. |
 
-`portal(box, read)` keeps `box` in the element, or `ref:` handle, that
-`read()` names. It reads `read()` again when what it reads changes and once
-the drawing is over, keeps the box aside while `read()` is `null`, and takes
-it away with its scope. It returns what runs the lifetimes its block asked
-for while it was drawn.
+`portal(box, read)` keeps `box` in the element, or `ref:` handle, that `read()` names. It reads `read()` again when what it reads changes and once the drawing is over, keeps the box aside while `read()` is `null`, and takes it away with its scope. It returns what runs the lifetimes its block asked for while it was drawn.
 
-The `icons` module has no functions: it is the table of glyphs, holding
-only the icons the program names.
-
-## Next
-
-[Grammar](https://webfluent.monzeromer.dev/reference/grammar.md) — every statement and expression of the language.
+The `icons` module has no functions: it is the table of glyphs, holding only the icons the program names.

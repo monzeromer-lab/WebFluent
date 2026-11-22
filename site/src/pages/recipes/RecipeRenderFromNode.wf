@@ -1,7 +1,66 @@
-// A recipe, written from md-docs/recipes/render-from-node.md by scripts/docsite/recipes.py;
-// edit the recipe, not this file.
+// A recipe. This page is its source: edit it here.
 page RecipeRenderFromNode(path: "/recipes/render-from-node", title: "Render templates from Node — Recipes", description: "Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF.") {
-    RecipeShell("Render templates from Node", summary: "The Node binding is a small wrapper around `wf render`: it renders a template with your data as HTML, a fragment, a PDF or slides. This Express server answers with an invoice in either form. You need Node.js, npm and the `wf` command, and a template like the one in [Render a template with data](/recipes/render-a-template). This one is `templates/invoice.wf`:", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Render templates from Rust", to: "/recipes/render-from-rust"), RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template")], source: "md-docs/recipes/render-from-node.md", how: true, hasVariations: false, project: {}) {
+    RecipeShell("Render templates from Node", summary: "The Node binding is a small wrapper around `wf render`: it renders a template with your data as HTML, a fragment, a PDF or slides. This Express server answers with an invoice in either form. You need Node.js, npm and the `wf` command, and a template like the one in [Render a template with data](/recipes/render-a-template). This one is `templates/invoice.wf`:", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Render templates from Rust", to: "/recipes/render-from-rust"), RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template")], source: "site/src/pages/recipes/RecipeRenderFromNode.wf", how: true, hasVariations: false, project: { "server.js": #"// server.js
+const path = require("node:path");
+const express = require("express");
+const { Template } = require("webfluent");
+
+// Every .wf and .wfx under templates/, as one template; its Invoice page.
+const invoice = Template.fromDir(path.join(__dirname, "templates")).page("Invoice");
+
+// Your own data source; one invoice, kept in memory here.
+const invoices = {
+  "INV-001": {
+    number: "INV-001",
+    customer: { name: "Acme Corp" },
+    items: [{ name: "Widget", qty: 5, price: 9.99 }],
+    total: 49.95,
+    paid: false,
+  },
+};
+
+const app = express();
+
+// The PDF route comes first, so `/invoices/INV-001.pdf` is not read as an id.
+app.get("/invoices/:id.pdf", async (req, res) => {
+  const data = invoices[req.params.id];
+  if (!data) return res.sendStatus(404);
+  res.type("application/pdf").send(await invoice.renderPdfAsync(data));
+});
+
+app.get("/invoices/:id", async (req, res) => {
+  const data = invoices[req.params.id];
+  if (!data) return res.sendStatus(404);
+  res.send(await invoice.renderHtmlAsync(data));
+});
+
+app.listen(3000, () => console.log("http://localhost:3000/invoices/INV-001"));
+"#, "src/pages/RenderFromNode.wf": #"type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+"#, "webfluent.app.json": #"{
+  "name": "render-from-node"
+}
+"# }) {
         code {
             DocsCodeBlock(#"type Customer { name: String }
 type Item { name: String, qty: Number, price: Number }

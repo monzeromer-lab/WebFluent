@@ -4,10 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/migrate-from-external
 
-Before 4.2, you described JavaScript with `external` declarations; 4.2
-removed them, and the parser now refuses one. `wf migrate` rewrites a
-project. This is a page after the migration: it calls a function of a
-plain script, and places a custom element by its tag:
+Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them, and the parser now refuses one. `wf migrate` rewrites a project. This is a page after the migration: it calls a function of a plain script, and places a custom element by its tag:
 
 ```wf
 // Your publishable key, from the Stripe dashboard.
@@ -20,9 +17,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card 
 }
 ```
 
-The function it calls is the old local module, now a plain script under
-`src/`, its `export` taken off and the declaration's signature written
-above it as JSDoc:
+The function it calls is the old local module, now a plain script under `src/`, its `export` taken off and the declaration's signature written above it as JSDoc:
 
 ```js
 // src/vendor/tilt.js
@@ -39,9 +34,7 @@ function initTilt(node, max) {
 }
 ```
 
-This is the same page as WebFluent 4.1 wrote it, with the module in
-`public/vendor/tilt.js`. It is not compiled here, because 4.2 refuses
-`external`:
+This is the same page as WebFluent 4.1 wrote it, with the module in `public/vendor/tilt.js`. It is not compiled here, because 4.2 refuses `external`:
 
 ```wf no-check
 external Tilt from "./vendor/tilt.js" {
@@ -61,8 +54,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card 
 }
 ```
 
-To migrate, run `wf migrate` in the project. `--check` writes nothing and
-says what would change:
+To migrate, run `wf migrate` in the project. `--check` writes nothing and says what would change:
 
 ```bash
 wf migrate --check
@@ -71,28 +63,13 @@ wf migrate
 
 ## How it works
 
-`wf migrate` takes each `external` out of the source and puts what it said
-where 4.2 says it:
+`wf migrate` takes each `external` out of the source and puts what it said where 4.2 says it:
 
-- **A remote module** (`external X from "https://…"`) becomes a
-  `meta.scripts` entry with `"module": true` and `"as": "X"`, and its
-  `integrity:` moves to `meta.integrity`. Its calls keep working, typed
-  `Json`, since the compiler cannot read a remote file
-  ([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md)).
-- **A local module** (`external X from "./x.js"`, a file in `public/`)
-  becomes a plain script at the same path under `src/`, with its exports
-  removed and its signatures as JSDoc. `X.f(…)` is rewritten to `f(…)`
-  ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). An `Any` in the
-  old signature is written `{*}`, which reads as `Json`, so a parameter
-  that takes an element is a `T01` at the call that `wf migrate` lists for
-  you: write `{HTMLElement}` there, as the script above does.
-- **An `external element`** call site becomes `Element("tag-name", …)`,
-  with its arguments and handlers as they were
-  ([Place a custom element from a library](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md)).
+- **A remote module** (`external X from "https://…"`) becomes a `meta.scripts` entry with `"module": true` and `"as": "X"`, and its `integrity:` moves to `meta.integrity`. Its calls keep working, typed `Json`, since the compiler cannot read a remote file ([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md)).
+- **A local module** (`external X from "./x.js"`, a file in `public/`) becomes a plain script at the same path under `src/`, with its exports removed and its signatures as JSDoc. `X.f(…)` is rewritten to `f(…)` ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). An `Any` in the old signature is written `{*}`, which reads as `Json`, so a parameter that takes an element is a `T01` at the call that `wf migrate` lists for you: write `{HTMLElement}` there, as the script above does.
+- **An `external element`** call site becomes `Element("tag-name", …)`, with its arguments and handlers as they were ([Place a custom element from a library](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md)).
 
-The step lists every `.js` file already under `src/`, because each now
-ships on every page. It runs before `wf migrate`'s other steps, since a
-file with an `external` in it does not parse.
+The step lists every `.js` file already under `src/`, because each now ships on every page. It runs before `wf migrate`'s other steps, since a file with an `external` in it does not parse.
 
 ## Troubleshooting
 

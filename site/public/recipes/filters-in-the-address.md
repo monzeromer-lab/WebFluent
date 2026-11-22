@@ -4,9 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/filters-in-the-address
 
-A filter held in a `state` is lost on reload and missing from a link the
-reader shares. To make it survive a reload, a shared link and the back
-button, read it from `query` instead:
+A filter held in a `state` is lost on reload and missing from a link the reader shares. To make it survive a reload, a shared link and the back button, read it from `query` instead:
 
 ```wf
 const PRODUCTS = [
@@ -33,21 +31,12 @@ page Products(path: "/products", title: "Products", description: "Everything we 
 }
 ```
 
-Choose **By price** and the list reorders to Mug, Apron, Kettle, and the
-address becomes `/products?sort=price`. Reload the page or share the link,
-and it opens sorted by price.
-
 ## How it works
 
-- [`query`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#query-strings-and-fragments)
-  is the address's query string as a map: `query.sort` is `"price"` for
-  `?sort=price`, and null when the address has no `sort`.
-- `sort` is a [`derived`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#derived)
-  value, so `??` gives it a default and it follows the address. `shown`
-  is derived from `sort`, so the list reorders whenever the address does.
-- Each choice is a `Link` to the same page with another query. A query
-  string is not part of the route, so `/products?sort=price` is still the
-  `Products` page; only `sort` changes.
+Choose **By price** and the list reorders to Mug, Apron, Kettle, and the address becomes `/products?sort=price`. Reload the page or share the link, and it opens sorted by price.
 
-To change the query from an action instead of a link, call
-`navigate("/products?sort=price")`.
+- [`query`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#query-strings-and-fragments) is the address's query string as a map: `query.sort` is `"price"` for `?sort=price`, and null when the address has no `sort`.
+- `sort` is a [`derived`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#derived) value, so `??` gives it a default and it follows the address. `shown` is derived from `sort`, so the list reorders whenever the address does.
+- Each choice is a `Link` to the same page with another query. A query string is not part of the route, so `/products?sort=price` is still the `Products` page; only `sort` changes.
+
+To change the query from an action instead of a link, call `navigate("/products?sort=price")`.

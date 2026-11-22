@@ -6,7 +6,7 @@ If you are an open-source contributor and find this project helpful and have exp
 
 **One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
 
-**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Learn](https://webfluent.monzeromer.dev/learn)** · **[Recipes](https://webfluent.monzeromer.dev/recipes)** · **[Components](https://webfluent.monzeromer.dev/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](md-docs/)**
+**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Learn](https://webfluent.monzeromer.dev/learn)** · **[Recipes](https://webfluent.monzeromer.dev/recipes)** · **[Components](https://webfluent.monzeromer.dev/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](site/src/pages/)**
 
 <!-- hero: one file, three outputs -->
 <p align="center"><img src="site/art/hero.png" alt="One WebFluent file rendered three ways: a web page, a PDF page and a slide" width="900"></p>
@@ -62,7 +62,7 @@ cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
 ```
 
-`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](md-docs/recipes/index.md) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
+`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](https://webfluent.monzeromer.dev/recipes) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
 
 <sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 
@@ -219,10 +219,10 @@ wf migrate [path] [--check] [--wfx]         Bring an older project up to date (W
 
 - **[See it](https://webfluent.monzeromer.dev/showcase)** — real PDFs and decks rendered from the examples, opened straight in your browser
 - **[The documentation](https://webfluent.monzeromer.dev)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
-- **[Reference](https://webfluent.monzeromer.dev/reference)** — every component, [CLI command](md-docs/reference/cli.md), [config key](md-docs/reference/configuration.md), [diagnostic](md-docs/errors/diagnostics.md) and [keyword](md-docs/reference/grammar.md)
-- **[PDF benchmark](bench/pdf/RESULTS.md)** — WebFluent against headless Chrome on the same invoice: method, machine and results, reproducible with `just bench-pdf`
-- **[Troubleshooting](md-docs/errors/troubleshooting.md)** and **[upgrading](md-docs/errors/upgrading.md)**
-- **[The guide's source](md-docs/)** — the same chapters as Markdown; every code block in them is compiled by the test suite
+- **[Reference](https://webfluent.monzeromer.dev/reference)** — every component, [CLI command](https://webfluent.monzeromer.dev/reference/cli), [config key](https://webfluent.monzeromer.dev/reference/config), [diagnostic](https://webfluent.monzeromer.dev/errors) and [keyword](https://webfluent.monzeromer.dev/reference/grammar)
+- **[Benchmarks](https://webfluent.monzeromer.dev/benchmarks)** — WebFluent against Next.js, Astro, SvelteKit, Nuxt and React: what a site gets without a package, Lighthouse, build times, runtime speed, PDFs against headless Chrome, and what an AI agent spends to build an app. Each is a script under [`bench/`](bench/README.md), with its raw results beside it
+- **[Troubleshooting](https://webfluent.monzeromer.dev/errors/troubleshooting)** and **[upgrading](https://webfluent.monzeromer.dev/errors/upgrading)**
+- **[The guide's source](site/src/pages/)** — the site's pages, written in WebFluent; every code block in them is compiled by the test suite, and each page has a Markdown twin at its address with `.md`
 
 ## How it works
 
@@ -250,7 +250,7 @@ git clone https://github.com/monzeromer-lab/WebFluent.git
 cd WebFluent && cargo install --path .
 ```
 
-Contributions welcome — see [the spec](spec/SPEC.md) for what the language promises.
+Contributions welcome — see [Contributing](https://webfluent.monzeromer.dev/about/contributing) for how the project is laid out and tested, and [AGENTS.md](AGENTS.md) for what the language promises.
 
 ## License
 

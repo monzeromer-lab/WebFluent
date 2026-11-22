@@ -7,7 +7,9 @@ search. It is a file the site fetches the first time the search box is
 used, not part of every page's bundle. The reference's own data is
 `reference.py`'s.
 
-Rerun after the registry or the guide changes: `cargo xtask site`.
+Each page's words are its Markdown twin's (`twins.py`, read from the site's
+own pages); the codes and the built-ins are the compiler's. Rerun after the
+registry or a page changes: `cargo xtask site`.
 """
 import json
 import os
@@ -24,13 +26,11 @@ wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target"
 if not wf.exists():
     wf = "wf"
 
-import importlib.util
 import sys
-spec = importlib.util.spec_from_file_location("guide", ROOT / "scripts" / "docsite" / "guide.py")
-guide = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(guide)
 sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
 import reference  # noqa: E402
+import sitepages  # noqa: E402
+import twins as twins_md  # noqa: E402
 
 
 def builtins():
@@ -112,78 +112,88 @@ SYNONYMS = {
 
 # The search's tabs: the part of the site a row is in.
 KIND_OF_FOLDER = {"learn": "learn", "about": "learn", "reference": "reference", "errors": "errors"}
+# The reference's pages of words, which are chapters of the guide as the
+# pages under `pages/guide/` are (their number is their place in it).
+REFERENCE_CHAPTERS = {"/reference/cli": 33, "/reference/config": 34, "/reference/tokens": 36}
+
+
+def chapters() -> list:
+    """The guide's chapters, in order: `(number, route)` — each page under
+    `site/src/pages/guide/` numbered by its file (`07-state….wf`), but its
+    translations, and the reference's pages of words."""
+    import re as _re
+    found = dict((r, n) for r, n in REFERENCE_CHAPTERS.items())
+    for page in sitepages.pages(sitepages.PAGES / "guide"):
+        m = _re.match(r"(\d\d)-", page.file.name)
+        if m and not page.arg("lang"):
+            found[sitepages.text_of(page.arg("path"))] = int(m.group(1))
+    return sorted(((n, r) for r, n in found.items()))
+
+
+def sections(md: str):
+    """A page's `##` and `###` sections: `(heading, text)`."""
+    parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
+    for k in range(1, len(parts), 3):
+        yield sitepages.plain(parts[k + 1]), parts[k + 2]
+
+
+# The ids `TokenBaseline` gives its groups' headings: `tokens-color`.
+TOKEN_IDS = {reference.GROUP_TITLES.get(g, g.capitalize()): f"tokens-{g}"
+             for g in reference.tokens(twins_md.ask_in_site("theme"))["groups"]}
 
 
 def search_index():
+    pages = twins_md.build().pages
     rows = []
-    for f in guide.chapter_files():
-        meta = guide.read_meta(f)
-        num = f"{meta['chapter']:02d}"
-        route = meta["route"]
-        md = guide.front_matter(f)[1]
-        title = meta["title"]
-        if route == guide.REFERENCE_ROUTE:
-            continue  # its entries come from the registry, below
-        kind = KIND_OF_FOLDER.get(meta["path"].split("/")[0], "learn")
+    for n, route in chapters():
+        title, description, md, _, _ = pages[route]
+        num = f"{n:02d}"
+        kind = KIND_OF_FOLDER.get(route.strip("/").split("/")[0], "learn")
         # Only the book's chapters show a number beside a result.
-        if kind != "learn" or meta["path"].startswith("about/"):
+        if not route.startswith("/learn/"):
             num = ""
-        rows.append({"chapter": num, "title": title, "section": "", "route": guide.href(route), "kind": kind, "words": terms(meta["description"])})
+        rows.append({"chapter": num, "title": title, "section": "", "route": route, "kind": kind, "words": terms(description)})
         # Every `##` and `###` section, with what its text is about.
-        parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
-        for k in range(1, len(parts), 3):
-            text = guide.plain(parts[k + 1])
-            if text in ("Next", "Contents"):
-                continue
-            rows.append({
-                "chapter": num,
-                "title": title,
-                "section": text,
-                "route": f"{guide.href(route)}#{guide.slug(text)}",
-                "kind": kind,
-                "words": terms(parts[k + 2]),
-            })
+        for text, body in sections(md):
+            # A group of the baseline's tokens has an id of its own.
+            anchor = TOKEN_IDS.get(text, sitepages.slug(text)) if route == "/reference/tokens" else sitepages.slug(text)
+            rows.append({"chapter": num, "title": title, "section": text,
+                         "route": f"{route}#{anchor}", "kind": kind, "words": terms(body)})
     # Every recipe, by its title and what its text is about.
-    for f in sorted((ROOT / "md-docs" / "recipes").glob("*.md")):
-        meta, md = guide.front_matter(f)
-        if f.name == "index.md":
-            continue
-        title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
-        rows.append({"chapter": "", "title": "Recipes", "section": title, "route": meta["route"], "kind": "recipes",
-                     "words": terms(meta.get("description", "") + " " + md)})
+    for route, (title, description, md, part, lang) in sorted(pages.items()):
+        if part == "Recipes" and route != "/recipes":
+            rows.append({"chapter": "", "title": "Recipes", "section": title, "route": route, "kind": "recipes",
+                         "words": terms(description + " " + md)})
     # Every cheat sheet, by the framework it starts from.
-    for f in sorted((ROOT / "md-docs" / "coming-from").glob("*.md")):
-        meta, md = guide.front_matter(f)
-        title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
-        rows.append({"chapter": "", "title": "Coming from", "section": title, "route": meta["route"], "kind": "learn",
-                     "also": meta.get("framework", ""), "words": terms(meta.get("description", "") + " " + md)})
+    for page in sitepages.pages(sitepages.PAGES / "comingfrom"):
+        route = sitepages.text_of(page.arg("path"))
+        if page.arg("lang"):
+            continue
+        title, description, md, _, _ = pages[route]
+        rows.append({"chapter": "", "title": "Coming from", "section": title, "route": route, "kind": "learn",
+                     "also": sitepages.text_of(sitepages.shell(page).arg("from", "")), "words": terms(description + " " + md)})
     # The Arabic pages, so a search written in Arabic finds them: each page
     # and its sections, with the Arabic words their text uses.
-    for f in sorted((ROOT / "md-docs" / "ar").rglob("*.md")):
-        meta, md = guide.front_matter(f)
-        if "route" not in meta:
+    for route, (title, description, md, part, lang) in sorted(pages.items()):
+        if lang != "ar" or route in ("/ar", "/ar/playground", "/ar/benchmarks"):
             continue
-        title = meta.get("title") or next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
-        route = guide.href(meta["route"])
         rows.append({"chapter": "", "title": "العربية", "section": title, "route": route, "kind": "learn",
-                     "words": arabic_terms(meta.get("description", "") + " " + md)})
+                     "words": arabic_terms(description + " " + md)})
         # A cheat sheet is drawn by its shell, its sections under ids of
         # their own: the page alone is found.
-        if meta.get("kind") == "coming-from" or "coming-from" in meta["route"]:
+        if "coming-from" in route:
             continue
-        parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
-        for k in range(1, len(parts), 3):
-            text = guide.plain(parts[k + 1])
-            rows.append({"chapter": "", "title": title, "section": text, "route": f"{route}#{guide.slug(text)}",
-                         "kind": "learn", "words": arabic_terms(parts[k + 2])})
+        for text, body in sections(md):
+            rows.append({"chapter": "", "title": title, "section": text, "route": f"{route}#{sitepages.slug(text)}",
+                         "kind": "learn", "words": arabic_terms(body)})
+    # The benchmarks: one row, found by what people ask of a tool.
+    rows.append({"chapter": "", "title": "Benchmarks", "section": "", "route": "/benchmarks", "kind": "learn",
+                 "words": "benchmark benchmarks performance lighthouse speed fast build time sitemap canonical json-ld seo "
+                          "accessibility csp security runtime pdf puppeteer agent tokens compare next.js astro sveltekit nuxt react"})
     # Every diagnostic, by its code and what it says: `T05` jumps to its page.
-    for f in sorted((ROOT / "md-docs" / "errors").glob("*.md")):
-        meta, md = guide.front_matter(f)
-        if "code" not in meta:
-            continue
-        title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
-        rows.append({"chapter": "", "title": "Errors", "section": title, "route": meta["route"], "kind": "errors",
-                     "words": terms(meta.get("description", ""))})
+    for e in json.loads(subprocess.check_output([str(wf), "explain", "--json"])):
+        rows.append({"chapter": "", "title": "Errors", "section": f"{e['code']} — {e['title']}", "route": f"/errors/{e['code']}",
+                     "kind": "errors", "words": terms(e.get("description") or e["summary"])})
     # Every command.
     for c in json.loads(subprocess.check_output([str(wf), "commands", "--json"]))["commands"]:
         rows.append({"chapter": "", "title": "Commands", "section": f"wf {c['name']}", "route": f"/reference/cli/{c['name']}",

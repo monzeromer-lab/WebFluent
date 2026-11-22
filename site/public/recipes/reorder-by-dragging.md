@@ -4,13 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/reorder-by-dragging
 
-To let the reader put a list in their own order, make each row something
-they can pick up with `drag:`, and something another row can be dropped on
-with `on receive`. This page lists today's jobs; drag a row above or below
-another to move it, or use its arrow buttons:
+To let the reader put a list in their own order, make each row something they can pick up with `drag:`, and something another row can be dropped on with `on receive`. This page lists today's jobs; drag a row above or below another to move it, or use its arrow buttons:
 
-**Needs:** nothing besides the page. Paste it into a file under
-`src/pages/` and open `/order`.
+**Needs:** nothing besides the page. Paste it into a file under `src/pages/` and open `/order`.
 
 ```wf
 type Job { id: String, title: String }
@@ -64,49 +60,22 @@ page Order(path: "/order", title: "Today's order", description: "Drag the jobs i
 
 ## How it works
 
-- `drag: job.id` makes each `Card` something the reader can pick up: with a
-  mouse, by moving it a few pixels; with a finger or a pen, by holding it
-  still for a moment. While it moves, the runtime draws a ghost of the row
-  and a line where it would land, and Escape puts it back.
-- `on receive(d)` on the same `Card` makes every row a place to drop one.
-  `d.value` is the dropped row's `drag:` value (the job's `id`), as
-  `Json` — anything may be dragged — so `if let .string(id)` takes the
-  text out of it; and
-  `d.position` is `"before"` or `"after"`: which half of this row the
-  pointer was over.
-- `move` takes the job out of the list and puts it back next to the row it
-  was dropped on. It builds a new list rather than changing the old one in
-  place, so everything that reads `jobs` draws again. The `for … by job.id`
-  keeps each row's nodes and moves them, so nothing is redrawn from
-  scratch.
-- Dragging needs a pointer. The arrow buttons do the same move from the
-  keyboard, and their labels name the job (`Move Write the brief up`), so a
-  screen reader says which row each one moves. The first row's up button
-  and the last row's down button are disabled.
-- `role: "list"` and `role: "listitem"` tell a screen reader the cards are
-  a list, and how many items it has.
+- `drag: job.id` makes each `Card` something the reader can pick up: with a mouse, by moving it a few pixels; with a finger or a pen, by holding it still for a moment. While it moves, the runtime draws a ghost of the row and a line where it would land, and Escape puts it back.
+- `on receive(d)` on the same `Card` makes every row a place to drop one. `d.value` is the dropped row's `drag:` value (the job's `id`), as `Json` — anything may be dragged — so `if let .string(id)` takes the text out of it; and `d.position` is `"before"` or `"after"`: which half of this row the pointer was over.
+- `move` takes the job out of the list and puts it back next to the row it was dropped on. It builds a new list rather than changing the old one in place, so everything that reads `jobs` draws again. The `for … by job.id` keeps each row's nodes and moves them, so nothing is redrawn from scratch.
+- Dragging needs a pointer. The arrow buttons do the same move from the keyboard, and their labels name the job (`Move Write the brief up`), so a screen reader says which row each one moves. The first row's up button and the last row's down button are disabled.
+- `role: "list"` and `role: "listitem"` tell a screen reader the cards are a list, and how many items it has.
 
-The new order lasts as long as the page is open. To keep it across visits,
-make the list a `persist` instead of a `state`:
-`persist jobs: [Job] = [ … ]`.
+The new order lasts as long as the page is open. To keep it across visits, make the list a `persist` instead of a `state`: `persist jobs: [Job] = [ … ]`.
 
 ## Variations
 
-- **Drop onto a row, not between rows**: add `dropInside: true` to the
-  `Card`. A drop over the row's middle then has `d.position == "inside"`,
-  which is how a file tree moves a file into a folder.
-- **A strip across the page**, such as tabs: give each item
-  `dropAxis: .x`, so `before` and `after` are its left and right halves.
-- **Two lists that must not mix**: give the rows of each its own
-  `dragGroup: "todo"` and `dragGroup: "done"`. A row is dropped only on a
-  row of its group.
-- **Show where it will land as it moves**: `dropValue: job.id`, already on
-  each row, names it. Add `on dragmove(d)` to the `Card`: the dragged row
-  hears `d.over`, the `dropValue` of the row under the pointer (`null` over
-  nothing), and can show it.
+- **Drop onto a row, not between rows**: add `dropInside: true` to the `Card`. A drop over the row's middle then has `d.position == "inside"`, which is how a file tree moves a file into a folder.
+- **A strip across the page**, such as tabs: give each item `dropAxis: .x`, so `before` and `after` are its left and right halves.
+- **Two lists that must not mix**: give the rows of each its own `dragGroup: "todo"` and `dragGroup: "done"`. A row is dropped only on a row of its group.
+- **Show where it will land as it moves**: `dropValue: job.id`, already on each row, names it. Add `on dragmove(d)` to the `Card`: the dragged row hears `d.over`, the `dropValue` of the row under the pointer (`null` over nothing), and can show it.
 
-To check the arrow buttons, write a test that clicks one
-([Test a page](https://webfluent.monzeromer.dev/recipes/test-a-page.md)):
+To check the arrow buttons, write a test that clicks one ([Test a page](https://webfluent.monzeromer.dev/recipes/test-a-page.md)):
 
 ```wf no-check
 test "a job moves down" {
@@ -118,5 +87,4 @@ test "a job moves down" {
 }
 ```
 
-That test needs the page above in the same project, so it is not compiled
-on its own here.
+That test needs the page above in the same project, so it is not compiled on its own here.

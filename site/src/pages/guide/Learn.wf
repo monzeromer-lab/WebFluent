@@ -1,5 +1,5 @@
-/// `/learn`, written from the front matter of md-docs/learn/ by
-/// scripts/docsite/guide.py; edit the pages, not this file.
+/// `/learn`, the book's contents: every chapter, by its part. Hand-written;
+/// a chapter added to the book is added here and to `components/Guide.wf`.
 page LearnIndex(path: "/learn", title: "Learn WebFluent", description: "The WebFluent book, from the first page to PDFs and slides.") {
     SiteHeader(section: "/learn")
     Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {

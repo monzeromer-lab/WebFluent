@@ -73,9 +73,6 @@ wf config set meta.lang ar
 wf config unset build.ssg
 ```
 
-`set` checks the value against the setting's type before it writes
-anything. `set` and `unset` keep the rest of the file as it was written.
-Under a map, the rest of the path is one key: `build.budget.app.js` sets the
-`app.js` entry of `build.budget`.
+`set` checks the value against the setting's type before it writes anything. `set` and `unset` keep the rest of the file as it was written. Under a map, the rest of the path is one key: `build.budget.app.js` sets the `app.js` entry of `build.budget`.
 
-See also: [Configuration](configuration.md).
+See also: [Configuration](https://webfluent.monzeromer.dev/reference/config.md).

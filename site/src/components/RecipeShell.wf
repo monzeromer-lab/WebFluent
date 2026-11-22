@@ -6,7 +6,7 @@
 /// headings); `hasVariations` draws the variations. `project` is the
 /// recipe's code as files (path → text), given when they make a project that
 /// checks clean: it is offered as a download and in the Playground.
-component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", how: Bool = true, hasVariations: Bool = true, project: [String: String] = {}, other: String = "", lang: String = "en") {
+component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "site/src/pages", how: Bool = true, hasVariations: Bool = true, project: [String: String] = {}, other: String = "", lang: String = "en") {
     slot code
     slot variations
     slot

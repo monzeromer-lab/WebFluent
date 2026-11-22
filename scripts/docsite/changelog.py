@@ -28,7 +28,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import guide  # noqa: E402
+import sitepages  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 NOTES = ROOT / "RELEASE_NOTES.md"
@@ -42,14 +42,73 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
 
 
+# Where each page of the guide that release notes link to by its file is
+# published now. The guide was written as Markdown under `md-docs/` until
+# 7.1, and older notes name those files; the site's pages are the guide
+# since, and a page's address is its `path:`.
+OLD_PAGES = {
+    "md-docs/learn/01-getting-started.md": "/learn/01-getting-started",
+    "md-docs/learn/02-tutorial-shelf.md": "/learn/02-tutorial-shelf",
+    "md-docs/learn/03-tutorial-todos.md": "/learn/03-tutorial-todos",
+    "md-docs/learn/04-language-basics.md": "/learn/04-language-basics",
+    "md-docs/learn/05-pages-and-routing.md": "/learn/05-pages-and-routing",
+    "md-docs/learn/06-elements.md": "/learn/06-elements",
+    "md-docs/learn/07-state-and-reactivity.md": "/learn/07-state-and-reactivity",
+    "md-docs/learn/08-events.md": "/learn/08-events",
+    "md-docs/learn/09-control-flow.md": "/learn/09-control-flow",
+    "md-docs/learn/10-components.md": "/learn/10-components",
+    "md-docs/learn/11-stores.md": "/learn/11-stores",
+    "md-docs/learn/12-types.md": "/learn/12-types",
+    "md-docs/learn/13-styling.md": "/learn/13-styling",
+    "md-docs/learn/14-forms.md": "/learn/14-forms",
+    "md-docs/learn/15-data.md": "/learn/15-data",
+    "md-docs/learn/16-testing.md": "/learn/16-testing",
+    "md-docs/learn/17-pdf-and-slides.md": "/learn/17-pdf-and-slides",
+    "md-docs/about/introduction.md": "/about/why",
+    "md-docs/about/how-reactivity-works.md": "/about/how-reactivity-works",
+    "md-docs/about/accessibility.md": "/about/accessibility",
+    "md-docs/about/security.md": "/about/security",
+    "md-docs/about/performance.md": "/about/what-a-build-ships",
+    "md-docs/about/static-and-spa.md": "/about/static-or-single-page",
+    "md-docs/about/contributing.md": "/about/contributing",
+    "md-docs/reference/expressions.md": "/reference/expressions",
+    "md-docs/reference/project-structure.md": "/reference/project",
+    "md-docs/reference/components.md": "/reference",
+    "md-docs/reference/cli.md": "/reference/cli",
+    "md-docs/reference/configuration.md": "/reference/config",
+    "md-docs/reference/built-ins.md": "/reference/built-ins",
+    "md-docs/reference/design-tokens.md": "/reference/tokens",
+    "md-docs/reference/runtime-api.md": "/reference/runtime",
+    "md-docs/reference/grammar.md": "/reference/grammar",
+    "md-docs/reference/browser-support.md": "/reference/browser-support",
+    "md-docs/reference/glossary.md": "/reference/glossary",
+    "md-docs/reference/library.md": "/reference/library",
+    "md-docs/reference/editors.md": "/reference/editors",
+    "md-docs/errors/diagnostics.md": "/errors",
+    "md-docs/errors/troubleshooting.md": "/errors/troubleshooting",
+    "md-docs/errors/upgrading.md": "/errors/upgrading",
+    "md-docs/reference/requests.md": "/reference/requests",
+    "md-docs/README.md": "/docs/guide/introduction",
+}
+
+
 def routes() -> dict:
-    """Each guide page's path under the repository, and where the site has it."""
-    found = {}
-    for f in guide.chapter_files():
-        meta = guide.read_meta(f)
-        found[f"md-docs/{meta['path']}"] = guide.site_path(meta["route"])
-    found["md-docs/README.md"] = "/docs/guide/introduction"
-    return found
+    """Each guide page's file as older notes name it, and where the site has it."""
+    return dict(OLD_PAGES)
+
+
+HEADS = {}
+
+
+def heads_of(route: str) -> list:
+    """The anchors of a page's headings, `##` to `####`, in order: from its
+    Markdown twin (`twins.py`), which writes the page's words as it shows
+    them."""
+    if not HEADS:
+        import twins
+        for r, (_, _, md, _, _) in twins.build().pages.items():
+            HEADS[r] = [sitepages.slug(m) for m in re.findall(r"^#{2,4}\s+(.+?)\s*$", md, flags=re.M)]
+    return HEADS.get(route)
 
 
 ROUTES = {}
@@ -65,10 +124,9 @@ def place(path: str, route: str, anchor: str) -> str:
         return route
     if path.endswith("reference/components.md") and (ROOT / "site" / "public" / "reference" / f"{anchor}.md").exists():
         return f"/reference/{anchor}"
-    file = ROOT / path
-    if not file.exists():
+    heads = heads_of(route)
+    if heads is None:
         return f"{route}#{anchor}"
-    heads = [guide.slug(m) for m in re.findall(r"^#{2,4}\s+(.+?)\s*$", file.read_text(), flags=re.M)]
     if anchor in heads:
         return f"{route}#{anchor}"
     # `#buildmedia` was the anchor of `build.media` once.
@@ -158,7 +216,7 @@ def item(lines: list[str]) -> dict:
 
 
 def slug(text: str) -> str:
-    return guide.slug(guide.plain(text))
+    return sitepages.slug(sitepages.plain(text))
 
 
 def tag_date(version: str, kept: dict) -> str:
@@ -236,7 +294,7 @@ def releases() -> list[dict]:
 def lit(text: str) -> str:
     """`text` as a WebFluent string literal, as written: raw, so a sample
     of code in the notes keeps its quotes and braces."""
-    return guide.wf_raw(text) if text else '""'
+    return sitepages.wf_raw(text) if text else '""'
 
 
 def strings(items: list[str], ind: str) -> str:

@@ -1,5 +1,5 @@
-/// `/about`, written from the front matter of md-docs/about/ by
-/// scripts/docsite/guide.py; edit the pages, not this file.
+/// `/about`, the essays' contents. Hand-written; an essay added to
+/// `/about/` is added here.
 page AboutIndex(path: "/about", title: "About WebFluent", description: "Why WebFluent works as it does: essays on its design.") {
     SiteHeader(section: "/about")
     Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {

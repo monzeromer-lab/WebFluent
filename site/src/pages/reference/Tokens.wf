@@ -1,8 +1,9 @@
-// Every token of the baseline theme, by group: written by scripts/docsite/reference.py from `wf theme --json`;
-// edit the compiler or the script, not this file.
+// `/reference/tokens`: how a theme's tokens are read and written. The words
+// are this page's; the baseline's tables are `TokenBaseline`, which
+// scripts/docsite/reference.py writes from `wf theme --json`.
 
 page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token: its default value, what it is for, which built-ins draw from it, and how a style block or a stylesheet reads it.") {
-    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 87 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "every-built-in-follows-the-theme", label: "Every built-in follows the theme"), Anchor(id: "short-names", label: "Short names"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "tokens-color", label: "Colour"), Anchor(id: "tokens-spacing", label: "Spacing"), Anchor(id: "tokens-font-size", label: "Font size"), Anchor(id: "tokens-line-height", label: "Line height"), Anchor(id: "tokens-radius", label: "Radius"), Anchor(id: "tokens-shadow", label: "Shadow"), Anchor(id: "tokens-transition", label: "Transition"), Anchor(id: "tokens-font", label: "Font"), Anchor(id: "tokens-motion", label: "Motion"), Anchor(id: "tokens-other", label: "Other")], source: "md-docs/reference/design-tokens.md") {
+    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: TOKEN_COUNT }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "every-built-in-follows-the-theme", label: "Every built-in follows the theme"), Anchor(id: "short-names", label: "Short names")].concat(TOKEN_SECTIONS), source: "site/src/pages/reference/Tokens.wf") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter lists every design token of the baseline theme with its value, and how a style reads one. A *design token* is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.\n\nA `theme` declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on `:root`:")
@@ -139,6 +140,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
 
             }
         }
+        // ── the baseline ── written by scripts/docsite/reference.py from `wf theme --json`; edit the compiler, not this part
         Heading("The baseline", id: "the-baseline").h2
         Markdown(t("tokens.baseline"), class: "bp-prose")
         Heading("Colour", id: "tokens-color").h3
@@ -172,13 +174,13 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                 }
                 Table.Row {
                     Table.Cell { Code("color-danger") { style { white-space: nowrap } } }
-                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #EF4444 } }  Code("#EF4444") } }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #DC2626 } }  Code("#DC2626") } }
                     Table.Cell { Markdown("Failed, destructive, invalid: a danger button, an error message") }
                     Table.Cell("Menu, Badge, Button, IconButton, Dropdown, Input, Alert, Toast +5")
                 }
                 Table.Row {
                     Table.Cell { Code("color-info") { style { white-space: nowrap } } }
-                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #06B6D4 } }  Code("#06B6D4") } }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #0E7490 } }  Code("#0E7490") } }
                     Table.Cell { Markdown("For information: an info badge or alert, a note callout") }
                     Table.Cell("Badge, Button, Alert, Toast, Icon, Callout, Markdown")
                 }
@@ -220,7 +222,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                 }
                 Table.Row {
                     Table.Cell { Code("color-primary") { style { white-space: nowrap } } }
-                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #3B82F6 } }  Code("#3B82F6") } }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #2563EB } }  Code("#2563EB") } }
                     Table.Cell { Markdown("The main tone: a primary button, a link, a focus ring, what is chosen or current") }
                     Table.Cell("Navbar, Sidebar, Link, Tabs, Badge, Avatar, Button, IconButton +35")
                 }
@@ -232,7 +234,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                 }
                 Table.Row {
                     Table.Cell { Code("color-success") { style { white-space: nowrap } } }
-                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #22C55E } }  Code("#22C55E") } }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Text("", aria-hidden: "true") { style { flex-shrink: 0; width: 14px; height: 14px; border: 1px solid $line; border-radius: 3px; background: #15803D } }  Code("#15803D") } }
                     Table.Cell { Markdown("Done, passing, saved: a success badge, alert or toast") }
                     Table.Cell("Badge, Button, Alert, Toast, Icon, Callout, Stat, Stepper +1")
                 }
@@ -350,7 +352,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     Table.Cell { Code("font-size-lg") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("clamp(1.125rem, 1.06rem + 0.31vw, 1.25rem)") } }
                     Table.Cell { Markdown("Large text: `.lg`, a lede") }
-                    Table.Cell("Navbar, Sidebar, Avatar, Button, IconButton, Input, Alert, Toast +3")
+                    Table.Cell("Navbar, Sidebar, Avatar, Button, IconButton, Input, Alert, Toast +6")
                 }
                 Table.Row {
                     Table.Cell { Code("font-size-sm") { style { white-space: nowrap } } }
@@ -717,7 +719,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     Table.Cell { Code("target-min") { style { white-space: nowrap } } }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("24px") } }
                     Table.Cell { Markdown("The least size of anything a pointer presses (WCAG 2.2's 24px)") }
-                    Table.Cell("Link, Menu, Tag, Checkbox, Radio, Switch, Slider, Alert +22")
+                    Table.Cell("Breadcrumb, Link, Menu, Tag, Checkbox, Radio, Switch, Slider +23")
                 }
                 Table.Row {
                     Table.Cell { Code("target-min-touch") { style { white-space: nowrap } } }
@@ -793,5 +795,6 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                 }
             }
         }
+        // ── end of the baseline ──
     }
 }

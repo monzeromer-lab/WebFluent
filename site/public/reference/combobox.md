@@ -42,6 +42,10 @@ Text("Chosen: {city}").muted
 
 `.multiple`
 
+## Events
+
+- `select`
+
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## What it can raise

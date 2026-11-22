@@ -61,13 +61,13 @@ Written under its name, inside `Select`.
 One choice: the visible label, and the value sent with the form.
 
 ```wf
-Select.Option(_ label: String, value: String or Number or Bool)
+Select.Option(_ label: String, value: String or Number or Bool or Bound)
 ```
 
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String (positional)` | The words the option shows; also its value when it has no `value:` |
-| `value:` | `String or Number or Bool` | What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`) |
+| `value:` | `String or Number or Bool or Bound` | What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`); a case (`.food`) when `bind:` holds an enum (`Bound`) |
 
 ## What it can raise
 

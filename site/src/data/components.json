@@ -12337,7 +12337,7 @@
    "ownerSlug": "select",
    "summary": "One choice: the visible label, and the value sent with the form.",
    "plain": "One choice: the visible label, and the value sent with the form.",
-   "signature": "Select.Option(_ label: String, value: String or Number or Bool)",
+   "signature": "Select.Option(_ label: String, value: String or Number or Bool or Bound)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -12353,8 +12353,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool",
-     "meaning": "What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`)",
+     "type": "String or Number or Bool or Bound",
+     "meaning": "What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`); a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "its label"
     }
    ],
@@ -12539,7 +12539,7 @@
    "ownerSlug": "",
    "summary": "One choice of a group; every radio bound to the same state is one group.",
    "plain": "One choice of a group; every radio bound to the same state is one group.",
-   "signature": "Radio(bind: State, value: String or Number or Bool, checked: Bool, …)",
+   "signature": "Radio(bind: State, value: String or Number or Bool or Bound, checked: Bool, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -12555,8 +12555,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool",
-     "meaning": "What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked",
+     "type": "String or Number or Bool or Bound",
+     "meaning": "What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked; a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "none"
     },
     {
@@ -14395,7 +14395,7 @@
    "ownerSlug": "radiogroup",
    "summary": "One choice: its words, its value, and a hint said with it.",
    "plain": "One choice: its words, its value, and a hint said with it.",
-   "signature": "RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) { … }",
+   "signature": "RadioGroup.Option(_ label: String, value: String or Number or Bool or Bound, hint: String) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -14411,8 +14411,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool (required)",
-     "meaning": "What `bind:` holds when it is chosen",
+     "type": "String or Number or Bool or Bound (required)",
+     "meaning": "What `bind:` holds when it is chosen; a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "—"
     },
     {
@@ -14678,6 +14678,18 @@
      "type": "String",
      "meaning": "Help text under the control, linked to it by `aria-describedby`",
      "default": "none"
+    },
+    {
+     "name": "decrease:",
+     "type": "String",
+     "meaning": "The − button's accessible name, in the page's words: `t(\"qty.less\")`",
+     "default": "`Decrease`"
+    },
+    {
+     "name": "increase:",
+     "type": "String",
+     "meaning": "The + button's accessible name, in the page's words",
+     "default": "`Increase`"
     }
    ],
    "controls": [
@@ -14707,6 +14719,12 @@
     },
     {
      "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "decrease",
      "kind": "string",
      "options": [],
      "value": ""
@@ -14978,6 +14996,18 @@
      "type": "String",
      "meaning": "Its name for a screen reader, read once when it is drawn",
      "default": "`Calendar`"
+    },
+    {
+     "name": "previous:",
+     "type": "String",
+     "meaning": "The previous month button's accessible name, in the page's words",
+     "default": "`Previous month`"
+    },
+    {
+     "name": "next:",
+     "type": "String",
+     "meaning": "The next month button's accessible name, in the page's words: `t(\"calendar.next\")`",
+     "default": "`Next month`"
     }
    ],
    "controls": [
@@ -14994,6 +15024,18 @@
     },
     {
      "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "previous",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "next",
      "kind": "string",
      "options": [],
      "value": ""
@@ -15161,7 +15203,7 @@
    "ownerSlug": "listbox",
    "summary": "One option: its words, and the value `bind:` holds when it is chosen.",
    "plain": "One option: its words, and the value bind: holds when it is chosen.",
-   "signature": "Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, aria-disabled: String) { … }",
+   "signature": "Listbox.Option(_ label: String, value: String or Number or Bool or Bound, icon: String, aria-disabled: String) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -15177,8 +15219,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool (required)",
-     "meaning": "What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen)",
+     "type": "String or Number or Bool or Bound (required)",
+     "meaning": "What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen); a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "—"
     },
     {
@@ -15352,7 +15394,14 @@
    "flags": [
     ".multiple"
    ],
-   "events": [],
+   "events": [
+    {
+     "name": "select",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
    "domEvents": [],
    "slots": [],
    "parts": [],
@@ -15503,7 +15552,7 @@
    "ownerSlug": "checkboxgroup",
    "summary": "One box: its words and its value.",
    "plain": "One box: its words and its value.",
-   "signature": "CheckboxGroup.Option(_ label: String, value: String or Number or Bool)",
+   "signature": "CheckboxGroup.Option(_ label: String, value: String or Number or Bool or Bound)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -15519,8 +15568,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool",
-     "meaning": "What the list holds while it is ticked",
+     "type": "String or Number or Bool or Bound",
+     "meaning": "What the list holds while it is ticked; a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "its label"
     }
    ],
@@ -19677,7 +19726,7 @@
    "ownerSlug": "togglegroup",
    "summary": "One choice: its words, and the value `bind:` holds when it is chosen.",
    "plain": "One choice: its words, and the value bind: holds when it is chosen.",
-   "signature": "ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String, disabled: Bool)",
+   "signature": "ToggleGroup.Item(_ label: String, value: String or Number or Bool or Bound, icon: String, disabled: Bool)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -19693,8 +19742,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool (required)",
-     "meaning": "What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then",
+     "type": "String or Number or Bool or Bound (required)",
+     "meaning": "What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then; a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "—"
     },
     {
@@ -24267,7 +24316,7 @@
    "ownerSlug": "",
    "summary": "One choice in a `Select` (the original spelling of `Select.Option`).",
    "plain": "One choice in a Select (the original spelling of Select.Option).",
-   "signature": "Option(_ label: String, value: String or Number or Bool)",
+   "signature": "Option(_ label: String, value: String or Number or Bool or Bound)",
    "block": false,
    "legacy": true,
    "modern": [
@@ -24283,8 +24332,8 @@
     },
     {
      "name": "value:",
-     "type": "String or Number or Bool",
-     "meaning": "What `bind:` holds and the form sends when this one is chosen",
+     "type": "String or Number or Bool or Bound",
+     "meaning": "What `bind:` holds and the form sends when this one is chosen; a case (`.food`) when `bind:` holds an enum (`Bound`)",
      "default": "its label"
     }
    ],

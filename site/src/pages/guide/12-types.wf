@@ -1,6 +1,5 @@
-/// Chapter 12 of the guide, written from md-docs/learn/12-types.md by
-/// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A strict, structural type checker that changes no output and names every mistake where you wrote it.", source: "md-docs/learn/12-types.md", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "what-agrees-with-what", label: "What agrees with what"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
+/// Chapter 12 of the guide. This page is its source: edit it here.
+page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A strict, structural type checker that changes no output and names every mistake where you wrote it.", source: "site/src/pages/guide/12-types.wf", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "what-agrees-with-what", label: "What agrees with what"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers WebFluent's types and the checker that holds a program to them. The checker runs in `wf build`, `wf check` and the editor, before any output is written. It is *strict*: every value has a type the program can name. Most are worked out for you — a literal, a record, a store member, a method's result — and what cannot be worked out (an empty list's items, an action's parameters, JSON whose shape is open) is written, or the checker says where (`T25`, `T32`, `T23`). It is also *structural*: a value fits a type when it has the right fields, whatever it was declared as. The checker changes nothing in the output; it only reports.\n\n**In this chapter**\n\n- The type language, and the types that come with the language\n- Records (`type`), enums and the shapes of map literals\n- Where the checker gets a type from, and how it infers one\n- Narrowing a value that may be `null`\n- Typing data from the network\n- The checks, and what the checker does not check")
 
@@ -14,7 +13,7 @@ page Invoices(path: "/", title: "Invoices", description: "What is owed.") {
     state invoice: Invoice = Invoice(id: "INV-001", total: "120")
     Heading("Invoice {invoice.id}").h1
     Text("Owed: {invoice.total}")
-}"#, title: "wf · draws T01")
+}"#, title: "wf", expect: "T01")
 
         Markdown("The build stops, pointing at the field:")
 
@@ -254,7 +253,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
     state bad: Url = "example"                  // T01: a URL has a scheme
     Heading("Links").h1
     Text("{site.host()} {bad}")
-}"#, title: "wf · draws T01")
+}"#, title: "wf", expect: "T01")
 
         Heading("now", id: "now").h3
 
@@ -295,7 +294,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
     Text(token)                                      // shown
     Text("Bearer {token}")                           // in text, which is how it ends up in a URL
     Button("Debug") { on click { log(token) } }      // in the console, and often in a log service
-}"#, title: "wf · draws T12")
+}"#, title: "wf", expect: "T12")
 
         Markdown("Joining it with `+` or handing it to a browser global such as `console`, a storage or a `fetch` address is a `T12` too, and a secret has no string members to read. Hold it in `state`, which ends with the visit; what must outlive the visit belongs on the server.")
 
@@ -761,7 +760,7 @@ page P(path: "/", title: "T", description: "D") {
     state user: User = User(name: "Ada", email: null)
     Heading(user.name).h1
     Text("{user.email.length} characters")
-}"#, title: "wf · draws T04")
+}"#, title: "wf", expect: "T04")
 
         Markdown("Narrow it first, `if let mail = user.email \{ Text(\"\{mail.length\} characters\") \}`, or read through it with a fallback, `user.email?.length ?? 0`. See [T04](/errors/T04).\n\n**A misspelled field on a map literal.** A map literal has the fields it was written with, so a typo is caught where it is read:")
 
@@ -770,7 +769,7 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Profile").h1
     Input(bind: form.name, label: "Name")
     Text("Hello, {form.nmae}")
-}"#, title: "wf · draws T05")
+}"#, title: "wf", expect: "T05")
 
         Markdown("Use one of the fields the hint lists, `form.name`. See [T05](/errors/T05).\n\n**A value that may be `null` spliced into text.** The page would show the word `null` when there is no note:")
 
@@ -780,7 +779,7 @@ page P(path: "/", title: "T", description: "D") {
     state todo: Todo = Todo(id: "1", title: "Ship")
     Heading(todo.title).h1
     Text("Note: {todo.note}")
-}"#, title: "wf · draws T19")
+}"#, title: "wf", expect: "T19")
 
         Markdown("Say what to show instead, `Text(\"Note: \{todo.note ?? \"none\"\}\")`, or draw the line only when there is a note with `if let`. See [T19](/errors/T19).\n\nGoing further: [Expressions](/reference/expressions) lists every operator and helper a typed value can be used with.")
     }

@@ -90,3 +90,106 @@ type TestOutcome {
     name: String,
     passed: Bool
 }
+
+/// One measure of a benchmark: a translation key that names it, then a cell
+/// for each column, and which cells win the row.
+type BenchRow {
+    key: String,
+    cells: [String],
+    best: [Bool] = []
+}
+
+/// One benchmark's table: the tools across the top, WebFluent's column at
+/// `ours`, a row a measure. Every number is formatted by bench/report.mjs.
+type BenchTable {
+    columns: [String],
+    ours: Number = 0,
+    rows: [BenchRow]
+}
+
+/// One bar of the agents chart: a framework, its share of the longest bar
+/// (in percent) and the tokens it took, as shown.
+type BenchBar {
+    label: String,
+    share: Number,
+    shown: String,
+    ours: Bool = false
+}
+
+/// One framework's agent runs, the median of each measure, as shown.
+type BenchAgent {
+    label: String,
+    ours: Bool = false,
+    tokens: String,
+    cost: String,
+    wall: String,
+    turns: String,
+    loc: String,
+    passed: String
+}
+
+/// How one framework provides one item, by its own docs: `default` (with
+/// nothing done), `setting` (one setting), `api` (a built-in feature written
+/// on each page), `official` (an official package) or `manual` (by hand, or a
+/// third-party package); what the developer does, and the page that says so.
+type BenchCap {
+    level: String,
+    how: String,
+    source: String
+}
+
+/// One item of the capability table: a translation key, a cell a framework.
+type BenchCapRow {
+    key: String,
+    cells: [BenchCap]
+}
+
+/// What each framework provides with no third-party package.
+type BenchCapabilities {
+    columns: [String],
+    ours: Number = 0,
+    rows: [BenchCapRow],
+    counts: [Number],
+    checked: String
+}
+
+/// The figures the summaries quote.
+type BenchHeadline {
+    lighthouse: String,
+    defaults: String,
+    defaultsUntouched: String,
+    defaultsBest: String,
+    build: String,
+    buildOthers: String,
+    nodeModulesOthers: String,
+    runtime: String,
+    pdf: String,
+    agentTokens: String,
+    agentTokensOthers: String
+}
+
+type BenchDefaultsMeta { measuredAt: String, runs: Number, chrome: String }
+type BenchToolchainMeta { measuredAt: String, runs: Number, machine: String, versions: String, binary: String }
+type BenchAgentsMeta { model: String, effort: String, claudeCode: String, runs: Number, lawsonRuns: Number, ratio: String }
+
+/// Every benchmark, as bench/report.mjs gathered it from the raw results.
+type Benchmarks {
+    generatedAt: String,
+    headline: BenchHeadline,
+    capabilities: BenchCapabilities,
+    lighthouse: BenchTable,
+    defaultsMeta: BenchDefaultsMeta,
+    toolchain: BenchTable,
+    toolchainMeta: BenchToolchainMeta,
+    runtime: BenchTable,
+    pdf: BenchTable,
+    agents: [BenchBar],
+    agentsTable: [BenchAgent],
+    agentsMeta: BenchAgentsMeta
+}
+
+/// The benchmarks page's numbers: `node bench/report.mjs` writes the file.
+data benchmarks: Benchmarks = "benchmarks.json"
+
+/// Where each benchmark's harness and raw results live.
+const BENCH_SOURCE = REPO + "/tree/master/bench"

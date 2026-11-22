@@ -1,6 +1,5 @@
-/// Chapter 2 of the guide, written from md-docs/learn/02-tutorial-shelf.md by
-/// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Shelf", description: "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.", layout: DocsShell("Tutorial: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.", source: "md-docs/learn/02-tutorial-shelf.md", sections: [Anchor(id: "what-you-will-build", label: "What you will build"), Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-the-project", label: "Step 1: Create the project"), Anchor(id: "step-2-describe-the-books", label: "Step 2: Describe the books"), Anchor(id: "step-3-keep-the-reader-s-shelf-in-a-store", label: "Step 3: Keep the reader's shelf in a store"), Anchor(id: "step-4-show-a-book-with-a-component", label: "Step 4: Show a book with a component"), Anchor(id: "step-5-add-the-home-page-and-a-page-per-book", label: "Step 5: Add the home page and a page per book"), Anchor(id: "step-6-add-the-shelf-page-and-the-site-s-shell", label: "Step 6: Add the shelf page and the site's shell"), Anchor(id: "step-7-add-a-form-to-suggest-a-book", label: "Step 7: Add a form to suggest a book"), Anchor(id: "step-8-give-the-site-a-theme", label: "Step 8: Give the site a theme"), Anchor(id: "step-9-test-the-book-card", label: "Step 9: Test the book card"), Anchor(id: "step-10-build-and-verify-the-site", label: "Step 10: Build and verify the site"), Anchor(id: "step-11-deploy-to-github-pages", label: "Step 11: Deploy to GitHub Pages"), Anchor(id: "the-whole-program", label: "The whole program"), Anchor(id: "what-you-built", label: "What you built"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Read a JSON file at build time as typed data, with `type` and `data`", "Keep what a reader chooses across visits in a `store` with `persist`", "Write a component and place it in a keyed `for … by`", "Render one page per item with a `:slug` route and `paths:`", "Validate a form, add a theme, test with clicks and deploy"], other: "/ar/learn/02-tutorial-shelf", prevTo: "/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
+/// Chapter 2 of the guide. This page is its source: edit it here.
+page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Shelf", description: "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.", layout: DocsShell("Tutorial: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.", source: "site/src/pages/guide/02-tutorial-shelf.wf", sections: [Anchor(id: "what-you-will-build", label: "What you will build"), Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-the-project", label: "Step 1: Create the project"), Anchor(id: "step-2-describe-the-books", label: "Step 2: Describe the books"), Anchor(id: "step-3-keep-the-reader-s-shelf-in-a-store", label: "Step 3: Keep the reader's shelf in a store"), Anchor(id: "step-4-show-a-book-with-a-component", label: "Step 4: Show a book with a component"), Anchor(id: "step-5-add-the-home-page-and-a-page-per-book", label: "Step 5: Add the home page and a page per book"), Anchor(id: "step-6-add-the-shelf-page-and-the-site-s-shell", label: "Step 6: Add the shelf page and the site's shell"), Anchor(id: "step-7-add-a-form-to-suggest-a-book", label: "Step 7: Add a form to suggest a book"), Anchor(id: "step-8-give-the-site-a-theme", label: "Step 8: Give the site a theme"), Anchor(id: "step-9-test-the-book-card", label: "Step 9: Test the book card"), Anchor(id: "step-10-build-and-verify-the-site", label: "Step 10: Build and verify the site"), Anchor(id: "step-11-deploy-to-github-pages", label: "Step 11: Deploy to GitHub Pages"), Anchor(id: "the-whole-program", label: "The whole program"), Anchor(id: "what-you-built", label: "What you built"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Read a JSON file at build time as typed data, with `type` and `data`", "Keep what a reader chooses across visits in a `store` with `persist`", "Write a component and place it in a keyed `for … by`", "Render one page per item with a `:slug` route and `paths:`", "Validate a form, add a theme, test with clicks and deploy"], other: "/ar/learn/02-tutorial-shelf", prevTo: "/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
     Stack(gap: .lg) {
         Markdown("This tutorial builds **Shelf**, a small site that lists books worth reading and lets a reader keep the ones they want. Each step adds one piece, and ends with what you should see.")
 
@@ -637,7 +636,7 @@ const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Langua
 page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book.") {
     derived book = books.find(b => b.slug == slug)
     Heading(book.title).h1
-}"#, title: "wf · draws T04")
+}"#, title: "wf", expect: "T04")
 
         Markdown("Bind it with `if let b = book \{ Heading(b.title).h1 \}`, as step 5 does, or read it as `book?.title ?? \"Book\"` ([T04](/errors/T04)).\n\nA field the type does not have. `type Book` names every field, so a typo is an error where it is written:")
 
@@ -650,7 +649,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
     for book in books by book.slug {
         Text(book.titel)
     }
-}"#, title: "wf · draws T05")
+}"#, title: "wf", expect: "T05")
 
         Markdown("Use the name the message suggests, `book.title` ([T05](/errors/T05)).\n\nA store member the store does not declare. `Shelf` has `saved`, `count` and `toggle`, and nothing else:")
 
@@ -666,7 +665,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
     Heading("Books").h1
     Text("{Shelf.total} saved")
     Button("Keep it") { on click { Shelf.toggle("a-pattern-language") } }
-}"#, title: "wf · draws T06")
+}"#, title: "wf", expect: "T06")
 
         Markdown("Read a member the store declares, or declare the one you need: `derived count = saved.length` ([T06](/errors/T06)).\n\nGoing further: if you know React, Vue or Svelte, [Coming from React, Vue or Svelte](/coming-from/react) maps what you know onto WebFluent.")
     }

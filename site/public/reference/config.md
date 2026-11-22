@@ -4,9 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/reference/config
 
-This chapter is the reference for `webfluent.app.json`, the file beside
-`src/` that holds a project's settings. Look up a key here to find its
-type, its default and what it changes.
+This chapter is the reference for `webfluent.app.json`, the file beside `src/` that holds a project's settings. Look up a key here to find its type, its default and what it changes.
 
 Every key is optional except `name`, so the smallest config is one line:
 
@@ -14,25 +12,16 @@ Every key is optional except `name`, so the smallest config is one line:
 { "name": "my-site" }
 ```
 
-A key the build does not know draws the `E112` warning, with the key it
-most likely meant — `"defaultLocale"` says to write `default_locale` —
-instead of being ignored (since **4.1**).
+A key the build does not know draws the `E112` warning, with the key it most likely meant — `"defaultLocale"` says to write `default_locale` — instead of being ignored (since **4.1**).
 
 ## Reading and changing the config
 
-`wf config` lists every setting and edits the file without reformatting it
-([Command line](https://webfluent.monzeromer.dev/reference/cli.md#wf-config)):
+`wf config` lists every setting and edits the file without reformatting it ([Command line](https://webfluent.monzeromer.dev/reference/cli/config.md)):
 
-- `wf config schema` lists every setting with its type, the values it
-  takes, its default and what it does. `--json` prints the same for a tool;
-  an editor's settings window is built from it.
-- `wf config get PATH` prints what the project sets at a dotted path, or the
-  default.
-- `wf config set PATH VALUE` checks the value against the setting's type
-  before it writes anything. It replaces a value in place, and adds a new
-  key at the end of its section, in the section's own style.
-- `wf config unset PATH` removes a setting, so its default applies, and
-  removes a section it leaves empty.
+- `wf config schema` lists every setting with its type, the values it takes, its default and what it does. `--json` prints the same for a tool; an editor's settings window is built from it.
+- `wf config get PATH` prints what the project sets at a dotted path, or the default.
+- `wf config set PATH VALUE` checks the value against the setting's type before it writes anything. It replaces a value in place, and adds a new key at the end of its section, in the section's own style.
+- `wf config unset PATH` removes a setting, so its default applies, and removes a section it leaves empty.
 
 ```bash
 wf config set build.base_path /Docs
@@ -41,16 +30,12 @@ wf config get dev.port
 wf config unset build.base_path
 ```
 
-Under a map such as `build.budget`, the rest of the path is one key, so
-`build.budget.app.js` names the `app.js` entry.
+Under a map such as `build.budget`, the rest of the path is one key, so `build.budget.app.js` names the `app.js` entry.
 
 ## The defaults
 
-This block is what a config holding only a name means. The compiler's test
-suite checks it against the compiler's own defaults. `i18n`, `offline` and
-`apis` are absent unless you add them.
+This block is what a config holding only a name means. The compiler's test suite checks it against the compiler's own defaults. `i18n`, `offline` and `apis` are absent unless you add them.
 
-<!-- defaults -->
 ```json
 {
   "name": "my-site",
@@ -139,7 +124,6 @@ suite checks it against the compiler's own defaults. `i18n`, `offline` and
   "public_env": []
 }
 ```
-<!-- /defaults -->
 
 `wf init` writes a shorter file than this one, and turns `build.csp` on.
 
@@ -153,13 +137,13 @@ The top-level keys that describe the project itself.
 | `version` | string | `"0.1.0"` | The project's version, as you number it. Nothing in the build reads it. |
 | `author` | string | `""` | Who wrote it. Nothing in the build reads it. |
 
-## `build`
+## build
 
 How the project is compiled, and what the build writes.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `output` | string | `"./build"` | Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` ([CLI](https://webfluent.monzeromer.dev/reference/cli.md#wf-build)). |
+| `output` | string | `"./build"` | Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` ([CLI](https://webfluent.monzeromer.dev/reference/cli/build.md)). |
 | `output_type` | `spa`, `static`, `pdf`, `slides`, `elements` | `"spa"` | What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md), [custom elements](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md)). |
 | `ssg` | boolean | `false` | Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)). |
 | `base_path` | string | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed with it. |
@@ -175,10 +159,9 @@ How the project is compiled, and what the build writes.
 | `media` | object | below | The image pipeline. |
 | `pdf`, `slides` | object | below | The paper outputs. |
 
-### `build.media`
+### build.media
 
-The image pipeline: how the build resizes and re-encodes the pictures a
-program names ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md)).
+The image pipeline: how the build resizes and re-encodes the pictures a program names ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -187,7 +170,7 @@ program names ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-pi
 | `quality` | integer, 1–100 | `78` | The encoding quality. WebP and JPEG are lossy at it. A file no smaller than the original is not written. |
 | `pipeline` | boolean | `true` | `false` copies images as `public/` is copied, without resizing. |
 
-### `build.pdf`
+### build.pdf
 
 The page and type of a PDF build ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md)).
 
@@ -201,7 +184,7 @@ The page and type of a PDF build ([PDF and slides](https://webfluent.monzeromer.
 | `fonts` | list of paths | `[]` | Font files or directories, read as well as the project's `fonts/`, `src/fonts/` and `public/fonts/`, which are always read. |
 | `system_fonts` | boolean | `true` | Whether this machine's fonts may stand in for a family or a character nothing in the project has. The build names each one it uses. |
 
-### `build.slides`
+### build.slides
 
 The page and type of a slide deck ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md)).
 
@@ -219,29 +202,27 @@ The page and type of a slide deck ([PDF and slides](https://webfluent.monzeromer
 | `output_filename` | string | the project's name | The file written. |
 | `fonts`, `system_fonts` | list of paths, boolean | `[]`, `true` | As for `build.pdf`. |
 
-## `dev`
+## dev
 
-The development server, `wf serve` ([Command line](https://webfluent.monzeromer.dev/reference/cli.md#wf-serve)).
+The development server, `wf serve` ([Command line](https://webfluent.monzeromer.dev/reference/cli/serve.md)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `port` | integer | `3000` | The port `wf serve` listens on. |
 | `hot_reload` | boolean | `true` | Rebuilds on a save, reloads open tabs, and draws a failed build's error over the page. |
 
-## `motion`
+## motion
 
-What an animation does when the element says nothing
-([Motion defaults](https://webfluent.monzeromer.dev/recipes/motion-defaults.md)).
+What an animation does when the element says nothing ([Motion defaults](https://webfluent.monzeromer.dev/recipes/motion-defaults.md)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
 | `duration` | string | unset | How long an animation runs: `"180ms"`. |
 | `easing` | string | unset | How it is paced: a CSS timing function, or a token such as `"$ease-standard"`. |
 
-## `meta`
+## meta
 
-What every page's head carries: its fallbacks, its search and sharing tags,
-and the other origins the content security policy allows.
+What every page's head carries: its fallbacks, its search and sharing tags, and the other origins the content security policy allows.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -270,9 +251,7 @@ and the other origins the content security policy allows.
 | `wasm` | boolean | `false` | The pages compile WebAssembly: `script-src` gains `'wasm-unsafe-eval'`, which allows that and not `eval`. |
 | `style_elements` | boolean | `false` | A script on the page writes `<style>` elements (an editor, a chart library): `style-src` gains `'unsafe-inline'`, for styles only. |
 
-An entry of `connect`, `img` or `frame` that has a path, or that is a
-keyword, is `E111`. [Allow other origins](https://webfluent.monzeromer.dev/recipes/allow-other-origins.md)
-covers these settings and `wasm` and `style_elements`.
+An entry of `connect`, `img` or `frame` that has a path, or that is a keyword, is `E111`. [Allow other origins](https://webfluent.monzeromer.dev/recipes/allow-other-origins.md) covers these settings and `wasm` and `style_elements`.
 
 An entry of `meta.scripts` takes one of these forms:
 
@@ -285,10 +264,9 @@ An entry of `meta.scripts` takes one of these forms:
 | `{ "src": "…", "load": "after" }` | A script the page asks for only once it has loaded and painted. |
 | `{ "src": "…", "load": "consent" }` | A script the page asks for only once the reader has accepted it in a `ConsentBanner`. |
 
-## `theme`
+## theme
 
-Which theme the site uses, and token values set over it
-([Design tokens](https://webfluent.monzeromer.dev/reference/tokens.md)).
+Which theme the site uses, and token values set over it ([Design tokens](https://webfluent.monzeromer.dev/reference/tokens.md)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -297,7 +275,7 @@ Which theme the site uses, and token values set over it
 | `builtin` | `full`, `structural` | `"full"` | `full` ships the built-ins' designed look; `structural` ships only their layout and mechanics, for a design of your own. |
 | `tokens` | map of token to value | `{}` | Token values applied over the theme, for a pipeline to supply — a colour a deploy injects. |
 
-## `i18n`
+## i18n
 
 The project's translations. Absent, the project has one language.
 
@@ -314,10 +292,9 @@ The project's translations. Absent, the project has one language.
 
 See also: [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md).
 
-## `env` and `public_env`
+## env and public_env
 
-Values the program reads as `env.NAME`, and which of them may reach the
-browser.
+Values the program reads as `env.NAME`, and which of them may reach the browser.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -326,10 +303,9 @@ browser.
 
 See also: [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
 
-## `offline`
+## offline
 
-The service worker that stores the site for when the network is gone. Added
-in **4.1**. Absent, no service worker is written.
+The service worker that stores the site for when the network is gone. Added in **4.1**. Absent, no service worker is written.
 
 ```json
 { "offline": { "precache": ["/", "/docs/*"], "fallback": "/offline", "cache": { "/api/*": "network-first" }, "sync": true } }
@@ -344,12 +320,9 @@ in **4.1**. Absent, no service worker is written.
 
 See also: [Work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md).
 
-## `apis`
+## apis
 
-The services `wf api` keeps from an OpenAPI spec, by name. Added in
-**7.0**. `wf api add` writes an entry; `wf api sync` rewrites each
-service's `generated/` folder from its spec; `wf api check` and `wf check`
-(`N07`) say when that folder is behind.
+The services `wf api` keeps from an OpenAPI spec, by name. Added in **7.0**. `wf api add` writes an entry; `wf api sync` rewrites each service's `generated/` folder from its spec; `wf api check` and `wf check` (`N07`) say when that folder is behind.
 
 ```json
 { "apis": { "Backend": { "spec": "openapi.json", "out": "src/api/backend", "skip": [] } } }
@@ -361,35 +334,21 @@ service's `generated/` folder from its spec; `wf api check` and `wf check`
 | `out` | string | `src/api/<name>`, lower case | The folder its `service.wf` and `generated/` files are written to. |
 | `skip` | list of names | `[]` | Operations left out, by the name they would have — one whose body or answer the language cannot read. |
 
-See also: [Read the service from an OpenAPI file](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file)
-and [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md).
+See also: [Read the service from an OpenAPI file](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file) and [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md).
 
-## `lints`
+## lints
 
-What a finding counts as, by its code or its family: `"off"`, `"warn"` or
-`"error"`. A code's setting wins over its family's.
+What a finding counts as, by its code or its family: `"off"`, `"warn"` or `"error"`. A code's setting wins over its family's.
 
 ```json
 { "lints": { "A11": "off", "U": "error", "R01": "warn" } }
 ```
 
-You can turn a warning off or make it an error. You can lower an error only
-when it cannot ship a broken page:
+You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:
 
 - `R01` — a link to a route that is missing;
 - `C02` — a prop the component does not declare;
 - `S04` — two pages on one route;
 - `I01`, `I02`, `I04` — a message that shows its key or a placeholder.
 
-Asking to lower any other error is itself refused (`E111`), and so is a key
-that is not a code or a family. There is no loose mode: what 7.0 refuses —
-`Any` and `Map` (`T23`, `T24`), an untyped `state` or parameter, a `match`
-with no `.failed` arm (`T21`), a removed request form (`N08`) — stays an
-error, and [`wf migrate`](https://webfluent.monzeromer.dev/reference/cli.md#wf-migrate) carries a 6.x project across. To accept one finding on one line instead, write a
-`// wf-allow(CODE)` comment; the same rule applies. Every code is listed in
-[Diagnostics](https://webfluent.monzeromer.dev/errors.md).
-
-## Next
-
-[Diagnostics](https://webfluent.monzeromer.dev/errors.md) — every error and warning the compiler
-reports.
+Asking to lower any other error is itself refused (`E111`), and so is a key that is not a code or a family. There is no loose mode: what 7.0 refuses — `Any` and `Map` (`T23`, `T24`), an untyped `state` or parameter, a `match` with no `.failed` arm (`T21`), a removed request form (`N08`) — stays an error, and [`wf migrate`](https://webfluent.monzeromer.dev/reference/cli/migrate.md) carries a 6.x project across. To accept one finding on one line instead, write a `// wf-allow(CODE)` comment; the same rule applies. Every code is listed in [Diagnostics](https://webfluent.monzeromer.dev/errors.md).

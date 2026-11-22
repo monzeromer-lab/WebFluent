@@ -1,25 +1,19 @@
 # Call a service from its OpenAPI spec
 
-> Call a service from its OpenAPI spec: `wf api` writes the contract as files, checked in CI, and the program calls it typed.
+> Call a service from its OpenAPI spec: wf api writes the contract as files, checked in CI, and the program calls it typed.
 
 The page: https://webfluent.monzeromer.dev/recipes/service-from-openapi
 
-When the service publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let
-it write the contract: every endpoint, parameter, answer and error status,
-typed.
+When the service publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let it write the contract: every endpoint, parameter, answer and error status, typed.
 
-**Needs:** the spec as a file in the project — the compiler never fetches,
-so download it first:
+**Needs:** the spec as a file in the project — the compiler never fetches, so download it first:
 
 ```bash
 curl -o openapi.json https://api.example.com/openapi.json
 wf api add openapi.json --name Backend
 ```
 
-`add` records the service in `webfluent.app.json`, writes
-`src/api/backend/service.wf` once — yours, where the base and the
-middleware go — and writes the contract into `src/api/backend/generated/`,
-one file a tag and `types.wf`. Call it like any `api`:
+`add` records the service in `webfluent.app.json`, writes `src/api/backend/service.wf` once — yours, where the base and the middleware go — and writes the contract into `src/api/backend/generated/`, one file a tag and `types.wf`. Call it like any `api`:
 
 ```wf
 // What `wf api sync` writes, for a spec with a `people` tag:
@@ -58,19 +52,13 @@ page People(path: "/", title: "People", description: "Everyone on the team.") {
 }
 ```
 
-When the spec changes, run `wf api sync` and read the diff: a field
-renamed, a status added, is a build error where the program relies on the
-old one. In CI, `wf api check` fails while the files are behind the spec,
-and `wf check` warns `N07`.
+When the spec changes, run `wf api sync` and read the diff: a field renamed, a status added, is a build error where the program relies on the old one. In CI, `wf api check` fails while the files are behind the spec, and `wf check` warns `N07`.
 
 ```bash
 wf api sync
 wf api check
 ```
 
-A generated file is never edited — `sync` rewrites the folder whole, and
-refuses to touch a file in it without its marker. Customise beside it: a
-`type` of the program's own wins over the spec's, an endpoint the spec
-lacks goes in a group of your own, and `invalidations { }` and
-`pagination { }` go in `service.wf`. More in
-[Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file).
+## How it works
+
+A generated file is never edited — `sync` rewrites the folder whole, and refuses to touch a file in it without its marker. Customise beside it: a `type` of the program's own wins over the spec's, an endpoint the spec lacks goes in a group of your own, and `invalidations { }` and `pagination { }` go in `service.wf`. More in [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file).

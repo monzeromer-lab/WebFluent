@@ -4,8 +4,8 @@
 /// ship a bug, and caution is a way to lose data or expose a secret.
 enum CalloutKind { note, tip, important, warning, caution }
 
-/// An aside the guide sets apart from its prose: a GitHub alert in
-/// `md-docs/` (`> [!TIP]`), written here by the site's generator. Drawn as
+/// An aside the guide sets apart from its prose — a page's Markdown twin
+/// writes it as a GitHub alert (`> [!TIP]`). Drawn as
 /// Blueprint draws every aside — a dot and a leader line — with the kind as
 /// its label; a warning's and a caution's dot is the error colour.
 component DocsCallout(_ body: String, kind: CalloutKind = .note) {

@@ -4,13 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/learn/10-components
 
-This chapter shows how to declare a *component*: a reusable element of your
-own. It has typed
-props, the events it fires, the slots its caller fills, the parts it
-offers, and a body that draws it. The one thing to remember: the compiler
-checks a call to your component exactly as it checks a call to a built-in
-such as `Button`, so a missing prop or a misspelled flag is an error where
-you wrote it.
+This chapter shows how to declare a *component*: a reusable element of your own. It has typed props, the events it fires, the slots its caller fills, the parts it offers, and a body that draws it. The one thing to remember: the compiler checks a call to your component exactly as it checks a call to a built-in such as `Button`, so a missing prop or a misspelled flag is an error where you wrote it.
 
 **In this chapter**
 
@@ -38,17 +32,14 @@ page Home(path: "/", title: "Home", description: "A greeting.") {
 
 The page shows the heading **Welcome** and the line **Hello, Ada!**.
 
-- `component Greeting(…)` declares the component. Its name is capitalised,
-  as every element's is.
-- `_ name: String` is a prop. The `_` lets a call pass it without its name,
-  so `Greeting("Ada")` sets `name` to `"Ada"`.
+- `component Greeting(…)` declares the component. Its name is capitalised, as every element's is.
+- `_ name: String` is a prop. The `_` lets a call pass it without its name, so `Greeting("Ada")` sets `name` to `"Ada"`.
 - The block is the body: what the component draws each time it is placed.
 - `Greeting("Ada")` in the page is a call, written like any built-in.
 
 ## Props
 
-A *prop* is a value the caller hands to the component. This component takes
-four, with a type and, for three of them, a default:
+A *prop* is a value the caller hands to the component. This component takes four, with a type and, for three of them, a default:
 
 ```wf
 /// A person, at a glance.
@@ -75,40 +66,22 @@ page Team(path: "/", title: "Team", description: "Three people, three cards.") {
 
 The rules for props:
 
-- `_ name: Type` marks the one prop a call may pass positionally. It must be
-  the first prop. Every other prop is passed by name.
-- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a
-  list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a
-  function), `Json`, or a declared `type` or `enum`. See
-  [Types](https://webfluent.monzeromer.dev/learn/12-types.md) for the whole type language.
-- `= expr` gives a prop a default, so a call may leave it out. A `T?` prop
-  with no default defaults to `null`.
+- `_ name: Type` marks the one prop a call may pass positionally. It must be the first prop. Every other prop is passed by name.
+- Every prop has a written type: `String`, `Number`, `Bool`, `[T]` (a list), `T?` (may be `null`), `[K: V]` (a dictionary), `(A) -> R` (a function), `Json`, or a declared `type` or `enum`. See [Types](https://webfluent.monzeromer.dev/learn/12-types.md) for the whole type language.
+- `= expr` gives a prop a default, so a call may leave it out. A `T?` prop with no default defaults to `null`.
 - A `Bool` prop is set with a flag, `.active`, or by name, `active: false`.
-- A `///` comment above the component or above a prop is its
-  documentation. The editor shows it on hover, and `wf docs` writes it on
-  the component's page.
+- A `///` comment above the component or above a prop is its documentation. The editor shows it on hover, and `wf docs` writes it on the component's page.
 
 > [!NOTE]
-> **Coming from React?** There is no `...rest` that forwards whatever the
-> caller passed. A prop the component does not declare is an error (`C02`);
-> `class:`, `aria-*`, `data-*` and a few others go to the root element (see
-> [What a call puts on the root element](#what-a-call-puts-on-the-root-element)).
-> See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
-A prop that reads the caller's state stays live inside the component: a
-`Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass
-a callback or re-render anything yourself.
+A prop that reads the caller's state stays live inside the component: a `Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass a callback or re-render anything yourself.
 
-The checker holds every call to the declaration. Leaving out a prop that
-has no default is `C01`; passing a prop the component does not declare is
-`C02`; a second positional argument is `E113`. A positional argument to a
-component whose first prop is not marked `_` is bound to that first prop,
-with a `C06` warning asking you to add the `_`.
+The checker holds every call to the declaration. Leaving out a prop that has no default is `C01`; passing a prop the component does not declare is `C02`; a second positional argument is `E113`. A positional argument to a component whose first prop is not marked `_` is bound to that first prop, with a `C06` warning asking you to add the `_`.
 
 ## Enum props
 
-An *enum prop* takes one case of a declared `enum`. The caller picks the
-case with a flag or by name:
+An *enum prop* takes one case of a declared `enum`. The caller picks the case with a flag or by name:
 
 ```wf
 enum Tone { calm, loud }
@@ -127,20 +100,13 @@ page Notes(path: "/", title: "Notes", description: "One note in each tone.") {
 }
 ```
 
-`.loud` and `tone: .loud` mean the same. A flag the enum does not have, such
-as `.huge`, is an error (`E103`) that lists the cases it does have.
+`.loud` and `tone: .loud` mean the same. A flag the enum does not have, such as `.huge`, is an error (`E103`) that lists the cases it does have.
 
-The compiler writes a component's enum props to its root element as
-`data-<prop>="<case>"` — here `data-tone="loud"` — so a stylesheet can
-select on them: `[data-tone="loud"] { font-weight: 700 }`. See
-[Styling](https://webfluent.monzeromer.dev/learn/13-styling.md) for project stylesheets.
+The compiler writes a component's enum props to its root element as `data-<prop>="<case>"` — here `data-tone="loud"` — so a stylesheet can select on them: `[data-tone="loud"] { font-weight: 700 }`. See [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md) for project stylesheets.
 
 ## Events
 
-An *event* is how a component tells its caller that something happened. The
-component declares it with `event name(param: Type)` and fires it with
-`emit name(value)`. The caller handles it with `on name(value) { }`, as it
-handles a click:
+An *event* is how a component tells its caller that something happened. The component declares it with `event name(param: Type)` and fires it with `emit name(value)`. The caller handles it with `on name(value) { }`, as it handles a click:
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
@@ -169,24 +135,14 @@ page Todos(path: "/", title: "Todos", description: "Rows that report back.") {
 }
 ```
 
-The checker holds each `emit` to the parameters its event declares (`T09`).
-A handler on a call must name a declared event or a DOM event; an `emit`
-outside a component is `E114`. A DOM event handler written on a component
-call, such as `on click`, attaches to the component's root element (see
-[What a call puts on the root element](#what-a-call-puts-on-the-root-element)).
-For events in general, see [Events](https://webfluent.monzeromer.dev/learn/08-events.md).
+The checker holds each `emit` to the parameters its event declares (`T09`). A handler on a call must name a declared event or a DOM event; an `emit` outside a component is `E114`. A DOM event handler written on a component call, such as `on click`, attaches to the component's root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). For events in general, see [Events](https://webfluent.monzeromer.dev/learn/08-events.md).
 
 > [!NOTE]
-> **Coming from React?** A callback prop such as `onToggle={…}` becomes a
-> declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled
-> on the call as `on toggle(id) { … }`. The checker holds both ends to the
-> declaration. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** A callback prop such as `onToggle={…}` becomes a declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled on the call as `on toggle(id) { … }`. The checker holds both ends to the declaration. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 ### An event with several values
 
-An event may send several values. The handler names them in the order the
-event declares them, and each name has the type declared for it. In this
-example `key` is a `String`, and `x` and `y` are `Number`s:
+An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it. In this example `key` is a `String`, and `x` and `y` are `Number`s:
 
 ```wf
 component Entry(_ key: String) {
@@ -207,16 +163,11 @@ page Files(path: "/", title: "Files", description: "A menu that knows where it o
 }
 ```
 
-A handler may name fewer values than the event sends: `on menu(key)` reads
-the key and ignores the rest. It may not name more. A name past the last
-value would always be `undefined`, so the checker reports it (`T22`). You
-handle an event that sends nothing with no names: `on close { }`.
+A handler may name fewer values than the event sends: `on menu(key)` reads the key and ignores the rest. It may not name more. A name past the last value would always be `undefined`, so the checker reports it (`T22`). You handle an event that sends nothing with no names: `on close { }`.
 
 ## Slots
 
-A *slot* is a place in the component where the caller's content goes. The
-component places the caller's block with `children`, and may declare named
-slots that the caller fills with `name { … }`:
+A *slot* is a place in the component where the caller's content goes. The component places the caller's block with `children`, and may declare named slots that the caller fills with `name { … }`:
 
 ```wf
 component Panel(_ title: String) {
@@ -240,26 +191,16 @@ page Keys(path: "/", title: "Keys", description: "A panel with a slot.") {
 }
 ```
 
-- `children` places the call's block. It needs no declaration: a component
-  that writes `children` takes a block.
+- `children` places the call's block. It needs no declaration: a component that writes `children` takes a block.
 - `slot trailing` declares a named slot, which the body places by its name.
-- Anything in the call's block that is not a named fill goes to
-  `children`. Here that is the `Text` and the `Button`.
-- A bare `slot` line declares the default slot by name. You need it only on
-  a component a page names as its `layout:`, where it is required
-  (`E104`); see [Layouts](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#layouts).
+- Anything in the call's block that is not a named fill goes to `children`. Here that is the `Text` and the `Button`.
+- A bare `slot` line declares the default slot by name. You need it only on a component a page names as its `layout:`, where it is required (`E104`); see [Layouts](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#layouts).
 
-A fill is compiled in the caller's scope: it reads the caller's state and
-loop variables, and its handlers are the caller's. The component only
-decides where the fill lands. A page's `layout:` is a component with a
-default slot, called with the page as its block (see
-[Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#layouts)).
+A fill is compiled in the caller's scope: it reads the caller's state and loop variables, and its handlers are the caller's. The component only decides where the fill lands. A page's `layout:` is a component with a default slot, called with the page as its block (see [Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#layouts)).
 
 ### Scoped slots
 
-A *scoped slot* hands values to its fill. The component declares what it
-hands over, places the slot with those values by name, and the caller's
-fill names them in order:
+A *scoped slot* hands values to its fill. The component declares what it hands over, places the slot with those values by name, and the caller's fill names them in order:
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
@@ -284,14 +225,11 @@ page Use(path: "/", title: "Todos", description: "A list that hands each row to 
 }
 ```
 
-The page shows **1. Milk**. The fill's names take their types from the slot
-declaration: `todo` is a `Todo` and `i` a `Number`. The fill is drawn again
-when a value it is handed changes.
+The page shows **1. Milk**. The fill's names take their types from the slot declaration: `todo` is a `Todo` and `i` a `Number`. The fill is drawn again when a value it is handed changes.
 
 ## Parts
 
-A *part* is a component of the component's own, called under its name —
-the way `Card.Header` is a part of `Card`:
+A *part* is a component of the component's own, called under its name — the way `Card.Header` is a part of `Card`:
 
 ```wf
 component Panel(_ title: String) {
@@ -311,16 +249,11 @@ page Parts(path: "/", title: "Parts", description: "A panel with parts of its ow
 }
 ```
 
-You declare a part inside its component. A part has props, events and slots
-of its own, but it cannot declare parts: a part inside a part is an error.
-Calling a part outside its owner, such as `Panel.Header` with no `Panel`
-around it, is `C03`.
+You declare a part inside its component. A part has props, events and slots of its own, but it cannot declare parts: a part inside a part is an error. Calling a part outside its owner, such as `Panel.Header` with no `Panel` around it, is `C03`.
 
 ## Local state and actions
 
-A component may have its own `state`, `derived` values, `effect`s, actions,
-timers and handles. Each placed instance gets its own copy, so the two
-`Counter`s on this page count separately:
+A component may have its own `state`, `derived` values, `effect`s, actions, timers and handles. Each placed instance gets its own copy, so the two `Counter`s on this page count separately:
 
 ```wf
 component Counter(_ start: Number, step: Number = 1) {
@@ -345,14 +278,11 @@ page Counters(path: "/", title: "Counters", description: "Two counters, two coun
 }
 ```
 
-What an instance creates — effects, timers, listeners — is disposed of when
-the instance leaves the page. See [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)
-for `state`, `derived` and `effect`.
+What an instance creates — effects, timers, listeners — is disposed of when the instance leaves the page. See [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md) for `state`, `derived` and `effect`.
 
 ## Stores inside a component
 
-`use StoreName` brings a store into a component, as it does into a page.
-Every instance reads and writes the same store:
+`use StoreName` brings a store into a component, as it does into a page. Every instance reads and writes the same store:
 
 ```wf
 store Cart {
@@ -373,35 +303,20 @@ page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.")
 }
 ```
 
-Clicking **Add Pen** changes the page's text from **0 in cart** to
-**1 in cart**. [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md) covers stores in full.
+Clicking **Add Pen** changes the page's text from **0 in cart** to **1 in cart**. [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md) covers stores in full.
 
 ## What a call puts on the root element
 
-A component's *root element* is the one element its body draws at the top.
-Some of what you write on a call goes to that element rather than to a
-prop:
+A component's *root element* is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:
 
-- A DOM event handler: `Pill("x") { on click { … } }` attaches to the root,
-  so a styled button component is clickable wherever you place it.
+- A DOM event handler: `Pill("x") { on click { … } }` attaches to the root, so a styled button component is clickable wherever you place it.
 - `class:`, which is added to the root's own classes.
-- A `style { }` block, which styles the root: `Tile(label: "a") { style {
-  grid-column: 2 / span 2 } }` places that tile in its grid. Its rule's class
-  joins the root's classes, as `class:` does.
-- An attribute the component takes no prop for: `aria-*`, `data-*`, `id`,
-  `role`, `title` and `hidden`. You write it as you would on an element:
-  `data-open: true` is `data-open="true"`, and `false` writes no attribute,
-  except for an ARIA state, which keeps `"false"`.
-- `mount:`, `update:` and `cleanup:` (see
-  [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)).
-- `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress`
-  and `on swipe`. These need one root element: on a component whose body is
-  an `if`, a `for` or several elements they are `C07`.
+- A `style { }` block, which styles the root: `Tile(label: "a") { style { grid-column: 2 / span 2 } }` places that tile in its grid. Its rule's class joins the root's classes, as `class:` does.
+- An attribute the component takes no prop for: `aria-*`, `data-*`, `id`, `role`, `title` and `hidden`. You write it as you would on an element: `data-open: true` is `data-open="true"`, and `false` writes no attribute, except for an ARIA state, which keeps `"false"`.
+- `mount:`, `update:` and `cleanup:` (see [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)).
+- `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress` and `on swipe`. These need one root element: on a component whose body is an `if`, a `for` or several elements they are `C07`.
 
-When the component declares a prop of that name, it receives the value
-instead and decides where it goes. Declare the prop when the root is not
-the right element for it. This `Pill` takes the class and the description
-as props and puts them on its `Badge`:
+When the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This `Pill` takes the class and the description as props and puts them on its `Badge`:
 
 ```wf
 component Pill(_ label: String, extra: String = "", note: String = "") {
@@ -418,14 +333,11 @@ The `on click` still goes to the root, which here is the `Badge`.
 
 ## Designing components
 
-A component's interface is its props, events, slots and parts. These
-guidelines keep it clear to callers.
+A component's interface is its props, events, slots and parts. These guidelines keep it clear to callers.
 
 ### A value down, an event up
 
-A component does not take `bind:`. To make a control of your own, take the
-value as a prop and fire an event when it should change. The caller decides
-what to do with the new value:
+A component does not take `bind:`. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:
 
 ```wf
 component Counter(_ value: Number, label: String, min: Number = 0) {
@@ -444,15 +356,10 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 }
 ```
 
-Clicking **+** sets `seats` to 2, and the component shows **Seats: 2**
-because its `value` prop reads `seats`.
+Clicking **+** sets `seats` to 2, and the component shows **Seats: 2** because its `value` prop reads `seats`.
 
 > [!NOTE]
-> **Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own
-> component. Take the value as a prop and fire a `change` event; the caller
-> assigns its state in the handler. `bind:` belongs to the built-in controls.
-> See [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md) and
-> [Coming from Svelte](https://webfluent.monzeromer.dev/coming-from/svelte.md).
+> **Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own component. Take the value as a prop and fire a `change` event; the caller assigns its state in the handler. `bind:` belongs to the built-in controls. See [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md) and [Coming from Svelte](https://webfluent.monzeromer.dev/coming-from/svelte.md).
 
 ### Pick the right way in
 
@@ -470,18 +377,13 @@ Choose the part of the interface by what the caller wants to do:
 
 ### Keep state where it is read
 
-A component's own `state` is right for what only that component cares
-about, such as whether its menu is open or it is hovered. What the page or
-other components care about comes in as a prop and goes out as an event —
-or lives in a store.
+A component's own `state` is right for what only that component cares about, such as whether its menu is open or it is hovered. What the page or other components care about comes in as a prop and goes out as an event — or lives in a store.
 
 ### Document it
 
-A `///` comment above the component, a prop or an event is shown on hover
-in the editor, and on the component's page of the site `wf docs` writes.
+A `///` comment above the component, a prop or an event is shown on hover in the editor, and on the component's page of the site `wf docs` writes.
 
-An `example` shows one way to use it. It names the component and says what
-it shows; its body is a page's — elements, `state`, handlers:
+An `example` shows one way to use it. It names the component and says what it shows; its body is a page's — elements, `state`, handlers:
 
 ```wf
 /// A person, at a glance.
@@ -505,41 +407,21 @@ example UserCard "Away" {
 }
 ```
 
-An example is checked as a page is — a component nothing declares is
-`E101`, a wrong value `T01` — and a build leaves it out. `wf docs` draws
-each one live, in the project's own theme, beside its source; a component
-with none is drawn from its props, each one it needs given a value of its
-type. Keep the examples beside the component, or in a file of their own
-under `src/`. An example only draws: what it does when clicked belongs in a
-[test](https://webfluent.monzeromer.dev/learn/16-testing.md).
+An example is checked as a page is — a component nothing declares is `E101`, a wrong value `T01` — and a build leaves it out. `wf docs` draws each one live, in the project's own theme, beside its source; a component with none is drawn from its props, each one it needs given a value of its type. Keep the examples beside the component, or in a file of their own under `src/`. An example only draws: what it does when clicked belongs in a [test](https://webfluent.monzeromer.dev/learn/16-testing.md).
 
 ```bash
 wf docs
 ```
 
-The site is written to `docs/` in the design of this reference, light and
-dark: a page a component, with its examples, props, events, slots and
-parts, and pages for the project's types, stores and routes. Serve the
-folder to read it.
+The site is written to `docs/` in the design of this reference, light and dark: a page a component, with its examples, props, events, slots and parts, and pages for the project's types, stores and routes. Serve the folder to read it.
 
 ## Other people's code
 
-To use a JavaScript library — a chart, a map, an editor — call it from a
-`.js` file under `src/` and hand it an element with `mount:` and
-`cleanup:`. To place somebody else's custom element, use
-`Element("tag-name", …)`. You can also publish your components as custom
-elements for another framework to place. See [Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md),
-[Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md),
-[Place a custom element](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md) and
-[Publish components as custom elements](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md).
+To use a JavaScript library — a chart, a map, an editor — call it from a `.js` file under `src/` and hand it an element with `mount:` and `cleanup:`. To place somebody else's custom element, use `Element("tag-name", …)`. You can also publish your components as custom elements for another framework to place. See [Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md), [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md), [Place a custom element](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md) and [Publish components as custom elements](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md).
 
 ## Components in the pre-rendered page
 
-A static build pre-renders each page to HTML — the *static paint*. It
-expands every component call into HTML at build time: props substituted,
-slots filled, and loops and branches over the seeded state drawn. A page
-built from components is therefore a complete page before any script runs.
-See [Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md).
+A static build pre-renders each page to HTML — the *static paint*. It expands every component call into HTML at build time: props substituted, slots filled, and loops and branches over the seeded state drawn. A page built from components is therefore a complete page before any script runs. See [Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md).
 
 ## Quick reference
 
@@ -557,8 +439,7 @@ See [Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-sin
 | `part Name(…) { … }` · `Owner.Name` | Declare a part and call it |
 | `use Store` | Read a store inside the component |
 
-[Components reference](https://webfluent.monzeromer.dev/reference.md) lists every built-in,
-and [Diagnostics](https://webfluent.monzeromer.dev/errors.md) every code named here.
+[Components reference](https://webfluent.monzeromer.dev/reference.md) lists every built-in, and [Diagnostics](https://webfluent.monzeromer.dev/errors.md) every code named here.
 
 ## Quiz
 
@@ -592,8 +473,7 @@ A page places `Counter(0)` twice, and `Counter` declares `state n = start`. You 
 
 ## Common mistakes
 
-**A required prop left out.** A prop with no default must be passed on every
-call:
+**A required prop left out.** A prop with no default must be passed on every call:
 
 ```wf expect=C01
 component UserCard(_ name: String, role: String) {
@@ -606,11 +486,9 @@ page P(path: "/", title: "T", description: "D") {
 }
 ```
 
-Pass it, `UserCard("Ada", role: "Engineer")`, or give it a default in the
-declaration, `role: String = ""`. See [C01](https://webfluent.monzeromer.dev/errors/C01.md).
+Pass it, `UserCard("Ada", role: "Engineer")`, or give it a default in the declaration, `role: String = ""`. See [C01](https://webfluent.monzeromer.dev/errors/C01.md).
 
-**A prop the component does not declare.** Often a misspelling, or a prop
-written as though the component forwarded what it was given:
+**A prop the component does not declare.** Often a misspelling, or a prop written as though the component forwarded what it was given:
 
 ```wf expect=C02
 component Note(_ text: String, muted: Bool = false) { Text(text) }
@@ -623,8 +501,7 @@ page P(path: "/", title: "T", description: "D") {
 
 Declare the prop, or correct its name. See [C02](https://webfluent.monzeromer.dev/errors/C02.md).
 
-**A handler that names more values than its event sends.** An event sends
-what it declares, and nothing else:
+**A handler that names more values than its event sends.** An event sends what it declares, and nothing else:
 
 ```wf expect=T22
 component Counter(_ value: Number) {
@@ -641,9 +518,4 @@ page P(path: "/", title: "T", description: "D") {
 }
 ```
 
-Name only what the event sends, `on change(next)`, or declare a second
-parameter and `emit` it. See [T22](https://webfluent.monzeromer.dev/errors/T22.md).
-
-## Next
-
-[Stores](https://webfluent.monzeromer.dev/learn/11-stores.md).
+Name only what the event sends, `on change(next)`, or declare a second parameter and `emit` it. See [T22](https://webfluent.monzeromer.dev/errors/T22.md).

@@ -4,14 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/test-a-page
 
-A test renders a component or a whole page, acts on it the way a reader
-does — typing, clicking, pressing keys — and checks the text the page
-shows. This shopping list has a component that counts, a page that adds
-items, and three tests:
+A test renders a component or a whole page, acts on it the way a reader does — typing, clicking, pressing keys — and checks the text the page shows. This shopping list has a component that counts, a page that adds items, and three tests:
 
-**Needs:** a `tests/` folder beside `src/`, and a Chrome or Chromium on
-the machine for the tests that click (or `WF_CHROME` naming one). The block
-holds three files; the comment above each says where it goes.
+**Needs:** a `tests/` folder beside `src/`, and a Chrome or Chromium on the machine for the tests that click (or `WF_CHROME` naming one). The block holds three files; the comment above each says where it goes.
 
 ```wf
 // src/components/Count.wf
@@ -76,44 +71,20 @@ wf test
 
 ## How it works
 
-- `wf test` runs every `test "…" { }` under `tests/`. A build ignores
-  them, so they never reach the site.
-- A test's body is drawn like a page's: `Count(1)` places the component,
-  and `Shopping`, a page with no route parameter, is placed by its name.
-  The project's components, stores, types and constants are all in reach.
-- `expect "…"` checks the text a reader would see, with white space
-  collapsed the way a browser lays it out, never the markup.
-  `expect not "…"` checks that it is absent.
-- A test with a step that acts — `click`, `type … into`, `press` — is
-  built into a real page and run in headless Chrome, so the handler runs,
-  the state changes and the page draws again. `type "Bread" into "Item"`
-  finds the field by its label, and `click "Add"` the button by its text:
-  by what a reader sees, so a test also catches a control that lost its
-  name.
-- A test that only looks needs no browser. It is rendered and compared
-  with a snapshot, `tests/__snapshots__/shopping/<the-test-name>.html` (its
-  name in lower case, hyphenated), written
-  the first time it runs. When a change is meant, `wf test --update`
-  writes the snapshots again; commit them with the code.
-- A handler that throws fails the test, so a broken click is caught even
-  when the text happens to match.
+- `wf test` runs every `test "…" { }` under `tests/`. A build ignores them, so they never reach the site.
+- A test's body is drawn like a page's: `Count(1)` places the component, and `Shopping`, a page with no route parameter, is placed by its name. The project's components, stores, types and constants are all in reach.
+- `expect "…"` checks the text a reader would see, with white space collapsed the way a browser lays it out, never the markup. `expect not "…"` checks that it is absent.
+- A test with a step that acts — `click`, `type … into`, `press` — is built into a real page and run in headless Chrome, so the handler runs, the state changes and the page draws again. `type "Bread" into "Item"` finds the field by its label, and `click "Add"` the button by its text: by what a reader sees, so a test also catches a control that lost its name.
+- A test that only looks needs no browser. It is rendered and compared with a snapshot, `tests/__snapshots__/shopping/<the-test-name>.html` (its name in lower case, hyphenated), written the first time it runs. When a change is meant, `wf test --update` writes the snapshots again; commit them with the code.
+- A handler that throws fails the test, so a broken click is caught even when the text happens to match.
 
 ## Variations
 
-- **Seed the state**: `test "…"(data: { items: ["a", "b"] }) { … }` starts
-  the body's state, or a store by its name, with that data.
-- **Close a dialog**: `press "Escape"` closes the open `Modal` or `Dialog`;
-  `press "Enter" in "Search"` presses a key in one named field.
+- **Seed the state**: `test "…"(data: { items: ["a", "b"] }) { … }` starts the body's state, or a store by its name, with that data.
+- **Close a dialog**: `press "Escape"` closes the open `Modal` or `Dialog`; `press "Enter" in "Search"` presses a key in one named field.
 - **One file**: `wf test tests/shopping.wf` runs only that file's tests.
-- **A page that reads a service**: a `fake` answers its endpoints, held to
-  the contract, and nothing reaches the network
-  ([Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md)).
-- **Every page in a browser**: `wf verify` loads each route of the built
-  site and fails on a script error, a failed request or a page that drew
-  nothing ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#check-every-page-with-wf-verify)).
-- **In CI**: run `wf check`, `wf test` and `wf build` in that order
-  ([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)).
+- **A page that reads a service**: a `fake` answers its endpoints, held to the contract, and nothing reaches the network ([Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md)).
+- **Every page in a browser**: `wf verify` loads each route of the built site and fails on a script error, a failed request or a page that drew nothing ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#check-every-page-with-wf-verify)).
+- **In CI**: run `wf check`, `wf test` and `wf build` in that order ([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)).
 
-A key step names a key as the browser names it (`"Enter"`, `"Escape"`,
-`"a"`), or a combination as `on key(…)` writes one: `press "mod+k"` holds ⌘
-on a Mac and Ctrl elsewhere, so a shortcut is tested by pressing it.
+A key step names a key as the browser names it (`"Enter"`, `"Escape"`, `"a"`), or a combination as `on key(…)` writes one: `press "mod+k"` holds ⌘ on a Mac and Ctrl elsewhere, so a shortcut is tested by pressing it.

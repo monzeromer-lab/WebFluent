@@ -1,14 +1,10 @@
 # Send a message as the page unloads
 
-> Record that something happened even as the reader leaves — an analytics event, a "reader left" signal — with `beacon(url, data)`.
+> Record that something happened even as the reader leaves — an analytics event, a "reader left" signal — with beacon(url, data).
 
 The page: https://webfluent.monzeromer.dev/recipes/send-on-unload
 
-`beacon(url, data)` records that something happened even when the reader
-is leaving — an analytics event, a "reader left" signal. A request started
-as the page unloads is cancelled; a beacon is delivered. This checkout page
-sends one when the reader leaves it, whether they close the tab, go to
-another site or switch away:
+`beacon(url, data)` records that something happened even when the reader is leaving — an analytics event, a "reader left" signal. A request started as the page unloads is cancelled; a beacon is delivered. This checkout page sends one when the reader leaves it, whether they close the tab, go to another site or switch away:
 
 ```wf
 page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
@@ -27,26 +23,13 @@ page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the or
 
 ## How it works
 
-`beacon` posts a small body with `navigator.sendBeacon`, which the browser
-delivers even as the page unloads, where an ordinary request would be
-cancelled. It
-returns nothing to wait for: the page goes on, and so may the reader.
+`beacon` posts a small body with `navigator.sendBeacon`, which the browser delivers even as the page unloads, where an ordinary request would be cancelled. It returns nothing to wait for: the page goes on, and so may the reader.
 
-`on visibilitychange`, written at the top of the page, listens on the
-document for as long as the page shows. The page turns `hidden` whenever
-the reader leaves it: closing the tab, following a link to another site,
-switching tabs or apps, or locking the phone. That is the last moment a
-page can count on, and the one browsers recommend for this; `unload` and
-`beforeunload` often never fire on a phone. Because a hidden page may come
-back, the beacon can be sent more than once for one visit: count visits on
-the server, or keep a `state sent = false` and send only the first time.
-Going to another page of the same site does not hide the document, so it
-sends nothing; the listener stops with the page.
+`on visibilitychange`, written at the top of the page, listens on the document for as long as the page shows. The page turns `hidden` whenever the reader leaves it: closing the tab, following a link to another site, switching tabs or apps, or locking the phone. That is the last moment a page can count on, and the one browsers recommend for this; `unload` and `beforeunload` often never fire on a phone. Because a hidden page may come back, the beacon can be sent more than once for one visit: count visits on the server, or keep a `state sent = false` and send only the first time. Going to another page of the same site does not hide the document, so it sends nothing; the listener stops with the page.
 
 ### Send on a click instead
 
-To record a step the reader takes, send the beacon from the handler. The
-request still arrives if the click also takes the reader away:
+To record a step the reader takes, send the beacon from the handler. The request still arrives if the click also takes the reader away:
 
 ```wf
 page Pay(path: "/pay", title: "Pay", description: "Pay for the order.") {

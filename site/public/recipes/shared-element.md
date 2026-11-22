@@ -4,13 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/shared-element
 
-Have the browser carry one element from one page to the next — a cover
-picture in a list of posts that grows into the article's header — instead
-of fading it out and back in. Give it the same `shared:` name on both
-pages:
+Have the browser carry one element from one page to the next — a cover picture in a list of posts that grows into the article's header — instead of fading it out and back in. Give it the same `shared:` name on both pages:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 type Post { id: String, slug: String, title: String, cover: String }
@@ -41,11 +37,6 @@ page Article(path: "/p/:slug", title: "Post", description: "One post.", slug: St
 
 ## How it works
 
-- The `Blog` page draws each cover with `shared: "cover-{post.id}"`, and
-  the `Article` page draws the same post's cover under the same name.
-- When the route changes from one to the other, the browser moves the
-  element from its old place and size to its new one.
-- Both elements must carry the same name, and only one element on a page
-  may carry each name — which is why the name here includes the post's
-  `id`. If the two pages give it different names, or two elements on one
-  page carry the same name, the element crossfades instead of moving.
+- The `Blog` page draws each cover with `shared: "cover-{post.id}"`, and the `Article` page draws the same post's cover under the same name.
+- When the route changes from one to the other, the browser moves the element from its old place and size to its new one.
+- Both elements must carry the same name, and only one element on a page may carry each name — which is why the name here includes the post's `id`. If the two pages give it different names, or two elements on one page carry the same name, the element crossfades instead of moving.

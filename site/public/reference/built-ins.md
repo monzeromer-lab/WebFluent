@@ -4,16 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/reference/built-ins
 
-This page lists everything a program can call or read without declaring
-it: the functions the language adds, the browser values it keeps current,
-the methods of strings, lists and numbers, the built-in types, and the
-browser's own globals. [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md) explains how to use
-them; this page is for looking one up.
+This page lists everything a program can call or read without declaring it: the functions the language adds, the browser values it keeps current, the methods of strings, lists and numbers, the built-in types, and the browser's own globals. [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md) explains how to use them; this page is for looking one up.
 
-Each function and value has an entry in the same order: what it is, its
-signature, its parameters and what it returns, where it may be written,
-and an example. An example of one line is a fragment of a page; the names
-it reads are assumed to be declared.
+Each function and value has an entry in the same order: what it is, its signature, its parameters and what it returns, where it may be written, and an example. An example of one line is a fragment of a page; the names it reads are assumed to be declared.
 
 ## Functions
 
@@ -48,13 +41,9 @@ The functions, in alphabetical order:
 | [`uuid()`](#uuid) | A fresh `Uuid` |
 | [`ws(url)`](#ws) | Opens a WebSocket |
 
-Every name in this list but `announce`, `ask`, `http`, `spawn` and
-`toast` belongs to the language: a `state`, prop, parameter, loop item or
-`const` with one of these names is an `E118`. A program's own `announce`,
-`ask`, `http` or `toast` keeps its name, and the function is out of reach
-where it is declared; `spawn` means something only after `worker name =`.
+Every name in this list but `announce`, `ask`, `http`, `spawn` and `toast` belongs to the language: a `state`, prop, parameter, loop item or `const` with one of these names is an `E118`. A program's own `announce`, `ask`, `http` or `toast` keeps its name, and the function is out of reach where it is declared; `spawn` means something only after `worker name =`.
 
-### `after`
+### after
 
 Runs a block once, after a delay, unless its scope leaves first.
 
@@ -64,15 +53,13 @@ Signature: `after(interval) { statements }`
 |---|---|---|
 | `interval` | `Number`, in milliseconds | How long to wait |
 
-Returns nothing. Where: a render block — a page, a component, a branch, a
-list item. The timer is cancelled when the block that holds it leaves.
-See [Timers](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers).
+Returns nothing. Where: a render block — a page, a component, a branch, a list item. The timer is cancelled when the block that holds it leaves. See [Timers](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers).
 
 ```wf
 after(3000) { banner = null }
 ```
 
-### `ago`
+### ago
 
 The distance between a date and now, in words, in the reader's locale.
 
@@ -83,15 +70,13 @@ Signature: `ago(date)`, `ago(date, moment)` → `String`
 | `date` | `Date`, `DateTime` or an ISO 8601 string | The moment to describe |
 | `moment` | the same, optional | What to measure from, in place of now |
 
-Returns `now` under 45 seconds, then `5 minutes ago`, `yesterday`,
-`in 2 weeks`, and so on. An unreadable date gives `""`. Where: anywhere. It
-is the same as `format(date, .relative)`.
+Returns `now` under 45 seconds, then `5 minutes ago`, `yesterday`, `in 2 weeks`, and so on. An unreadable date gives `""`. Where: anywhere. It is the same as `format(date, .relative)`.
 
 ```wf
 Text("Posted {ago(post.published)}").muted
 ```
 
-### `animate`
+### animate
 
 Plays a named animation on an element you hold a handle on.
 
@@ -103,15 +88,13 @@ Signature: `animate(element, name, duration)` → a handle
 | `name` | `String` | A built-in animation (`"pulse"`, `"shake"`, …) or one an `animation` declares |
 | `duration` | `String` such as `"400ms"` | How long it plays |
 
-Returns a handle with `play()`, `cancel()` and `finished` (a promise). It
-plays as soon as it is made. Where: handlers and actions. See
-[Motion](https://webfluent.monzeromer.dev/recipes/drive-an-animation.md).
+Returns a handle with `play()`, `cancel()` and `finished` (a promise). It plays as soon as it is made. Where: handlers and actions. See [Motion](https://webfluent.monzeromer.dev/recipes/drive-an-animation.md).
 
 ```wf
 Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }
 ```
 
-### `announce`
+### announce
 
 Says something to a screen reader, with nothing on screen moving.
 
@@ -122,14 +105,13 @@ Signature: `announce(text)`, `announce(text, .assertive)`
 | `text` | `String` | What to say |
 | `.assertive` | optional | Interrupts what the reader is hearing, for what cannot wait; unset, it waits its turn |
 
-Returns nothing. Where: actions, handlers and effects. See
-[Toasts, questions and announcements](https://webfluent.monzeromer.dev/learn/08-events.md#toasts-questions-and-announcements-from-a-handler).
+Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](https://webfluent.monzeromer.dev/learn/08-events.md#toasts-questions-and-announcements-from-a-handler).
 
 ```wf
 announce("{results.length} results")
 ```
 
-### `ask`
+### ask
 
 Draws an alert dialog with a question, and waits for the answer.
 
@@ -142,18 +124,15 @@ Signature: `ask(question, detail: …, yes: …, no: …, danger: Bool)` → a p
 | `yes:`, `no:` | `String`, optional | The two buttons' words |
 | `danger:` | `Bool`, optional | Draws yes in the danger colour |
 
-Returns `true` for yes, and `false` for no or Escape. The focus starts on
-no. Where: `await` in an action or a handler. `confirm` is the browser's
-own.
+Returns `true` for yes, and `false` for no or Escape. The focus starts on no. Where: `await` in an action or a handler. `confirm` is the browser's own.
 
 ```wf
 Button("Delete") { on click { if await ask("Delete the project?", yes: "Delete", danger: true) { remove() } } }
 ```
 
-### `beacon`
+### beacon
 
-Sends a small `POST` that the browser delivers even while the page is
-unloading.
+Sends a small `POST` that the browser delivers even while the page is unloading.
 
 Signature: `beacon(url, data)` → `Bool`
 
@@ -162,17 +141,15 @@ Signature: `beacon(url, data)` → `Bool`
 | `url` | `String` | Where to send it |
 | `data` | `Json` or `String` | The body; a record or a map is sent as JSON |
 
-Returns whether the browser accepted the send. Where: anywhere, usually a
-handler. See [Send a message as the page unloads](https://webfluent.monzeromer.dev/recipes/send-on-unload.md).
+Returns whether the browser accepted the send. Where: anywhere, usually a handler. See [Send a message as the page unloads](https://webfluent.monzeromer.dev/recipes/send-on-unload.md).
 
 ```wf
 beacon("/analytics", { event: "checkout", value: total })
 ```
 
-### `broadcast`
+### broadcast
 
-Opens a channel that every tab and window of the site on this browser
-hears.
+Opens a channel that every tab and window of the site on this browser hears.
 
 Signature: `channel name = broadcast(channelName) { on message(m) { … } }`
 
@@ -180,16 +157,13 @@ Signature: `channel name = broadcast(channelName) { on message(m) { … } }`
 |---|---|---|
 | `channelName` | `String` | The channel; tabs that open the same name hear each other |
 
-Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`,
-`.state` and `.close()`. Where: only after `channel name =`, in a page, a
-component or a store. The channel closes when its scope leaves. See
-[Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md).
+Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`, `.state` and `.close()`. Where: only after `channel name =`, in a page, a component or a store. The channel closes when its scope leaves. See [Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md).
 
 ```wf
 channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
 ```
 
-### `every`
+### every
 
 Runs a block repeatedly until its scope leaves.
 
@@ -199,15 +173,13 @@ Signature: `every(interval) { statements }`
 |---|---|---|
 | `interval` | `Number`, in milliseconds | The time between runs |
 
-Returns nothing. Where: a render block. The timer stops when its page,
-branch or list item leaves. See
-[Timers](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers).
+Returns nothing. Where: a render block. The timer stops when its page, branch or list item leaves. See [Timers](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#timers).
 
 ```wf
 every(1000) { elapsed = elapsed + 1 }
 ```
 
-### `format`
+### format
 
 Writes a number, a date or money as text, in the reader's locale.
 
@@ -220,24 +192,17 @@ Signature: `format(value)`, `format(value, .style)`, `format(value, .style, opti
 | `option` | depends on the style | Places for `.decimal` (2) and `.percent` (0); a currency code for `.currency` (`"USD"`); `"short"`, `"medium"`, `"long"` or `"full"` for the date styles |
 | `pattern` | `String` | A date pattern of `yyyy yy MMMM MMM MM M dd d EEEE EEE HH H hh h mm ss a` |
 
-Returns the text. The locale is the i18n locale when the project has one,
-and the document's language otherwise; a change of locale redraws it. A
-`Money` value needs no style. In a string, `{value:.style(option)}` is the
-same call. Where: anywhere. See
-[`format` and `ago`](https://webfluent.monzeromer.dev/reference/expressions.md#format-and-ago).
+Returns the text. The locale is the i18n locale when the project has one, and the document's language otherwise; a change of locale redraws it. A `Money` value needs no style. In a string, `{value:.style(option)}` is the same call. Where: anywhere. See [`format` and `ago`](https://webfluent.monzeromer.dev/reference/expressions.md#format-and-ago).
 
 ```wf
 Text(format(price, .currency, "EUR"))
 ```
 
-### `http`
+### http
 
-The built-in service for a request no `api` describes: the same engine an
-`api` uses — retries, caching and cancelling come with it — and an answer
-that is a result, never a throw.
+The built-in service for a request no `api` describes: the same engine an `api` uses — retries, caching and cancelling come with it — and an answer that is a result, never a throw.
 
-Signature: `http.get(url, options)` → a promise of `T!`; `http.post`,
-`http.put`, `http.patch` and `http.delete` take the same
+Signature: `http.get(url, options)` → a promise of `T!`; `http.post`, `http.put`, `http.patch` and `http.delete` take the same
 
 | Parameter | Type | Meaning |
 |---|---|---|
@@ -247,23 +212,15 @@ Signature: `http.get(url, options)` → a promise of `T!`; `http.post`,
 | `as:` | `.json` (default), `.text`, `.blob` | How the answer is read; `.text` is a `String` |
 | `timeout:`, `retry:`, `cache:`, `credentials:` | as on an `api` | This request's own |
 
-`T` is named where the answer goes — `let rows: [Row] = try await
-http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows:
-[Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is
-an `HttpError`. Where: `await` in an action or a handler, or as a
-`resource`, which adds `refresh:`, `placeholder:` and the other options of a
-resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own,
-untouched. See
-[Ask on demand with `http`](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http).
+`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http).
 
 ```wf
 let rows: [Row] = try await http.get("/api/rows?page={page}")
 ```
 
-### `keyIs`
+### keyIs
 
-Whether a key event is a given combination — for a table of shortcuts held
-as data.
+Whether a key event is a given combination — for a table of shortcuts held as data.
 
 Signature: `keyIs(event, combination)` → `Bool`
 
@@ -272,14 +229,13 @@ Signature: `keyIs(event, combination)` → `Bool`
 | `event` | a key event | The event a `keydown` handler receives |
 | `combination` | `String` | Modifiers and a key, as `on key("…")` writes them: `"mod+s"`, `"shift+ArrowDown"` |
 
-Returns `true` when the event is that combination. `mod` is ⌘ on a Mac and
-Ctrl elsewhere. Where: handlers. See [Keys](https://webfluent.monzeromer.dev/learn/08-events.md#keys).
+Returns `true` when the event is that combination. `mod` is ⌘ on a Mac and Ctrl elsewhere. Where: handlers. See [Keys](https://webfluent.monzeromer.dev/learn/08-events.md#keys).
 
 ```wf
 Input(bind: draft, label: "Note") { on keydown(e) { if keyIs(e, "mod+s") { save() } } }
 ```
 
-### `keyLabel`
+### keyLabel
 
 A combination as this system writes it, for a menu or a tooltip.
 
@@ -289,15 +245,13 @@ Signature: `keyLabel(combination)` → `String`
 |---|---|---|
 | `combination` | `String` | As `keyIs` takes it |
 
-Returns `⇧⌘P` on a Mac and `Ctrl+Shift+P` elsewhere for
-`"mod+shift+p"`. Where: anywhere. A `Menu.Item`'s or a `Tooltip`'s
-`shortcut:` is written this way for you.
+Returns `⇧⌘P` on a Mac and `Ctrl+Shift+P` elsewhere for `"mod+shift+p"`. Where: anywhere. A `Menu.Item`'s or a `Tooltip`'s `shortcut:` is written this way for you.
 
 ```wf
 Text("Search: {keyLabel("mod+k")}").muted
 ```
 
-### `log`
+### log
 
 Prints a value to the browser's console.
 
@@ -307,14 +261,13 @@ Signature: `log(value)`
 |---|---|---|
 | `value` | any value but a `Secret` | The value to print. For several, splice them into one string, `log("{a} {b}")`, or call `console.log(a, b)` |
 
-Returns nothing. Where: actions, handlers, effects and timers. A `Secret`
-passed to it is a `T12`.
+Returns nothing. Where: actions, handlers, effects and timers. A `Secret` passed to it is a `T12`.
 
 ```wf
 log("saved {items.length} items")
 ```
 
-### `navigate`
+### navigate
 
 Moves to a route, as a click on a `Link` would.
 
@@ -324,21 +277,15 @@ Signature: `navigate(path)`
 |---|---|---|
 | `path` | `String` | A site-relative path; a value spliced into it is encoded |
 
-Returns nothing. In a single-page build the router draws the new page; in
-a static build it loads the page's own HTML file. A literal path no page
-matches is an `R01`, and a scheme a browser would run is refused. Where:
-actions and handlers. See
-[Links and navigation](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#links-and-navigation).
+Returns nothing. In a single-page build the router draws the new page; in a static build it loads the page's own HTML file. A literal path no page matches is an `R01`, and a scheme a browser would run is refused. Where: actions and handlers. See [Links and navigation](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#links-and-navigation).
 
 ```wf
 Button("Open") { on click { navigate("/orders/{order.id}") } }
 ```
 
-### `optimistic`
+### optimistic
 
-Shows a change at once, before the server agrees. If anything later in the
-action fails — a `try` passing its error up, or a throw — the change is
-taken back.
+Shows a change at once, before the server agrees. If anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back.
 
 Signature: `optimistic(holder, change)`
 
@@ -347,17 +294,15 @@ Signature: `optimistic(holder, change)`
 | `holder` | a state, or a store's state | What to change |
 | `change` | a lambda from the old value to the new one | The change to show |
 
-Returns a handle with `rollback()`. Where: actions. See
-[Show a change before the server agrees](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-change-before-the-server-agrees).
+Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-change-before-the-server-agrees).
 
 ```wf
 optimistic(Todos.items, items => items.filter(i => i.id != id))
 ```
 
-### `replayAnimation`
+### replayAnimation
 
-Plays again an animation the element already has, such as its enter
-animation.
+Plays again an animation the element already has, such as its enter animation.
 
 Signature: `replayAnimation(element, name)`
 
@@ -366,14 +311,13 @@ Signature: `replayAnimation(element, name)`
 | `element` | an element, such as `e.currentTarget` | The element to animate |
 | `name` | `String` | The animation, such as `"fadeIn"` |
 
-Returns nothing. Where: handlers. See
-[Motion](https://webfluent.monzeromer.dev/recipes/drive-an-animation.md).
+Returns nothing. Where: handlers. See [Motion](https://webfluent.monzeromer.dev/recipes/drive-an-animation.md).
 
 ```wf
 Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }
 ```
 
-### `rtc`
+### rtc
 
 Opens a WebRTC data channel straight to another reader's page.
 
@@ -385,19 +329,15 @@ Signature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) { sen
 | `initiator` | `Bool` | Whether this side makes the offer; one side must |
 | `ice` | `[Json]` | The servers that help readers on different networks connect; none by default |
 
-Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what
-the other side sent), `.state`, `.messages` and `.close()`. Where: only after
-`peer name =`. See
-[Connect two readers' pages](https://webfluent.monzeromer.dev/recipes/connect-two-readers.md).
+Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what the other side sent), `.state`, `.messages` and `.close()`. Where: only after `peer name =`. See [Connect two readers' pages](https://webfluent.monzeromer.dev/recipes/connect-two-readers.md).
 
 ```wf
 peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { receive Wave  on message(m) { heard = m.text } }
 ```
 
-### `sanitize`
+### sanitize
 
-Passes markup through an allow-list of elements and attributes, for
-`Unsafe.Html`.
+Passes markup through an allow-list of elements and attributes, for `Unsafe.Html`.
 
 Signature: `sanitize(html)` → `String`
 
@@ -405,16 +345,13 @@ Signature: `sanitize(html)` → `String`
 |---|---|---|
 | `html` | `String` | Markup from outside the project |
 
-Returns the markup without scripts, styles, frames, forms, `on*`
-attributes, or an `href` or `src` a browser would run. It runs at build
-time and in the browser from the same list. Where: anywhere. See
-[Show markup you did not write](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup).
+Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup).
 
 ```wf
 Unsafe.Html(sanitize(post.body))
 ```
 
-### `setLocale`
+### setLocale
 
 Switches the page to another locale, and its direction with it.
 
@@ -424,19 +361,15 @@ Signature: `setLocale(locale)`
 |---|---|---|
 | `locale` | `String` | A locale `i18n.locales` lists, such as `"ar"`; `-u-nu-arab` or `-u-nu-latn` names the digits |
 
-Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL
-locale sets `dir="rtl"`. A literal locale the config does not list is an
-`I04`. Where: actions, handlers and effects. See
-[i18n](https://webfluent.monzeromer.dev/recipes/translate-a-site.md#switch-the-locale).
+Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL locale sets `dir="rtl"`. A literal locale the config does not list is an `I04`. Where: actions, handlers and effects. See [i18n](https://webfluent.monzeromer.dev/recipes/translate-a-site.md#switch-the-locale).
 
 ```wf
 Button("العربية") { on click { setLocale("ar") } }
 ```
 
-### `setTheme`
+### setTheme
 
-Switches between the light theme, the dark one, and whatever the system
-asks for, and keeps the choice across visits.
+Switches between the light theme, the dark one, and whatever the system asks for, and keeps the choice across visits.
 
 Signature: `setTheme(choice)`
 
@@ -444,15 +377,13 @@ Signature: `setTheme(choice)`
 |---|---|---|
 | `choice` | `String` | `"light"`, `"dark"` or `"system"` |
 
-Returns nothing. The browser value `theme` reads the choice. Any other
-number of arguments is a `T10`. Where: actions and handlers. See
-[Dark mode](https://webfluent.monzeromer.dev/learn/13-styling.md#dark-mode).
+Returns nothing. The browser value `theme` reads the choice. Any other number of arguments is a `T10`. Where: actions and handlers. See [Dark mode](https://webfluent.monzeromer.dev/learn/13-styling.md#dark-mode).
 
 ```wf
 Button("Dark") { on click { setTheme("dark") } }
 ```
 
-### `spawn`
+### spawn
 
 Starts a script of `public/` in a worker beside the page.
 
@@ -465,19 +396,15 @@ Signature: `worker name = spawn(path, restart: n, timeout: ms, type: .module) { 
 | `timeout` | `Number` | How long a request waits, in milliseconds (10 s unset) |
 | `type` | `.module` | Starts a module worker |
 
-Returns a worker handle with `.request(method, params, options)`,
-`.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`.
-Where: only after `worker name =`, in a page, a component or a store. See
-[Run a script in a worker](https://webfluent.monzeromer.dev/recipes/run-a-worker.md).
+Returns a worker handle with `.request(method, params, options)`, `.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`. Where: only after `worker name =`, in a page, a component or a store. See [Run a script in a worker](https://webfluent.monzeromer.dev/recipes/run-a-worker.md).
 
 ```wf
 worker css = spawn("/workers/css.js", restart: 1) { receive CssMessage  on message(m) { problems = m.items } }
 ```
 
-### `sse`
+### sse
 
-Opens a stream of server-sent events, which resumes where it was after a
-drop.
+Opens a stream of server-sent events, which resumes where it was after a drop.
 
 Signature: `stream name = sse(url, events: [names])`
 
@@ -486,15 +413,13 @@ Signature: `stream name = sse(url, events: [names])`
 | `url` | `String` | The stream's address |
 | `events` | `[String]` | The named events to listen for |
 
-Returns a stream handle with `.messages`, `.last(kind)`, `.state`,
-`.error` and `.close()`. Where: only after `stream name =`. See
-[Listen to server-sent events](https://webfluent.monzeromer.dev/recipes/server-sent-events.md).
+Returns a stream handle with `.messages`, `.last(kind)`, `.state`, `.error` and `.close()`. Where: only after `stream name =`. See [Listen to server-sent events](https://webfluent.monzeromer.dev/recipes/server-sent-events.md).
 
 ```wf
 stream ticks = sse("/events", events: ["price", "status"])
 ```
 
-### `t`
+### t
 
 A translation of a key, in the reader's locale.
 
@@ -505,18 +430,15 @@ Signature: `t(key)`, `t(key, values)` → `String`
 | `key` | `String` | A key of the translation files |
 | `values` | a map, optional | Values for the message's `{placeholders}`, `{ name: user.name }`; `count` picks a plural form |
 
-Returns the message. A literal key no locale has is an `I01`; a value the
-message does not use, or a placeholder the call does not pass, is an
-`I02`. Where: anywhere. See [`t("key")`](https://webfluent.monzeromer.dev/recipes/translate-a-site.md#translate-text-with-t).
+Returns the message. A literal key no locale has is an `I01`; a value the message does not use, or a placeholder the call does not pass, is an `I02`. Where: anywhere. See [`t("key")`](https://webfluent.monzeromer.dev/recipes/translate-a-site.md#translate-text-with-t).
 
 ```wf
 Text(t("cart.items", { count: Cart.count }))
 ```
 
-### `toast`
+### toast
 
-Shows a short message above everything, a modal included, and says it to a
-screen reader.
+Shows a short message above everything, a modal included, and says it to a screen reader.
 
 Signature: `toast(message, tone: …, duration: …, action: …, onAction: …, closable: Bool)`; `toast.promise(promise, loading: …, done: …, failed: …)`
 
@@ -528,29 +450,25 @@ Signature: `toast(message, tone: …, duration: …, action: …, onAction: …,
 | `action:`, `onAction:` | `String`, an action | A button on it, and what pressing it runs |
 | `closable:` | `Bool` | Whether it has a close button |
 
-Returns a handle with `close()` and `update(…)`. It waits while the pointer
-is on it or the focus is in it, and no more than three show at once (a
-fourth closes the oldest). `toast.promise` shows `loading:` while the
-promise runs, then `done:` or `failed:`. Where: actions and handlers.
+Returns a handle with `close()` and `update(…)`. It waits while the pointer is on it or the focus is in it, and no more than three show at once (a fourth closes the oldest). `toast.promise` shows `loading:` while the promise runs, then `done:` or `failed:`. Where: actions and handlers.
 
 ```wf
 toast("Conversation archived", action: "Undo", onAction: restore)
 ```
 
-### `uuid`
+### uuid
 
 A fresh random identifier.
 
 Signature: `uuid()` → `Uuid`
 
-It takes no parameters. Where: anywhere, usually an action that makes a
-record.
+It takes no parameters. Where: anywhere, usually an action that makes a record.
 
 ```wf
 items = items.concat([Todo(id: uuid(), title: draft)])
 ```
 
-### `ws`
+### ws
 
 Opens a WebSocket, which reconnects with backoff and keeps itself alive.
 
@@ -562,13 +480,7 @@ Signature: `socket name = ws(url, protocols: [names], heartbeat: duration) { sen
 | `protocols` | `[String]` | The subprotocols to offer |
 | `heartbeat` | `Duration` | How often to ping a quiet line |
 
-Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`,
-`.state`, `.error`, `.closure` and `.close()`. `send T` is what `.send`
-takes and `receive T` what `.messages` holds and `on message(m)` is given;
-a socket, stream, channel, peer or worker that declares neither sends and
-hears `Json`, which is matched or decoded rather than read as a record
-(`T28`). Where: only after `socket name =`. See
-[Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md).
+Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. `send T` is what `.send` takes and `receive T` what `.messages` holds and `on message(m)` is given; a socket, stream, channel, peer or worker that declares neither sends and hears `Json`, which is matched or decoded rather than read as a record (`T28`). Where: only after `socket name =`. See [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md).
 
 ```wf
 socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { send Outgoing  receive Incoming  on message(m) { Feed.add(m) } }
@@ -576,9 +488,7 @@ socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { send Outgoin
 
 ## Browser values
 
-The language keeps these values current and lets every page, component and
-store read them. Each is a name the language owns: declaring a `state`,
-prop or parameter with one of these names is an `E118`.
+The language keeps these values current and lets every page, component and store read them. Each is a name the language owns: declaring a `state`, prop or parameter with one of these names is an `E118`.
 
 | Value | Holds |
 |---|---|
@@ -592,7 +502,7 @@ prop or parameter with one of these names is an `E118`.
 | [`locale`, `dir`](#locale-and-dir) | The reader's language and its direction |
 | [`params`](#params) | The route's parameters |
 
-### `viewport`
+### viewport
 
 The window's size, and which breakpoints it is past.
 
@@ -601,26 +511,23 @@ The window's size, and which breakpoints it is past.
 | `.width`, `.height` | `Number` | The size in CSS pixels |
 | `.sm`, `.md`, `.lg`, `.xl` | `Bool` | Whether the width is at least that breakpoint's token |
 
-It follows `matchMedia`, so a breakpoint field changes once when its answer
-changes, not on every pixel of a resize.
+It follows `matchMedia`, so a breakpoint field changes once when its answer changes, not on every pixel of a resize.
 
 ```wf
 if viewport.md { Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } } }
 ```
 
-### `query`
+### query
 
-The address's query string, a `[String: String]` from each key to its
-value.
+The address's query string, a `[String: String]` from each key to its value.
 
-A key the address lacks reads as `null`, so `query.tab ?? "all"` gives a
-default.
+A key the address lacks reads as `null`, so `query.tab ?? "all"` gives a default.
 
 ```wf
 Text("Showing {query.tab ?? "all"}")
 ```
 
-### `hash`
+### hash
 
 The address's fragment, without the `#`. It is `""` when there is none.
 
@@ -628,31 +535,27 @@ The address's fragment, without the `#`. It is `""` when there is none.
 if hash == "pricing" { Text("You followed a link to pricing.") }
 ```
 
-### `theme`
+### theme
 
-The reader's choice: `"light"`, `"dark"` or `"system"`. `setTheme` changes
-it.
+The reader's choice: `"light"`, `"dark"` or `"system"`. `setTheme` changes it.
 
 ```wf
 Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
 ```
 
-### `now`
+### now
 
-The current moment, as a `DateTime` that keeps itself current — every
-minute by default.
+The current moment, as a `DateTime` that keeps itself current — every minute by default.
 
 Signature: `now`, `now(every: interval)` → `DateTime`
 
-Read it where it is shown or in a `derived` value. A `state` takes it once,
-so `state opened = now` keeps the moment the page opened (`X06`). See
-[`now`](https://webfluent.monzeromer.dev/learn/12-types.md#now).
+Read it where it is shown or in a `derived` value. A `state` takes it once, so `state opened = now` keeps the moment the page opened (`X06`). See [`now`](https://webfluent.monzeromer.dev/learn/12-types.md#now).
 
 ```wf
 Text("It is {now(every: 1.seconds).time()}")
 ```
 
-### `network`
+### network
 
 The state of the reader's connection.
 
@@ -668,7 +571,7 @@ The state of the reader's connection.
 if !network.online { Alert("You are offline — changes are queued.").warning }
 ```
 
-### `update`
+### update
 
 A new version of a site that has `offline` in its config.
 
@@ -681,19 +584,17 @@ A new version of a site that has `offline` in its config.
 if update.available { Button("Reload for the new version") { on click { update.apply() } } }
 ```
 
-### `locale` and `dir`
+### locale and dir
 
-The reader's current locale (`"en"`, `"ar"`) and its direction (`"ltr"` or
-`"rtl"`). Both follow `setLocale`.
+The reader's current locale (`"en"`, `"ar"`) and its direction (`"ltr"` or `"rtl"`). Both follow `setLocale`.
 
 ```wf
 Text("Reading in {locale}, {dir}")
 ```
 
-### `params`
+### params
 
-The current route's parameters, by name. A page also receives each one as
-a typed parameter of its own, which is usually the better way to read it.
+The current route's parameters, by name. A page also receives each one as a typed parameter of its own, which is usually the better way to read it.
 
 ```wf
 Text("Order {params.id}")
@@ -701,8 +602,7 @@ Text("Order {params.id}")
 
 ## String methods
 
-A string has the browser's methods and five of WebFluent's own. A method
-it has neither of is a `T16`, with the nearest one it has.
+A string has the browser's methods and five of WebFluent's own. A method it has neither of is a `T16`, with the nearest one it has.
 
 WebFluent's own:
 
@@ -714,18 +614,9 @@ WebFluent's own:
 | `lines()` | A list of its lines, however they end |
 | `words()` | A list of its words, split on runs of whitespace |
 
-The browser's: `length`, `trim()`, `trimStart()`, `trimEnd()`,
-`toLowerCase()`, `toUpperCase()`, `toLocaleLowerCase()`,
-`toLocaleUpperCase()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`,
-`indexOf(s)`, `lastIndexOf(s)`, `search(re)`, `slice(a, b)`,
-`substring(a, b)`, `substr(a, n)`, `charAt(i)`, `charCodeAt(i)`,
-`codePointAt(i)`, `at(i)`, `replace(a, b)`, `replaceAll(a, b)`,
-`split(sep)`, `match(re)`, `matchAll(re)`, `concat(s)`, `padStart(n, c)`,
-`padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`,
-`isWellFormed()`, `toWellFormed()`, `toString()`, `valueOf()`.
+The browser's: `length`, `trim()`, `trimStart()`, `trimEnd()`, `toLowerCase()`, `toUpperCase()`, `toLocaleLowerCase()`, `toLocaleUpperCase()`, `includes(s)`, `startsWith(s)`, `endsWith(s)`, `indexOf(s)`, `lastIndexOf(s)`, `search(re)`, `slice(a, b)`, `substring(a, b)`, `substr(a, n)`, `charAt(i)`, `charCodeAt(i)`, `codePointAt(i)`, `at(i)`, `replace(a, b)`, `replaceAll(a, b)`, `split(sep)`, `match(re)`, `matchAll(re)`, `concat(s)`, `padStart(n, c)`, `padEnd(n, c)`, `repeat(n)`, `normalize()`, `localeCompare(other)`, `isWellFormed()`, `toWellFormed()`, `toString()`, `valueOf()`.
 
-`contains(s)` is accepted for `includes(s)`, and `toUpper()` and
-`toLower()` for `toUpperCase()` and `toLowerCase()`.
+`contains(s)` is accepted for `includes(s)`, and `toUpper()` and `toLower()` for `toUpperCase()` and `toLowerCase()`.
 
 ```wf
 derived preview = post.body.dedent().lines().first() ?? ""
@@ -747,42 +638,24 @@ WebFluent's own:
 | `sum()` | The total of a list of numbers |
 | `remove(i)` | The list without the item at index `i`; out of range, an unchanged copy |
 
-The browser's: `length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`,
-`findLast(f)`, `findLastIndex(f)`, `some(f)`, `every(f)`, `includes(x)`,
-`indexOf(x)`, `lastIndexOf(x)`, `join(sep)`, `slice(a, b)`,
-`concat(other)`, `reverse()`, `sort(f)`, `reduce(f, init)`,
-`reduceRight(f, init)`, `forEach(f)`, `flat()`, `flatMap(f)`, `fill(x)`,
-`copyWithin(t, a, b)`, `entries()`, `keys()`, `values()`, `at(i)`,
-`with(i, x)`, `toReversed()`, `toSorted(f)`, `toSpliced(…)`, `toString()`,
-`toLocaleString()`; and, in an action or a handler, `push(x)`, `pop()`,
-`shift()`, `unshift(x)` and `splice(i, n)`. `contains(x)` is accepted for
-`includes(x)`.
+The browser's: `length`, `map(f)`, `filter(f)`, `find(f)`, `findIndex(f)`, `findLast(f)`, `findLastIndex(f)`, `some(f)`, `every(f)`, `includes(x)`, `indexOf(x)`, `lastIndexOf(x)`, `join(sep)`, `slice(a, b)`, `concat(other)`, `reverse()`, `sort(f)`, `reduce(f, init)`, `reduceRight(f, init)`, `forEach(f)`, `flat()`, `flatMap(f)`, `fill(x)`, `copyWithin(t, a, b)`, `entries()`, `keys()`, `values()`, `at(i)`, `with(i, x)`, `toReversed()`, `toSorted(f)`, `toSpliced(…)`, `toString()`, `toLocaleString()`; and, in an action or a handler, `push(x)`, `pop()`, `shift()`, `unshift(x)` and `splice(i, n)`. `contains(x)` is accepted for `includes(x)`.
 
 How the methods treat a state:
 
-- `sort` and `reverse` read in an expression work on a copy, so reading a
-  sorted list never changes it.
-- `push(x)`, `remove(i)` and `sort(f)` as a statement give the state a new
-  list, so whatever reads it repaints and a `persist` writes it.
+- `sort` and `reverse` read in an expression work on a copy, so reading a sorted list never changes it.
+- `push(x)`, `remove(i)` and `sort(f)` as a statement give the state a new list, so whatever reads it repaints and a `persist` writes it.
 
 ```wf
 derived leaders = players.sortBy(p => -p.score).take(3)
 ```
 
-Every one of WebFluent's own helpers also runs at build time, so the
-pre-rendered page shows its result. A member something declares wins over
-a helper of its name: a store's own `action first(n: Number)` or
-`action preview(path: String)` is the store's, called with its arguments, and a
-worker's `css.last(kind)` is the worker's.
+Every one of WebFluent's own helpers also runs at build time, so the pre-rendered page shows its result. A member something declares wins over a helper of its name: a store's own `action first(n: Number)` or `action preview(path: String)` is the store's, called with its arguments, and a worker's `css.last(kind)` is the worker's.
 
 ## Number methods
 
-`toFixed(n)`, `toPrecision(n)`, `toExponential(n)`, `toLocaleString()`,
-`toString()`, `valueOf()`.
+`toFixed(n)`, `toPrecision(n)`, `toExponential(n)`, `toLocaleString()`, `toString()`, `valueOf()`.
 
-To convert, use `Number("12")` and `String(n)`, or `"{n}"`. To round, use
-`Math.round`, `Math.floor`, `Math.ceil`, `Math.max` and the rest of
-`Math`. For text a reader sees, prefer [`format`](#format).
+To convert, use `Number("12")` and `String(n)`, or `"{n}"`. To round, use `Math.round`, `Math.floor`, `Math.ceil`, `Math.max` and the rest of `Math`. For text a reader sees, prefer [`format`](#format).
 
 ```wf
 derived share = (part / whole * 100).toFixed(1)
@@ -790,8 +663,7 @@ derived share = (part / whole * 100).toFixed(1)
 
 ## The built-in types
 
-Eleven types come with the language. Each is a plain JSON value at run
-time.
+Eleven types come with the language. Each is a plain JSON value at run time.
 
 | Type | Written | Methods and fields |
 |---|---|---|
@@ -807,12 +679,7 @@ time.
 | `File` | from `FileUpload` | `.preview()`, `.name`, `.size`, `.type` |
 | `Secret` | — | none: it may not be shown, spliced, logged or persisted |
 
-`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`,
-`minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`,
-`minutes`, `hours`, `days` or `weeks`. What the language computes is a call
-(`due.year()`); what the value already carries is a field
-(`price.amount`). [Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it)
-has the rest.
+`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it) has the rest.
 
 ```wf
 derived checkout = arrival.plus(days: nights)
@@ -820,33 +687,10 @@ derived checkout = arrival.plus(days: nights)
 
 ## Browser globals
 
-The browser's names compile to themselves, with no prefix, and a table of
-the browser's types says what each is: `window`, `document`, `console`,
-`localStorage`, `sessionStorage`, `JSON`, `Math`, `Date` (`Date.now()`),
-`Object` (`Object.keys`), `Array` (`Array.isArray`), `Number`
-(`Number.isInteger`, …), `navigator` and its `clipboard`, `location`,
-`history`, `performance`, `screen`, `Infinity`, `NaN`, `undefined`, and the
-functions `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`,
-`requestAnimationFrame`, `cancelAnimationFrame`, `queueMicrotask`,
-`structuredClone`, `matchMedia`, `getComputedStyle`, `parseInt`,
-`parseFloat`, `isNaN`, `isFinite`, `encodeURIComponent`,
-`decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `alert`,
-`confirm` and `prompt`. `JSON.parse` hands back `Json`; `getItem` a
-`String?`; an element's `getBoundingClientRect()` a `Rect`.
+The browser's names compile to themselves, with no prefix, and a table of the browser's types says what each is: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date` (`Date.now()`), `Object` (`Object.keys`), `Array` (`Array.isArray`), `Number` (`Number.isInteger`, …), `navigator` and its `clipboard`, `location`, `history`, `performance`, `screen`, `Infinity`, `NaN`, `undefined`, and the functions `setTimeout`, `setInterval`, `clearTimeout`, `clearInterval`, `requestAnimationFrame`, `cancelAnimationFrame`, `queueMicrotask`, `structuredClone`, `matchMedia`, `getComputedStyle`, `parseInt`, `parseFloat`, `isNaN`, `isFinite`, `encodeURIComponent`, `decodeURIComponent`, `encodeURI`, `decodeURI`, `atob`, `btoa`, `alert`, `confirm` and `prompt`. `JSON.parse` hands back `Json`; `getItem` a `String?`; an element's `getBoundingClientRect()` a `Rect`.
 
-A handler's event, an element a `ref:` names and the value `catch` binds are
-typed by the same table: a `KeyboardEvent`, an `Element`, an `Error`. A
-global or a member it does not list — `crypto`, `navigator.bluetooth`,
-`e.kye` — is [`T30`](https://webfluent.monzeromer.dev/errors/T30.md), with the nearest name; reach it from
-a [project script](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md) whose JSDoc says its
-types. A name the program declares itself wins over a global, and unlike
-the language's own names, a global may be the name of a state, a prop or a
-parameter.
+A handler's event, an element a `ref:` names and the value `catch` binds are typed by the same table: a `KeyboardEvent`, an `Element`, an `Error`. A global or a member it does not list — `crypto`, `navigator.bluetooth`, `e.kye` — is [`T30`](https://webfluent.monzeromer.dev/errors/T30.md), with the nearest name; reach it from a [project script](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md) whose JSDoc says its types. A name the program declares itself wins over a global, and unlike the language's own names, a global may be the name of a state, a prop or a parameter.
 
 ```wf
 localStorage.setItem("last-seen", "{now.date()}")
 ```
-
-## Next
-
-[Design tokens](https://webfluent.monzeromer.dev/reference/tokens.md).

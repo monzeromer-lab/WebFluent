@@ -4,13 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/test-with-a-fake
 
-A page that reads a service has nothing to show in a test until something
-answers. A `fake` answers a group's endpoints in place of the network, and
-the compiler holds it to the contract: every endpoint it answers, every
-parameter it reads, every answer's type.
+A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network, and the compiler holds it to the contract: every endpoint it answers, every parameter it reads, every answer's type.
 
-**Needs:** the page in `src/`, the fake and the tests under `tests/`; run
-them with `wf test`. Here they are one file, for the sake of the example.
+**Needs:** the page in `src/`, the fake and the tests under `tests/`; run them with `wf test`. Here they are one file, for the sake of the example.
 
 ```wf
 type Person { id: String, name: String }
@@ -65,14 +61,8 @@ test "says when removing fails"(fakes: [TwoPeople]) {
 }
 ```
 
-A test that names `fakes:` runs in a browser, where the page makes its
-calls; nothing is sent. A call to an endpoint no fake answers fails the
-test and names it. With a contract from an OpenAPI spec,
-`fake Examples for Backend.people from examples` answers from the spec's
-examples. A fake that answers an endpoint the group does not have, reads a
-parameter it does not take, or answers with the wrong type is `N06`.
+## How it works
 
-A build leaves fakes out. To load every page of the site in a browser with
-the fakes answering — for a site whose API is elsewhere — run
-`wf verify --fakes tests/fakes.wf`, naming the file that holds them. More
-in [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes).
+A test that names `fakes:` runs in a browser, where the page makes its calls; nothing is sent. A call to an endpoint no fake answers fails the test and names it. With a contract from an OpenAPI spec, `fake Examples for Backend.people from examples` answers from the spec's examples. A fake that answers an endpoint the group does not have, reads a parameter it does not take, or answers with the wrong type is `N06`.
+
+A build leaves fakes out. To load every page of the site in a browser with the fakes answering — for a site whose API is elsewhere — run `wf verify --fakes tests/fakes.wf`, naming the file that holds them. More in [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes).

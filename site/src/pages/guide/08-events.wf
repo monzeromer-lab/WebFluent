@@ -1,6 +1,5 @@
-/// Chapter 8 of the guide, written from md-docs/learn/08-events.md by
-/// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "md-docs/learn/08-events.md", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Handle a DOM event with `on click \{ \}`, and read the event with `on keydown(e) \{ \}`", "Answer a key or a chord with `on key(\"mod+k\")`, on an element or for the whole app", "Fire your component's own events with `event` and `emit`", "Open modals, menus, popovers and tooltips from state, and know how they stack", "Drag, drop, long-press, swipe and listen to the window"], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
+/// Chapter 8 of the guide. This page is its source: edit it here.
+page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "site/src/pages/guide/08-events.wf", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Handle a DOM event with `on click \{ \}`, and read the event with `on keydown(e) \{ \}`", "Answer a key or a chord with `on key(\"mod+k\")`, on an element or for the whole app", "Fire your component's own events with `event` and `emit`", "Open modals, menus, popovers and tooltips from state, and know how they stack", "Drag, drop, long-press, swipe and listen to the window"], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers events in WebFluent. An event handler is the code that runs when something happens: a click, a key, a drop, a component saying it changed. You write it as `on <event> \{ … \}` inside the block of the element it listens to, and its body can change state, call actions and navigate.\n\nIn this chapter:\n\n- handlers and the event object\n- keys, and shortcuts for a whole app\n- the events your own components fire\n- overlays: modals, sheets, toasts, menus, popovers and tooltips, what closes them, and how they stack\n- gestures: drag and drop, long-press, swipe and the splitter\n- listening to the window and the document")
 
@@ -437,7 +436,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
     Heading("Spot").h1
     Button("Click me") { on click(e, x) { at = "{x}" } }
     Text(at)
-}"#, title: "wf · draws T22")
+}"#, title: "wf", expect: "T22")
 
         Markdown("Name the event alone and read from it: `on click(e) \{ at = \"\{e.clientX\}\" \}` ([T22](/errors/T22)).\n\n**A misspelled event.** A handler for an event the element never fires never runs, so the compiler warns:")
 
@@ -446,7 +445,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
     Heading("Clicks").h1
     Button("+1") { on clik { n = n + 1 } }
     Text("{n}")
-}"#, title: "wf · draws V09")
+}"#, title: "wf", expect: "V09")
 
         Markdown("Spell the event as the browser does, `on click` ([V09](/errors/V09)).\n\n**A key combination no keyboard sends.** Modifiers have fixed names, and a word that is not one stops the build:")
 
@@ -455,7 +454,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
     Heading("Search").h1
     Input(bind: q, ref: box, placeholder: "Search")
     on key("command+k") { box.focus() }
-}"#, title: "wf · draws E117")
+}"#, title: "wf", expect: "E117")
 
         Markdown("Write `cmd+k`, or `mod+k` for ⌘ on a Mac and Ctrl elsewhere ([E117](/errors/E117)).")
     }

@@ -45,13 +45,13 @@ Written under its name, inside `CheckboxGroup`.
 One box: its words and its value.
 
 ```wf
-CheckboxGroup.Option(_ label: String, value: String or Number or Bool)
+CheckboxGroup.Option(_ label: String, value: String or Number or Bool or Bound)
 ```
 
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String (positional)` | The option's words, beside its box; also its value when it has no `value:` |
-| `value:` | `String or Number or Bool` | What the list holds while it is ticked |
+| `value:` | `String or Number or Bool or Bound` | What the list holds while it is ticked; a case (`.food`) when `bind:` holds an enum (`Bound`) |
 
 ## Drawn for it
 

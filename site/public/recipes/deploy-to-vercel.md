@@ -4,16 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/deploy-to-vercel
 
-This recipe has Vercel build a WebFluent site on every push and serve it.
-Vercel does not read the `_headers` file the build writes, so the headers
-go in `vercel.json`.
-
-You need a Vercel account and the project in a repository Vercel can read;
-the build command installs `wf` as
-[Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md) shows.
-
-Add `vercel.json` at the project's root. This one is for a single-page
-build:
+This recipe has Vercel build a WebFluent site on every push and serve it. Vercel does not read the `_headers` file the build writes, so the headers go in `vercel.json`.  You need a Vercel account and the project in a repository Vercel can read; the build command installs `wf` as [Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md) shows.  Add `vercel.json` at the project's root. This one is for a single-page build:
 
 ```json
 {
@@ -35,22 +26,14 @@ build:
 
 ## How it works
 
-1. `buildCommand` installs `wf` and builds the site; `outputDirectory`
-   tells Vercel to serve `build/`.
-2. `headers` sets the security headers on every path. Vercel does not read
-   `_headers`, so copy every header the build wrote in `build/_headers`
-   into this list, including the `Content-Security-Policy` line
-   ([Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-security-headers)).
-3. `rewrites` answers every path with `index.html`, so a reload on a deep
-   link reaches the single-page build's router.
-
-## Variations
-
-For a static build, leave out `rewrites`: each page has its own file, and
-an unknown path should be a 404.
+1. `buildCommand` installs `wf` and builds the site; `outputDirectory` tells Vercel to serve `build/`.
+2. `headers` sets the security headers on every path. Vercel does not read `_headers`, so copy every header the build wrote in `build/_headers` into this list, including the `Content-Security-Policy` line ([Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-security-headers)).
+3. `rewrites` answers every path with `index.html`, so a reload on a deep link reaches the single-page build's router.
 
 ## Check it
 
-Compare the response headers in the browser's network panel with
-`build/_headers`. Each header in the file should be there. Then go through
-[Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).
+Compare the response headers in the browser's network panel with `build/_headers`. Each header in the file should be there. Then go through [Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).
+
+## Variations
+
+For a static build, leave out `rewrites`: each page has its own file, and an unknown path should be a 404.

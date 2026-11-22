@@ -1,7 +1,6 @@
-// A recipe, written from md-docs/recipes/test-with-a-fake.md by scripts/docsite/recipes.py;
-// edit the recipe, not this file.
+// A recipe. This page is its source: edit it here.
 page RecipeTestWithAFake(path: "/recipes/test-with-a-fake", title: "Test a page with a fake service — Recipes", description: "Test a page that reads a service without the service: a fake answers its endpoints, held to the contract, and nothing reaches the network.") {
-    RecipeShell("Test a page with a fake service", summary: "A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network, and the compiler holds it to the contract: every endpoint it answers, every parameter it reads, every answer's type.", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Test a page", to: "/recipes/test-a-page")], source: "md-docs/recipes/test-with-a-fake.md", how: true, hasVariations: false, project: { "src/pages/TestWithAFake.wf": #"type Person { id: String, name: String }
+    RecipeShell("Test a page with a fake service", summary: "A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network, and the compiler holds it to the contract: every endpoint it answers, every parameter it reads, every answer's type.", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Test a page", to: "/recipes/test-a-page")], source: "site/src/pages/recipes/RecipeTestWithAFake.wf", how: true, hasVariations: false, project: { "src/pages/TestWithAFake.wf": #"type Person { id: String, name: String }
 
 api Backend(base: "/api") { }
 

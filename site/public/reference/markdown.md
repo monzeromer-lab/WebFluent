@@ -20,7 +20,7 @@ Markdown("""
 
     - write a page in **src/pages**
     - run `wf serve` and open it
-    - read [the guide](https://webfluent.monzeromer.dev/learn.md) when you are stuck
+    - read [the guide](/learn) when you are stuck
 
     ```wf
     page Home(path: "/", title: "Home") { Heading("Hello").h1 }

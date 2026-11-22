@@ -1,21 +1,26 @@
-"""Write everything the documentation site takes from the guide and the
-compiler, in order: `python3 scripts/docsite` (or `cargo xtask site`).
+"""Write what the documentation site takes from the compiler, and what it
+makes of its own pages, in order: `python3 scripts/docsite` (or
+`cargo xtask site`).
 
-1. `components.py` — `md-docs/reference/components.md`, from `wf registry --json`
-2. `errors.py` — `site/src/data/errors.json`, a page per code
-   (`site/src/pages/ErrorPages.wf`) and the list of codes on
-   `md-docs/errors/diagnostics.md`, from `wf explain --json` and each code's page
-3. `guide.py` — the site's chapter pages, the book's chapter list
-   (`site/src/components/Guide.wf`), the chapter titles in `en.json` and the
-   guide's contents table
-4. `reference.py` — the reference's pages (`site/src/pages/reference/`), and
+The site's pages under `site/src/pages/` are written by hand: the guide's
+chapters (`guide/`), the recipes, the cheat sheets, the configuration and
+token pages. Nothing here writes them, but for the parts marked in them as
+the compiler's: each family's list of codes on the diagnostics chapter, the
+baseline's tables on the token page. What is written:
+
+1. `errors.py` — `site/src/data/errors.json`, a page per code
+   (`site/src/pages/ErrorPages.wf`) and the lists of codes on the
+   diagnostics chapter, from `wf explain --json`
+2. `reference.py` — the reference's pages drawn from the compiler
+   (`site/src/pages/reference/{Builtins,Cli,FromTheCompiler}.wf`, keeping
+   the words written in `Cli.wf`), the token page's tables, and
    `site/src/data/{components,commands,config,tokens}.json` for tools, from
    `wf registry/commands/config schema/theme --json`
-5. `data.py` — `site/public/search-index.json`, with each row's kind and the
-   words another framework uses for it
-6. `twins.py` — a Markdown twin of every page (`site/public/**/*.md`),
-   `llms.txt` and `llms-full.txt`
-7. `changelog.py` — `site/src/data/changelog.json` and the page that draws
+3. `data.py` — `site/public/search-index.json`, every page's sections and
+   the compiler's codes, commands and built-ins
+4. `twins.py` — a Markdown twin of every page (`site/public/**/*.md`),
+   `twins.json`, `llms.txt` and `llms-full.txt`, from the pages themselves
+5. `changelog.py` — `site/src/data/changelog.json` and the page that draws
    it, `site/src/pages/Changelog.wf`, from `RELEASE_NOTES.md`
 
 With `--check`, each writes into a scratch directory instead and the run
@@ -44,56 +49,20 @@ def run(script: str, env: dict) -> None:
         raise SystemExit(f"scripts/docsite/{script} failed")
 
 
-def check_fences() -> list[str]:
-    """Every fence in the guide says only what a fence can say."""
-    sys.path.insert(0, str(HERE))
-    import fences
-
-    problems = []
-    for page in sorted((ROOT / "md-docs").rglob("*.md")):
-        open_ticks = None
-        for n, line in enumerate(page.read_text().splitlines(), 1):
-            ticks = len(line) - len(line.lstrip("`"))
-            if ticks < 3:
-                continue
-            if open_ticks is not None:
-                if ticks >= open_ticks and not line[ticks:].strip():
-                    open_ticks = None
-                continue
-            open_ticks = ticks
-            info = line[ticks:].strip()
-            if info:
-                try:
-                    fences.parse(info)
-                except ValueError as e:
-                    problems.append(f"{page.relative_to(ROOT)}:{n}: {e}")
-    return problems
-
-
 def main() -> None:
     check = "--check" in sys.argv[1:]
-    problems = check_fences()
-    if problems:
-        raise SystemExit("\n".join(problems))
     if not check:
-        run("components.py", {})
         run("errors.py", {})
-        run("guide.py", {})
-        run("recipes.py", {})
-        run("comingfrom.py", {})
         run("reference.py", {})
         run("data.py", {})
         run("twins.py", {})
         run("changelog.py", {})
         return
 
+    problems = []
     with tempfile.TemporaryDirectory(prefix="wf-docsite-") as tmp:
         tmp = Path(tmp)
-        run("components.py", {"WF_COMPONENTS_OUT": str(tmp / "components.md")})
         run("errors.py", {"WF_ERRORS_OUT": str(tmp / "errors")})
-        run("guide.py", {"WF_GUIDE_OUT": str(tmp / "guide")})
-        run("recipes.py", {"WF_RECIPES_OUT": str(tmp / "recipes")})
-        run("comingfrom.py", {"WF_COMINGFROM_OUT": str(tmp / "comingfrom")})
         run("reference.py", {"WF_REFERENCE_OUT": str(tmp / "reference")})
         (tmp / "data").mkdir()
         run("data.py", {"WF_SITE_DATA_OUT": str(tmp / "data")})
@@ -102,52 +71,27 @@ def main() -> None:
         (tmp / "changelog").mkdir()
         run("changelog.py", {"WF_CHANGELOG_OUT": str(tmp / "changelog")})
         pairs = [
-            (tmp / "components.md", ROOT / "md-docs/reference/components.md"),
             (tmp / "errors/errors.json", ROOT / "site/src/data/errors.json"),
-            (tmp / "errors/diagnostics.md", ROOT / "md-docs/errors/diagnostics.md"),
             (tmp / "errors/ErrorPages.wf", ROOT / "site/src/pages/ErrorPages.wf"),
-            (tmp / "guide/book/Guide.wf", ROOT / "site/src/components/Guide.wf"),
+            (tmp / "errors/43-diagnostics.wf", ROOT / "site/src/pages/guide/43-diagnostics.wf"),
             (tmp / "data/search-index.json", ROOT / "site/public/search-index.json"),
             (tmp / "changelog/changelog.json", ROOT / "site/src/data/changelog.json"),
             (tmp / "changelog/Changelog.wf", ROOT / "site/src/pages/Changelog.wf"),
         ]
-        pairs.append((tmp / "recipes/old-links-map.js", ROOT / "site/src/old-links-map.js"))
+        pairs += [(tmp / "reference" / name, ROOT / "site/src/data" / name)
+                  for name in ("components.json", "commands.json", "config.json", "tokens.json")]
+        pairs += [(tmp / "reference" / name, ROOT / "site/src/pages/reference" / name)
+                  for name in ("Builtins.wf", "Cli.wf", "FromTheCompiler.wf", "Tokens.wf")]
         # The twins: every one written is committed, and nothing else is.
         public = ROOT / "site/public"
+        maps = ("llms.txt", "llms-full.txt", "twins.json")
         fresh = {p.relative_to(tmp / "twins") for p in (tmp / "twins").rglob("*") if p.is_file()}
-        have = {p.relative_to(public) for p in public.rglob("*.md")} | {Path(n) for n in ("llms.txt", "llms-full.txt") if (public / n).exists()}
+        have = {p.relative_to(public) for p in public.rglob("*.md")} | {Path(n) for n in maps if (public / n).exists()}
         for name in sorted(fresh ^ have):
             problems.append(f"site/public/{name}: {'missing' if name in fresh else 'not from twins.py'}")
         pairs += [(tmp / "twins" / name, public / name) for name in sorted(fresh & have)]
-        pairs.append((tmp / "guide/old-links-pages.js", ROOT / "site/src/old-links-pages.js"))
-        written = ROOT / "site/src/pages/comingfrom"
-        fresh = {p.name for p in (tmp / "comingfrom").glob("*.wf")}
-        have = {p.name for p in written.glob("*.wf")}
-        for name in sorted(fresh ^ have):
-            problems.append(f"site/src/pages/comingfrom/{name}: {'missing' if name in fresh else 'not from comingfrom.py'}")
-        pairs += [(tmp / "comingfrom" / name, written / name) for name in sorted(fresh & have)]
-        written = ROOT / "site/src/pages/recipes"
-        fresh = {p.name for p in (tmp / "recipes").glob("*.wf")}
-        have = {p.name for p in written.glob("*.wf")}
-        for name in sorted(fresh ^ have):
-            problems.append(f"site/src/pages/recipes/{name}: {'missing' if name in fresh else 'not from recipes.py'}")
-        pairs += [(tmp / "recipes" / name, written / name) for name in sorted(fresh & have)]
-        pairs += [(tmp / "reference" / name, ROOT / "site/src/data" / name)
-                  for name in ("components.json", "commands.json", "config.json", "tokens.json")]
-        written = ROOT / "site/src/pages/reference"
-        fresh = {p.name for p in (tmp / "reference").glob("*.wf")}
-        have = {p.name for p in written.glob("*.wf")}
-        for name in sorted(fresh ^ have):
-            problems.append(f"site/src/pages/reference/{name}: {'missing' if name in fresh else 'not from reference.py'}")
-        pairs += [(tmp / "reference" / name, written / name) for name in sorted(fresh & have)]
-        committed = ROOT / "site/src/pages/guide"
-        fresh = {p.name for p in (tmp / "guide").glob("*.wf")}
-        have = {p.name for p in committed.glob("*.wf")}
-        for name in sorted(fresh ^ have):
-            problems.append(f"site/src/pages/guide/{name}: {'missing' if name in fresh else 'not from the guide'}")
-        pairs += [(tmp / "guide" / name, committed / name) for name in sorted(fresh & have)]
         for want, have_path in pairs:
-            if not filecmp.cmp(want, have_path, shallow=False):
+            if not have_path.exists() or not filecmp.cmp(want, have_path, shallow=False):
                 problems.append(f"{have_path.relative_to(ROOT)} is behind; run `cargo xtask site`")
     if problems:
         raise SystemExit("\n".join(problems))

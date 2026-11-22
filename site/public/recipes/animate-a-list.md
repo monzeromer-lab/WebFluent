@@ -4,14 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/animate-a-list
 
-Make a list fill in one item after another, slide its items to their new
-places when it is reordered, and fade an item out as it is removed. The
-list is a keyed `for … by`, and each item's element carries `animate:`,
-`exit:` and `stagger:`:
+Make a list fill in one item after another, slide its items to their new places when it is reordered, and fade an item out as it is removed. The list is a keyed `for … by`, and each item's element carries `animate:`, `exit:` and `stagger:`:
 
-**Needs:** nothing besides the page. It claims `/` and the name `Tasks`,
-as two of the starter's pages do: paste it into a new project, or replace
-`src/pages/Home.wf` and remove `src/pages/Tasks.wf`.
+**Needs:** nothing besides the page. It claims `/` and the name `Tasks`, as two of the starter's pages do: paste it into a new project, or replace `src/pages/Home.wf` and remove `src/pages/Tasks.wf`.
 
 ```wf
 type Item { id: Number, text: String }
@@ -41,21 +36,10 @@ page Tasks(path: "/", title: "Tasks", description: "A list that animates.") {
 
 Each change to `items` plays a different motion:
 
-- **An item arrives.** It plays its `animate:`. `stagger: "40ms"` delays
-  each item's enter by its index × 40ms, so a list fills in one item after
-  another.
-- **An item moves** — a sort, a reverse, an insert above it. It slides to
-  its new place. This is a *FLIP* transform: the runtime measures where the
-  node was and where it is, and animates between them. It works because
-  `by item.id` keeps the item's node alive
-  ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
-- **An item leaves.** It plays its `exit:` first, and the runtime removes
-  the node when it ends.
+- **An item arrives.** It plays its `animate:`. `stagger: "40ms"` delays each item's enter by its index × 40ms, so a list fills in one item after another.
+- **An item moves** — a sort, a reverse, an item dragged to another place. It slides to its new place. This is a *FLIP* transform: the runtime measures where the node was and where it is, and animates between them. It works because `by item.id` keeps the item's node alive ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)). Only an item whose order changed moves: when one arrives or leaves, the others close up or make room without sliding, and a list of a thousand rows does no more work for it than for ten.
+- **An item leaves.** It plays its `exit:` first, and the runtime removes the node when it ends.
 
-A `for` with no `by`, or a key that changes, makes a new node for the item,
-so it fades out and in again instead of moving. Key the list by what
-identifies the item.
+A `for` with no `by`, or a key that changes, makes a new node for the item, so it fades out and in again instead of moving. Key the list by what identifies the item.
 
-A reader who asked for reduced motion sees items appear, move and go at
-once: no animation, no FLIP and no wait before removal
-([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).
+A reader who asked for reduced motion sees items appear, move and go at once: no animation, no FLIP and no wait before removal ([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).

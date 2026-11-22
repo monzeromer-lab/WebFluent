@@ -4,16 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages
 
-This recipe publishes a WebFluent site to GitHub Pages from a GitHub
-Actions workflow, which builds the site on every push to `main`. GitHub
-serves a project site under `https://<you>.github.io/<repo>/`, so the build
-must know that sub-path.
-
-You need the project in a GitHub repository; the workflow installs `wf` as
-[Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md) shows.
-
-Set the sub-path, the site's address, `clean_urls` and `ssg` in
-`webfluent.app.json`:
+This recipe publishes a WebFluent site to GitHub Pages from a GitHub Actions workflow, which builds the site on every push to `main`. GitHub serves a project site under `https://<you>.github.io/<repo>/`, so the build must know that sub-path.  You need the project in a GitHub repository; the workflow installs `wf` as [Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md) shows.  Set the sub-path, the site's address, `clean_urls` and `ssg` in `webfluent.app.json`:
 
 ```json
 {
@@ -22,11 +13,7 @@ Set the sub-path, the site's address, `clean_urls` and `ssg` in
 }
 ```
 
-GitHub Pages serves files and nothing else: it has no rewrite that sends
-every address to `index.html`. `"ssg": true` writes a file for every
-page, so a reader who reloads `/<repo>/tasks`, or opens a link to it, gets
-that page. A project made with `wf init -t spa` has `"ssg": false`; keep
-it that way only if you also add the `404.html` step below.
+GitHub Pages serves files and nothing else: it has no rewrite that sends every address to `index.html`. `"ssg": true` writes a file for every page, so a reader who reloads `/<repo>/tasks`, or opens a link to it, gets that page. A project made with `wf init -t spa` has `"ssg": false`; keep it that way only if you also add the `404.html` step below.
 
 Then add `.github/workflows/pages.yml`:
 
@@ -60,35 +47,16 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-Finally, in the repository's **Settings → Pages**, set the source to
-**GitHub Actions**, and push to `main`.
-
 ## How it works
 
-1. `build.base_path` prefixes every link, every asset and the router's
-   paths with `/<repo>`, and `meta.site_url` is the address the canonical
-   links and the sitemap name. Write paths from the site's root as if
-   there were no prefix: `Link("About", to: "/about")` links to
-   `/<repo>/about`.
-2. GitHub Pages answers `/contact` with a `301` redirect to `/contact/`.
-   `"clean_urls": "file"` (or `"directory"`) makes the canonical address of
-   every page one it serves without a redirect
-   ([Keep addresses from redirecting](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md#keep-addresses-from-redirecting)).
-3. The workflow checks out the repository, installs a pinned `wf`, builds
-   the site, uploads `build/` as the Pages artifact and deploys it. The
-   `pages: write` and `id-token: write` permissions are what
-   `actions/deploy-pages` needs.
+Finally, in the repository's **Settings → Pages**, set the source to **GitHub Actions**, and push to `main`.
 
-GitHub Pages serves `404.html` for a path it has no file for. A static
-build writes one when the project has a page on `path: "*"`; a page on a
-`:param` route needs its values listed in `paths:` to have files of its own
-([Data files](https://webfluent.monzeromer.dev/learn/15-data.md)). GitHub Pages ignores
-`_headers`, but the Content-Security-Policy still ships as a `<meta>` tag in
-every page.
+1. `build.base_path` prefixes every link, every asset and the router's paths with `/<repo>`, and `meta.site_url` is the address the canonical links and the sitemap name. Write paths from the site's root as if there were no prefix: `Link("About", to: "/about")` links to `/<repo>/about`.
+2. GitHub Pages answers `/contact` with a `301` redirect to `/contact/`. `"clean_urls": "file"` (or `"directory"`) makes the canonical address of every page one it serves without a redirect ([Keep addresses from redirecting](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md#keep-addresses-from-redirecting)).
+3. The workflow checks out the repository, installs a pinned `wf`, builds the site, uploads `build/` as the Pages artifact and deploys it. The `pages: write` and `id-token: write` permissions are what `actions/deploy-pages` needs.
+
+GitHub Pages serves `404.html` for a path it has no file for. A static build writes one when the project has a page on `path: "*"`; a page on a `:param` route needs its values listed in `paths:` to have files of its own ([Data files](https://webfluent.monzeromer.dev/learn/15-data.md)). GitHub Pages ignores `_headers`, but the Content-Security-Policy still ships as a `<meta>` tag in every page.
 
 ## Check it
 
-Open the URL the workflow's deploy step prints, then open a page other
-than the home page directly and reload it. With `clean_urls` set, the
-address stays as you typed it, with no redirect. Then go through
-[Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).
+Open the URL the workflow's deploy step prints, then open a page other than the home page directly and reload it. With `clean_urls` set, the address stays as you typed it, with no redirect. Then go through [Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).

@@ -4,29 +4,18 @@
 
 The page: https://webfluent.monzeromer.dev/learn/16-testing
 
-This chapter is about testing a WebFluent project: render a component and
-check what it shows, click and type through a page in a real browser, and
-load every page of the built site to catch errors before a reader does.
+This chapter is about testing a WebFluent project: render a component and check what it shows, click and type through a page in a real browser, and load every page of the built site to catch errors before a reader does.
 
-You write tests in WebFluent itself, as `test "name" { … }` declarations. A
-test renders something — a component, a fragment of a page, a whole page —
-and holds it to what it must and must not show. A test that clicks or types
-runs in a headless browser. `wf verify` then loads every page of the built
-site in one.
+You write tests in WebFluent itself, as `test "name" { … }` declarations. A test renders something — a component, a fragment of a page, a whole page — and holds it to what it must and must not show. A test that clicks or types runs in a headless browser. `wf verify` then loads every page of the built site in one.
 
 ## Before you start
 
 - A project with at least one component or page to test.
-- For a test that clicks, types or presses a key, and for `wf verify`:
-  Chrome or Chromium on the machine, or the `WF_CHROME` environment
-  variable pointing at one. A test that only looks needs neither.
+- For a test that clicks, types or presses a key, and for `wf verify`: Chrome or Chromium on the machine, or the `WF_CHROME` environment variable pointing at one. A test that only looks needs neither.
 
 ## Write a test that looks
 
-To check what a component shows, place it in a test and say what the text
-must and must not contain. Put tests in `tests/*.wf`, or beside the code in
-`src/`. A test has the project's components, stores, types and constants at
-hand.
+To check what a component shows, place it in a test and say what the text must and must not contain. Put tests in `tests/*.wf`, or beside the code in `src/`. A test has the project's components, stores, types and constants at hand.
 
 This file declares a price tag and three tests of it:
 
@@ -56,49 +45,31 @@ test "a list renders each row"(data: { rows: [{ name: "Ada" }, { name: "Grace" }
 }
 ```
 
-Run `wf test`, and each test prints a line; all three pass. The parts of a
-test that looks:
+Run `wf test`, and each test prints a line; all three pass. The parts of a test that looks:
 
-- `expect "text"` — the text must appear in what the page shows.
-  `expect not "text"` — it must not.
-- `data: { … }` — values the body reads, by name. A `state` in the body
-  starts with its initial value.
+- `expect "text"` — the text must appear in what the page shows. `expect not "text"` — it must not.
+- `data: { … }` — values the body reads, by name. A `state` in the body starts with its initial value.
 - `t("key")` — reads the project's translations, in its default locale.
 
-### How `expect` reads the page
+### How expect reads the page
 
-`expect` reads the text a reader sees, never the markup: a class name in
-the HTML does not count. It reads the text laid out as a browser lays it
-out:
+`expect` reads the text a reader sees, never the markup: a class name in the HTML does not count. It reads the text laid out as a browser lays it out:
 
 - runs of white space are one space;
-- a block, or anything a `Row`, `Stack` or `Grid` lays out, is set apart
-  from what is beside it;
-- inline elements that touch read as touching, so
-  `Text { Code("live") Code(": ") Code("[Deploy]") }` reads
-  `live: [Deploy]`.
+- a block, or anything a `Row`, `Stack` or `Grid` lays out, is set apart from what is beside it;
+- inline elements that touch read as touching, so `Text { Code("live") Code(": ") Code("[Deploy]") }` reads `live: [Deploy]`.
 
-The line breaks and indentation of the snapshot are not text. A render and
-a browser read the same page the same way.
+The line breaks and indentation of the snapshot are not text. A render and a browser read the same page the same way.
 
-In a browser, a page may still be moving — a row on its way out, a fetch on
-its way in. `expect` reads the page again until it holds, for up to a
-second and a half.
+In a browser, a page may still be moving — a row on its way out, a fetch on its way in. `expect` reads the page again until it holds, for up to a second and a half.
 
 ### Snapshots
 
-Each render is also compared to a *snapshot*, the HTML saved in
-`tests/__snapshots__/<file>/<test>.html`. `wf test` writes a snapshot when
-it is missing and fails, with a diff, when a render no longer matches it.
-After a change you meant, run `wf test --update` to rewrite them.
+Each render is also compared to a *snapshot*, the HTML saved in `tests/__snapshots__/<file>/<test>.html`. `wf test` writes a snapshot when it is missing and fails, with a diff, when a render no longer matches it. After a change you meant, run `wf test --update` to rewrite them.
 
 ## Write a test that acts
 
-To check what a click, a keystroke or typed text does, add steps that act.
-A click cannot be rendered — it runs a handler, which runs an action, which
-changes a store, which repaints — so a test with an action in it is
-compiled into a real page, served, and run in a headless browser. It uses
-the same compiler, the same runtime and the same output a reader gets.
+To check what a click, a keystroke or typed text does, add steps that act. A click cannot be rendered — it runs a handler, which runs an action, which changes a store, which repaints — so a test with an action in it is compiled into a real page, served, and run in a headless browser. It uses the same compiler, the same runtime and the same output a reader gets.
 
 This test types an incident, reports it, and checks the count goes up:
 
@@ -123,8 +94,7 @@ test "reporting an incident opens one more" {
 }
 ```
 
-The steps run **in the order you write them**. That order is the test:
-what a click did is visible only in the `expect` that follows it.
+The steps run **in the order you write them**. That order is the test: what a click did is visible only in the `expect` that follows it.
 
 | Step | What it does |
 |---|---|
@@ -134,31 +104,15 @@ what a click did is visible only in the `expect` that follows it.
 | `type "Ada" into "Name"` | Types into the control that label names |
 | `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` as a real one would |
 
-A step finds what it acts on the way a reader does: by the name on it. A
-button's name is its text; a control's is its label, its placeholder or its
-`aria-label`. The accessibility checks hold a page to the same names
-([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)), so a test that passes here is a
-page somebody can use.
+A step finds what it acts on the way a reader does: by the name on it. A button's name is its text; a control's is its label, its placeholder or its `aria-label`. The accessibility checks hold a page to the same names ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)), so a test that passes here is a page somebody can use.
 
-It finds only what a reader can reach. A button in a closed `Sheet`, a
-branch that is hidden, or anything under `inert` is passed over, so
-`click "Juice"` presses the one that shows, not its namesake in a sheet that
-is shut. When two a reader could mean carry the name, the step fails and
-says so, rather than guessing: name the one meant more closely
-(`aria-label: "Remove Tea"`). And `expect` reads what is drawn above the
-page as well: an open dialog, such as the one `ask(…)` draws, and the
-toasts.
+It finds only what a reader can reach. A button in a closed `Sheet`, a branch that is hidden, or anything under `inert` is passed over, so `click "Juice"` presses the one that shows, not its namesake in a sheet that is shut. When two a reader could mean carry the name, the step fails and says so, rather than guessing: name the one meant more closely (`aria-label: "Remove Tea"`). And `expect` reads what is drawn above the page as well: an open dialog, such as the one `ask(…)` draws, and the toasts.
 
 > [!NOTE]
-> **Coming from Testing Library?** There is no `getByTestId` and no
-> `waitFor`. A step finds an element only by the name a reader sees, so a
-> control with no label cannot be clicked or typed into, and `expect` waits
-> on its own, for up to a second and a half. See
-> [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from Testing Library?** There is no `getByTestId` and no `waitFor`. A step finds an element only by the name a reader sees, so a control with no label cannot be clicked or typed into, and `expect` waits on its own, for up to a second and a half. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 > [!IMPORTANT]
-> **A handler that throws fails the test**, even when every `expect` would
-> have passed. A click that quietly did nothing is the bug, not a pass.
+> **A handler that throws fails the test**, even when every `expect` would have passed. A click that quietly did nothing is the bug, not a pass.
 
 A test that acts takes no snapshot: its expects are the test.
 
@@ -166,23 +120,16 @@ A test that acts takes no snapshot: its expects are the test.
 
 The page is drawn as the built site is:
 
-- it links the project's scripts under `src/`, so a click that calls one
-  runs it;
-- it bundles the project's stylesheets under `src/` after the theme's rules
-  and before the rules `style { }` blocks compile to;
+- it links the project's scripts under `src/`, so a click that calls one runs it;
+- it bundles the project's stylesheets under `src/` after the theme's rules and before the rules `style { }` blocks compile to;
 - it links the stylesheets `meta.stylesheets` names;
 - it serves `public/` beside it.
 
-So a rule that hides a word, or one that names a font or an image under
-`public/`, behaves the same in a test as on the site. A test that only
-looks renders without any of them.
+So a rule that hides a word, or one that names a font or an image under `public/`, behaves the same in a test as on the site. A test that only looks renders without any of them.
 
 ### Test a portal
 
-A `Portal` draws its block into a node that `into:` names, and only the
-running page draws it. So a test whose body holds a portal — or places a
-component that holds one — is compiled into a page and run in the browser
-too, with no snapshot:
+A `Portal` draws its block into a node that `into:` names, and only the running page draws it. So a test whose body holds a portal — or places a component that holds one — is compiled into a page and run in the browser too, with no snapshot:
 
 ```wf
 test "a portal draws into the element a handle names" {
@@ -194,15 +141,9 @@ test "a portal draws into the element a handle names" {
 
 ## Seed data and stores
 
-To start a test from a known state, name it in `data:`. A key that is a
-value's name supplies that value; a key that is a store's name seeds that
-store's state. Seeding works the same in a test that only looks and in one
-that clicks.
+To start a test from a known state, name it in `data:`. A key that is a value's name supplies that value; a key that is a store's name seeds that store's state. Seeding works the same in a test that only looks and in one that clicks.
 
-A seed is held to the state it seeds before the test runs: `data: { count:
-"two" }` for a `state count = 0` is `T33`, naming the place (`count is
-"two", not a Number`; a store's seed names it, `Cart.items[0] is 1, not a
-CartItem`), and a store member the store does not have is `T05`.
+A seed is held to the state it seeds before the test runs: `data: { count: "two" }` for a `state count = 0` is `T33`, naming the place (`count is "two", not a Number`; a store's seed names it, `Cart.items[0] is 1, not a CartItem`), and a store member the store does not have is `T05`.
 
 This test fills the cart with two of one item and checks the summary:
 
@@ -227,9 +168,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 
 ## Test a whole page
 
-To click through a page as a reader does, place the page in a test by its
-name, as you would a component. This works for a page whose route takes no
-parameter. Its state, its stores and its handlers all run:
+To click through a page as a reader does, place the page in a test by its name, as you would a component. This works for a page whose route takes no parameter. Its state, its stores and its handlers all run:
 
 ```wf
 test "a task is added with Enter" {
@@ -240,21 +179,13 @@ test "a task is added with Enter" {
 }
 ```
 
-`press "Enter"` in a form's text field submits the form, as a real key
-does. The `spa` and `static` projects that `wf init` writes carry tests
-like this under `tests/`; run `wf test` in a new project to see them pass.
+`press "Enter"` in a form's text field submits the form, as a real key does. The `spa` and `static` projects that `wf init` writes carry tests like this under `tests/`; run `wf test` in a new project to see them pass.
 
 ## Answer a service with fakes
 
-A page that reads from a service has nothing to show in a test until
-something answers it, and a test should not depend on a server being up.
-A `fake` answers a group's endpoints in its place. The compiler holds it to
-the group's contract, as it holds a call: every endpoint it answers is one
-the group has, every name it binds is one of that endpoint's parameters,
-and every answer is the result the endpoint declares.
+A page that reads from a service has nothing to show in a test until something answers it, and a test should not depend on a server being up. A `fake` answers a group's endpoints in its place. The compiler holds it to the group's contract, as it holds a call: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares.
 
-This test lists the team from a fake, and checks that adding a person with
-the wrong address shows the server's field error:
+This test lists the team from a fake, and checks that adding a person with the wrong address shows the server's field error:
 
 ```wf
 type Person { id: String, name: String, email: Email }
@@ -327,28 +258,12 @@ test "shows the server's field error"(fakes: [OneEngineer]) {
 
 How a fake answers:
 
-- **By name.** `fake OneEngineer for Backend.people` answers that group;
-  `fake … for Backend` answers a service's own endpoints. Each answer names
-  the endpoint, then the parameters it reads — any of them, by the names
-  the endpoint gives them. A parameter the call left out is its default, or
-  `null`.
-- **As the endpoint would.** An answer is the endpoint's result:
-  `.ok(value)`, or `.err(error)` with a case of its error enum, or an
-  `HttpError` such as `.status(500, null)`. An `if` or a `match` picks one
-  from what the call sent.
-- **Without the network.** A test that names `fakes:` runs in a browser,
-  where its page makes the calls. Nothing is sent: a call goes to the fake,
-  and a write's `invalidates` asks its reads again, as after a real
-  success. A call to an endpoint no fake answers fails the test and names
-  the endpoint.
-- **Whole.** A paged endpoint is answered a page at a time, from the
-  parameter the page goes in; a `streamed` one with the whole list, which
-  arrives a line at a time.
+- **By name.** `fake OneEngineer for Backend.people` answers that group; `fake … for Backend` answers a service's own endpoints. Each answer names the endpoint, then the parameters it reads — any of them, by the names the endpoint gives them. A parameter the call left out is its default, or `null`.
+- **As the endpoint would.** An answer is the endpoint's result: `.ok(value)`, or `.err(error)` with a case of its error enum, or an `HttpError` such as `.status(500, null)`. An `if` or a `match` picks one from what the call sent.
+- **Without the network.** A test that names `fakes:` runs in a browser, where its page makes the calls. Nothing is sent: a call goes to the fake, and a write's `invalidates` asks its reads again, as after a real success. A call to an endpoint no fake answers fails the test and names the endpoint.
+- **Whole.** A paged endpoint is answered a page at a time, from the parameter the page goes in; a `streamed` one with the whole list, which arrives a line at a time.
 
-When the contract comes from an OpenAPI spec (`wf api`, or `api … from`),
-a fake can answer from the spec's own examples: every endpoint it does not
-answer itself answers `.ok(example)`, with the example of a success the spec
-gives, held to the endpoint's result as an answer written by hand is.
+When the contract comes from an OpenAPI spec (`wf api`, or `api … from`), a fake can answer from the spec's own examples: every endpoint it does not answer itself answers `.ok(example)`, with the example of a success the spec gives, held to the endpoint's result as an answer written by hand is.
 
 ```wf
 type Person { id: String, name: String }
@@ -367,20 +282,13 @@ fake Refusing for Backend.people from examples {
 }
 ```
 
-Here `Backend.people` is written by hand for the sake of the example; with
-`wf api` it is the generated file, and the examples are the spec's.
+Here `Backend.people` is written by hand for the sake of the example; with `wf api` it is the generated file, and the examples are the spec's.
 
-`expect called Backend.people.create` passes once the page has asked that
-endpoint; `expect not called` passes while it has not. Use them to check
-that a write went out, or that a form did not send what it should not.
+`expect called Backend.people.create` passes once the page has asked that endpoint; `expect not called` passes while it has not. Use them to check that a write went out, or that a form did not send what it should not.
 
-A fake that does not fit its contract is `N06`, with what is wrong: an
-endpoint the group does not have, a parameter it does not take, an answer
-of the wrong type. So is a test's `fakes:` naming no fake, two fakes
-answering one endpoint, and an `expect called` naming no endpoint.
+A fake that does not fit its contract is `N06`, with what is wrong: an endpoint the group does not have, a parameter it does not take, an answer of the wrong type. So is a test's `fakes:` naming no fake, two fakes answering one endpoint, and an `expect called` naming no endpoint.
 
-Put fakes beside the tests that use them, under `tests/`. A fake in `src/`
-is checked like any declaration, and a build leaves it out.
+Put fakes beside the tests that use them, under `tests/`, or in a file of their own there (`tests/fakes.wf`): a test may name a fake any file under `tests/` declares, and one beside it wins over another file's. A fake in `src/` is checked like any declaration, and a build leaves it out.
 
 ## Run the tests
 
@@ -402,44 +310,34 @@ To rewrite the snapshots after a change you meant:
 wf test --update
 ```
 
-`wf test` prints a line per test and exits non-zero when one fails, so it
-works as a CI step as it is. A build never includes tests.
+`wf test` prints a line per test and exits non-zero when one fails, so it works as a CI step as it is. A build never includes tests.
 
-## Check every page with `wf verify`
+## Check every page with wf verify
 
-To catch what only a running page shows, build the site and load every
-page of it:
+To catch what only a running page shows, build the site and load every page of it:
 
 ```bash
 wf build && wf verify
 ```
 
-`wf verify` serves the build and opens every route in headless Chrome. It
-fails on:
+`wf verify` serves the build and opens every route in headless Chrome. It fails on:
 
 - an uncaught exception or a `console.error`;
 - a request that failed, or an image that did not load;
 - a page that rendered no text.
 
-For each route it prints the first contentful paint, the size and the
-requests. It also lists the built-ins no page drew — a fact about
-coverage, not a failure. Its options:
+For each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:
 
 - `--budget 400` fails a route that takes more than 400 ms to paint;
 - `--json` prints the report for a pipeline;
-- `--returning-visitor` visits every route again with storage holding what
-  the previous build's pages kept;
-- `--fakes tests/fakes.wf` builds the site with the fakes that file
-  declares answering its endpoints, and loads that — for a site whose API
-  is elsewhere, or not running. It writes that build aside and removes it
-  after; the project's own `build/` is not touched.
+- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept;
+- `--fakes tests/fakes.wf` builds the site with the fakes that file declares answering its endpoints, and loads that — for a site whose API is elsewhere, or not running. It writes that build aside and removes it after; the project's own `build/` is not touched.
 
-[CLI](https://webfluent.monzeromer.dev/reference/cli.md#wf-verify) has the details.
+[CLI](https://webfluent.monzeromer.dev/reference/cli/verify.md) has the details.
 
 ## Run the checks in CI
 
-To run the formatter, the build, the tests and `wf verify` on every push,
-add a workflow such as this one to `.github/workflows/check.yml`:
+To run the formatter, the build, the tests and `wf verify` on every push, add a workflow such as this one to `.github/workflows/check.yml`:
 
 ```yaml
 name: Check
@@ -457,24 +355,20 @@ jobs:
       - run: wf verify --budget 1000
 ```
 
-GitHub's Ubuntu runners come with Chrome, so the tests that act and
-`wf verify` run there as they do on your machine.
+GitHub's Ubuntu runners come with Chrome, so the tests that act and `wf verify` run there as they do on your machine.
 
 ## Choose what to test
 
-The type checker and the accessibility lints already catch a large class
-of mistakes. Tests are for the behaviour they cannot see:
+The type checker and the accessibility lints already catch a large class of mistakes. Tests are for the behaviour they cannot see:
 
 - **Components** with more than one state: each branch a prop can take.
 - **Stores**, through what a component shows of them, seeded with `data:`.
-- **Flows** a reader depends on — signing in, adding to a cart, submitting
-  a form — as tests that act.
+- **Flows** a reader depends on — signing in, adding to a cart, submitting a form — as tests that act.
 - **Every page**, with `wf verify`, on every build.
 
 ## Troubleshooting
 
-**A step cannot find what it names.** The test fails and prints what the
-page showed instead:
+**A step cannot find what it names.** The test fails and prints what the page showed instead:
 
 ```text
   FAIL  tests/cart.wf — the count follows what is added
@@ -483,22 +377,17 @@ page showed instead:
         Nothing here
 ```
 
-Check that the name matches the button's text or the control's label,
-placeholder or `aria-label` exactly, and that an earlier step has drawn it.
+Check that the name matches the button's text or the control's label, placeholder or `aria-label` exactly, and that an earlier step has drawn it.
 
-**A test that acts says there is no browser.** Install Chrome or Chromium,
-or set `WF_CHROME` to the path of one.
+**A test that acts says there is no browser.** Install Chrome or Chromium, or set `WF_CHROME` to the path of one.
 
-**A snapshot test fails after a change you meant.** Run `wf test --update`
-and commit the new snapshots.
+**A snapshot test fails after a change you meant.** Run `wf test --update` and commit the new snapshots.
 
 ## Common mistakes
 
-A step finds what it acts on by its accessible name, so the mistakes that
-break a test are the ones the accessibility lints already report.
+A step finds what it acts on by its accessible name, so the mistakes that break a test are the ones the accessibility lints already report.
 
-**A field with no label.** `type "…" into "…"` names a control by its label,
-placeholder or `aria-label`, and this one has none:
+**A field with no label.** `type "…" into "…"` names a control by its label, placeholder or `aria-label`, and this one has none:
 
 ```wf expect=A03
 page Tasks(path: "/", title: "Tasks", description: "What to do.") {
@@ -509,11 +398,9 @@ page Tasks(path: "/", title: "Tasks", description: "What to do.") {
 }
 ```
 
-Give it `label: "New task"`, and the test types `into "New task"`
-([A03](https://webfluent.monzeromer.dev/errors/A03.md)).
+Give it `label: "New task"`, and the test types `into "New task"` ([A03](https://webfluent.monzeromer.dev/errors/A03.md)).
 
-**A button with no text.** `click "…"` finds a button by its text, and an
-empty one has nothing to find:
+**A button with no text.** `click "…"` finds a button by its text, and an empty one has nothing to find:
 
 ```wf expect=A05
 page Tasks(path: "/", title: "Tasks", description: "What to do.") {
@@ -524,11 +411,9 @@ page Tasks(path: "/", title: "Tasks", description: "What to do.") {
 }
 ```
 
-Write its text, `Button("Mark done")`, or give it an `aria-label:`
-([A05](https://webfluent.monzeromer.dev/errors/A05.md)).
+Write its text, `Button("Mark done")`, or give it an `aria-label:` ([A05](https://webfluent.monzeromer.dev/errors/A05.md)).
 
-**An icon button with no label.** An `IconButton` shows no text, so its
-`label:` is the only name a step can use:
+**An icon button with no label.** An `IconButton` shows no text, so its `label:` is the only name a step can use:
 
 ```wf expect=A02
 page Tasks(path: "/", title: "Tasks", description: "What to do.") {
@@ -539,13 +424,6 @@ page Tasks(path: "/", title: "Tasks", description: "What to do.") {
 }
 ```
 
-Add `label: "Add one"`, and click it with `click "Add one"`
-([A02](https://webfluent.monzeromer.dev/errors/A02.md)).
+Add `label: "Add one"`, and click it with `click "Add one"` ([A02](https://webfluent.monzeromer.dev/errors/A02.md)).
 
-Going further: [Security](https://webfluent.monzeromer.dev/about/security.md) covers what the compiler
-guarantees, what it cannot, and the decisions left to you: markup,
-secrets, storage, headers and a deployment checklist.
-
-## Next
-
-[PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md).
+Going further: [Security](https://webfluent.monzeromer.dev/about/security.md) covers what the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.

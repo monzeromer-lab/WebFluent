@@ -4,25 +4,18 @@
 
 The page: https://webfluent.monzeromer.dev/reference/project
 
-A WebFluent project is a config file and a folder of sources that the
-compiler reads as one program. The folders are a convention for you and
-your team; the compiler does not care where a declaration lives. This
-chapter explains how a project is laid out and read, then shows you how to
-add files, choose what to commit and keep a growing project in order.
+A WebFluent project is a config file and a folder of sources that the compiler reads as one program. The folders are a convention for you and your team; the compiler does not care where a declaration lives. This chapter explains how a project is laid out and read, then shows you how to add files, choose what to commit and keep a growing project in order.
 
 In this chapter:
 
 - the conventional layout, and which files are required;
-- how the compiler merges every file into one program, and what that means
-  for names;
+- how the compiler merges every file into one program, and what that means for names;
 - what happens to the files that are not `.wf`;
-- how to generate starter files, what to commit, and how to organise a
-  project as it grows.
+- how to generate starter files, what to commit, and how to organise a project as it grows.
 
 ## The layout
 
-This is the layout `wf init` starts from, with every kind of file a project
-can hold:
+This is the layout `wf init` starts from, with every kind of file a project can hold:
 
 ```text
 my-site/
@@ -50,20 +43,13 @@ my-site/
 └── build/                  what `wf build` writes (not committed)
 ```
 
-Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx`
-file under `src/`. Everything else is convention. The config is covered in
-[Configuration](https://webfluent.monzeromer.dev/reference/config.md), and `.env` in
-[Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
+Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx` file under `src/`. Everything else is convention. The config is covered in [Configuration](https://webfluent.monzeromer.dev/reference/config.md), and `.env` in [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
 
 ## One program, with no imports
 
-The compiler reads every `.wf` and `.wfx` file under `src/` and merges them
-into a single program. A page uses a component declared in another file, and
-a component uses a store, by name. There is nothing to import.
+The compiler reads every `.wf` and `.wfx` file under `src/` and merges them into a single program. A page uses a component declared in another file, and a component uses a store, by name. There is nothing to import.
 
-For example, a component declared in `src/components/PriceCard.wf` and a
-page in `src/pages/Pricing.wf` work together with no import between them.
-Here they are in one block:
+For example, a component declared in `src/components/PriceCard.wf` and a page in `src/pages/Pricing.wf` work together with no import between them. Here they are in one block:
 
 ```wf
 // In src/components/PriceCard.wf
@@ -81,32 +67,22 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
 }
 ```
 
-The compiler reads `App.wf` (or `App.wfx`) first, then the rest in path
-order. The order matters for nothing but the order of equal things in the
-output.
+The compiler reads `App.wf` (or `App.wfx`) first, then the rest in path order. The order matters for nothing but the order of equal things in the output.
 
-`use Store` at the top of a page or component says that it reads that
-store. It documents the dependency for the reader and the editor; it does
-not scope anything, and a page reads a store by name with or without it.
-`use` of a store nothing declares is `X05`.
+`use Store` at the top of a page or component says that it reads that store. It documents the dependency for the reader and the editor; it does not scope anything, and a page reads a store by name with or without it. `use` of a store nothing declares is `X05`.
 
 ## Names across a project
 
-Because every file is one program, the namespace is global. Two
-components, two pages, two stores, two types or two constants with one name
-is an `E102` error, naming both places.
+Because every file is one program, the namespace is global. Two components, two pages, two stores, two types or two constants with one name is an `E102` error, naming both places.
 
 The conventions that keep names apart:
 
-- **Declared names are PascalCase**: pages, components, stores, types,
-  enums, themes, services and animations.
+- **Declared names are PascalCase**: pages, components, stores, types, enums, themes, services and animations.
 - **Constants are UPPER_SNAKE** by convention: `API`, `PAGE_SIZE`.
-- **A page's name is its identity, not its title.** Add a suffix when the
-  name would collide with a component: `page PostPage` beside
-  `component Post`.
+- **A page's name is its identity, not its title.** Add a suffix when the name would collide with a component: `page PostPage` beside `component Post`.
 - **A component that one page uses** can live in that page's file.
 
-## Files that are not `.wf`
+## Files that are not .wf
 
 The build reads other files too. What each becomes:
 
@@ -123,8 +99,7 @@ The build reads other files too. What each becomes:
 
 ## Generate a starter file
 
-To add a page, a component or a store with the boilerplate written for
-you, run `wf generate`:
+To add a page, a component or a store with the boilerplate written for you, run `wf generate`:
 
 ```bash
 wf generate page Pricing
@@ -141,9 +116,7 @@ Each command writes a starter declaration in the conventional folder:
 | `wf generate store Cart` | `src/stores/cart.wf` |
 | `wf generate block sign-in` | `src/pages/SignIn.wf`: a whole page to own — `sign-in`, `pricing`, `dashboard` or `settings` |
 
-In a project written in `.wfx`, the files are `.wfx`. `wf generate` never
-overwrites a file: when one exists, it says so and stops. Add `-d DIR` to
-generate into a project other than the current directory.
+In a project written in `.wfx`, the files are `.wfx`. `wf generate` never overwrites a file: when one exists, it says so and stops. Add `-d DIR` to generate into a project other than the current directory.
 
 ## Choose what to commit
 
@@ -153,13 +126,10 @@ Commit the sources and the config:
 - `src/`
 - `public/`
 - `tests/`, with its `__snapshots__/`
-- `AGENTS.md` and the skill folders, so every agent on the project reads
-  the same reference
-- a service's `generated/` folder: `wf api check` in CI says when it is
-  behind its spec
+- `AGENTS.md` and the skill folders, so every agent on the project reads the same reference
+- a service's `generated/` folder: `wf api check` in CI says when it is behind its spec
 
-Leave out what the build writes and what is private. Add these lines to
-`.gitignore`:
+Leave out what the build writes and what is private. Add these lines to `.gitignore`:
 
 ```text
 build/
@@ -168,28 +138,17 @@ build/
 .env
 ```
 
-`.wf-cache/` holds resized images between builds. `.wf-sizes.json` records
-what the last build weighed, for `wf build --stats` to compare against.
-`.env` holds build-time values that may be private.
+`.wf-cache/` holds resized images between builds. `.wf-sizes.json` records what the last build weighed, for `wf build --stats` to compare against. `.env` holds build-time values that may be private.
 
 ## Organise a growing project
 
 As a project grows, these habits keep it readable:
 
-- **Group by feature once folders get long.** A `src/billing/` folder that
-  holds the billing pages, components, store and types reads better than
-  four folders that each hold a slice of it. The compiler does not mind
-  either way.
-- **Put each service in one place.** Write one `api` per backend, in its
-  own file, with the types its endpoints return beside it.
-- **Keep shared types together**, in a `types.wf` per area, so the
-  editor's go-to-definition lands somewhere predictable.
-- **Document as you declare.** A `///` comment above a component, a prop,
-  an event or a type shows on hover and in `wf docs`, the site that
-  documents the project's components; an `example` beside a component is
-  drawn there live.
-- **Hold every file to the formatter.** `wf fmt --check` in CI keeps every
-  file in one layout ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#run-the-checks-in-ci)).
+- **Group by feature once folders get long.** A `src/billing/` folder that holds the billing pages, components, store and types reads better than four folders that each hold a slice of it. The compiler does not mind either way.
+- **Put each service in one place.** Write one `api` per backend, in its own file, with the types its endpoints return beside it.
+- **Keep shared types together**, in a `types.wf` per area, so the editor's go-to-definition lands somewhere predictable.
+- **Document as you declare.** A `///` comment above a component, a prop, an event or a type shows on hover and in `wf docs`, the site that documents the project's components; an `example` beside a component is drawn there live.
+- **Hold every file to the formatter.** `wf fmt --check` in CI keeps every file in one layout ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#run-the-checks-in-ci)).
 
 ## Quick reference
 
@@ -203,9 +162,3 @@ As a project grows, these habits keep it readable:
 | `public/` | copied to the build's root as it is |
 | Starter files | `wf generate page`, `component` or `store`, then the name; `wf generate block` for a whole page |
 | Not committed | `build/`, `.wf-cache/`, `.wf-sizes.json`, `.env` |
-
-## Next
-
-- [Static or single-page](https://webfluent.monzeromer.dev/about/static-or-single-page.md): choose how the project
-  builds.
-- [CLI](https://webfluent.monzeromer.dev/reference/cli.md): every `wf` command.

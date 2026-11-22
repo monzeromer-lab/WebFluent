@@ -4,14 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/refresh-after-a-write
 
-After adding a todo, the list should show it, without a `reload()` written
-after every write. Say once, in the contract, which reads a write makes
-stale: when the write succeeds, every `resource` over one of them asks
-again, and the answer is drawn in place.
+After adding a todo, the list should show it, without a `reload()` written after every write. Say once, in the contract, which reads a write makes stale: when the write succeeds, every `resource` over one of them asks again, and the answer is drawn in place.
 
-**Needs:** a server with `GET /api/todos`, `POST /api/todos` and
-`DELETE /api/todos/<id>`. It claims `/`: paste it into a new project, or
-replace the starter's `src/pages/Home.wf` with it.
+**Needs:** a server with `GET /api/todos`, `POST /api/todos` and `DELETE /api/todos/<id>`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 type Todo { id: String, title: String }
@@ -66,10 +61,6 @@ page Todos(path: "/", title: "Todos", description: "Todos that stay current.") {
 }
 ```
 
-The list stays on the screen while it asks again — the read is `.loaded`
-with `refreshing` true — and a row whose key is still there keeps its
-nodes. A write's `invalidates` names reads of its own group, each with the
-write's own parameters as its arguments (`invalidates [list, byId(id)]`);
-a name it does not have is `N05`. For a contract `wf api` writes, say the
-same in the service's `invalidations { }` (see
-[Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)).
+## How it works
+
+The list stays on the screen while it asks again — the read is `.loaded` with `refreshing` true — and a row whose key is still there keeps its nodes. A write's `invalidates` names reads of its own group, each with the write's own parameters as its arguments (`invalidates [list, byId(id)]`); a name it does not have is `N05`. For a contract `wf api` writes, say the same in the service's `invalidations { }` (see [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)).

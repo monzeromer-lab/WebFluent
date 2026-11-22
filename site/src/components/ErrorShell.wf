@@ -8,7 +8,7 @@
 /// family is in the sidebar. A code with nothing more to say than its
 /// summary has no "Why" (`why: false`), and one no short program can draw
 /// shows only the fix (`broken: false`).
-component ErrorShell(_ code: String, title: String = "", severity: String = "error", family: String = "", summary: String = "", printed: String = "", quickfix: String = "", lowerable: Bool = false, why: Bool = true, example: Bool = true, families: [IndexEntry] = [], related: [RelatedLink] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+component ErrorShell(_ code: String, title: String = "", severity: String = "error", family: String = "", summary: String = "", printed: String = "", quickfix: String = "", lowerable: Bool = false, why: Bool = true, example: Bool = true, families: [IndexEntry] = [], related: [RelatedLink] = [], sections: [Anchor] = [], source: String = "site/src/pages", other: String = "", lang: String = "en") {
     slot broken
     slot fixed
     slot note

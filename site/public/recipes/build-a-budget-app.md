@@ -4,35 +4,20 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/build-a-budget-app
 
-**What you will build.** A personal budget tracker that lives entirely in
-the reader's browser: money in and money out, a budget per category, what
-is left of it this month, six months of bars, two languages, a CSV export
-and import, and a page that keeps working offline. There is no server and
-no account. The finished project is
-[`examples/tutorials/hard-pocket`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket).
-
-**Time:** a couple of hours.
+**What you will build.** A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV export and import, and a page that keeps working offline. There is no server and no account. The finished project is [`examples/tutorials/hard-pocket`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket).  **Time:** a couple of hours.
 
 ## Before you start
 
-You need `wf`, Chrome and a copy of the repository
-(see [Before you start](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial). This tutorial assumes
-the Todos tutorial, and each step links the chapter that goes deeper.
+You need `wf`, Chrome and a copy of the repository (see [Before you start](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper.
 
-**This tutorial is read along, not typed along.** Like [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md), each
-step shows the part of a file that teaches something new, not every line
-of it, so the snippets alone do not make a working project. Open the
-finished project, run it, and read each file as its step comes up:
+**This tutorial is read along, not typed along.** Like [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md), each step shows the part of a file that teaches something new, not every line of it, so the snippets alone do not make a working project. Open the finished project, run it, and read each file as its step comes up:
 
 ```bash
 cd WebFluent/examples/tutorials/hard-pocket
 wf serve
 ```
 
-To build it yourself instead, start a project with
-`wf init pocket -t spa --locales en,ar`, then copy each file from
-`examples/tutorials/hard-pocket` into it as its step names it, and run
-`wf check` after each step.
+To build it yourself instead, start a project with `wf init pocket -t spa --locales en,ar`, then copy each file from `examples/tutorials/hard-pocket` into it as its step names it, and run `wf check` after each step.
 
 ## Step 1: Configure the project
 
@@ -68,14 +53,11 @@ The project's `webfluent.app.json`:
 
 It adds three things to the Todos config:
 
-- `i18n` names the languages and the folder their messages live in
-  ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)).
-- `offline` makes `wf build` write a service worker that stores the four
-  pages, so a second visit opens with no network ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)).
+- `i18n` names the languages and the folder their messages live in ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)).
+- `offline` makes `wf build` write a service worker that stores the four pages, so a second visit opens with no network ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)).
 - `theme` names two themes, light and dark, and the build ships both.
 
-**Check it:** `wf build` prints a line that starts `Offline: sw.js`, then
-`2 locales` in its summary.
+**Check it:** `wf build` prints a line that starts `Offline: sw.js`, then `2 locales` in its summary.
 
 ## Step 2: Describe money
 
@@ -106,13 +88,7 @@ type Entry {
 }
 ```
 
-`Money`, `Date`, `Color` and `Uuid` are each a plain JSON value at run time
-([Types](https://webfluent.monzeromer.dev/learn/12-types.md)). Money is kept in minor units, `{ amount: 1299,
-currency: "USD" }`, so a sum never drifts by a fraction of a cent. You
-write it `$12.99` and show it with `format(m)`. What the language works out
-is a call — `a.plus(b)`, `a.minus(b)`, `ONE.times(12.5)` — and what the
-value carries is a field: `m.amount`. Two constants give every sum a
-starting point:
+`Money`, `Date`, `Color` and `Uuid` are each a plain JSON value at run time ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)). Money is kept in minor units, `{ amount: 1299, currency: "USD" }`, so a sum never drifts by a fraction of a cent. You write it `$12.99` and show it with `format(m)`. What the language works out is a call — `a.plus(b)`, `a.minus(b)`, `ONE.times(12.5)` — and what the value carries is a field: `m.amount`. Two constants give every sum a starting point:
 
 ```wf
 // src/types.wf
@@ -123,9 +99,7 @@ const ZERO: Money = $0.00
 const ONE: Money = $1.00
 ```
 
-**Check it:** `wf check` prints `No problems in pocket.` Change `$0.00` to
-`$0.001`, and the check refuses it: money has two decimals in dollars.
-Change it back.
+**Check it:** `wf check` prints `No problems in pocket.` Change `$0.00` to `$0.001`, and the check refuses it: money has two decimals in dollars. Change it back.
 
 ## Step 3: Add up the ledger
 
@@ -147,11 +121,7 @@ Every figure on every page is a `derived` value of the `Ledger` store:
     derived budgetLeft = monthBudget.minus(monthSpent)
 ```
 
-Add an entry, and the balance, this month's spending, each budget bar and
-the chart all follow, with no code written to keep them in step
-([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)). `now` is the browser's clock as a value, so
-`today` turns over at midnight. `sum` is an action that only returns a
-value, which a derived value may call:
+Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)). `now` is the browser's clock as a value, so `today` turns over at midnight. `sum` is an action that only returns a value, which a derived value may call:
 
 ```wf
 // src/stores/Ledger.wf
@@ -161,16 +131,11 @@ value, which a derived value may call:
     }
 ```
 
-**Check it:** the dashboard shows a balance, this month's income and
-spending, and what is left of the budget. Each is a sum of the sample
-ledger.
+**Check it:** the dashboard shows a balance, this month's income and spending, and what is left of the budget. Each is a sum of the sample ledger.
 
 ## Step 4: Change the stored shape without losing data
 
-What a `persist` keeps outlives the build that wrote it: a reader who
-visited last month has last month's shape in their browser. The entries
-declare which version of the shape this build writes, and how to bring an
-older one forward:
+What a `persist` keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. The entries declare which version of the shape this build writes, and how to bring an older one forward:
 
 ```wf
 // src/stores/Ledger.wf
@@ -201,21 +166,15 @@ older one forward:
 ```
 
 - `version: 2` says which shape this build writes.
-- `migrate 1 -> 2` brings an older value forward. Its body receives the
-  stored value as `old`.
-- If you raise the version with no migration, the build warns (`P01`). If
-  you change the shape without raising the version, it warns too (`D04`),
-  from the shapes it keeps in `.wf-cache/` ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
-- A first visit opens on a sample ledger dated from today, so the
-  dashboard is never empty.
+- `migrate 1 -> 2` brings an older value forward. Its body receives the stored value as `old`.
+- If you raise the version with no migration, the build warns (`P01`). If you change the shape without raising the version, it warns too (`D04`), from the shapes it keeps in `.wf-cache/` ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
+- A first visit opens on a sample ledger dated from today, so the dashboard is never empty.
 
-**Check it:** `wf check --deny-warnings` passes. Delete the `migrate`
-block and check again: the check reports `P01`. Put the block back.
+**Check it:** `wf check --deny-warnings` passes. Delete the `migrate` block and check again: the check reports `P01`. Put the block back.
 
 ## Step 5: Fit the shell to the screen
 
-The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a
-drawer when it does not. This is the drawer:
+The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a drawer when it does not. This is the drawer:
 
 ```wf
 // src/App.wf
@@ -229,24 +188,15 @@ drawer when it does not. This is the drawer:
             }
 ```
 
-- `viewport` is the window's size as a value. It follows `matchMedia`, so
-  the switch happens once, as the window crosses the breakpoint
-  ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
-- The layout itself — grids that are one column on a phone — uses
-  responsive values, `Grid(columns: { base: 1, lg: 2 })`, which need no
-  script.
-- A second store, `Ui`, holds what the interface is doing — the dialog,
-  the menu, the notices — apart from what the ledger holds.
+- `viewport` is the window's size as a value. It follows `matchMedia`, so the switch happens once, as the window crosses the breakpoint ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- The layout itself — grids that are one column on a phone — uses responsive values, `Grid(columns: { base: 1, lg: 2 })`, which need no script.
+- A second store, `Ui`, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.
 
-**Check it:** on a wide window, the sidebar shows. Narrow the window: a top
-bar replaces it, and its menu button opens the drawer, which a click on the
-dimmed page behind it closes.
+**Check it:** on a wide window, the sidebar shows. Narrow the window: a top bar replaces it, and its menu button opens the drawer, which a click on the dimmed page behind it closes.
 
 ## Step 6: Draw a dashboard from elements
 
-The built-in `Chart` draws at build time, from data the build can see. This
-ledger exists only in the reader's browser, so the chart is made of plain
-elements whose heights follow the store:
+The built-in `Chart` draws at build time, from data the build can see. This ledger exists only in the reader's browser, so the chart is made of plain elements whose heights follow the store:
 
 ```wf
 // src/components/MonthChart.wf
@@ -271,11 +221,8 @@ component MonthChart(months: [MonthTotal], top: Number) {
                     }
 ```
 
-- A `{…}` in a style value reads state, and the property follows it
-  ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
-- The chart is one `role="img"` with a label, so a screen reader hears what
-  it shows rather than twelve unnamed boxes
-  ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)).
+- A `{…}` in a style value reads state, and the property follows it ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- The chart is one `role="img"` with a label, so a screen reader hears what it shows rather than twelve unnamed boxes ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)).
 
 The figures above the chart are one component, placed four times:
 
@@ -290,13 +237,9 @@ The figures above the chart are one component, placed four times:
     }
 ```
 
-`lean` is an enum prop. A component writes its enum props to its root
-element, here as `data-lean="good"`, and `pocket.css` colours the card by
-that attribute ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
+`lean` is an enum prop. A component writes its enum props to its root element, here as `data-lean="good"`, and `pocket.css` colours the card by that attribute ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
 
-**Check it:** the dashboard shows four cards and six pairs of bars. Add an
-expense in step 9's dialog, and this month's bar and the **Spent** card
-grow at once.
+**Check it:** the dashboard shows four cards and six pairs of bars. Add an expense in step 9's dialog, and this month's bar and the **Spent** card grow at once.
 
 ## Step 7: Keep the filters in the address
 
@@ -311,17 +254,11 @@ The Entries page reads its filters from the address:
     derived shown = Ledger.newestFirst.filter(e => (month == "" || e.date.slice(0, 7) == month) && (category == "" || e.category == category))
 ```
 
-Choosing a month calls `navigate("/entries?month=…")`. The address
-changes, `query` follows it, and so does the list.
+Choosing a month calls `navigate("/entries?month=…")`. The address changes, `query` follows it, and so does the list.
 
-An entry also has a page of its own at `/entries/:id`, where `id` is a
-typed parameter. The page looks the entry up with
-`Ledger.entries.find(…)` and draws it inside `if let e = entry`. `if let`
-binds the value only when it is there, which the checker requires before
-the page reads its fields ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md)).
+An entry also has a page of its own at `/entries/:id`, where `id` is a typed parameter. The page looks the entry up with `Ledger.entries.find(…)` and draws it inside `if let e = entry`. `if let` binds the value only when it is there, which the checker requires before the page reads its fields ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md)).
 
-**Check it:** on `/entries`, pick a month. The address gains `?month=…`
-and the list narrows. Press the browser's back button: the filter goes.
+**Check it:** on `/entries`, pick a month. The address gains `?month=…` and the list narrows. Press the browser's back button: the filter goes.
 
 ## Step 8: Use one form for new and for edit
 
@@ -354,14 +291,9 @@ component EntryForm(entry: Entry? = null) {
     validate note { maxLength(60) }
 ```
 
-- A `validate` block sits beside the state it guards. The control bound to
-  that state shows what the rules say — the message, `aria-invalid` and the
-  link between them — with nothing more written ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)).
-- A rule with no message of its own shows the translation of
-  `form.<rule>`, so `en.json` and `ar.json` each say "that date has not
-  happened yet" once.
-- The form says it is done with an event, `saved`. The caller decides what
-  that means: close the dialog, or go back to the entry.
+- A `validate` block sits beside the state it guards. The control bound to that state shows what the rules say — the message, `aria-invalid` and the link between them — with nothing more written ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)).
+- A rule with no message of its own shows the translation of `form.<rule>`, so `en.json` and `ar.json` each say "that date has not happened yet" once.
+- The form says it is done with an event, `saved`. The caller decides what that means: close the dialog, or go back to the entry.
 
 The submit button follows the form:
 
@@ -372,13 +304,9 @@ The submit button follows the form:
         }
 ```
 
-`Form(bind: form)` hands the component a handle on the form. `form.valid`
-is whether every rule holds, and the button follows it as the reader
-types.
+`Form(bind: form)` hands the component a handle on the form. `form.valid` is whether every rule holds, and the button follows it as the reader types.
 
-**Check it:** in the new-entry dialog, type `0` as the amount and leave the
-field: it says *Enter an amount above zero*, and **Add entry** stays
-disabled. Type `12.50`, and the button turns on.
+**Check it:** in the new-entry dialog, type `0` as the amount and leave the field: it says *Enter an amount above zero*, and **Add entry** stays disabled. Type `12.50`, and the button turns on.
 
 ## Step 9: Add a dialog and a shortcut
 
@@ -392,10 +320,7 @@ The app listens for two keys at the top of `src/App.wf`:
     on key("Escape") { Ui.closeAll() }
 ```
 
-`on key` at the top of the app listens on the document for as long as the
-page shows ([Events](https://webfluent.monzeromer.dev/learn/08-events.md)). The dialog is a `Modal` whose `title:`
-is its accessible name. It keeps focus inside while it is open, and Escape
-closes it:
+`on key` at the top of the app listens on the document for as long as the page shows ([Events](https://webfluent.monzeromer.dev/learn/08-events.md)). The dialog is a `Modal` whose `title:` is its accessible name. It keeps focus inside while it is open, and Escape closes it:
 
 ```wf
 // src/App.wf
@@ -411,14 +336,11 @@ closes it:
     }
 ```
 
-**Check it:** press `n` anywhere outside a field, and the new-entry dialog
-opens with focus inside it. Press Escape, and it closes. Add an entry, and
-the dialog closes and a notice says it was added.
+**Check it:** press `n` anywhere outside a field, and the new-entry dialog opens with focus inside it. Press Escape, and it closes. Add an entry, and the dialog closes and a notice says it was added.
 
 ## Step 10: Speak two languages
 
-Every word on screen is `t("key")`, read from `src/translations/en.json`
-or `ar.json`. A message with plural forms is several keys:
+Every word on screen is `t("key")`, read from `src/translations/en.json` or `ar.json`. A message with plural forms is several keys:
 
 ```json
 {
@@ -428,21 +350,14 @@ or `ar.json`. A message with plural forms is several keys:
 }
 ```
 
-- `t("entries", { count: n })` picks the form the language's rules call
-  for. English needs two forms and a zero; Arabic has six
-  ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)).
-- Switching to Arabic sets `dir="rtl"` on the page, and the sidebar, the
-  rows and the grids mirror themselves.
+- `t("entries", { count: n })` picks the form the language's rules call for. English needs two forms and a zero; Arabic has six ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)).
+- Switching to Arabic sets `dir="rtl"` on the page, and the sidebar, the rows and the grids mirror themselves.
 - `format(m)` and dates follow the language too.
-- The reader's choice is a `persist` in a small `Prefs` store, and an
-  `effect` in the app shell applies it on every visit.
+- The reader's choice is a `persist` in a small `Prefs` store, and an `effect` in the app shell applies it on every visit.
 
-**Check it:** on **Settings**, choose Arabic. The page reads right to
-left, and every label is in Arabic. Reload: it stays in Arabic.
+**Check it:** on **Settings**, choose Arabic. The page reads right to left, and every label is in Arabic. Reload: it stays in Arabic.
 
-If a key shows on screen instead of its words, it is missing from a
-translation file; `wf check` reports it as `I01`, and `wf translations`
-lists what each locale lacks.
+If a key shows on screen instead of its words, it is missing from a translation file; `wf check` reports it as `I01`, and `wf translations` lists what each locale lacks.
 
 ## Step 11: Export and import the data
 
@@ -456,13 +371,9 @@ The Settings page writes the ledger out as a CSV file:
     }
 ```
 
-`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a
-plain browser script that the build links on every page. Its JSDoc types
-the call, so `saveTextFile(1)` is an error where it is written
-([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)).
+`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a plain browser script that the build links on every page. Its JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)).
 
-Importing reads a file from a `FileUpload` with `await f.text()`, parses
-each line and merges what is new. Then it tells every other open tab:
+Importing reads a file from a `FileUpload` with `await f.text()`, parses each line and merges what is new. Then it tells every other open tab:
 
 ```wf
 // src/pages/Settings.wf
@@ -470,20 +381,13 @@ each line and merges what is new. Then it tells every other open tab:
         news.post({ count: added })
 ```
 
-`news` is `channel news = broadcast("pocket")`, a channel every tab of the
-site hears. The app shell listens on it and shows a notice
-([Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md)). The ledger itself needs no channel: `persist`
-already keeps every tab in step.
+`news` is `channel news = broadcast("pocket")`, a channel every tab of the site hears. The app shell listens on it and shows a notice ([Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md)). The ledger itself needs no channel: `persist` already keeps every tab in step.
 
-**Check it:** on **Settings**, export the ledger, and the browser saves
-`pocket-<today's date>.csv`. Open a second tab, import the file in the
-first: the second tab shows a notice of how many entries were added.
+**Check it:** on **Settings**, export the ledger, and the browser saves `pocket-<today's date>.csv`. Open a second tab, import the file in the first: the second tab shows a notice of how many entries were added.
 
 ## Step 12: Test it, and run the checks
 
-A test drives the real form by the labels a reader sees — the English
-ones, since a test reads the project's default locale
-([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)):
+A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)):
 
 ```wf
 // tests/pocket.wf
@@ -499,9 +403,7 @@ test "an entry added through the form moves the balance" {
     expect "Balance $16,783.56"
 ```
 
-Pocket has eight tests: the cards and rows draw what they should, a blank
-amount is refused, `n` opens the dialog and Escape closes it, and removing
-an entry takes it out of every total. Run them and the checks:
+Pocket has eight tests: the cards and rows draw what they should, a blank amount is refused, `n` opens the dialog and Escape closes it, and removing an entry takes it out of every total. Run them and the checks:
 
 ```bash
 wf test
@@ -510,24 +412,14 @@ wf build
 wf verify
 ```
 
-**Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0
-problem(s)`. `build/` is a single-page app with a service worker, `sw.js`,
-beside it. Put it on a host that answers every path with `index.html`
-([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)), and the second visit works with no network.
+**Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`, beside it. Put it on a host that answers every path with `index.html` ([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)), and the second visit works with no network.
 
 ## What you built
 
-- A ledger typed with `Money`, `Date`, `Color` and `Uuid`
-  ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
-- Totals that are all `derived` values of one store, and a `persist`
-  migration that keeps returning readers' data ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
-- A shell that changes with the window, and responsive grids
-  ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
-- A form that validates itself, a dialog and keyboard shortcuts
-  ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md), [Events](https://webfluent.monzeromer.dev/learn/08-events.md)).
-- Two languages, plural forms and right-to-left layout
-  ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)).
-- A script of your own, and a channel between tabs
-  ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md),
-  [Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md)).
+- A ledger typed with `Money`, `Date`, `Color` and `Uuid` ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
+- Totals that are all `derived` values of one store, and a `persist` migration that keeps returning readers' data ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
+- A shell that changes with the window, and responsive grids ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- A form that validates itself, a dialog and keyboard shortcuts ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md), [Events](https://webfluent.monzeromer.dev/learn/08-events.md)).
+- Two languages, plural forms and right-to-left layout ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md)).
+- A script of your own, and a channel between tabs ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md), [Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md)).
 - A site that works offline ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)).

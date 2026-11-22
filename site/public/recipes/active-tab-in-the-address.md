@@ -4,9 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/active-tab-in-the-address
 
-A tab held in a `state` goes back to the first one on every reload. To
-make the tab survive a reload, and a shared link open on the same tab,
-read it from the address's `#fragment`:
+A tab held in a `state` goes back to the first one on every reload. To make the tab survive a reload, and a shared link open on the same tab, read it from the address's `#fragment`:
 
 ```wf
 page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
@@ -20,34 +18,17 @@ page Account(path: "/account", title: "Account", description: "Your profile and 
 }
 ```
 
-Open `/account#billing` and the Billing tab is selected; click Profile and
-the address becomes `/account#profile`.
-
 ## How it works
 
-- [`hash`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#query-strings-and-fragments) is
-  the address's fragment without the `#`, kept current by the runtime.
-- `tab` is a [`derived`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#derived) value:
-  the fragment when there is one, `"profile"` when there is none.
-- `Tabs(value: tab)` opens the page whose `value:` is `tab`. It only reads
-  it: picking a tab fires `on change(v)` with that page's value, which
-  navigates to the same page with another fragment. `hash` changes, `tab`
-  follows, and the tab opens. Each pick is a step in the history, so the
-  back button steps through the tabs the reader opened.
-- The tabs are a tab list to a screen reader, each linked to its panel.
-  Only the open tab is in the Tab order; the arrow keys move between tabs
-  (the other way round in a right-to-left page), and Home and End go to
-  the ends.
+Open `/account#billing` and the Billing tab is selected; click Profile and the address becomes `/account#profile`.
 
-For a tab that need not survive a reload, `Tabs(bind: tab)` reads and
-writes a `state` instead.
+- [`hash`](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#query-strings-and-fragments) is the address's fragment without the `#`, kept current by the runtime.
+- `tab` is a [`derived`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#derived) value: the fragment when there is one, `"profile"` when there is none.
+- `Tabs(value: tab)` opens the page whose `value:` is `tab`. It only reads it: picking a tab fires `on change(v)` with that page's value, which navigates to the same page with another fragment. `hash` changes, `tab` follows, and the tab opens. Each pick is a step in the history, so the back button steps through the tabs the reader opened.
+- The tabs are a tab list to a screen reader, each linked to its panel. Only the open tab is in the Tab order; the arrow keys move between tabs (the other way round in a right-to-left page), and Home and End go to the ends.
 
-Why not a `Link` per tab? The router marks a link current by its path, not
-its fragment: on `/account#billing`, both `/account#profile` and
-`/account#billing` are links to the current page, so both get the `active`
-class and `aria-current="page"`, and neither the look nor a screen reader
-says which tab is open.
+For a tab that need not survive a reload, `Tabs(bind: tab)` reads and writes a `state` instead.
 
-To keep several settings in the address, such as a sort and a filter, use
-the query string instead: see
-[Keep filters in the address](https://webfluent.monzeromer.dev/recipes/filters-in-the-address.md).
+Why not a `Link` per tab? The router marks a link current by its path, not its fragment: on `/account#billing`, both `/account#profile` and `/account#billing` are links to the current page, so both get the `active` class and `aria-current="page"`, and neither the look nor a screen reader says which tab is open.
+
+To keep several settings in the address, such as a sort and a filter, use the query string instead: see [Keep filters in the address](https://webfluent.monzeromer.dev/recipes/filters-in-the-address.md).

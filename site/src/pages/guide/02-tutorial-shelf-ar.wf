@@ -1,6 +1,6 @@
-/// Tutorial: Shelf, in ar: written from md-docs/ar/learn/02-tutorial-shelf.md by
-/// scripts/docsite/guide.py; edit the translation, not this file.
-page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس: Shelf", description: "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.", lang: "ar", translates: Learn02TutorialShelf, layout: DocsShell("درس: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ موقعًا صغيرًا كاملًا — بيانات ومكوّنات ومخزن ونموذج وسمة واختبار — وانشره على الويب.", source: "md-docs/ar/learn/02-tutorial-shelf.md", sections: [Anchor(id: "ما-ستبنيه", label: "ما ستبنيه"), Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-صف-الكتب", label: "الخطوة 2: صِف الكتب"), Anchor(id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن", label: "الخطوة 3: احفظ رفّ القارئ في مخزن"), Anchor(id: "الخطوة-4-اعرض-كتابا-بمكون", label: "الخطوة 4: اعرض كتابًا بمكوّن"), Anchor(id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب", label: "الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب"), Anchor(id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع", label: "الخطوة 6: أضف صفحة الرفّ وإطار الموقع"), Anchor(id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب", label: "الخطوة 7: أضف نموذجًا لاقتراح كتاب"), Anchor(id: "الخطوة-8-امنح-الموقع-سمة", label: "الخطوة 8: امنح الموقع سمة"), Anchor(id: "الخطوة-9-اختبر-بطاقة-الكتاب", label: "الخطوة 9: اختبر بطاقة الكتاب"), Anchor(id: "الخطوة-10-ابن-الموقع-وتحقق-منه", label: "الخطوة 10: ابنِ الموقع وتحقّق منه"), Anchor(id: "الخطوة-11-انشر-على-github-pages", label: "الخطوة 11: انشر على GitHub Pages"), Anchor(id: "البرنامج-كاملا", label: "البرنامج كاملًا"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["اقرأ ملف JSON وقت البناء بوصفه بيانات ذات أنواع، بـ`type` و`data`", "احفظ ما يختاره القارئ عبر الزيارات في `store` مع `persist`", "اكتب مكوّنًا وضعه داخل `for … by` ذي مفاتيح", "اعرض صفحة لكل عنصر بمسار `:slug` و`paths:`", "تحقّق من نموذج، وأضف سمة، واختبر بالنقرات، وانشر الموقع"], book: GUIDE_AR, other: "/learn/02-tutorial-shelf", lang: "ar", prevTo: "/ar/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/ar/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
+/// Chapter 2 of the guide, in Arabic: the translation of
+/// `02-tutorial-shelf.wf`. This page is its source; edit it here.
+page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس: Shelf", description: "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.", lang: "ar", translates: Learn02TutorialShelf, layout: DocsShell("درس: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ موقعًا صغيرًا كاملًا — بيانات ومكوّنات ومخزن ونموذج وسمة واختبار — وانشره على الويب.", source: "site/src/pages/guide/02-tutorial-shelf-ar.wf", sections: [Anchor(id: "ما-ستبنيه", label: "ما ستبنيه"), Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-صف-الكتب", label: "الخطوة 2: صِف الكتب"), Anchor(id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن", label: "الخطوة 3: احفظ رفّ القارئ في مخزن"), Anchor(id: "الخطوة-4-اعرض-كتابا-بمكون", label: "الخطوة 4: اعرض كتابًا بمكوّن"), Anchor(id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب", label: "الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب"), Anchor(id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع", label: "الخطوة 6: أضف صفحة الرفّ وإطار الموقع"), Anchor(id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب", label: "الخطوة 7: أضف نموذجًا لاقتراح كتاب"), Anchor(id: "الخطوة-8-امنح-الموقع-سمة", label: "الخطوة 8: امنح الموقع سمة"), Anchor(id: "الخطوة-9-اختبر-بطاقة-الكتاب", label: "الخطوة 9: اختبر بطاقة الكتاب"), Anchor(id: "الخطوة-10-ابن-الموقع-وتحقق-منه", label: "الخطوة 10: ابنِ الموقع وتحقّق منه"), Anchor(id: "الخطوة-11-انشر-على-github-pages", label: "الخطوة 11: انشر على GitHub Pages"), Anchor(id: "البرنامج-كاملا", label: "البرنامج كاملًا"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["اقرأ ملف JSON وقت البناء بوصفه بيانات ذات أنواع، بـ`type` و`data`", "احفظ ما يختاره القارئ عبر الزيارات في `store` مع `persist`", "اكتب مكوّنًا وضعه داخل `for … by` ذي مفاتيح", "اعرض صفحة لكل عنصر بمسار `:slug` و`paths:`", "تحقّق من نموذج، وأضف سمة، واختبر بالنقرات، وانشر الموقع"], book: GUIDE_AR, other: "/learn/02-tutorial-shelf", lang: "ar", prevTo: "/ar/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/ar/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
     Stack(gap: .lg) {
         Markdown("يبني هذا الدرس **Shelf**، موقعًا صغيرًا يسرد كتبًا تستحق القراءة، ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة، وتنتهي بما يجب أن تراه.")
 
@@ -639,7 +639,7 @@ const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Langua
 page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book.") {
     derived book = books.find(b => b.slug == slug)
     Heading(book.title).h1
-}"#, title: "wf · draws T04")
+}"#, title: "wf", expect: "T04")
 
         Markdown("اربطه بـ`if let b = book \{ Heading(b.title).h1 \}`، كما تفعل الخطوة 5، أو اقرأه بـ`book?.title ?? \"Book\"` ([T04](/errors/T04)).\n\nحقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي خطأ في الموضع الذي يُكتب فيه:")
 
@@ -652,7 +652,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
     for book in books by book.slug {
         Text(book.titel)
     }
-}"#, title: "wf · draws T05")
+}"#, title: "wf", expect: "T05")
 
         Markdown("استخدم الاسم الذي تقترحه الرسالة، `book.title` ([T05](/errors/T05)).\n\nعضو مخزن لا يعلنه المخزن. لدى `Shelf` الأعضاء `saved` و`count` و`toggle`، ولا شيء غيرها:")
 
@@ -668,7 +668,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
     Heading("Books").h1
     Text("{Shelf.total} saved")
     Button("Keep it") { on click { Shelf.toggle("a-pattern-language") } }
-}"#, title: "wf · draws T06")
+}"#, title: "wf", expect: "T06")
 
         Markdown("اقرأ عضوًا يعلنه المخزن، أو أعلن العضو الذي تحتاجه: `derived count = saved.length` ([T06](/errors/T06)).\n\nللمضيّ أبعد: إن كنت تعرف React أو Vue أو Svelte، فإن [قادم من React أو Vue أو Svelte](/ar/coming-from/react) يطابق ما تعرفه على WebFluent.")
 

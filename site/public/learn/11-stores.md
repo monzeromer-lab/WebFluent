@@ -4,17 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/learn/11-stores
 
-This chapter covers *stores*. A store holds state that more than one page or
-component shares: the cart, the signed-in user, the theme, a cache of what was fetched. It holds
-`state`, `derived` values and actions, and every page that reads it sees
-the same values.
+This chapter covers *stores*. A store holds state that more than one page or component shares: the cart, the signed-in user, the theme, a cache of what was fetched. It holds `state`, `derived` values and actions, and every page that reads it sees the same values.
 
-The one thing to remember: **a store is built the first time something
-reads it.** Declaring a store does nothing. The first `Cart.items`,
-`Cart.count` or `Cart.add(…)` builds it, and every later read uses that
-same instance. As a result, the order you declare stores in does not
-matter — a `derived` value may read a store declared below it — and a store
-nothing reads costs nothing, in time or in bytes.
+The one thing to remember: **a store is built the first time something reads it.** Declaring a store does nothing. The first `Cart.items`, `Cart.count` or `Cart.add(…)` builds it, and every later read uses that same instance. As a result, the order you declare stores in does not matter — a `derived` value may read a store declared below it — and a store nothing reads costs nothing, in time or in bytes.
 
 **In this chapter**
 
@@ -61,30 +53,20 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
 }
 ```
 
-Clicking **Add a pen** changes **Cart: 0, $0.00** to **Cart: 1, $2.50**,
-and the `/cart` page lists the pen.
+Clicking **Add a pen** changes **Cart: 0, $0.00** to **Cart: 1, $2.50**, and the `/cart` page lists the pen.
 
 - `store Cart { … }` declares the store and its members.
-- `use Cart` in a page says the page reads the store. The page then reads
-  members as `Cart.items` and `Cart.count`, and calls actions as
-  `Cart.add(…)`.
+- `use Cart` in a page says the page reads the store. The page then reads members as `Cart.items` and `Cart.count`, and calls actions as `Cart.add(…)`.
 - Everything that reads `Cart.count`, on any page, updates when it changes.
 
-The checker knows every member and its type. `Cart.cont` is an error
-(`T06`, with the nearest member it does have), and `Cart.add("pen")` is an
-error because `add` takes an `Item` (`T01`).
+The checker knows every member and its type. `Cart.cont` is an error (`T06`, with the nearest member it does have), and `Cart.add("pen")` is an error because `add` takes an `Item` (`T01`).
 
 > [!NOTE]
-> **Coming from React?** There is no context provider to wrap the tree in,
-> and no selector to write. Declare the store once and read `Cart.count`
-> anywhere; only what reads `count` updates when it changes. See
-> [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** There is no context provider to wrap the tree in, and no selector to write. Declare the store once and read `Cart.count` anywhere; only what reads `count` updates when it changes. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 ## Store members
 
-A store holds the same members a page does: `state`, `persist`, `derived`
-values and actions. This fuller `Cart` adds a coupon kept across visits and
-an action that raises the quantity of an item already in the cart:
+A store holds the same members a page does: `state`, `persist`, `derived` values and actions. This fuller `Cart` adds a coupon kept across visits and an action that raises the quantity of an item already in the cart:
 
 ```wf
 type Item { id: String, name: String, price: Number, qty: Number = 1 }
@@ -110,33 +92,18 @@ store Cart {
 }
 ```
 
-`add` changes `items` itself: it assigns a new list with that one item's
-quantity raised. Writing `let found = items.find(…)` and then
-`found.qty = found.qty + 1` would change only the local copy that `let`
-made ([chapter 7](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals)), and the
-cart would stay as it was.
+`add` changes `items` itself: it assigns a new list with that one item's quantity raised. Writing `let found = items.find(…)` and then `found.qty = found.qty + 1` would change only the local copy that `let` made ([chapter 7](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals)), and the cart would stay as it was.
 
-Inside the store you read its members by their bare names: `items`,
-`count`. Outside it, a page or component reads them through the store's
-name: `Cart.items`, `Cart.count`.
+Inside the store you read its members by their bare names: `items`, `count`. Outside it, a page or component reads them through the store's name: `Cart.items`, `Cart.count`.
 
 > [!NOTE]
-> **Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()`
-> and makes no copy; there is no `$cart` prefix either. Every reader gets the
-> one instance, by the store's name. See [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md)
-> and [Coming from Svelte](https://webfluent.monzeromer.dev/coming-from/svelte.md).
+> **Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()` and makes no copy; there is no `$cart` prefix either. Every reader gets the one instance, by the store's name. See [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md) and [Coming from Svelte](https://webfluent.monzeromer.dev/coming-from/svelte.md).
 
-You may declare a store in any `.wf` file the build reads. By convention it
-goes in `src/stores/`, and `wf generate store Cart` writes it there. A page
-reaches a store by name from anywhere. `use` says which stores a page
-reads, for the person reading the code and for the editor; it does not
-limit what the page can reach, and a page that reads `Cart.count` without
-it reads the same store.
+You may declare a store in any `.wf` file the build reads. By convention it goes in `src/stores/`, and `wf generate store Cart` writes it there. A page reaches a store by name from anywhere. `use` says which stores a page reads, for the person reading the code and for the editor; it does not limit what the page can reach, and a page that reads `Cart.count` without it reads the same store.
 
 ## Store scope
 
-A store's *scope* says how long it lives. You set it in the declaration;
-these three stores live for the page, the tab and the route:
+A store's *scope* says how long it lives. You set it in the declaration; these three stores live for the page, the tab and the route:
 
 ```wf
 store Cart(scope: .app) { state items: [String] = [] }        // the default: as long as the page is open
@@ -150,19 +117,13 @@ store Filters(scope: .route) { state search = "" }            // this route's
 | `.session` | as long as the tab; what it keeps goes in the tab's own storage, gone when the tab is | state for one tab |
 | `.route` | until the route changes | the filters on a list, a wizard's step |
 
-When the route changes, a `.route` store drops what it holds. The next read
-builds it again from its initial values.
+When the route changes, a `.route` store drops what it holds. The next read builds it again from its initial values.
 
-`store X(eager: true)` builds the store at boot instead of on first read.
-Use it for the rare store whose set-up must run whether or not a page reads
-it. If a `derived` value of yours has a side effect that used to run when
-the page loaded, `eager: true` keeps it running then.
+`store X(eager: true)` builds the store at boot instead of on first read. Use it for the rare store whose set-up must run whether or not a page reads it. If a `derived` value of yours has a side effect that used to run when the page loaded, `eager: true` keeps it running then.
 
 ## Actions
 
-A store's actions are its interface: pages change the store by calling
-them. An action may be asynchronous — it uses `await` — and an async action
-exposes `pending`, which is `true` while a call of it runs:
+A store's actions are its interface: pages change the store by calling them. An action may be asynchronous — it uses `await` — and an async action exposes `pending`, which is `true` while a call of it runs:
 
 ```wf
 type Account { name: String }
@@ -206,23 +167,13 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
 The **Sign in** button is disabled while `Session.login` runs.
 
-Inside an action, a bare name is the store's own member — `items`, `error`
-— unless something nearer declares it. A `let`, a parameter, a `for`
-binding, a lambda's parameter or a caught error belongs to the action until
-its block ends. So `let items = …` in an action reads and writes that local
-variable and leaves the store's `items` alone.
+Inside an action, a bare name is the store's own member — `items`, `error` — unless something nearer declares it. A `let`, a parameter, a `for` binding, a lambda's parameter or a caught error belongs to the action until its block ends. So `let items = …` in an action reads and writes that local variable and leaves the store's `items` alone.
 
-An action may read other stores through their names. Stores are global, so
-a store needs no `use`. A `derived` value may call one of the store's own
-actions to compute a value, but not one that assigns state: that is `X04`,
-because the derived value would change state every time it is read.
+An action may read other stores through their names. Stores are global, so a store needs no `use`. A `derived` value may call one of the store's own actions to compute a value, but not one that assigns state: that is `X04`, because the derived value would change state every time it is read.
 
 ## Keeping a value across visits
 
-`persist` declares a member whose value is kept in the browser's storage
-and read back on the next visit. It is stored under the store's name and
-the member's name, so a page and a store may each persist a `theme`.
-`persist` works the same way at the top of a page or a component.
+`persist` declares a member whose value is kept in the browser's storage and read back on the next visit. It is stored under the store's name and the member's name, so a page and a store may each persist a `theme`. `persist` works the same way at the top of a page or a component.
 
 ```wf
 store Prefs {
@@ -235,9 +186,7 @@ store Prefs {
 }
 ```
 
-By default the value goes in `localStorage`, and **a write in another tab
-of the same site arrives in this one**. `localStorage` is shared between
-tabs, and two tabs that disagree about the theme would be a bug.
+By default the value goes in `localStorage`, and **a write in another tab of the same site arrives in this one**. `localStorage` is shared between tabs, and two tabs that disagree about the theme would be a bug.
 
 ### Options
 
@@ -266,44 +215,24 @@ store Cart {
 
 ### Versions and migrations
 
-A version is a promise to returning readers. Once you declare a shape with
-`version:`, the page brings a value written by an older build forward one
-step at a time. Each `migrate n -> n+1` step reads the old value as `old`
-and returns the new one. A reader who last visited two deploys ago keeps
-their cart instead of finding it empty.
+A version is a promise to returning readers. Once you declare a shape with `version:`, the page brings a value written by an older build forward one step at a time. Each `migrate n -> n+1` step reads the old value as `old` and returns the new one. A reader who last visited two deploys ago keeps their cart instead of finding it empty.
 
 The build checks the chain:
 
 - A gap in the chain is a `P01` warning: an older value would be discarded.
 - A step above the declared version is a `P02` warning: it never runs.
-- A value written by a *newer* build is left alone, and the page uses the
-  initial value. This build cannot know what a later shape means.
+- A value written by a *newer* build is left alone, and the page uses the initial value. This build cannot know what a later shape means.
 
-What storage hands back is held to the value's type as it is read — its
-declared type, or what a plain first value says it is. A value that does
-not fit (a record missing a field, text where a number is kept, something
-typed into the devtools) is not this value: the page uses the initial value
-instead, and a development build says so in the console. A reader's
-storage never stops a page from loading.
+What storage hands back is held to the value's type as it is read — its declared type, or what a plain first value says it is. A value that does not fit (a record missing a field, text where a number is kept, something typed into the devtools) is not this value: the page uses the initial value instead, and a development build says so in the console. A reader's storage never stops a page from loading.
 
-The build also remembers the shape of every persisted value, in
-`.wf-cache/persist.json`. When a shape changes and `version:` was not
-raised, it warns (`D04`): a returning reader's browser still holds the old
-shape, which the page would read as the new one.
+The build also remembers the shape of every persisted value, in `.wf-cache/persist.json`. When a shape changes and `version:` was not raised, it warns (`D04`): a returning reader's browser still holds the old shape, which the page would read as the new one.
 
 > [!WARNING]
-> A `persist` inside a `store(scope: .route)` does not reset with the route.
-> The route change drops the store, and the next read builds it again — from
-> storage, so the value comes straight back. The build reports this as
-> `P03`. Use `state` for what the route owns, and a wider scope for what
-> outlives it.
+> A `persist` inside a `store(scope: .route)` does not reset with the route. The route change drops the store, and the next read builds it again — from storage, so the value comes straight back. The build reports this as `P03`. Use `state` for what the route owns, and a wider scope for what outlives it.
 
 ### One stored value per instance
 
-A `persist` in a component uses one stored value for every place the
-component is drawn. Three `Panel`s that each persist `open` share one
-value, so opening one opens them all. `key:` names what tells the instances
-apart, and each key gets its own stored value:
+A `persist` in a component uses one stored value for every place the component is drawn. Three `Panel`s that each persist `open` share one value, so opening one opens them all. `key:` names what tells the instances apart, and each key gets its own stored value:
 
 ```wf
 component Panel(_ title: String) {
@@ -313,15 +242,11 @@ component Panel(_ title: String) {
 }
 ```
 
-The build warns (`D03`) about a component that persists a value with no
-`key:` and is placed more than once, or in a loop.
+The build warns (`D03`) about a component that persists a value with no `key:` and is placed more than once, or in a loop.
 
 ### A key that follows state
 
-`key:` is read as state. When what it reads changes, the member takes the
-value kept under the new key, and writes go there. A desktop app keeps its
-layout per project this way. A store's key may read the store itself, or
-another store:
+`key:` is read as state. When what it reads changes, the member takes the value kept under the new key, and writes go there. A desktop app keeps its layout per project this way. A store's key may read the store itself, or another store:
 
 ```wf
 store Layout {
@@ -335,22 +260,13 @@ store Layout {
 
 ### Storage the project provides
 
-`in: .app` keeps the value somewhere other than the browser's two storages:
-a desktop app's store reached through its native bridge, or an extension's
-storage. It reads `window.wfStorage.app`, which a script of the project's
-under `src/` defines. The object has this shape:
-`{ get(name), set(name, text), remove?(name), watch?(name, fn) }`.
+`in: .app` keeps the value somewhere other than the browser's two storages: a desktop app's store reached through its native bridge, or an extension's storage. It reads `window.wfStorage.app`, which a script of the project's under `src/` defines. The object has this shape: `{ get(name), set(name, text), remove?(name), watch?(name, fn) }`.
 
-- `get` answers at once or with a promise, so an IPC call is fine. Until it
-  answers, the value is its declared initial value. A write made before the
-  answer is not undone by it, and an answer for a key that has since
-  changed is ignored.
+- `get` answers at once or with a promise, so an IPC call is fine. Until it answers, the value is its declared initial value. A write made before the answer is not undone by it, and an answer for a key that has since changed is ignored.
 - `set` receives the JSON text to keep.
-- `watch(name, fn)`, when present, hears another writer, such as another
-  window, and returns a function that stops it. `sync: false` turns it off.
+- `watch(name, fn)`, when present, hears another writer, such as another window, and returns a function that stops it. `sync: false` turns it off.
 
-If no `window.wfStorage.app` is defined, the value is kept in
-`localStorage`, and `wf serve` says so on the console.
+If no `window.wfStorage.app` is defined, the value is kept in `localStorage`, and `wf serve` says so on the console.
 
 This script connects `.app` to Tauri's IPC:
 
@@ -369,19 +285,11 @@ See [Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/re
 
 ### Secrets are never persisted
 
-`persist token: Secret = ""` is an error (`T12`). The point of the `Secret`
-type is that its value never reaches a place any script can read, and the
-browser's storage is such a place. Keep a session in an httpOnly cookie
-instead (see [Security](https://webfluent.monzeromer.dev/about/security.md)).
+`persist token: Secret = ""` is an error (`T12`). The point of the `Secret` type is that its value never reaches a place any script can read, and the browser's storage is such a place. Keep a session in an httpOnly cookie instead (see [Security](https://webfluent.monzeromer.dev/about/security.md)).
 
 ## A connection a store holds
 
-A store may hold a connection — a `socket`, a `stream`, a `channel`, a
-`peer` or a `worker` (see [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) — for every page at
-once. The connection opens when the store is first read and closes with the
-store; a `.route` store's connection closes when its route leaves. The
-store's actions and handlers name the connection as it is declared, and a
-page reads it through the store:
+A store may hold a connection — a `socket`, a `stream`, a `channel`, a `peer` or a `worker` (see [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) — for every page at once. The connection opens when the store is first read and closes with the store; a `.route` store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:
 
 ```wf
 type Line { text: String }
@@ -408,20 +316,9 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 
 ## Loading data into a store
 
-A store can own a `resource` (see [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md)). It is asked
-for the first time something reads the store, and lives as long as the
-store does — not as long as the page that happened to read it first — so
-another page that reads the store finds what has already arrived, and
-nothing is asked for again. It is abandoned with the store: a `.route`
-store's when its route leaves, to be asked for afresh when the route comes
-back.
+A store can own a `resource` (see [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md)). It is asked for the first time something reads the store, and lives as long as the store does — not as long as the page that happened to read it first — so another page that reads the store finds what has already arrived, and nothing is asked for again. It is abandoned with the store: a `.route` store's when its route leaves, to be asked for afresh when the route comes back.
 
-Inside the store it is `rows`, anywhere else `Deploys.rows`, and its
-`value`, `isLoading`, `isRefreshing`, `error` and `pending` follow it in
-both, and `match Deploys.rows { .loading … .failed(e) … .loaded(rows) … }`
-draws it. Its
-address and options read the store's own state, so an action that moves
-one asks again:
+Inside the store it is `rows`, anywhere else `Deploys.rows`, and its `value`, `isLoading`, `isRefreshing`, `error` and `pending` follow it in both, and `match Deploys.rows { .loading … .failed(e) … .loaded(rows) … }` draws it. Its address and options read the store's own state, so an action that moves one asks again:
 
 ```wf
 type Deploy { id: String, status: String }
@@ -449,16 +346,9 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 }
 ```
 
-A resource over a service's endpoint is owned the same way —
-`resource list = Catalog.items()` — and when the endpoint says how it pages
-([Load results a page at a time](https://webfluent.monzeromer.dev/learn/15-data.md#load-results-a-page-at-a-time)),
-`Shelf.list.loadMore()` asks for the next page from any page that reads
-it. The resource is the store's to replace: `Deploys.rows = …` is an
-`X01`, as it is inside the store.
+A resource over a service's endpoint is owned the same way — `resource list = Catalog.items()` — and when the endpoint says how it pages ([Load results a page at a time](https://webfluent.monzeromer.dev/learn/15-data.md#load-results-a-page-at-a-time)), `Shelf.list.loadMore()` asks for the next page from any page that reads it. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
 
-When an action decides what is kept — a reply merged into rows already
-held, a list built from several calls — fill the store's state from a
-request instead, and call the action where the data is first wanted:
+When an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a request instead, and call the action where the data is first wanted:
 
 ```wf
 type Post { id: String, title: String }
@@ -475,19 +365,11 @@ store Feed {
 
 ## Stores in the pre-rendered page
 
-A static build pre-renders each page to HTML — the *static paint*. The
-static paint seeds each store's state from its initial values, so
-`Cart.count` is painted as `0`, and a store seeded with rows paints the
-rows. A value an action changes at run time is corrected once the page is
-live.
+A static build pre-renders each page to HTML — the *static paint*. The static paint seeds each store's state from its initial values, so `Cart.count` is painted as `0`, and a store seeded with rows paints the rows. A value an action changes at run time is corrected once the page is live.
 
 ## Looking at one while it runs
 
-`wf serve` puts a **stores** button in the corner of the page. It opens on
-what every store that has been built is holding, and a log of every action
-that has run: the arguments it was given, and the state before and after
-it. Clicking an entry puts the store back to what it held before that
-action, which is usually enough to find a bug.
+`wf serve` puts a **stores** button in the corner of the page. It opens on what every store that has been built is holding, and a log of every action that has run: the arguments it was given, and the state before and after it. Clicking an entry puts the store back to what it held before that action, which is usually enough to find a bug.
 
 The same tools are on `window.WF`, for a console or a script:
 
@@ -498,14 +380,11 @@ The same tools are on `window.WF`, for a console or a script:
 | `WF.restoreStore("Cart", values)` | Puts a store back to `values` |
 | `WF.watchStores(fn)` | Calls `fn` for every action, and returns the function that stops it |
 
-Nothing is recorded while nothing is watching, so a deployed site pays
-nothing for any of it. See [Runtime API](https://webfluent.monzeromer.dev/reference/runtime.md).
+Nothing is recorded while nothing is watching, so a deployed site pays nothing for any of it. See [Runtime API](https://webfluent.monzeromer.dev/reference/runtime.md).
 
 ## Testing a store
 
-`wf test` renders a test with the project's stores at hand, and a test's
-`data` seeds a store by its name. This test seeds a cart with two of one
-item and reads what `CartSummary` shows:
+`wf test` renders a test with the project's stores at hand, and a test's `data` seeds a store by its name. This test seeds a cart with two of one item and reads what `CartSummary` shows:
 
 ```wf
 type Item { id: String, qty: Number = 1 }
@@ -526,11 +405,9 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 }
 ```
 
-In a project the store and the component live under `src/` and the test
-under `tests/`.
+In a project the store and the component live under `src/` and the test under `tests/`.
 
-A test that clicks a button runs the store's actions in a real browser.
-See [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).
+A test that clicks a button runs the store's actions in a real browser. See [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).
 
 ## When to use a store
 
@@ -582,8 +459,7 @@ A page reads `Cart.count` but has no `use Cart` line. What happens?
 
 ## Common mistakes
 
-**A member the store does not have.** A name guessed from what the store
-ought to hold, rather than read from what it declares:
+**A member the store does not have.** A name guessed from what the store ought to hold, rather than read from what it declares:
 
 ```wf expect=T06
 store Cart {
@@ -598,11 +474,9 @@ page P(path: "/", title: "T", description: "D") {
 }
 ```
 
-Read a member the store declares, `Cart.count`, or declare the one you need.
-See [T06](https://webfluent.monzeromer.dev/errors/T06.md).
+Read a member the store declares, `Cart.count`, or declare the one you need. See [T06](https://webfluent.monzeromer.dev/errors/T06.md).
 
-**`use` with the store's name misspelled.** A store's name is capitalised,
-and `use` must name it exactly:
+**`use` with the store's name misspelled.** A store's name is capitalised, and `use` must name it exactly:
 
 ```wf expect=X05
 store Cart { state items: [String] = [] }
@@ -615,8 +489,7 @@ page P(path: "/", title: "T", description: "D") {
 
 Write `use Cart`. See [X05](https://webfluent.monzeromer.dev/errors/X05.md).
 
-**Assigning a store's `derived` value.** A `derived` value is worked out from
-the state it reads, so nothing may set it:
+**Assigning a store's `derived` value.** A `derived` value is worked out from the state it reads, so nothing may set it:
 
 ```wf expect=X01
 store Cart {
@@ -631,9 +504,4 @@ page P(path: "/", title: "T", description: "D") {
 }
 ```
 
-Change the state it reads, through an action: `action clear() { items = [] }`,
-called as `Cart.clear()`. See [X01](https://webfluent.monzeromer.dev/errors/X01.md).
-
-## Next
-
-[Types](https://webfluent.monzeromer.dev/learn/12-types.md).
+Change the state it reads, through an action: `action clear() { items = [] }`, called as `Cart.clear()`. See [X01](https://webfluent.monzeromer.dev/errors/X01.md).

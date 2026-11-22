@@ -30,22 +30,14 @@ wf translations --json
 wf translations --plurals
 ```
 
-For each locale it prints its file, whether it is the default and whether it
-is right to left, the plural forms CLDR's rules give it, how many keys have
-no message in it, how many lack a form it needs, and how many messages have
-placeholders the default locale's do not.
+For each locale it prints its file, whether it is the default and whether it is right to left, the plural forms CLDR's rules give it, how many keys have no message in it, how many lack a form it needs, and how many messages have placeholders the default locale's do not.
 
-A key is unused when nothing names it: no `t()`, no key built at run time
-that may be it, and no `validate` rule that shows it.
+A key is unused when nothing names it: no `t()`, no key built at run time that may be it, and no `validate` rule that shows it.
 
-`--json` prints the whole table: every key, plural keys with each form, each
-message in each locale with its placeholders and line, every place a `t()`
-names the key, and the calls that name a key no locale has (`I01`).
+`--json` prints the whole table: every key, plural keys with each form, each message in each locale with its placeholders and line, every place a `t()` names the key, and the calls that name a key no locale has (`I01`).
 
-`--plurals` prints each locale's forms; with `--json`, also the form each of
-a run of counts takes.
+`--plurals` prints each locale's forms; with `--json`, also the form each of a run of counts takes.
 
-The library has it as `webfluent::i18n::table` (with the `internals` feature, outside semver), whose `set_message` writes
-one message back and keeps every other byte of the file.
+The library has it as `webfluent::i18n::table` (with the `internals` feature, outside semver), whose `set_message` writes one message back and keeps every other byte of the file.
 
-See also: [Translate a site](../recipes/translate-a-site.md).
+See also: [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md).

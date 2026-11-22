@@ -4,8 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/copy-to-the-clipboard
 
-A **Copy** button saves the reader selecting a link by hand. To copy text,
-call the browser's clipboard from an action and say when it worked:
+A **Copy** button saves the reader selecting a link by hand. To copy text, call the browser's clipboard from an action and say when it worked:
 
 ```wf
 page Share(path: "/share", title: "Share", description: "Copy the link.") {
@@ -30,18 +29,8 @@ page Share(path: "/share", title: "Share", description: "Copy the link.") {
 
 ## How it works
 
-- `navigator.clipboard` and `location` are browser globals, used as written
-  with no prefix.
-- `writeText` returns a promise, so the
-  [action](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals) awaits
-  it. `await` makes the action async, and `copied` is set only once the
-  text is on the clipboard.
-- The browser may refuse: the page is not focused, it is not served over
-  HTTPS, or the reader denied the permission. The promise then rejects, the
-  `catch` sets `failed`, and the reader is told to copy by hand instead of
-  seeing nothing.
+- `navigator.clipboard` and `location` are browser globals, used as written with no prefix.
+- `writeText` returns a promise, so the [action](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals) awaits it. `await` makes the action async, and `copied` is set only once the text is on the clipboard.
+- The browser may refuse: the page is not focused, it is not served over HTTPS, or the reader denied the permission. The promise then rejects, the `catch` sets `failed`, and the reader is told to copy by hand instead of seeing nothing.
 - The button's click handler calls `copy` with the page's own address.
-- A `Toast` shows once, when its branch is drawn. The action sets `copied`
-  and `failed` back to `false` before it starts, so the branch is drawn again
-  on every click and a second copy shows a second toast. Without that,
-  `copied` would stay `true` and the second click would show nothing.
+- A `Toast` shows once, when its branch is drawn. The action sets `copied` and `failed` back to `false` before it starts, so the branch is drawn again on every click and a second copy shows a second toast. Without that, `copied` would stay `true` and the second click would show nothing.

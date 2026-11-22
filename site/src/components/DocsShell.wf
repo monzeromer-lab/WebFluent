@@ -8,7 +8,7 @@
 /// `blurb`, `source`, `sections`, the four prev/next ones) keep their
 /// meaning; the rest are optional and say what the generator will know
 /// once the pages move to `/learn`.
-component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", source: String = "md-docs", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "", kind: PageKind = .tutorial, book: [Chapter] = GUIDE, prereqs: [RelatedLink] = [], outputs: [String] = [], learned: [String] = [], codes: [RelatedLink] = [], other: String = "", lang: String = "en") {
+component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", source: String = "site/src/pages", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "", kind: PageKind = .tutorial, book: [Chapter] = GUIDE, prereqs: [RelatedLink] = [], outputs: [String] = [], learned: [String] = [], codes: [RelatedLink] = [], other: String = "", lang: String = "en") {
     slot
     use Book
 

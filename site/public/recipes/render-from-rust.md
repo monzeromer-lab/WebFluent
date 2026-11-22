@@ -4,11 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/render-from-rust
 
-The template engine is the `webfluent` crate. Load the templates once, at
-start-up, and render them with your own data as HTML, a fragment of a
-page, a PDF or slides. You need a Rust project, and a template like the
-one in [Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md). This one is
-`templates/invoice.wf`:
+The template engine is the `webfluent` crate. Load the templates once, at start-up, and render them with your own data as HTML, a fragment of a page, a PDF or slides. You need a Rust project, and a template like the one in [Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md). This one is `templates/invoice.wf`:
 
 ```wf
 type Customer { name: String }
@@ -35,9 +31,7 @@ page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
 }
 ```
 
-To use the engine without the `wf` command's own dependencies (its
-argument parser and dev server), turn off the default features in
-`Cargo.toml`:
+To use the engine without the `wf` command's own dependencies (its argument parser and dev server), turn off the default features in `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -45,8 +39,7 @@ webfluent = { version = "7", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 
-This program, `src/main.rs`, renders the `Invoice` page three ways and
-writes the results beside the project:
+This program, `src/main.rs`, renders the `Invoice` page three ways and writes the results beside the project:
 
 ```rust
 use serde::Serialize;
@@ -89,17 +82,13 @@ fn main() -> webfluent::Result<()> {
 }
 ```
 
-`cargo run` prints the fragment and writes `invoice.html` and
-`invoice.pdf`. To try a fuller example, run `cargo run --example invoice`
-in the WebFluent repository: it renders a directory of templates to HTML,
-a fragment and a PDF.
-
 ## How it works
+
+`cargo run` prints the fragment and writes `invoice.html` and `invoice.pdf`. To try a fuller example, run `cargo run --example invoice` in the WebFluent repository: it renders a directory of templates to HTML, a fragment and a PDF.
 
 ### Load templates
 
-Each loader parses and checks the template once. An error names the file
-and the line.
+Each loader parses and checks the template once. An error names the file and the line.
 
 | Loader | Reads |
 |---|---|
@@ -109,9 +98,7 @@ and the line.
 | `Template::from_dir(dir)` | Every `.wf` and `.wfx` under a directory, as one template |
 | `Template::from_sources(&[(name, source), ..])` | Templates embedded in the binary with `include_str!` |
 
-`pages()` lists the template's pages, and `page(name)` picks one. Without
-`page(name)`, every page of the template renders. A name the template does
-not have is an error that lists the pages it does have:
+`pages()` lists the template's pages, and `page(name)` picks one. Without `page(name)`, every page of the template renders. A name the template does not have is an error that lists the pages it does have:
 
 ```text
 no page called `Receipt`; the template has `Invoice`
@@ -119,14 +106,7 @@ no page called `Receipt`; the template has `Invoice`
 
 ### Pass data
 
-The data is anything `serde` serializes: your own `#[derive(Serialize)]`
-structs, or a `serde_json::Value`. Its top-level fields are the page's
-parameters — `Invoice`'s `number`, `customer`, `items`, `total` and `paid` —
-and every render holds the data to them first: a field missing or of the
-wrong type is `WebFluentError::Diagnostics` with a `T33` naming the place
-(`$.items[1].price is missing`), never an empty cell. A `const` and a
-`data` file are in scope too. A page that declares no parameters reads
-whatever it is given, by name.
+The data is anything `serde` serializes: your own `#[derive(Serialize)]` structs, or a `serde_json::Value`. Its top-level fields are the page's parameters — `Invoice`'s `number`, `customer`, `items`, `total` and `paid` — and every render holds the data to them first: a field missing or of the wrong type is `WebFluentError::Diagnostics` with a `T33` naming the place (`$.items[1].price is missing`), never an empty cell. A `const` and a `data` file are in scope too. A page that declares no parameters reads whatever it is given, by name.
 
 ### Choose the output
 
@@ -138,45 +118,28 @@ whatever it is given, by name.
 | `render_pdf`, `render_slides` | PDF bytes, laid out by the paged engine of [PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md) |
 | `render_pdf_report`, `render_slides_report` | A `PdfReport`: the bytes, the page count, each page's text in reading order, and the notes (a font taken from the machine, a character no font had) |
 
-A `PdfReport`'s page text lets a test hold a document to what it says. A
-template loaded from files reads its fonts from `fonts/` beside it, and its
-pictures from there too.
+A `PdfReport`'s page text lets a test hold a document to what it says. A template loaded from files reads its fonts from `fonts/` beside it, and its pictures from there too.
 
 ### Configure a render
 
-Each setting returns the `Template`, so you can chain them before a render,
-as the program does with `with_pdf`:
+Each setting returns the `Template`, so you can chain them before a render, as the program does with `with_pdf`:
 
 - `with_theme(name)` picks a theme;
 - `with_tokens(&[(name, value)])` sets design tokens over the theme's;
-- `with_lang("ar")` sets the language (a right-to-left language also sets
-  `dir="rtl"`); without it, the page's own `lang:` is used, else `en`;
+- `with_lang("ar")` sets the language (a right-to-left language also sets `dir="rtl"`); without it, the page's own `lang:` is used, else `en`;
 - `with_pdf(PdfConfig { .. })` sets page size, margins and fonts;
 - `with_slides(SlidesConfig { .. })` sets a deck's options.
 
-A setting takes the `Template` by value, so the program clones `page`
-before it sets the paper size, and keeps `page` for other renders.
+A setting takes the `Template` by value, so the program clones `page` before it sets the paper size, and keeps `page` for other renders.
 
 ## Use it in a server
 
-A `Template` is `Send + Sync` and cheap to clone, because the parsed
-program is shared. Keep it in your framework's state — an `Arc`, or a clone
-per handler — and render from any thread. A render takes tens of
-microseconds.
+A `Template` is `Send + Sync` and cheap to clone, because the parsed program is shared. Keep it in your framework's state — an `Arc`, or a clone per handler — and render from any thread. A render takes tens of microseconds.
 
 > [!NOTE]
-> Every value the data supplies is escaped as text. A URL from the data
-> that a browser would run — `javascript:`, `data:` — is dropped from
-> `href` and `src`, as the browser build drops it. An `Image`'s `src` keeps
-> a picture carried in its address (`data:image/png;base64,…`), as the
-> browser build keeps it.
+> Every value the data supplies is escaped as text. A URL from the data that a browser would run — `javascript:`, `data:` — is dropped from `href` and `src`, as the browser build drops it. An `Image`'s `src` keeps a picture carried in its address (`data:image/png;base64,…`), as the browser build keeps it.
 >
-> A value the data puts in a `style { }` block is one value, as the live
-> page sets one property at a time: a piece with a `;`, a brace or a
-> backslash, or one that fetches something (`url(…)`, `image-set(…)`),
-> leaves its declaration out. What the template writes around a splice —
-> `background: url({img})` — is the template's own. A `class:` from the
-> data is escaped inside its attribute.
+> A value the data puts in a `style { }` block is one value, as the live page sets one property at a time: a piece with a `;`, a brace or a backslash, or one that fetches something (`url(…)`, `image-set(…)`), leaves its declaration out. What the template writes around a splice — `background: url({img})` — is the template's own. A `class:` from the data is escaped inside its attribute.
 
 ## Limits of one render
 
@@ -191,8 +154,7 @@ A render is bounded, so one request cannot take a server with it:
 | `>` quotes in `Markdown` nested 32 deep | The deeper `>` is shown as text |
 | A precision past 100 digits (`toFixed`, `format(…, .decimal, n)`) | `toFixed` shows nothing, as the browser throws; `format` writes 100 |
 
-Each error is a `WebFluentError::Diagnostics` naming the code and the
-element where the render stopped.
+Each error is a `WebFluentError::Diagnostics` naming the code and the element where the render stopped.
 
 ## Troubleshooting
 

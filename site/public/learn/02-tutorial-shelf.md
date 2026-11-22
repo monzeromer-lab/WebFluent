@@ -4,21 +4,13 @@
 
 The page: https://webfluent.monzeromer.dev/learn/02-tutorial-shelf
 
-This tutorial builds **Shelf**, a small site that lists books worth reading
-and lets a reader keep the ones they want. Each step adds one piece,
-and ends with what you should see.
+This tutorial builds **Shelf**, a small site that lists books worth reading and lets a reader keep the ones they want. Each step adds one piece, and ends with what you should see.
 
 ## What you will build
 
-Shelf has a home page that lists books with a search box, a page for each
-book, a **Your shelf** page with the books the reader saved, a form to
-suggest a book, a theme with a dark mode, a test that clicks, and a deploy
-to GitHub Pages.
+Shelf has a home page that lists books with a search box, a page for each book, a **Your shelf** page with the books the reader saved, a form to suggest a book, a theme with a dark mode, a test that clicks, and a deploy to GitHub Pages.
 
-Along the way you use most of what a real site needs: typed data read at
-build time, a reusable component, a page per book, a store that keeps the
-reader's choices, a validated form, a theme, a test and a deploy. Each step
-links the chapter that covers its idea in depth.
+Along the way you use most of what a real site needs: typed data read at build time, a reusable component, a page per book, a store that keeps the reader's choices, a validated form, a theme, a test and a deploy. Each step links the chapter that covers its idea in depth.
 
 It takes about half an hour, plus the deploy.
 
@@ -26,29 +18,22 @@ It takes about half an hour, plus the deploy.
 
 You need:
 
-- `wf` installed and on your `PATH` ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)).
-  On Windows, type `webfluent` where this tutorial types `wf`.
-- Chrome or Chromium on the machine, for the test that clicks
-  ([step 9](#step-9-test-the-book-card)) and for `wf verify`
-  ([step 10](#step-10-build-and-verify-the-site)). If it is installed
-  somewhere unusual, point the `WF_CHROME` environment variable at it.
+- `wf` installed and on your `PATH` ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)). On Windows, type `webfluent` where this tutorial types `wf`.
+- Chrome or Chromium on the machine, for the test that clicks ([step 9](#step-9-test-the-book-card)) and for `wf verify` ([step 10](#step-10-build-and-verify-the-site)). If it is installed somewhere unusual, point the `WF_CHROME` environment variable at it.
 - For the deploy, a GitHub account and a repository called `shelf`.
 
 You do not need to know WebFluent yet.
 
 ## Step 1: Create the project
 
-Start from the `static` template, which pre-renders every page to HTML —
-right for a site people find through search:
+Start from the `static` template, which pre-renders every page to HTML — right for a site people find through search:
 
 ```bash
 wf init shelf -t static
 cd shelf
 ```
 
-You write every file yourself, so delete what the template put in `src/`
-and its tests under `tests/` (they test the starter's pages). Then replace
-`webfluent.app.json` with:
+You write every file yourself, so delete what the template put in `src/` and its tests under `tests/` (they test the starter's pages). Then replace `webfluent.app.json` with:
 
 ```json
 {
@@ -62,12 +47,9 @@ and its tests under `tests/` (they test the starter's pages). Then replace
 }
 ```
 
-`ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes
-the build check its own output against it. [Configuration](https://webfluent.monzeromer.dev/reference/config.md)
-lists every key.
+`ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes the build check its own output against it. [Configuration](https://webfluent.monzeromer.dev/reference/config.md) lists every key.
 
-**Check it:** run `wf check`. It prints `IO Error: No .wf files found in src/` —
-correct, because `src/` is empty until the next step.
+**Check it:** run `wf check`. It prints `IO Error: No .wf files found in src/` — correct, because `src/` is empty until the next step.
 
 ## Step 2: Describe the books
 
@@ -107,19 +89,13 @@ type Book {
 data books: [Book] = "books.json"
 ```
 
-`type Book` is a record that the type checker holds every use to: writing
-`book.titel` is an error where you write it. `data books` reads the file **at
-build time** and makes it a constant every page can read, so nothing is
-fetched when the page loads. ([Types](https://webfluent.monzeromer.dev/learn/12-types.md),
-[Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data).)
+`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](https://webfluent.monzeromer.dev/learn/12-types.md), [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data).)
 
 **Check it:** run `wf check`. It prints `No problems in shelf.`
 
 ## Step 3: Keep the reader's shelf in a store
 
-What the reader keeps must survive a reload and be the same on every page,
-so it goes in a store, with its value kept by `persist`. Create
-`src/stores/Shelf.wf`:
+What the reader keeps must survive a reload and be the same on every page, so it goes in a store, with its value kept by `persist`. Create `src/stores/Shelf.wf`:
 
 ```wf
 /// The books the reader wants to read, kept across visits.
@@ -137,25 +113,16 @@ store Shelf {
 }
 ```
 
-`persist` is a `state` that is kept in the browser's storage and read back on
-the next visit; a change made in another tab arrives here too. `derived
-count` recomputes whenever `saved` changes. ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md).)
+`persist` is a `state` that is kept in the browser's storage and read back on the next visit; a change made in another tab arrives here too. `derived count` recomputes whenever `saved` changes. ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md).)
 
 > [!NOTE]
-> **Coming from React?** Shared state is not a context provider wrapped
-> around the app, and saving it is not a `useEffect` that writes
-> `localStorage`. A `store` is read by name wherever it is used, and
-> `persist` does the saving. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** Shared state is not a context provider wrapped around the app, and saving it is not a `useEffect` that writes `localStorage`. A `store` is read by name wherever it is used, and `persist` does the saving. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
-**Check it:** run `wf check`. It prints two `U04` warnings:
-`` `Shelf.count` is declared but never read `` and the same for
-`Shelf.toggle`. Nothing uses the store yet; the next steps do, and the
-warnings go away.
+**Check it:** run `wf check`. It prints two `U04` warnings: `` `Shelf.count` is declared but never read `` and the same for `Shelf.toggle`. Nothing uses the store yet; the next steps do, and the warnings go away.
 
 ## Step 4: Show a book with a component
 
-Every book is shown the same way, so it is a component. Create
-`src/components/BookCard.wf`:
+Every book is shown the same way, so it is a component. Create `src/components/BookCard.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -178,29 +145,17 @@ component BookCard(_ book: Book) {
 }
 ```
 
-- `_ book: Book` is the one prop a caller may pass without its name:
-  `BookCard(book)`.
-- `Card.outlined`, `Stack(gap: .sm)` and `Text(…).muted.sm` are built-ins
-  with flags. The compiler knows each one's props and refuses a flag it does
-  not take.
-- `use Shelf` reads the store from step 3. The button's label is an `if`
-  used as a value, and it follows the store: when the reader clicks, the
-  label changes and nothing else re-renders.
+- `_ book: Book` is the one prop a caller may pass without its name: `BookCard(book)`.
+- `Card.outlined`, `Stack(gap: .sm)` and `Text(…).muted.sm` are built-ins with flags. The compiler knows each one's props and refuses a flag it does not take.
+- `use Shelf` reads the store from step 3. The button's label is an `if` used as a value, and it follows the store: when the reader clicks, the label changes and nothing else re-renders.
 
 ([Components](https://webfluent.monzeromer.dev/learn/10-components.md), [Elements](https://webfluent.monzeromer.dev/learn/06-elements.md).)
 
-**Check it:** run `wf check`. It reports two warnings and no error:
-`` warning[U03]: `BookCard` is declared but never placed `` and
-`` warning[U04]: `Shelf.count` is declared but never read ``. Nothing
-places the card yet, and nothing shows the count; the next step does both.
-The card also links to `/books/…`, a page that does not exist yet. The
-compiler checks every link against the pages you declare, but only in what
-the site draws, so it says nothing until the card is placed.
+**Check it:** run `wf check`. It reports two warnings and no error: `` warning[U03]: `BookCard` is declared but never placed `` and `` warning[U04]: `Shelf.count` is declared but never read ``. Nothing places the card yet, and nothing shows the count; the next step does both. The card also links to `/books/…`, a page that does not exist yet. The compiler checks every link against the pages you declare, but only in what the site draws, so it says nothing until the card is placed.
 
 ## Step 5: Add the home page and a page per book
 
-The home page lists the books with a search box. Create
-`src/pages/Home.wf`:
+The home page lists the books with a search box. Create `src/pages/Home.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -225,16 +180,11 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 
 - `bind: q` keeps the input and the state in step, both ways.
 - `found` is derived from `q`, so typing narrows the list as you go.
-- `for … by book.slug` is a keyed loop: a card that stays in the list keeps
-  its element instead of being rebuilt.
-- `Grid(columns: { base: 1, md: 2 })` is one column on a phone and two from
-  the `md` breakpoint. The pre-rendered HTML already has this layout, so no
-  script is needed.
+- `for … by book.slug` is a keyed loop: a card that stays in the list keeps its element instead of being rebuilt.
+- `Grid(columns: { base: 1, md: 2 })` is one column on a phone and two from the `md` breakpoint. The pre-rendered HTML already has this layout, so no script is needed.
 
 > [!NOTE]
-> **Coming from React?** A controlled input needs no `value` and no
-> `onChange` that copies `e.target.value` back: `bind: q` does both. See
-> [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** A controlled input needs no `value` and no `onChange` that copies `e.target.value` back: `bind: q` does both. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 Then add a page for each book, `src/pages/BookPage.wf`:
 
@@ -263,27 +213,17 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 ```
 
 - `:slug` in the path is a typed parameter of the page.
-- `paths:` tells the static build which values to render: one HTML file per
-  book, `books/a-pattern-language/index.html` and so on.
-- `books.find(…)` may find nothing, so `book` is a `Book?` (a `Book` or
-  `null`). `if let b = book` binds it only when it is there. Reading
-  `book.title` without that check is a compile error (`T04`).
-- `head { … }` adds tags to this page's `<head>` — here, the title that a
-  shared link previews with.
+- `paths:` tells the static build which values to render: one HTML file per book, `books/a-pattern-language/index.html` and so on.
+- `books.find(…)` may find nothing, so `book` is a `Book?` (a `Book` or `null`). `if let b = book` binds it only when it is there. Reading `book.title` without that check is a compile error (`T04`).
+- `head { … }` adds tags to this page's `<head>` — here, the title that a shared link previews with.
 
 ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md).)
 
-**Check it:** run `wf serve` and open `http://localhost:3000`. You see
-**Books worth reading**, `3 of 3 books` and three cards. Type `norman` in
-the search box: one card stays, and the count reads `1 of 3 books`. Click **Want to read** on a card and its
-label changes to **On your shelf**. Click a book's title and its page opens,
-with a breadcrumb back to the list. `wf check` now reports only the `U04`
-warning about `Shelf.count`; step 6 uses it.
+**Check it:** run `wf serve` and open `http://localhost:3000`. You see **Books worth reading**, `3 of 3 books` and three cards. Type `norman` in the search box: one card stays, and the count reads `1 of 3 books`. Click **Want to read** on a card and its label changes to **On your shelf**. Click a book's title and its page opens, with a breadcrumb back to the list. `wf check` now reports only the `U04` warning about `Shelf.count`; step 6 uses it.
 
 ## Step 6: Add the shelf page and the site's shell
 
-The shelf page shows the books the reader saved. Create
-`src/pages/ShelfPage.wf`:
+The shelf page shows the books the reader saved. Create `src/pages/ShelfPage.wf`:
 
 ```wf
 // … reads what the other steps declare
@@ -304,8 +244,7 @@ page ShelfPage(path: "/shelf", title: "Your shelf", description: "The books you 
 }
 ```
 
-Add a page for addresses no other page claims, `src/pages/NotFound.wf`.
-`path: "*"` matches anything, and the static build writes it as `404.html`:
+Add a page for addresses no other page claims, `src/pages/NotFound.wf`. `path: "*"` matches anything, and the static build writes it as `404.html`:
 
 ```wf
 page NotFound(path: "*", title: "Not found", description: "Nothing lives at this address.", noindex: true) {
@@ -316,8 +255,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives at this
 }
 ```
 
-Last, the shell every page shares, `src/App.wf`. `Router` is where the
-current page is drawn:
+Last, the shell every page shares, `src/App.wf`. `Router` is where the current page is drawn:
 
 ```wf
 // … reads what the other steps declare
@@ -334,11 +272,7 @@ app {
 }
 ```
 
-**Check it:** `wf check` prints `No problems in shelf.` Every page now has a
-navigation bar. Put two books on your shelf: the link reads
-**Your shelf (2)**. Open it, then reload the page — the two books are still
-there. Open `http://localhost:3000/nowhere` and you see **Nothing lives
-here**.
+**Check it:** `wf check` prints `No problems in shelf.` Every page now has a navigation bar. Put two books on your shelf: the link reads **Your shelf (2)**. Open it, then reload the page — the two books are still there. Open `http://localhost:3000/nowhere` and you see **Nothing lives here**.
 
 ## Step 7: Add a form to suggest a book
 
@@ -374,10 +308,7 @@ page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us wh
 }
 ```
 
-A `validate` block sits beside the state it guards, and the control bound to
-that state shows its messages accessibly: the field gets `aria-invalid`, and
-the message is announced. A submit that fails moves focus to the first field
-with a problem and does not run `on submit`. ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md).)
+A `validate` block sits beside the state it guards, and the control bound to that state shows its messages accessibly: the field gets `aria-invalid`, and the message is announced. A submit that fails moves focus to the first field with a problem and does not run `on submit`. ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md).)
 
 Then link the page from the shell. Add the third link to `src/App.wf`:
 
@@ -397,14 +328,9 @@ app {
 }
 ```
 
-**Check it:** click **Suggest a book**, then **Send the suggestion** with
-the form empty. The form does not send: **Which book?** appears under
-**Title**, and **Who wrote it?** under **Author**. Fill in both and send
-again. You see **Thank you — we will take a look.**, and the form is empty.
+**Check it:** click **Suggest a book**, then **Send the suggestion** with the form empty. The form does not send: **Which book?** appears under **Title**, and **Who wrote it?** under **Author**. Fill in both and send again. You see **Thank you — we will take a look.**, and the form is empty.
 
-A real site sends the suggestion somewhere. You do not need a backend for
-this tutorial, so this part is for later: describe the service once, in a
-file of its own,
+A real site sends the suggestion somewhere. You do not need a backend for this tutorial, so this part is for later: describe the service once, in a file of its own,
 
 ```wf
 // … in src/api.wf, beside the pages
@@ -424,15 +350,13 @@ on submit {
 }
 ```
 
-`try` takes the call's value, or stops the handler on a failure and reports
-it, so `sent` turns true only when the suggestion arrived.
+`try` takes the call's value, or stops the handler on a failure and reports it, so `sent` turns true only when the suggestion arrived.
 
 ([Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md), [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).)
 
 ## Step 8: Give the site a theme
 
-A theme changes the design tokens that every built-in is drawn with. Create
-`src/theme.wf`:
+A theme changes the design tokens that every built-in is drawn with. Create `src/theme.wf`:
 
 ```wf
 theme Paper {
@@ -450,8 +374,7 @@ theme Ink {
 }
 ```
 
-Then name the themes in `webfluent.app.json` — `Paper` as the theme and
-`Ink` as the dark one:
+Then name the themes in `webfluent.app.json` — `Paper` as the theme and `Ink` as the dark one:
 
 ```json
 {
@@ -466,15 +389,9 @@ Then name the themes in `webfluent.app.json` — `Paper` as the theme and
 }
 ```
 
-A reader whose system is set to dark mode gets `Ink`, before the first paint
-and with no flash of the light theme. A token you do not name keeps its
-baseline value. ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md).)
+A reader whose system is set to dark mode gets `Ink`, before the first paint and with no flash of the light theme. A token you do not name keeps its baseline value. ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md).)
 
-**Check it:** the links and the **Send the suggestion** button are purple,
-and the text is a serif face. Switch
-your system to dark mode and the page turns dark. If the build stops with
-``No `theme Paper` is declared in this project``, the config names a theme
-that `src/theme.wf` does not declare: check the file name and the spelling.
+**Check it:** the links and the **Send the suggestion** button are purple, and the text is a serif face. Switch your system to dark mode and the page turns dark. If the build stops with ``No `theme Paper` is declared in this project``, the config names a theme that `src/theme.wf` does not declare: check the file name and the spelling.
 
 ## Step 9: Test the book card
 
@@ -503,11 +420,7 @@ Run them:
 wf test
 ```
 
-The first test renders the card and reads what it shows. It also writes a
-snapshot that the next run compares against. The second test **clicks**, so
-it runs in a headless Chrome, with the same compiler and runtime a reader
-gets. Buttons are found by their text, as a reader finds them.
-([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).)
+The first test renders the card and reads what it shows. It also writes a snapshot that the next run compares against. The second test **clicks**, so it runs in a headless Chrome, with the same compiler and runtime a reader gets. Buttons are found by their text, as a reader finds them. ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).)
 
 **Check it:** the first run ends:
 
@@ -517,38 +430,26 @@ gets. Buttons are found by their text, as a reader finds them.
 2 passed, 0 failed, 1 snapshot(s) written
 ```
 
-Run `wf test` again and the first line reads `ok`: the render matches its
-snapshot.
+Run `wf test` again and the first line reads `ok`: the render matches its snapshot.
 
-If the second test says there is no browser, install Chrome or Chromium, or
-set `WF_CHROME` to its path.
+If the second test says there is no browser, install Chrome or Chromium, or set `WF_CHROME` to its path.
 
 ## Step 10: Build and verify the site
 
-Stop the dev server, then build the site and load every page in a real
-browser:
+Stop the dev server, then build the site and load every page in a real browser:
 
 ```bash
 wf build
 wf verify
 ```
 
-`wf build` writes `build/`, a folder of HTML, CSS and JavaScript that any
-static host can serve, and prints every warning, such as a missing `alt`, a
-page without a description, or a state nothing reads. `wf verify` loads every
-page in a real browser and fails on a script error, a failed request or a
-blank page.
+`wf build` writes `build/`, a folder of HTML, CSS and JavaScript that any static host can serve, and prints every warning, such as a missing `alt`, a page without a description, or a state nothing reads. `wf verify` loads every page in a real browser and fails on a script error, a failed request or a blank page.
 
-**Check it:** `wf build` ends with `Build complete.`, and `build/` holds
-`index.html`, `shelf/index.html`, `suggest/index.html`, `404.html` and one
-`books/<slug>/index.html` per book. `wf verify` lists six routes, each `ok`,
-and ends with `6 page(s), 0 problem(s)`.
+**Check it:** `wf build` ends with `Build complete.`, and `build/` holds `index.html`, `shelf/index.html`, `suggest/index.html`, `404.html` and one `books/<slug>/index.html` per book. `wf verify` lists six routes, each `ok`, and ends with `6 page(s), 0 problem(s)`.
 
 ## Step 11: Deploy to GitHub Pages
 
-Any static host serves `build/`. On GitHub Pages, a project site lives under
-`https://<you>.github.io/shelf/`, so tell the build its sub-path and its
-address. Add these keys to `webfluent.app.json`, keeping the others:
+Any static host serves `build/`. On GitHub Pages, a project site lives under `https://<you>.github.io/shelf/`, so tell the build its sub-path and its address. Add these keys to `webfluent.app.json`, keeping the others:
 
 ```json
 {
@@ -557,11 +458,9 @@ address. Add these keys to `webfluent.app.json`, keeping the others:
 }
 ```
 
-`base_path` prefixes every link and asset. `site_url` turns on canonical
-links, the sitemap and absolute Open Graph URLs.
+`base_path` prefixes every link and asset. `site_url` turns on canonical links, the sitemap and absolute Open Graph URLs.
 
-Then add a workflow that builds and publishes the site on every push to
-`main`, `.github/workflows/pages.yml`:
+Then add a workflow that builds and publishes the site on every push to `main`, `.github/workflows/pages.yml`:
 
 ```yaml
 name: Deploy
@@ -589,20 +488,13 @@ jobs:
         uses: actions/deploy-pages@v4
 ```
 
-Push the project to your `shelf` repository. In the repository's
-**Settings → Pages**, choose **GitHub Actions** as the source.
+Push the project to your `shelf` repository. In the repository's **Settings → Pages**, choose **GitHub Actions** as the source.
 
-**Check it:** the **Actions** tab shows the **Deploy** workflow passing, and
-`https://<you>.github.io/shelf/` shows **Books worth reading**.
-The recipes cover [Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md),
-[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md),
-[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md),
-[nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md) and other hosts.
+**Check it:** the **Actions** tab shows the **Deploy** workflow passing, and `https://<you>.github.io/shelf/` shows **Books worth reading**. The recipes cover [Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md), [Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md), [Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md), [nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md) and other hosts.
 
 ## The whole program
 
-Every `.wf` file above, as one listing. This is the program the steps built,
-with the first of the two tests:
+Every `.wf` file above, as one listing. This is the program the steps built, with the first of the two tests:
 
 ```wf
 type Book {
@@ -798,8 +690,7 @@ To go further:
 
 ## Common mistakes
 
-Reading a value that may be missing. `books.find(…)` finds nothing when no
-book has the slug, so `book` is a `Book?`:
+Reading a value that may be missing. `books.find(…)` finds nothing when no book has the slug, so `book` is a `Book?`:
 
 ```wf expect=T04
 type Book { slug: String, title: String }
@@ -812,11 +703,9 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 }
 ```
 
-Bind it with `if let b = book { Heading(b.title).h1 }`, as step 5 does, or
-read it as `book?.title ?? "Book"` ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
+Bind it with `if let b = book { Heading(b.title).h1 }`, as step 5 does, or read it as `book?.title ?? "Book"` ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
 
-A field the type does not have. `type Book` names every field, so a typo
-is an error where it is written:
+A field the type does not have. `type Book` names every field, so a typo is an error where it is written:
 
 ```wf expect=T05
 type Book { slug: String, title: String }
@@ -833,8 +722,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 
 Use the name the message suggests, `book.title` ([T05](https://webfluent.monzeromer.dev/errors/T05.md)).
 
-A store member the store does not declare. `Shelf` has `saved`, `count`
-and `toggle`, and nothing else:
+A store member the store does not declare. `Shelf` has `saved`, `count` and `toggle`, and nothing else:
 
 ```wf expect=T06
 store Shelf {
@@ -852,12 +740,6 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 }
 ```
 
-Read a member the store declares, or declare the one you need:
-`derived count = saved.length` ([T06](https://webfluent.monzeromer.dev/errors/T06.md)).
+Read a member the store declares, or declare the one you need: `derived count = saved.length` ([T06](https://webfluent.monzeromer.dev/errors/T06.md)).
 
-Going further: if you know React, Vue or Svelte, [Coming from React, Vue or
-Svelte](https://webfluent.monzeromer.dev/coming-from/react.md) maps what you know onto WebFluent.
-
-## Next
-
-[Tutorial: Todos](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md): a single-page app, with a store and tests.
+Going further: if you know React, Vue or Svelte, [Coming from React, Vue or Svelte](https://webfluent.monzeromer.dev/coming-from/react.md) maps what you know onto WebFluent.

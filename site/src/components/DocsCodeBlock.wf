@@ -2,7 +2,12 @@
 /// file or language and Copy, then the code coloured by the compiler's
 /// highlighter. `title` names the file or the language; one the
 /// highlighter knows colours the block.
-component DocsCodeBlock(_ code: String, title: String = "wf", note: String = "") {
+///
+/// What the test suite holds the block to is said here too
+/// (`tests/common/mod.rs` reads it): `expect: "T04"` is a program that
+/// draws that code on purpose, and the bar says so; `check: false` is one
+/// the compiler is not run on — the prose around it says why.
+component DocsCodeBlock(_ code: String, title: String = "wf", note: String = "", expect: String = "", check: Bool = true) {
     state copied = false
     derived language = if title == "wf" || title == "wfx" || title.endsWith(".wf") { "wf" } else if title == "json" || title == "css" { title } else if title == "shell" || title == "bash" { "bash" } else { "" }
 
@@ -14,7 +19,7 @@ component DocsCodeBlock(_ code: String, title: String = "wf", note: String = "")
     action reset() { copied = false }
 
     // A whole program, with a page in it, opens in the Playground as it is.
-    derived runnable = language == "wf" && /^page /m.test(code)
+    derived runnable = language == "wf" && expect == "" && /^page /m.test(code)
     action play() {
         let files: [String: String] = {}
         files["src/pages/Home.wf"] = code
@@ -28,7 +33,7 @@ component DocsCodeBlock(_ code: String, title: String = "wf", note: String = "")
             style { flex-wrap: nowrap; align-items: center }
             Row(align: .center, gap: .sm) {
                 style { flex-wrap: nowrap; min-width: 0; padding: 0 6px; & p { margin: 0 } }
-                Text(title, class: "bp-mono") { style { font-size: 12px; color: $term-dim } }
+                Text(if expect == "" { title } else { "{title} · draws {expect}" }, class: "bp-mono") { style { font-size: 12px; color: $term-dim } }
                 if note != "" {
                     Text(note) { style { font-size: 12px; color: $term-dim; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
                 }

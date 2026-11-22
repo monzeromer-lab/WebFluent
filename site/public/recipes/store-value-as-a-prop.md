@@ -4,12 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/store-value-as-a-prop
 
-A component that needs only one value from a store can take it as a prop
-instead of using the store. That keeps the component reusable outside that
-store: a test or another page can hand it any number:
+A component that needs only one value from a store can take it as a prop instead of using the store. That keeps the component reusable outside that store: a test or another page can hand it any number:
 
-**Needs:** nothing besides the code. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the code. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 store Cart { state count = 0 }
@@ -28,15 +25,10 @@ page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
 }
 ```
 
-No badge shows while the cart is empty. Press **Add to cart** and a badge
-reading 1 appears beside the button, and counts up with every press.
-
 ## How it works
 
-- `CartBadge` declares a `count` [prop](https://webfluent.monzeromer.dev/learn/10-components.md#props) and
-  knows nothing about `Cart`.
-- The page reads the [store](https://webfluent.monzeromer.dev/learn/11-stores.md#a-first-store) after
-  `use Cart` and passes `Cart.count` down.
-- A prop that reads state stays live inside the component, so the badge
-  repaints when `Cart.count` changes. The button changes it here; in a shop
-  of your own, an action of the store would.
+No badge shows while the cart is empty. Press **Add to cart** and a badge reading 1 appears beside the button, and counts up with every press.
+
+- `CartBadge` declares a `count` [prop](https://webfluent.monzeromer.dev/learn/10-components.md#props) and knows nothing about `Cart`.
+- The page reads the [store](https://webfluent.monzeromer.dev/learn/11-stores.md#a-first-store) after `use Cart` and passes `Cart.count` down.
+- A prop that reads state stays live inside the component, so the badge repaints when `Cart.count` changes. The button changes it here; in a shop of your own, an action of the store would.

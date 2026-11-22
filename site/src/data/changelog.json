@@ -2,8 +2,8 @@
  {
   "version": "7.1.1",
   "id": "7.1.1",
-  "date": "",
-  "when": "",
+  "date": "2026-11-18",
+  "when": "18 November 2026",
   "summary": "A fix to the language server.\n\n- **Arabic in a splice no longer crashes the server.** Finding a name's\n  uses reads every string of the project for the name in its `{…}`\n  splices, and it read them a byte at a time: a letter outside ASCII —\n  any Arabic, which the docs site is full of — ended the server. It reads\n  them by character now, and a name's edges are any script's letters, so\n  in `{أname}` the Arabic letter belongs to the name.\n- The VS Code and Zed extensions fetch wf-lsp 7.1.1.",
   "sections": [],
   "count": 0

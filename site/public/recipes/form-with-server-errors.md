@@ -4,15 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/form-with-server-errors
 
-A form checks what it can before it sends (see
-[Show validation messages on a form](https://webfluent.monzeromer.dev/recipes/validation-messages.md)), but only the
-server knows that an address is taken. When it answers `422` with the
-fields that failed, put each message under its field.
+A form checks what it can before it sends (see [Show validation messages on a form](https://webfluent.monzeromer.dev/recipes/validation-messages.md)), but only the server knows that an address is taken. When it answers `422` with the fields that failed, put each message under its field.
 
-**Needs:** a server that answers `POST /api/people` with the person it
-made, or `422` and `{ "errors": [{ "field": "email", "message": "…" }] }`.
-It claims `/`: paste it into a new project, or replace the starter's
-`src/pages/Home.wf` with it.
+**Needs:** a server that answers `POST /api/people` with the person it made, or `422` and `{ "errors": [{ "field": "email", "message": "…" }] }`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 type Person { id: String, name: String, email: String }
@@ -63,9 +57,6 @@ page Join(path: "/", title: "Join", description: "Add yourself to the team.") {
 }
 ```
 
-`form.apply(errors)` takes each field's message by the field's name and
-shows it under the control whose `name:` (or whose bound state) is that
-field, with the same accessible plumbing a `validate` rule uses; the focus
-goes to the first. The `match` covers every case of `Person !
-CreatePersonError`, so a status the server adds later is a build error
-here, not a silent nothing.
+## How it works
+
+`form.apply(errors)` takes each field's message by the field's name and shows it under the control whose `name:` (or whose bound state) is that field, with the same accessible plumbing a `validate` rule uses; the focus goes to the first. The `match` covers every case of `Person ! CreatePersonError`, so a status the server adds later is a build error here, not a silent nothing.

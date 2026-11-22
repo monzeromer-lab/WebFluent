@@ -13,7 +13,7 @@ Callout(_ text: String, kind: Enum, title: String) { … }
 ## Example
 
 ```wf
-Callout("Run `wf check` before you push: every finding has a **code**, and [a page](https://webfluent.monzeromer.dev/errors.md) that says how to fix it.", title: "Before you push").tip
+Callout("Run `wf check` before you push: every finding has a **code**, and [a page](/errors) that says how to fix it.", title: "Before you push").tip
 ```
 
 ## Props

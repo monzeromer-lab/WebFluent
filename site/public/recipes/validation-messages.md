@@ -4,12 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/validation-messages
 
-A form should say what is wrong beside the field that is wrong, before the
-reader submits it. To check a form as the reader fills it in, put a
-`validate` block beside each state:
+A form should say what is wrong beside the field that is wrong, before the reader submits it. To check a form as the reader fills it in, put a `validate` block beside each state:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Signup(path: "/", title: "Sign up", description: "Make an account.") {
@@ -34,17 +31,10 @@ page Signup(path: "/", title: "Sign up", description: "Make an account.") {
 
 ## How it works
 
-- Each [`validate`](https://webfluent.monzeromer.dev/learn/14-forms.md#validate-a-field) block names a
-  state and lists its rules. A rule may take a message after it; without
-  one, the rule's own is used.
+- Each [`validate`](https://webfluent.monzeromer.dev/learn/14-forms.md#validate-a-field) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.
 - `matches(password)` holds `confirm` to whatever `password` is now.
-- The control bound to a state shows that state's message. Each control
-  shows its own message when the reader leaves it, with the accessible
-  wiring an `error:` gets.
-- `Form(bind: form)` hands the page a handle: `form.valid` disables the
-  button until every rule passes, and `form.reset()` clears the form after
-  a submit.
-- A submit that fails moves focus to the first problem and does not run
-  the `on submit` handler.
+- The control bound to a state shows that state's message. Each control shows its own message when the reader leaves it, with the accessible wiring an `error:` gets.
+- `Form(bind: form)` hands the page a handle: `form.valid` disables the button until every rule passes, and `form.reset()` clears the form after a submit.
+- A submit that fails moves focus to the first problem and does not run the `on submit` handler.
 
 [Forms](https://webfluent.monzeromer.dev/learn/14-forms.md) lists every rule.

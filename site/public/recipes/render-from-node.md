@@ -4,12 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/render-from-node
 
-The Node binding is a small wrapper around `wf render`: it renders a
-template with your data as HTML, a fragment, a PDF or slides. This Express
-server answers with an invoice in either form. You need Node.js, npm and
-the `wf` command, and a template like the one in
-[Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md). This one is
-`templates/invoice.wf`:
+The Node binding is a small wrapper around `wf render`: it renders a template with your data as HTML, a fragment, a PDF or slides. This Express server answers with an invoice in either form. You need Node.js, npm and the `wf` command, and a template like the one in [Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md). This one is `templates/invoice.wf`:
 
 ```wf
 type Customer { name: String }
@@ -36,9 +31,7 @@ page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
 }
 ```
 
-Install the binding and Express. The binding is not on the npm registry
-yet, so it comes from a clone of the repository; `wf` must be installed
-too, since the binding runs it:
+Install the binding and Express. The binding is not on the npm registry yet, so it comes from a clone of the repository; `wf` must be installed too, since the binding runs it:
 
 ```bash
 git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
@@ -85,31 +78,17 @@ app.get("/invoices/:id", async (req, res) => {
 app.listen(3000, () => console.log("http://localhost:3000/invoices/INV-001"));
 ```
 
-Run `node server.js` and open `/invoices/INV-001` for the page, or
-`/invoices/INV-001.pdf` for the PDF.
-
 ## How it works
 
-- `Template.fromDir` reads every template under the directory, with
-  components shared, and `page("Invoice")` picks the page to render.
-  `Template.fromFile` and `Template.fromString` load one template instead.
-  The server loads it once, at start-up.
-- Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`,
-  `renderPdf`, `renderSlides`) and an `…Async` form that does not block the
-  event loop. Use the `…Async` forms in a server, as this one does.
-- `withTheme`, `withTokens` and `withLang` set what the Rust API sets
-  ([Render templates from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#configure-a-render)),
-  and each returns the template, so they chain before a render.
-- The data is held to the page's parameters before anything is drawn: a
-  field missing or of the wrong type throws, its message naming the place
-  (`T33 … $.items[1].price is missing`).
-- A render runs `wf` once and takes a few milliseconds. The data goes over
-  standard input, so it is never written to disk; a template given as a
-  string is written to a temporary file once, the first time it renders.
+Run `node server.js` and open `/invoices/INV-001` for the page, or `/invoices/INV-001.pdf` for the PDF.
 
-The binding needs `wf` itself installed. It looks for it at `WF_BIN`, then
-on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside
-Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.
+- `Template.fromDir` reads every template under the directory, with components shared, and `page("Invoice")` picks the page to render. `Template.fromFile` and `Template.fromString` load one template instead. The server loads it once, at start-up.
+- Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`, `renderPdf`, `renderSlides`) and an `…Async` form that does not block the event loop. Use the `…Async` forms in a server, as this one does.
+- `withTheme`, `withTokens` and `withLang` set what the Rust API sets ([Render templates from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#configure-a-render)), and each returns the template, so they chain before a render.
+- The data is held to the page's parameters before anything is drawn: a field missing or of the wrong type throws, its message naming the place (`T33 … $.items[1].price is missing`).
+- A render runs `wf` once and takes a few milliseconds. The data goes over standard input, so it is never written to disk; a template given as a string is written to a temporary file once, the first time it renders.
+
+The binding needs `wf` itself installed. It looks for it at `WF_BIN`, then on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.
 
 ## Troubleshooting
 

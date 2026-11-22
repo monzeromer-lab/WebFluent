@@ -4,15 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/show-a-carousel
 
-Show pictures or panels one at a time, with buttons to move between them
-and, if you want, advancing on their own. Wrap each slide in a
-`Carousel.Slide` inside a `Carousel`.
+Show pictures or panels one at a time, with buttons to move between them and, if you want, advancing on their own. Wrap each slide in a `Carousel.Slide` inside a `Carousel`.  This page shows three photographs that advance every five seconds:
 
-This page shows three photographs that advance every five seconds:
-
-**Needs:** `one.jpg`, `two.jpg` and `three.jpg` in `public/`. It claims
-`/`: paste it into a new project, or replace the starter's
-`src/pages/Home.wf` with it.
+**Needs:** `one.jpg`, `two.jpg` and `three.jpg` in `public/`. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
@@ -28,12 +22,6 @@ page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
 ## How it works
 
 - **Each `Carousel.Slide` is one slide**, shown one at a time.
-- **The controls come with it.** A carousel has a named previous button, a
-  named next button, and a dot per slide.
-- **`label:` names it.** Its `label:` names the region for screen readers.
-  It is a `region` described as a carousel, unless you set its `role:` or
-  `aria-roledescription:` yourself.
-- **`autoplay` advances it** every `interval:` milliseconds. With
-  `autoplay`, the carousel also has a button that stops it. It pauses while
-  the pointer or the keyboard focus is on it, and it does not advance at
-  all for a reader who asked for reduced motion.
+- **The controls come with it.** A carousel has a named previous button, a named next button, and a dot per slide.
+- **`label:` names it.** Its `label:` names the region for screen readers. It is a `region` described as a carousel, unless you set its `role:` or `aria-roledescription:` yourself.
+- **`autoplay` advances it** every `interval:` milliseconds. With `autoplay`, the carousel also has a button that stops it. It pauses while the pointer or the keyboard focus is on it, and it does not advance at all for a reader who asked for reduced motion.

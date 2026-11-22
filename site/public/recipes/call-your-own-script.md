@@ -4,11 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/call-your-own-script
 
-Some things are easier to write in JavaScript: a pointer effect, a
-measurement, glue around a library. Put the function in a `.js` file under
-`src/`, and your pages call it by name. You need a WebFluent project
-([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)); the script is a plain
-browser script, with no `import`, no `export` and no build step.
+Some things are easier to write in JavaScript: a pointer effect, a measurement, glue around a library. Put the function in a `.js` file under `src/`, and your pages call it by name. You need a WebFluent project ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)); the script is a plain browser script, with no `import`, no `export` and no build step.
 
 **Needs:** the script `src/tilt.js`, shown below.
 
@@ -27,9 +23,7 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
 }
 ```
 
-This script tilts an element toward the pointer, and returns a handle the
-page can update and destroy. Write it the way you would write any file a
-`<script src>` loads:
+This script tilts an element toward the pointer, and returns a handle the page can update and destroy. Write it the way you would write any file a `<script src>` loads:
 
 ```js
 // src/tilt.js
@@ -54,43 +48,20 @@ function initTilt(node, max = 15) {
 
 ## How it works
 
-The page hands the card to `initTilt` with `mount:`, changes how far it
-tilts with `update:` as the reader moves the slider, and removes the
-listener with `cleanup:` when the page leaves
-([Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)). The build
-treats the script this way:
+The page hands the card to `initTilt` with `mount:`, changes how far it tilts with `update:` as the reader moves the slider, and removes the listener with `cleanup:` when the page leaves ([Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)). The build treats the script this way:
 
-- **The file runs as written.** The build copies it to `build/js/tilt.js`
-  byte for byte and links it with `<script defer>` on every page, before the
-  compiled code. A stack trace points at your own line.
-- **Its names are in scope.** Every top-level `function`, `class`, `const`,
-  `let` and `var`, and anything assigned to `window.x`, is a name your `.wf`
-  code can call directly. What a function or an IIFE keeps inside stays
-  private, as it does in the browser.
-- **A call is checked.** `initTilt(n, 1, 2)` is a `T10` error where it is
-  written, because the function takes one or two arguments. Its JSDoc types
-  the arguments ([Type a script with JSDoc](#type-a-script-with-jsdoc)). A
-  name the file does not declare is still a `T13`.
-- **A class is constructed.** WebFluent has no `new`. A call to a class a
-  script declares compiles to `new`.
-- **One name has one meaning.** Two scripts that declare the same name, or
-  a script name that is also a component, a store, a `const`, or a name the
-  language or the browser owns (`format`, `log`, `fetch`), is an error that
-  names both.
-- **An ES module is refused.** A file with a top-level `import` or `export`
-  cannot run from a `<script src>`, so the build stops and says so. Load a
-  published module from the config instead
-  ([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md)).
+- **The file runs as written.** The build copies it to `build/js/tilt.js` byte for byte and links it with `<script defer>` on every page, before the compiled code. A stack trace points at your own line.
+- **Its names are in scope.** Every top-level `function`, `class`, `const`, `let` and `var`, and anything assigned to `window.x`, is a name your `.wf` code can call directly. What a function or an IIFE keeps inside stays private, as it does in the browser.
+- **A call is checked.** `initTilt(n, 1, 2)` is a `T10` error where it is written, because the function takes one or two arguments. Its JSDoc types the arguments ([Type a script with JSDoc](#type-a-script-with-jsdoc)). A name the file does not declare is still a `T13`.
+- **A class is constructed.** WebFluent has no `new`. A call to a class a script declares compiles to `new`.
+- **One name has one meaning.** Two scripts that declare the same name, or a script name that is also a component, a store, a `const`, or a name the language or the browser owns (`format`, `log`, `fetch`), is an error that names both.
+- **An ES module is refused.** A file with a top-level `import` or `export` cannot run from a `<script src>`, so the build stops and says so. Load a published module from the config instead ([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md)).
 
-The tools know your scripts too: `wf serve` rebuilds when a script changes,
-`wf audit` lists what each one declares, `wf types` prints each function's
-signature, and the editor completes, documents and jumps to them.
+The tools know your scripts too: `wf serve` rebuilds when a script changes, `wf audit` lists what each one declares, `wf types` prints each function's signature, and the editor completes, documents and jumps to them.
 
 ## Type a script with JSDoc
 
-To have calls checked against a function's types, describe the function in
-a JSDoc comment. JSDoc is a comment, so the file stays exactly what the
-browser runs. The checker reads it this way:
+To have calls checked against a function's types, describe the function in a JSDoc comment. JSDoc is a comment, so the file stays exactly what the browser runs. The checker reads it this way:
 
 | JSDoc | WebFluent |
 |---|---|
@@ -106,16 +77,9 @@ browser runs. The checker reads it this way:
 | a `@typedef`, a class, a `type` of the program's | that type |
 | `string \| number` · a bare `Array` | `T31`: the language cannot say it |
 
-The JSDoc is the function's signature, so a function called from `.wf`
-with none is `T31`; the editor's quick fix and `wf fix --code T31` write
-one from the call. A function with JSDoc and no `@returns` gives nothing
-back.
+The JSDoc is the function's signature, so a function called from `.wf` with none is `T31`; the editor's quick fix and `wf fix --code T31` write one from the call. A function with JSDoc and no `@returns` gives nothing back.
 
-What `@returns` says is held at the other end too: every call checks what
-the function gives back (or what its promise settles to) as it returns, in
-every build, and a mismatch throws a `DecodeError` naming the function and
-the place — `` `rows` returned what its @returns does not say: $[0].title
-is missing``. A value typed `Row` is a `Row`.
+What `@returns` says is held at the other end too: every call checks what the function gives back (or what its promise settles to) as it returns, in every build, and a mismatch throws a `DecodeError` naming the function and the place — `` `rows` returned what its @returns does not say: $[0].title is missing``. A value typed `Row` is a `Row`.
 
 A `@typedef` names a record the program can use:
 
@@ -141,15 +105,11 @@ page Search(path: "/search", title: "Search", description: "Rows a script finds.
 }
 ```
 
-A class is a type too: `Counter(1)` is a `Counter`, whose members are its
-JSDoc'd methods.
+A class is a type too: `Counter(1)` is a `Counter`, whose members are its JSDoc'd methods.
 
 ## Let a script report, and keep the class in WebFluent
 
-When the way an element looks depends on something only a script can see
-(an intersection, a scroll position, a library's event), hand the script an
-action. An action is a plain function at run time. The script calls it, and
-the class stays in a `class:` the compiler can read.
+When the way an element looks depends on something only a script can see (an intersection, a scroll position, a library's event), hand the script an action. An action is a plain function at run time. The script calls it, and the class stays in a `class:` the compiler can read.
 
 This page sets `is-visible` on the card while it is on screen:
 
@@ -183,9 +143,7 @@ function watchVisible(node, onChange) {
 }
 ```
 
-Each class has one owner. A class that `class:` names belongs to
-WebFluent, and a class a script adds with `classList.add` belongs to the
-script: `class:` only ever takes off what it put on.
+Each class has one owner. A class that `class:` names belongs to WebFluent, and a class a script adds with `classList.add` belongs to the script: `class:` only ever takes off what it put on.
 
 ## Troubleshooting
 

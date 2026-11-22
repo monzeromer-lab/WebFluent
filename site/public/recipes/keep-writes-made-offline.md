@@ -4,21 +4,15 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline
 
-Keep the reader's changes when the network drops, and send them when it
-comes back. This needs offline support turned on
-([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)), with `"sync": true` in its
-config:
+Keep the reader's changes when the network drops, and send them when it comes back. This needs offline support turned on ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)), with `"sync": true` in its config:
 
-**Needs:** `offline` with `"sync": true` in `webfluent.app.json`, below,
-and a site served over HTTPS ([Make a site work
-offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)).
+**Needs:** `offline` with `"sync": true` in `webfluent.app.json`, below, and a site served over HTTPS ([Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md)).
 
 ```json
 { "offline": { "precache": ["/"], "sync": true } }
 ```
 
-This page saves a note, says when the save is waiting for the
-connection, and lists any the server refused once they were sent:
+This page saves a note, says when the save is waiting for the connection, and lists any the server refused once they were sent:
 
 ```wf
 type Note { id: String, text: String }
@@ -60,33 +54,15 @@ page Notes(path: "/notes", title: "Notes", description: "Notes that save offline
 
 ## How it works
 
-With `sync` on, a write that is safe to send twice — a `PUT` or a
-`DELETE`, or a `POST` or `PATCH` its endpoint marks `idempotent` — that
-fails because the network is gone is kept. Its call still fails, as
-`.offline(queued: true)`: no answer came, so there is no value to show, and
-the page can say the change is waiting. A `POST` or `PATCH` that is not
-`idempotent` is not kept: one whose answer was lost may already have
-reached the server, so it fails as `.offline(queued: false)` and the page
-decides.
+With `sync` on, a write that is safe to send twice — a `PUT` or a `DELETE`, or a `POST` or `PATCH` its endpoint marks `idempotent` — that fails because the network is gone is kept. Its call still fails, as `.offline(queued: true)`: no answer came, so there is no value to show, and the page can say the change is waiting. A `POST` or `PATCH` that is not `idempotent` is not kept: one whose answer was lost may already have reached the server, so it fails as `.offline(queued: false)` and the page decides.
 
-`network.queued` is how many writes are waiting. Show it, as the page
-above does, so the reader knows their changes are safe.
+`network.queued` is how many writes are waiting. Show it, as the page above does, so the reader knows their changes are safe.
 
 ### What is kept
 
-Only a write that failed for want of a network is kept: the browser says it
-is offline, or the site's own server could not be reached. A request to
-another origin that is refused while the browser is online — a CORS
-refusal, a closed port — fails as it would without `sync`.
+Only a write that failed for want of a network is kept: the browser says it is offline, or the site's own server could not be reached. A request to another origin that is refused while the browser is online — a CORS refusal, a closed port — fails as it would without `sync`.
 
-A credential is never stored with a kept write. What an `api`'s
-middleware adds — `bearer(Session.token)`, an `Authorization` header from
-the session — is added again when the write is sent, by the middleware as
-it is then: a write made
-before a logout goes out with no one's token, never the old one. A write
-whose call carries a credential header itself (`headers: { "Authorization":
-token }`) cannot be kept without it, so it is not kept, and its call fails
-as it would without `sync`.
+A credential is never stored with a kept write. What an `api`'s middleware adds — `bearer(Session.token)`, an `Authorization` header from the session — is added again when the write is sent, by the middleware as it is then: a write made before a logout goes out with no one's token, never the old one. A write whose call carries a credential header itself (`headers: { "Authorization": token }`) cannot be kept without it, so it is not kept, and its call fails as it would without `sync`.
 
 A `File` body is not kept, and its call fails as it would without `sync`.
 
@@ -94,22 +70,13 @@ A `File` body is not kept, and its call fails as it would without `sync`.
 
 When the connection returns, the kept writes are sent in order:
 
-- by Background Sync, where the browser has it, so a closed tab still sends
-  them;
+- by Background Sync, where the browser has it, so a closed tab still sends them;
 - by the page otherwise, the next time it is open.
 
-A server that takes the write makes stale what its endpoint `invalidates`:
-every read of those on an open page asks again, as it would after the
-write had gone at once. A server that refuses it — a `4xx` — has answered,
-so the write is not sent again; it is listed in `network.refused`, each
-`{ method, url, status, at }`, until `network.clearRefused()`. A server that
-is down, or asks the client to wait, keeps the write waiting for later.
+A server that takes the write makes stale what its endpoint `invalidates`: every read of those on an open page asks again, as it would after the write had gone at once. A server that refuses it — a `4xx` — has answered, so the write is not sent again; it is listed in `network.refused`, each `{ method, url, status, at }`, until `network.clearRefused()`. A server that is down, or asks the client to wait, keeps the write waiting for later.
 
-A write whose service adds credentials with its middleware is sent by a page that
-has that service open, so the worker leaves it — and the writes after it,
-to keep them in order — for the next such page.
+A write whose service adds credentials with its middleware is sent by a page that has that service open, so the worker leaves it — and the writes after it, to keep them in order — for the next such page.
 
 ### Forget the kept writes
 
-To forget every kept write — when the reader logs out, for example — call
-`WF.clearQueued()` from one of the project's scripts.
+To forget every kept write — when the reader logs out, for example — call `WF.clearQueued()` from one of the project's scripts.

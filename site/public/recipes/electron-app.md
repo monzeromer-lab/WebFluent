@@ -4,20 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/electron-app
 
-This recipe ships a WebFluent project as an Electron app: the build runs
-in a Chromium shipped inside the app, and a page calls a Node.js side for
-what a browser cannot do — open a folder dialog, read a file on disk,
-start a process. Nothing in the language changes; a page reaches Node
-through a plain script under `src/`, with one typed function per thing it
-asks for ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). For a
-native side in Rust and the system's own web view instead, see
-[Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md).
-
-You need a WebFluent project that builds with `wf build`, and Node.js
-with npm.
-
-These are the files of an Electron app, beside `src/`. First, the build
-settings in `webfluent.app.json`:
+This recipe ships a WebFluent project as an Electron app: the build runs in a Chromium shipped inside the app, and a page calls a Node.js side for what a browser cannot do — open a folder dialog, read a file on disk, start a process. Nothing in the language changes; a page reaches Node through a plain script under `src/`, with one typed function per thing it asks for ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). For a native side in Rust and the system's own web view instead, see [Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md).  You need a WebFluent project that builds with `wf build`, and Node.js with npm.  These are the files of an Electron app, beside `src/`. First, the build settings in `webfluent.app.json`:
 
 ```json
 {
@@ -33,8 +20,7 @@ npm init -y
 npm install --save-dev electron electron-builder
 ```
 
-Point `package.json` at the main process, and add the scripts that run and
-package the app:
+Point `package.json` at the main process, and add the scripts that run and package the app:
 
 ```json
 {
@@ -47,8 +33,7 @@ package the app:
 }
 ```
 
-The main process opens the window, serves the build to it, and answers
-the page's calls:
+The main process opens the window, serves the build to it, and answers the page's calls:
 
 ```js
 // electron/main.js
@@ -189,62 +174,28 @@ function onEvent(name, handler) {
 
 ### Prepare the build for a desktop
 
-The same project builds for the web and for a desktop. Two keys in
-`webfluent.app.json`, and one to leave out, drop what only a website needs:
+The same project builds for the web and for a desktop. Two keys in `webfluent.app.json`, and one to leave out, drop what only a website needs:
 
-- **`build.compress: false`** — the shell packs the folder into the app, so
-  a `.gz` file beside every file would ship every file twice.
-- **`meta.sitemap: false`** — writes no `sitemap.xml` or `robots.txt`;
-  nothing crawls an app. You can leave `meta.site_url` and the link-preview
-  tags unset too.
-- **Leave `offline` out** — the files are already on the machine, so a
-  service worker has nothing to keep.
+- **`build.compress: false`** — the shell packs the folder into the app, so a `.gz` file beside every file would ship every file twice.
+- **`meta.sitemap: false`** — writes no `sitemap.xml` or `robots.txt`; nothing crawls an app. You can leave `meta.site_url` and the link-preview tags unset too.
+- **Leave `offline` out** — the files are already on the machine, so a service worker has nothing to keep.
 
-A single-page build and a static build both work
-([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)), and addresses stay as they
-are. The main process answers a path the build has no file for with
-`index.html`, so reloading the window on `/settings` shows the settings
-page.
+A single-page build and a static build both work ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)), and addresses stay as they are. The main process answers a path the build has no file for with `index.html`, so reloading the window on `/settings` shows the settings page.
 
-An app is often used with no network, and a font named in `meta.fonts`
-comes from another origin. To make a font always available, put the file in
-`public/` and declare it with `@font-face` in a `.css` file under `src/`
-([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+An app is often used with no network, and a font named in `meta.fonts` comes from another origin. To make a font always available, put the file in `public/` and declare it with `@font-face` in a `.css` file under `src/` ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 
 ### Set up Electron
 
-1. `npm init -y` writes a `package.json`, and `npm install` adds Electron
-   and electron-builder to it as development dependencies.
-2. Electron's two files go in a folder called `electron/`. Do **not**
-   put them under `src/`: every `.js` file under `src/` is linked into the
-   pages, and these files run in Node, outside the pages.
-3. `"main"` in `package.json` points Electron at the main process, and
-   `npm start` runs `electron .`.
-4. The main process opens the window and serves the build to it. A
-   `file://` address would break the build's absolute addresses (there,
-   `/app.js` is the root of the disk), so the build is served from an
-   `app://` origin of its own. `protocol.handle("app", serve)` answers each
-   request with the file of `build/` it names, the folder's `index.html`,
-   or — for a path with no extension, a route the router draws —
-   `build/index.html`. Packaged, the window loads `app://localhost/`;
-   while you work, `http://localhost:3000/`.
+1. `npm init -y` writes a `package.json`, and `npm install` adds Electron and electron-builder to it as development dependencies.
+2. Electron's two files go in a folder called `electron/`. Do **not** put them under `src/`: every `.js` file under `src/` is linked into the pages, and these files run in Node, outside the pages.
+3. `"main"` in `package.json` points Electron at the main process, and `npm start` runs `electron .`.
+4. The main process opens the window and serves the build to it. A `file://` address would break the build's absolute addresses (there, `/app.js` is the root of the disk), so the build is served from an `app://` origin of its own. `protocol.handle("app", serve)` answers each request with the file of `build/` it names, the folder's `index.html`, or — for a path with no extension, a route the router draws — `build/index.html`. Packaged, the window loads `app://localhost/`; while you work, `http://localhost:3000/`.
 
 ### Call Node from a page
 
-A page has no Node in it. The *preload script* runs beside the page and
-hands it exactly what it may ask for: one function per channel, never
-`ipcRenderer` itself. Each `ipcMain.handle` in the main process answers
-one channel: `greet` returns a value, `start-sync` reports its progress as
-`sync-progress` events, and `pick-folder` opens the system's folder
-dialog. `onEvent` lets a page hear only the events the preload script
-lists.
+A page has no Node in it. The *preload script* runs beside the page and hands it exactly what it may ask for: one function per channel, never `ipcRenderer` itself. Each `ipcMain.handle` in the main process answers one channel: `greet` returns a value, `start-sync` reports its progress as `sync-progress` events, and `pick-folder` opens the system's folder dialog. `onEvent` lets a page hear only the events the preload script lists.
 
-`src/native.js` takes the place of the three scripts of the Tauri recipe.
-It keeps their names, so the `Hello`, `Sync` and `Library` pages of
-[Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md#call-a-rust-command)
-run in Electron without a change. `inApp()` is false in a browser tab —
-`wf serve` opened in a browser, `wf test`, `wf verify` — and each function
-answers there instead of throwing, so every page still loads.
+`src/native.js` takes the place of the three scripts of the Tauri recipe. It keeps their names, so the `Hello`, `Sync` and `Library` pages of [Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md#call-a-rust-command) run in Electron without a change. `inApp()` is false in a browser tab — `wf serve` opened in a browser, `wf test`, `wf verify` — and each function answers there instead of throwing, so every page still loads.
 
 ### Run the Electron app while you work
 
@@ -260,20 +211,13 @@ In the second:
 npm start
 ```
 
-Saving a `.wf` file rebuilds and reloads the window. A change under
-`electron/` needs the app restarted.
+Saving a `.wf` file rebuilds and reloads the window. A change under `electron/` needs the app restarted.
 
-The page's security policy needs nothing added: `app://localhost` is the
-page's own origin, as `http://localhost:3000` is while you work.
+The page's security policy needs nothing added: `app://localhost` is the page's own origin, as `http://localhost:3000` is while you work.
 
 ### Package the Electron app
 
-Electron Forge and electron-builder both package an app from
-`package.json`. Whichever you use, run `wf build` first, and make sure the
-package holds `electron/` and `build/`; `src/` is not needed at run time.
-With electron-builder, `npm run dist` does both: its `dist` script runs
-`wf build`, then `electron-builder`, and `build.files` names the two
-folders the package holds.
+Electron Forge and electron-builder both package an app from `package.json`. Whichever you use, run `wf build` first, and make sure the package holds `electron/` and `build/`; `src/` is not needed at run time. With electron-builder, `npm run dist` does both: its `dist` script runs `wf build`, then `electron-builder`, and `build.files` names the two folders the package holds.
 
 ## Troubleshooting
 

@@ -4,22 +4,11 @@
 
 The page: https://webfluent.monzeromer.dev/about/contributing
 
-This page is for working on WebFluent itself: the compiler, the
-runtime, the editor support or this guide. It tells you how to build and
-test the project, where each part lives, and what to update when you change
-one.
+This page is for working on WebFluent itself: the compiler, the runtime, the editor support or this guide. It tells you how to build and test the project, where each part lives, and what to update when you change one.
 
-The project holds itself to the rule it holds programs to: what can be
-checked is checked, by a test, on every push. The registry, the error
-pages, the components reference and every example in this guide are tied
-to the compiler, so a change that leaves one of them behind fails a test
-instead of drifting. Most of what follows is where those ties are, so you
-know which ones a change will pull.
+The project holds itself to the rule it holds programs to: what can be checked is checked, by a test, on every push. The registry, the error pages, the components reference and every example in this guide are tied to the compiler, so a change that leaves one of them behind fails a test instead of drifting. Most of what follows is where those ties are, so you know which ones a change will pull.
 
-WebFluent is one Rust crate — the compiler and the `wf` binary — with a
-language server beside it, editor extensions, a small JavaScript runtime
-and this guide, all in one repository:
-[github.com/monzeromer-lab/WebFluent](https://github.com/monzeromer-lab/WebFluent).
+WebFluent is one Rust crate — the compiler and the `wf` binary — with a language server beside it, editor extensions, a small JavaScript runtime and this guide, all in one repository: [github.com/monzeromer-lab/WebFluent](https://github.com/monzeromer-lab/WebFluent).
 
 ## Before you start
 
@@ -38,8 +27,7 @@ cd WebFluent
 
 ## Build and test
 
-Build the compiler, then run the Rust tests, the runtime's tests and the
-lints that CI runs:
+Build the compiler, then run the Rust tests, the runtime's tests and the lints that CI runs:
 
 ```bash
 cargo build
@@ -48,9 +36,7 @@ node --test tests/js/*.test.mjs
 cargo fmt --check && cargo clippy --workspace -- -D warnings
 ```
 
-The browser suites check what only a real browser can — a service worker,
-WebRTC, layers, keys, gestures and more. They drive the release build, so
-build it first, then run them from `tests/browser`:
+The browser suites check what only a real browser can — a service worker, WebRTC, layers, keys, gestures and more. They drive the release build, so build it first, then run them from `tests/browser`:
 
 ```bash
 cargo build --release
@@ -59,15 +45,11 @@ npm ci
 npm test
 ```
 
-`npm test` runs every suite there, starting with `offline.mjs` and `peer.mjs`;
-each is also a script you can run alone, such as `node offline.mjs`. CI
-runs all of it on every push, and a few browser suites more.
+`npm test` runs every suite there, starting with `offline.mjs` and `peer.mjs`; each is also a script you can run alone, such as `node offline.mjs`. CI runs all of it on every push, and a few browser suites more.
 
 ## The repository
 
-Each part of the project has its own folder. Under `src/`, the compiler is
-in layers, bottom first; a module uses only its own layer and the ones
-above it in this list, which `tests/module_layers.rs` holds it to:
+Each part of the project has its own folder. Under `src/`, the compiler is in layers, bottom first; a module uses only its own layer and the ones above it in this list, which `tests/module_layers.rs` holds it to:
 
 ```text
 src/
@@ -85,23 +67,18 @@ src/
   cli/                       each `wf` command
 crates/wf-lsp/               the language server
 editors/                     VS Code, Zed and the Tree-sitter grammars: submodules, each its own repository
-md-docs/                     this guide
-site/                        the documentation site, written in WebFluent
+site/                        the documentation site, written in WebFluent: its pages are this guide
 tests/                       Rust integration tests, tests/js (runtime), tests/browser (Chrome)
-spec/                        design notes and plans
+bench/                       the benchmarks: agents, runtime, toolchain, PDF, and the dataset
 ```
 
-The editors live in their own repositories — [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent),
-[webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed) and [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode) — linked here as submodules under `editors/`. Building and
-testing the compiler needs none of them. To work on one, or to run the
-checks that hold them to the compiler (`just zed-check`), check them out:
+The editors live in their own repositories — [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent), [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed) and [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode) — linked here as submodules under `editors/`. Building and testing the compiler needs none of them. To work on one, or to run the checks that hold them to the compiler (`just zed-check`), check them out:
 
 ```bash
 git submodule update --init
 ```
 
-A change there is committed and pushed in its own repository; then the
-submodule's new commit is committed here (`git add editors/zed`).
+A change there is committed and pushed in its own repository; then the submodule's new commit is committed here (`git add editors/zed`).
 
 ## The pipeline
 
@@ -113,18 +90,13 @@ A source file passes through these stages, in order:
                                                                                  └─ PDF / slides
 ```
 
-Every stage reads the **registry** for what a built-in takes. So a prop
-added there is known at once to the checker, the linters, the language
-server, `wf docs` and the
-[components reference](https://webfluent.monzeromer.dev/reference.md).
+Every stage reads the **registry** for what a built-in takes. So a prop added there is known at once to the checker, the linters, the language server, `wf docs` and the [components reference](https://webfluent.monzeromer.dev/reference.md).
 
 ## Change a built-in's props or flags
 
 1. Edit the built-in's entry in `src/registry/builtins.rs`.
-2. Update its CSS in `src/project/themes/` and its code generation in
-   `src/web/codegen/`.
-3. Rewrite the [components reference](https://webfluent.monzeromer.dev/reference.md) from
-   the registry, with the command below.
+2. Update its CSS in `src/project/themes/` and its code generation in `src/web/codegen/`.
+3. Rewrite the [components reference](https://webfluent.monzeromer.dev/reference.md) from the registry, with the command below.
 
 ```bash
 cargo xtask site
@@ -137,69 +109,57 @@ A change to the grammar touches every place that reads or writes source:
 - the parser, in `src/syntax/parser/v2.rs`;
 - the formatter and the `.wfx` layout;
 - the printer, in `src/syntax/print.rs`;
-- both Tree-sitter grammars, in [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent) (checked out here as the
-  `editors/tree-sitter-webfluent` submodule).
+- both Tree-sitter grammars, in [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent) (checked out here as the `editors/tree-sitter-webfluent` submodule).
 
-The guide's own code blocks are the grammar's test corpus.
-`tests/printer_corpus.rs` prints every statement of every project in the
-repository back in its place and holds it to the same tree, and
-`tests/reprint_corpus.rs` holds every edit to changing only its own bytes.
+The guide's own code blocks are the grammar's test corpus. `tests/printer_corpus.rs` prints every statement of every project in the repository back in its place and holds it to the same tree, and `tests/reprint_corpus.rs` holds every edit to changing only its own bytes.
 
 ## Change the runtime
 
-Edit or add a module in `src/web/runtime/modules/`, and add a test for it in
-`tests/js/`. The manifest that says what reaches each module,
-`src/web/runtime/modules/manifest.json`, is written by a Rust test, so you do
-not edit it by hand.
+Edit or add a module in `src/web/runtime/modules/`, and add a test for it in `tests/js/`. The manifest that says what reaches each module, `src/web/runtime/modules/manifest.json`, is written by a Rust test, so you do not edit it by hand.
 
 ## Add a diagnostic
 
-1. Give the finding a code, a severity and a title in
-   `src/diagnostics/codes.rs`.
-2. Write its page, `md-docs/errors/<CODE>.md`: what the reader sees, why,
-   and the fix, with a program in a `wf expect=CODE` block that draws the
-   code. The test suite compiles every example and checks that it draws its
-   code, and a code with no page fails a test. The
-   [Diagnostics](https://webfluent.monzeromer.dev/errors.md) index lists every page.
+1. Give the finding a code, a severity and a title in `src/diagnostics/codes.rs`.
+2. Write its explanation, `src/diagnostics/explain/<CODE>.md`: what the reader sees, why, and the fix, with a program in a `wf expect=CODE` block that draws the code, what the compiler prints for it in a `text` block, and the program put right in a `wf fixed` block. `wf explain CODE` prints it, and `cargo xtask site` writes its page on the site, `/errors/CODE`, from it. The test suite compiles every example, checks that the broken one draws its code, the fixed one draws nothing and the printed one is what the compiler prints (`WF_WRITE_DIAGNOSTICS=1` rewrites it), and a code with no explanation fails a test. The [Diagnostics](https://webfluent.monzeromer.dev/errors.md) index lists every code by family.
 
 ## Change this guide
 
-The guide lives in `md-docs/`, one file per chapter, in a folder for its
-kind of page (`learn/`, `recipes/`, `about/`, `reference/`, `errors/`,
-`coming-from/`), and is the source of the documentation site:
-`cargo xtask site` writes the site's chapter pages, the book's chapter list,
-the components reference and the search index from it, and
-`cargo xtask site --check` says whether they are current. Each chapter
-starts with front matter naming its number, its kind, its route, its group
-in the sidebar, the line under its title and its search description.
-"How we write", §8 of `plans/docs-redesign/README.md`, holds the rules
-every page follows, and `tests/docs_parse.rs` checks the ones a test can
-read.
+The guide is the documentation site's own pages, written in WebFluent: edit a page under `site/src/pages/` and the site, its search and its Markdown twins follow. A chapter of the book or an essay is `site/src/pages/guide/NN-<slug>.wf` (`NN` its number, `-ar` beside it for its Arabic translation), a recipe `site/src/pages/recipes/Recipe<Name>.wf`, a cheat sheet `site/src/pages/comingfrom/`, the configuration and token pages `site/src/pages/reference/Config.wf` and `Tokens.wf`, and the command line reference's words `site/src/pages/reference/CliNotes.wf` — a component per command, which its page places. A page's words are a few elements inside its shell: `Heading("…", id: "…")`, `Markdown("…")` for prose, `DocsCodeBlock(#"…"#, title: "wf")` for code, `DocsCallout`, `Table`, `Terminal` and `Quiz`. The shell — `DocsShell(…)` as a chapter's `layout:`, `RecipeShell`, `ComingFromShell` — carries what the page is: its kind, its part of the book (`chapter: t("nav.group.language")`), the line under its title, what its reader learned, its sections for the rail and its neighbours. A chapter added to the book is also a row of `site/src/components/Guide.wf` and a title `ch.NN` in `site/src/translations/en.json` and `ar.json`; a recipe added is a row of `RECIPE_INDEX` in `site/src/pages/recipes/Index.wf`; a page that moves keeps its old address in `site/src/old-links-pages.js` and `pages/guide/Moved.wf`. The tests say which one is missing.
 
-The test suite holds the guide to the compiler:
+What is drawn from the compiler is written, not edited: `cargo xtask site` writes each built-in's and each command's page, the error pages (from each code's explanation), the token tables, the search index, a Markdown twin of every page (`site/public/<route>.md`, listed in `site/public/twins.json`) and `llms.txt`, and `cargo xtask site --check` says whether they are current. [How we write](#how-we-write), below, holds the rules every page follows, and `tests/docs_parse.rs` checks the ones a test can read.
 
-- every `wf` code block parses, type-checks and compiles without a
-  warning;
-- every `wf expect=CODE` block draws that code;
-- every link between chapters, and every anchor, resolves;
-- every declaration, keyword, built-in, browser value, built-in function,
-  config key, command and diagnostic code appears in it;
-- the tokens chapter is the baseline, and the configuration chapter's
-  defaults are the compiler's;
-- the site's pages are what the generator writes from the guide.
+The test suite reads every page as the Markdown it shows (`guide_pages` in `tests/common/mod.rs`) and holds it to the compiler:
 
-Words after `wf` in a fence say how a block is checked: `expect=CODE`
-(it must draw that code), `fixed` (the corrected program after one),
-`page` and `live` (built, previewed, and editable by the reader),
-`files=a,b` (one file of a multi-file example), and `no-check` (not
-compiled, for a block the prose says is not a program). The full list is
-`Fence` in `tests/common/mod.rs`.
+- every `wf` code block parses, type-checks and compiles without a warning, and every page that is a whole program runs;
+- every block written `DocsCodeBlock(…, expect: "CODE")` draws that code, and its bar says so;
+- every link between pages, and every anchor, resolves;
+- every declaration, keyword, built-in, browser value, built-in function, config key, command and diagnostic code appears in it;
+- the configuration page lists every setting, and its defaults are the compiler's;
+- the book's sidebar, its contents page, the recipes' index and the chapter titles name every page, and only those.
+
+A `DocsCodeBlock` says how it is checked: `expect: "CODE"` (a program that must draw that code), `check: false` (not compiled, for a block the prose says is not a program, or one that needs a project around it); with neither, it is a sample the compiler must accept.
+
+### How we write
+
+Every page:
+
+1. **One kind per page.** A tutorial never stops to list every prop; a reference page never teaches; an error page never explains a feature from scratch.
+2. **The first sentence says what the page is**, for a reader who arrives from search.
+3. **Lead with a working example**, then explain it. Introduce each example with one sentence.
+4. **Examples are complete.** No `...`; if something is left out, a comment says what. The tests hold every example to this.
+5. **Name things as the compiler names them**: `derived`, not "computed"; "finding", not "warning", when it could be either.
+6. **Plain verbs, sentence case, active voice.** No word that praises the work or reassures the reader: the tests list the ones they refuse.
+7. **Say what fails and how to fix it.** Every Learn chapter ends with its two or three most likely mistakes, each a `wf expect=CODE` block linked to its error page.
+8. **Name the habit that breaks.** Where a React, Vue or Svelte habit does not carry over, an aside names it and the WebFluent way, and links the Coming-from page.
+
+By kind:
+
+- **Tutorial:** a goal, then small steps, each ending in something that runs. Never a choice between two ways; at most one new idea a section.
+- **Recipe:** the title is the task ("Keep filters in the address"). The full code comes first, variations after, and no more theory than one paragraph.
+- **Reference:** complete, neutral, scannable; generated wherever data exists, with prose only for what the data cannot say.
+- **Error:** what you see, why, then the fix, as a diff.
+- **About:** an argument, with a point of view.
 
 ## Release a version
 
-[`RELEASING.md`](https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASING.md) in the repository lists the steps: one
-tag builds the binaries, the packages and the editor extensions.
-
-## Next
-
-[Why WebFluent](https://webfluent.monzeromer.dev/about/why.md): why the language exists, and the choices it makes.
+[`RELEASING.md`](https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASING.md) in the repository lists the steps: one tag builds the binaries, the packages and the editor extensions.

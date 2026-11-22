@@ -1,7 +1,39 @@
-// A recipe, written from md-docs/recipes/render-a-template.md by scripts/docsite/recipes.py;
-// edit the recipe, not this file.
+// A recipe. This page is its source: edit it here.
 page RecipeRenderATemplate(path: "/recipes/render-a-template", title: "Render a template with data — Recipes", description: "Render a .wf template with JSON data to HTML, an HTML fragment, a PDF or slides with wf render, for invoices, emails and server responses.") {
-    RecipeShell("Render a template with data", summary: "A template is a `.wf` file with a `page`, rendered once with the data you hand it: an invoice, an email, a block of a page your server already draws. `wf render` turns it into HTML, a fragment, a PDF or slides. You need the `wf` command installed ([Getting started](/learn/01-getting-started#install)).", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "what-a-template-may-use", label: "What a template may use"), Anchor(id: "pick-an-output-for-the-job", label: "Pick an output for the job"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Render templates from Node", to: "/recipes/render-from-node"), RelatedLink(kind: "Recipe", title: "Render templates from Rust", to: "/recipes/render-from-rust"), RelatedLink(kind: "Recipe", title: "Use environment values, and keep secrets out", to: "/recipes/environments-and-secrets")], source: "md-docs/recipes/render-a-template.md", how: true, hasVariations: true, project: {}) {
+    RecipeShell("Render a template with data", summary: "A template is a `.wf` file with a `page`, rendered once with the data you hand it: an invoice, an email, a block of a page your server already draws. `wf render` turns it into HTML, a fragment, a PDF or slides. You need the `wf` command installed ([Getting started](/learn/01-getting-started#install)).", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "what-a-template-may-use", label: "What a template may use"), Anchor(id: "pick-an-output-for-the-job", label: "Pick an output for the job"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Render templates from Node", to: "/recipes/render-from-node"), RelatedLink(kind: "Recipe", title: "Render templates from Rust", to: "/recipes/render-from-rust"), RelatedLink(kind: "Recipe", title: "Use environment values, and keep secrets out", to: "/recipes/environments-and-secrets")], source: "site/src/pages/recipes/RecipeRenderATemplate.wf", how: true, hasVariations: true, project: { "invoice.wf": #"{
+  "number": "INV-001",
+  "customer": { "name": "Acme Corp" },
+  "items": [{ "name": "Widget", "qty": 5, "price": 9.99 }],
+  "total": 49.95,
+  "paid": false,
+  "locale": "en"
+}
+"#, "src/pages/RenderATemplate.wf": #"type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+"#, "webfluent.app.json": #"{
+  "name": "render-a-template"
+}
+"# }) {
         code {
             DocsCodeBlock(#"type Customer { name: String }
 type Item { name: String, qty: Number, price: Number }

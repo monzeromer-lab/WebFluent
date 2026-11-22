@@ -4,11 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/learn/07-state-and-reactivity
 
-This chapter covers state and reactivity in WebFluent. A `state` is a value
-the page can change. Anything that reads it — a text, an attribute, a
-`derived` value, an `effect`, a style splice — updates when it changes, and
-nothing else does. This is *fine-grained reactivity*: there is no
-re-render of a component tree, and you never subscribe or unsubscribe by hand.
+This chapter covers state and reactivity in WebFluent. A `state` is a value the page can change. Anything that reads it — a text, an attribute, a `derived` value, an `effect`, a style splice — updates when it changes, and nothing else does. This is *fine-grained reactivity*: there is no re-render of a component tree, and you never subscribe or unsubscribe by hand.
 
 In this chapter:
 
@@ -19,11 +15,9 @@ In this chapter:
 - the browser's own values: `viewport`, `query`, `now` and the rest
 - where a name is looked up, and the mistakes people make
 
-## `state`
+## state
 
-You declare a state at the top of a page, component or store body, with an
-initial value. This counter shows the whole idea — one state, a text that
-reads it, and a button that writes it:
+You declare a state at the top of a page, component or store body, with an initial value. This counter shows the whole idea — one state, a text that reads it, and a button that writes it:
 
 ```wf
 page Counter(path: "/", title: "Counter", description: "A state, read and written.") {
@@ -42,34 +36,23 @@ page Counter(path: "/", title: "Counter", description: "A state, read and writte
 Each click sets `count`, and only the `Text` that reads it changes.
 
 > [!NOTE]
-> **Coming from React?** `useState` returns a value and a setter, and a
-> change runs the whole component again. A `state` is assigned directly,
-> `count = count + 1`, and the body never runs again: only what reads
-> `count` updates. A value that should follow a prop or a state is a
-> `derived`. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md#things-that-work-differently).
+> **Coming from React?** `useState` returns a value and a setter, and a change runs the whole component again. A `state` is assigned directly, `count = count + 1`, and the body never runs again: only what reads `count` updates. A value that should follow a prop or a state is a `derived`. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md#things-that-work-differently).
 
-The type of a state is read off its initial value, or written after a colon.
-[Types](https://webfluent.monzeromer.dev/learn/12-types.md) has the type language. Assigning a value of another type
-is an error (`T01`).
+The type of a state is read off its initial value, or written after a colon. [Types](https://webfluent.monzeromer.dev/learn/12-types.md) has the type language. Assigning a value of another type is an error (`T01`).
 
-You write state only in an imperative block — a handler, an action or an
-effect. You can:
+You write state only in an imperative block — a handler, an action or an effect. You can:
 
 - assign it: `count = count + 1`
 - change a place inside it: `user.name = "Ann"`, `items[0] = "Pen"`
 - call a method that changes it: `items.push("Pen")`, `items.sort()`
 
-A change inside a value gives the state a new copy with that place changed, so
-everything that reads it repaints, and a `persist` value is written.
+A change inside a value gives the state a new copy with that place changed, so everything that reads it repaints, and a `persist` value is written.
 
-The *static paint* — the HTML the build pre-renders for a page — seeds every
-state with its initial value, so a pre-rendered page shows what the first
-paint in the browser would.
+The *static paint* — the HTML the build pre-renders for a page — seeds every state with its initial value, so a pre-rendered page shows what the first paint in the browser would.
 
-## `derived`
+## derived
 
-A derived value is computed from state, and computed again when any state it
-read changes. This cart works out its subtotal, total and whether it is empty:
+A derived value is computed from state, and computed again when any state it read changes. This cart works out its subtotal, total and whether it is empty:
 
 ```wf
 page Cart(path: "/", title: "Cart", description: "Totals worked out from state.") {
@@ -88,17 +71,13 @@ page Cart(path: "/", title: "Cart", description: "Totals worked out from state."
 
 The rules:
 
-- A derived value may read state, other derived values and the browser's
-  values, and may call an action that returns a value.
-- It is never assigned to (`X01`), and an action it calls may not assign
-  state (`X04`).
+- A derived value may read state, other derived values and the browser's values, and may call an action that returns a value.
+- It is never assigned to (`X01`), and an action it calls may not assign state (`X04`).
 - The static paint seeds it from the initial state.
 
-## `effect`
+## effect
 
-An effect runs once, then again whenever a state it read changes. Its
-`cleanup { }` block runs before the next run, and when the page — or the
-branch the effect lives in — leaves:
+An effect runs once, then again whenever a state it read changes. Its `cleanup { }` block runs before the next run, and when the page — or the branch the effect lives in — leaves:
 
 ```wf
 page Watch(path: "/", title: "Watch", description: "Effects that follow a search.") {
@@ -115,20 +94,14 @@ page Watch(path: "/", title: "Watch", description: "Effects that follow a search
 }
 ```
 
-Use an effect for the world outside the page: the document title, a
-third-party widget, a subscription. Keep computation in `derived`.
+Use an effect for the world outside the page: the document title, a third-party widget, a subscription. Keep computation in `derived`.
 
 > [!WARNING]
-> An effect that writes what it reads — `effect { n = n + 1 }` — starts its own
-> next run and never settles. The compiler refuses it (`X02`). Compute the
-> value with `derived` instead.
+> An effect that writes what it reads — `effect { n = n + 1 }` — starts its own next run and never settles. The compiler refuses it (`X02`). Compute the value with `derived` instead.
 
 ## Actions and locals
 
-An action is a named function of a page, component or store. Its body is an
-imperative block: assignments, `let` locals, calls, `if`, `for`, `try`,
-`return` and `await`. This to-do list adds, removes and loads items with
-three actions:
+An action is a named function of a page, component or store. Its body is an imperative block: assignments, `let` locals, calls, `if`, `for`, `try`, `return` and `await`. This to-do list adds, removes and loads items with three actions:
 
 ```wf
 type TodoList { todos: [String] }
@@ -164,31 +137,19 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 
 What an action's body can hold:
 
-- **Locals.** `let x = …` declares a local of the action or handler.
-  `let { a, b } = m` and `let [x, y] = l` destructure a map and a list.
-- **`await`.** Using it makes the action asynchronous, and `name.pending` is
-  `true` while a call of it runs ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#show-that-a-request-is-running)).
-- **Loops.** `for item in list { }`, `for item, i in list { }` and
-  `for n in 1..=10 { }`.
-- **Errors.** A request's answer is a result: `try` gives its value or
-  passes the failure up, in an action that says what it fails with
-  (`-> !` here), and `match` handles each case where the call is made
-  ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#say-how-a-call-fails)). `try { } catch e { }`
-  guards a call into a script that may throw.
+- **Locals.** `let x = …` declares a local of the action or handler. `let { a, b } = m` and `let [x, y] = l` destructure a map and a list.
+- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#show-that-a-request-is-running)).
+- **Loops.** `for item in list { }`, `for item, i in list { }` and `for n in 1..=10 { }`.
+- **Errors.** A request's answer is a result: `try` gives its value or passes the failure up, in an action that says what it fails with (`-> !` here), and `match` handles each case where the call is made ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#say-how-a-call-fails)). `try { } catch e { }` guards a call into a script that may throw.
 - **`return`.** `return` leaves the action; `return x` leaves with a value.
 
-A `let` is the action's own. After `let list = items`, `list.push(x)` changes
-`list` and leaves `items` as it was; assign it back with `items = list`, or
-write `items.push(x)`, which gives the state a new list.
+A `let` is the action's own. After `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was; assign it back with `items = list`, or write `items.push(x)`, which gives the state a new list.
 
-You call a page's action by name, `add()`, and a store's through the store,
-`Todos.add()`.
+You call a page's action by name, `add()`, and a store's through the store, `Todos.add()`.
 
-## `persist`
+## persist
 
-`persist` declares a state kept in the browser's storage across visits. It is
-read back on the next visit and written on every change. These two
-preferences survive a reload:
+`persist` declares a state kept in the browser's storage across visits. It is read back on the next visit and written on every change. These two preferences survive a reload:
 
 ```wf
 page Prefs(path: "/", title: "Preferences", description: "Settings kept across visits.") {
@@ -205,20 +166,14 @@ page Prefs(path: "/", title: "Preferences", description: "Settings kept across v
 
 How it behaves:
 
-- The storage key is the owner's name and the state's (`Prefs.scheme`), so a
-  page and a store may each have a value of the same name.
+- The storage key is the owner's name and the state's (`Prefs.scheme`), so a page and a store may each have a value of the same name.
 - It works in a store too, where every page shares it.
 - When storage is blocked or full, the value falls back to its initial value.
-- A block after the declaration can say which storage to use, give a version
-  with migrations, and choose whether to follow other tabs. That block and the
-  rest of the policy are in [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#keeping-a-value-across-visits).
+- A block after the declaration can say which storage to use, give a version with migrations, and choose whether to follow other tabs. That block and the rest of the policy are in [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#keeping-a-value-across-visits).
 
 ## Timers
 
-`every(ms) { }` repeats, and `after(ms) { }` fires once. The interval is a
-number of milliseconds or a duration: `every(5.seconds)`, `after(2.minutes)`.
-This page counts the seconds it has been open and hides a welcome message
-after three:
+`every(ms) { }` repeats, and `after(ms) { }` fires once. The interval is a number of milliseconds or a duration: `every(5.seconds)`, `after(2.minutes)`. This page counts the seconds it has been open and hides a welcome message after three:
 
 ```wf
 page Clock(path: "/", title: "Clock", description: "A timer and a one-off delay.") {
@@ -232,27 +187,20 @@ page Clock(path: "/", title: "Clock", description: "A timer and a one-off delay.
 }
 ```
 
-Both stop when what declared them leaves the page: a branch that closes, a
-list item that is removed, a route that changes.
+Both stop when what declared them leaves the page: a branch that closes, a list item that is removed, a route that changes.
 
 ## Automatic clean-up
 
-Everything a body creates — effects, timers, listeners, element handles —
-belongs to the *scope* it was created in: the page, branch, list item, `match`
-arm or slot whose nodes it sits among. When that scope's nodes leave, the
-runtime disposes of what it created:
+Everything a body creates — effects, timers, listeners, element handles — belongs to the *scope* it was created in: the page, branch, list item, `match` arm or slot whose nodes it sits among. When that scope's nodes leave, the runtime disposes of what it created:
 
-- an `if` branch turns false, an item drops out of a `for`, a `match` arm
-  changes, or the route changes;
+- an `if` branch turns false, an item drops out of a `for`, a `match` arm changes, or the route changes;
 - intervals are cleared, effects stop running, and `cleanup { }` blocks run.
 
 You never unsubscribe by hand.
 
 ## Element handles
 
-`ref: name` on an element gives you a *handle*: a name that reads as the
-element itself. Here a button and the `/` key both put the cursor in the
-search box:
+`ref: name` on an element gives you a *handle*: a name that reads as the element itself. Here a button and the `/` key both put the cursor in the search box:
 
 ```wf
 page Search(path: "/", title: "Search", description: "A handle on an input.") {
@@ -265,16 +213,13 @@ page Search(path: "/", title: "Search", description: "A handle on an input.") {
 }
 ```
 
-The `ref:` declares the name; you do not declare it anywhere else. Anything
-the element has is there: `box.value`, `box.scrollIntoView()`.
+The `ref:` declares the name; you do not declare it anywhere else. Anything the element has is there: `box.value`, `box.scrollIntoView()`.
 
-A handle is filled once the element exists, so set-up code at the top of the
-body cannot use it yet. Read it in a handler, an `effect` or `after(0) { }`.
+A handle is filled once the element exists, so set-up code at the top of the body cannot use it yet. Read it in a handler, an `effect` or `after(0) { }`.
 
 ## The browser as values
 
-Some names are always in scope and kept current by the runtime, so a page
-reads the browser the way it reads its own state:
+Some names are always in scope and kept current by the runtime, so a page reads the browser the way it reads its own state:
 
 | Name | Is | Updates when |
 |---|---|---|
@@ -302,39 +247,24 @@ page Where(path: "/", title: "Where", description: "The browser, read as values.
 
 The rules:
 
-- The breakpoints are the `screen-sm` … `screen-xl` design tokens: 640, 768,
-  1024 and 1280px unless a theme moves them.
-- They are the language's names, so a `state`, prop or `const` of the same
-  name is an error (`E118`).
-- Copy one into a `state` and you keep the value it had when the page
-  opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it
-  where it is shown, or in a `derived`.
-- The static paint does not know them, so what depends on them is drawn once
-  the page is live. For layout, prefer
-  [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values), which are right in
-  the first paint.
+- The breakpoints are the `screen-sm` … `screen-xl` design tokens: 640, 768, 1024 and 1280px unless a theme moves them.
+- They are the language's names, so a `state`, prop or `const` of the same name is an error (`E118`).
+- Copy one into a `state` and you keep the value it had when the page opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it where it is shown, or in a `derived`.
+- The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values), which are right in the first paint.
 
 ## Where values come from, in order
 
-When a body reads a name, the nearest declaration wins. The compiler looks
-in this order, innermost first:
+When a body reads a name, the nearest declaration wins. The compiler looks in this order, innermost first:
 
 1. A `let` local, a lambda's parameter or a caught error, inside its block.
-2. Loop variables and arm bindings (`if let`, a `match` arm), inside their
-   block.
+2. Loop variables and arm bindings (`if let`, a `match` arm), inside their block.
 3. Route parameters and props (`slug`, `_ label`).
-4. `state`, `persist`, `derived`, `resource` and actions of the body. A
-   body member may not share a name with a parameter or a prop (`E102`).
-5. A `use`d store's members, always through the store's name
-   (`Cart.total`).
-6. Constants, `data` and `image` declarations, `env.X`, and the browser's
-   values above.
-7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
-   `Date`, `setTimeout`, `console`, `navigator`, `location`. (A request is
-   `http.get(…)`; the browser's own `fetch` is `window.fetch`.)
+4. `state`, `persist`, `derived`, `resource` and actions of the body. A body member may not share a name with a parameter or a prop (`E102`).
+5. A `use`d store's members, always through the store's name (`Cart.total`).
+6. Constants, `data` and `image` declarations, `env.X`, and the browser's values above.
+7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`, `Date`, `setTimeout`, `console`, `navigator`, `location`. (A request is `http.get(…)`; the browser's own `fetch` is `window.fetch`.)
 
-So with `state name = "outer"`, `for name in items by name { Text(name) }`
-shows each item, and a `const name` is hidden by both.
+So with `state name = "outer"`, `for name in items by name { Text(name) }` shows each item, and a `const name` is hidden by both.
 
 ## Summary
 
@@ -350,8 +280,7 @@ shows each item, and a `const name` is hidden by both.
 | `ref: box` | a handle on an element | [Element handles](#element-handles) |
 | `viewport`, `query`, `hash`, `theme`, `now`, `network`, `update`, `locale`, `dir` | the browser, read as values | [The browser as values](#the-browser-as-values) |
 
-[Grammar](https://webfluent.monzeromer.dev/reference/grammar.md) and [Built-in functions](https://webfluent.monzeromer.dev/reference/built-ins.md) are
-the reference for each.
+[Grammar](https://webfluent.monzeromer.dev/reference/grammar.md) and [Built-in functions](https://webfluent.monzeromer.dev/reference/built-ins.md) are the reference for each.
 
 ## Quiz
 
@@ -378,9 +307,7 @@ Which of these clocks ticks every second?
 
 ## Common mistakes
 
-**A state that copies `now` once.** A `state` takes its initial value when the
-page opens and keeps it, so a clock or an "… ago" worked out from it never
-moves:
+**A state that copies `now` once.** A `state` takes its initial value when the page opens and keeps it, so a clock or an "… ago" worked out from it never moves:
 
 ```wf expect=X06
 page Feed(path: "/", title: "Feed", description: "When this was posted.") {
@@ -391,12 +318,9 @@ page Feed(path: "/", title: "Feed", description: "When this was posted.") {
 }
 ```
 
-Declare it `derived clock = now(every: 1.seconds)`. The same holds for
-`viewport`, `query`, `hash`, `theme`, `network` and `update`
-([X06](https://webfluent.monzeromer.dev/errors/X06.md)).
+Declare it `derived clock = now(every: 1.seconds)`. The same holds for `viewport`, `query`, `hash`, `theme`, `network` and `update` ([X06](https://webfluent.monzeromer.dev/errors/X06.md)).
 
-**An effect that writes what it reads.** Each run changes `visits`, which
-starts the next run, so the page never settles:
+**An effect that writes what it reads.** Each run changes `visits`, which starts the next run, so the page never settles:
 
 ```wf expect=X02
 page Visits(path: "/", title: "Visits", description: "A count that runs away.") {
@@ -407,11 +331,9 @@ page Visits(path: "/", title: "Visits", description: "A count that runs away.") 
 }
 ```
 
-Change the state in a handler or an action, or work the value out with
-`derived` ([X02](https://webfluent.monzeromer.dev/errors/X02.md)).
+Change the state in a handler or an action, or work the value out with `derived` ([X02](https://webfluent.monzeromer.dev/errors/X02.md)).
 
-**Assigning a derived value.** A `derived` is worked out from what it reads,
-so nothing may set it:
+**Assigning a derived value.** A `derived` is worked out from what it reads, so nothing may set it:
 
 ```wf expect=X01
 page Cart(path: "/", title: "Cart", description: "A total you cannot set.") {
@@ -423,9 +345,4 @@ page Cart(path: "/", title: "Cart", description: "A total you cannot set.") {
 }
 ```
 
-Change what it reads instead, `items = []`, and `total` follows
-([X01](https://webfluent.monzeromer.dev/errors/X01.md)).
-
-## Next
-
-[Events](https://webfluent.monzeromer.dev/learn/08-events.md).
+Change what it reads instead, `items = []`, and `total` follows ([X01](https://webfluent.monzeromer.dev/errors/X01.md)).

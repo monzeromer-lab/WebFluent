@@ -4,15 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes
 
-Each recipe is one task: the complete code first, then how it works. Every
-`wf` example on these pages parses and type-checks in the test suite; a
-recipe that needs more than its page — a setting in `webfluent.app.json`,
-a picture, a data file, a script, another recipe — says so in a
-**Needs:** line above the code. To try one, paste the page into a new file
-under `src/pages/` of a project. Most claim the address `/` or a name the
-`wf init` starter already has (`Home`, `Tasks`, `Settings`, `User`), so
-start a new project for it (`wf init try-it`), or replace the starter's
-file of that name (`src/pages/Home.wf` for `/`).
+Each recipe is one task: the complete code first, then how it works. Every `wf` example on these pages parses and type-checks in the test suite; a recipe that needs more than its page — a setting in `webfluent.app.json`, a picture, a data file, a script, another recipe — says so in a **Needs:** line above the code. To try one, paste the page into a new file under `src/pages/` of a project. Most claim the address `/` or a name the `wf init` starter already has (`Home`, `Tasks`, `Settings`, `User`), so start a new project for it (`wf init try-it`), or replace the starter's file of that name (`src/pages/Home.wf` for `/`).
 
 ## Interaction
 

@@ -28,6 +28,8 @@ Text("Total: ${tickets * 45}").muted
 | `step:` | `Number` | How far −, + and the arrow keys move it; PageUp and PageDown move ten steps |
 | `label:` | `String` | Visible label; also the input's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
+| `decrease:` | `String` | The − button's accessible name, in the page's words: `t("qty.less")` |
+| `increase:` | `String` | The + button's accessible name, in the page's words |
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

@@ -1,6 +1,6 @@
-/// Getting started, in ar: written from md-docs/ar/learn/01-getting-started.md by
-/// scripts/docsite/guide.py; edit the translation, not this file.
-page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "البدء", description: "ثبّت wf وتحقّق من التثبيت، وأنشئ أول مشروع، وشغّل خادم التطوير وأجرِ تغييرًا. ثم جهّز خادم اللغة واقرأ ناتج البناء.", lang: "ar", translates: Learn01GettingStarted, layout: DocsShell("البدء", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ثبّت المُصرِّف، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.", source: "md-docs/ar/learn/01-getting-started.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "التثبيت", label: "التثبيت"), Anchor(id: "التحقق-من-التثبيت", label: "التحقق من التثبيت"), Anchor(id: "إنشاء-مشروع", label: "إنشاء مشروع"), Anchor(id: "تشغيل-خادم-التطوير", label: "تشغيل خادم التطوير"), Anchor(id: "إجراء-تغيير", label: "إجراء تغيير"), Anchor(id: "إعداد-المحرر", label: "إعداد المحرر"), Anchor(id: "تغيير-طريقة-تثبيت-wf", label: "تغيير طريقة تثبيت wf"), Anchor(id: "اختيار-قالب", label: "اختيار قالب"), Anchor(id: "كتابة-موقع-من-الصفر", label: "كتابة موقع من الصفر"), Anchor(id: "ما-ينتجه-البناء", label: "ما ينتجه البناء"), Anchor(id: "المشروع-باختصار", label: "المشروع باختصار"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["ثبّت `wf` وتحقّق منه بالأمر `wf --version`", "أنشئ مشروعًا بالأمر `wf init` وشغّله بالأمر `wf serve`", "غيّر صفحة واقرأ الخطأ الذي يرسمه خادم التطوير فوقها", "اكتب موقعًا من صفحتين: `app` فيه `Router`، وصفحات تسمّي كلٌّ منها `path:` الخاص بها", "اعرف ما يكتبه `wf build` في `build/`"], book: GUIDE_AR, other: "/learn/01-getting-started", lang: "ar", nextTo: "/ar/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
+/// Chapter 1 of the guide, in Arabic: the translation of
+/// `01-getting-started.wf`. This page is its source; edit it here.
+page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "البدء", description: "ثبّت wf وتحقّق من التثبيت، وأنشئ أول مشروع، وشغّل خادم التطوير وأجرِ تغييرًا. ثم جهّز خادم اللغة واقرأ ناتج البناء.", lang: "ar", translates: Learn01GettingStarted, layout: DocsShell("البدء", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ثبّت المُصرِّف، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.", source: "site/src/pages/guide/01-getting-started-ar.wf", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "التثبيت", label: "التثبيت"), Anchor(id: "التحقق-من-التثبيت", label: "التحقق من التثبيت"), Anchor(id: "إنشاء-مشروع", label: "إنشاء مشروع"), Anchor(id: "تشغيل-خادم-التطوير", label: "تشغيل خادم التطوير"), Anchor(id: "إجراء-تغيير", label: "إجراء تغيير"), Anchor(id: "إعداد-المحرر", label: "إعداد المحرر"), Anchor(id: "تغيير-طريقة-تثبيت-wf", label: "تغيير طريقة تثبيت wf"), Anchor(id: "اختيار-قالب", label: "اختيار قالب"), Anchor(id: "كتابة-موقع-من-الصفر", label: "كتابة موقع من الصفر"), Anchor(id: "ما-ينتجه-البناء", label: "ما ينتجه البناء"), Anchor(id: "المشروع-باختصار", label: "المشروع باختصار"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["ثبّت `wf` وتحقّق منه بالأمر `wf --version`", "أنشئ مشروعًا بالأمر `wf init` وشغّله بالأمر `wf serve`", "غيّر صفحة واقرأ الخطأ الذي يرسمه خادم التطوير فوقها", "اكتب موقعًا من صفحتين: `app` فيه `Router`، وصفحات تسمّي كلٌّ منها `path:` الخاص بها", "اعرف ما يكتبه `wf build` في `build/`"], book: GUIDE_AR, other: "/learn/01-getting-started", lang: "ar", nextTo: "/ar/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
     Stack(gap: .lg) {
         Markdown("يثبّت هذا الفصل `wf`، مُصرِّف WebFluent، ويشغّل أول مشروع في متصفحك. في نحو عشر دقائق تنشئ المشروع، وتغيّر سطرًا واحدًا، وترى الصفحة تتبعه. بقية الفصل إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما يكتبه البناء.")
 
@@ -263,7 +263,7 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
         DocsCodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
     Heading("Hello").h1
     Text("Welcome back.").mutd
-}"#, title: "wf · draws E103")
+}"#, title: "wf", expect: "E103")
 
         Markdown("استخدم أحد الأعلام التي تسردها الرسالة، وهنا `.muted` ([E103](/errors/E103)).\n\n`app` بلا `Router`. يُرسم الهيكل، لكن لا تُرسم أي صفحة أبدًا:")
 
@@ -275,7 +275,7 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
 
 page Home(path: "/", title: "Hello", description: "A first site.") {
     Heading("Hello, world").h1
-}"#, title: "wf · draws R03")
+}"#, title: "wf", expect: "R03")
 
         Markdown("ضع `Router` في `app` حيث يجب أن تظهر الصفحة الحالية ([R03](/errors/R03)).\n\nرابط إلى صفحة لم تكتبها بعد. يفحص المُصرِّف كل `to:` مقابل مسارات الصفحات:")
 
@@ -291,7 +291,7 @@ page Home(path: "/", title: "Hello", description: "A first site.") {
 
 page Home(path: "/", title: "Hello", description: "A first site.") {
     Heading("Hello, world").h1
-}"#, title: "wf · draws R01")
+}"#, title: "wf", expect: "R01")
 
         Markdown("أضف الصفحة، `page About(path: \"/about\", …)`، أو صحّح العنوان ([R01](/errors/R01)).")
 

@@ -132,6 +132,14 @@ component HomeShell(other: String = "", lang: String = "en") {
             }
         }
 
+        // Measured, not claimed: the benchmarks page's figures, and a link to it.
+        Stack(gap: .md, class: "bp-wrap bp-home-section") {
+            Heading(t("home.bench"), class: "bp-h2").h2
+            Text(t("home.bench.body"), class: "bp-lede")
+            BenchFigures(figures: benchmarks.headline)
+            Link(t("home.bench.more"), to: "/benchmarks", class: "bp-text-link")
+        }
+
         // What are you making: each output, and where it is taught.
         Stack(gap: .md, class: "bp-wrap bp-home-section") {
             Heading(t("home.making"), class: "bp-h2").h2

@@ -1,6 +1,5 @@
 // Each old `#section` address of a chapter that became recipes, and the
-// recipe it became: written by scripts/docsite/recipes.py, read by
-// old-links.js.
+// recipe it became, read by old-links.js.
 const OLD_LINKS = {
  "/docs/guide/content#a-checklist-for-being-found": "/recipes/search-and-link-previews",
  "/docs/guide/content#describe-each-page-to-search-engines-and-link-previews": "/recipes/search-and-link-previews",

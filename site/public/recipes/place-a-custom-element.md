@@ -4,12 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/place-a-custom-element
 
-To place a custom element that a library defines, use `Element` with the
-element's tag. This page places Stripe's pricing table, and shows a
-spinner until the table says it is ready:
+To place a custom element that a library defines, use `Element` with the element's tag. This page places Stripe's pricing table, and shows a spinner until the table says it is ready:
 
-**Needs:** the `meta.scripts` setting below, which loads the element's
-library.
+**Needs:** the `meta.scripts` setting below, which loads the element's library.
 
 ```wf
 // Your publishable key, from the Stripe dashboard.
@@ -26,8 +23,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
 }
 ```
 
-The script that defines the element loads from `meta.scripts` in
-`webfluent.app.json`:
+The script that defines the element loads from `meta.scripts` in `webfluent.app.json`:
 
 ```json
 { "meta": {
@@ -37,17 +33,13 @@ The script that defines the element loads from `meta.scripts` in
 
 ## How it works
 
-- The tag comes first. It is lower case, with a hyphen, as every custom
-  element's tag is; any other tag is an `E116` error.
-- A named argument is an attribute: `publishableKey` is written
-  `publishable-key`. An attribute follows state like any other value.
+- The tag comes first. It is lower case, with a hyphen, as every custom element's tag is; any other tag is an `E116` error.
+- A named argument is an attribute: `publishableKey` is written `publishable-key`. An attribute follows state like any other value.
 - An `on` handler hears the events the element fires, whatever their names.
 - The block is the element's children.
 - `class:`, `style { }` and `mount:` work as on any other element.
 
-The script that defines the element (your own, or one in `meta.scripts`)
-upgrades it when it runs. Nothing on the page waits for this one, so it
-loads `async` ([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md#variations)).
+The script that defines the element (your own, or one in `meta.scripts`) upgrades it when it runs. Nothing on the page waits for this one, so it loads `async` ([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md#variations)).
 
 ## Troubleshooting
 

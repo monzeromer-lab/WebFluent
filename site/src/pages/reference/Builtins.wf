@@ -6124,8 +6124,8 @@ Select(bind: plan, label: "Plan").disabled {
         Markdown(t("ref.parts.body", { name: "Select" }), class: "bp-prose")
         Heading("Select.Option", id: "select-option").h3
         Text("One choice: the visible label, and the value sent with the form.")
-        Code("Select.Option(_ label: String, value: String or Number or Bool)").block
-        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The words the option shows; also its value when it has no `value:`", default: "—" }, { name: "value:", type: "String or Number or Bool", meaning: "What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`)", default: "its label" }], caption: "Props of Select.Option", defaults: true)
+        Code("Select.Option(_ label: String, value: String or Number or Bool or Bound)").block
+        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The words the option shows; also its value when it has no `value:`", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound", meaning: "What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`); a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "its label" }], caption: "Props of Select.Option", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-select" }), class: "bp-prose")
     }
 }
@@ -6203,7 +6203,7 @@ Checkbox(bind: backups, label: "Daily backups (included in your plan)").disabled
 page BuiltinRadio(path: "/reference/radio", title: "Radio — Reference", description: "Radio: One choice of a group; every radio bound to the same state is one group.") {
     state shipping = "standard"
     state stageLabel = "Standard — 5 to 7 days, free"
-    ReferenceItemShell("Radio", summary: "One choice of a group; every radio bound to the same state is one group.", signature: "Radio(bind: State, value: String or Number or Bool, checked: Bool, …)", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A04", title: "A control with no label", to: "/errors/A04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Radio", summary: "One choice of a group; every radio bound to the same state is one group.", signature: "Radio(bind: State, value: String or Number or Bool or Bound, checked: Bool, …)", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A04", title: "A control with no label", to: "/errors/A04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Radio") {
                 controls {
@@ -6245,7 +6245,7 @@ Radio(bind: size, value: "xl", label: "Extra large (sold out)").disabled"#, titl
             Link("TransferList", to: "/reference/transferlist", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "The state shared by a group of radios: it holds the chosen radio's `value:`, and radios bound to one state are one group for the arrow keys" }, { name: "value:", type: "String or Number or Bool", meaning: "What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked", default: "none" }, { name: "checked:", type: "Bool", meaning: "Whether it is chosen, when no state is bound: shown, not written back. Written as a flag, `.checked`, or `checked: true`.", default: "false" }, { name: "label:", type: "String", meaning: "The words after the button, which a press on also chooses; also its accessible name", default: "none" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }], caption: "Props of Radio", defaults: true)
+        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "The state shared by a group of radios: it holds the chosen radio's `value:`, and radios bound to one state are one group for the arrow keys" }, { name: "value:", type: "String or Number or Bool or Bound", meaning: "What `bind:` holds when this one is chosen, and what a form sends for it; a bound radio without one is never checked; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "none" }, { name: "checked:", type: "Bool", meaning: "Whether it is chosen, when no state is bound: shown, not written back. Written as a flag, `.checked`, or `checked: true`.", default: "false" }, { name: "label:", type: "String", meaning: "The words after the button, which a press on also chooses; also its accessible name", default: "none" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert: it cannot be focused or changed, and a form does not send it. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }], caption: "Props of Radio", defaults: true)
         Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -6958,8 +6958,8 @@ RadioGroup(bind: billing, label: "Billing") {
         Markdown(t("ref.parts.body", { name: "RadioGroup" }), class: "bp-prose")
         Heading("RadioGroup.Option", id: "radiogroup-option").h3
         Text("One choice: its words, its value, and a hint said with it.")
-        Code("RadioGroup.Option(_ label: String, value: String or Number or Bool, hint: String) \{ … \}").block
-        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words, beside its radio", default: "—" }, { name: "value:", type: "String or Number or Bool (required)", meaning: "What `bind:` holds when it is chosen", default: "—" }, { name: "hint:", type: "String", meaning: "A line beneath its words, read with the option (`aria-description`)", default: "none" }], caption: "Props of RadioGroup.Option", defaults: true)
+        Code("RadioGroup.Option(_ label: String, value: String or Number or Bool or Bound, hint: String) \{ … \}").block
+        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words, beside its radio", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound (required)", meaning: "What `bind:` holds when it is chosen; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "—" }, { name: "hint:", type: "String", meaning: "A line beneath its words, read with the option (`aria-description`)", default: "none" }], caption: "Props of RadioGroup.Option", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "RadioGroup" }), class: "bp-prose")
         PropsTable(rows: [{ name: "RadioGroup.Legend", type: "—", meaning: "Its legend." }, { name: "RadioGroup.Hint", type: "—", meaning: "An option's hint." }], caption: t("ref.drawnparts"), nameLabel: t("ref.part"), typeLabel: t("ref.class"))
@@ -7004,6 +7004,7 @@ page BuiltinNumberinput(path: "/reference/numberinput", title: "NumberInput — 
                     StageControl({ name: "step", kind: "number", options: [], value: "" }, live: true, current: "{stageStep}") { on pick(v) { stageStep = parseFloat(v) } }
                     StageControl({ name: "label", kind: "string", options: [], value: "" }, live: true, current: stageLabel) { on pick(v) { stageLabel = v } }
                     StageControl({ name: "hint", kind: "string", options: [], value: "" }, live: true, current: stageHint) { on pick(v) { stageHint = v } }
+                    StageControl({ name: "decrease", kind: "string", options: [], value: "" })
                 }
                 NumberInput(bind: tickets, min: stageMin, max: stageMax, step: stageStep, label: stageLabel, hint: stageHint)
                 Text("Total: ${tickets * 45}").muted
@@ -7028,7 +7029,7 @@ NumberInput(bind: storage, min: 10, max: 1000, step: 10, label: "Storage (GB)")"
             Link("Combobox", to: "/reference/combobox", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "bind:", type: "State (required)", meaning: "The `Number` state it reads and writes; typing writes `null` when the field is emptied, and a number past `min:` or `max:` is brought back within them when it changes", default: "—" }, { name: "min:", type: "Number", meaning: "The lowest value: − is disabled there, and the buttons and PageDown never go below it (a typed value is not held to it)", default: "none" }, { name: "max:", type: "Number", meaning: "The highest value: + is disabled there, and the buttons and PageUp never go above it (a typed value is not held to it)", default: "none" }, { name: "step:", type: "Number", meaning: "How far −, + and the arrow keys move it; PageUp and PageDown move ten steps", default: "1" }, { name: "label:", type: "String", meaning: "Visible label; also the input's accessible name", default: "none (the input is named `Number`)" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`", default: "none" }], caption: "Props of NumberInput", defaults: true)
+        PropsTable(rows: [{ name: "bind:", type: "State (required)", meaning: "The `Number` state it reads and writes; typing writes `null` when the field is emptied, and a number past `min:` or `max:` is brought back within them when it changes", default: "—" }, { name: "min:", type: "Number", meaning: "The lowest value: − is disabled there, and the buttons and PageDown never go below it (a typed value is not held to it)", default: "none" }, { name: "max:", type: "Number", meaning: "The highest value: + is disabled there, and the buttons and PageUp never go above it (a typed value is not held to it)", default: "none" }, { name: "step:", type: "Number", meaning: "How far −, + and the arrow keys move it; PageUp and PageDown move ten steps", default: "1" }, { name: "label:", type: "String", meaning: "Visible label; also the input's accessible name", default: "none (the input is named `Number`)" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`", default: "none" }, { name: "decrease:", type: "String", meaning: "The − button's accessible name, in the page's words: `t(\"qty.less\")`", default: "`Decrease`" }, { name: "increase:", type: "String", meaning: "The + button's accessible name, in the page's words", default: "`Increase`" }], caption: "Props of NumberInput", defaults: true)
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -7067,6 +7068,8 @@ page BuiltinCalendar(path: "/reference/calendar", title: "Calendar — Reference
                 controls {
                     StageControl({ name: "mode", kind: "enum", options: ["single", "range", "multiple"], value: "single", sink: "special" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" }, live: true, current: stageLabel) { on pick(v) { stageLabel = v } }
+                    StageControl({ name: "previous", kind: "string", options: [], value: "" })
+                    StageControl({ name: "next", kind: "string", options: [], value: "" })
                 }
                 Calendar(bind: delivery, min: @2026-11-17, disabled: d => d.weekday() >= 6, label: stageLabel).single
                 if let d = delivery {
@@ -7096,7 +7099,7 @@ Text("{days.length} day(s) chosen")"#, title: "wf")
             Link("RelativeTime", to: "/reference/relativetime", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "bind:", type: "State (required)", meaning: "The state it reads and writes, by `mode:`: a `Date?`, a `\{ start, end \}` of `Date`s (`end` null until the second day), or a `[Date]` kept in order", default: "—" }, { name: "mode:", type: "one of its cases", meaning: "How many days it holds. Written as a flag, `.single`, or by name, `mode: .single`.\n\n- `.single` (the default): One day: `bind:` is a `Date`\n- `.range`: A first and a last day: `\{ start, end \}`; a third press starts again\n- `.multiple`: Any number of days: a list, a press adding or removing one", default: "single" }, { name: "min:", type: "Date", meaning: "The first day that can be chosen; days before it are shown but cannot be chosen", default: "none" }, { name: "max:", type: "Date", meaning: "The last day that can be chosen; days after it are shown but cannot be chosen", default: "none" }, { name: "disabled:", type: "[Date] or (Date) -> Bool", meaning: "Days that cannot be chosen: a list of them, or a test of a day, `d => d.weekday() >= 6`", default: "none" }, { name: "label:", type: "String", meaning: "Its name for a screen reader, read once when it is drawn", default: "`Calendar`" }], caption: "Props of Calendar", defaults: true)
+        PropsTable(rows: [{ name: "bind:", type: "State (required)", meaning: "The state it reads and writes, by `mode:`: a `Date?`, a `\{ start, end \}` of `Date`s (`end` null until the second day), or a `[Date]` kept in order", default: "—" }, { name: "mode:", type: "one of its cases", meaning: "How many days it holds. Written as a flag, `.single`, or by name, `mode: .single`.\n\n- `.single` (the default): One day: `bind:` is a `Date`\n- `.range`: A first and a last day: `\{ start, end \}`; a third press starts again\n- `.multiple`: Any number of days: a list, a press adding or removing one", default: "single" }, { name: "min:", type: "Date", meaning: "The first day that can be chosen; days before it are shown but cannot be chosen", default: "none" }, { name: "max:", type: "Date", meaning: "The last day that can be chosen; days after it are shown but cannot be chosen", default: "none" }, { name: "disabled:", type: "[Date] or (Date) -> Bool", meaning: "Days that cannot be chosen: a list of them, or a test of a day, `d => d.weekday() >= 6`", default: "none" }, { name: "label:", type: "String", meaning: "Its name for a screen reader, read once when it is drawn", default: "`Calendar`" }, { name: "previous:", type: "String", meaning: "The previous month button's accessible name, in the page's words", default: "`Previous month`" }, { name: "next:", type: "String", meaning: "The next month button's accessible name, in the page's words: `t(\"calendar.next\")`", default: "`Next month`" }], caption: "Props of Calendar", defaults: true)
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -7180,8 +7183,8 @@ Text("Chosen: {toppings.join(", ")}")"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "Listbox" }), class: "bp-prose")
         Heading("Listbox.Option", id: "listbox-option").h3
         Text("One option: its words, and the value bind: holds when it is chosen.")
-        Code("Listbox.Option(_ label: String, value: String or Number or Bool, icon: String, aria-disabled: String) \{ … \}").block
-        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words; a letter typed goes to the next option they start with", default: "—" }, { name: "value:", type: "String or Number or Bool (required)", meaning: "What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen)", default: "—" }, { name: "icon:", type: "String", meaning: "The name of a built-in icon drawn before its words", default: "none" }, { name: "aria-disabled:", type: "String", meaning: "`\"true\"`: shown, passed over by the arrow keys, never chosen", default: "none" }], caption: "Props of Listbox.Option", defaults: true)
+        Code("Listbox.Option(_ label: String, value: String or Number or Bool or Bound, icon: String, aria-disabled: String) \{ … \}").block
+        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words; a letter typed goes to the next option they start with", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound (required)", meaning: "What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen); a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "—" }, { name: "icon:", type: "String", meaning: "The name of a built-in icon drawn before its words", default: "none" }, { name: "aria-disabled:", type: "String", meaning: "`\"true\"`: shown, passed over by the arrow keys, never chosen", default: "none" }], caption: "Props of Listbox.Option", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-listbox" }), class: "bp-prose")
     }
 }
@@ -7256,6 +7259,7 @@ Combobox(bind: reviewers, options: [
             Text(".multiple", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "select", kind: "", detail: "")], caption: "Events of Combobox")
         Markdown(t("ref.universal.link"), class: "bp-prose")
         Heading(t("ref.slots"), id: "slots").h2
         SlotsTable(slots: [])
@@ -7317,8 +7321,8 @@ Text("Chosen: {channels.join(", ")}").muted"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "CheckboxGroup" }), class: "bp-prose")
         Heading("CheckboxGroup.Option", id: "checkboxgroup-option").h3
         Text("One box: its words and its value.")
-        Code("CheckboxGroup.Option(_ label: String, value: String or Number or Bool)").block
-        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words, beside its box; also its value when it has no `value:`", default: "—" }, { name: "value:", type: "String or Number or Bool", meaning: "What the list holds while it is ticked", default: "its label" }], caption: "Props of CheckboxGroup.Option", defaults: true)
+        Code("CheckboxGroup.Option(_ label: String, value: String or Number or Bool or Bound)").block
+        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words, beside its box; also its value when it has no `value:`", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound", meaning: "What the list holds while it is ticked; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "its label" }], caption: "Props of CheckboxGroup.Option", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "CheckboxGroup" }), class: "bp-prose")
         PropsTable(rows: [{ name: "CheckboxGroup.Legend", type: "—", meaning: "Its legend." }], caption: t("ref.drawnparts"), nameLabel: t("ref.part"), typeLabel: t("ref.class"))
@@ -9195,8 +9199,8 @@ Text("{styles.length} on")"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "ToggleGroup" }), class: "bp-prose")
         Heading("ToggleGroup.Item", id: "togglegroup-item").h3
         Text("One choice: its words, and the value bind: holds when it is chosen.")
-        Code("ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String, disabled: Bool)").block
-        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "Its words", default: "—" }, { name: "value:", type: "String or Number or Bool (required)", meaning: "What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then", default: "—" }, { name: "icon:", type: "String", meaning: "An icon before the words, one of the built-in icon names", default: "none" }, { name: "disabled:", type: "Bool", meaning: "Whether the item is inert: it cannot be pressed and the arrow keys pass over it. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }], caption: "Props of ToggleGroup.Item", defaults: true)
+        Code("ToggleGroup.Item(_ label: String, value: String or Number or Bool or Bound, icon: String, disabled: Bool)").block
+        PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "Its words", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound (required)", meaning: "What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "—" }, { name: "icon:", type: "String", meaning: "An icon before the words, one of the built-in icon names", default: "none" }, { name: "disabled:", type: "Bool", meaning: "Whether the item is inert: it cannot be pressed and the arrow keys pass over it. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }], caption: "Props of ToggleGroup.Item", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
             Text(".disabled", class: "bp-label bp-mono")

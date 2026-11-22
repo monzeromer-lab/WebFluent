@@ -1,0 +1,11 @@
+// What the configuration and token pages take from the compiler: written by scripts/docsite/reference.py from `wf config schema --json` and `wf theme --json`;
+// edit the compiler or the script, not this file.
+
+/// How many settings `webfluent.app.json` has.
+const CONFIG_COUNT = 87
+
+/// How many tokens the baseline theme has.
+const TOKEN_COUNT = 87
+
+/// The sections of the baseline's tables on `/reference/tokens`, for its rail.
+const TOKEN_SECTIONS: [Anchor] = [Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "tokens-color", label: "Colour"), Anchor(id: "tokens-spacing", label: "Spacing"), Anchor(id: "tokens-font-size", label: "Font size"), Anchor(id: "tokens-line-height", label: "Line height"), Anchor(id: "tokens-radius", label: "Radius"), Anchor(id: "tokens-shadow", label: "Shadow"), Anchor(id: "tokens-transition", label: "Transition"), Anchor(id: "tokens-font", label: "Font"), Anchor(id: "tokens-motion", label: "Motion"), Anchor(id: "tokens-other", label: "Other")]

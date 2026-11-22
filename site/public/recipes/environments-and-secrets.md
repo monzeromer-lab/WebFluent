@@ -4,16 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/environments-and-secrets
 
-Read a setting that changes between environments (an API's address, a
-feature switch) with `env.NAME`, give it a value per environment, and keep
-a private value such as an API key out of what readers download.
+Read a setting that changes between environments (an API's address, a feature switch) with `env.NAME`, give it a value per environment, and keep a private value such as an API key out of what readers download.  This page reads the API's address and a feature switch, whose defaults the config gives and each environment may change:
 
-This page reads the API's address and a feature switch, whose defaults the
-config gives and each environment may change:
-
-**Needs:** an API that answers `/api/rows`, and the values set as [Set a
-value](#set-a-value) shows. It claims `/`: paste it into a new project, or
-replace the starter's `src/pages/Home.wf` with it.
+**Needs:** an API that answers `/api/rows`, and the values set as [Set a value](#set-a-value) shows. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 type Row { id: String }
@@ -39,22 +32,13 @@ page Billing(path: "/billing", title: "Billing", description: "Plans and invoice
 
 ## How it works
 
-`env.PUBLIC_API` is the value of `PUBLIC_API`, fixed when the site is
-built. `env` holds exactly the names the build knows, each typed by its
-value (a `String` for text, which `.env` and the shell always give), so a
-misspelt one — `env.PUBLIC_APII` — is a `T05` with the name meant, and a
-name nothing sets is one too: give every name its default in the config's
-`env` map ([Set a value](#set-a-value)), which a `.env` file or the shell
-then overrides per environment. Keep the values in `const`s at the top of
-the file, as above, so every page reads them from one place.
+`env.PUBLIC_API` is the value of `PUBLIC_API`, fixed when the site is built. `env` holds exactly the names the build knows, each typed by its value (a `String` for text, which `.env` and the shell always give), so a misspelt one — `env.PUBLIC_APII` — is a `T05` with the name meant, and a name nothing sets is one too: give every name its default in the config's `env` map ([Set a value](#set-a-value)), which a `.env` file or the shell then overrides per environment. Keep the values in `const`s at the top of the file, as above, so every page reads them from one place.
 
-The sections below set the values, keep the private ones out of the bundle,
-and build once per environment.
+The sections below set the values, keep the private ones out of the bundle, and build once per environment.
 
 ## Set a value
 
-You can set a value in three places. When two set the same name, the later
-one in this list wins:
+You can set a value in three places. When two set the same name, the later one in this list wins:
 
 1. **The config's `env` map**, committed with the project:
 
@@ -62,10 +46,7 @@ one in this list wins:
    { "env": { "PUBLIC_API": "/api", "PUBLIC_BILLING": "off" } }
    ```
 
-2. **A `.env` file** beside `webfluent.app.json`, which you do not commit.
-   `wf init` adds `.env` to `.gitignore`. Each line is `NAME=value`. A line
-   that starts with `#` is a comment, a line may start with `export `, and a
-   value may be in single or double quotes:
+2. **A `.env` file** beside `webfluent.app.json`, which you do not commit. `wf init` adds `.env` to `.gitignore`. Each line is `NAME=value`. A line that starts with `#` is a comment, a line may start with `export `, and a value may be in single or double quotes:
 
    ```bash
    PUBLIC_API=http://localhost:8080/api
@@ -78,15 +59,9 @@ one in this list wins:
    PUBLIC_API=https://api.example.com wf build
    ```
 
-   The shell supplies a name that begins `PUBLIC_`, or a private name the
-   config or `.env` already declares. It does not bring in every variable
-   the build happens to run with, such as `HOME`.
+   The shell supplies a name that begins `PUBLIC_`, or a private name the config or `.env` already declares. It does not bring in every variable the build happens to run with, such as `HOME`.
 
-   A name that `public_env` makes public without the prefix takes its
-   value from the config or `.env` only — `public_env` is part of the
-   project, and a project you cloned could list `AWS_SECRET_ACCESS_KEY`
-   there to publish your shell's value. To let the shell supply one, name
-   it in `WF_ALLOW_SHELL_ENV`, comma-separated:
+   A name that `public_env` makes public without the prefix takes its value from the config or `.env` only — `public_env` is part of the project, and a project you cloned could list `AWS_SECRET_ACCESS_KEY` there to publish your shell's value. To let the shell supply one, name it in `WF_ALLOW_SHELL_ENV`, comma-separated:
 
    ```bash
    WF_ALLOW_SHELL_ENV=ANALYTICS_ID ANALYTICS_ID=UA-2 wf build
@@ -97,16 +72,12 @@ one in this list wins:
 
 ## Keep a private value out of the bundle
 
-The build replaces `env.NAME` with its value in the JavaScript and HTML
-that every reader downloads. That is right for an API address and wrong for
-an API key. So a page, a component, a store or an `api` block may read only
-a name that says it is public:
+The build replaces `env.NAME` with its value in the JavaScript and HTML that every reader downloads. That is right for an API address and wrong for an API key. So a page, a component, a store or an `api` block may read only a name that says it is public:
 
 - a name that begins with **`PUBLIC_`**, or
 - a name listed in the config's **`public_env`**.
 
-In this config, `env.PUBLIC_API` and `env.ANALYTICS_ID` are public, and
-`env.STRIPE_SECRET` is private:
+In this config, `env.PUBLIC_API` and `env.ANALYTICS_ID` are public, and `env.STRIPE_SECRET` is private:
 
 ```json
 {
@@ -115,33 +86,20 @@ In this config, `env.PUBLIC_API` and `env.ANALYTICS_ID` are public, and
 }
 ```
 
-A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading
-`env.STRIPE_SECRET` from a page is a compile error
-([`E108`](https://webfluent.monzeromer.dev/errors/E108.md)) that names the file and the line.
+A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading `env.STRIPE_SECRET` from a page is a compile error ([`E108`](https://webfluent.monzeromer.dev/errors/E108.md)) that names the file and the line.
 
-A private value is still available to [server rendering](https://webfluent.monzeromer.dev/recipes/render-a-template.md),
-which runs on a server, where a secret stays secret. It never reaches the
-bundle: the build writes only public values into it.
+A private value is still available to [server rendering](https://webfluent.monzeromer.dev/recipes/render-a-template.md), which runs on a server, where a secret stays secret. It never reaches the bundle: the build writes only public values into it.
 
 > [!CAUTION]
-> Adding a name to `public_env` publishes its value to every reader of the
-> site, and every build says so with a warning naming it. A secret that a
-> third party needs belongs in a request your server makes, not in a page
-> ([Security](https://webfluent.monzeromer.dev/about/security.md#secrets-stay-out-of-the-bundle)).
+> Adding a name to `public_env` publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page ([Security](https://webfluent.monzeromer.dev/about/security.md#secrets-stay-out-of-the-bundle)).
 
-## Name your own values something other than `env`
+## Name your own values something other than env
 
-`env` is the language's name for these settings, and nothing else may use
-it. A `state`, a prop, a route parameter, a loop item or a top-level `const`
-called `env` is an error
-([`E118`](https://webfluent.monzeromer.dev/errors/E118.md)). For a
-value that says which stage a page is about, use a name such as `target` or
-`stage`.
+`env` is the language's name for these settings, and nothing else may use it. A `state`, a prop, a route parameter, a loop item or a top-level `const` called `env` is an error ([`E118`](https://webfluent.monzeromer.dev/errors/E118.md)). For a value that says which stage a page is about, use a name such as `target` or `stage`.
 
 ## Build once per environment
 
-To deploy the same source to several environments, run one build per
-environment, each with its own values:
+To deploy the same source to several environments, run one build per environment, each with its own values:
 
 ```bash
 wf build                                              # .env on your machine
@@ -158,8 +116,7 @@ In CI, set the variables on the job's build step:
     PUBLIC_ANALYTICS_ID: ${{ vars.ANALYTICS_ID }}
 ```
 
-Each build overwrites `build/`, so deploy what one build wrote before
-running the next, each to its own host ([Ship](https://webfluent.monzeromer.dev/recipes.md#ship)).
+Each build overwrites `build/`, so deploy what one build wrote before running the next, each to its own host ([Ship](https://webfluent.monzeromer.dev/recipes.md#ship)).
 
 ## Change other settings per deploy
 
@@ -171,9 +128,7 @@ A few settings outside `env` also change between deploys:
 | `meta.site_url` | The site's absolute address, for canonical links, the sitemap and sharing tags |
 | `theme.tokens` | Design tokens a pipeline supplies, on top of the theme: `{ "theme": { "tokens": { "color-primary": "#8B5CF6" } } }` |
 
-These settings live in `webfluent.app.json`. There is no separate config
-file per environment. A pipeline that needs different settings writes the
-file before it builds; `wf config set` edits it from a script:
+These settings live in `webfluent.app.json`. There is no separate config file per environment. A pipeline that needs different settings writes the file before it builds; `wf config set` edits it from a script:
 
 ```bash
 wf config set build.base_path /staging
@@ -187,6 +142,4 @@ To list every `env` name the project has, run `wf audit`:
 wf audit
 ```
 
-It prints each name, where it is read, and whether it is public, beside
-everything else the site trusts ([Review a site's security before you deploy](https://webfluent.monzeromer.dev/recipes/review-security.md)).
-Run it before a release, and when you review a change that adds a name.
+It prints each name, where it is read, and whether it is public, beside everything else the site trusts ([Review a site's security before you deploy](https://webfluent.monzeromer.dev/recipes/review-security.md)). Run it before a release, and when you review a change that adds a name.

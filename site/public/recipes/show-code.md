@@ -1,15 +1,12 @@
 # Show code on a page
 
-> Show code on a page with `Code`: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.
+> Show code on a page with Code: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.
 
 The page: https://webfluent.monzeromer.dev/recipes/show-code
 
-`Code` shows code: inline inside a sentence, or as a block, coloured by its
-language. This page mixes inline code into a sentence and shows two
-coloured blocks:
+`Code` shows code: inline inside a sentence, or as a block, coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
@@ -22,10 +19,6 @@ page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
 
 ## How it works
 
-- **`Code("…")`** is inline code. Placed between two `Text`s, it reads as
-  part of the sentence.
+- **`Code("…")`** is inline code. Placed between two `Text`s, it reads as part of the sentence.
 - **`Code("…").block`** is a block, for code over several lines.
-- **`language:`** colours it — `wf`, `json`, `bash` or `css`. The colouring
-  is done at build time and in the browser alike, with the theme's
-  `syntax-*` tokens, and a `Markdown` fence in one of those languages is
-  coloured the same way.
+- **`language:`** colours it — `wf`, `json`, `bash` or `css`. The colouring is done at build time and in the browser alike, with the theme's `syntax-*` tokens, and a `Markdown` fence in one of those languages is coloured the same way.

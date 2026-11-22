@@ -4,16 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/serve-with-nginx
 
-This recipe serves a WebFluent build from a server of your own with nginx:
-the precompressed files the build wrote, its 404 page, and the cache and
-security headers.
-
-You need a server running nginx with a TLS certificate for the site, and a
-`build/` folder from `wf build`
-([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)).
-
-Put the security headers in a file of their own, so every block that
-needs them can include them:
+This recipe serves a WebFluent build from a server of your own with nginx: the precompressed files the build wrote, its 404 page, and the cache and security headers.  You need a server running nginx with a TLS certificate for the site, and a `build/` folder from `wf build` ([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)).  Put the security headers in a file of their own, so every block that needs them can include them:
 
 ```nginx
 # /etc/nginx/snippets/site-headers.conf
@@ -23,8 +14,7 @@ add_header X-Frame-Options DENY always;
 # add_header Content-Security-Policy "…as in build/_headers…" always;
 ```
 
-Then add this `server` block, and pick the `try_files` line for your kind
-of build:
+Then add this `server` block, and pick the `try_files` line for your kind of build:
 
 ```nginx
 server {
@@ -65,42 +55,22 @@ rsync -a --delete build/ server:/var/www/site/
 ## How it works
 
 1. `root` is the folder the build is uploaded to.
-2. `gzip_static on` sends the `.gz` file the build wrote beside a text
-   file when the browser accepts gzip, so nginx compresses nothing itself.
-3. `try_files` decides what a path reaches. In a static build, `/contact`
-   is `contact/index.html` (`$uri/`) or, with `clean_urls: "file"`,
-   `contact.html` (`$uri.html`); anything else is a 404. In a single-page
-   build, every path falls back to `index.html`, where the router draws the
-   page.
+2. `gzip_static on` sends the `.gz` file the build wrote beside a text file when the browser accepts gzip, so nginx compresses nothing itself.
+3. `try_files` decides what a path reaches. In a static build, `/contact` is `contact/index.html` (`$uri/`) or, with `clean_urls: "file"`, `contact.html` (`$uri.html`); anything else is a 404. In a single-page build, every path falls back to `index.html`, where the router draws the page.
 4. `error_page 404 /404.html` serves the page whose `path` is `*`.
-5. `sw.js` is never cached without asking. The pictures the build resized
-   and renamed (`img/hero.<hash>.<width>.webp`, and the original as
-   `img/hero.<hash>.jpg`) are cached for a year, since a changed picture
-   gets a new name. A file of `public/` keeps the name you gave it, so it is
-   left to the browser's usual checks: a new `/logo.png` reaches readers at
-   once ([Set cache headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-cache-headers)).
-6. The `add_header` lines are the security headers the build writes to
-   `build/_headers`. Copy the `Content-Security-Policy` line from that file
-   into the commented line to send the policy as a header too.
-7. nginx drops the server's `add_header` lines in any `location` that has
-   an `add_header` of its own. That is why the two locations that set
-   `Cache-Control` include the headers file again: without it, `sw.js` and
-   the pictures would be sent with no security headers.
-8. `ssl_certificate` and `ssl_certificate_key` name the certificate the
-   `listen 443 ssl` line needs; the paths above are where Certbot puts
-   them.
+5. `sw.js` is never cached without asking. The pictures the build resized and renamed (`img/hero.<hash>.<width>.webp`, and the original as `img/hero.<hash>.jpg`) are cached for a year, since a changed picture gets a new name. A file of `public/` keeps the name you gave it, so it is left to the browser's usual checks: a new `/logo.png` reaches readers at once ([Set cache headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-cache-headers)).
+6. The `add_header` lines are the security headers the build writes to `build/_headers`. Copy the `Content-Security-Policy` line from that file into the commented line to send the policy as a header too.
+7. nginx drops the server's `add_header` lines in any `location` that has an `add_header` of its own. That is why the two locations that set `Cache-Control` include the headers file again: without it, `sw.js` and the pictures would be sent with no security headers.
+8. `ssl_certificate` and `ssl_certificate_key` name the certificate the `listen 443 ssl` line needs; the paths above are where Certbot puts them.
 
-`rsync -a --delete` makes the server's folder match `build/`, removing
-files an older build left behind.
+`rsync -a --delete` makes the server's folder match `build/`, removing files an older build left behind.
 
 ## Check it
 
-`curl -I` a page and check the headers. Ask for a compressed copy and check
-that nginx sends the build's `.gz` file:
+`curl -I` a page and check the headers. Ask for a compressed copy and check that nginx sends the build's `.gz` file:
 
 ```bash
 curl -sI -H "Accept-Encoding: gzip" https://example.com/app.js
 ```
 
-The response has `Content-Encoding: gzip`. Then go through
-[Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).
+The response has `Content-Encoding: gzip`. Then go through [Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).

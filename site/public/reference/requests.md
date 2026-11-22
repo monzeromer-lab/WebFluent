@@ -4,8 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/reference/requests
 
-Lookup tables for `api`, `http` and `resource`. [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md)
-teaches them in order.
+Lookup tables for `api`, `http` and `resource`. [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md) teaches them in order.
 
 ## Service settings
 
@@ -170,7 +169,7 @@ Two readers of one address make one request, cached or not; each keeps its own a
 
 What `retry:` does.
 
-| Rule | |
+| Rule |  |
 |---|---|
 | Methods retried | `GET`, `HEAD`, `OPTIONS`, `PUT`, `DELETE`; a `POST` or `PATCH` only when its endpoint is `idempotent` |
 | Failures retried, unset `on:` | `.network`, `.timeout`, `.status5xx`, `.status429` |
@@ -203,7 +202,7 @@ A step is handed the request and the rest of the chain, `next`, and returns a re
 
 `fake Name for Backend.group { endpoint(params) { .ok(…) } }`, as `N06` holds it.
 
-| Rule | |
+| Rule |  |
 |---|---|
 | Endpoints | Each one it answers is one the group has, answered once |
 | Parameters | Each name it binds is one of that endpoint's; one the call left out is its default |

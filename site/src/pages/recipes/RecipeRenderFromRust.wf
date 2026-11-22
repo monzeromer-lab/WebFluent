@@ -1,7 +1,31 @@
-// A recipe, written from md-docs/recipes/render-from-rust.md by scripts/docsite/recipes.py;
-// edit the recipe, not this file.
+// A recipe. This page is its source: edit it here.
 page RecipeRenderFromRust(path: "/recipes/render-from-rust", title: "Render templates from Rust — Recipes", description: "Render WebFluent templates from a Rust program or server with the webfluent crate: load them once, then render HTML, fragments, PDFs and slides.") {
-    RecipeShell("Render templates from Rust", summary: "The template engine is the `webfluent` crate. Load the templates once, at start-up, and render them with your own data as HTML, a fragment of a page, a PDF or slides. You need a Rust project, and a template like the one in [Render a template with data](/recipes/render-a-template). This one is `templates/invoice.wf`:", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "use-it-in-a-server", label: "Use it in a server"), Anchor(id: "limits-of-one-render", label: "Limits of one render"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template"), RelatedLink(kind: "Recipe", title: "Render templates from Node", to: "/recipes/render-from-node")], source: "md-docs/recipes/render-from-rust.md", how: true, hasVariations: false, project: {}) {
+    RecipeShell("Render templates from Rust", summary: "The template engine is the `webfluent` crate. Load the templates once, at start-up, and render them with your own data as HTML, a fragment of a page, a PDF or slides. You need a Rust project, and a template like the one in [Render a template with data](/recipes/render-a-template). This one is `templates/invoice.wf`:", outputs: ["website", "pdf", "slides"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "use-it-in-a-server", label: "Use it in a server"), Anchor(id: "limits-of-one-render", label: "Limits of one render"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Render a template with data", to: "/recipes/render-a-template"), RelatedLink(kind: "Recipe", title: "Render templates from Node", to: "/recipes/render-from-node")], source: "site/src/pages/recipes/RecipeRenderFromRust.wf", how: true, hasVariations: false, project: { "src/pages/RenderFromRust.wf": #"type Customer { name: String }
+type Item { name: String, qty: Number, price: Number }
+
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.",
+             number: String, customer: Customer, items: [Item], total: Number, paid: Bool) {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+"#, "webfluent.app.json": #"{
+  "name": "render-from-rust"
+}
+"# }) {
         code {
             DocsCodeBlock(#"type Customer { name: String }
 type Item { name: String, qty: Number, price: Number }

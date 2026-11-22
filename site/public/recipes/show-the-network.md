@@ -1,13 +1,10 @@
 # Show what the network is doing
 
-> Change what a page does on a slow connection or none at all by reading `network`: online, connection speed, data saver and queued writes.
+> Change what a page does on a slow connection or none at all by reading network: online, connection speed, data saver and queued writes.
 
 The page: https://webfluent.monzeromer.dev/recipes/show-the-network
 
-`network` tells a page whether it is online, how fast the line is and
-whether the reader asked to save data, so the page can change what it does
-on a slow line or none at all. This inbox warns when the browser is offline
-and when data saver is on:
+`network` tells a page whether it is online, how fast the line is and whether the reader asked to save data, so the page can change what it does on a slow line or none at all. This inbox warns when the browser is offline and when data saver is on:
 
 ```wf
 page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
@@ -19,9 +16,7 @@ page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
 
 ## How it works
 
-Like `viewport`, `network` is a browser value that keeps itself current:
-each `if` that reads it is drawn again when the connection changes, with
-nothing to subscribe to.
+Like `viewport`, `network` is a browser value that keeps itself current: each `if` that reads it is drawn again when the connection changes, with nothing to subscribe to.
 
 | Member | What it is |
 |---|---|

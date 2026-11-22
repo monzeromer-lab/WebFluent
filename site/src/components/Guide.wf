@@ -1,6 +1,7 @@
-/// The guide, in the book sidebar's shape: written from each chapter's
-/// front matter by scripts/docsite/guide.py; edit the guide, not this file.
-/// The first three chapters are the tour.
+/// The book, in the sidebar's shape: a row per chapter of `/learn`, its
+/// title the one `ch.NN` names in the translations. A chapter added to the
+/// book is added here (the test suite holds the two to each other). The
+/// first three chapters are the tour.
 const GUIDE: [Chapter] = [
     Chapter(n: 1, title: "Getting started", key: "ch.01", to: "/learn/01-getting-started", part: "nav.group.tour", tour: true),
     Chapter(n: 2, title: "Tutorial: Shelf", key: "ch.02", to: "/learn/02-tutorial-shelf", part: "nav.group.tour", tour: true),
@@ -22,7 +23,7 @@ const GUIDE: [Chapter] = [
 ]
 
 /// The book for a reader in Arabic: each chapter at its translation when
-/// it has one. Written by scripts/docsite/guide.py.
+/// it has one.
 const GUIDE_AR: [Chapter] = [
     Chapter(n: 1, title: "Getting started", key: "ch.01", to: "/ar/learn/01-getting-started", part: "nav.group.tour", tour: true),
     Chapter(n: 2, title: "Tutorial: Shelf", key: "ch.02", to: "/ar/learn/02-tutorial-shelf", part: "nav.group.tour", tour: true),

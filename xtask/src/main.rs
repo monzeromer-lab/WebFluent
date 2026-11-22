@@ -240,10 +240,10 @@ fn golden(root: &Path, args: &[String]) -> Result<(), String> {
     )
 }
 
-/// The documentation site's generated files — its chapter pages, the
-/// book's chapter list, the components reference and the search index —
-/// written from `md-docs/` and the registry of a `wf` built from this tree;
-/// with `--check`, only whether the committed ones are current.
+/// The documentation site's generated files, written by `scripts/docsite`
+/// from the site's own pages and a `wf` built from this tree (its registry,
+/// `wf explain --json`, …); with `--check`, only whether the committed ones
+/// are current.
 fn site(root: &Path, args: &[String]) -> Result<(), String> {
     let check = match args {
         [] => false,

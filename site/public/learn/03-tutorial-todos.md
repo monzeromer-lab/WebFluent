@@ -4,13 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/learn/03-tutorial-todos
 
-This tutorial builds a todo list kept in the reader's browser, with a
-store, a component, a filter in the address and tests that click.
+This tutorial builds a todo list kept in the reader's browser, with a store, a component, a filter in the address and tests that click.
 
-It is the second of the book's tutorials, after Shelf. Two longer projects
-in the recipes build on both. Todos and the two longer projects are
-complete in the repository under `examples/tutorials/`, and none needs a
-server: what a project keeps, it keeps in the reader's browser.
+It is the second of the book's tutorials, after Shelf. Two longer projects in the recipes build on both. Todos and the two longer projects are complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.
 
 | Project | What you build | What it teaches | Time |
 |---|---|---|---|
@@ -21,10 +17,7 @@ server: what a project keeps, it keeps in the reader's browser.
 
 If you have not written WebFluent before, start with [the Shelf tutorial](https://webfluent.monzeromer.dev/learn/02-tutorial-shelf.md): it is a gentler first half hour.
 
-**What you will build.** A list of things to do, kept in the reader's
-browser: add a todo, tick it, rename it, remove it, and show only the open
-ones. It is one page, one store and one component. The finished project is
-[`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).
+**What you will build.** A list of things to do, kept in the reader's browser: add a todo, tick it, rename it, remove it, and show only the open ones. It is one page, one store and one component. The finished project is [`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).
 
 **Time:** about 20 minutes.
 
@@ -32,19 +25,13 @@ ones. It is one page, one store and one component. The finished project is
 
 You need:
 
-- `wf` installed and on your `PATH` — `wf --version` prints `wf 7.0.0` or
-  later ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)).
-- Chrome or Chromium on the machine, for the tests that click and for
-  `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.
+- `wf` installed and on your `PATH` — `wf --version` prints `wf 7.0.0` or later ([Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md)).
+- Chrome or Chromium on the machine, for the tests that click and for `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.
 - Git, to fetch the finished projects.
 
-Every code block whose first line names a file — `// src/stores/Todos.wf`
-— is that file, or a run of lines from it, exactly as the project has it.
-A test holds this chapter to the projects, so the code you read here is
-the code that builds.
+Every code block whose first line names a file — `// src/stores/Todos.wf` — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.
 
-To start from a finished project instead, clone the repository and serve
-one:
+To start from a finished project instead, clone the repository and serve one:
 
 ```bash
 git clone https://github.com/monzeromer-lab/WebFluent
@@ -52,12 +39,9 @@ cd WebFluent/examples/tutorials/easy-todos
 wf serve
 ```
 
-**Check it:** the terminal prints `Starting dev server at
-http://localhost:3000/`, and that address shows the project.
+**Check it:** the terminal prints `Starting dev server at http://localhost:3000/`, and that address shows the project.
 
-For this tutorial you need only `wf` and Chrome. You write every file
-of this project yourself, and the blocks below hold each file whole, except
-the tests, where one of six is shown.
+For this tutorial you need only `wf` and Chrome. You write every file of this project yourself, and the blocks below hold each file whole, except the tests, where one of six is shown.
 
 ## Step 1: Create the project
 
@@ -68,9 +52,7 @@ wf init todos -t spa
 cd todos
 ```
 
-Delete everything the template put in `src/` and in `tests/`: you write
-every file yourself, and the template's tests would fail without its pages.
-Then replace `webfluent.app.json` with this:
+Delete everything the template put in `src/` and in `tests/`: you write every file yourself, and the template's tests would fail without its pages. Then replace `webfluent.app.json` with this:
 
 ```json
 {
@@ -87,30 +69,21 @@ Then replace `webfluent.app.json` with this:
 }
 ```
 
-- `"output_type": "spa"` makes a single-page app: one HTML shell, with
-  pages swapped without a reload
-  ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
-- `"csp": true` ships a content security policy and holds the build to it
-  ([Security](https://webfluent.monzeromer.dev/about/security.md)).
-- `theme` names two themes, `Paper` and `Night`, which you write in the
-  next step.
-- `favicon` is the icon in the browser's tab. A file in `public/` is served
-  from the site's root, so put one at `public/favicon.svg`:
+- `"output_type": "spa"` makes a single-page app: one HTML shell, with pages swapped without a reload ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
+- `"csp": true` ships a content security policy and holds the build to it ([Security](https://webfluent.monzeromer.dev/about/security.md)).
+- `theme` names two themes, `Paper` and `Night`, which you write in the next step.
+- `favicon` is the icon in the browser's tab. A file in `public/` is served from the site's root, so put one at `public/favicon.svg`:
 
 ```bash
 mkdir -p public
 printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0F766E"/><path d="M9 16l5 5 9-10" stroke="#fff" stroke-width="3" fill="none"/></svg>' > public/favicon.svg
 ```
 
-**Check it:** `wf check` prints `IO Error: No .wf files found in src/`.
-That is expected: `src/` is empty until the next step.
+**Check it:** `wf check` prints `IO Error: No .wf files found in src/`. That is expected: `src/` is empty until the next step.
 
 ## Step 2: Give it a look of its own
 
-The config names a theme, so declare it first. A theme names only the
-design tokens it changes; every other token keeps its default
-([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)). `Night` is the theme named as `"dark"` in the
-config, and the page uses it when the reader's system is set to dark:
+The config names a theme, so declare it first. A theme names only the design tokens it changes; every other token keeps its default ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)). `Night` is the theme named as `"dark"` in the config, and the page uses it when the reader's system is set to dark:
 
 ```wf
 // src/theme.wf
@@ -138,16 +111,9 @@ theme Night {
 }
 ```
 
-The dark teal is light enough that white text on it is hard to read, so
-`Night` also sets `color-on-primary`, the colour of a primary button's
-label, to the dark background. `wf check` reports a pair like that as
-`A13` in either theme.
+The dark teal is light enough that white text on it is hard to read, so `Night` also sets `color-on-primary`, the colour of a primary button's label, to the dark background. `wf check` reports a pair like that as `A13` in either theme.
 
-The page you write in step 6 names classes — `card`, `todo`, `is-done`,
-`filters` — and `src/todos.css` styles them. The build bundles every `.css`
-file under `src/`, so the file needs no link. These are four of its rules;
-copy the whole file from the
-[finished project](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):
+The page you write in step 6 names classes — `card`, `todo`, `is-done`, `filters` — and `src/todos.css` styles them. The build bundles every `.css` file under `src/`, so the file needs no link. These are four of its rules; copy the whole file from the [finished project](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):
 
 ```css
 .todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
@@ -156,15 +122,13 @@ copy the whole file from the
 .filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }
 ```
 
-Each colour is a token, `var(--color-border)`, so the dark theme recolours
-the page with no rule of its own.
+Each colour is a token, `var(--color-border)`, so the dark theme recolours the page with no rule of its own.
 
 **Check it:** `wf check` prints `No problems in todos.`
 
 ## Step 3: Describe a todo
 
-A `type` names the fields a value has, and the checker holds every use to
-them ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)). An `enum` is a fixed set of cases:
+A `type` names the fields a value has, and the checker holds every use to them ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)). An `enum` is a fixed set of cases:
 
 ```wf
 // src/types.wf
@@ -183,15 +147,13 @@ enum Filter { all, open, done }
 - `done` has a default, so a new todo can leave it out.
 - A case is written with a dot, `.open`, wherever a `Filter` is wanted.
 
-Because the checker knows the fields, `todo.titel` is an error where it is
-written, and the message names the field you meant.
+Because the checker knows the fields, `todo.titel` is an error where it is written, and the message names the field you meant.
 
 **Check it:** `wf check` prints `No problems in todos.`
 
 ## Step 4: Write a store that remembers
 
-A store holds state that any page or component can read
-([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)). This one keeps the list:
+A store holds state that any page or component can read ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)). This one keeps the list:
 
 ```wf
 // src/stores/Todos.wf
@@ -228,28 +190,19 @@ store Todos {
 }
 ```
 
-- `persist` is a `state` kept in the browser's storage. The list is still
-  there after a reload, and a second tab follows the first, with no storage
-  code written.
-- A `derived` value follows what it reads: `open` is always the todos not
-  yet done.
-- An action is the one place state changes. `{ ...todo, done: !todo.done }`
-  is the todo with one field changed.
+- `persist` is a `state` kept in the browser's storage. The list is still there after a reload, and a second tab follows the first, with no storage code written.
+- A `derived` value follows what it reads: `open` is always the todos not yet done.
+- An action is the one place state changes. `{ ...todo, done: !todo.done }` is the todo with one field changed.
 - `rename`, `remove` and `clearDone` change the list in the same way.
 
 > [!NOTE]
-> **Coming from Vue?** A `derived` value is a `computed` with no function to
-> write and no `.value` to read: `Todos.open` is the list itself. See
-> [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md).
+> **Coming from Vue?** A `derived` value is a `computed` with no function to write and no `.value` to read: `Todos.open` is the list itself. See [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md).
 
-**Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]:
-`Todos.open` is declared but never read``. That is expected: nothing reads
-the store yet. The page in step 6 reads every member, and the warnings go.
+**Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]: `Todos.open` is declared but never read``. That is expected: nothing reads the store yet. The page in step 6 reads every member, and the warnings go.
 
 ## Step 5: Build one row
 
-A component is an element of your own ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
-This one draws a single todo, and lets the reader rename it in place:
+A component is an element of your own ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)). This one draws a single todo, and lets the reader rename it in place:
 
 ```wf
 // src/components/TodoRow.wf
@@ -289,24 +242,16 @@ component TodoRow(_ todo: Todo) {
 }
 ```
 
-- `_ todo` is the component's one positional prop, so a call reads
-  `TodoRow(todo)`.
-- Its `state` belongs to each row: renaming one row does not put the others
-  in edit mode.
-- `class:` adds classes to the element's own. The list form may hold an
-  `if`, which adds `is-done` only while the todo is done.
-- Every control has an accessible name. The checkbox and the icon buttons
-  say which todo they act on, so a screen reader — and the tests in step 7
-  — can tell them apart ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)).
+- `_ todo` is the component's one positional prop, so a call reads `TodoRow(todo)`.
+- Its `state` belongs to each row: renaming one row does not put the others in edit mode.
+- `class:` adds classes to the element's own. The list form may hold an `if`, which adds `is-done` only while the todo is done.
+- Every control has an accessible name. The checkbox and the icon buttons say which todo they act on, so a screen reader — and the tests in step 7 — can tell them apart ([Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md)).
 
-**Check it:** `wf check` prints `U03` for `TodoRow` (nothing places it yet)
-and four `U04` warnings. The store's `toggle`, `rename` and `remove` no
-longer appear: the row calls them.
+**Check it:** `wf check` prints `U03` for `TodoRow` (nothing places it yet) and four `U04` warnings. The store's `toggle`, `rename` and `remove` no longer appear: the row calls them.
 
 ## Step 6: Write the page
 
-The page holds the box for a new todo, the filters and the list. Here is
-its first half:
+The page holds the box for a new todo, the filters and the list. Here is its first half:
 
 ```wf
 // src/pages/Home.wf
@@ -344,15 +289,11 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
         }
 ```
 
-- `bind: draft` ties the input to the state both ways: typing changes
-  `draft`, and `draft = ""` empties the box.
-- `query` is the address's query string as a value, kept current. So
-  `filter` follows the address, and `shown` follows `filter`.
-- A `match` over an enum must cover every case. If you add a fourth case to
-  `Filter`, this `match` is an error until it handles it.
+- `bind: draft` ties the input to the state both ways: typing changes `draft`, and `draft = ""` empties the box.
+- `query` is the address's query string as a value, kept current. So `filter` follows the address, and `shown` follows `filter`.
+- A `match` over an enum must cover every case. If you add a fourth case to `Filter`, this `match` is an error until it handles it.
 
-The second half draws the filters and the list, and closes the page. Add it
-below the first, after a blank line:
+The second half draws the filters and the list, and closes the page. Add it below the first, after a blank line:
 
 ```wf
 // src/pages/Home.wf
@@ -381,19 +322,14 @@ below the first, after a blank line:
 }
 ```
 
-- `for … by todo.id` is a keyed list. When a todo is renamed, or the filter
-  hides it, only its row changes; the other rows keep their elements, and
-  the row being edited keeps its cursor ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
+- `for … by todo.id` is a keyed list. When a todo is renamed, or the filter hides it, only its row changes; the other rows keep their elements, and the row being edited keeps its cursor ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
 - `animate:` and `exit:` fade a row in and out.
-- A class map, `{ "is-on": filter == .all }`, turns a class on while its
-  condition holds.
+- A class map, `{ "is-on": filter == .all }`, turns a class on while its condition holds.
 
 > [!NOTE]
-> **Coming from React?** The key goes on the loop, `by todo.id`, not as a
-> `key` prop on the row. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** The key goes on the loop, `by todo.id`, not as a `key` prop on the row. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
-Last, the `app` declaration is the frame every page sits in. `Router`
-marks where the current page is drawn:
+Last, the `app` declaration is the frame every page sits in. `Router` marks where the current page is drawn:
 
 ```wf
 // src/App.wf
@@ -405,29 +341,19 @@ app {
 }
 ```
 
-Now start the development server in a second terminal, and leave it
-running. Every save rebuilds the project and reloads the page:
+Now start the development server in a second terminal, and leave it running. Every save rebuilds the project and reloads the page:
 
 ```bash
 wf serve
 ```
 
-**Check it:** `wf check` prints `No problems in todos.`, and
-<http://localhost:3000/> shows a card headed **Todos** with `0 left` and
-*Nothing yet — add your first todo above.* Type a todo and press Enter: it
-appears, and the count reads `1 left`. Reload the page, and the todo is
-still there. Click **Open**, and the address becomes `/?show=open`.
+**Check it:** `wf check` prints `No problems in todos.`, and <http://localhost:3000/> shows a card headed **Todos** with `0 left` and *Nothing yet — add your first todo above.* Type a todo and press Enter: it appears, and the count reads `1 left`. Reload the page, and the todo is still there. Click **Open**, and the address becomes `/?show=open`.
 
-If the server prints ``No `theme Paper` is declared in this project``, you
-probably skipped `src/theme.wf` in step 2. If a store member shows as
-`U04` here, you probably left out part of the page.
+If the server prints ``No `theme Paper` is declared in this project``, you probably skipped `src/theme.wf` in step 2. If a store member shows as `U04` here, you probably left out part of the page.
 
 ## Step 7: Write tests
 
-A test draws what it declares, then follows its steps in order. It types
-into the control named **New todo** and clicks the button named **Add**,
-the way a reader would ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)). Create
-`tests/todos.wf` with this test:
+A test draws what it declares, then follows its steps in order. It types into the control named **New todo** and clicks the button named **Add**, the way a reader would ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)). Create `tests/todos.wf` with this test:
 
 ```wf
 // tests/todos.wf
@@ -447,24 +373,15 @@ test "adding a todo puts it in the list" {
 }
 ```
 
-A test that clicks or types runs in a headless Chrome. The finished
-project has six tests in
-[`tests/todos.wf`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf):
-two that only look at a row, and four that click — adding a todo, refusing
-a blank one, ticking and clearing, and renaming that keeps one row for
-each. Copy the file to have them all, then run them:
+A test that clicks or types runs in a headless Chrome. The finished project has six tests in [`tests/todos.wf`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf): two that only look at a row, and four that click — adding a todo, refusing a blank one, ticking and clearing, and renaming that keeps one row for each. Copy the file to have them all, then run them:
 
 ```bash
 wf test
 ```
 
-**Check it:** with the whole file, `wf test` ends with `6 passed, 0
-failed, 2 snapshot(s) written`. The two tests that only look write a
-snapshot of what they drew under `tests/__snapshots__/`, and later runs
-compare against it.
+**Check it:** with the whole file, `wf test` ends with `6 passed, 0 failed, 2 snapshot(s) written`. The two tests that only look write a snapshot of what they drew under `tests/__snapshots__/`, and later runs compare against it.
 
-If a test that clicks reports that no browser was found, Chrome is not
-where `wf` looks: set `WF_CHROME` to its path.
+If a test that clicks reports that no browser was found, Chrome is not where `wf` looks: set `WF_CHROME` to its path.
 
 ## Step 8: Build it
 
@@ -476,35 +393,22 @@ wf test
 wf build
 ```
 
-`wf check` reports every finding and writes nothing. `wf build` writes
-`build/`, which any static host serves: see the recipes for
-[GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md),
-[Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md),
-[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md) and
-[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md). To load the built page in a
-real browser before you deploy, run `wf verify`: it fails on an error, a
-missing file or a page that draws nothing.
+`wf check` reports every finding and writes nothing. `wf build` writes `build/`, which any static host serves: see the recipes for [GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md), [Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md), [Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md) and [Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md). To load the built page in a real browser before you deploy, run `wf verify`: it fails on an error, a missing file or a page that draws nothing.
 
-**Check it:** `wf build` ends with `Build complete.`, and `build/` holds
-`index.html`, `app.js` and `styles.css`.
+**Check it:** `wf build` ends with `Build complete.`, and `build/` holds `index.html`, `app.js` and `styles.css`.
 
 ## What you built
 
 - A `type` and an `enum`, held to every use ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
-- A store whose list survives a reload with `persist`, and `derived`
-  values that follow it ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
-- A component with state of its own, and accessible names on every
-  control ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
-- A keyed list, and a filter kept in the address with `query`
-  ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
-- A theme with a dark variant, and the project's own stylesheet
-  ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- A store whose list survives a reload with `persist`, and `derived` values that follow it ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
+- A component with state of its own, and accessible names on every control ([Components](https://webfluent.monzeromer.dev/learn/10-components.md)).
+- A keyed list, and a filter kept in the address with `query` ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
+- A theme with a dark variant, and the project's own stylesheet ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 - Tests that look and tests that click ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md)).
 
 ## Common mistakes
 
-A `match` that misses a case. A `match` over an enum must name every case,
-so leaving out `.all` is an error:
+A `match` that misses a case. A `match` over an enum must name every case, so leaving out `.all` is an error:
 
 ```wf expect=T15
 enum Filter { all, open, done }
@@ -520,12 +424,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 }
 ```
 
-Add the missing arm, `.all { "All" }`, or an `else` arm
-([T15](https://webfluent.monzeromer.dev/errors/T15.md)).
+Add the missing arm, `.all { "All" }`, or an `else` arm ([T15](https://webfluent.monzeromer.dev/errors/T15.md)).
 
-A list with no `by`. Without a key, a row that holds a control is drawn
-again whenever the list changes, and a box the reader was using loses its
-place:
+A list with no `by`. Without a key, a row that holds a control is drawn again whenever the list changes, and a box the reader was using loses its place:
 
 ```wf expect=U09
 type Todo { id: String, title: String }
@@ -539,11 +440,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 }
 ```
 
-Key the list by what identifies each item: `for todo in items by todo.id`
-([U09](https://webfluent.monzeromer.dev/errors/U09.md)).
+Key the list by what identifies each item: `for todo in items by todo.id` ([U09](https://webfluent.monzeromer.dev/errors/U09.md)).
 
-A control bound to a `derived` value. `bind:` writes back to what it
-names, and a derived value is worked out, never assigned:
+A control bound to a `derived` value. `bind:` writes back to what it names, and a derived value is worked out, never assigned:
 
 ```wf expect=F01
 store Todos {
@@ -558,12 +457,6 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 }
 ```
 
-Bind a `state`, as the page binds `draft`, and change the store through
-its actions ([F01](https://webfluent.monzeromer.dev/errors/F01.md)).
+Bind a `state`, as the page binds `draft`, and change the store through its actions ([F01](https://webfluent.monzeromer.dev/errors/F01.md)).
 
-Going further: [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) builds a
-statically generated site on what this one taught.
-
-## Next
-
-[Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md).
+Going further: [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) builds a statically generated site on what this one taught.

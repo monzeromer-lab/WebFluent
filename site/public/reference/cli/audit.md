@@ -17,8 +17,7 @@ wf audit [PATH] [options]
 | `[PATH]` | Project directory (default: current directory) |
 | `--json` | Print JSON, for tools |
 
-Prints what a security review asks about the project. It reports and never
-fails.
+Prints what a security review asks about the project. It reports and never fails.
 
 ```bash
 wf audit
@@ -35,4 +34,4 @@ The report lists:
 - the policy the build ships;
 - what the compiler depends on.
 
-See also: [Review a site's security](../recipes/review-security.md) and [Security](../about/security.md).
+See also: [Review a site's security](https://webfluent.monzeromer.dev/recipes/review-security.md) and [Security](https://webfluent.monzeromer.dev/about/security.md).

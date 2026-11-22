@@ -33,8 +33,6 @@ echo '{"name":"Ada"}' | wf render greeting.wf
 wf render templates/ --page Receipt --lang ar --data receipt.json
 ```
 
-A template is held to the same checks as a build: a component nothing
-declares, or a flag a component does not take, stops the render. The one
-difference is that the names a template reads come from its data.
+A template is held to the same checks as a build: a component nothing declares, or a flag a component does not take, stops the render. The one difference is that the names a template reads come from its data.
 
-See also: [Render a template](../recipes/render-a-template.md).
+See also: [Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md).

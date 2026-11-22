@@ -4,17 +4,12 @@
 
 The page: https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos
 
-يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store)
-ومكوّن ومرشّح في العنوان واختبارات تنقر.
+يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store) ومكوّن ومرشّح في العنوان واختبارات تنقر.
 
 > [!NOTE]
-> لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته
-> الإنجليزية.
+> لم تُترجم كل فصول الدليل بعد: الروابط إلى فصل غير مترجم تفتح نسخته الإنجليزية.
 
-هو ثاني دروس الكتاب، بعد Shelf. ويبني مشروعان أطول في الوصفات على
-الاثنين. قائمة المهام والمشروعان الأطول موجودة كاملة في المستودع تحت
-`examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه
-في متصفح القارئ.
+هو ثاني دروس الكتاب، بعد Shelf. ويبني مشروعان أطول في الوصفات على الاثنين. قائمة المهام والمشروعان الأطول موجودة كاملة في المستودع تحت `examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه في متصفح القارئ.
 
 | المشروع | ما تبنيه | ما يعلّمه | الوقت |
 |---|---|---|---|
@@ -25,10 +20,7 @@ The page: https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos
 
 إن لم تكتب WebFluent من قبل، فابدأ بـ[درس Shelf](https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf.md): نصف ساعته الأولى ألطف.
 
-**ما ستبنيه.** قائمة بما عليك فعله، تبقى في متصفح القارئ: أضف مهمة،
-وعلّمها منجزة، وأعد تسميتها، واحذفها، واعرض المفتوحة منها فقط. هي صفحة
-واحدة ومخزن واحد ومكوّن واحد. المشروع المكتمل هو
-[`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).
+**ما ستبنيه.** قائمة بما عليك فعله، تبقى في متصفح القارئ: أضف مهمة، وعلّمها منجزة، وأعد تسميتها، واحذفها، واعرض المفتوحة منها فقط. هي صفحة واحدة ومخزن واحد ومكوّن واحد. المشروع المكتمل هو [`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).
 
 **الوقت:** نحو 20 دقيقة.
 
@@ -36,15 +28,11 @@ The page: https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos
 
 تحتاج إلى:
 
-- `wf` مثبّتًا وفي `PATH` لديك — يطبع `wf --version` القيمة `wf 7.0.0` أو
-  أحدث ([البدء](https://webfluent.monzeromer.dev/ar/learn/01-getting-started.md)).
-- Chrome أو Chromium على الجهاز، للاختبارات التي تنقر ولـ`wf verify`.
-  اضبط `WF_CHROME` على مساره إن لم يكن في مكان معتاد.
+- `wf` مثبّتًا وفي `PATH` لديك — يطبع `wf --version` القيمة `wf 7.0.0` أو أحدث ([البدء](https://webfluent.monzeromer.dev/ar/learn/01-getting-started.md)).
+- Chrome أو Chromium على الجهاز، للاختبارات التي تنقر ولـ`wf verify`. اضبط `WF_CHROME` على مساره إن لم يكن في مكان معتاد.
 - Git، لجلب المشاريع المكتملة.
 
-كل كتلة شيفرة يسمّي سطرها الأول ملفًا — `// src/stores/Todos.wf` — هي ذلك
-الملف، أو مجموعة متتالية من أسطره، كما هي في المشروع تمامًا. يُلزم اختبارٌ
-هذا الفصل بالمشاريع، فالشيفرة التي تقرؤها هنا هي الشيفرة التي تُبنى.
+كل كتلة شيفرة يسمّي سطرها الأول ملفًا — `// src/stores/Todos.wf` — هي ذلك الملف، أو مجموعة متتالية من أسطره، كما هي في المشروع تمامًا. يُلزم اختبارٌ هذا الفصل بالمشاريع، فالشيفرة التي تقرؤها هنا هي الشيفرة التي تُبنى.
 
 لتبدأ من مشروع مكتمل بدلًا من ذلك، انسخ المستودع وشغّل أحد المشاريع:
 
@@ -54,12 +42,9 @@ cd WebFluent/examples/tutorials/easy-todos
 wf serve
 ```
 
-**تحقّق:** تطبع الطرفية `Starting dev server at
-http://localhost:3000/`، ويعرض ذلك العنوان المشروع.
+**تحقّق:** تطبع الطرفية `Starting dev server at http://localhost:3000/`، ويعرض ذلك العنوان المشروع.
 
-لا تحتاج في هذا الدرس إلا إلى `wf` وChrome. تكتب كل ملف في هذا المشروع
-بنفسك، والكتل أدناه تحمل كل ملف كاملًا، إلا الاختبارات، إذ يظهر منها واحد
-من ستة.
+لا تحتاج في هذا الدرس إلا إلى `wf` وChrome. تكتب كل ملف في هذا المشروع بنفسك، والكتل أدناه تحمل كل ملف كاملًا، إلا الاختبارات، إذ يظهر منها واحد من ستة.
 
 ## الخطوة 1: أنشئ المشروع
 
@@ -70,8 +55,7 @@ wf init todos -t spa
 cd todos
 ```
 
-احذف كل ما وضعه القالب في `src/` و`tests/`: ستكتب كل ملف بنفسك، واختبارات
-القالب ستفشل دون صفحاته. ثم استبدل `webfluent.app.json` بهذا:
+احذف كل ما وضعه القالب في `src/` و`tests/`: ستكتب كل ملف بنفسك، واختبارات القالب ستفشل دون صفحاته. ثم استبدل `webfluent.app.json` بهذا:
 
 ```json
 {
@@ -88,29 +72,21 @@ cd todos
 }
 ```
 
-- `"output_type": "spa"` يصنع تطبيق صفحة واحدة: غلاف HTML واحد، تُبدَّل فيه
-  الصفحات دون إعادة تحميل
-  ([المواقع الثابتة وتطبيقات الصفحة الواحدة](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
-- `"csp": true` يشحن سياسة أمان المحتوى ويُلزم البناء بها
-  ([الأمان](https://webfluent.monzeromer.dev/about/security.md)).
+- `"output_type": "spa"` يصنع تطبيق صفحة واحدة: غلاف HTML واحد، تُبدَّل فيه الصفحات دون إعادة تحميل ([المواقع الثابتة وتطبيقات الصفحة الواحدة](https://webfluent.monzeromer.dev/about/static-or-single-page.md)).
+- `"csp": true` يشحن سياسة أمان المحتوى ويُلزم البناء بها ([الأمان](https://webfluent.monzeromer.dev/about/security.md)).
 - يسمّي `theme` سمتين (themes)، `Paper` و`Night`، تكتبهما في الخطوة التالية.
-- `favicon` هي الأيقونة في تبويب المتصفح. يُقدَّم الملف الموجود في `public/`
-  من جذر الموقع، فضع واحدة في `public/favicon.svg`:
+- `favicon` هي الأيقونة في تبويب المتصفح. يُقدَّم الملف الموجود في `public/` من جذر الموقع، فضع واحدة في `public/favicon.svg`:
 
 ```bash
 mkdir -p public
 printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0F766E"/><path d="M9 16l5 5 9-10" stroke="#fff" stroke-width="3" fill="none"/></svg>' > public/favicon.svg
 ```
 
-**تحقّق:** يطبع `wf check` الرسالة `IO Error: No .wf files found in src/`.
-هذا متوقّع: يبقى `src/` فارغًا حتى الخطوة التالية.
+**تحقّق:** يطبع `wf check` الرسالة `IO Error: No .wf files found in src/`. هذا متوقّع: يبقى `src/` فارغًا حتى الخطوة التالية.
 
 ## الخطوة 2: أعطه مظهرًا خاصًا به
 
-الإعدادات تسمّي سمة، فصرّح بها أولًا. لا تسمّي السمة إلا رموز التصميم
-(design tokens) التي تغيّرها؛ ويبقى كل رمز آخر على قيمته الافتراضية
-([التنسيق](https://webfluent.monzeromer.dev/learn/13-styling.md)). `Night` هي السمة المسمّاة `"dark"` في
-الإعدادات، وتستعملها الصفحة حين يكون نظام القارئ على الوضع الداكن:
+الإعدادات تسمّي سمة، فصرّح بها أولًا. لا تسمّي السمة إلا رموز التصميم (design tokens) التي تغيّرها؛ ويبقى كل رمز آخر على قيمته الافتراضية ([التنسيق](https://webfluent.monzeromer.dev/learn/13-styling.md)). `Night` هي السمة المسمّاة `"dark"` في الإعدادات، وتستعملها الصفحة حين يكون نظام القارئ على الوضع الداكن:
 
 ```wf
 // src/theme.wf
@@ -138,14 +114,9 @@ theme Night {
 }
 ```
 
-الأخضر المزرقّ في `Night` فاتح، فيصعب قراءة نص أبيض فوقه؛ لذلك يضبط
-`Night` أيضًا `color-on-primary`، لون نص الزر الأساسي، على لون الخلفية
-الداكن. يُبلّغ `wf check` عن زوج كهذا بـ`A13` في أيّ من السمتين.
+الأخضر المزرقّ في `Night` فاتح، فيصعب قراءة نص أبيض فوقه؛ لذلك يضبط `Night` أيضًا `color-on-primary`، لون نص الزر الأساسي، على لون الخلفية الداكن. يُبلّغ `wf check` عن زوج كهذا بـ`A13` في أيّ من السمتين.
 
-الصفحة التي تكتبها في الخطوة 6 تسمّي أصنافًا (classes) — `card` و`todo`
-و`is-done` و`filters` — ويُنسّقها `src/todos.css`. يجمع البناء كل ملف `.css`
-تحت `src/`، فلا يحتاج الملف إلى رابط. هذه أربع من قواعده؛ انسخ الملف كاملًا
-من [المشروع المكتمل](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):
+الصفحة التي تكتبها في الخطوة 6 تسمّي أصنافًا (classes) — `card` و`todo` و`is-done` و`filters` — ويُنسّقها `src/todos.css`. يجمع البناء كل ملف `.css` تحت `src/`، فلا يحتاج الملف إلى رابط. هذه أربع من قواعده؛ انسخ الملف كاملًا من [المشروع المكتمل](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):
 
 ```css
 .todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
@@ -154,15 +125,13 @@ theme Night {
 .filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }
 ```
 
-كل لون رمز، `var(--color-border)`، فتعيد السمة الداكنة تلوين الصفحة دون
-قاعدة خاصة بها.
+كل لون رمز، `var(--color-border)`، فتعيد السمة الداكنة تلوين الصفحة دون قاعدة خاصة بها.
 
 **تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`
 
 ## الخطوة 3: صِف المهمة
 
-يسمّي `type` الحقول التي تملكها القيمة، ويُلزم المدقّق كل استعمال بها
-([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)). و`enum` مجموعة ثابتة من الحالات:
+يسمّي `type` الحقول التي تملكها القيمة، ويُلزم المدقّق كل استعمال بها ([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)). و`enum` مجموعة ثابتة من الحالات:
 
 ```wf
 // src/types.wf
@@ -181,15 +150,13 @@ enum Filter { all, open, done }
 - للحقل `done` قيمة افتراضية، فيمكن للمهمة الجديدة أن تُغفله.
 - تُكتب الحالة بنقطة، `.open`، حيثما يُطلب `Filter`.
 
-لأن المدقّق يعرف الحقول، فإن `todo.titel` خطأ في الموضع الذي كُتب فيه،
-والرسالة تسمّي الحقل الذي قصدته.
+لأن المدقّق يعرف الحقول، فإن `todo.titel` خطأ في الموضع الذي كُتب فيه، والرسالة تسمّي الحقل الذي قصدته.
 
 **تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`
 
 ## الخطوة 4: اكتب مخزنًا يتذكّر
 
-يحمل المخزن حالة يمكن لأي صفحة أو مكوّن قراءتها
-([المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md)). هذا المخزن يحفظ القائمة:
+يحمل المخزن حالة يمكن لأي صفحة أو مكوّن قراءتها ([المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md)). هذا المخزن يحفظ القائمة:
 
 ```wf
 // src/stores/Todos.wf
@@ -226,27 +193,19 @@ store Todos {
 }
 ```
 
-- `persist` حالة (`state`) تُحفظ في تخزين المتصفح. تبقى القائمة بعد إعادة
-  التحميل، ويتبع التبويب الثاني الأول، دون أن تكتب شيفرة تخزين.
-- القيمة المشتقة (`derived`) تتبع ما تقرؤه: `open` هي دائمًا المهام التي لم
-  تُنجز بعد.
-- الإجراء (action) هو المكان الوحيد الذي تتغيّر فيه الحالة.
-  `{ ...todo, done: !todo.done }` هي المهمة نفسها مع تغيير حقل واحد.
+- `persist` حالة (`state`) تُحفظ في تخزين المتصفح. تبقى القائمة بعد إعادة التحميل، ويتبع التبويب الثاني الأول، دون أن تكتب شيفرة تخزين.
+- القيمة المشتقة (`derived`) تتبع ما تقرؤه: `open` هي دائمًا المهام التي لم تُنجز بعد.
+- الإجراء (action) هو المكان الوحيد الذي تتغيّر فيه الحالة. `{ ...todo, done: !todo.done }` هي المهمة نفسها مع تغيير حقل واحد.
 - يغيّر `rename` و`remove` و`clearDone` القائمة بالطريقة نفسها.
 
 > [!NOTE]
-> **قادم من Vue؟** القيمة `derived` هي `computed` بلا دالة تكتبها ولا
-> `.value` تقرؤه: `Todos.open` هي القائمة نفسها. انظر
-> [القادمون من Vue](https://webfluent.monzeromer.dev/coming-from/vue.md).
+> **قادم من Vue؟** القيمة `derived` هي `computed` بلا دالة تكتبها ولا `.value` تقرؤه: `Todos.open` هي القائمة نفسها. انظر [القادمون من Vue](https://webfluent.monzeromer.dev/coming-from/vue.md).
 
-**تحقّق:** يطبع `wf check` سبعة تحذيرات `U04`، مثل ``warning[U04]:
-`Todos.open` is declared but never read``. هذا متوقّع: لا شيء يقرأ المخزن
-بعد. الصفحة في الخطوة 6 تقرأ كل عضو فيه، فتزول التحذيرات.
+**تحقّق:** يطبع `wf check` سبعة تحذيرات `U04`، مثل ``warning[U04]: `Todos.open` is declared but never read``. هذا متوقّع: لا شيء يقرأ المخزن بعد. الصفحة في الخطوة 6 تقرأ كل عضو فيه، فتزول التحذيرات.
 
 ## الخطوة 5: ابنِ صفًا واحدًا
 
-المكوّن عنصر من صنعك ([المكوّنات](https://webfluent.monzeromer.dev/learn/10-components.md)). هذا المكوّن
-يرسم مهمة واحدة، ويتيح للقارئ إعادة تسميتها في مكانها:
+المكوّن عنصر من صنعك ([المكوّنات](https://webfluent.monzeromer.dev/learn/10-components.md)). هذا المكوّن يرسم مهمة واحدة، ويتيح للقارئ إعادة تسميتها في مكانها:
 
 ```wf
 // src/components/TodoRow.wf
@@ -286,19 +245,12 @@ component TodoRow(_ todo: Todo) {
 }
 ```
 
-- `_ todo` هي الخاصية (prop) الموضعية الوحيدة للمكوّن، فيُكتب الاستدعاء
-  `TodoRow(todo)`.
-- حالته (`state`) ملك لكل صف: إعادة تسمية صف لا تضع الصفوف الأخرى في وضع
-  التحرير.
-- يضيف `class:` أصنافًا إلى أصناف العنصر نفسه. ويمكن لصيغة القائمة أن تحمل
-  `if`، فلا تضيف `is-done` إلا ما دامت المهمة منجزة.
-- لكل عنصر تحكّم اسم يُتاح لتقنيات المساعدة. مربع الاختيار وأزرار الأيقونات
-  تقول أي مهمة تعمل عليها، فيمكن لقارئ الشاشة — ولاختبارات الخطوة 7 — أن
-  يميّز بينها ([إمكانية الوصول](https://webfluent.monzeromer.dev/about/accessibility.md)).
+- `_ todo` هي الخاصية (prop) الموضعية الوحيدة للمكوّن، فيُكتب الاستدعاء `TodoRow(todo)`.
+- حالته (`state`) ملك لكل صف: إعادة تسمية صف لا تضع الصفوف الأخرى في وضع التحرير.
+- يضيف `class:` أصنافًا إلى أصناف العنصر نفسه. ويمكن لصيغة القائمة أن تحمل `if`، فلا تضيف `is-done` إلا ما دامت المهمة منجزة.
+- لكل عنصر تحكّم اسم يُتاح لتقنيات المساعدة. مربع الاختيار وأزرار الأيقونات تقول أي مهمة تعمل عليها، فيمكن لقارئ الشاشة — ولاختبارات الخطوة 7 — أن يميّز بينها ([إمكانية الوصول](https://webfluent.monzeromer.dev/about/accessibility.md)).
 
-**تحقّق:** يطبع `wf check` التحذير `U03` لـ`TodoRow` (لا شيء يضعه بعد)
-وأربعة تحذيرات `U04`. لم تعد `toggle` و`rename` و`remove` الخاصة بالمخزن
-تظهر: الصف يستدعيها.
+**تحقّق:** يطبع `wf check` التحذير `U03` لـ`TodoRow` (لا شيء يضعه بعد) وأربعة تحذيرات `U04`. لم تعد `toggle` و`rename` و`remove` الخاصة بالمخزن تظهر: الصف يستدعيها.
 
 ## الخطوة 6: اكتب الصفحة
 
@@ -340,15 +292,11 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
         }
 ```
 
-- `bind: draft` يربط حقل الإدخال بالحالة في الاتجاهين: الكتابة تغيّر
-  `draft`، و`draft = ""` تفرغ المربع.
-- `query` هي سلسلة الاستعلام في العنوان بوصفها قيمة، تبقى محدّثة. لذا يتبع
-  `filter` العنوان، ويتبع `shown` المرشّح `filter`.
-- يجب أن يغطي `match` على `enum` كل حالة. إن أضفت حالة رابعة إلى `Filter`،
-  يصبح هذا الـ`match` خطأ حتى يعالجها.
+- `bind: draft` يربط حقل الإدخال بالحالة في الاتجاهين: الكتابة تغيّر `draft`، و`draft = ""` تفرغ المربع.
+- `query` هي سلسلة الاستعلام في العنوان بوصفها قيمة، تبقى محدّثة. لذا يتبع `filter` العنوان، ويتبع `shown` المرشّح `filter`.
+- يجب أن يغطي `match` على `enum` كل حالة. إن أضفت حالة رابعة إلى `Filter`، يصبح هذا الـ`match` خطأ حتى يعالجها.
 
-يرسم النصف الثاني المرشّحات والقائمة، ويغلق الصفحة. أضفه تحت النصف الأول،
-بعد سطر فارغ:
+يرسم النصف الثاني المرشّحات والقائمة، ويغلق الصفحة. أضفه تحت النصف الأول، بعد سطر فارغ:
 
 ```wf
 // src/pages/Home.wf
@@ -377,19 +325,14 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
 }
 ```
 
-- `for … by todo.id` قائمة بمفاتيح. حين تُعاد تسمية مهمة، أو يخفيها المرشّح،
-  لا يتغيّر إلا صفها؛ وتحتفظ الصفوف الأخرى بعناصرها، ويحتفظ الصف قيد التحرير
-  بمؤشّره ([التحكم في التدفق](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
+- `for … by todo.id` قائمة بمفاتيح. حين تُعاد تسمية مهمة، أو يخفيها المرشّح، لا يتغيّر إلا صفها؛ وتحتفظ الصفوف الأخرى بعناصرها، ويحتفظ الصف قيد التحرير بمؤشّره ([التحكم في التدفق](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
 - `animate:` و`exit:` يُظهران الصف ويُخفيانه بتلاشٍ.
-- خريطة الأصناف، `{ "is-on": filter == .all }`، تفعّل الصنف ما دام شرطه
-  قائمًا.
+- خريطة الأصناف، `{ "is-on": filter == .all }`، تفعّل الصنف ما دام شرطه قائمًا.
 
 > [!NOTE]
-> **قادم من React؟** يوضع المفتاح على الحلقة، `by todo.id`، لا بوصفه خاصية
-> `key` على الصف. انظر [القادمون من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
+> **قادم من React؟** يوضع المفتاح على الحلقة، `by todo.id`، لا بوصفه خاصية `key` على الصف. انظر [القادمون من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
-أخيرًا، التصريح `app` هو الإطار الذي تجلس فيه كل صفحة. يحدّد `Router` موضع
-رسم الصفحة الحالية:
+أخيرًا، التصريح `app` هو الإطار الذي تجلس فيه كل صفحة. يحدّد `Router` موضع رسم الصفحة الحالية:
 
 ```wf
 // src/App.wf
@@ -401,28 +344,19 @@ app {
 }
 ```
 
-الآن شغّل خادم التطوير في طرفية ثانية، واتركه يعمل. كل حفظ يعيد بناء المشروع
-ويعيد تحميل الصفحة:
+الآن شغّل خادم التطوير في طرفية ثانية، واتركه يعمل. كل حفظ يعيد بناء المشروع ويعيد تحميل الصفحة:
 
 ```bash
 wf serve
 ```
 
-**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض
-<http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left`
-و*Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر،
-ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر
-**Open**، فيصبح العنوان `/?show=open`.
+**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض <http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left` و*Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر، ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر **Open**، فيصبح العنوان `/?show=open`.
 
-إن طبع الخادم ``No `theme Paper` is declared in this project``، فالأرجح أنك
-تخطّيت `src/theme.wf` في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير `U04`
-هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.
+إن طبع الخادم ``No `theme Paper` is declared in this project``، فالأرجح أنك تخطّيت `src/theme.wf` في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير `U04` هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.
 
 ## الخطوة 7: اكتب الاختبارات
 
-يرسم الاختبار ما يصرّح به، ثم ينفّذ خطواته بالترتيب. يكتب في عنصر التحكم
-المسمّى **New todo** وينقر الزر المسمّى **Add**، كما يفعل القارئ
-([الاختبار](https://webfluent.monzeromer.dev/learn/16-testing.md)). أنشئ `tests/todos.wf` بهذا الاختبار:
+يرسم الاختبار ما يصرّح به، ثم ينفّذ خطواته بالترتيب. يكتب في عنصر التحكم المسمّى **New todo** وينقر الزر المسمّى **Add**، كما يفعل القارئ ([الاختبار](https://webfluent.monzeromer.dev/learn/16-testing.md)). أنشئ `tests/todos.wf` بهذا الاختبار:
 
 ```wf
 // tests/todos.wf
@@ -442,24 +376,15 @@ test "adding a todo puts it in the list" {
 }
 ```
 
-الاختبار الذي ينقر أو يكتب يعمل في Chrome بلا واجهة (headless). في المشروع
-المكتمل ستة اختبارات في
-[`tests/todos.wf`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf):
-اثنان ينظران إلى صف فقط، وأربعة تنقر — إضافة مهمة، ورفض مهمة فارغة،
-والتعليم ثم المسح، وإعادة التسمية مع بقاء صف واحد لكل مهمة. انسخ الملف لتحصل
-عليها كلها، ثم شغّلها:
+الاختبار الذي ينقر أو يكتب يعمل في Chrome بلا واجهة (headless). في المشروع المكتمل ستة اختبارات في [`tests/todos.wf`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf): اثنان ينظران إلى صف فقط، وأربعة تنقر — إضافة مهمة، ورفض مهمة فارغة، والتعليم ثم المسح، وإعادة التسمية مع بقاء صف واحد لكل مهمة. انسخ الملف لتحصل عليها كلها، ثم شغّلها:
 
 ```bash
 wf test
 ```
 
-**تحقّق:** مع الملف كاملًا، ينتهي `wf test` بـ`6 passed, 0
-failed, 2 snapshot(s) written`. الاختباران اللذان ينظران فقط يكتبان لقطة
-(snapshot) لما رسماه تحت `tests/__snapshots__/`، وتُقارَن بها التشغيلات
-اللاحقة.
+**تحقّق:** مع الملف كاملًا، ينتهي `wf test` بـ`6 passed, 0 failed, 2 snapshot(s) written`. الاختباران اللذان ينظران فقط يكتبان لقطة (snapshot) لما رسماه تحت `tests/__snapshots__/`، وتُقارَن بها التشغيلات اللاحقة.
 
-إن أفاد اختبار ينقر بأنه لم يجد متصفحًا، فإن Chrome ليس حيث يبحث `wf`: اضبط
-`WF_CHROME` على مساره.
+إن أفاد اختبار ينقر بأنه لم يجد متصفحًا، فإن Chrome ليس حيث يبحث `wf`: اضبط `WF_CHROME` على مساره.
 
 ## الخطوة 8: ابنِه
 
@@ -471,34 +396,22 @@ wf test
 wf build
 ```
 
-يبلّغ `wf check` عن كل نتيجة ولا يكتب شيئًا. ويكتب `wf build` المجلد
-`build/`، الذي يقدّمه أي مضيف ثابت: انظر وصفات
-[GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)
-و[Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md)
-و[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md)
-و[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md). لتحمّل الصفحة المبنية في متصفح حقيقي قبل
-النشر، شغّل `wf verify`: يفشل عند خطأ، أو ملف مفقود، أو صفحة لا ترسم شيئًا.
+يبلّغ `wf check` عن كل نتيجة ولا يكتب شيئًا. ويكتب `wf build` المجلد `build/`، الذي يقدّمه أي مضيف ثابت: انظر وصفات [GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md) و[Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md) و[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md) و[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md). لتحمّل الصفحة المبنية في متصفح حقيقي قبل النشر، شغّل `wf verify`: يفشل عند خطأ، أو ملف مفقود، أو صفحة لا ترسم شيئًا.
 
-**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحتوي `build/` على
-`index.html` و`app.js` و`styles.css`.
+**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحتوي `build/` على `index.html` و`app.js` و`styles.css`.
 
 ## ما بنيته
 
 - `type` و`enum`، يُلزَم بهما كل استعمال ([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)).
-- مخزن تبقى قائمته بعد إعادة التحميل بفضل `persist`، وقيم `derived` تتبعها
-  ([المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md)).
-- مكوّن له حالته الخاصة، وأسماء متاحة لتقنيات المساعدة على كل عنصر تحكم
-  ([المكوّنات](https://webfluent.monzeromer.dev/learn/10-components.md)).
-- قائمة بمفاتيح، ومرشّح محفوظ في العنوان بـ`query`
-  ([التحكم في التدفق](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
-- سمة بنسخة داكنة، وورقة أنماط خاصة بالمشروع
-  ([التنسيق](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+- مخزن تبقى قائمته بعد إعادة التحميل بفضل `persist`، وقيم `derived` تتبعها ([المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md)).
+- مكوّن له حالته الخاصة، وأسماء متاحة لتقنيات المساعدة على كل عنصر تحكم ([المكوّنات](https://webfluent.monzeromer.dev/learn/10-components.md)).
+- قائمة بمفاتيح، ومرشّح محفوظ في العنوان بـ`query` ([التحكم في التدفق](https://webfluent.monzeromer.dev/learn/09-control-flow.md)).
+- سمة بنسخة داكنة، وورقة أنماط خاصة بالمشروع ([التنسيق](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 - اختبارات تنظر واختبارات تنقر ([الاختبار](https://webfluent.monzeromer.dev/learn/16-testing.md)).
 
 ## أخطاء شائعة
 
-`match` يُغفل حالة. يجب أن يسمّي `match` على `enum` كل حالة، لذا فإن إغفال
-`.all` خطأ:
+`match` يُغفل حالة. يجب أن يسمّي `match` على `enum` كل حالة، لذا فإن إغفال `.all` خطأ:
 
 ```wf expect=T15
 enum Filter { all, open, done }
@@ -514,11 +427,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 }
 ```
 
-أضف الفرع الناقص، `.all { "All" }`، أو فرع `else`
-([T15](https://webfluent.monzeromer.dev/errors/T15.md)).
+أضف الفرع الناقص، `.all { "All" }`، أو فرع `else` ([T15](https://webfluent.monzeromer.dev/errors/T15.md)).
 
-قائمة بلا `by`. دون مفتاح، يُعاد رسم الصف الذي يحمل عنصر تحكم كلما تغيّرت
-القائمة، فيفقد المربع الذي كان القارئ يستعمله موضعه:
+قائمة بلا `by`. دون مفتاح، يُعاد رسم الصف الذي يحمل عنصر تحكم كلما تغيّرت القائمة، فيفقد المربع الذي كان القارئ يستعمله موضعه:
 
 ```wf expect=U09
 type Todo { id: String, title: String }
@@ -532,11 +443,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 }
 ```
 
-اجعل مفتاح القائمة ما يميّز كل عنصر: `for todo in items by todo.id`
-([U09](https://webfluent.monzeromer.dev/errors/U09.md)).
+اجعل مفتاح القائمة ما يميّز كل عنصر: `for todo in items by todo.id` ([U09](https://webfluent.monzeromer.dev/errors/U09.md)).
 
-عنصر تحكم مربوط بقيمة `derived`. يكتب `bind:` إلى ما يسمّيه، والقيمة
-المشتقة تُحسَب ولا يُسنَد إليها أبدًا:
+عنصر تحكم مربوط بقيمة `derived`. يكتب `bind:` إلى ما يسمّيه، والقيمة المشتقة تُحسَب ولا يُسنَد إليها أبدًا:
 
 ```wf expect=F01
 store Todos {
@@ -551,11 +460,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 }
 ```
 
-اربط `state`، كما تربط الصفحة `draft`، وغيّر المخزن عبر إجراءاته
-([F01](https://webfluent.monzeromer.dev/errors/F01.md)).
+اربط `state`، كما تربط الصفحة `draft`، وغيّر المخزن عبر إجراءاته ([F01](https://webfluent.monzeromer.dev/errors/F01.md)).
 
-للمضيّ أبعد: يبني [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md)
-موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.
+للمضيّ أبعد: يبني [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.
 
 ## التالي
 

@@ -4,36 +4,27 @@
 
 The page: https://webfluent.monzeromer.dev/learn/15-data
 
-This chapter is about getting data onto a WebFluent page and sending data
-back. It starts with a single request and grows to a whole service.
+This chapter is about getting data onto a WebFluent page and sending data back. It starts with a single request and grows to a whole service.
 
 You will be able to:
 
-- show a request's `.loading`, `.failed(e)` and `.loaded(value)` cases with
-  `resource` and `match`;
+- show a request's `.loading`, `.failed(e)` and `.loaded(value)` cases with `resource` and `match`;
 - refresh data without the page going blank;
 - ask from an action with `http`, and handle what comes back;
 - describe a service once with `api`, and say how each call fails;
-- make a write refresh what it changed, page through long answers, and
-  test a page without a server;
+- make a write refresh what it changed, page through long answers, and test a page without a server;
 - read a JSON file at build time and render one page per item in it.
 
-Every option this chapter mentions, and the ones it leaves out, is in
-[Services and requests](https://webfluent.monzeromer.dev/reference/requests.md).
+Every option this chapter mentions, and the ones it leaves out, is in [Services and requests](https://webfluent.monzeromer.dev/reference/requests.md).
 
 ## Before you start
 
-You should know `state` and `action`
-([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)), `match`
-([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)) and how to declare a `type`
-([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
+You should know `state` and `action` ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)), `match` ([Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md)) and how to declare a `type` ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)).
 
 This chapter does not cover:
 
-- a connection the page holds open — a socket, a stream, a channel or a
-  peer — which is [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md);
-- values fixed for each build, which are
-  [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
+- a connection the page holds open — a socket, a stream, a channel or a peer — which is [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md);
+- values fixed for each build, which are [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
 
 ## Choose how to get data
 
@@ -44,18 +35,13 @@ This chapter does not cover:
 | A request made when something happens: a save, a delete | `http.post(…)` in an action | [Ask on demand](#ask-on-demand-with-http) |
 | One place that describes a service, used from many pages | `api` | [Describe a service](#describe-a-service-with-api) |
 
-Start with `http`. Move to `api` when the same service is called from more
-than one place: the address, the types and the failures are then written
-once.
+Start with `http`. Move to `api` when the same service is called from more than one place: the address, the types and the failures are then written once.
 
-## Show a request with `resource`
+## Show a request with resource
 
-A *resource* is a request the page makes when it shows, and one value that
-says where the request is: `.loading`, `.failed(e)` or `.loaded(value)`.
-Show it with `match`.
+A *resource* is a request the page makes when it shows, and one value that says where the request is: `.loading`, `.failed(e)` or `.loaded(value)`. Show it with `match`.
 
-This page lists recent deploys, with a spinner while they load and an alert
-if the request fails:
+This page lists recent deploys, with a spinner while they load and an alert if the request fails:
 
 ```wf
 type Deploy { id: String, status: String, startedAt: String }
@@ -77,40 +63,23 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 ```
 
 > [!NOTE]
-> **Coming from React?** There, a fetch is a `useEffect` that sets
-> `loading`, `error` and `data` states by hand, or a `useQuery`. A
-> `resource` is the request and its state together: no effect, no flags to
-> keep in step, and a `match` with one arm per case. See
-> [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** There, a fetch is a `useEffect` that sets `loading`, `error` and `data` states by hand, or a `useQuery`. A `resource` is the request and its state together: no effect, no flags to keep in step, and a `match` with one arm per case. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 How it works:
 
-- `resource name: T = http.get(url)` starts the request when the page
-  renders, and cancels it when the page leaves.
-- The annotation, `: [Deploy]`, says what the answer is. A read of
-  `http.get` must have one (`N11`). The answer is checked against it in
-  every build: a server that sends another shape fails as
-  `.decode(at, message)`, `$[1].status is missing`.
+- `resource name: T = http.get(url)` starts the request when the page renders, and cancels it when the page leaves.
+- The annotation, `: [Deploy]`, says what the answer is. A read of `http.get` must have one (`N11`). The answer is checked against it in every build: a server that sends another shape fails as `.decode(at, message)`, `$[1].status is missing`.
 - The three cases:
 
-  | Case | When |
-  |---|---|
-  | `.loading` | nothing to show yet |
-  | `.failed(e)` | the first load failed; `e` is an `HttpError` |
-  | `.loaded(value, refreshing, stale)` | something to show; `refreshing` while it is asked again; `stale` the failure of a refresh, else `null` |
+  | Case | When | |---|---| | `.loading` | nothing to show yet | | `.failed(e)` | the first load failed; `e` is an `HttpError` | | `.loaded(value, refreshing, stale)` | something to show; `refreshing` while it is asked again; `stale` the failure of a refresh, else `null` |
 
-  An arm names as many of its case's places as it uses: `.loaded(rows)`.
-  A `match` with no `.failed` arm and no `else` is `T21`; one that leaves
-  out another case is `T15`.
-- `e.message` is something you can show. For a failed status it is the
-  server's own words when its body has them — its `detail`, else its
-  `title` — and `HTTP 500` when it says nothing.
+  An arm names as many of its case's places as it uses: `.loaded(rows)`. A `match` with no `.failed` arm and no `else` is `T21`; one that leaves out another case is `T15`.
+- `e.message` is something you can show. For a failed status it is the server's own words when its body has them — its `detail`, else its `title` — and `HTTP 500` when it says nothing.
 - A static build's pre-rendered page shows the `.loading` arm.
 
 ### Read one fact of a resource anywhere
 
-Without a `match`, a resource has members worked out from its one value.
-Each is live wherever you read it:
+Without a `match`, a resource has members worked out from its one value. Each is live wherever you read it:
 
 | Member | What it is |
 |---|---|
@@ -121,14 +90,11 @@ Each is live wherever you read it:
 | `name.pending` | `true` while any request of it runs, the first load included |
 | `name.reload()` | Asks again |
 
-So `Button(if plan.isLoaded { "Request approval" } else { "Deploy" })`
-changes its label when the plan arrives, and `if let .failed(e) = plan {
-Alert(e.message).danger }` shows one case without a `match`.
+So `Button(if plan.isLoaded { "Request approval" } else { "Deploy" })` changes its label when the plan arrives, and `if let .failed(e) = plan { Alert(e.message).danger }` shows one case without a `match`.
 
 ### Fetch again when state changes
 
-An address that reads state is asked again whenever that state changes. A
-detail page follows its route parameter this way:
+An address that reads state is asked again whenever that state changes. A detail page follows its route parameter this way:
 
 ```wf
 type Post { slug: String, title: String, body: String }
@@ -146,18 +112,11 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 }
 ```
 
-A value spliced into the address is URL-encoded where it stands for a
-value. The same holds for a body or a header that reads state. To ask less
-often than the reader types, splice a slower value, as
-[Debounce a search](https://webfluent.monzeromer.dev/recipes/debounce-a-search.md) does.
+A value spliced into the address is URL-encoded where it stands for a value. The same holds for a body or a header that reads state. To ask less often than the reader types, splice a slower value, as [Debounce a search](https://webfluent.monzeromer.dev/recipes/debounce-a-search.md) does.
 
 ## Refresh without clearing the page
 
-Asking again for the request already shown is a *refresh*: `name.reload()`
-asks, and so does `refresh:` on the request — `.onReconnect` (what a read
-does unless it says otherwise), `.onFocus`, `.every(30.seconds)` or
-`.never`. While a refresh runs, the read stays `.loaded` with its value,
-and `refreshing` is true. This page polls every 30 seconds:
+Asking again for the request already shown is a *refresh*: `name.reload()` asks, and so does `refresh:` on the request — `.onReconnect` (what a read does unless it says otherwise), `.onFocus`, `.every(30.seconds)` or `.never`. While a refresh runs, the read stays `.loaded` with its value, and `refreshing` is true. This page polls every 30 seconds:
 
 ```wf
 type Server { id: String, name: String, status: String }
@@ -180,29 +139,17 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
 }
 ```
 
-The `.loaded` arm is drawn again only when the case changes; inside it,
-the new value is drawn in place. A row whose key is still in the list keeps
-its nodes, its focus and what was typed into it, and an answer that changed
-nothing redraws nothing.
+The `.loaded` arm is drawn again only when the case changes; inside it, the new value is drawn in place. A row whose key is still in the list keeps its nodes, its focus and what was typed into it, and an answer that changed nothing redraws nothing.
 
 When a request fails or changes:
 
-- A refresh that fails stays `.loaded` with the old value, and its failure
-  is `stale` until the next answer.
+- A refresh that fails stays `.loaded` with the old value, and its failure is `stale` until the next answer.
 - A first load that fails is `.failed(e)`.
-- A request whose address now names something else is a first load again,
-  shown as `.loading`, because the old value would be the wrong one.
-  Pressing **Production** above does this. `placeholder: .previous` keeps
-  the last value shown instead, refreshing, until the new answer arrives —
-  for a search whose results stay while the next ones load.
+- A request whose address now names something else is a first load again, shown as `.loading`, because the old value would be the wrong one. Pressing **Production** above does this. `placeholder: .previous` keeps the last value shown instead, refreshing, until the new answer arrives — for a search whose results stay while the next ones load.
 
-## Ask on demand with `http`
+## Ask on demand with http
 
-For a request made when something happens — a save, a delete, a step in a
-flow — call `http` in an action: `http.get(url)`, `http.post(url, body: …)`,
-`http.put`, `http.patch`, `http.delete`. Its answer is a *result*:
-`.ok(value)`, or `.err(e)` with an `HttpError`. A failure is a value you
-handle, not an exception you catch.
+For a request made when something happens — a save, a delete, a step in a flow — call `http` in an action: `http.get(url)`, `http.post(url, body: …)`, `http.put`, `http.patch`, `http.delete`. Its answer is a *result*: `.ok(value)`, or `.err(e)` with an `HttpError`. A failure is a value you handle, not an exception you catch.
 
 This page loads todos and adds one, each with a request:
 
@@ -240,23 +187,14 @@ page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server
 }
 ```
 
-- **The type is named where the answer goes.** `todos = try await
-  http.get(…)` is a `[Todo]` because `todos` is; `let saved: Todo!` names a
-  whole result. A `get` whose answer goes nowhere that says what it is is
-  `N11`.
-- **`match`** gives each case an arm, as `add` does. **`try`** gives the
-  value, or ends the action with the failure as its own, so `load` says
-  what it fails with: `-> !` is nothing, or an `HttpError`.
-- **Options** follow the address by name: `body:` (sent as JSON),
-  `headers:`, `timeout:`, `retry:`, `cache:`, `as: .text`.
-- `load()` at the top of the page runs once, when the page renders, and
-  `add.pending` is `true` while `add` runs.
+- **The type is named where the answer goes.** `todos = try await http.get(…)` is a `[Todo]` because `todos` is; `let saved: Todo!` names a whole result. A `get` whose answer goes nowhere that says what it is is `N11`.
+- **`match`** gives each case an arm, as `add` does. **`try`** gives the value, or ends the action with the failure as its own, so `load` says what it fails with: `-> !` is nothing, or an `HttpError`.
+- **Options** follow the address by name: `body:` (sent as JSON), `headers:`, `timeout:`, `retry:`, `cache:`, `as: .text`.
+- `load()` at the top of the page runs once, when the page renders, and `add.pending` is `true` while `add` runs.
 
-## Describe a service with `api`
+## Describe a service with api
 
-When a service is called from more than one place, describe it once with
-`api`: where it is, how it is reached, and its endpoints. Every call is then
-typed, and the day the server changes its contract the build says so.
+When a service is called from more than one place, describe it once with `api`: where it is, how it is reached, and its endpoints. Every call is then typed, and the day the server changes its contract the build says so.
 
 ```wf
 type User { id: String, name: String }
@@ -291,42 +229,24 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 }
 ```
 
-A `resource` over an endpoint takes the endpoint's type, so `u.nam` is
-`T05`. An endpoint the service does not have is `T06`. Every call goes through the engine `http` uses. It cancels a call when its
-page leaves, gives up after the `timeout:` (30 seconds unset), retries a
-request that is safe to send twice, keeps a `GET` answer as long as the
-server's `Cache-Control` allows, and makes one request for two readers of
-one address. The settings and their rules are in
-[Services and requests](https://webfluent.monzeromer.dev/reference/requests.md).
+A `resource` over an endpoint takes the endpoint's type, so `u.nam` is `T05`. An endpoint the service does not have is `T06`. Every call goes through the engine `http` uses. It cancels a call when its page leaves, gives up after the `timeout:` (30 seconds unset), retries a request that is safe to send twice, keeps a `GET` answer as long as the server's `Cache-Control` allows, and makes one request for two readers of one address. The settings and their rules are in [Services and requests](https://webfluent.monzeromer.dev/reference/requests.md).
 
 ### Declare endpoints
 
 Each line after the settings is an endpoint:
 
 - **The verb** is the method: `get`, `post`, `put`, `patch`, `delete`.
-- **`at`** is where the server answers, below `base`. Every `{name}` in it
-  is one of the endpoint's parameters (`N01`).
-- **Parameters** the path names go in the path. One called `body` is the
-  request body. The rest go in the query string, or where `in header "…"`
-  or `in cookie` says.
-- **A call** passes them by name, the first without its name if you like:
-  `Backend.user("7")`.
-- **`->`** says what a success returns and how a call fails: `-> T!` is a
-  `T` or an `HttpError`, `-> T ! E` a `T` or a case of the error enum `E`,
-  and `-> !` nothing, but it may fail.
-- A path parameter that is `null`, `""`, `.` or `..` is not sent, since
-  `users/` would be the whole collection. The call ends `.cancelled`, and a
-  read over it stays `.loading` until the value arrives.
+- **`at`** is where the server answers, below `base`. Every `{name}` in it is one of the endpoint's parameters (`N01`).
+- **Parameters** the path names go in the path. One called `body` is the request body. The rest go in the query string, or where `in header "…"` or `in cookie` says.
+- **A call** passes them by name, the first without its name if you like: `Backend.user("7")`.
+- **`->`** says what a success returns and how a call fails: `-> T!` is a `T` or an `HttpError`, `-> T ! E` a `T` or a case of the error enum `E`, and `-> !` nothing, but it may fail.
+- A path parameter that is `null`, `""`, `.` or `..` is not sent, since `users/` would be the whole collection. The call ends `.cancelled`, and a read over it stays `.loading` until the value arrives.
 
-A service's endpoints may be split into groups — `api Backend.todos { … }`,
-called as `Backend.todos.list()`. A group sends what its service sends: its
-`base`, `timeout`, `retry` and `middleware`.
+A service's endpoints may be split into groups — `api Backend.todos { … }`, called as `Backend.todos.list()`. A group sends what its service sends: its `base`, `timeout`, `retry` and `middleware`.
 
 ## Say how a call fails
 
-An endpoint that names an *error enum* turns each status the service
-answers with into a case of its own, carrying that status's body. One case,
-`http(error: HttpError)`, holds everything else:
+An endpoint that names an *error enum* turns each status the service answers with into a case of its own, carrying that status's body. One case, `http(error: HttpError)`, holds everything else:
 
 ```wf
 type User { id: String, name: String }
@@ -367,13 +287,10 @@ store People {
 }
 ```
 
-- **A case** names its status, `on 422` (or a class, `on 4XX`), and
-  carries one value, the body. The `http` case is required, once (`N12`).
+- **A case** names its status, `on 422` (or a class, `on 4XX`), and carries one value, the body. The `http` case is required, once (`N12`).
 - **A pattern** may look inside a case, `.err(.http(.status(503, _)))`.
-- **`try`** passes a failure up as the action's own, which must be able to
-  hold it (`N03`): an `HttpError` goes into an error enum's `http` case.
-- **`.result`** is an action's last outcome, `null` before it has run:
-  `if let .err(.conflict(p)) = People.invite.result { … }` shows it.
+- **`try`** passes a failure up as the action's own, which must be able to hold it (`N03`): an `HttpError` goes into an error enum's `http` case.
+- **`.result`** is an action's last outcome, `null` before it has run: `if let .err(.conflict(p)) = People.invite.result { … }` shows it.
 - **A `resource`** over such an endpoint has the enum in its `.failed(e)`.
 
 `HttpError` is what goes wrong between the page and the server:
@@ -387,19 +304,13 @@ store People {
 | `.decode(at, message)` | the answer is not the declared type |
 | `.status(code, problem)` | the server answered with an error status; `problem` is its RFC 9457 body, if it sent one |
 
-Each has `.message`, for showing. `Problem` is RFC 9457's record — `type`,
-`title`, `status`, `detail`, `instance`, `extensions` — and a project
-extends it like any record, as `ValidationProblem` does.
+Each has `.message`, for showing. `Problem` is RFC 9457's record — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record, as `ValidationProblem` does.
 
 ## Change data
 
-A write is a call made from an action or a handler, never a `resource`: a
-resource over a write is `N02`. A write's result must be heard — matched,
-or passed up with `try`. One awaited on its own is `N04`.
+A write is a call made from an action or a handler, never a `resource`: a resource over a write is `N02`. A write's result must be heard — matched, or passed up with `try`. One awaited on its own is `N04`.
 
-After a write, the lists that show what it changed are out of date.
-`invalidates` names them, on the write. When the write succeeds, every
-resource on the page over one of them is refreshed, drawn in place:
+After a write, the lists that show what it changed are out of date. `invalidates` names them, on the write. When the write succeeds, every resource on the page over one of them is refreshed, drawn in place:
 
 ```wf
 type Todo { id: String, title: String }
@@ -441,17 +352,12 @@ page Todos(path: "/todos", title: "Todos", description: "The list.") {
 }
 ```
 
-- Each name in `invalidates` is a read of the same group, and each argument
-  is one of the write's own parameters (`N05`).
-- `Backend.todos.list.update(change)` changes what every read of `list`
-  shows, at once, and returns what takes it back. `Drafts.add` shows the
-  new todo before the server answers, and takes it back on a refusal.
+- Each name in `invalidates` is a read of the same group, and each argument is one of the write's own parameters (`N05`).
+- `Backend.todos.list.update(change)` changes what every read of `list` shows, at once, and returns what takes it back. `Drafts.add` shows the new todo before the server answers, and takes it back on a refusal.
 
 ### Show a change before the server agrees
 
-`optimistic(holder, change)` does the same for a state you hold yourself.
-If anything later in the action fails — a `try` passing a failure up, or a
-throw — the change is taken back:
+`optimistic(holder, change)` does the same for a state you hold yourself. If anything later in the action fails — a `try` passing a failure up, or a throw — the change is taken back:
 
 ```wf
 type Todo { id: String, title: String }
@@ -471,15 +377,13 @@ store Todos {
 }
 ```
 
-The new title shows at once. If `rename` fails, `try` passes the failure
-up, and the old title comes back.
+The new title shows at once. If `rename` fails, `try` passes the failure up, and the old title comes back.
 
 ## Long answers
 
 ### Load results a page at a time
 
-How an endpoint pages is part of its contract, so you say it once, on the
-endpoint, with `pages`. A read of it then holds every page loaded so far:
+How an endpoint pages is part of its contract, so you say it once, on the endpoint, with `pages`. A read of it then holds every page loaded so far:
 
 ```wf
 type Post { id: String, title: String }
@@ -504,8 +408,7 @@ page Feed(path: "/feed", title: "Feed", description: "What is new, a page at a t
 - `.items` is every item loaded so far, in order.
 - `.loadMore()` asks for the next page as a refresh: what is shown stays.
 - `.hasMore` is whether there is a next page.
-- `param:` names the parameter the next page goes in; `items:` says where
-  a page's items are, when the page is not a list itself.
+- `param:` names the parameter the next page goes in; `items:` says where a page's items are, when the page is not a list itself.
 
 There are three ways to page:
 
@@ -517,8 +420,7 @@ There are three ways to page:
 
 ### Read an answer that arrives a line at a time
 
-An endpoint that answers one JSON value a line — a log tail, a build's
-output — is marked `streamed`, and declares the list its lines make:
+An endpoint that answers one JSON value a line — a log tail, a build's output — is marked `streamed`, and declares the list its lines make:
 
 ```wf
 type LogLine { at: String, text: String }
@@ -535,23 +437,15 @@ store Follow {
 }
 ```
 
-A `resource` over it is `.loaded` from the first line, and its list grows
-as the rest arrive. `for await line in …` runs its body for each line as it
-arrives. Each line is held to `LogLine`. `pages` and `streamed` are a
-read's: a write is sent once (`N14`).
+A `resource` over it is `.loaded` from the first line, and its list grows as the rest arrive. `for await line in …` runs its body for each line as it arrives. Each line is held to `LogLine`. `pages` and `streamed` are a read's: a write is sent once (`N14`).
 
 ## Credentials and every request
 
-A session belongs in an httpOnly cookie, which no script on the page can
-read. `credentials: .sameOrigin` (or `.include`, for a service on another
-origin) sends it with every call, and the page holds no token at all.
+A session belongs in an httpOnly cookie, which no script on the page can read. `credentials: .sameOrigin` (or `.include`, for a service on another origin) sends it with every call, and the page holds no token at all.
 
 ### Pass every request through middleware
 
-What every call carries — a token, the reader's language, a request ID —
-is *middleware*: steps each request passes through, in the order written in
-`middleware [ … ]`. This service refreshes the token on a `401`, sends it
-as a bearer token, and tags each request:
+What every call carries — a token, the reader's language, a request ID — is *middleware*: steps each request passes through, in the order written in `middleware [ … ]`. This service refreshes the token on a `401`, sends it as a bearer token, and tags each request:
 
 ```wf
 type User { id: String, name: String }
@@ -572,31 +466,19 @@ api Backend(base: "/api") {
 }
 ```
 
-`refreshOn401` goes before `bearer`, so the request sent again carries the
-new token. Requests that hear `401` at the same time share one run of the
-action. The other built-in steps are `header(name, value)` and `log`.
+`refreshOn401` goes before `bearer`, so the request sent again carries the new token. Requests that hear `401` at the same time share one run of the action. The other built-in steps are `header(name, value)` and `log`.
 
-A step of your own is a `middleware timed(req, next) { … }` declaration
-that returns what `await next(req)` returns.
+A step of your own is a `middleware timed(req, next) { … }` declaration that returns what `await next(req)` returns.
 
 ### Call an API on another origin
 
-A page on `https://example.com` that calls `https://api.example.com` makes
-a *cross-origin request*. The API must answer with CORS headers —
-`Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if
-cookies go with the call — or the browser refuses the answer. The page is
-not told why, so the call fails as `.offline`, and the console names CORS.
+A page on `https://example.com` that calls `https://api.example.com` makes a *cross-origin request*. The API must answer with CORS headers — `Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if cookies go with the call — or the browser refuses the answer. The page is not told why, so the call fails as `.offline`, and the console names CORS.
 
-`wf serve` has no proxy, so an API on `localhost:8080` must allow
-`localhost:3000` too. One origin for both, behind a reverse proxy, needs no
-CORS ([Serve the API on the same origin](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)).
-A build that ships a content security policy lists the API's origin in
-`meta.connect` ([Security](https://webfluent.monzeromer.dev/about/security.md)).
+`wf serve` has no proxy, so an API on `localhost:8080` must allow `localhost:3000` too. One origin for both, behind a reverse proxy, needs no CORS ([Serve the API on the same origin](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)). A build that ships a content security policy lists the API's origin in `meta.connect` ([Security](https://webfluent.monzeromer.dev/about/security.md)).
 
 ## Read the service from an OpenAPI file
 
-When the server publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let
-it write the contract:
+When the server publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let it write the contract:
 
 ```bash
 wf api add openapi.json --name Backend
@@ -604,16 +486,7 @@ wf api sync           # after the spec changes
 wf api check          # in CI: fails when the files are behind the spec
 ```
 
-`add` records the service in `webfluent.app.json`, writes
-`src/api/backend/service.wf` once for you to edit, and writes the contract
-into `src/api/backend/generated/`, which `sync` rewrites whole. Each tag is
-a group, each operation an endpoint named by its
-`operationId`, each schema a `type` or an `enum`, and each operation's
-error statuses the cases of an error enum. `wf check` warns `N07` when the
-files are behind the spec. Customise beside them, never inside: a `type`
-you declare wins over the spec's of the same name, an endpoint the spec
-lacks goes in a group of your own, and what a write makes stale and how a
-read pages go in `service.wf`:
+`add` records the service in `webfluent.app.json`, writes `src/api/backend/service.wf` once for you to edit, and writes the contract into `src/api/backend/generated/`, which `sync` rewrites whole. Each tag is a group, each operation an endpoint named by its `operationId`, each schema a `type` or an `enum`, and each operation's error statuses the cases of an error enum. `wf check` warns `N07` when the files are behind the spec. Customise beside them, never inside: a `type` you declare wins over the spec's of the same name, an endpoint the spec lacks goes in a group of your own, and what a write makes stale and how a read pages go in `service.wf`:
 
 ```wf
 type Person { id: String, name: String }
@@ -636,15 +509,11 @@ api Backend.people {
 }
 ```
 
-For a prototype, `api Backend from "openapi.json" (base: "/api")` reads the
-same contract without writing files, and `wf api eject Backend` turns it
-into files later. [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md)
-walks through one.
+For a prototype, `api Backend from "openapi.json" (base: "/api")` reads the same contract without writing files, and `wf api eject Backend` turns it into files later. [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md) walks through one.
 
 ## Test it without a server
 
-A page that reads a service has nothing to show in a test until something
-answers. A `fake` answers a group's endpoints in place of the network:
+A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network:
 
 ```wf
 type Person { id: String, name: String }
@@ -675,47 +544,30 @@ test "lists the team"(fakes: [TwoPeople]) {
 }
 ```
 
-- A fake is held to the group's contract (`N06`); one that answers
-  `.err(.status(503, null))` tests a failure.
-- A test that names `fakes:` runs in a browser and sends nothing. A call no
-  fake answers fails the test.
-- `fake Examples for Backend.people from examples` answers every endpoint
-  it does not answer itself with the spec's example of a success.
-- `wf verify --fakes tests/fakes.wf` loads every page of the site with the
-  fakes answering. A build leaves fakes out.
+- A fake is held to the group's contract (`N06`); one that answers `.err(.status(503, null))` tests a failure.
+- A test that names `fakes:` runs in a browser and sends nothing. A call no fake answers fails the test.
+- `fake Examples for Backend.people from examples` answers every endpoint it does not answer itself with the spec's example of a success.
+- `wf verify --fakes tests/fakes.wf` loads every page of the site with the fakes answering. A build leaves fakes out.
 
-[Testing](https://webfluent.monzeromer.dev/learn/16-testing.md) covers tests;
-[Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md) tests a
-write.
+[Testing](https://webfluent.monzeromer.dev/learn/16-testing.md) covers tests; [Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md) tests a write.
 
 ## Keep writes made offline
 
-With `offline` in the config, the build writes a service worker, and
-`"sync": true` keeps a write that failed for want of a network, to send when
-the connection returns:
+With `offline` in the config, the build writes a service worker, and `"sync": true` keeps a write that failed for want of a network, to send when the connection returns:
 
 ```json
 { "offline": { "precache": ["/"], "sync": true } }
 ```
 
-- Only a write safe to send twice is kept: a `PUT`, a `DELETE`, or a
-  `POST` or `PATCH` whose endpoint is marked `idempotent`. Another `POST`
-  may have reached the server, and sent again would be a second order, so
-  it fails `.offline(queued: false)`.
-- A kept write's call fails `.offline(queued: true)`: no answer came, and
-  the write waits, so the page should not show it as done.
-- `network.queued` counts what waits. Once a kept write is sent, what its
-  endpoint `invalidates` is asked again.
+- Only a write safe to send twice is kept: a `PUT`, a `DELETE`, or a `POST` or `PATCH` whose endpoint is marked `idempotent`. Another `POST` may have reached the server, and sent again would be a second order, so it fails `.offline(queued: false)`.
+- A kept write's call fails `.offline(queued: true)`: no answer came, and the write waits, so the page should not show it as done.
+- `network.queued` counts what waits. Once a kept write is sent, what its endpoint `invalidates` is asked again.
 
-See [Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md) and
-[Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md).
+See [Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md) and [Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md).
 
-## Read a file at build time with `data`
+## Read a file at build time with data
 
-For content known before the site is built — posts, a price list, a team
-page — `data name: T = "file.json"` reads a JSON file from the project
-directory or `src/` at build time. Its value is a constant, in scope in
-every page and component, and written into the pre-rendered page:
+For content known before the site is built — posts, a price list, a team page — `data name: T = "file.json"` reads a JSON file from the project directory or `src/` at build time. Its value is a constant, in scope in every page and component, and written into the pre-rendered page:
 
 ```wf
 type Post { slug: String, title: String, date: String, body: String }
@@ -742,14 +594,11 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 ]
 ```
 
-The build holds the file to the type. A record that is not a `Post` stops
-the build with `T33`, naming the file and the place:
-`$[3].date is "March 5", not a Date`.
+The build holds the file to the type. A record that is not a `Post` stops the build with `T33`, naming the file and the place: `$[3].date is "March 5", not a Date`.
 
 ### Render a page for each item
 
-To give each post its own HTML file in a static build, list the values of
-the route parameter in `paths:`:
+To give each post its own HTML file in a static build, list the values of the route parameter in `paths:`:
 
 ```wf
 type Post { slug: String, title: String, date: String, body: String }
@@ -767,11 +616,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
 }
 ```
 
-The build writes `posts/hello/index.html` and `posts/second/index.html`,
-and lists each in the sitemap. `paths:` must be known at build time: a
-`data` file, a `const` or a literal. For a route with several parameters,
-each value is a map naming them. A single-page app answers every slug; only
-the static build needs the list.
+The build writes `posts/hello/index.html` and `posts/second/index.html`, and lists each in the sitemap. `paths:` must be known at build time: a `data` file, a `const` or a literal. For a route with several parameters, each value is a map naming them. A single-page app answers every slug; only the static build needs the list.
 
 ## Troubleshooting
 
@@ -802,8 +647,7 @@ A resource with `refresh: .every(30.seconds)` asks again while its list is on sc
 
 ## Common mistakes
 
-**A `match` with no `.failed` arm.** When the request fails, no arm draws,
-and the reader is not told:
+**A `match` with no `.failed` arm.** When the request fails, no arm draws, and the reader is not told:
 
 ```wf expect=T21
 type User { id: String, name: String }
@@ -818,11 +662,9 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 }
 ```
 
-Add `.failed(e) { Alert(e.message).danger }`, or an `else`
-([T21](https://webfluent.monzeromer.dev/errors/T21.md)).
+Add `.failed(e) { Alert(e.message).danger }`, or an `else` ([T21](https://webfluent.monzeromer.dev/errors/T21.md)).
 
-**Reading `.value` as if it had arrived.** Before the first answer,
-`name.value` is `null`:
+**Reading `.value` as if it had arrived.** Before the first answer, `name.value` is `null`:
 
 ```wf expect=T04
 type User { id: String, name: String }
@@ -834,10 +676,4 @@ page P(path: "/", title: "Users", description: "Everyone.") {
 }
 ```
 
-Read it through `?.` with a fallback, `{users.value?.length ?? 0}`, or show
-it inside the `.loaded` arm, where the binding is never null
-([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
-
-## Next
-
-[Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).
+Read it through `?.` with a fallback, `{users.value?.length ?? 0}`, or show it inside the `.loaded` arm, where the binding is never null ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).

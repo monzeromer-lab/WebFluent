@@ -1,0 +1,4722 @@
+[
+ {
+  "route": "/",
+  "twin": "/index.md",
+  "title": "WebFluent",
+  "description": "One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs.",
+  "part": "Start",
+  "lang": "en"
+ },
+ {
+  "route": "/about",
+  "twin": "/about.md",
+  "title": "About WebFluent",
+  "description": "",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/accessibility",
+  "twin": "/about/accessibility.md",
+  "title": "Accessibility",
+  "description": "What the built-ins do for keyboard and screen-reader users, the A01–A18 checks, and the part of accessibility that stays a person's judgement.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/contributing",
+  "twin": "/about/contributing.md",
+  "title": "Contributing",
+  "description": "Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/how-reactivity-works",
+  "twin": "/about/how-reactivity-works.md",
+  "title": "How reactivity works",
+  "description": "How WebFluent's signals, derived values, effects and keyed lists work under the hood, and why what reads a value is what redraws.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/security",
+  "twin": "/about/security.md",
+  "title": "Security",
+  "description": "What WebFluent enforces and why, and where its guarantees stop: outside markup, sessions, env secrets, uploads, the CSP and code you choose to trust.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/static-or-single-page",
+  "twin": "/about/static-or-single-page.md",
+  "title": "Static or single-page",
+  "description": "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, dynamic routes, and what each shape asks of a host.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/what-a-build-ships",
+  "twin": "/about/what-a-build-ships.md",
+  "title": "What a build ships",
+  "description": "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/about/why",
+  "twin": "/about/why.md",
+  "title": "Why WebFluent",
+  "description": "Why WebFluent exists: one meaning per word, a compiler that refuses what would fail in the browser, and one source for sites, PDFs and slides.",
+  "part": "About",
+  "lang": "en"
+ },
+ {
+  "route": "/ar",
+  "twin": "/ar.md",
+  "title": "WebFluent",
+  "description": "The front page, in Arabic.",
+  "part": "Start",
+  "lang": "ar"
+ },
+ {
+  "route": "/ar/benchmarks",
+  "twin": "/ar/benchmarks.md",
+  "title": "Benchmarks",
+  "description": "The benchmarks, in Arabic.",
+  "part": "Start",
+  "lang": "ar"
+ },
+ {
+  "route": "/ar/coming-from/react",
+  "twin": "/ar/coming-from/react.md",
+  "title": "WebFluent لمطوّري React",
+  "description": "أفكار React في WebFluent: الحالة، والقيم المشتقة، والتأثيرات، والخصائص، والأبناء، والأحداث، والسياق، والمسارات، والقوائم، والجلب، جنبًا إلى جنب.",
+  "part": "Reference",
+  "lang": "ar"
+ },
+ {
+  "route": "/ar/learn/01-getting-started",
+  "twin": "/ar/learn/01-getting-started.md",
+  "title": "البدء",
+  "description": "ثبّت wf وتحقّق من التثبيت، وأنشئ أول مشروع، وشغّل خادم التطوير وأجرِ تغييرًا. ثم جهّز خادم اللغة واقرأ ناتج البناء.",
+  "part": "Reference",
+  "lang": "ar"
+ },
+ {
+  "route": "/ar/learn/02-tutorial-shelf",
+  "twin": "/ar/learn/02-tutorial-shelf.md",
+  "title": "درس: Shelf",
+  "description": "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.",
+  "part": "Reference",
+  "lang": "ar"
+ },
+ {
+  "route": "/ar/learn/03-tutorial-todos",
+  "twin": "/ar/learn/03-tutorial-todos.md",
+  "title": "درس: قائمة المهام",
+  "description": "درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.",
+  "part": "Reference",
+  "lang": "ar"
+ },
+ {
+  "route": "/ar/playground",
+  "twin": "/ar/playground.md",
+  "title": "Playground",
+  "description": "The compiler, in the browser (Arabic interface).",
+  "part": "Start",
+  "lang": "ar"
+ },
+ {
+  "route": "/benchmarks",
+  "twin": "/benchmarks.md",
+  "title": "Benchmarks",
+  "description": "WebFluent against Next.js, Astro, SvelteKit, Nuxt and React, measured.",
+  "part": "Start",
+  "lang": "en"
+ },
+ {
+  "route": "/changelog",
+  "twin": "/changelog.md",
+  "title": "Changelog",
+  "description": "What each release of WebFluent changed.",
+  "part": "Start",
+  "lang": "en"
+ },
+ {
+  "route": "/coming-from/html-css",
+  "twin": "/coming-from/html-css.md",
+  "title": "WebFluent for HTML and CSS authors",
+  "description": "Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.",
+  "part": "Coming from",
+  "lang": "en"
+ },
+ {
+  "route": "/coming-from/latex",
+  "twin": "/coming-from/latex.md",
+  "title": "WebFluent for LaTeX and Typst authors",
+  "description": "LaTeX and Typst ideas in WebFluent: page setup, headings, contents, page breaks, headers and footers, tables, figures, macros and slides.",
+  "part": "Coming from",
+  "lang": "en"
+ },
+ {
+  "route": "/coming-from/react",
+  "twin": "/coming-from/react.md",
+  "title": "WebFluent for React developers",
+  "description": "React ideas in WebFluent: state, derived values, effects, props, children, events, context, routing, lists and fetching, side by side.",
+  "part": "Coming from",
+  "lang": "en"
+ },
+ {
+  "route": "/coming-from/svelte",
+  "twin": "/coming-from/svelte.md",
+  "title": "WebFluent for Svelte developers",
+  "description": "Svelte ideas in WebFluent: $state, $derived, $effect, props, snippets, events, bind:, stores, routes, #if and #each, side by side.",
+  "part": "Coming from",
+  "lang": "en"
+ },
+ {
+  "route": "/coming-from/vue",
+  "twin": "/coming-from/vue.md",
+  "title": "WebFluent for Vue developers",
+  "description": "Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.",
+  "part": "Coming from",
+  "lang": "en"
+ },
+ {
+  "route": "/errors",
+  "twin": "/errors.md",
+  "title": "Diagnostics",
+  "description": "Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A01",
+  "twin": "/errors/A01.md",
+  "title": "A01 — An image with no alt text",
+  "description": "An `Image` with no `alt`. A screen reader reads the file name; a decorative image takes `alt: \"\"`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A02",
+  "twin": "/errors/A02.md",
+  "title": "A02 — An icon button with no name",
+  "description": "An `IconButton` with no `label:`, which is its accessible name.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A03",
+  "twin": "/errors/A03.md",
+  "title": "A03 — An input with no label",
+  "description": "An `Input` with neither `label:` nor `placeholder:`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A04",
+  "twin": "/errors/A04.md",
+  "title": "A04 — A control with no label",
+  "description": "A `Checkbox`, `Radio`, `Switch`, `Slider` or `Textarea` with no `label:`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A05",
+  "twin": "/errors/A05.md",
+  "title": "A05 — A button with no text",
+  "description": "A `Button` with no text: no label, no `aria-label:`, and no `Text` in its block.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A06",
+  "twin": "/errors/A06.md",
+  "title": "A06 — A link with no text",
+  "description": "A `Link` with no text.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A07",
+  "twin": "/errors/A07.md",
+  "title": "A07 — An empty heading",
+  "description": "A `Heading` with no text.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A08",
+  "twin": "/errors/A08.md",
+  "title": "A08 — A dialog with no title",
+  "description": "A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A09",
+  "twin": "/errors/A09.md",
+  "title": "A09 — Media nobody can follow without sound",
+  "description": "A `Video` with no `controls`, or a `Video` or `Audio` with no `captions:` or `transcript:`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A10",
+  "twin": "/errors/A10.md",
+  "title": "A10 — A table with no header row",
+  "description": "A `Table` with no `Table.Head`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A11",
+  "twin": "/errors/A11.md",
+  "title": "A11 — A skipped heading level",
+  "description": "A heading level skipped — `h2` straight to `h4`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A12",
+  "twin": "/errors/A12.md",
+  "title": "A12 — A page without exactly one h1",
+  "description": "A page with no `h1`, or more than one.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A13",
+  "twin": "/errors/A13.md",
+  "title": "A13 — Colours without enough contrast",
+  "description": "A theme's colour pairing falls below the WCAG AA contrast ratio.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A14",
+  "twin": "/errors/A14.md",
+  "title": "A14 — A role whose children are the wrong kind",
+  "description": "A `role:` that requires particular children holds a control that is not one.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A15",
+  "twin": "/errors/A15.md",
+  "title": "A15 — An `aria-label` that does not contain the visible text",
+  "description": "A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A16",
+  "twin": "/errors/A16.md",
+  "title": "A16 — One id on several elements",
+  "description": "A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A17",
+  "twin": "/errors/A17.md",
+  "title": "A17 — A frame with no title",
+  "description": "A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/A18",
+  "twin": "/errors/A18.md",
+  "title": "A18 — A popover with no name",
+  "description": "A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C01",
+  "twin": "/errors/C01.md",
+  "title": "C01 — A required prop or field left out",
+  "description": "A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C02",
+  "twin": "/errors/C02.md",
+  "title": "C02 — A prop the component does not declare",
+  "description": "Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C03",
+  "twin": "/errors/C03.md",
+  "title": "C03 — A part outside the component it belongs to",
+  "description": "`Select.Option`, `Table.Row`, `Card.Header` — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C04",
+  "twin": "/errors/C04.md",
+  "title": "C04 — An attribute a built-in does not declare",
+  "description": "A named argument a built-in has no prop for is written to its element as an HTML attribute. `aria-*`, `data-*` and the global attributes are…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C05",
+  "twin": "/errors/C05.md",
+  "title": "C05 — A positional argument a built-in does not take",
+  "description": "The built-in takes its arguments by name; one written without a name is not given to anything.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C06",
+  "twin": "/errors/C06.md",
+  "title": "C06 — A positional argument bound by order",
+  "description": "Your component declares no positional prop (`_ name`), so the argument is bound to its first prop. Mark that prop with `_` to say so.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/C07",
+  "twin": "/errors/C07.md",
+  "title": "C07 — A drag or a gesture on a component with no one element",
+  "description": "`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written on your…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/D01",
+  "twin": "/errors/D01.md",
+  "title": "D01 — A file the project does not have",
+  "description": "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/D02",
+  "twin": "/errors/D02.md",
+  "title": "D02 — A persisted value storage cannot keep",
+  "description": "`persist` writes its value to the browser's storage as JSON; a function, a file or a promise does not survive it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/D03",
+  "twin": "/errors/D03.md",
+  "title": "D03 — A persisted value every instance shares",
+  "description": "A `persist` in a component placed more than once, or in a loop, is one stored value for all of them. `key:` gives each its own.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/D04",
+  "twin": "/errors/D04.md",
+  "title": "D04 — A persisted shape changed with no new version",
+  "description": "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/D05",
+  "twin": "/errors/D05.md",
+  "title": "D05 — An asset from another origin with no integrity hash",
+  "description": "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/D06",
+  "twin": "/errors/D06.md",
+  "title": "D06 — A script loaded on consent, with nothing to ask for it",
+  "description": "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E001",
+  "twin": "/errors/E001.md",
+  "title": "E001 — Text the compiler cannot read",
+  "description": "A character that begins nothing the language has, or a string, comment or splice that never closes. The file is not read past it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E002",
+  "twin": "/errors/E002.md",
+  "title": "E002 — A syntax error",
+  "description": "The text reads, but not as the language: a missing brace, a stray word, an argument list that does not close. The message names what was expected and…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E003",
+  "twin": "/errors/E003.md",
+  "title": "E003 — Indentation that lines up with no block",
+  "description": "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E004",
+  "twin": "/errors/E004.md",
+  "title": "E004 — A file in the WebFluent 2 grammar",
+  "description": "WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E005",
+  "twin": "/errors/E005.md",
+  "title": "E005 — A file the formatter will not change",
+  "description": "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E101",
+  "twin": "/errors/E101.md",
+  "title": "E101 — A component nothing declares",
+  "description": "An element, a `layout:` or a part names a component that no `component` declares and no built-in has. Often a misspelling.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E102",
+  "twin": "/errors/E102.md",
+  "title": "E102 — A name declared twice",
+  "description": "Two declarations with one name in one scope: two stores, two constants, a state and a derived of one name. It compiled to a script the browser…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E103",
+  "twin": "/errors/E103.md",
+  "title": "E103 — A flag, case, part, event or slot the component does not have",
+  "description": "What a component takes comes from one registry for the built-ins and from the declaration for your own; a word that resolves to nothing there does…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E104",
+  "twin": "/errors/E104.md",
+  "title": "E104 — A layout with nowhere to put the page",
+  "description": "A page's `layout:` is a component the page is placed in, at its default slot. A component that declares no `slot` has nowhere to put it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E105",
+  "twin": "/errors/E105.md",
+  "title": "E105 — A statement a render block cannot hold",
+  "description": "A page's or component's body draws; an assignment or a call that does something belongs in a handler, an `action` or an `effect`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E106",
+  "twin": "/errors/E106.md",
+  "title": "E106 — Script or a whole style in an attribute",
+  "description": "`onclick:` and the other `on*` attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E107",
+  "twin": "/errors/E107.md",
+  "title": "E107 — A URL a browser would run",
+  "description": "`javascript:`, `data:`, `vbscript:`, `blob:` and `file:` URLs run or load something the page did not write. A link takes `http`, `https`, `mailto`,…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E108",
+  "twin": "/errors/E108.md",
+  "title": "E108 — An `env` name that is not public",
+  "description": "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E109",
+  "twin": "/errors/E109.md",
+  "title": "E109 — An element this output cannot draw",
+  "description": "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E110",
+  "twin": "/errors/E110.md",
+  "title": "E110 — A project script that cannot be a plain script",
+  "description": "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E111",
+  "twin": "/errors/E111.md",
+  "title": "E111 — A setting that cannot work",
+  "description": "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E112",
+  "twin": "/errors/E112.md",
+  "title": "E112 — A setting nothing reads",
+  "description": "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E113",
+  "twin": "/errors/E113.md",
+  "title": "E113 — An argument that cannot be positional",
+  "description": "Only the first argument of a call may be written without its name, and only when the component declares a positional prop (`_ name`). Name the others.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E114",
+  "twin": "/errors/E114.md",
+  "title": "E114 — `emit` outside a component",
+  "description": "An event belongs to a component, which declares it and fires it with `emit`; a page has none.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E115",
+  "twin": "/errors/E115.md",
+  "title": "E115 — A project script the compiler could not read",
+  "description": "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E116",
+  "twin": "/errors/E116.md",
+  "title": "E116 — A tag that cannot be a custom element's",
+  "description": "`Element` names a custom element by its tag, first and as a string: lower case, with a hyphen (`\"stripe-pricing-table\"`).",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E117",
+  "twin": "/errors/E117.md",
+  "title": "E117 — A key combination no keyboard sends",
+  "description": "`on key(…)` names modifiers (`ctrl`, `shift`, `alt`, `meta`) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E118",
+  "twin": "/errors/E118.md",
+  "title": "E118 — A name the language already has",
+  "description": "A name the language gives a meaning cannot be a program's own — not a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E119",
+  "twin": "/errors/E119.md",
+  "title": "E119 — A hidden direction control in the source",
+  "description": "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E120",
+  "twin": "/errors/E120.md",
+  "title": "E120 — Something nests too deeply",
+  "description": "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E121",
+  "twin": "/errors/E121.md",
+  "title": "E121 — A render that would do too much",
+  "description": "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E901",
+  "twin": "/errors/E901.md",
+  "title": "E901 — The compiler wrote JavaScript a browser would refuse",
+  "description": "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/E902",
+  "twin": "/errors/E902.md",
+  "title": "E902 — Output its own security policy refuses",
+  "description": "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head { }` tags would add…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/F01",
+  "twin": "/errors/F01.md",
+  "title": "F01 — A `bind:` to something that cannot be written",
+  "description": "`bind:` writes what the control holds back to what it names: a state, a store's state, or a field of a loop's item. A constant, a derived value, a…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/F02",
+  "twin": "/errors/F02.md",
+  "title": "F02 — A `bind:` to a state the control cannot hold",
+  "description": "A text field holds text, a number field (`.number`) a number, a checkbox a `Bool`. Bound to a state of another type, it writes the wrong kind of…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/F03",
+  "twin": "/errors/F03.md",
+  "title": "F03 — A `validate` block no control can satisfy",
+  "description": "The rules of a `validate` block are shown on the control bound to the state, and a form is valid when they pass. On a state no control binds, or a…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/F04",
+  "twin": "/errors/F04.md",
+  "title": "F04 — A checkbox that shows a state and never changes it",
+  "description": "`Checkbox(checked: x)` with no `bind:` and no `on change` draws `x`, and a click toggles the box while `x` stays as it was.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/F05",
+  "twin": "/errors/F05.md",
+  "title": "F05 — A select whose value is none of its options",
+  "description": "The bound state starts as a value no option has, so the select shows its first option while the state holds something else.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/I01",
+  "twin": "/errors/I01.md",
+  "title": "I01 — A message no translation has",
+  "description": "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/I02",
+  "twin": "/errors/I02.md",
+  "title": "I02 — A message and its call that disagree",
+  "description": "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/I03",
+  "twin": "/errors/I03.md",
+  "title": "I03 — A message one locale has and another does not",
+  "description": "A reader in the locale that lacks it sees the default locale's words instead of their own — or, where the default locale is the one that lacks it, the key.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/I04",
+  "twin": "/errors/I04.md",
+  "title": "I04 — A locale the project does not have",
+  "description": "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/I05",
+  "twin": "/errors/I05.md",
+  "title": "I05 — Words a reader sees that are not translated",
+  "description": "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N01",
+  "twin": "/errors/N01.md",
+  "title": "N01 — A path that names no parameter",
+  "description": "An endpoint's path names its parameters, `at \"users/{id}\"`: each `{name}` is filled by the parameter of that name. A parameter has one place — the path, a header or a cookie.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N02",
+  "twin": "/errors/N02.md",
+  "title": "N02 — A resource over a write",
+  "description": "A `resource` asks again whenever the page draws it or what it reads changes. A write — `POST`, `PUT`, `PATCH`, `DELETE` — is sent once, from an action or a handler.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N03",
+  "twin": "/errors/N03.md",
+  "title": "N03 — A `try` with nowhere to pass its error",
+  "description": "`try` returns a result's error from the action it is in, so the action must say what it fails with, and that must be able to hold the error.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N04",
+  "twin": "/errors/N04.md",
+  "title": "N04 — A result nothing reads",
+  "description": "A call's result awaited on its own drops whether the call worked. Match it, or pass a failure up with `try`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N05",
+  "twin": "/errors/N05.md",
+  "title": "N05 — An `invalidates` naming what the contract does not have",
+  "description": "A write's `invalidates [list, byId(id)]` names reads of the same group, each argument one of the write's own parameters. A name the group does not have makes nothing stale.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N06",
+  "twin": "/errors/N06.md",
+  "title": "N06 — A `fake` that does not match its group's contract",
+  "description": "A `fake` answers in place of the network, so it is held to the group's contract: its endpoints, their parameters, and the result each declares.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N07",
+  "twin": "/errors/N07.md",
+  "title": "N07 — A service's files are behind its spec",
+  "description": "A service's files are behind its OpenAPI spec: `wf api sync` would change them, so the program is checked against a contract the server no longer keeps.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N08",
+  "twin": "/errors/N08.md",
+  "title": "N08 — A form 7.0 removed",
+  "description": "`fetch(…)`, an endpoint that does not say how it fails, `errors { }`, and a read's `loading`/`error`/`ready` arms, `.data`, `.state`, `.refreshing` and `on:` were how 6.x asked a service for things and read the answer. In 7.0 a request is `http.get(…)` or an endpoint declared `-> T ! E` or `-> T!`, whose answer is a result, and a read is one value: `.loading`, `.failed(e)` or `.loaded(value)`. Each form has its fix.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N09",
+  "twin": "/errors/N09.md",
+  "title": "N09 — A retry asked of a write that is not idempotent",
+  "description": "A `POST` or `PATCH` whose answer was lost may have been taken, and sent again it would be taken twice — a second order. So it is retried, or replayed offline, only when its endpoint is marked `idempotent`, which sends one `Idempotency-Key` on every try; a `retry:` on any other write does nothing.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N11",
+  "twin": "/errors/N11.md",
+  "title": "N11 — `Any` or `Map` where a service meets the program",
+  "description": "What crosses to a service has a type the program names: a record, a dictionary, or `Json` — never `Any` or `Map`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N12",
+  "twin": "/errors/N12.md",
+  "title": "N12 — An error enum that is not shaped as one",
+  "description": "An error enum names the statuses a service answers with, each a case with one value, and keeps one `http(error: HttpError)` case for the rest.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/N14",
+  "twin": "/errors/N14.md",
+  "title": "N14 — A `pages` or `streamed` an endpoint cannot have",
+  "description": "An endpoint that pages names the parameter the next page goes in and where a page's items are; one that streams answers a list. Each is a read's.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/P01",
+  "twin": "/errors/P01.md",
+  "title": "P01 — A persisted value with no way forward",
+  "description": "A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/P02",
+  "twin": "/errors/P02.md",
+  "title": "P02 — A migration that never runs",
+  "description": "A `migrate` step above the declared `version:`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/P03",
+  "twin": "/errors/P03.md",
+  "title": "P03 — A persisted value in a route-scoped store",
+  "description": "The route change drops the store, and the next read builds it again from storage, so the value comes straight back.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/R01",
+  "twin": "/errors/R01.md",
+  "title": "R01 — A route to nothing",
+  "description": "A link, a `navigate()` or a `Route` names a page or a path that no page has.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/R02",
+  "twin": "/errors/R02.md",
+  "title": "R02 — A route parameter with no page parameter",
+  "description": "A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing. A parameter with no `:name` is the page's data: the page is a template, which `wf render` and a test hand its data and a build leaves out.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/R03",
+  "twin": "/errors/R03.md",
+  "title": "R03 — An `app` with no `Router`, or with two",
+  "description": "The current page is drawn where `app` places its `Router`. With none, no page is ever drawn; with two, the page has two places.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/R04",
+  "twin": "/errors/R04.md",
+  "title": "R04 — A relative URL on a nested route",
+  "description": "`\"images/x.png\"` is fetched relative to the page's address, so on `/blog/post` it is `/blog/images/x.png`. Written from the root, `\"/images/x.png\"`,…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/R05",
+  "twin": "/errors/R05.md",
+  "title": "R05 — A translation of no page, or two in one language",
+  "description": "`translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`.…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/S01",
+  "twin": "/errors/S01.md",
+  "title": "S01 — A page with no title",
+  "description": "A page has no `title:`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/S02",
+  "twin": "/errors/S02.md",
+  "title": "S02 — A page with no description",
+  "description": "A page has no `description:`, so its search snippet is written for it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/S03",
+  "twin": "/errors/S03.md",
+  "title": "S03 — A description too long for a search result",
+  "description": "A description longer than about 160 characters, which a search result truncates.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/S04",
+  "twin": "/errors/S04.md",
+  "title": "S04 — Two pages on one route",
+  "description": "Two pages claim one path, and only one of them can ever be reached.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T01",
+  "twin": "/errors/T01.md",
+  "title": "T01 — A value of the wrong type",
+  "description": "A value given to a prop, a state, a field, a parameter or an assignment that is not of the type it is declared to hold.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T02",
+  "twin": "/errors/T02.md",
+  "title": "T02 — A case the enum does not have",
+  "description": "`.loud` given where an enum is wanted that has no case `loud`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T04",
+  "twin": "/errors/T04.md",
+  "title": "T04 — A value that may be null, read as if it were not",
+  "description": "A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T05",
+  "twin": "/errors/T05.md",
+  "title": "T05 — A field or method that does not exist",
+  "description": "A record, a map literal or a built-in value read for a field or method it does not have.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T06",
+  "twin": "/errors/T06.md",
+  "title": "T06 — A member a store or service does not have",
+  "description": "A store's state, derived value or action, or a service's endpoint, that it does not declare.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T07",
+  "twin": "/errors/T07.md",
+  "title": "T07 — A condition that is always true",
+  "description": "A list, a record or an action used as a condition: it is never `false`, so the branch always runs.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T08",
+  "twin": "/errors/T08.md",
+  "title": "T08 — A loop over something that is not a list",
+  "description": "A `for` over a number, a string or a record.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T09",
+  "twin": "/errors/T09.md",
+  "title": "T09 — An `emit` that does not match its event",
+  "description": "The arguments an `emit` passes are not the ones the event declares.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T10",
+  "twin": "/errors/T10.md",
+  "title": "T10 — A call with the wrong arguments",
+  "description": "Too many or too few arguments, a name the callee does not take, or one of the wrong kind.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T11",
+  "twin": "/errors/T11.md",
+  "title": "T11 — A `match` on something that cannot be matched",
+  "description": "A `match` is over a read, a result, a connection or an enum; its arms are the cases of that kind.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T12",
+  "twin": "/errors/T12.md",
+  "title": "T12 — A secret where it would escape",
+  "description": "A `Secret` shown by an element, spliced into text, logged or kept with `persist`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T13",
+  "twin": "/errors/T13.md",
+  "title": "T13 — A name nothing declares",
+  "description": "A name, or a function called, that no declaration, parameter, script or browser global provides — a ReferenceError the first time the page reads it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T14",
+  "twin": "/errors/T14.md",
+  "title": "T14 — A comparison that is always the same",
+  "description": "`==` or `!=` between values that can never be equal — a string and a number, a record and a string, an enum and a case it does not have — so the…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T15",
+  "twin": "/errors/T15.md",
+  "title": "T15 — A `match` that misses a case, or has one twice",
+  "description": "A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T16",
+  "twin": "/errors/T16.md",
+  "title": "T16 — A method a number, a string or a list does not have",
+  "description": "In the browser the call is `x.method is not a function`, the first time the line runs. The message suggests the nearest method there is.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T17",
+  "twin": "/errors/T17.md",
+  "title": "T17 — An async result used before it is awaited",
+  "description": "An action that awaits hands back a promise; read as its result without `await` it is not one. `await` is written in an action, a handler, a timer or…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T18",
+  "twin": "/errors/T18.md",
+  "title": "T18 — Arithmetic on something that is not a number",
+  "description": "`-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins two strings or adds two numbers, never one of each: a splice says how a number shows in text.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T19",
+  "twin": "/errors/T19.md",
+  "title": "T19 — A value that may be null, shown as text",
+  "description": "Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T20",
+  "twin": "/errors/T20.md",
+  "title": "T20 — A list or a record shown as text",
+  "description": "A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T21",
+  "twin": "/errors/T21.md",
+  "title": "T21 — A read's `match` with no `.failed` arm",
+  "description": "When the first request fails, a `match` over a read with no `.failed` arm and no `else` shows nothing at all, and the reader is not told.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T22",
+  "twin": "/errors/T22.md",
+  "title": "T22 — A handler that names more values than its event sends",
+  "description": "A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T23",
+  "twin": "/errors/T23.md",
+  "title": "T23 — `Any` written as a type",
+  "description": "7.0 took `Any` out of the language: a value of a type nothing checks agreed with every other. Write the type it holds, or `Json` for JSON whose shape is open.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T24",
+  "twin": "/errors/T24.md",
+  "title": "T24 — `Map` written as a type",
+  "description": "7.0 took `Map` out of the language: it said nothing of its keys or what they hold. Write a `type` with its fields, a dictionary `[String: T]`, or `Json`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T25",
+  "twin": "/errors/T25.md",
+  "title": "T25 — A state whose first value does not say what it holds",
+  "description": "A `state` or `persist` is inferred only from a value that says everything — a number, a string, a case, a record, a list or map with items. An empty list, an empty map, `null` or open JSON says nothing, so the declaration says what it holds: `state items: [Todo] = []`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T26",
+  "twin": "/errors/T26.md",
+  "title": "T26 — An action that returns a value and does not say what",
+  "description": "An action that returns a value says what it returns, `-> T`, so a caller in another file reads it without reading the action's body.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T27",
+  "twin": "/errors/T27.md",
+  "title": "T27 — Two values with no type in common",
+  "description": "The branches of an `if` or a `match`, a list's items and the sides of `??` make one value, so they are one type. `null` on one side makes it `T?`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T28",
+  "twin": "/errors/T28.md",
+  "title": "T28 — A `Json` value read as if it were something else",
+  "description": "`Json` may be an object, a list, a string, a number, a boolean or null. Match its cases, or decode it into a type, before reading it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T29",
+  "twin": "/errors/T29.md",
+  "title": "T29 — A condition that is not a `Bool`",
+  "description": "`if`, `show`, `!`, `&&` and `||` take a `Bool`. Write the comparison meant: `count != 0`, `name != \"\"`, `user != null`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T30",
+  "twin": "/errors/T30.md",
+  "title": "T30 — A part of the browser the language does not type",
+  "description": "A browser global, or a member of an element or an event, the language does not type: reach it from a project script whose JSDoc says its types.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T31",
+  "twin": "/errors/T31.md",
+  "title": "T31 — A script's function the language cannot type",
+  "description": "A project script's JSDoc is its signature. A function called from `.wf` with none, or with a type the language cannot say — a union, an `Array` that does not say what it holds — has no signature to check a call or its result against.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T32",
+  "twin": "/errors/T32.md",
+  "title": "T32 — A parameter written with no type",
+  "description": "What another declaration or a caller sees is declared: an action's, an event's or a slot's parameter says its type, and so does a lambda's when nothing it is passed to says it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T33",
+  "twin": "/errors/T33.md",
+  "title": "T33 — Data that is not what its type says",
+  "description": "Data from outside the program — a `data` file, a template's data, a test's `data:` — is held to its type where it comes in, and refused with the place it goes wrong.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T34",
+  "twin": "/errors/T34.md",
+  "title": "T34 — A conversion the language does not make for you",
+  "description": "A `Date` or `Time` where text is wanted takes a splice that says how it shows; a `Duration` says its unit, never a bare number.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/T35",
+  "twin": "/errors/T35.md",
+  "title": "T35 — Values worked out from each other with neither declared",
+  "description": "Two `derived` values — in one body, or in two stores — that each read the other, or one that reads itself: neither has a type to start from, so one of them must say what it is.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U01",
+  "twin": "/errors/U01.md",
+  "title": "U01 — A state nothing reads",
+  "description": "A `state` nothing in its page or component reads; an assignment alone does not read it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U02",
+  "twin": "/errors/U02.md",
+  "title": "U02 — A derived value nothing reads",
+  "description": "A `derived` nothing reads.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U03",
+  "twin": "/errors/U03.md",
+  "title": "U03 — A component nothing places",
+  "description": "A component nothing places, names as a layout, or reaches as a part.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U04",
+  "twin": "/errors/U04.md",
+  "title": "U04 — A store member nothing reads",
+  "description": "A store's state, derived value or action that nothing reads, inside the store or as `Store.member`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U05",
+  "twin": "/errors/U05.md",
+  "title": "U05 — An action nothing calls",
+  "description": "An action nothing calls; a name that starts with `_` is understood to be unused on purpose.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U06",
+  "twin": "/errors/U06.md",
+  "title": "U06 — Code after return",
+  "description": "What follows a `return` in the same block never runs.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U07",
+  "twin": "/errors/U07.md",
+  "title": "U07 — An allow that allows nothing",
+  "description": "A `// wf-allow(CODE)` comment covers the next line of code (or its own, at the end of one); when nothing it names is reported there, or it names an…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U08",
+  "twin": "/errors/U08.md",
+  "title": "U08 — A condition that is always the same",
+  "description": "A literal condition, or a value compared with itself, decides the same way every time; one branch never runs.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U09",
+  "twin": "/errors/U09.md",
+  "title": "U09 — An unkeyed loop whose items hold state",
+  "description": "With no `by`, a change to the list redraws every item, and what an item holds — a field being typed in, a component's own state — starts again.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/U10",
+  "twin": "/errors/U10.md",
+  "title": "U10 — An `else` no value reaches",
+  "description": "Every case of the enum has its own arm, so the `match`'s `else` never runs.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V01",
+  "twin": "/errors/V01.md",
+  "title": "V01 — A bare word that means nothing",
+  "description": "A bare word in an argument that nothing in scope declares — a misspelled name, or a flag written without its dot.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V02",
+  "twin": "/errors/V02.md",
+  "title": "V02 — A flag no stylesheet styles",
+  "description": "A flag whose class no stylesheet — the engine's or one of the project's — defines.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V03",
+  "twin": "/errors/V03.md",
+  "title": "V03 — Markup put in as markup",
+  "description": "An `Unsafe.Html`, and whether what it puts in went through `sanitize`; and a `Frame(srcdoc:)` drawing HTML from a value, which is sandboxed…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V04",
+  "twin": "/errors/V04.md",
+  "title": "V04 — A class that is the engine's",
+  "description": "A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V05",
+  "twin": "/errors/V05.md",
+  "title": "V05 — A CSS property no browser knows",
+  "description": "A misspelled property — `colr:` — is ignored by the browser; nothing tells you why the style did not take.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V06",
+  "twin": "/errors/V06.md",
+  "title": "V06 — A design token the theme does not declare",
+  "description": "`$name` compiles to `var(--name)`; a token the theme does not declare is never set, so the property falls back to nothing.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V07",
+  "twin": "/errors/V07.md",
+  "title": "V07 — A number where CSS wants a length",
+  "description": "`width: {pct}` with a number is a length with no unit, which the browser drops. Give it one: `{pct}%`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V08",
+  "twin": "/errors/V08.md",
+  "title": "V08 — An icon the runtime does not draw",
+  "description": "`Icon` and `IconButton` draw the built-in icons; any other name shows as the word.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V09",
+  "twin": "/errors/V09.md",
+  "title": "V09 — An event the element does not fire",
+  "description": "A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V10",
+  "twin": "/errors/V10.md",
+  "title": "V10 — A `Host` tag it does not make",
+  "description": "A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V11",
+  "twin": "/errors/V11.md",
+  "title": "V11 — A component named like a built-in",
+  "description": "A component the project declares takes the place of a built-in of its name, so the built-in cannot be placed in that project.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/V12",
+  "twin": "/errors/V12.md",
+  "title": "V12 — A long list that is not windowed",
+  "description": "A `VirtualList` draws only the rows in view of one keyed `for` — `for row in rows by row.id { … }` — that is the whole of its body; with anything…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/X01",
+  "twin": "/errors/X01.md",
+  "title": "X01 — An assignment to something that cannot change",
+  "description": "A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/X02",
+  "twin": "/errors/X02.md",
+  "title": "X02 — An effect that feeds itself",
+  "description": "An effect re-runs when what it reads changes. One that writes, every run, something it reads starts the next run itself: the page never settles, and…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/X04",
+  "twin": "/errors/X04.md",
+  "title": "X04 — A derived value that changes something",
+  "description": "A `derived` value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/X05",
+  "twin": "/errors/X05.md",
+  "title": "X05 — `use` of a store nothing declares",
+  "description": "`use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/X06",
+  "twin": "/errors/X06.md",
+  "title": "X06 — A state that copies a live value once",
+  "description": "`now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock…",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/troubleshooting",
+  "twin": "/errors/troubleshooting.md",
+  "title": "Troubleshooting",
+  "description": "What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/errors/upgrading",
+  "twin": "/errors/upgrading.md",
+  "title": "Upgrading",
+  "description": "How to upgrade wf, what each release from 4.0 to 7.0 asks of a project, and moving an older project forward with wf migrate.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
+  "route": "/learn",
+  "twin": "/learn.md",
+  "title": "Learn WebFluent",
+  "description": "",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/01-getting-started",
+  "twin": "/learn/01-getting-started.md",
+  "title": "Getting started",
+  "description": "Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/02-tutorial-shelf",
+  "twin": "/learn/02-tutorial-shelf.md",
+  "title": "Tutorial: Shelf",
+  "description": "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/03-tutorial-todos",
+  "twin": "/learn/03-tutorial-todos.md",
+  "title": "Tutorial: Todos",
+  "description": "A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/04-language-basics",
+  "twin": "/learn/04-language-basics.md",
+  "title": "Language basics",
+  "description": "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/05-pages-and-routing",
+  "twin": "/learn/05-pages-and-routing.md",
+  "title": "Pages and routing",
+  "description": "Page attributes, routes and typed parameters, query strings, layouts, guards, pages in other languages, head tags and the 404 page.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/06-elements",
+  "twin": "/learn/06-elements.md",
+  "title": "Elements",
+  "description": "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/07-state-and-reactivity",
+  "twin": "/learn/07-state-and-reactivity.md",
+  "title": "State and reactivity",
+  "description": "state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/08-events",
+  "twin": "/learn/08-events.md",
+  "title": "Events",
+  "description": "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/09-control-flow",
+  "twin": "/learn/09-control-flow.md",
+  "title": "Control flow",
+  "description": "if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/10-components",
+  "twin": "/learn/10-components.md",
+  "title": "Components",
+  "description": "Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/11-stores",
+  "twin": "/learn/11-stores.md",
+  "title": "Stores",
+  "description": "Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/12-types",
+  "twin": "/learn/12-types.md",
+  "title": "Types",
+  "description": "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/13-styling",
+  "twin": "/learn/13-styling.md",
+  "title": "Styling",
+  "description": "Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/14-forms",
+  "twin": "/learn/14-forms.md",
+  "title": "Forms and validation",
+  "description": "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/15-data",
+  "twin": "/learn/15-data.md",
+  "title": "Fetching data",
+  "description": "Show a request with resource and match, ask with http in an action, describe a service once with api, handle each failure, and read data files.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/16-testing",
+  "twin": "/learn/16-testing.md",
+  "title": "Testing",
+  "description": "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/learn/17-pdf-and-slides",
+  "twin": "/learn/17-pdf-and-slides.md",
+  "title": "PDF and slides",
+  "description": "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.",
+  "part": "Learn",
+  "lang": "en"
+ },
+ {
+  "route": "/playground",
+  "twin": "/playground.md",
+  "title": "Playground",
+  "description": "The compiler, in the browser.",
+  "part": "Start",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes",
+  "twin": "/recipes.md",
+  "title": "Recipes",
+  "description": "Complete, runnable answers to “how do I…”: each recipe is one task, its whole code, and how it works.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/active-tab-in-the-address",
+  "twin": "/recipes/active-tab-in-the-address.md",
+  "title": "Keep the active tab in the address",
+  "description": "Keep the active tab in the address's #fragment, so it survives a reload and a shared link opens on the same tab.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/add-a-picture",
+  "twin": "/recipes/add-a-picture.md",
+  "title": "Add a picture, sized for every screen",
+  "description": "Show a picture from public/ or declared with image: the build writes it at every width, sets its size, and gives it a placeholder while it loads.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/allow-other-origins",
+  "twin": "/recipes/allow-other-origins.md",
+  "title": "Allow other origins in the security policy",
+  "description": "Widen the content security policy a build ships: requests, images and frames from other origins, an app's own schemes, WebAssembly, and pinned files.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/animate-a-list",
+  "twin": "/recipes/animate-a-list.md",
+  "title": "Animate a list",
+  "description": "Animate a list's items as they arrive, move and leave: a keyed for … by, with animate:, exit: and stagger: on each item's element.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/animate-in-and-out",
+  "twin": "/recipes/animate-in-and-out.md",
+  "title": "Animate an element in and out",
+  "description": "Play an animation when an element appears or leaves: a flag or animate: on the way in, exit: on the way out, with speed, delay and easing.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/animation-sequence",
+  "twin": "/recipes/animation-sequence.md",
+  "title": "Run a sequence of animations",
+  "description": "Start a group of animations one after another on a clock: wrap the elements in sequence { } and each in a step, with after: from the step before.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/api-on-the-same-origin",
+  "twin": "/recipes/api-on-the-same-origin.md",
+  "title": "Serve an API on the same origin",
+  "description": "Serve the site at / and its backend at /api from one origin, so pages call it without CORS and a session cookie works with no extra setting.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/build-a-budget-app",
+  "twin": "/recipes/build-a-budget-app.md",
+  "title": "Build a budget app that works offline",
+  "description": "An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/build-a-notebook-site",
+  "twin": "/recipes/build-a-notebook-site.md",
+  "title": "Build a statically generated notebook",
+  "description": "An intermediate WebFluent tutorial: a static notes site with data files, a page per note, Markdown, search, tags and saved notes, in about an hour.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/cache-and-security-headers",
+  "twin": "/recipes/cache-and-security-headers.md",
+  "title": "Set cache and security headers",
+  "description": "Which Cache-Control each file of a WebFluent build should get, and the security headers the build writes to _headers for a host to send.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/call-wf-from-a-script",
+  "twin": "/recipes/call-wf-from-a-script.md",
+  "title": "Call WF from a script",
+  "description": "Call the WebFluent runtime, window.WF, from a script of your own: show a toast, navigate, or read a store, and keep the call in the build.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/call-your-own-script",
+  "twin": "/recipes/call-your-own-script.md",
+  "title": "Call your own JavaScript",
+  "description": "Call a function of your own JavaScript from a WebFluent page: a plain script under src/, typed with JSDoc, linked on every page, its names in scope.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/chart-from-a-library",
+  "twin": "/recipes/chart-from-a-library.md",
+  "title": "Draw a chart from a library",
+  "description": "Draw a Chart.js chart on a page: load the library from a CDN, call it from a script of your own, and redraw the chart when the page's data changes.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/check-a-deploy",
+  "twin": "/recipes/check-a-deploy.md",
+  "title": "Check a deploy",
+  "description": "Check a WebFluent site after each deploy: deep links that reload, text in the HTML, the response headers, link previews and the sitemap.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/confirm-dialog",
+  "twin": "/recipes/confirm-dialog.md",
+  "title": "Build a confirm dialog",
+  "description": "Ask before a destructive action: an AlertDialog in a component that fires confirm or cancel, or one line, await ask(…).",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/connect-two-readers",
+  "twin": "/recipes/connect-two-readers.md",
+  "title": "Connect two readers' pages",
+  "description": "Send messages straight from one reader's page to another's over a WebRTC data channel, with a peer opened by rtc(…) and no server relaying them.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/copy-to-the-clipboard",
+  "twin": "/recipes/copy-to-the-clipboard.md",
+  "title": "Copy to the clipboard",
+  "description": "Copy text to the reader's clipboard from a button: an action that awaits the browser's clipboard, then shows a toast.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/count-a-number",
+  "twin": "/recipes/count-a-number.md",
+  "title": "Count a number to its new value",
+  "description": "Make a number count to its new value instead of jumping: give its element count: with a length of time, and each step keeps its format.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/count-down",
+  "twin": "/recipes/count-down.md",
+  "title": "Count down",
+  "description": "Count down once a second with an every timer that changes a state, and show the time left as a progress bar and text.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/dark-mode-switch",
+  "twin": "/recipes/dark-mode-switch.md",
+  "title": "Add a dark-mode switch",
+  "description": "Let the reader pick light, dark or the system's choice with setTheme, and mark the current choice by reading theme.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/debounce-a-search",
+  "twin": "/recipes/debounce-a-search.md",
+  "title": "Debounce a search",
+  "description": "Search as the reader types, but only once they pause: on input(debounce: 300.ms) moves what was typed to what is searched for.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/deploy-to-cloudflare-pages",
+  "twin": "/recipes/deploy-to-cloudflare-pages.md",
+  "title": "Deploy to Cloudflare Pages",
+  "description": "Deploy a WebFluent site to Cloudflare Pages: the build command and output folder to set, and a fallback for a single-page build.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/deploy-to-github-pages",
+  "twin": "/recipes/deploy-to-github-pages.md",
+  "title": "Deploy to GitHub Pages",
+  "description": "Deploy a WebFluent site to GitHub Pages with a GitHub Actions workflow, under the repository's sub-path and with no trailing-slash redirects.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/deploy-to-netlify",
+  "twin": "/recipes/deploy-to-netlify.md",
+  "title": "Deploy to Netlify",
+  "description": "Deploy a WebFluent site to Netlify: a netlify.toml that installs wf and builds, a fallback for a single-page build, and the build's security headers.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/deploy-to-vercel",
+  "twin": "/recipes/deploy-to-vercel.md",
+  "title": "Deploy to Vercel",
+  "description": "Deploy a WebFluent site to Vercel with a vercel.json that installs wf, builds, sets the security headers and rewrites a single-page build.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/docker-image",
+  "twin": "/recipes/docker-image.md",
+  "title": "Build a Docker image",
+  "description": "Build a Docker image of a WebFluent site: one stage installs wf and builds, a second serves the build with nginx.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/drive-an-animation",
+  "twin": "/recipes/drive-an-animation.md",
+  "title": "Drive an animation yourself",
+  "description": "Play an animation from a handler with animate(element, name, duration) and a ref: handle, or play an element's own again with replayAnimation.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/electron-app",
+  "twin": "/recipes/electron-app.md",
+  "title": "Make a desktop app with Electron",
+  "description": "Make a WebFluent project an Electron desktop app: serve the build from its own origin, call Node from a page through a preload script, and package it.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/environments-and-secrets",
+  "twin": "/recipes/environments-and-secrets.md",
+  "title": "Use environment values, and keep secrets out",
+  "description": "Read settings such as an API address with env.NAME, set them per environment, and keep a private value such as an API key out of the bundle.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/expand-to-content",
+  "twin": "/recipes/expand-to-content.md",
+  "title": "Open a box to the height of its content",
+  "description": "Open a box to the height of its content, which CSS cannot animate to: .expand measures height: auto, animates to it, then lets the box grow.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/filters-in-the-address",
+  "twin": "/recipes/filters-in-the-address.md",
+  "title": "Keep filters in the address",
+  "description": "Keep a list's filter or sort in the query string, so it survives a reload, a shared link and the back button.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/form-with-server-errors",
+  "twin": "/recipes/form-with-server-errors.md",
+  "title": "Show the server's field errors on a form",
+  "description": "Show the server's own field errors on a form: an error enum names the 422, the form takes its errors, and each lands under its field.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/hand-an-element-to-a-script",
+  "twin": "/recipes/hand-an-element-to-a-script.md",
+  "title": "Hand an element to a script",
+  "description": "Give an element to a script or a library and take it back when the element goes, with the mount:, update: and cleanup: props, or a bare node from Host.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/install-wf-in-ci",
+  "twin": "/recipes/install-wf-in-ci.md",
+  "title": "Install wf on a build machine",
+  "description": "Install the wf compiler on a CI runner or a host's build machine, pin its version, and build the site there before each deploy.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/keep-writes-made-offline",
+  "twin": "/recipes/keep-writes-made-offline.md",
+  "title": "Keep writes made offline",
+  "description": "Keep the reader's changes when the network drops: with sync on, a write that fails offline is kept and sent in order when the connection returns.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/keyboard-and-screen-reader",
+  "twin": "/recipes/keyboard-and-screen-reader.md",
+  "title": "Make a page work with a keyboard and a screen reader",
+  "description": "Name every control, make a custom control work from the keyboard, then check the page with a keyboard, a screen reader, zoom and reduced motion.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/keyboard-shortcuts",
+  "twin": "/recipes/keyboard-shortcuts.md",
+  "title": "Add keyboard shortcuts and a command palette",
+  "description": "Answer a keyboard shortcut with on key, and open a command palette on Ctrl+K (⌘K on a Mac) that finds and runs a command.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/keyframes",
+  "twin": "/recipes/keyframes.md",
+  "title": "Declare your own keyframes",
+  "description": "Declare keyframes of your own with animation Name { } and play them with animate: .Name or exit: .Name, wherever a built-in animation goes.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/library-from-a-cdn",
+  "twin": "/recipes/library-from-a-cdn.md",
+  "title": "Load a library from a CDN",
+  "description": "Load a JavaScript library from another origin with meta.scripts: in order, async or after the page, pinned by a hash, allowed by the policy.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/listen-for-wf-render",
+  "twin": "/recipes/listen-for-wf-render.md",
+  "title": "Run a script after each page draws",
+  "description": "Run a script that finds elements itself after every drawing of the page: the first mount, the takeover of a pre-rendered page, and each route.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/load-more",
+  "twin": "/recipes/load-more.md",
+  "title": "Load more as the reader asks",
+  "description": "Add the next page of results below the ones shown when the reader asks: an api endpoint that says how it pages, and a Load more button.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/markdown-pages",
+  "twin": "/recipes/markdown-pages.md",
+  "title": "Write a page as a Markdown file",
+  "description": "Write a page as a Markdown file under src/: front matter names its route, title and layout, and the rest is the body, framed by a component.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/migrate-from-external",
+  "twin": "/recipes/migrate-from-external.md",
+  "title": "Upgrade a WebFluent 4 project that uses external",
+  "description": "Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/motion-defaults",
+  "twin": "/recipes/motion-defaults.md",
+  "title": "Set motion defaults, and respect reduced motion",
+  "description": "Set the duration and easing every animation uses by default, and make sure a reader who asked for reduced motion gets none.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/not-found-page",
+  "twin": "/recipes/not-found-page.md",
+  "title": "Show your own page for an unknown address",
+  "description": "Show your own page for an address no page answers: a page whose path is *, kept out of search, and written to 404.html by a static build.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/offer-a-new-version",
+  "twin": "/recipes/offer-a-new-version.md",
+  "title": "Offer a new version",
+  "description": "When a deploy lands, offer the reader the new version of an offline site: update.available says it is ready, and update.apply() reloads into it.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/open-a-socket",
+  "twin": "/recipes/open-a-socket.md",
+  "title": "Open a socket",
+  "description": "Hold a two-way connection to a server with a socket: it reconnects, keeps itself alive, and queues what you send while the line is down.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/optimistic-updates",
+  "twin": "/recipes/optimistic-updates.md",
+  "title": "Update at once, and roll back on failure",
+  "description": "Show a change before the server agrees: update the state at once, send the request, and put the old value back if it fails.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/page-through-results",
+  "twin": "/recipes/page-through-results.md",
+  "title": "Page through results",
+  "description": "Show a long list one page at a time: keep the page number in state, splice it into the request's address, and step it with buttons.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/pdf-report",
+  "twin": "/recipes/pdf-report.md",
+  "title": "Make a PDF report",
+  "description": "Build a project into a PDF report: a page wrapped in Document, with a running footer, a chart drawn from data and a table that breaks across pages.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/place-a-custom-element",
+  "twin": "/recipes/place-a-custom-element.md",
+  "title": "Place a custom element from a library",
+  "description": "Place a custom element a library defines, such as Stripe's pricing table, with Element: its tag, attributes that follow state, and its events.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/portal",
+  "twin": "/recipes/portal.md",
+  "title": "Draw into a node a script made",
+  "description": "Fill a node a library made, such as an editor's tooltip or a map's popup, with WebFluent elements, using Portal(into:).",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/pre-render-each-item",
+  "twin": "/recipes/pre-render-each-item.md",
+  "title": "Pre-render a page for each item",
+  "description": "Pre-render a page on a :param route once per item with paths:, each file with its own title, painted and listed in the sitemap.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/publish-custom-elements",
+  "twin": "/recipes/publish-custom-elements.md",
+  "title": "Publish components as custom elements",
+  "description": "Build WebFluent components as standard custom elements that React, Vue, Svelte, WordPress or a plain HTML page can place by their tag.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/refresh-after-a-write",
+  "twin": "/recipes/refresh-after-a-write.md",
+  "title": "Refresh a list after a write",
+  "description": "Keep a list current after a create or a delete: the contract says which reads a write makes stale, and they ask again by themselves.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/render-a-template",
+  "twin": "/recipes/render-a-template.md",
+  "title": "Render a template with data",
+  "description": "Render a .wf template with JSON data to HTML, an HTML fragment, a PDF or slides with wf render, for invoices, emails and server responses.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/render-from-node",
+  "twin": "/recipes/render-from-node.md",
+  "title": "Render templates from Node",
+  "description": "Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/render-from-rust",
+  "twin": "/recipes/render-from-rust.md",
+  "title": "Render templates from Rust",
+  "description": "Render WebFluent templates from a Rust program or server with the webfluent crate: load them once, then render HTML, fragments, PDFs and slides.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/render-markdown",
+  "twin": "/recipes/render-markdown.md",
+  "title": "Render Markdown",
+  "description": "Show Markdown text on a page with Markdown(text): headings, lists, tables, code and links, drawn the same at build time and in the browser.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/reorder-by-dragging",
+  "twin": "/recipes/reorder-by-dragging.md",
+  "title": "Reorder a list by dragging",
+  "description": "Let the reader put a list in order by dragging its rows, with buttons that do the same from the keyboard.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/responsive-navigation",
+  "twin": "/recipes/responsive-navigation.md",
+  "title": "Make navigation responsive",
+  "description": "Show navigation links on a wide screen and a menu button on a narrow one, by branching on viewport.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/review-security",
+  "twin": "/recipes/review-security.md",
+  "title": "Review a site's security before you deploy",
+  "description": "Review what a WebFluent site trusts before a release: read wf audit, then go through the security checklist for the build, the host and the server.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/route-transitions",
+  "twin": "/recipes/route-transitions.md",
+  "title": "Animate route changes",
+  "description": "Animate every change of page: give the Router a transition: of .fade or .slide and a duration:, played through the View Transitions API.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/run-a-worker",
+  "twin": "/recipes/run-a-worker.md",
+  "title": "Run a script in a worker",
+  "description": "Keep slow work — a language service, a parser — off the page's thread with a worker: ask it and wait, tell it, and hear what it posts.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/search-and-link-previews",
+  "twin": "/recipes/search-and-link-previews.md",
+  "title": "Describe pages to search engines and link previews",
+  "description": "Give every page the title, description, canonical link, Open Graph tags and JSON-LD that search engines and link previews read.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/send-on-unload",
+  "twin": "/recipes/send-on-unload.md",
+  "title": "Send a message as the page unloads",
+  "description": "Record that something happened even as the reader leaves — an analytics event, a \"reader left\" signal — with beacon(url, data).",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/serve-with-apache",
+  "twin": "/recipes/serve-with-apache.md",
+  "title": "Serve a site with Apache",
+  "description": "Serve a WebFluent build with Apache: an .htaccess file with the 404 page, a single-page fallback, security headers and compressed files.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/serve-with-caddy",
+  "twin": "/recipes/serve-with-caddy.md",
+  "title": "Serve a site with Caddy",
+  "description": "Serve a WebFluent build with Caddy: a Caddyfile site block that sends the build's gzip files and falls back to index.html for a single-page build.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/serve-with-nginx",
+  "twin": "/recipes/serve-with-nginx.md",
+  "title": "Serve a site with nginx",
+  "description": "Serve a WebFluent build with nginx: a server block with the build's gzip files, a 404 page, a single-page fallback, cache and security headers.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/server-sent-events",
+  "twin": "/recipes/server-sent-events.md",
+  "title": "Listen to server-sent events",
+  "description": "Receive a one-way flow of events from a server — prices, progress, a log — with a stream opened by sse(…), and show the latest of each kind.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/service-from-openapi",
+  "twin": "/recipes/service-from-openapi.md",
+  "title": "Call a service from its OpenAPI spec",
+  "description": "Call a service from its OpenAPI spec: wf api writes the contract as files, checked in CI, and the program calls it typed.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/shared-element",
+  "twin": "/recipes/shared-element.md",
+  "title": "Carry an element across a route change",
+  "description": "Carry one element from one page to the next, such as a cover picture that grows into the article's header, by giving it one shared: name on both.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/show-a-carousel",
+  "twin": "/recipes/show-a-carousel.md",
+  "title": "Show a carousel",
+  "description": "Show slides one at a time with Carousel and Carousel.Slide: previous and next buttons, a dot per slide, and autoplay that pauses.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/show-a-page-in-a-frame",
+  "twin": "/recipes/show-a-page-in-a-frame.md",
+  "title": "Show another page in a frame",
+  "description": "Show another page inside yours with Frame (a video player, a map, a preview), hear what it posts back, and draw HTML you give it, sandboxed.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/show-an-icon",
+  "twin": "/recipes/show-an-icon.md",
+  "title": "Show an icon",
+  "description": "Draw one of the 83 built-in icons inline with Icon(\"name\"), size and colour it with flags, and use one on a button or a sidebar item.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/show-code",
+  "twin": "/recipes/show-code.md",
+  "title": "Show code on a page",
+  "description": "Show code on a page with Code: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/show-html-from-outside",
+  "twin": "/recipes/show-html-from-outside.md",
+  "title": "Show HTML from outside the project",
+  "description": "Show HTML that arrived from outside the project, such as a CMS body, through sanitize and Unsafe.Html, the one door for markup.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/show-the-network",
+  "twin": "/recipes/show-the-network.md",
+  "title": "Show what the network is doing",
+  "description": "Change what a page does on a slow connection or none at all by reading network: online, connection speed, data saver and queued writes.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/sign-in-with-a-session-cookie",
+  "twin": "/recipes/sign-in-with-a-session-cookie.md",
+  "title": "Sign in with a session cookie",
+  "description": "Sign a reader in with an httpOnly session cookie: an api with credentials: .sameOrigin, a Session store, and a guarded account page.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/site-in-two-languages",
+  "twin": "/recipes/site-in-two-languages.md",
+  "title": "Publish a page in each language",
+  "description": "Have search engines find each language: write each page once per language at its own address, with lang: and translates: joining them.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/store-value-as-a-prop",
+  "twin": "/recipes/store-value-as-a-prop.md",
+  "title": "Pass a store's value to a component",
+  "description": "Pass one value from a store to a component as a prop, so the component stays reusable outside that store.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/talk-between-tabs",
+  "twin": "/recipes/talk-between-tabs.md",
+  "title": "Talk to the site's other tabs",
+  "description": "Keep a site's open tabs in step — a cart, a sign-in, a setting — with a channel opened by broadcast(name), which every other tab hears.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/tauri-app",
+  "twin": "/recipes/tauri-app.md",
+  "title": "Make a desktop or phone app with Tauri",
+  "description": "Make a WebFluent project a Tauri app for the desktop or a phone: set it up, run it while you work, call Rust from a page, hear its events, package it.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/test-a-page",
+  "twin": "/recipes/test-a-page.md",
+  "title": "Test a page",
+  "description": "Write tests under tests/ that render a component or a page, type and click through it like a reader, and check what it shows; run them with wf test.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/test-with-a-fake",
+  "twin": "/recipes/test-with-a-fake.md",
+  "title": "Test a page with a fake service",
+  "description": "Test a page that reads a service without the service: a fake answers its endpoints, held to the contract, and nothing reaches the network.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/translate-a-site",
+  "twin": "/recipes/translate-a-site.md",
+  "title": "Translate a site",
+  "description": "Translate a site into several languages: one JSON file per locale, t(\"key\") wherever text goes, a language switch, plural forms and right to left.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/translate-by-the-words",
+  "twin": "/recipes/translate-by-the-words.md",
+  "title": "Translate by the words as written",
+  "description": "Translate a project written in one language without inventing keys: with literals on, each string is looked up by its own words.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/tween-on-change",
+  "twin": "/recipes/tween-on-change.md",
+  "title": "Tween a property when state changes",
+  "description": "Animate a style property that changes with state, such as a panel's height, with a transition { } block that names the property and its timing.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/validation-messages",
+  "twin": "/recipes/validation-messages.md",
+  "title": "Show validation messages on a form",
+  "description": "Check a form as the reader fills it in: a validate block beside each state, and each control shows its own message.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/video-and-audio",
+  "twin": "/recipes/video-and-audio.md",
+  "title": "Add video and audio",
+  "description": "Play a video with Video(src:) and sound with Audio(src:), with the browser's controls, captions for the video and a transcript for the recording.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/recipes/work-offline",
+  "twin": "/recipes/work-offline.md",
+  "title": "Make a site work offline",
+  "description": "Make a site load with no network: add offline to the config, and the build writes a service worker that stores pages and shows a fallback.",
+  "part": "Recipes",
+  "lang": "en"
+ },
+ {
+  "route": "/reference",
+  "twin": "/reference.md",
+  "title": "Components reference",
+  "description": "The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/accordion",
+  "twin": "/reference/accordion.md",
+  "title": "Accordion",
+  "description": "Sections a reader opens one by one, each a native <details>: Accordion.Item(\"Shipping\") { … }. .single keeps one open at a time.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/accordion-item",
+  "twin": "/reference/accordion-item.md",
+  "title": "Accordion.Item",
+  "description": "One section: its title is what a reader presses, its block what opens.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/accordion-panel",
+  "twin": "/reference/accordion-panel.md",
+  "title": "Accordion.Panel",
+  "description": "What opens: the item's block. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/accordion-summary",
+  "twin": "/reference/accordion-summary.md",
+  "title": "Accordion.Summary",
+  "description": "What a reader presses to open an item: its title. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/alert",
+  "twin": "/reference/alert.md",
+  "title": "Alert",
+  "description": "Inline notice; a danger or warning one is announced as an alert.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/alertdialog",
+  "twin": "/reference/alertdialog.md",
+  "title": "AlertDialog",
+  "description": "A <dialog> that asks before something that cannot be undone: role=\"alertdialog\", its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, await ask(…) draws one.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/alertdialog-footer",
+  "twin": "/reference/alertdialog-footer.md",
+  "title": "AlertDialog.Footer",
+  "description": "Its answers: the button that loses nothing first.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/alertdialog-title",
+  "twin": "/reference/alertdialog-title.md",
+  "title": "AlertDialog.Title",
+  "description": "What the alert dialog's heading draws, in place of its title:'s words, which stay its name.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/appshell",
+  "twin": "/reference/appshell.md",
+  "title": "AppShell",
+  "description": "An app's frame: AppShell.Header across the top, a Sidebar down the start (a drawer on a narrow screen), the Router's page beside it, and an AppShell.Footer.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/appshell-footer",
+  "twin": "/reference/appshell-footer.md",
+  "title": "AppShell.Footer",
+  "description": "The bar along the bottom.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/appshell-header",
+  "twin": "/reference/appshell-header.md",
+  "title": "AppShell.Header",
+  "description": "The bar across the top.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/aspectratio",
+  "twin": "/reference/aspectratio.md",
+  "title": "AspectRatio",
+  "description": "A box that keeps its shape as its width changes — ratio: 16 / 9 — its child filling it: a picture, a video, a frame.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/audio",
+  "twin": "/reference/audio.md",
+  "title": "Audio",
+  "description": "Audio player. transcript links what was said, which is what a reader who cannot hear it needs.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/avatar",
+  "twin": "/reference/avatar.md",
+  "title": "Avatar",
+  "description": "A picture of a person, or their initials.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/avatargroup",
+  "twin": "/reference/avatargroup.md",
+  "title": "AvatarGroup",
+  "description": "Avatars overlapping in a row: past max: the rest are one +3.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/background",
+  "twin": "/reference/background.md",
+  "title": "Background",
+  "description": "Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/backtotop",
+  "twin": "/reference/backtotop.md",
+  "title": "BackToTop",
+  "description": "A button that appears once the page has scrolled past after: px, and takes the reader — and the focus — back to the top.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/badge",
+  "twin": "/reference/badge.md",
+  "title": "Badge",
+  "description": "Small status label.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/blockquote",
+  "twin": "/reference/blockquote.md",
+  "title": "Blockquote",
+  "description": "Quotation: the text, or its block as the quoted content.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/bottomnavigation",
+  "twin": "/reference/bottomnavigation.md",
+  "title": "BottomNavigation",
+  "description": "A phone's tab bar along the bottom of the screen: each entry an icon over its words, at least 44px to press, clear of the home indicator (the safe-area inset); the current route's is marked.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/bottomnavigation-item",
+  "twin": "/reference/bottomnavigation-item.md",
+  "title": "BottomNavigation.Item",
+  "description": "One entry: its words, where it goes, and its icon.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/breadcrumb",
+  "twin": "/reference/breadcrumb.md",
+  "title": "Breadcrumb",
+  "description": "Breadcrumb trail. An item without to is the current page.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/breadcrumb-item",
+  "twin": "/reference/breadcrumb-item.md",
+  "title": "Breadcrumb.Item",
+  "description": "One step of the trail.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/browser-support",
+  "twin": "/reference/browser-support.md",
+  "title": "Browser support",
+  "description": "The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/built-ins",
+  "twin": "/reference/built-ins.md",
+  "title": "Built-ins",
+  "description": "Built-in functions, browser values like viewport, query, now and network, string, list and number methods, the built-in types, and browser globals.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/button",
+  "twin": "/reference/button.md",
+  "title": "Button",
+  "description": "A button: its label or block is what it shows, on click what it does.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/buttongroup",
+  "twin": "/reference/buttongroup.md",
+  "title": "ButtonGroup",
+  "description": "Buttons joined into one row.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/calendar",
+  "twin": "/reference/calendar.md",
+  "title": "Calendar",
+  "description": "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a { start, end } with .range, a list with .multiple.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/callout",
+  "twin": "/reference/callout.md",
+  "title": "Callout",
+  "description": "A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, in Markdown (code, **bold**, a link), or its block.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/callout-title",
+  "twin": "/reference/callout-title.md",
+  "title": "Callout.Title",
+  "description": "Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/card",
+  "twin": "/reference/card.md",
+  "title": "Card",
+  "description": "Card surface with optional header, body and footer sections.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/card-body",
+  "twin": "/reference/card-body.md",
+  "title": "Card.Body",
+  "description": "The card's content area.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/card-footer",
+  "twin": "/reference/card-footer.md",
+  "title": "Card.Footer",
+  "description": "The card's action area.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/card-header",
+  "twin": "/reference/card-header.md",
+  "title": "Card.Header",
+  "description": "The card's heading area.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/carousel",
+  "twin": "/reference/carousel.md",
+  "title": "Carousel",
+  "description": "Slide track with named controls and dots; optional autoplay.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/carousel-slide",
+  "twin": "/reference/carousel-slide.md",
+  "title": "Carousel.Slide",
+  "description": "One slide of a carousel.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/center",
+  "twin": "/reference/center.md",
+  "title": "Center",
+  "description": "Its children in the middle of it, across and down.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/chart",
+  "twin": "/reference/chart.md",
+  "title": "Chart",
+  "description": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/checkbox",
+  "twin": "/reference/checkbox.md",
+  "title": "Checkbox",
+  "description": "Checkbox bound to a boolean state.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/checkboxgroup",
+  "twin": "/reference/checkboxgroup.md",
+  "title": "CheckboxGroup",
+  "description": "Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/checkboxgroup-legend",
+  "twin": "/reference/checkboxgroup-legend.md",
+  "title": "CheckboxGroup.Legend",
+  "description": "Its legend. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/checkboxgroup-option",
+  "twin": "/reference/checkboxgroup-option.md",
+  "title": "CheckboxGroup.Option",
+  "description": "One box: its words and its value.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/chip",
+  "twin": "/reference/chip.md",
+  "title": "Chip",
+  "description": "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/chip-action",
+  "twin": "/reference/chip-action.md",
+  "title": "Chip.Action",
+  "description": "What pressing a chip presses: its icon and words, a toggle button when it can be selected:.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/chip-label",
+  "twin": "/reference/chip-label.md",
+  "title": "Chip.Label",
+  "description": "Its icon and words, when pressing it does nothing.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/chip-remove",
+  "twin": "/reference/chip-remove.md",
+  "title": "Chip.Remove",
+  "description": "Its remove button.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/circularprogress",
+  "twin": "/reference/circularprogress.md",
+  "title": "CircularProgress",
+  "description": "A ring that fills to value: of max:, announced as a progress bar; with no value:, it turns, for work of no known length. Its block is drawn in the middle.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli",
+  "twin": "/reference/cli.md",
+  "title": "Command line",
+  "description": "Every wf command and its options, from init, build and serve to render, migrate and verify, and the language server in each editor.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/api",
+  "twin": "/reference/cli/api.md",
+  "title": "wf api",
+  "description": "A service's contract as files, from its OpenAPI spec: add one, sync it, check it is current, turn `api … from` into files, list them",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/assets",
+  "twin": "/reference/cli/assets.md",
+  "title": "wf assets",
+  "description": "What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/audit",
+  "twin": "/reference/cli/audit.md",
+  "title": "wf audit",
+  "description": "What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/build",
+  "twin": "/reference/cli/build.md",
+  "title": "wf build",
+  "description": "Build the project: a site or app (HTML, CSS, JS), a PDF, a slide deck or custom elements",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/check",
+  "twin": "/reference/cli/check.md",
+  "title": "wf check",
+  "description": "Check the project — every finding a build would report — and write nothing",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/commands",
+  "twin": "/reference/cli/commands.md",
+  "title": "wf commands",
+  "description": "Every `wf` command, its options and what it writes, as data",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/components",
+  "twin": "/reference/cli/components.md",
+  "title": "wf components",
+  "description": "Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/config",
+  "twin": "/reference/cli/config.md",
+  "title": "wf config",
+  "description": "Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/context",
+  "twin": "/reference/cli/context.md",
+  "title": "wf context",
+  "description": "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the language reference, and what was withheld",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/docs",
+  "twin": "/reference/cli/docs.md",
+  "title": "wf docs",
+  "description": "Document the project's components as a site, each `example` drawn live",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/explain",
+  "twin": "/reference/cli/explain.md",
+  "title": "wf explain",
+  "description": "What a diagnostic code means, a program that draws it, and the fix; with no code, every code",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/fix",
+  "twin": "/reference/cli/fix.md",
+  "title": "wf fix",
+  "description": "Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/fmt",
+  "twin": "/reference/cli/fmt.md",
+  "title": "wf fmt",
+  "description": "Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/generate",
+  "twin": "/reference/cli/generate.md",
+  "title": "wf generate",
+  "description": "Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/init",
+  "twin": "/reference/cli/init.md",
+  "title": "wf init",
+  "description": "Create a new WebFluent project",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/inspect",
+  "twin": "/reference/cli/inspect.md",
+  "title": "wf inspect",
+  "description": "One page as a reader meets it, as text: landmarks, headings, links, buttons, fields, tables, and anything that failed",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/migrate",
+  "twin": "/reference/cli/migrate.md",
+  "title": "wf migrate",
+  "description": "Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/motion",
+  "twin": "/reference/cli/motion.md",
+  "title": "wf motion",
+  "description": "The animations an element can play, the eases and speeds, the route transitions and the project's default",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/registry",
+  "twin": "/reference/cli/registry.md",
+  "title": "wf registry",
+  "description": "Describe every built-in component: props, cases, flags, events, slots, parts",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/render",
+  "twin": "/reference/cli/render.md",
+  "title": "wf render",
+  "description": "Render a .wf template with JSON data",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/rules",
+  "twin": "/reference/cli/rules.md",
+  "title": "wf rules",
+  "description": "The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/scope",
+  "twin": "/reference/cli/scope.md",
+  "title": "wf scope",
+  "description": "What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/serve",
+  "twin": "/reference/cli/serve.md",
+  "title": "wf serve",
+  "description": "Start the development server",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/start",
+  "twin": "/reference/cli/start.md",
+  "title": "wf start",
+  "description": "Serve a built project as a host would: `$PORT`, the build's headers and compressed files, a single-page build's shell for every route, and `--proxy` for an API elsewhere",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/test",
+  "twin": "/reference/cli/test.md",
+  "title": "wf test",
+  "description": "Run the project's `test \"…\" { … }` declarations under tests/",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/theme",
+  "twin": "/reference/cli/theme.md",
+  "title": "wf theme",
+  "description": "The theme the build uses: every token, declared or inherited, where each is used, and its contrast pairs",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/translations",
+  "twin": "/reference/cli/translations.md",
+  "title": "wf translations",
+  "description": "The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a `t()` names it",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/types",
+  "twin": "/reference/cli/types.md",
+  "title": "wf types",
+  "description": "Describe what a project declares: enums, types, components, stores, pages",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/cli/verify",
+  "twin": "/reference/cli/verify.md",
+  "title": "wf verify",
+  "description": "Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/clientonly",
+  "twin": "/reference/clientonly.md",
+  "title": "ClientOnly",
+  "description": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder { … } block is what those show in its place.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/code",
+  "twin": "/reference/code.md",
+  "title": "Code",
+  "description": "Inline code, or a code block with block; language: colours it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/codeblock",
+  "twin": "/reference/codeblock.md",
+  "title": "CodeBlock",
+  "description": "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/codeblock-bar",
+  "twin": "/reference/codeblock-bar.md",
+  "title": "CodeBlock.Bar",
+  "description": "The bar above the code.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/codeblock-lines",
+  "twin": "/reference/codeblock-lines.md",
+  "title": "CodeBlock.Lines",
+  "description": "The line numbers.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/codeblock-mark",
+  "twin": "/reference/codeblock-mark.md",
+  "title": "CodeBlock.Mark",
+  "description": "One line's mark. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/codeblock-marks",
+  "twin": "/reference/codeblock-marks.md",
+  "title": "CodeBlock.Marks",
+  "description": "The marks over the lines highlight: names. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/colorpicker",
+  "twin": "/reference/colorpicker.md",
+  "title": "ColorPicker",
+  "description": "A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as #rrggbb.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/column",
+  "twin": "/reference/column.md",
+  "title": "Column",
+  "description": "A child of the 12-column grid, spanning span columns.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/combobox",
+  "twin": "/reference/combobox.md",
+  "title": "Combobox",
+  "description": "A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; .multiple keeps several, each a chip Backspace takes back. option(o) { … } draws an offer; empty { … } shows when nothing matches.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/commandpalette",
+  "twin": "/reference/commandpalette.md",
+  "title": "CommandPalette",
+  "description": "A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (on select) and closes. open: is the state that shows it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/commandpalette-group",
+  "twin": "/reference/commandpalette-group.md",
+  "title": "CommandPalette.Group",
+  "description": "Items under a heading.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/commandpalette-item",
+  "twin": "/reference/commandpalette-item.md",
+  "title": "CommandPalette.Item",
+  "description": "One thing to do or go to; on select is what it does.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/commandpalette-list",
+  "twin": "/reference/commandpalette-list.md",
+  "title": "CommandPalette.List",
+  "description": "What matches. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/config",
+  "twin": "/reference/config.md",
+  "title": "Configuration",
+  "description": "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/consentbanner",
+  "twin": "/reference/consentbanner.md",
+  "title": "ConsentBanner",
+  "description": "The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the meta.scripts entries marked \"load\": \"consent\", then and on every later visit; nothing loads before.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/consentsettings",
+  "twin": "/reference/consentsettings.md",
+  "title": "ConsentSettings",
+  "description": "A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the ConsentBanner. A script already loaded stays until the page is loaded again.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/container",
+  "twin": "/reference/container.md",
+  "title": "Container",
+  "description": "Centred wrapper with a maximum width and horizontal padding.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/contextmenu",
+  "twin": "/reference/contextmenu.md",
+  "title": "ContextMenu",
+  "description": "What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10 inside it opens where it happened.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/contextmenu-items",
+  "twin": "/reference/contextmenu-items.md",
+  "title": "ContextMenu.Items",
+  "description": "The menu: Menu.Items, Menu.Subs and Menu.Dividers.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/copybutton",
+  "twin": "/reference/copybutton.md",
+  "title": "CopyButton",
+  "description": "A button that copies value: to the clipboard, says Copied for a moment, and tells a screen reader so.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/datatable",
+  "twin": "/reference/datatable.md",
+  "title": "DataTable",
+  "description": "Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) { … } draws a cell, empty { … } shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/datatable-column",
+  "twin": "/reference/datatable-column.md",
+  "title": "DataTable.Column",
+  "description": "One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/datepicker",
+  "twin": "/reference/datepicker.md",
+  "title": "DatePicker",
+  "description": "A date field: the reader picks a day, and the bound state holds a Date.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/daterangepicker",
+  "twin": "/reference/daterangepicker.md",
+  "title": "DateRangePicker",
+  "description": "A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds { start, end }.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/descriptionlist",
+  "twin": "/reference/descriptionlist.md",
+  "title": "DescriptionList",
+  "description": "Terms and what they are (<dl>): a column of pairs, or .grid, each term beside its value.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/descriptionlist-details",
+  "twin": "/reference/descriptionlist-details.md",
+  "title": "DescriptionList.Details",
+  "description": "A value. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/descriptionlist-item",
+  "twin": "/reference/descriptionlist-item.md",
+  "title": "DescriptionList.Item",
+  "description": "One pair: its term, and value: or its block.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/descriptionlist-term",
+  "twin": "/reference/descriptionlist-term.md",
+  "title": "DescriptionList.Term",
+  "description": "A term. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/dialog",
+  "twin": "/reference/dialog.md",
+  "title": "Dialog",
+  "description": "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/dialog-title",
+  "twin": "/reference/dialog-title.md",
+  "title": "Dialog.Title",
+  "description": "What the dialog's heading draws, in place of its title:'s words, which stay its name.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/divider",
+  "twin": "/reference/divider.md",
+  "title": "Divider",
+  "description": "Horizontal rule.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/document",
+  "twin": "/reference/document.md",
+  "title": "Document",
+  "description": "Root of a PDF document: the paper, the margins and what the file says about itself.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/dropdown",
+  "twin": "/reference/dropdown.md",
+  "title": "Dropdown",
+  "description": "Button that opens a menu of Dropdown.Items.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/dropdown-divider",
+  "twin": "/reference/dropdown-divider.md",
+  "title": "Dropdown.Divider",
+  "description": "A rule between groups of entries.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/dropdown-item",
+  "twin": "/reference/dropdown-item.md",
+  "title": "Dropdown.Item",
+  "description": "One entry of the menu.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/editable",
+  "twin": "/reference/editable.md",
+  "title": "Editable",
+  "description": "Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; bind: holds the text.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/editors",
+  "twin": "/reference/editors.md",
+  "title": "Editors",
+  "description": "Editor support for WebFluent: what wf-lsp answers, what the VS Code and Zed extensions and the Tree-sitter grammars support, and how to install each.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/element",
+  "twin": "/reference/element.md",
+  "title": "Element",
+  "description": "A custom element a script defines, placed by its tag: Element(\"stripe-pricing-table\", publishableKey: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/emptystate",
+  "twin": "/reference/emptystate.md",
+  "title": "EmptyState",
+  "description": "What a list or a page shows when it has nothing yet: an icon, a title, a sentence and, in its block, what to do about it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/emptystate-actions",
+  "twin": "/reference/emptystate-actions.md",
+  "title": "EmptyState.Actions",
+  "description": "What to do: the block it was given.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/emptystate-text",
+  "twin": "/reference/emptystate-text.md",
+  "title": "EmptyState.Text",
+  "description": "Its sentence.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/emptystate-title",
+  "twin": "/reference/emptystate-title.md",
+  "title": "EmptyState.Title",
+  "description": "Its title.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/expressions",
+  "twin": "/reference/expressions.md",
+  "title": "Expressions",
+  "description": "Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/fab",
+  "twin": "/reference/fab.md",
+  "title": "Fab",
+  "description": "A round button floating at the bottom of the screen for the page's main action; with Fab.Actions in its block it opens them instead (a speed dial).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/fab-action",
+  "twin": "/reference/fab-action.md",
+  "title": "Fab.Action",
+  "description": "One more action the button opens: its words and its icon; on click is what it does.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/fab-trigger",
+  "twin": "/reference/fab-trigger.md",
+  "title": "Fab.Trigger",
+  "description": "Its button. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/field",
+  "twin": "/reference/field.md",
+  "title": "Field",
+  "description": "A label, a hint and an error around a control of your own: the first control in its block is named by the label and described by the hint and the error, and marked invalid while there is one.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/field-error",
+  "twin": "/reference/field-error.md",
+  "title": "Field.Error",
+  "description": "Its error, announced as it appears. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/field-hint",
+  "twin": "/reference/field-hint.md",
+  "title": "Field.Hint",
+  "description": "Its hint. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/field-label",
+  "twin": "/reference/field-label.md",
+  "title": "Field.Label",
+  "description": "Its label. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/fieldset",
+  "twin": "/reference/fieldset.md",
+  "title": "Fieldset",
+  "description": "Controls that belong together — an address, a choice of plan — under a legend that names them.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/fieldset-legend",
+  "twin": "/reference/fieldset-legend.md",
+  "title": "Fieldset.Legend",
+  "description": "Its legend. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/fileupload",
+  "twin": "/reference/fileupload.md",
+  "title": "FileUpload",
+  "description": "File input; bind: holds what was chosen, and on change hears it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/footer",
+  "twin": "/reference/footer.md",
+  "title": "Footer",
+  "description": "Repeated at the bottom of every PDF page (or those on: names), where page and pages are the page's number and the count; a <footer> on the web.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/form",
+  "twin": "/reference/form.md",
+  "title": "Form",
+  "description": "Groups controls; on submit runs when it is submitted, and the page never navigates away.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/frame",
+  "twin": "/reference/frame.md",
+  "title": "Frame",
+  "description": "Another page, shown inside this one: an iframe — the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/gallery",
+  "twin": "/reference/gallery.md",
+  "title": "Gallery",
+  "description": "Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/glossary",
+  "twin": "/reference/glossary.md",
+  "title": "Glossary",
+  "description": "The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/grammar",
+  "twin": "/reference/grammar.md",
+  "title": "Grammar",
+  "description": "The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/grid",
+  "twin": "/reference/grid.md",
+  "title": "Grid",
+  "description": "CSS grid with a fixed number of columns.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/header",
+  "twin": "/reference/header.md",
+  "title": "Header",
+  "description": "Repeated at the top of every PDF page (or those on: names), where page and pages are the page's number and the count; a <header> on the web.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/heading",
+  "twin": "/reference/heading.md",
+  "title": "Heading",
+  "description": "Heading; level picks the tag (h2 when none is given).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/highlight",
+  "twin": "/reference/highlight.md",
+  "title": "Highlight",
+  "description": "Text with every match of query: marked (<mark>), as a search's results show what was found; the case is ignored.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/host",
+  "twin": "/reference/host.md",
+  "title": "Host",
+  "description": "A bare node handed to somebody else's code, with a lifetime. mount: runs with the node each time it is made, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves. Every other element takes the same three.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/hovercard",
+  "twin": "/reference/hovercard.md",
+  "title": "HoverCard",
+  "description": "A preview card at a link or a button: shown after delay: ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/hovercard-content",
+  "twin": "/reference/hovercard-content.md",
+  "title": "HoverCard.Content",
+  "description": "What the card shows. The rest of the block is what it is at.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/icon",
+  "twin": "/reference/icon.md",
+  "title": "Icon",
+  "description": "One of the built-in SVG icons, rendered inline.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/iconbutton",
+  "twin": "/reference/iconbutton.md",
+  "title": "IconButton",
+  "description": "Icon-only button. label is its accessible name, never visible text.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/image",
+  "twin": "/reference/image.md",
+  "title": "Image",
+  "description": "Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/imageslide",
+  "twin": "/reference/imageslide.md",
+  "title": "ImageSlide",
+  "description": "Image slide with an optional caption.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/input",
+  "twin": "/reference/input.md",
+  "title": "Input",
+  "description": "Text field. With label, hint or error it is a labelled field.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/inputgroup",
+  "twin": "/reference/inputgroup.md",
+  "title": "InputGroup",
+  "description": "An input drawn as one box with what goes beside it: an icon, InputGroup.Addon(\"https://\"), a button, or InputGroup.Clear, which empties the input and gives it the focus back.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/inputgroup-addon",
+  "twin": "/reference/inputgroup-addon.md",
+  "title": "InputGroup.Addon",
+  "description": "Text beside the input: https://, .com, kg.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/inputgroup-clear",
+  "twin": "/reference/inputgroup-clear.md",
+  "title": "InputGroup.Clear",
+  "description": "A button that empties the input and puts the focus back in it; hidden while it is empty.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/inputotp",
+  "twin": "/reference/inputotp.md",
+  "title": "InputOTP",
+  "description": "A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (autocomplete=\"one-time-code\").",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/item",
+  "twin": "/reference/item.md",
+  "title": "Item",
+  "description": "A row of a list, a settings page or a search's results: Item.Media at its start, its title: and description:, then its block, and Item.Actions at its end.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/item-actions",
+  "twin": "/reference/item-actions.md",
+  "title": "Item.Actions",
+  "description": "What goes at its end: a switch, a button, a menu.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/item-content",
+  "twin": "/reference/item-content.md",
+  "title": "Item.Content",
+  "description": "Its title, description and block. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/item-media",
+  "twin": "/reference/item-media.md",
+  "title": "Item.Media",
+  "description": "What goes at its start: an icon, an avatar, a picture.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/kbd",
+  "twin": "/reference/kbd.md",
+  "title": "Kbd",
+  "description": "A key or a combination, written as this system writes it: Kbd(\"mod+k\") is ⌘K on a Mac and Ctrl+K elsewhere.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/library",
+  "twin": "/reference/library.md",
+  "title": "Library",
+  "description": "The compiler as a library: the webfluent crate (Template, build, memory, vfs, diagnostics, config, errors, semver), the Node package and wf.js.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/lightbox",
+  "twin": "/reference/lightbox.md",
+  "title": "Lightbox",
+  "description": "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/link",
+  "twin": "/reference/link.md",
+  "title": "Link",
+  "description": "Client-side navigation link; its label or its block is the link text.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/list",
+  "twin": "/reference/list.md",
+  "title": "List",
+  "description": "List of its children; ordered for a numbered list.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/list-item",
+  "twin": "/reference/list-item.md",
+  "title": "List.Item",
+  "description": "One entry (<li>).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/listbox",
+  "twin": "/reference/listbox.md",
+  "title": "Listbox",
+  "description": "A list of options always shown, one chosen (selection follows the arrow keys) or, .multiple, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/listbox-option",
+  "twin": "/reference/listbox-option.md",
+  "title": "Listbox.Option",
+  "description": "One option: its words, and the value bind: holds when it is chosen.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/loadingoverlay",
+  "twin": "/reference/loadingoverlay.md",
+  "title": "LoadingOverlay",
+  "description": "A region covered while it is busy: aria-busy on it, its content out of reach, and a spinner with label: over it — the region, not the page.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/loadingoverlay-content",
+  "twin": "/reference/loadingoverlay-content.md",
+  "title": "LoadingOverlay.Content",
+  "description": "The region. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/loadingoverlay-cover",
+  "twin": "/reference/loadingoverlay-cover.md",
+  "title": "LoadingOverlay.Cover",
+  "description": "What covers it while it is busy. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/localeswitch",
+  "twin": "/reference/localeswitch.md",
+  "title": "LocaleSwitch",
+  "description": "One button for each of i18n.locales, each written in its own language (English, العربية), the current one pressed; a press is setLocale.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/markdown",
+  "twin": "/reference/markdown.md",
+  "title": "Markdown",
+  "description": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. .inert is for text somebody else wrote.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/masonry",
+  "twin": "/reference/masonry.md",
+  "title": "Masonry",
+  "description": "Its children in columns: columns, each placed under the last in its column, keeping its own height.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/menu",
+  "twin": "/reference/menu.md",
+  "title": "Menu",
+  "description": "A menu above everything: opened by its trigger: button, or by visible: at an anchor: or a point at: — a context menu. Escape, a press outside or a choice close it, write false back to visible: and fire on close.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/menu-divider",
+  "twin": "/reference/menu-divider.md",
+  "title": "Menu.Divider",
+  "description": "A rule between groups of entries.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/menu-item",
+  "twin": "/reference/menu-item.md",
+  "title": "Menu.Item",
+  "description": "One entry of the menu; on click is what choosing it does.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/menu-sub",
+  "twin": "/reference/menu-sub.md",
+  "title": "Menu.Sub",
+  "description": "An entry that opens a menu of its own beside it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/menubar",
+  "twin": "/reference/menubar.md",
+  "title": "Menubar",
+  "description": "File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/menubar-menu",
+  "twin": "/reference/menubar-menu.md",
+  "title": "Menubar.Menu",
+  "description": "One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/meter",
+  "twin": "/reference/meter.md",
+  "title": "Meter",
+  "description": "A level against its range (<meter>): a disk's use, a password's strength. Past high: or under low: it says so in its colour; optimum: says which end is good.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/modal",
+  "twin": "/reference/modal.md",
+  "title": "Modal",
+  "description": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/modal-footer",
+  "twin": "/reference/modal-footer.md",
+  "title": "Modal.Footer",
+  "description": "The modal's action row.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/modal-title",
+  "twin": "/reference/modal-title.md",
+  "title": "Modal.Title",
+  "description": "What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { \"Rename \"  Code(name) } }.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navbar",
+  "twin": "/reference/navbar.md",
+  "title": "Navbar",
+  "description": "Top navigation bar with brand, links and action areas.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navbar-actions",
+  "twin": "/reference/navbar-actions.md",
+  "title": "Navbar.Actions",
+  "description": "Buttons at the end of the bar.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navbar-brand",
+  "twin": "/reference/navbar-brand.md",
+  "title": "Navbar.Brand",
+  "description": "The brand area, usually a link home.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navbar-links",
+  "twin": "/reference/navbar-links.md",
+  "title": "Navbar.Links",
+  "description": "The navigation links; collapses behind a toggle on small screens.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navigationmenu",
+  "twin": "/reference/navigationmenu.md",
+  "title": "NavigationMenu",
+  "description": "A site's main navigation whose entries open panels (a mega menu) as disclosures: one open at a time, the arrow keys along the row, Down into a panel, Escape, a press outside or the focus leaving closes it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navigationmenu-item",
+  "twin": "/reference/navigationmenu-item.md",
+  "title": "NavigationMenu.Item",
+  "description": "An entry that opens a panel: its words are its button, its block the panel.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navigationmenu-link",
+  "twin": "/reference/navigationmenu-link.md",
+  "title": "NavigationMenu.Link",
+  "description": "An entry that is a link, beside the ones that open panels.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navigationmenu-list",
+  "twin": "/reference/navigationmenu-list.md",
+  "title": "NavigationMenu.List",
+  "description": "Its entries. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navigationmenu-panel",
+  "twin": "/reference/navigationmenu-panel.md",
+  "title": "NavigationMenu.Panel",
+  "description": "An entry's panel. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/navigationmenu-trigger",
+  "twin": "/reference/navigationmenu-trigger.md",
+  "title": "NavigationMenu.Trigger",
+  "description": "An entry's button. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/numberinput",
+  "twin": "/reference/numberinput.md",
+  "title": "NumberInput",
+  "description": "A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between min: and max:.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/numberinput-decrease",
+  "twin": "/reference/numberinput-decrease.md",
+  "title": "NumberInput.Decrease",
+  "description": "Its − button. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/numberinput-increase",
+  "twin": "/reference/numberinput-increase.md",
+  "title": "NumberInput.Increase",
+  "description": "Its + button. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/onthispage",
+  "twin": "/reference/onthispage.md",
+  "title": "OnThisPage",
+  "description": "The page's headings as links, the one being read marked as the reader scrolls: a table of contents beside a long page.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/onthispage-title",
+  "twin": "/reference/onthispage-title.md",
+  "title": "OnThisPage.Title",
+  "description": "Its title. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/option",
+  "twin": "/reference/option.md",
+  "title": "Option",
+  "description": "One choice in a Select (the original spelling of Select.Option).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/pagebreak",
+  "twin": "/reference/pagebreak.md",
+  "title": "PageBreak",
+  "description": "Forces a new PDF page.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/pagination",
+  "twin": "/reference/pagination.md",
+  "title": "Pagination",
+  "description": "Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is aria-current=\"page\"; bind: holds it, from 1.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/pagination-gap",
+  "twin": "/reference/pagination-gap.md",
+  "title": "Pagination.Gap",
+  "description": "The pages left out. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/pagination-next",
+  "twin": "/reference/pagination-next.md",
+  "title": "Pagination.Next",
+  "description": "The next page. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/pagination-page",
+  "twin": "/reference/pagination-page.md",
+  "title": "Pagination.Page",
+  "description": "A page. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/pagination-prev",
+  "twin": "/reference/pagination-prev.md",
+  "title": "Pagination.Prev",
+  "description": "The previous page. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/panelgroup",
+  "twin": "/reference/panelgroup.md",
+  "title": "PanelGroup",
+  "description": "Panels side by side (or .vertical, one above another) with a handle between each two that resizes them: dragged, or the arrow keys on it. bind: holds their sizes in percent — a persist keeps them across visits — and on resize(e) hears them as e.detail.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/panelgroup-panel",
+  "twin": "/reference/panelgroup-panel.md",
+  "title": "PanelGroup.Panel",
+  "description": "One panel.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/paragraph",
+  "twin": "/reference/paragraph.md",
+  "title": "Paragraph",
+  "description": "Block of text with paragraph spacing.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/popconfirm",
+  "twin": "/reference/popconfirm.md",
+  "title": "Popconfirm",
+  "description": "A question beside the button in its block before what it does: the button opens it, on confirm hears yes, on cancel no or Escape; the focus starts on the answer that loses nothing.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/popover",
+  "twin": "/reference/popover.md",
+  "title": "Popover",
+  "description": "A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/portal",
+  "twin": "/reference/portal.md",
+  "title": "Portal",
+  "description": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/presentation",
+  "twin": "/reference/presentation.md",
+  "title": "Presentation",
+  "description": "Root of a slide deck; its children must be slides.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/prevnext",
+  "twin": "/reference/prevnext.md",
+  "title": "PrevNext",
+  "description": "The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/prevnext-next",
+  "twin": "/reference/prevnext-next.md",
+  "title": "PrevNext.Next",
+  "description": "The page after: its title, and where it is.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/prevnext-prev",
+  "twin": "/reference/prevnext-prev.md",
+  "title": "PrevNext.Prev",
+  "description": "The page before: its title, and where it is.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/progress",
+  "twin": "/reference/progress.md",
+  "title": "Progress",
+  "description": "Progress bar; a value that reads state moves with it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/project",
+  "twin": "/reference/project.md",
+  "title": "Project structure",
+  "description": "Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/qrcode",
+  "twin": "/reference/qrcode.md",
+  "title": "QrCode",
+  "description": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/radio",
+  "twin": "/reference/radio.md",
+  "title": "Radio",
+  "description": "One choice of a group; every radio bound to the same state is one group.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/radiogroup",
+  "twin": "/reference/radiogroup.md",
+  "title": "RadioGroup",
+  "description": "One choice of several, as native radio buttons under a legend: the arrow keys move between them, and .cards draws each as a card with its hint.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/radiogroup-hint",
+  "twin": "/reference/radiogroup-hint.md",
+  "title": "RadioGroup.Hint",
+  "description": "An option's hint. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/radiogroup-legend",
+  "twin": "/reference/radiogroup-legend.md",
+  "title": "RadioGroup.Legend",
+  "description": "Its legend. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/radiogroup-option",
+  "twin": "/reference/radiogroup-option.md",
+  "title": "RadioGroup.Option",
+  "description": "One choice: its words, its value, and a hint said with it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/rating",
+  "twin": "/reference/rating.md",
+  "title": "Rating",
+  "description": "Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/relativetime",
+  "twin": "/reference/relativetime.md",
+  "title": "RelativeTime",
+  "description": "A moment as 3 minutes ago, kept current, with the exact time on hover (<time>).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/requests",
+  "twin": "/reference/requests.md",
+  "title": "Services and requests",
+  "description": "Lookup tables for api, endpoints, http calls and resources: settings, options, members, HttpError, caching, retry, middleware, fakes and codes.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/route",
+  "twin": "/reference/route.md",
+  "title": "Route",
+  "description": "Maps a path to a page (the original grammar; pages now declare their paths).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/router",
+  "twin": "/reference/router.md",
+  "title": "Router",
+  "description": "Where the current page renders. May sit at any depth inside app; pages declare their own paths.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/row",
+  "twin": "/reference/row.md",
+  "title": "Row",
+  "description": "Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/runtime",
+  "twin": "/reference/runtime.md",
+  "title": "Runtime API",
+  "description": "The runtime reference, window.WF: signals, elements, motion, routing, data and results, stores, widgets, safety, text and boot, module by module.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/scrollarea",
+  "twin": "/reference/scrollarea.md",
+  "title": "ScrollArea",
+  "description": "A box that scrolls within height:, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/section",
+  "twin": "/reference/section.md",
+  "title": "Section",
+  "description": "Groups content with spacing; on the web, a <section>.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sectionslide",
+  "twin": "/reference/sectionslide.md",
+  "title": "SectionSlide",
+  "description": "Full-bleed coloured band with a centred label.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/select",
+  "twin": "/reference/select.md",
+  "title": "Select",
+  "description": "Drop-down of Select.Option children.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/select-option",
+  "twin": "/reference/select-option.md",
+  "title": "Select.Option",
+  "description": "One choice: the visible label, and the value sent with the form.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sheet",
+  "twin": "/reference/sheet.md",
+  "title": "Sheet",
+  "description": "A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with snap: points settles at the nearest.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sheet-footer",
+  "twin": "/reference/sheet-footer.md",
+  "title": "Sheet.Footer",
+  "description": "The sheet's action row, kept in view below what scrolls.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sheet-title",
+  "twin": "/reference/sheet-title.md",
+  "title": "Sheet.Title",
+  "description": "What the sheet's heading draws, in place of its title:'s words, which stay its name.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sidebar",
+  "twin": "/reference/sidebar.md",
+  "title": "Sidebar",
+  "description": "Side navigation. A Sidebar.Item whose to matches the current route is marked .active and aria-current=\"page\".",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sidebar-divider",
+  "twin": "/reference/sidebar-divider.md",
+  "title": "Sidebar.Divider",
+  "description": "A rule between groups of items.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sidebar-header",
+  "twin": "/reference/sidebar-header.md",
+  "title": "Sidebar.Header",
+  "description": "The sidebar's heading area.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sidebar-item",
+  "twin": "/reference/sidebar-item.md",
+  "title": "Sidebar.Item",
+  "description": "One navigation entry.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/skeleton",
+  "twin": "/reference/skeleton.md",
+  "title": "Skeleton",
+  "description": "Placeholder shape shown while content loads.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/slide",
+  "twin": "/reference/slide.md",
+  "title": "Slide",
+  "description": "One slide, one PDF page; content is top-aligned and clipped at the bottom margin.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/slider",
+  "twin": "/reference/slider.md",
+  "title": "Slider",
+  "description": "Range input. aria-* and its other attributes reach the input; with aria-valuetext the raw number is not shown beside the track.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/spacer",
+  "twin": "/reference/spacer.md",
+  "title": "Spacer",
+  "description": "Vertical space; md when no size is given.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sparkline",
+  "twin": "/reference/sparkline.md",
+  "title": "Sparkline",
+  "description": "A tiny chart in a line of text — a line, or .bar — of a list of numbers, drawn as an SVG when the page is built.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/spinner",
+  "twin": "/reference/spinner.md",
+  "title": "Spinner",
+  "description": "Loading indicator, announced as a status.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/splitter",
+  "twin": "/reference/splitter.md",
+  "title": "Splitter",
+  "description": "A handle that sets the size of a region beside it: dragged, between min: and max:; double-clicked or Enter, back to reset:; the arrow keys move it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stack",
+  "twin": "/reference/stack.md",
+  "title": "Stack",
+  "description": "Vertical flex layout.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stat",
+  "twin": "/reference/stat.md",
+  "title": "Stat",
+  "description": "A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to a new value.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stat-change",
+  "twin": "/reference/stat-change.md",
+  "title": "Stat.Change",
+  "description": "How it moved, with its direction.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stat-label",
+  "twin": "/reference/stat-label.md",
+  "title": "Stat.Label",
+  "description": "Its label.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stat-value",
+  "twin": "/reference/stat-value.md",
+  "title": "Stat.Value",
+  "description": "Its figure.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stepper",
+  "twin": "/reference/stepper.md",
+  "title": "Stepper",
+  "description": "Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. bind: holds the current step, from 0; .linear keeps a step out of reach until the ones before it are passed.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stepper-item",
+  "twin": "/reference/stepper-item.md",
+  "title": "Stepper.Item",
+  "description": "A step in the list. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stepper-list",
+  "twin": "/reference/stepper-list.md",
+  "title": "Stepper.List",
+  "description": "The steps, in order. Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/stepper-step",
+  "twin": "/reference/stepper-step.md",
+  "title": "Stepper.Step",
+  "description": "One step: its title in the list, its block shown while it is the current one.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/sticky",
+  "twin": "/reference/sticky.md",
+  "title": "Sticky",
+  "description": "A box that sticks to the top of its scrolling parent (offset: below it) as the page scrolls past, marked data-stuck while it is stuck.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/switch",
+  "twin": "/reference/switch.md",
+  "title": "Switch",
+  "description": "On/off toggle bound to a boolean state.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/table",
+  "twin": "/reference/table.md",
+  "title": "Table",
+  "description": "Data table. Cells inside Table.Head render as <th scope=\"col\">; caption is the table's accessible name, visually hidden.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/table-body",
+  "twin": "/reference/table-body.md",
+  "title": "Table.Body",
+  "description": "The body of a table: its rows of data.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/table-cell",
+  "twin": "/reference/table-cell.md",
+  "title": "Table.Cell",
+  "description": "A cell. header makes it a <th> anywhere, as Table.Head does for its cells.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/table-head",
+  "twin": "/reference/table-head.md",
+  "title": "Table.Head",
+  "description": "Header section; its cells become <th scope=\"col\">.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/table-row",
+  "twin": "/reference/table-row.md",
+  "title": "Table.Row",
+  "description": "A row of cells.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tableofcontents",
+  "twin": "/reference/tableofcontents.md",
+  "title": "TableOfContents",
+  "description": "The document's headings with the page each lands on, each a link to it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tabpage",
+  "twin": "/reference/tabpage.md",
+  "title": "TabPage",
+  "description": "One tab inside Tabs (the original spelling of Tabs.Page).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tabs",
+  "twin": "/reference/tabs.md",
+  "title": "Tabs",
+  "description": "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tabs-page",
+  "twin": "/reference/tabs-page.md",
+  "title": "Tabs.Page",
+  "description": "One tab and its panel.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tag",
+  "twin": "/reference/tag.md",
+  "title": "Tag",
+  "description": "Compact chip.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/taginput",
+  "twin": "/reference/taginput.md",
+  "title": "TagInput",
+  "description": "Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tbody",
+  "twin": "/reference/tbody.md",
+  "title": "Tbody",
+  "description": "Table body section (the original spelling of Table.Body).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tcell",
+  "twin": "/reference/tcell.md",
+  "title": "Tcell",
+  "description": "Table cell (the original spelling of Table.Cell).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/text",
+  "twin": "/reference/text.md",
+  "title": "Text",
+  "description": "A paragraph of text. {…} in the string reads state and stays live.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/textarea",
+  "twin": "/reference/textarea.md",
+  "title": "Textarea",
+  "description": "Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/thead",
+  "twin": "/reference/thead.md",
+  "title": "Thead",
+  "description": "Table header section (the original spelling of Table.Head).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/themetoggle",
+  "twin": "/reference/themetoggle.md",
+  "title": "ThemeToggle",
+  "description": "A button that switches the page between light and dark, over setTheme: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/timeline",
+  "twin": "/reference/timeline.md",
+  "title": "Timeline",
+  "description": "Events in order (<ol>), each a dot on a line, its title, its time and its block.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/timeline-item",
+  "twin": "/reference/timeline-item.md",
+  "title": "Timeline.Item",
+  "description": "One event: its title, at: its time, and its block.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/timeline-time",
+  "twin": "/reference/timeline-time.md",
+  "title": "Timeline.Time",
+  "description": "An event's time (<time>). Drawn for it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/titleslide",
+  "twin": "/reference/titleslide.md",
+  "title": "TitleSlide",
+  "description": "Cover slide: title and subtitle, vertically centred.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/toast",
+  "twin": "/reference/toast.md",
+  "title": "Toast",
+  "description": "Temporary notification.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/toggle",
+  "twin": "/reference/toggle.md",
+  "title": "Toggle",
+  "description": "A button that stays pressed while its state holds — bold in an editor, a filter that is on: aria-pressed, a press flipping bind:.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/togglegroup",
+  "twin": "/reference/togglegroup.md",
+  "title": "ToggleGroup",
+  "description": "Buttons of which one is chosen — a view switcher, a segmented control — or, .multiple, several: one stop for Tab, the arrow keys inside it, each aria-pressed. bind: holds the chosen value: (a list with .multiple).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/togglegroup-item",
+  "twin": "/reference/togglegroup-item.md",
+  "title": "ToggleGroup.Item",
+  "description": "One choice: its words, and the value bind: holds when it is chosen.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tokens",
+  "twin": "/reference/tokens.md",
+  "title": "Design tokens",
+  "description": "Every baseline design token: its default value, what it is for, which built-ins draw from it, and how a style block or a stylesheet reads it.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tooltip",
+  "twin": "/reference/tooltip.md",
+  "title": "Tooltip",
+  "description": "Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tour",
+  "twin": "/reference/tour.md",
+  "title": "Tour",
+  "description": "A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tour-step",
+  "twin": "/reference/tour-step.md",
+  "title": "Tour.Step",
+  "description": "One step: what it points at, its title, and its block.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/transferlist",
+  "twin": "/reference/transferlist.md",
+  "title": "TransferList",
+  "description": "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the keys of the chosen.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/tree",
+  "twin": "/reference/tree.md",
+  "title": "Tree",
+  "description": "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. row(item) { … } draws each; bind: holds the chosen item's key, or a list of keys with .multiple.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/trow",
+  "twin": "/reference/trow.md",
+  "title": "Trow",
+  "description": "Table row (the original spelling of Table.Row).",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/twocolumn",
+  "twin": "/reference/twocolumn.md",
+  "title": "TwoColumn",
+  "description": "Two equal columns; takes exactly two Container children.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/unsafe",
+  "twin": "/reference/unsafe.md",
+  "title": "Unsafe",
+  "description": "The one door for markup a page did not write. It has a single part, Unsafe.Html.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/unsafe-html",
+  "twin": "/reference/unsafe-html.md",
+  "title": "Unsafe.Html",
+  "description": "Markup, put in as markup. It is **not** sanitised — the name says so — and sanitize(…) is one call away for anything the project did not write itself.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/video",
+  "twin": "/reference/video.md",
+  "title": "Video",
+  "description": "Video player. Without captions it draws an A09 warning: a video nobody can hear is a video nobody can follow.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/virtuallist",
+  "twin": "/reference/virtuallist.md",
+  "title": "VirtualList",
+  "description": "A scrolling box that draws only the rows in view of the one keyed for inside it — for a tree, search results or a diff of thousands of rows.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/visuallyhidden",
+  "twin": "/reference/visuallyhidden.md",
+  "title": "VisuallyHidden",
+  "description": "Words for a screen reader only: Link(…) { Text(\"Docs\")  VisuallyHidden(\"(opens in a new tab)\") }.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/reference/watermark",
+  "twin": "/reference/watermark.md",
+  "title": "Watermark",
+  "description": "Large, faint, rotated text behind each PDF page's content.",
+  "part": "Reference",
+  "lang": "en"
+ },
+ {
+  "route": "/showcase",
+  "twin": "/showcase.md",
+  "title": "Showcase",
+  "description": "Sites, documents and decks made with WebFluent.",
+  "part": "Start",
+  "lang": "en"
+ }
+]

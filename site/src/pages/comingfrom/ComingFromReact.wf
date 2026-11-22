@@ -1,7 +1,7 @@
-// A cheat sheet, written from md-docs/coming-from/react.md by
-// scripts/docsite/comingfrom.py; edit the sheet, not this file.
+// A cheat sheet for a reader who knows another framework. This page is
+// its source: edit it here.
 page ComingFromReact(path: "/coming-from/react", title: "WebFluent for React developers", description: "React ideas in WebFluent: state, derived values, effects, props, children, events, context, routing, lists and fetching, side by side.") {
-    ComingFromShell("WebFluent for React developers", summary: "Most of what you know from React carries over: components with props, state, a router and shared stores. The difference to hold on to is that WebFluent is a compiler with typed markup, not a library: a component's body runs once, and only the text, attribute or style that reads a changed value updates. There are no hooks, no dependency arrays and no setters.", from: "React", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "the-map", label: t("coming.map")), Anchor(id: "things-that-work-differently", label: t("coming.differences")), Anchor(id: "a-component-ported", label: t("coming.port"))], source: "md-docs/coming-from/react.md", other: "/ar/coming-from/react") {
+    ComingFromShell("WebFluent for React developers", summary: "Most of what you know from React carries over: components with props, state, a router and shared stores. The difference to hold on to is that WebFluent is a compiler with typed markup, not a library: a component's body runs once, and only the text, attribute or style that reads a changed value updates. There are no hooks, no dependency arrays and no setters.", from: "React", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "the-map", label: t("coming.map")), Anchor(id: "things-that-work-differently", label: t("coming.differences")), Anchor(id: "a-component-ported", label: t("coming.port")), Anchor(id: "data-as-tanstack-query-does-it", label: "Data, as TanStack Query does it")], source: "site/src/pages/comingfrom/ComingFromReact.wf", other: "/ar/coming-from/react") {
         differences {
             Markdown("**It is a compiler, not a library.** There is no virtual DOM and no re-render. Each text, attribute or style that reads a state follows it on its own, and a component's body runs once, when it is placed. That is why there are no hooks and no rules about calling them in order.\n\n**The markup is typed.** The compiler knows the props, flags, events and slots of every built-in and of every component you declare. `Button(\"Save\").primray` does not build, and neither does a handler for an event the component never fires (`E103`). An unknown prop on your own component is `C02`, not a silent pass-through.\n\n**Typed without a second language.** There is no TypeScript beside the markup and no `tsc` step: a `.wf` file is typed by the compiler that builds it. The checker infers what it can and asks you to write the rest: a state whose first value says nothing (`state items: [Todo] = []`), an action that returns (`-> Number`), a parameter. There is no `any`: JSON whose shape is open is `Json`, matched or decoded (`User.decode(raw)`) before it is read, and no setting turns the checks off.\n\n**Pages own their routes.** There is no route table. Each `page` names its `path:`, and the compiler builds the router from them, ordered by specificity, so the order you declare pages in cannot hide a route.\n\n**No imports, no npm.** Every file under `src/` is part of one program, so a component declared anywhere is usable everywhere. A JavaScript library is a URL in `meta.scripts`, and your own JavaScript is a plain `.js` file under `src/` whose functions `.wf` code calls by name ([Call your own JavaScript](/recipes/call-your-own-script)).\n\n**The build is the site.** Pre-rendering, code splitting, image resizing, a sitemap, link previews and a Content-Security-Policy come from `wf build`, with no plugins to choose. There is no server rendering on each request: a site is static files and a browser runtime, talking to your API.\n\n**Text is text.** The only way to put markup on a page is `Unsafe.Html(…)`, which the build flags every time, and inline handlers and `javascript:` URLs do not compile ([Security](/about/security)).\n\n**Using it inside a React app.** Publish components as custom elements and place their tags in JSX ([Publish components as custom elements](/recipes/publish-custom-elements)).")
 
@@ -41,6 +41,133 @@ component Counter(start: Number = 0) {
 
             Markdown("- **No hooks and no dependency arrays.** `derived` knows what it reads.\n- **No setter.** You assign: `n = n + 1`.\n- **No `className`.** `Badge` comes designed, and `.info` is a flag the compiler checks.\n- **The event is declared.** A caller that handles `on chnage` gets `E103` at build time, instead of a handler that never runs.")
 
+            Heading("Data, as TanStack Query does it", id: "data-as-tanstack-query-does-it").h2
+
+            Markdown("TanStack Query is a cache of requests a component asks for. In WebFluent the same jobs are split by where they belong: what the service has is a contract, how it is reached is the service, and what a page reads is a `resource` — one value with three cases.")
+
+            Table(caption: "Data, as TanStack Query does it") {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell("TanStack Query").header
+                        Table.Cell("WebFluent").header
+                    }
+                }
+                Table.Body {
+                    Table.Row {
+                        Table.Cell { Markdown("`useQuery(\{ queryKey: [\"users\", page], queryFn \})`") }
+                        Table.Cell { Markdown("`resource users = Backend.users.list(page: page)`: the arguments are followed, so a change of `page` asks again") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`isPending`, `isError`, `data`, `error`") }
+                        Table.Cell { Markdown("one value: `match users \{ .loading … .failed(e) … .loaded(list) … \}`; a `match` that leaves out `.failed` does not build") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`isFetching` with data on screen") }
+                        Table.Cell { Markdown("`.loaded(list, refreshing, stale)`: the list stays, `refreshing` is true") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`staleTime`, `gcTime`") }
+                        Table.Cell { Markdown("what the server's `Cache-Control` says (RFC 9111), or `cache: .swr(60.seconds)` on the endpoint") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`refetchOnWindowFocus`, `refetchInterval`") }
+                        Table.Cell { Markdown("`refresh: .onFocus`, `refresh: .every(30.seconds)`") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`useMutation(\{ mutationFn \})`") }
+                        Table.Cell { Markdown("an action that calls the endpoint and `match`es its result") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`queryClient.invalidateQueries([\"users\"])` after a mutation") }
+                        Table.Cell { Markdown("`invalidates [list]` on the write, in the contract: every read of it asks again, with no call written") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`onMutate` with a snapshot and `onError` rolling back") }
+                        Table.Cell { Markdown("`let undo = Backend.users.list.update(list => …)`, and `undo()` when the write fails") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`useInfiniteQuery` with `getNextPageParam`") }
+                        Table.Cell { Markdown("`pages .cursor(param: after, next: p => p.next)` on the endpoint; `users.loadMore()`, `users.hasMore`") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`retry: 3`") }
+                        Table.Cell { Markdown("`retry: .backoff(times: 3)` on the service, for what is safe to send twice; a `POST` only when its endpoint is `idempotent`") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`error` typed `unknown` or `Error`") }
+                        Table.Cell { Markdown("`-> User ! CreateUserError`: an error enum with a case for each status the server answers with, matched case by case") }
+                    }
+                    Table.Row {
+                        Table.Cell { Markdown("`openapi-typescript`, `orval`") }
+                        Table.Cell { Markdown("`wf api add openapi.json`: the contract as files, checked in CI with `wf api check`") }
+                    }
+                    Table.Row {
+                        Table.Cell("Mock Service Worker in tests")
+                        Table.Cell { Markdown("a `fake` of the contract, held to it by the compiler, named in the test's `fakes:`") }
+                    }
+                }
+            }
+
+            Markdown("The same list, with a create that refreshes it and a field error shown:")
+
+            DocsCodeBlock(#"function People() {
+  const qc = useQueryClient();
+  const { data, isPending, error } = useQuery({ queryKey: ["people"], queryFn: listPeople });
+  const add = useMutation({
+    mutationFn: createPerson,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["people"] }),
+  });
+  if (isPending) return <Spinner />;
+  if (error) return <Alert>{error.message}</Alert>;
+  return (
+    <>
+      {data.map((p) => <p key={p.id}>{p.name}</p>)}
+      <button onClick={() => add.mutate({ name: "Grace" })}>Add</button>
+      {add.error?.status === 422 && <p>{add.error.body.errors[0].message}</p>}
+    </>
+  );
+}"#, title: "jsx")
+
+            DocsCodeBlock(#"type Person { id: String, name: String }
+type NewPerson { name: String }
+type FieldError { field: String, message: String }
+type ValidationProblem = Problem { errors: [FieldError] }
+
+enum CreatePersonError {
+    unprocessableContent(problem: ValidationProblem) on 422
+    http(error: HttpError)
+}
+
+api Backend(base: "/api") { }
+
+api Backend.people {
+    get list() at "people" -> [Person]!
+    post create(body: NewPerson) at "people" -> Person ! CreatePersonError
+        invalidates [list]
+}
+
+page People(path: "/", title: "People", description: "The team.") {
+    state said = ""
+    resource people = Backend.people.list()
+    Heading("People").h1
+    match people {
+        .loading { Spinner }
+        .failed(e) { Alert(e.message).danger }
+        .loaded(list) { for p in list by p.id { Text(p.name) } }
+    }
+    Button("Add") {
+        on click {
+            match await Backend.people.create(body: NewPerson(name: "Grace")) {
+                .ok(_) { said = "" }
+                .err(.unprocessableContent(p)) { said = p.errors.first()?.message ?? "Check the name" }
+                .err(.http(e)) { said = e.message }
+            }
+        }
+    }
+    Text(said)
+}"#, title: "wf")
+
+            Markdown("- **No query keys.** A read is known by its endpoint and its arguments; two readers of one address make one request.\n- **Invalidation is part of the contract**, said once beside the write, and checked: a read the group does not have is `N05`.\n- **The error is typed.** Every status the server declares is a case, and a `match` that misses one does not build.")
         }
         CheatRow("A value that changes", theirs: "const [n, setN] = useState(0)", ours: "state n = 0", language: "jsx")
         CheatRow("Changing it", theirs: "setN(n + 1)", ours: "n = n + 1", language: "jsx")

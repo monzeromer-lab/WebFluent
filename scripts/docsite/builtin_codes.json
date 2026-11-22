@@ -1,5 +1,5 @@
 {
- "_": "The codes a built-in can raise, for the reference's \"Codes this can raise\". `every` applies to each built-in, `parts` to each part, `named_only` to one that takes no positional argument; `codes` names the built-ins each code is about, each named on the code's page, md-docs/errors/CODE.md. tests/docs_parse.rs holds it to the registry and to diagnostics::codes.",
+ "_": "The codes a built-in can raise, for the reference's \"Codes this can raise\". `every` applies to each built-in, `parts` to each part, `named_only` to one that takes no positional argument; `codes` names the built-ins each code is about, each named on the code's explanation, src/diagnostics/explain/CODE.md. tests/docs_parse.rs holds it to the registry and to diagnostics::codes.",
  "every": ["E103", "C04"],
  "parts": ["C03"],
  "named_only": ["C05"],

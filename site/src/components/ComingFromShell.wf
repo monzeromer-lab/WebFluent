@@ -2,7 +2,7 @@
 /// idiom, then ours, grouped by concept (the page's body) — then the three
 /// things that work differently, then one small component ported whole.
 /// The other sheets are tabs above.
-component ComingFromShell(_ title: String, summary: String = "", from: String = "", sheets: [Place] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+component ComingFromShell(_ title: String, summary: String = "", from: String = "", sheets: [Place] = [], sections: [Anchor] = [], source: String = "site/src/pages", other: String = "", lang: String = "en") {
     slot differences
     slot port
     slot

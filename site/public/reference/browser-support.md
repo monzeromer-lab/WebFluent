@@ -4,30 +4,21 @@
 
 The page: https://webfluent.monzeromer.dev/reference/browser-support
 
-This page lists the browsers a WebFluent site targets, and what each newer
-platform feature the runtime uses falls back to where a browser lacks it.
+This page lists the browsers a WebFluent site targets, and what each newer platform feature the runtime uses falls back to where a browser lacks it.
 
 ## Supported browsers
 
-A WebFluent site targets the current versions of **Chrome, Edge, Firefox
-and Safari**, on desktop and mobile — the browsers that update themselves.
+A WebFluent site targets the current versions of **Chrome, Edge, Firefox and Safari**, on desktop and mobile — the browsers that update themselves.
 
-- **The output** is plain HTML, CSS and modern JavaScript (ES2021). There
-  is no polyfill and no legacy build.
-- **Without JavaScript**, a static build's pages are readable: the HTML the
-  build pre-renders for each page carries its text
-  ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)). Everything interactive
-  needs JavaScript.
+- **The output** is plain HTML, CSS and modern JavaScript (ES2021). There is no polyfill and no legacy build.
+- **Without JavaScript**, a static build's pages are readable: the HTML the build pre-renders for each page carries its text ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md)). Everything interactive needs JavaScript.
 
 > [!TIP]
-> `wf verify` loads every page of a build in a headless Chrome and reports
-> uncaught errors, failed requests and pages that drew no text
-> ([CLI](https://webfluent.monzeromer.dev/reference/cli.md)).
+> `wf verify` loads every page of a build in a headless Chrome and reports uncaught errors, failed requests and pages that drew no text ([CLI](https://webfluent.monzeromer.dev/reference/cli.md)).
 
 ## Features with a fallback
 
-Where a browser lacks one of these features, the site still works; the
-last column says what changes.
+Where a browser lacks one of these features, the site still works; the last column says what changes.
 
 | Feature | Used for | Where it is missing |
 |---|---|---|
@@ -47,11 +38,4 @@ last column says what changes.
 
 ## Dialogs and forms
 
-`Modal`, `Dialog`, `AlertDialog` and `Sheet` use the `<dialog>` element and
-`showModal()`, which every current browser has. Form validation uses the
-browser's constraint validation alongside the language's own rules
-([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)).
-
-## Next
-
-[Glossary](https://webfluent.monzeromer.dev/reference/glossary.md).
+`Modal`, `Dialog`, `AlertDialog` and `Sheet` use the `<dialog>` element and `showModal()`, which every current browser has. Form validation uses the browser's constraint validation alongside the language's own rules ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)).

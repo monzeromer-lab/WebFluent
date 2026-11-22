@@ -4,9 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/reference/editors
 
-This page is the reference for WebFluent's editor support: the language
-server, `wf-lsp`, and the three repositories built around it. It lists
-what each one supports and how to install it.
+This page is the reference for WebFluent's editor support: the language server, `wf-lsp`, and the three repositories built around it. It lists what each one supports and how to install it.
 
 | Editor | Repository | Highlighting | Language server | Snippets |
 |---|---|---|---|---|
@@ -15,26 +13,19 @@ what each one supports and how to install it.
 | Any editor with Tree-sitter | [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent) | the two grammars | — | — |
 | Any editor with LSP | [`crates/wf-lsp`](https://github.com/monzeromer-lab/WebFluent/tree/master/crates/wf-lsp) | semantic tokens from the server | `wf-lsp` over standard input and output | — |
 
-Every finding, completion and quick fix comes from `wf-lsp`, which is the
-compiler itself: an editor reports what `wf check` reports.
+Every finding, completion and quick fix comes from `wf-lsp`, which is the compiler itself: an editor reports what `wf check` reports.
 
-## The language server: `wf-lsp`
+## The language server: wf-lsp
 
-`wf-lsp` runs the compiler's checks as you type and answers the editor's
-questions about the code. Keep it at the version of your `wf`;
-`wf-lsp --version` prints it.
+`wf-lsp` runs the compiler's checks as you type and answers the editor's questions about the code. Keep it at the version of your `wf`; `wf-lsp --version` prints it.
 
-To install it, download `wf-lsp-<version>-<arch>-<os>` from a
-[release](https://github.com/monzeromer-lab/WebFluent/releases) and put it
-on your `PATH`, or build it from a clone of the repository:
+To install it, download `wf-lsp-<version>-<arch>-<os>` from a [release](https://github.com/monzeromer-lab/WebFluent/releases) and put it on your `PATH`, or build it from a clone of the repository:
 
 ```bash
 cargo install --path crates/wf-lsp
 ```
 
-Releases are built for x86_64 Linux, macOS (Apple Silicon and Intel) and
-x86_64 Windows. Both extensions download the server themselves when it is
-not on your `PATH`.
+Releases are built for x86_64 Linux, macOS (Apple Silicon and Intel) and x86_64 Windows. Both extensions download the server themselves when it is not on your `PATH`.
 
 ### What it answers
 
@@ -57,89 +48,33 @@ not on your `PATH`.
 
 What the table sums up, request by request.
 
-- **Output awareness.** In a project whose `build.output_type` is `pdf` or
-  `slides`, completion offers only what paper can draw — no `Button`, no
-  `on click`, no `resource`. Inside a `Presentation` it offers slides (and
-  the project's slide components), and inside a slide everything else.
-  Hover says when an element is not drawn in this output, and why. `page`
-  and `pages` are names inside a `Header`, `Footer` or `Background`. In a
-  web project the paper-only elements are offered last.
-- **Completion**, from the compiler's own tables: components and their props
-  after `(`, flags and parts after `.`, enum cases after `:`, events after
-  `on `, `$` tokens, `match` arms and slot names; the fields of a record and
-  the methods of each built-in type (`due.` offers `plus`, `isBefore`, …); a
-  service's endpoints; the keywords each place allows (a store's, an
-  action's, a test's steps); type names after `:`; duration units after a
-  number; `validate` rules, `persist` settings, `format` styles, responsive
-  steps, `Host` tags, key names in `on key("…")`, translation keys in
-  `t("…")`, public `env.` names, and lint codes in `// wf-allow(`.
-- **Hover** — what every name is: a component's documentation and
-  signature, the props every element takes, a name's inferred type, a field
-  or an endpoint, a case, a keyword, a function the language provides, an
-  `image`'s size.
-- **Signature help** inside a call: what it takes and which argument the
-  cursor is on — for an element, a component, an endpoint, an action, a
-  project script's function or a built-in one.
-- **Navigation** — go to definition, find references, highlight the uses in
-  a file, and rename across the project, for every declaration (a type, an
-  enum, a case, a field, a `const`, a `data` file, an animation, an
-  endpoint) and inside a string's `{…}` splices.
+- **Output awareness.** In a project whose `build.output_type` is `pdf` or `slides`, completion offers only what paper can draw — no `Button`, no `on click`, no `resource`. Inside a `Presentation` it offers slides (and the project's slide components), and inside a slide everything else. Hover says when an element is not drawn in this output, and why. `page` and `pages` are names inside a `Header`, `Footer` or `Background`. In a web project the paper-only elements are offered last.
+- **Completion**, from the compiler's own tables: components and their props after `(`, flags and parts after `.`, enum cases after `:`, events after `on `, `$` tokens, `match` arms and slot names; the fields of a record and the methods of each built-in type (`due.` offers `plus`, `isBefore`, …); a service's endpoints; the keywords each place allows (a store's, an action's, a test's steps); type names after `:`; duration units after a number; `validate` rules, `persist` settings, `format` styles, responsive steps, `Host` tags, key names in `on key("…")`, translation keys in `t("…")`, public `env.` names, and lint codes in `// wf-allow(`.
+- **Hover** — what every name is: a component's documentation and signature, the props every element takes, a name's inferred type, a field or an endpoint, a case, a keyword, a function the language provides, an `image`'s size.
+- **Signature help** inside a call: what it takes and which argument the cursor is on — for an element, a component, an endpoint, an action, a project script's function or a built-in one.
+- **Navigation** — go to definition, find references, highlight the uses in a file, and rename across the project, for every declaration (a type, an enum, a case, a field, a `const`, a `data` file, an animation, an endpoint) and inside a string's `{…}` splices.
 - **Formatting** — `wf fmt`, on the open file.
-- **Folding, inlay hints and semantic highlighting** — an inlay hint shows
-  the type of a `state`, `derived` value or `let` written without one, and a name
-  is coloured by what it resolves to: a component, a type, a store, a prop
-  or a state.
-- **Your own scripts.** A function a `.js` file under `src/` declares is
-  called from `.wf` files, which no JavaScript tool reads, so to the
-  script's editor it looks unused. The server follows each name the script
-  declares to every page, component and store that calls it — resolved as
-  go-to-definition resolves them, so a local of the same name is not one —
-  and to the project's other scripts. Over each declaration a lens says
-  where it is used (`Used 3 times in WebFluent`), find-references lists the
-  pages beside the scripts, a hover names the places, and a name nothing
-  uses is faded with a hint. A rename, from the script or from a page,
-  changes the declaration and every call. In VS Code the script stays the
-  TypeScript service's (its formatting and highlighting are untouched) and
-  the lenses follow a save; Zed attaches the server to JavaScript too.
+- **Folding, inlay hints and semantic highlighting** — an inlay hint shows the type of a `state`, `derived` value or `let` written without one, and a name is coloured by what it resolves to: a component, a type, a store, a prop or a state.
+- **Your own scripts.** A function a `.js` file under `src/` declares is called from `.wf` files, which no JavaScript tool reads, so to the script's editor it looks unused. The server follows each name the script declares to every page, component and store that calls it — resolved as go-to-definition resolves them, so a local of the same name is not one — and to the project's other scripts. Over each declaration a lens says where it is used (`Used 3 times in WebFluent`), find-references lists the pages beside the scripts, a hover names the places, and a name nothing uses is faded with a hint. A rename, from the script or from a page, changes the declaration and every call. In VS Code the script stays the TypeScript service's (its formatting and highlighting are untouched) and the lenses follow a save; Zed attaches the server to JavaScript too.
 - **Document symbols** and the outline.
-- **Quick fixes**, from the compiler's own findings: the nearest name for a
-  misspelt field, member, method, variable, component or flag; `?.` for a
-  value that may be null; the props a call leaves out; the arms a `match`
-  misses; a bare word written as its flag; `alt: ""` for an image; an `_`
-  before a name nothing reads; the type a `state`, a parameter or an
-  action's return leaves unsaid (`T25`, `T32`, `T26`); `Json` for `Any` or
-  `Map` (`T23`, `T24`); the 7.0 form of a removed request form (`N08`).
-  **Extract component** turns a selection into a component.
+- **Quick fixes**, from the compiler's own findings: the nearest name for a misspelt field, member, method, variable, component or flag; `?.` for a value that may be null; the props a call leaves out; the arms a `match` misses; a bare word written as its flag; `alt: ""` for an image; an `_` before a name nothing reads; the type a `state`, a parameter or an action's return leaves unsaid (`T25`, `T32`, `T26`); `Json` for `Any` or `Map` (`T23`, `T24`); the 7.0 form of a removed request form (`N08`). **Extract component** turns a selection into a component.
 
 ### How it finds the project
 
-The project root is the nearest folder above the open file that holds
-`webfluent.app.json`. The server keeps the analysed project between
-requests and analyses it again only after a change, so a hover answers in
-about a tenth of a millisecond. It asks the editor to tell it when a
-`.wf`, `.wfx`, `.md`, `.js`, `.css` or `.json` file, a `.env` or a file in
-`public/` changes on disk.
+The project root is the nearest folder above the open file that holds `webfluent.app.json`. The server keeps the analysed project between requests and analyses it again only after a change, so a hover answers in about a tenth of a millisecond. It asks the editor to tell it when a `.wf`, `.wfx`, `.md`, `.js`, `.css` or `.json` file, a `.env` or a file in `public/` changes on disk.
 
 ## VS Code
 
-The extension highlights `.wf` and `.wfx` files with a TextMate grammar and
-runs `wf-lsp` for everything else. It needs VS Code 1.82 or later.
+The extension highlights `.wf` and `.wfx` files with a TextMate grammar and runs `wf-lsp` for everything else. It needs VS Code 1.82 or later.
 
-To install it, download `webfluent-vscode-<version>.vsix` from the
-extension's [latest release](https://github.com/monzeromer-lab/webfluent-vscode/releases/latest),
-then run **Extensions: Install from VSIX** and pick the file. It is not on
-the Marketplace yet.
+To install it, download `webfluent-vscode-<version>.vsix` from the extension's [latest release](https://github.com/monzeromer-lab/webfluent-vscode/releases/latest), then run **Extensions: Install from VSIX** and pick the file. It is not on the Marketplace yet.
 
 The extension looks for the server in this order:
 
 1. the `webfluent.server.path` setting;
 2. `wf-lsp` in an absolute directory on your `PATH`;
-3. `target/release` or `target/debug` in the workspace, only when
-   `webfluent.server.useWorkspaceBuild` is on in your user settings and
-   the workspace is trusted;
-4. the `wf-lsp` of the WebFluent release this version of the extension
-   pins, downloaded for your platform and checked against that release's
-   `SHA256SUMS`. A download that does not match is refused.
+3. `target/release` or `target/debug` in the workspace, only when `webfluent.server.useWorkspaceBuild` is on in your user settings and the workspace is trusted;
+4. the `wf-lsp` of the WebFluent release this version of the extension pins, downloaded for your platform and checked against that release's `SHA256SUMS`. A download that does not match is refused.
 
 | Setting | Default | What it does |
 |---|---|---|
@@ -157,27 +92,16 @@ This user setting runs a server you installed yourself:
 
 ## Zed
 
-The extension highlights `.wf` and `.wfx` files with the Tree-sitter
-grammars and runs `wf-lsp`. From the grammars it also has bracket
-matching, auto-indent, folding, the outline panel and breadcrumbs, Vim text
-objects, and highlighting of ` ```wf ` fences in Markdown. Its snippets
-cover pages, components, stores, state, actions, control flow, resources,
-style rules, the common built-ins, `persist`, `validate`, `on key`, `api`
-and `test`.
+The extension highlights `.wf` and `.wfx` files with the Tree-sitter grammars and runs `wf-lsp`. From the grammars it also has bracket matching, auto-indent, folding, the outline panel and breadcrumbs, Vim text objects, and highlighting of ` ```wf ` fences in Markdown. Its snippets cover pages, components, stores, state, actions, control flow, resources, style rules, the common built-ins, `persist`, `validate`, `on key`, `api` and `test`.
 
-It is not in Zed's extension registry yet. To install it, clone
-[webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed), run
-**zed: install dev extension** and pick the clone. Zed compiles the
-extension and the grammars the first time, which takes about a minute.
+It is not in Zed's extension registry yet. To install it, clone [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed), run **zed: install dev extension** and pick the clone. Zed compiles the extension and the grammars the first time, which takes about a minute.
 
 The extension looks for the server in this order:
 
 1. `lsp.wf-lsp.binary.path` in your **user** `settings.json`;
 2. `wf-lsp` on your `PATH`;
-3. the WebFluent release this version of the extension pins, downloaded on
-   first use and checked against the release's `SHA256SUMS`;
-4. a copy it downloaded and checked before, when the release cannot be
-   reached.
+3. the WebFluent release this version of the extension pins, downloaded on first use and checked against the release's `SHA256SUMS`;
+4. a copy it downloaded and checked before, when the release cannot be reached.
 
 This user setting runs a server you installed yourself:
 
@@ -191,34 +115,22 @@ This user setting runs a server you installed yourself:
 }
 ```
 
-A project's own `.zed/settings.json` cannot choose the program: when it
-says anything about `lsp.wf-lsp.binary`, every `binary` setting is ignored
-for that project, and a `binary.path` must be absolute and outside the
-project. A project may still set `lsp.wf-lsp.settings`.
+A project's own `.zed/settings.json` cannot choose the program: when it says anything about `lsp.wf-lsp.binary`, every `binary` setting is ignored for that project, and a `binary.path` must be absolute and outside the project. A project may still set `lsp.wf-lsp.settings`.
 
 ## Tree-sitter grammars
 
-[tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent)
-holds two grammars, generated from one source:
+[tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent) holds two grammars, generated from one source:
 
 | Grammar | Files | Folder |
 |---|---|---|
 | `webfluent` | `.wf`, blocks in braces | `webfluent/` |
 | `webfluentx` | `.wfx`, blocks by indentation | `webfluentx/` |
 
-The generated `src/parser.c` files are committed, so an editor builds the
-parser without the Tree-sitter command. The Zed extension pins a commit of
-the repository, and the grammars are tested against every sample in this
-guide.
+The generated `src/parser.c` files are committed, so an editor builds the parser without the Tree-sitter command. The Zed extension pins a commit of the repository, and the grammars are tested against every sample in this guide.
 
 ## Other editors
 
-Any editor with LSP support runs `wf-lsp` over standard input and output
-for the `webfluent` file type (`*.wf`, `*.wfx`), with `webfluent.app.json`
-as the root marker. For highlighting in an editor that reads Tree-sitter,
-use the grammars above. [WebFluent Studio](https://webfluent.monzeromer.dev/learn/01-getting-started.md#webfluent-studio)
-is an editor of its own, with the language server, a live preview and a
-designer in one window.
+Any editor with LSP support runs `wf-lsp` over standard input and output for the `webfluent` file type (`*.wf`, `*.wfx`), with `webfluent.app.json` as the root marker. For highlighting in an editor that reads Tree-sitter, use the grammars above. [WebFluent Studio](https://webfluent.monzeromer.dev/learn/01-getting-started.md#webfluent-studio) is an editor of its own, with the language server, a live preview and a designer in one window.
 
 The configuration for three common editors follows.
 
@@ -264,8 +176,3 @@ With Eglot, define a mode and register the server:
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))
 ```
-
-## Next
-
-[Library](https://webfluent.monzeromer.dev/reference/library.md) — the compiler as a Rust crate, a Node package and a
-browser module.

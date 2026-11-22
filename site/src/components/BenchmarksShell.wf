@@ -1,0 +1,230 @@
+/// The page's prose in one language: the lede, how each benchmark was run,
+/// where WebFluent is behind, and how to run them again.
+type BenchWords {
+    lede: String,
+    defaults: String,
+    toolchain: String,
+    runtime: String,
+    pdf: String,
+    agents: String,
+    honest: String,
+    rerun: String
+}
+
+/// The benchmarks page: the headline figures, then each benchmark — what it
+/// measures and how, its table, and where its harness and raw results are.
+/// Every number comes from `benchmarks.json`, which bench/report.mjs writes
+/// from the raw results; nothing here is typed by hand.
+component BenchmarksShell(words: BenchWords, other: String = "", lang: String = "en") {
+    SiteHeader(other: other, lang: lang)
+
+    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-bench") { // wf-allow(A16)
+        style { gap: 0; padding-bottom: 72px }
+
+        Stack(gap: .md, class: "bp-wrap") {
+            style { gap: 16px; padding-top: 40px; padding-bottom: 32px; @md { padding-top: 56px } }
+            Text(t("bench.eyebrow"), class: "bp-home-kicker")
+            Heading(t("bench.title"), class: "bp-display").h1
+            Markdown(words.lede, class: "bp-lede")
+        }
+
+        Stack(class: "bp-wrap") {
+            BenchFigures(figures: benchmarks.headline)
+        }
+
+        BenchSection(t("bench.defaults.title"), anchor: "defaults", body: words.defaults, meta: t("bench.meta.defaults", { checked: benchmarks.capabilities.checked, runs: benchmarks.defaultsMeta.runs, chrome: benchmarks.defaultsMeta.chrome.replace("Google Chrome ", ""), date: benchmarks.defaultsMeta.measuredAt }), source: "defaults") {
+            BenchCapabilitiesView(caps: benchmarks.capabilities, caption: t("bench.defaults.caption"))
+            Text(t("bench.lighthouse.lede"), class: "bp-small bp-muted")
+            BenchTableView(table: benchmarks.lighthouse, caption: t("bench.lighthouse.caption"))
+        }
+
+        BenchSection(t("bench.toolchain.title"), anchor: "toolchain", body: words.toolchain, meta: t("bench.meta.toolchain", { runs: benchmarks.toolchainMeta.runs, machine: benchmarks.toolchainMeta.machine, date: benchmarks.toolchainMeta.measuredAt }), source: "toolchain") {
+            BenchTableView(table: benchmarks.toolchain, caption: t("bench.toolchain.caption"))
+            Text(benchmarks.toolchainMeta.versions, class: "bp-small bp-muted bp-ltr", dir: "ltr")
+        }
+
+        BenchSection(t("bench.runtime.title"), anchor: "runtime", body: words.runtime, source: "runtime") {
+            BenchTableView(table: benchmarks.runtime, caption: t("bench.runtime.caption"))
+        }
+
+        BenchSection(t("bench.pdf.title"), anchor: "pdf", body: words.pdf, source: "pdf") {
+            BenchTableView(table: benchmarks.pdf, caption: t("bench.pdf.caption"))
+        }
+
+        BenchSection(t("bench.agents.title"), anchor: "agents", body: words.agents, meta: t("bench.meta.agents", { model: benchmarks.agentsMeta.model, effort: benchmarks.agentsMeta.effort, runs: benchmarks.agentsMeta.runs, theirs: benchmarks.agentsMeta.lawsonRuns }), source: "agents") {
+            BenchBars(bars: benchmarks.agents, caption: t("bench.agents.caption"))
+            Callout(words.honest, title: t("bench.agents.honest.title", { ratio: benchmarks.agentsMeta.ratio })).note
+            BenchAgentsTable(rows: benchmarks.agentsTable, caption: t("bench.agents.table"))
+        }
+
+        Stack(class: "bp-wrap") {
+            style { padding-top: 40px }
+            Stack(gap: .sm, class: "bp-card") {
+                style { gap: 10px; max-width: 760px }
+                Heading(t("bench.rerun.title"), class: "bp-h3").h2
+                Markdown(words.rerun, class: "bp-small")
+                DocsCodeBlock(BENCH_COMMANDS, title: "bash")
+            }
+        }
+    }
+}
+
+/// The figures every summary quotes, each a card with what it is compared
+/// to under it.
+component BenchFigures(figures: BenchHeadline) {
+    Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md, role: "list", aria-label: t("bench.figures")) {
+        BenchFigure(figures.lighthouse, label: t("bench.fig.lighthouse"), note: t("bench.fig.lighthouse.note"), to: "#defaults")
+        BenchFigure(figures.defaults, label: t("bench.fig.defaults"), note: t("bench.fig.defaults.note", { untouched: figures.defaultsUntouched, best: figures.defaultsBest }), to: "#defaults")
+        BenchFigure(figures.build, label: t("bench.fig.build"), note: t("bench.fig.build.note", { others: figures.buildOthers, modules: figures.nodeModulesOthers }), to: "#toolchain")
+        BenchFigure(figures.pdf, label: t("bench.fig.pdf"), note: t("bench.fig.pdf.note"), to: "#pdf")
+        BenchFigure(figures.runtime, label: t("bench.fig.runtime"), note: t("bench.fig.runtime.note"), to: "#runtime")
+        BenchFigure(figures.agentTokens, label: t("bench.fig.agents"), note: t("bench.fig.agents.note", { others: figures.agentTokensOthers }), to: "#agents")
+    }
+}
+
+/// One headline figure: the number, what it is, and what it stands against.
+component BenchFigure(_ value: String, label: String, note: String, to: String) {
+    Link(to: to, role: "listitem", class: "bp-card bp-bench-figure") {
+        Text(label, class: "bp-section-label")
+        Text(value, class: "bp-bench-figure__value bp-ltr", dir: "ltr")
+        Markdown(note, class: "bp-small bp-muted bp-bench-figure__note")
+    }
+}
+
+/// One benchmark: its heading, how it was measured, what it found, and a
+/// link to its harness and raw results under bench/.
+component BenchSection(_ title: String, anchor: String, body: String, source: String, meta: String = "") {
+    Stack(gap: .md, class: "bp-wrap bp-home-section bp-bench-section", id: anchor) {
+        style { gap: 16px }
+        Heading(title, class: "bp-h2").h2
+        Markdown(body, class: "bp-prose bp-bench-body")
+        if meta != "" {
+            Text(meta, class: "bp-small bp-muted")
+        }
+        children
+        Link(t("bench.source"), href: "{BENCH_SOURCE}/{source}", class: "bp-text-link")
+    }
+}
+
+/// A benchmark's table: the measures down the side, the tools across the
+/// top, WebFluent's column marked, and the best cell of each row in bold.
+component BenchTableView(table: BenchTable, caption: String) {
+    Stack(class: "bp-table-wrap bp-bench-table") {
+        Table(caption: caption, class: "bp-table") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell(t("bench.measure"))
+                    for c, i in table.columns by i {
+                        Table.Cell(c, class: if i == table.ours { "bp-bench-ours" } else { "" })
+                    }
+                }
+            }
+            Table.Body {
+                for r in table.rows by r.key {
+                    Table.Row {
+                        Table.Cell(t(r.key)).header
+                        for v, i in r.cells by i {
+                            Table.Cell(v, class: { "bp-num": true, "bp-bench-ours": i == table.ours, "bp-bench-best": r.best[i] ?? false, "bp-bench-yes": v == "✓", "bp-bench-no": v == "—" })
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// What each framework provides with no third-party package: a column a
+/// framework, a row an item, each cell its level and a link to the page of
+/// that framework's docs that says so, what the developer does as its title.
+component BenchCapabilitiesView(caps: BenchCapabilities, caption: String) {
+    Stack(class: "bp-table-wrap bp-bench-table") {
+        Table(caption: caption, class: "bp-table") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell(t("bench.measure"))
+                    for c, i in caps.columns by i {
+                        Table.Cell(c, class: if i == caps.ours { "bp-bench-ours" } else { "" })
+                    }
+                }
+            }
+            Table.Body {
+                for r in caps.rows by r.key {
+                    Table.Row {
+                        Table.Cell(t(r.key)).header
+                        for c, i in r.cells by i {
+                            Table.Cell(class: { "bp-bench-ours": i == caps.ours, "bp-bench-level": true }) {
+                                Link(t("bench.level.{c.level}"), href: c.source, title: c.how, data-level: c.level, class: "bp-bench-cap")
+                            }
+                        }
+                    }
+                }
+                Table.Row {
+                    Table.Cell(t("bench.check.count")).header
+                    for n, i in caps.counts by i {
+                        Table.Cell("{n} / 12", class: { "bp-num": true, "bp-bench-ours": i == caps.ours, "bp-bench-best": i == caps.ours })
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// The agents' runs, one row a framework, WebFluent's row marked.
+component BenchAgentsTable(rows: [BenchAgent], caption: String) {
+    Stack(class: "bp-table-wrap bp-bench-table") {
+        Table(caption: caption, class: "bp-table") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell(t("bench.framework"))
+                    Table.Cell(t("bench.ag.tokens"))
+                    Table.Cell(t("bench.ag.cost"))
+                    Table.Cell(t("bench.ag.wall"))
+                    Table.Cell(t("bench.ag.turns"))
+                    Table.Cell(t("bench.ag.loc"))
+                    Table.Cell(t("bench.ag.passed"))
+                }
+            }
+            Table.Body {
+                for r in rows by r.label {
+                    Table.Row(class: if r.ours { "bp-bench-ours" } else { "" }) {
+                        Table.Cell(r.label).header
+                        Table.Cell(r.tokens, class: "bp-num")
+                        Table.Cell(r.cost, class: "bp-num")
+                        Table.Cell(r.wall, class: "bp-num")
+                        Table.Cell(r.turns, class: "bp-num")
+                        Table.Cell(r.loc, class: "bp-num")
+                        Table.Cell(r.passed, class: "bp-num")
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// The agents chart: one bar a framework, its length the tokens it took,
+/// WebFluent's bar marked. The table under it holds the same numbers.
+component BenchBars(bars: [BenchBar], caption: String) {
+    Stack(gap: .sm, class: "bp-card bp-bench-bars", role: "figure", aria-label: caption) {
+        style { gap: 8px }
+        Text(caption, class: "bp-section-label")
+        for b in bars by b.label {
+            Row(align: .center, gap: .sm, class: { "bp-bench-bar": true, "bp-bench-bar--ours": b.ours }) {
+                Text(b.label, class: "bp-bench-bar__label bp-small")
+                Stack(class: "bp-bench-bar__track", aria-hidden: "true") {
+                    Stack(class: "bp-bench-bar__fill") { style { width: {b.share}% } }
+                }
+                Text(b.shown, class: "bp-bench-bar__value bp-num bp-small")
+            }
+        }
+    }
+}
+
+/// How to run every benchmark again, from a checkout.
+const BENCH_COMMANDS = """
+    just bench-toolchain --runs=3     # install, build and dev server, per starter
+    just bench-defaults --runs=3      # Lighthouse and what each starter's server sends
+    just bench-runtime                # js-framework-benchmark, keyed
+    just bench-pdf                    # one invoice: WebFluent against Puppeteer
+    just bench-agents-run NAME        # an agent builds the Pokédex app
+    just bench-report                 # gathers them for this page
+    """

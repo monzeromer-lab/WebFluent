@@ -27,8 +27,6 @@ wf test tests/cart.wf
 wf test --update
 ```
 
-`wf test` runs every test under `tests/` (and in `src/`), or the tests in
-one file. A test that clicks or types runs in headless Chrome, on a page
-that links the project's scripts.
+`wf test` runs every test under `tests/` (and in `src/`), or the tests in one file. A test that clicks or types runs in headless Chrome, on a page that links the project's scripts.
 
-See also: [Testing](../learn/16-testing.md).
+See also: [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).

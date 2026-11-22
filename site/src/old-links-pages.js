@@ -1,6 +1,7 @@
-// Each old address of a page of the guide, and where it is now: written
-// by scripts/docsite/guide.py, read by old-links.js, which keeps the
-// `#section` of an old link.
+// Each old address of a page of the guide, and where it is now, read by
+// old-links.js, which keeps the `#section` of an old link. A page that
+// moves adds its old address here, and a redirect page in
+// pages/guide/Moved.wf.
 const OLD_PAGES = {
  "/about/upgrading": "/errors/upgrading",
  "/docs/guide/accessibility": "/about/accessibility",

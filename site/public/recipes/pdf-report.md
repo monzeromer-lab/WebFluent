@@ -4,14 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/pdf-report
 
-A project can build to a PDF instead of a site: the same pages, laid out on
-paper by the compiler, with no browser involved. This report shows a
-quarter's sales as a chart, a table and a total, with a page number in
-every footer:
+A project can build to a PDF instead of a site: the same pages, laid out on paper by the compiler, with no browser involved. This report shows a quarter's sales as a chart, a table and a total, with a page number in every footer:
 
-**Needs:** `"output_type": "pdf"` in `webfluent.app.json`, as below.
-`wf init q1 -t pdf` makes a project with it; replace its
-`src/pages/Report.wf` with the page.
+**Needs:** `"output_type": "pdf"` in `webfluent.app.json`, as below. `wf init q1 -t pdf` makes a project with it; replace its `src/pages/Report.wf` with the page.
 
 ```json
 {
@@ -60,43 +55,26 @@ page Report(path: "/", title: "Q1 report", description: "Sales for the first qua
 }
 ```
 
-`wf build` writes `build/q1-report.pdf`: a page with the heading, the bar
-chart, the table and the total, and "Page 1 of 1" at the foot.
-
 ## How it works
 
-- `"output_type": "pdf"` makes `wf build` write one PDF instead of a site.
-  Every page of the project is laid out in turn; a report is usually one.
-- `Document` is the root of the paper: its size, and the file's title and
-  author, which a PDF reader shows in the document's properties.
-- `Footer` is drawn in the bottom margin of every page, and inside it
-  `page` and `pages` are the page's number and the count. `Header(on: .rest)`
-  is drawn on every page but the first, which already has the title.
-- `Chart` draws the list of records as vector graphics: `x:` names the
-  field along the bottom, `y:` the fields drawn as bars, one colour each.
-- A `Table` that runs past the foot of a page breaks between rows, and its
-  header row is drawn again at the top of the next page.
-- `break-inside: avoid` keeps the total's `Card` on one page.
-- The data is a `const` here. A JSON file read at build time
-  (`data months = "months.json"`) works the same way, so the report can be
-  built again whenever the numbers change.
+`wf build` writes `build/q1-report.pdf`: a page with the heading, the bar chart, the table and the total, and "Page 1 of 1" at the foot.
 
-The look comes from the same CSS a web page gets: a theme, a `style { }`
-block and the project's `.css` files style the PDF too.
+- `"output_type": "pdf"` makes `wf build` write one PDF instead of a site. Every page of the project is laid out in turn; a report is usually one.
+- `Document` is the root of the paper: its size, and the file's title and author, which a PDF reader shows in the document's properties.
+- `Footer` is drawn in the bottom margin of every page, and inside it `page` and `pages` are the page's number and the count. `Header(on: .rest)` is drawn on every page but the first, which already has the title.
+- `Chart` draws the list of records as vector graphics: `x:` names the field along the bottom, `y:` the fields drawn as bars, one colour each.
+- A `Table` that runs past the foot of a page breaks between rows, and its header row is drawn again at the top of the next page.
+- `break-inside: avoid` keeps the total's `Card` on one page.
+- The data is a `const` here. A JSON file read at build time (`data months = "months.json"`) works the same way, so the report can be built again whenever the numbers change.
+
+The look comes from the same CSS a web page gets: a theme, a `style { }` block and the project's `.css` files style the PDF too.
 
 ## Variations
 
-- **A cover page**: put the title in a `Background(on: .first) { … }` with a
-  gradient, then `PageBreak` before the content.
-- **A table of contents**: `TableOfContents(levels: 2)` lists the headings
-  with the page each lands on, each a link.
-- **A draft mark**: `Watermark("DRAFT")` draws large, faint text behind
-  every page.
-- **One PDF per customer**: render a template with each customer's data
-  instead of building the project
-  ([Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md)).
-- **A slide deck**: `"output_type": "slides"` and a `Presentation { Slide { … } }`
-  page make one PDF page per slide.
+- **A cover page**: put the title in a `Background(on: .first) { … }` with a gradient, then `PageBreak` before the content.
+- **A table of contents**: `TableOfContents(levels: 2)` lists the headings with the page each lands on, each a link.
+- **A draft mark**: `Watermark("DRAFT")` draws large, faint text behind every page.
+- **One PDF per customer**: render a template with each customer's data instead of building the project ([Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md)).
+- **A slide deck**: `"output_type": "slides"` and a `Presentation { Slide { … } }` page make one PDF page per slide.
 
-See [PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md) for everything a
-document can hold.
+See [PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md) for everything a document can hold.

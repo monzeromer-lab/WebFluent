@@ -1,6 +1,7 @@
 # The docs site, built and deployed on every push to master that changes
-# what it is made from: the site, the guide, the compiler (whose registry,
-# messages and runtime the pages are written from) and the compiler the
+# what it is made from: the site (whose pages are the guide), the compiler
+# (whose registry, messages and runtime the reference and error pages are
+# written from) and the compiler the
 # Playground loads. Nothing built is committed; GitHub Pages serves this
 # workflow's artifact.
 name: Docs site
@@ -10,7 +11,6 @@ on:
     branches: [master]
     paths:
       - "site/**"
-      - "md-docs/**"
       - "src/**"
       - "crates/wf-wasm/**"
       - "scripts/docsite/**"
@@ -46,8 +46,9 @@ jobs:
       - name: Build wf
         run: cargo build --release --bin wf
 
-      # The pages written from md-docs/ and the compiler are committed;
-      # one that is behind would publish an old page.
+      # What is written from the compiler and from the site's own pages
+      # (the reference, the error pages, the search, the Markdown twins) is
+      # committed; one that is behind would publish an old page.
       - name: The site's generated files are current
         run: WF_BIN="$GITHUB_WORKSPACE/target/release/wf" python3 scripts/docsite --check
 

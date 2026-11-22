@@ -4,12 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/expand-to-content
 
-CSS cannot animate to `height: auto`, so a box of details that should slide
-open to whatever height its text needs takes `.expand`. Press **Details**
-and the box opens; press it again and it closes:
+CSS cannot animate to `height: auto`, so a box of details that should slide open to whatever height its text needs takes `.expand`. Press **Details** and the box opens; press it again and it closes:
 
-**Needs:** nothing besides the page. It claims `/`: paste it into a new
-project, or replace the starter's `src/pages/Home.wf` with it.
+**Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
@@ -24,13 +21,8 @@ page Details(path: "/", title: "Details", description: "A box that opens smoothl
 
 ## How it works
 
-- `show open` toggles whether the box is visible, and the box animates as
-  it appears and goes.
-- `animate: .expand` measures the height `auto` would give, animates to
-  that number, then hands the height back, so the box keeps growing with
-  its content.
-- `.expand` on the way in is `.collapse` on the way out, so the box needs
-  no `exit:`.
+- `show open` toggles whether the box is visible, and the box animates as it appears and goes.
+- `animate: .expand` measures the height `auto` would give, animates to that number, then hands the height back, so the box keeps growing with its content.
+- `.expand` on the way in is `.collapse` on the way out, so the box needs no `exit:`.
 
-A reader who asked for reduced motion sees the box open at once
-([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).
+A reader who asked for reduced motion sees the box open at once ([Respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).

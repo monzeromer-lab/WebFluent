@@ -34,6 +34,8 @@ if let d = delivery {
 | `max:` | `Date` | The last day that can be chosen; days after it are shown but cannot be chosen |
 | `disabled:` | `[Date] or (Date) -> Bool` | Days that cannot be chosen: a list of them, or a test of a day, `d => d.weekday() >= 6` |
 | `label:` | `String` | Its name for a screen reader, read once when it is drawn |
+| `previous:` | `String` | The previous month button's accessible name, in the page's words |
+| `next:` | `String` | The next month button's accessible name, in the page's words: `t("calendar.next")` |
 
 ## Flags
 

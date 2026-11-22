@@ -4,10 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/review-security
 
-The compiler refuses most of what would make a page unsafe on every build
-([Security](https://webfluent.monzeromer.dev/about/security.md)). What it cannot see — what the project
-chose to trust, the host's headers, the server's checks — is a review, and
-`wf audit` prints what that review asks for:
+The compiler refuses most of what would make a page unsafe on every build ([Security](https://webfluent.monzeromer.dev/about/security.md)). What it cannot see — what the project chose to trust, the host's headers, the server's checks — is a review, and `wf audit` prints what that review asks for:
 
 ```bash
 wf audit
@@ -25,25 +22,18 @@ wf audit
 - the policy this build ships;
 - what the compiler itself depends on.
 
-Add `--json` to get the same report for a tool. `wf audit` only reports; it
-never fails a build.
+Add `--json` to get the same report for a tool. `wf audit` only reports; it never fails a build.
 
 ## Before you deploy
 
 - Run `wf audit`, and read all of it.
 - Set `"csp": true`, and make sure the build passes its own check.
-- Check that `_headers` reaches your host, or set the same headers
-  another way ([Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md)).
+- Check that `_headers` reaches your host, or set the same headers another way ([Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md)).
 - Serve over HTTPS, with HSTS.
-- Keep the session in an httpOnly, Secure, SameSite cookie — not in
-  `persist` ([Sign in with a session cookie](https://webfluent.monzeromer.dev/recipes/sign-in-with-a-session-cookie.md)).
+- Keep the session in an httpOnly, Secure, SameSite cookie — not in `persist` ([Sign in with a session cookie](https://webfluent.monzeromer.dev/recipes/sign-in-with-a-session-cookie.md)).
 - Read no non-public `env` name in a page (the build refuses one).
-- Make sure every `Unsafe.Html` is sanitised, or provably your own
-  markup ([Show HTML from outside the project](https://webfluent.monzeromer.dev/recipes/show-html-from-outside.md)).
-- Check authorisation on the server for every request, not with
-  `guard:`.
-- Have the server check uploads: the type from the file's bytes, not its
-  name; a size limit it enforces itself; a stored name it generates, never
-  the one it was given; and storage nothing is served from.
+- Make sure every `Unsafe.Html` is sanitised, or provably your own markup ([Show HTML from outside the project](https://webfluent.monzeromer.dev/recipes/show-html-from-outside.md)).
+- Check authorisation on the server for every request, not with `guard:`.
+- Have the server check uploads: the type from the file's bytes, not its name; a size limit it enforces itself; a stored name it generates, never the one it was given; and storage nothing is served from.
 
 After the deploy, [check the headers it sends](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md).

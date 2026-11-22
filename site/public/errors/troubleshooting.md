@@ -4,14 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/errors/troubleshooting
 
-This chapter lists the problems people meet with WebFluent, titled by what
-you see. Each entry gives the cause, then the fix.
+This chapter lists the problems people meet with WebFluent, titled by what you see. Each entry gives the cause, then the fix.
 
-A problem that comes with a code in brackets, such as `[T05]`, has its own
-entry in [Diagnostics](https://webfluent.monzeromer.dev/errors.md): search that chapter for the
-code, or run `wf explain T05` to print the entry in your terminal. This
-chapter covers what goes wrong without one, and the messages that need
-more context than the entry gives.
+A problem that comes with a code in brackets, such as `[T05]`, has its own entry in [Diagnostics](https://webfluent.monzeromer.dev/errors.md): search that chapter for the code, or run `wf explain T05` to print the entry in your terminal. This chapter covers what goes wrong without one, and the messages that need more context than the entry gives.
 
 In this chapter:
 
@@ -24,25 +19,21 @@ In this chapter:
 
 ## Installing
 
-### `wf: command not found` after installing
+### wf: command not found after installing
 
-The installer added `~/.webfluent/bin` to your shell's startup file, but
-the terminal you have open read that file before the line was there.
+The installer added `~/.webfluent/bin` to your shell's startup file, but the terminal you have open read that file before the line was there.
 
 Open a new terminal. Or run `wf` by its full path, `~/.webfluent/bin/wf`.
 
 ### The installer cannot find the latest version
 
-The installer asks GitHub's API for the latest release, and GitHub limits
-requests that are not signed in.
+The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.
 
-Pin a version instead, and run the installer again with it set:
-`WF_VERSION=v7.1.1`.
+Pin a version instead, and run the installer again with it set: `WF_VERSION=v7.1.1`.
 
 ### There is no binary for Linux on ARM
 
-There is no prebuilt binary yet for Linux on ARM, such as a Raspberry Pi
-or an ARM server, so the installer stops.
+There is no prebuilt binary yet for Linux on ARM, such as a Raspberry Pi or an ARM server, so the installer stops.
 
 Install from source with Rust:
 
@@ -50,40 +41,29 @@ Install from source with Rust:
 cargo install webfluent
 ```
 
-### On Windows, `wf` opens the Windows Firewall console
+### On Windows, wf opens the Windows Firewall console
 
-Windows already has a `wf`: `C:\Windows\System32\WF.msc`, the firewall
-console, which a bare `wf` finds first whatever your `PATH` says. The
-installer puts the same binary in place a second time, as `webfluent.exe`.
+Windows already has a `wf`: `C:\Windows\System32\WF.msc`, the firewall console, which a bare `wf` finds first whatever your `PATH` says. The installer puts the same binary in place a second time, as `webfluent.exe`.
 
 Type `webfluent` (or `wf.exe`) wherever this guide says `wf`.
 
 ### On Windows, an old version still runs after installing a new one
 
-Each `.msi` before 5.10 had an `UpgradeCode` of its own, so a newer
-installer cannot replace an older one, and both stay installed and on
-`PATH`.
+Each `.msi` before 5.10 had an `UpgradeCode` of its own, so a newer installer cannot replace an older one, and both stay installed and on `PATH`.
 
 Uninstall the old version from *Apps*, then check `webfluent --version`.
 
-### The editor cannot find `wf-lsp`
+### The editor cannot find wf-lsp
 
-The language server is a separate binary from `wf`, and the editor looks
-for it on its own.
+The language server is a separate binary from `wf`, and the editor looks for it on its own.
 
-Install it as [Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md#set-up-your-editor)
-describes.
+Install it as [Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md#set-up-your-editor) describes.
 
-### The editor reports what `wf build` does not
+### The editor reports what wf build does not
 
-The editor calls an element unknown (`Host`, for example), or shows a
-message that `wf check` never prints. The editor is running an older
-`wf-lsp` than the `wf` you build with: one on your `PATH` is used before a
-downloaded release, and `cargo install` does not update it when you update
-`wf`.
+The editor calls an element unknown (`Host`, for example), or shows a message that `wf check` never prints. The editor is running an older `wf-lsp` than the `wf` you build with: one on your `PATH` is used before a downloaded release, and `cargo install` does not update it when you update `wf`.
 
-1. Compare `wf-lsp --version` with `wf --version`. The editor's language
-   server log also names the version it started.
+1. Compare `wf-lsp --version` with `wf --version`. The editor's language server log also names the version it started.
 2. Install the `wf-lsp` that matches `wf`.
 3. Restart the language server.
 
@@ -91,23 +71,19 @@ downloaded release, and `cargo install` does not update it when you update
 
 ### "is not an element or a statement a render block can hold"
 
-Code that does something — `n = n + 1`, or a call that is not a store's
-set-up — is written loose in a page. A page's body describes what to show;
-it does not run statements.
+Code that does something — `n = n + 1`, or a call that is not a store's set-up — is written loose in a page. A page's body describes what to show; it does not run statements.
 
 Put the code in an `on click { }` handler, an `action` or an `effect`.
 
 ### "Only the first argument may be positional"
 
-An element takes one value without a name, and every other value must be
-named.
+An element takes one value without a name, and every other value must be named.
 
 Name the rest: `Card("Laptop", price: 999)`.
 
 ### "a WebFluent 2 declaration"
 
-The file uses the old grammar, with capitalised declarations such as
-`Page` and `Component`.
+The file uses the old grammar, with capitalised declarations such as `Page` and `Component`.
 
 Run `wf migrate` to rewrite it ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#from-webfluent-2)).
 
@@ -115,61 +91,42 @@ Run `wf migrate` to rewrite it ([Upgrading](https://webfluent.monzeromer.dev/err
 
 Every warning has a code, and the code's entry explains it.
 
-Run `wf explain CODE` to print the entry; every code is also in
-[Diagnostics](https://webfluent.monzeromer.dev/errors.md), with an example and a fix. A named
-argument that the compiler writes to the element "as an attribute"
-(`C04`) is almost always a misspelled prop.
+Run `wf explain CODE` to print the entry; every code is also in [Diagnostics](https://webfluent.monzeromer.dev/errors.md), with an example and a fix. A named argument that the compiler writes to the element "as an attribute" (`C04`) is almost always a misspelled prop.
 
 ### A project that built under 6.x stops on errors
 
-7.0 has no loose mode: what 6.x accepted and 7.0 refuses — `fetch(…)`, a
-read's `ready(v)` arm, `Any`, a `state items = []` that says nothing of
-what it holds — is an error with its fix.
+7.0 has no loose mode: what 6.x accepted and 7.0 refuses — `fetch(…)`, a read's `ready(v)` arm, `Any`, a `state items = []` that says nothing of what it holds — is an error with its fix.
 
-1. Run `wf migrate --check` to see what it would rewrite, then
-   `wf migrate`. It applies every fix it knows, again and again, and lists
-   by place what a person decides.
-2. Run `wf check` and fix what is left. `lints` and `// wf-allow` cannot
-   lower an error in 7.0 ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#7-0)).
+1. Run `wf migrate --check` to see what it would rewrite, then `wf migrate`. It applies every fix it knows, again and again, and lists by place what a person decides.
+2. Run `wf check` and fix what is left. `lints` and `// wf-allow` cannot lower an error in 7.0 ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#7-0)).
 
 ### A project that built under 4.x stops on errors
 
-5.0 refuses what used to compile and then fail in the browser, so a 4.x
-project may stop on errors it always had.
+5.0 refuses what used to compile and then fail in the browser, so a 4.x project may stop on errors it always had.
 
 1. Run `wf check`. It lists every finding and writes nothing.
-2. Apply the fixes your editor offers as quick fixes, where the fix is
-   known.
-3. While you catch up, lower in `lints` the codes that cannot ship a
-   broken page — `R01`, `C02`, `S04`, `I01`, `I02`, `I04` and the warnings
-   ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#5-0)).
+2. Apply the fixes your editor offers as quick fixes, where the fix is known.
+3. While you catch up, lower in `lints` the codes that cannot ship a broken page — `R01`, `C02`, `S04`, `I01`, `I02`, `I04` and the warnings ([Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md#5-0)).
 
 ### A finding you mean to keep
 
 The compiler reports something you have decided is right for this line.
 
-Put `// wf-allow(CODE)` on the line above it, or at the end of its line,
-to accept that one finding. To silence a warning across a whole project,
-set it in `lints` instead. Neither can accept an error, except the few that
-ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`). An allow
-that covers nothing is itself reported (`U07`).
+Put `// wf-allow(CODE)` on the line above it, or at the end of its line, to accept that one finding. To silence a warning across a whole project, set it in `lints` instead. Neither can accept an error, except the few that ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`). An allow that covers nothing is itself reported (`U07`).
 
 ### CI does not fail on warnings, or does not annotate pull requests
 
-By default, warnings do not fail a build, and the output is written for a
-terminal.
+By default, warnings do not fail a build, and the output is written for a terminal.
 
 - `wf check --deny-warnings` fails on a warning.
-- `--format github` writes annotations a GitHub workflow shows on the pull
-  request.
+- `--format github` writes annotations a GitHub workflow shows on the pull request.
 - `--format sarif` writes a file for code scanning.
 
-[Command line](https://webfluent.monzeromer.dev/reference/cli.md#wf-check) lists every option.
+[Command line](https://webfluent.monzeromer.dev/reference/cli/check.md) lists every option.
 
 ### The build is slow
 
-The first build resizes every `image` the project declares. Later builds
-reuse the work kept in `.wf-cache/`.
+The first build resizes every `image` the project declares. Later builds reuse the work kept in `.wf-cache/`.
 
 Keep `.wf-cache/` between builds. In CI, cache it rather than deleting it.
 
@@ -177,241 +134,162 @@ Keep `.wf-cache/` between builds. In CI, cache it rather than deleting it.
 
 ### The page is blank after deploying, but works locally
 
-The site is served under a sub-path, such as `/my-repo/` on GitHub Pages,
-and the build does not know it, so the page asks for its files at the
-wrong address.
+The site is served under a sub-path, such as `/my-repo/` on GitHub Pages, and the build does not know it, so the page asks for its files at the wrong address.
 
-Set `build.base_path` to the sub-path (`"/my-repo"`) and rebuild
-([Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)).
+Set `build.base_path` to the sub-path (`"/my-repo"`) and rebuild ([Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)).
 
 ### Reloading any page but the home page is a 404
 
-A single-page build has one HTML file. When the reader reloads
-`/settings`, the host looks for a file at that path and has none.
+A single-page build has one HTML file. When the reader reloads `/settings`, the host looks for a file at that path and has none.
 
-Configure the host to answer every path with `index.html`
-([Deploying](https://webfluent.monzeromer.dev/recipes.md)), or build a static site with
-`build.ssg: true`, which writes a file for every page.
+Configure the host to answer every path with `index.html` ([Deploying](https://webfluent.monzeromer.dev/recipes.md)), or build a static site with `build.ssg: true`, which writes a file for every page.
 
 ### "Refused to load the script" or "violates the following Content Security Policy"
 
-`build.csp` ships a strict policy, and the browser blocks a script,
-font or stylesheet from an origin the policy does not name.
+`build.csp` ships a strict policy, and the browser blocks a script, font or stylesheet from an origin the policy does not name.
 
-Declare what the page loads from elsewhere: a library in `meta.scripts`,
-fonts in `meta.fonts`, stylesheets in `meta.stylesheets`. Each widens the
-policy for exactly that origin. An inline `<script>` in an HTML file in
-`public/` is never allowed; move its code to a `.js` file.
+Declare what the page loads from elsewhere: a library in `meta.scripts`, fonts in `meta.fonts`, stylesheets in `meta.stylesheets`. Each widens the policy for exactly that origin. An inline `<script>` in an HTML file in `public/` is never allowed; move its code to a `.js` file.
 
 ### An icon shows as a word
 
-The name is not one of the 83 built-in icons
-([Media](https://webfluent.monzeromer.dev/recipes/show-an-icon.md)), or the name is put together at run
-time, which the build cannot see, so the build left its glyph out.
+The name is not one of the 83 built-in icons ([Media](https://webfluent.monzeromer.dev/recipes/show-an-icon.md)), or the name is put together at run time, which the build cannot see, so the build left its glyph out.
 
-Fix the name, or write it as a literal. If it must be built at run time,
-set `"build": { "runtime": "full" }`, which ships every icon.
+Fix the name, or write it as a literal. If it must be built at run time, set `"build": { "runtime": "full" }`, which ships every icon.
 
-### `WF.something is not a function` from your own script
+### WF.something is not a function from your own script
 
-The build ships only the runtime modules your `.wf` code uses. Your script
-calls one that nothing in the `.wf` code reaches, so the build left it out.
+The build ships only the runtime modules your `.wf` code uses. Your script calls one that nothing in the `.wf` code reaches, so the build left it out.
 
 Set `"build": { "runtime": "full" }` to ship the whole runtime.
 
 ### The page shows old content after a deploy
 
-Either an HTTP cache is holding `app.js`, or — on a site with `offline` —
-the service worker is serving what it stored until the reader takes the
-new version.
+Either an HTTP cache is holding `app.js`, or — on a site with `offline` — the service worker is serving what it stored until the reader takes the new version.
 
-- Serve `app.js` with `Cache-Control: no-cache`
-  ([Deploying](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-cache-headers)).
-- On an offline site, show an update button when `update.available` holds
-  ([Offline](https://webfluent.monzeromer.dev/recipes/offer-a-new-version.md)), or reload twice.
+- Serve `app.js` with `Cache-Control: no-cache` ([Deploying](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-cache-headers)).
+- On an offline site, show an update button when `update.available` holds ([Offline](https://webfluent.monzeromer.dev/recipes/offer-a-new-version.md)), or reload twice.
 
-### Changes do not show under `wf serve`
+### Changes do not show under wf serve
 
 Either the last build failed, or an old service worker is holding pages.
 
-- Look at the terminal. A failed build keeps the last good page and draws
-  the error over it until a build passes.
-- A service worker from a production build served on the same port can
-  hold pages. `wf serve` removes it on the next load.
+- Look at the terminal. A failed build keeps the last good page and draws the error over it until a build passes.
+- A service worker from a production build served on the same port can hold pages. `wf serve` removes it on the next load.
 
-### A request is a 404 under `wf serve` or `wf verify`
+### A request is a 404 under wf serve or wf verify
 
-Only a page navigation gets the single-page shell. A request — an `http`
-or `api` call — or a file the build did not write gets a `404` and a line
-in the terminal. The dev
-server does not serve your API.
+Only a page navigation gets the single-page shell. A request — an `http` or `api` call — or a file the build did not write gets a `404` and a line in the terminal. The dev server does not serve your API.
 
-Point the page at the server that has the API — an `api`'s `base:` read
-from `env` — or put a fixture file in `public/`. To load every page with
-no server at all, answer the service with a `fake` and run
-`wf verify --fakes tests/fakes.wf`.
+Point the page at the server that has the API — an `api`'s `base:` read from `env` — or put a fixture file in `public/`. To load every page with no server at all, answer the service with a `fake` and run `wf verify --fakes tests/fakes.wf`.
 
 ### "The response of … is not the type the program declares"
 
-In every build, a response is held to the type its `resource`, `http`
-call or `api` endpoint declares. One that differs fails as
-`.decode(at, message)` — a read's `.failed(e)` arm, a call's `.err` —
-naming the first place it differs, such as `$[1].name is missing`.
+In every build, a response is held to the type its `resource`, `http` call or `api` endpoint declares. One that differs fails as `.decode(at, message)` — a read's `.failed(e)` arm, a call's `.err` — naming the first place it differs, such as `$[1].name is missing`.
 
 Fix the declared type, or the server.
 
 ### "Item N could not be drawn"
 
-One item of a `for` threw while it was drawn — usually a field read on a
-value that is `null`. Under `wf serve` the item shows the message; on a
-deployed page it leaves a gap, and the browser console says why. The rest
-of the list draws either way.
+One item of a `for` threw while it was drawn — usually a field read on a value that is `null`. Under `wf serve` the item shows the message; on a deployed page it leaves a gap, and the browser console says why. The rest of the list draws either way.
 
-Read the field through `?.`, or wrap the item's body in `if let`, so a
-`null` value draws nothing instead of throwing.
+Read the field through `?.`, or wrap the item's body in `if let`, so a `null` value draws nothing instead of throwing.
 
 ### "404 — no page has the route …"
 
-No page's `path` matches the address, and no `*` page catches what nothing
-else does. A deployed page shows nothing there.
+No page's `path` matches the address, and no `*` page catches what nothing else does. A deployed page shows nothing there.
 
-Declare a catch-all page, `page NotFound(path: "*", …)`
-([Show your own page for an unknown address](https://webfluent.monzeromer.dev/recipes/not-found-page.md)).
+Declare a catch-all page, `page NotFound(path: "*", …)` ([Show your own page for an unknown address](https://webfluent.monzeromer.dev/recipes/not-found-page.md)).
 
 ### "an effect changes something it reads, every time it runs"
 
-The effect writes, every time it runs, a state it also reads, so it never
-settles. The runtime stopped it after 100 runs.
+The effect writes, every time it runs, a state it also reads, so it never settles. The runtime stopped it after 100 runs.
 
-Guard the write (`if x != wanted { x = wanted }`), or move it to an
-action. `X02` reports the plain cases at build time.
+Guard the write (`if x != wanted { x = wanted }`), or move it to an action. `X02` reports the plain cases at build time.
 
-### An `api` call stays loading
+### An api call stays loading
 
-A parameter that the endpoint's path names is empty — `Backend.user(id:
-"")` for `at "users/{id}"` — so nothing was requested: `users/` would ask
-for the whole collection. The call ends `.cancelled`, and a read over it
-stays `.loading`.
+A parameter that the endpoint's path names is empty — `Backend.user(id: "")` for `at "users/{id}"` — so nothing was requested: `users/` would ask for the whole collection. The call ends `.cancelled`, and a read over it stays `.loading`.
 
-Nothing to fix if the value is still on its way: the call is sent when the
-value arrives. Otherwise, pass the value.
+Nothing to fix if the value is still on its way: the call is sent when the value arrives. Otherwise, pass the value.
 
 ### The layout jumps as the page loads
 
-Something in the layout depends on `viewport`, which is unknown until the
-script runs, so the first paint is drawn for the wrong width.
+Something in the layout depends on `viewport`, which is unknown until the script runs, so the first paint is drawn for the wrong width.
 
-Use [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values) for layout. They
-compile to media queries, so the first paint is already right.
+Use [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values) for layout. They compile to media queries, so the first paint is already right.
 
 ## Styling
 
-### A `style { }` block does not apply
+### A style { } block does not apply
 
 Either a property name is misspelt, or a token does not exist.
 
-- A style block is real CSS. A misspelt property is a `V05` warning, with
-  the nearest real one.
+- A style block is real CSS. A misspelt property is a `V05` warning, with the nearest real one.
 - A token no theme declares, such as `$brand-colour`, is a `V06` error.
-- A value ends at a newline, a `;`, or two spaces before the next
-  declaration. A `,` between two declarations is an `E002` error.
+- A value ends at a newline, a `;`, or two spaces before the next declaration. A `,` between two declarations is an `E002` error.
 
 ### Your stylesheet does not override a built-in
 
-Your `.css` files come after the built-ins' rules, so on equal specificity
-yours win. But a built-in's selector may be more specific:
-`.wf-btn--primary` beats `.button`.
+Your `.css` files come after the built-ins' rules, so on equal specificity yours win. But a built-in's selector may be more specific: `.wf-btn--primary` beats `.button`.
 
-Match the built-in's selector, change the design tokens it reads, or use
-`style { }` on the element.
+Match the built-in's selector, change the design tokens it reads, or use `style { }` on the element.
 
 ### Dark mode does not switch
 
-Either the dark theme is not named in the config, or a colour is written
-raw instead of as a token.
+Either the dark theme is not named in the config, or a colour is written raw instead of as a token.
 
-Name the dark theme: `"theme": { "name": "Light", "dark": "Night" }`.
-Write colours as tokens (`$surface`, `var(--color-surface)`): a raw colour
-does not change with the theme.
+Name the dark theme: `"theme": { "name": "Light", "dark": "Night" }`. Write colours as tokens (`$surface`, `var(--color-surface)`): a raw colour does not change with the theme.
 
 ## Data
 
 ### A request fails with a CORS error
 
-The API is on another origin, and that server does not allow requests from
-yours.
+The API is on another origin, and that server does not allow requests from yours.
 
-Allow your origin on the server, or serve the API from the same origin
-([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#call-an-api-on-another-origin),
-[Deploying](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)).
+Allow your origin on the server, or serve the API from the same origin ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#call-an-api-on-another-origin), [Deploying](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)).
 
-### `env.MY_VALUE` is a compile error
+### env.MY_VALUE is a compile error
 
-A page may only read public names, because every value it reads ends up in
-the bundle, where anyone can read it (`E108`).
+A page may only read public names, because every value it reads ends up in the bundle, where anyone can read it (`E108`).
 
-If anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in
-`public_env` ([Environments](https://webfluent.monzeromer.dev/recipes.md)). If not, keep it on the
-server.
+If anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in `public_env` ([Environments](https://webfluent.monzeromer.dev/recipes.md)). If not, keep it on the server.
 
-### A value from `.env` or the shell is not used
+### A value from .env or the shell is not used
 
-Values are fixed at build time. The shell also supplies only names that the
-config or `.env` declares, or that begin `PUBLIC_`.
+Values are fixed at build time. The shell also supplies only names that the config or `.env` declares, or that begin `PUBLIC_`.
 
-Rebuild after changing a value, and declare the name in the config or
-`.env`.
+Rebuild after changing a value, and declare the name in the config or `.env`.
 
 ## Questions people ask
 
 ### Can I use npm packages?
 
-A library, yes: list its CDN address in `meta.scripts`
-([JavaScript interop](https://webfluent.monzeromer.dev/recipes.md)). Your own JavaScript is a
-plain `.js` file under `src/`. There is no package manager for WebFluent
-code itself.
+A library, yes: list its CDN address in `meta.scripts` ([JavaScript interop](https://webfluent.monzeromer.dev/recipes.md)). Your own JavaScript is a plain `.js` file under `src/`. There is no package manager for WebFluent code itself.
 
 ### Can I use it with React or Vue?
 
-Yes. Publish your components as custom elements, and place their tags from
-React, Vue or any other page
-([JavaScript interop](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md)).
+Yes. Publish your components as custom elements, and place their tags from React, Vue or any other page ([JavaScript interop](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md)).
 
 ### Is there server-side rendering?
 
-Pages are pre-rendered at build time with `build.ssg`. For HTML made per
-request, render templates from your own server with the
-[template engine](https://webfluent.monzeromer.dev/recipes.md).
+Pages are pre-rendered at build time with `build.ssg`. For HTML made per request, render templates from your own server with the [template engine](https://webfluent.monzeromer.dev/recipes.md).
 
 ### Does it support TypeScript?
 
-WebFluent has its own type checker, built in and strict: every value has a
-type the program can name, declared where another file sees it and
-inferred where only the body does ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)). There
-is nothing to configure.
+WebFluent has its own type checker, built in and strict: every value has a type the program can name, declared where another file sees it and inferred where only the body does ([Types](https://webfluent.monzeromer.dev/learn/12-types.md)). There is nothing to configure.
 
 ### Can I write CSS the usual way?
 
-Yes. Any `.css` file under `src/` is bundled, and `class:` adds its classes
-to an element ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
+Yes. Any `.css` file under `src/` is bundled, and `class:` adds its classes to an element ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 
 ### How big is the output?
 
-A page of static text ships about 2 kB of script, gzipped; a full
-application, a few tens of kilobytes. `wf build --stats` shows what yours
-weighs.
+A page of static text ships about 2 kB of script, gzipped; a full application, a few tens of kilobytes. `wf build --stats` shows what yours weighs.
 
 ### Which browsers does it support?
 
-The current versions of Chrome, Edge, Firefox and Safari
-([Browser support](https://webfluent.monzeromer.dev/reference/browser-support.md)).
+The current versions of Chrome, Edge, Firefox and Safari ([Browser support](https://webfluent.monzeromer.dev/reference/browser-support.md)).
 
 ### Where do I report a bug?
 
-Open an issue on [GitHub](https://github.com/monzeromer-lab/WebFluent/issues).
-Include the smallest `.wf` file that shows the bug, and the output of
-`wf --version`.
-
-## Next
-
-[Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md).
+Open an issue on [GitHub](https://github.com/monzeromer-lab/WebFluent/issues). Include the smallest `.wf` file that shows the bug, and the output of `wf --version`.

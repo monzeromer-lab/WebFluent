@@ -1,6 +1,5 @@
-/// Chapter 10 of the guide, written from md-docs/learn/10-components.md by
-/// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn10Components(path: "/learn/10-components", title: "Components", description: "Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.", layout: DocsShell("Components", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.", source: "md-docs/learn/10-components.md", sections: [Anchor(id: "a-first-component", label: "A first component"), Anchor(id: "props", label: "Props"), Anchor(id: "enum-props", label: "Enum props"), Anchor(id: "events", label: "Events"), Anchor(id: "slots", label: "Slots"), Anchor(id: "parts", label: "Parts"), Anchor(id: "local-state-and-actions", label: "Local state and actions"), Anchor(id: "stores-inside-a-component", label: "Stores inside a component"), Anchor(id: "what-a-call-puts-on-the-root-element", label: "What a call puts on the root element"), Anchor(id: "designing-components", label: "Designing components"), Anchor(id: "other-people-s-code", label: "Other people's code"), Anchor(id: "components-in-the-pre-rendered-page", label: "Components in the pre-rendered page"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Declare a component with typed props and defaults, and call it like a built-in", "Fire an `event` with `emit` and handle it on the call", "Take content with `children`, named slots and scoped slots", "Give a component parts and its own state", "Design an interface: a value down, an event up"], prevTo: "/learn/09-control-flow", prevLabel: t("ch.09"), nextTo: "/learn/11-stores", nextLabel: t("ch.11"))) {
+/// Chapter 10 of the guide. This page is its source: edit it here.
+page Learn10Components(path: "/learn/10-components", title: "Components", description: "Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.", layout: DocsShell("Components", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.", source: "site/src/pages/guide/10-components.wf", sections: [Anchor(id: "a-first-component", label: "A first component"), Anchor(id: "props", label: "Props"), Anchor(id: "enum-props", label: "Enum props"), Anchor(id: "events", label: "Events"), Anchor(id: "slots", label: "Slots"), Anchor(id: "parts", label: "Parts"), Anchor(id: "local-state-and-actions", label: "Local state and actions"), Anchor(id: "stores-inside-a-component", label: "Stores inside a component"), Anchor(id: "what-a-call-puts-on-the-root-element", label: "What a call puts on the root element"), Anchor(id: "designing-components", label: "Designing components"), Anchor(id: "other-people-s-code", label: "Other people's code"), Anchor(id: "components-in-the-pre-rendered-page", label: "Components in the pre-rendered page"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Declare a component with typed props and defaults, and call it like a built-in", "Fire an `event` with `emit` and handle it on the call", "Take content with `children`, named slots and scoped slots", "Give a component parts and its own state", "Design an interface: a value down, an event up"], prevTo: "/learn/09-control-flow", prevLabel: t("ch.09"), nextTo: "/learn/11-stores", nextLabel: t("ch.11"))) {
     Stack(gap: .lg) {
         Markdown("This chapter shows how to declare a *component*: a reusable element of your own. It has typed props, the events it fires, the slots its caller fills, the parts it offers, and a body that draws it. The one thing to remember: the compiler checks a call to your component exactly as it checks a call to a built-in such as `Button`, so a missing prop or a misspelled flag is an error where you wrote it.\n\n**In this chapter**\n\n- Declaring a component and calling it\n- Props, including enum props\n- Events, slots, scoped slots and parts\n- A component's own state, and stores inside a component\n- What a call puts on the component's root element\n- How to design a component's interface")
 
@@ -477,7 +476,7 @@ example UserCard "Away" {
 page P(path: "/", title: "T", description: "D") {
     Heading("Team").h1
     UserCard("Ada")
-}"#, title: "wf · draws C01")
+}"#, title: "wf", expect: "C01")
 
         Markdown("Pass it, `UserCard(\"Ada\", role: \"Engineer\")`, or give it a default in the declaration, `role: String = \"\"`. See [C01](/errors/C01).\n\n**A prop the component does not declare.** Often a misspelling, or a prop written as though the component forwarded what it was given:")
 
@@ -486,7 +485,7 @@ page P(path: "/", title: "T", description: "D") {
 page P(path: "/", title: "T", description: "D") {
     Heading("Notes").h1
     Note("Saved", tone: "success")
-}"#, title: "wf · draws C02")
+}"#, title: "wf", expect: "C02")
 
         Markdown("Declare the prop, or correct its name. See [C02](/errors/C02).\n\n**A handler that names more values than its event sends.** An event sends what it declares, and nothing else:")
 
@@ -501,7 +500,7 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Seats: {seats}").h1
     Counter(seats) { on change(next, previous) { last = previous  seats = next } }
     Text("Was {last}")
-}"#, title: "wf · draws T22")
+}"#, title: "wf", expect: "T22")
 
         Markdown("Name only what the event sends, `on change(next)`, or declare a second parameter and `emit` it. See [T22](/errors/T22).")
     }

@@ -13,18 +13,22 @@ inlined into every page's `app.js`):
   `RELEASE_NOTES.md`) and the codes it can raise (`codes_of`, from
   `builtin_codes.json` and `wf explain --json`); `BUILTIN_INDEX` and
   `REFERENCE_PAGES`, the sidebars' lists, which those pages share.
-- `Cli.wf` — `wf commands --json`: `/reference/cli`, with the CLI chapter's
-  prose under its list, and a page per command.
-- `Config.wf` — `wf config schema --json`: `/reference/config`, every key
-  by section, with the configuration chapter's prose.
-- `Tokens.wf` — `wf theme --json`: `/reference/tokens`, the baseline
-  theme's tokens by group, with the design tokens chapter's prose.
+- `Cli.wf` — `wf commands --json`: `/reference/cli` above every command by
+  group, and a page per command with its usage and options. Its words — each
+  part between `// ── words: NAME ──` and `// ── end of the words ──`: the
+  groups, the index's text, each command's — are written by hand there and
+  kept as they are.
+- `FromTheCompiler.wf` — `wf config schema --json` and `wf theme --json`:
+  how many settings and tokens there are, for the configuration and token
+  pages (`Config.wf`, `Tokens.wf`), whose words are written by hand.
+- `Tokens.wf` — `wf theme --json`: its part between `// ── the baseline ──`
+  and `// ── end of the baseline ──`, the baseline theme's tables, a group
+  to a table; the rest of the page is written by hand.
 
 The same data goes to `site/src/data/{components,commands,config,tokens}.json`
-for tools. Rerun after the registry, a command, a setting, the theme or one
-of those chapters changes: `cargo xtask site`.
+for tools. Rerun after the registry, a command, a setting or the theme
+changes: `cargo xtask site`.
 """
-import importlib.util
 import json
 import os
 import re
@@ -505,10 +509,8 @@ PREVIEWS = {
 }
 STATES = {"text": '""', "checked": "true", "level": "50", "plan": '"free"', "size": '"m"'}
 
-_spec = importlib.util.spec_from_file_location("guide", ROOT / "scripts" / "docsite" / "guide.py")
-guide = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(guide)
-S = guide.wf_string
+import sitepages  # noqa: E402
+S = sitepages.wf_string
 
 
 def q(text: str) -> str:
@@ -522,7 +524,7 @@ def pascal(text: str) -> str:
 
 def anchors(pairs) -> str:
     """`(id, label)` pairs as a list of `Anchor`s; a label already escaped
-    (from guide.prose) is passed as it is."""
+    is passed as it is."""
     return "[" + ", ".join(f'Anchor(id: "{i}", label: {label if label.startswith(("t(", chr(34))) else q(label)})'
                            for i, label in pairs) + "]"
 
@@ -741,7 +743,7 @@ def part_section(p: dict, owner: dict) -> list:
     if p["events"]:
         out.append(f'        EventsTable(rows: {prop_rows(p["events"])}, caption: {q("Events of " + p["name"])})')
     if p["example"] and p["example"].strip() != (owner["example"] or "").strip():
-        out.append(f'        DocsCodeBlock({guide.wf_raw(p["example"])}, title: "wf")')
+        out.append(f'        DocsCodeBlock({sitepages.wf_raw(p["example"])}, title: "wf")')
     return out
 
 
@@ -830,12 +832,12 @@ def builtin_page(c: dict, by_slug: dict, universal: list, parts: list = ()) -> l
         out.append('        notes { Text(t("stage.static"), class: "bp-small") }')
     out.append('        Heading(t("ref.example"), id: "example").h2')
     if c["example"]:
-        out.append(f'        DocsCodeBlock({guide.wf_raw(c["example"])}, title: "wf")')
+        out.append(f'        DocsCodeBlock({sitepages.wf_raw(c["example"])}, title: "wf")')
     else:
         out.append('        Text(t("ref.noexample"), class: "bp-small")')
     for title, code in c.get("variations", []):
         out.append(f'        Text({q(title)}) {{ style {{ margin: 8px 0 0; font-weight: 600 }} }}')
-        out.append(f'        DocsCodeBlock({guide.wf_raw(code)}, title: "wf")')
+        out.append(f'        DocsCodeBlock({sitepages.wf_raw(code)}, title: "wf")')
     near = related(c["name"])
     if near:
         out.append('        Row(gap: .sm, align: .center) {')
@@ -968,98 +970,62 @@ def builtins_file(comps: dict) -> str:
     return "\n".join(out)
 
 
-def prose_block(route: str, keep=lambda md: md) -> tuple[list, list]:
-    """The chapter at `route`, as the lines of a `notes { }` fill, and its
-    sections."""
-    sections, body = guide.prose(route, keep)
-    lines = ["        notes {", "            Stack(gap: .lg) {"] + body + ["            }", "        }"]
-    return sections, lines
+CLI_PAGE = ROOT / "site" / "src" / "pages" / "reference" / "Cli.wf"
+
+# A part of a written file that is the words of a person, not the
+# compiler's: kept as it is each time the file is written again. Its first
+# line names it, `// ── words: build ──`.
+WORDS = re.compile(r"^[ \t]*// ── words: (?P<key>[\w-]+) ──[^\n]*\n(?P<body>.*?)^[ \t]*// ── end of the words ──[^\n]*\n", re.M | re.S)
 
 
-CLI_MD = ROOT / "md-docs" / "reference" / "cli.md"
+def words(path: Path = CLI_PAGE) -> dict:
+    """The words a written file keeps, by name: each part between
+    `// ── words: NAME ──` and `// ── end of the words ──`, as written."""
+    if not path.exists():
+        return {}
+    return {m.group("key"): m.group("body") for m in WORDS.finditer(path.read_text())}
 
 
-def cli_sections() -> tuple[dict, dict]:
-    """`md-docs/reference/cli.md`, cut by command: each command's `### `wf X``
-    section, and the `##` group each sits under (`Checking and testing`)."""
-    text = CLI_MD.read_text()
-    own, group = {}, {}
-    current_group, name, buf = "", None, []
-
-    def flush():
-        if name:
-            own[name] = "\n".join(buf).strip("\n")
-
-    for line in text.split("\n"):
-        m = re.match(r"^### `wf ([a-z-]+)`\s*$", line)
-        if m:
-            flush()
-            name, buf = m.group(1), []
-            group[name] = current_group
-            continue
-        if line.startswith("## "):
-            flush()
-            name, buf = None, []
-            current_group = line[3:].strip()
-            continue
-        if name:
-            buf.append(line)
-    flush()
-    return own, group
+def keep(key: str, kept: dict, indent: str) -> list:
+    """The lines of a part of words, between its markers."""
+    out = [f"{indent}// ── words: {key} ── written by hand, and kept as it is when scripts/docsite/reference.py writes the rest"]
+    body = kept.get(key, "")
+    if body.strip():
+        out.append(body.rstrip("\n"))
+    out.append(f"{indent}// ── end of the words ──")
+    return out
 
 
-def without_options_table(md: str) -> str:
-    """A command's section with its hand-written options table and its
-    `**Usage:**` line left out: the page draws both from the compiler, so
-    they are always the ones `wf` has."""
-    out, lines, i = [], md.split("\n"), 0
-    while i < len(lines):
-        line = lines[i]
-        if line.startswith("**Usage:**"):
-            while i < len(lines) and lines[i].strip():
-                i += 1
-            continue
-        head = re.match(r"^\|\s*(Option|Subcommand|Argument|Flag)", line)
-        if head and i + 1 < len(lines) and re.match(r"^\|[-| :]+\|$", lines[i + 1].strip()):
-            while i < len(lines) and lines[i].startswith("|"):
-                i += 1
-            continue
-        out.append(line)
-        i += 1
-    return re.sub(r"\n{3,}", "\n\n", "\n".join(out)).strip("\n")
-
-
-def cli_index_md(md: str) -> str:
-    """The CLI chapter as its index page shows it: the conventions and the
-    rest, without the summary table and each command's section — every
-    command has its own page, listed by group below them."""
-    keep, skipping = [], False
-    for line in md.split("\n"):
-        if line.startswith("## "):
-            skipping = line[3:].strip() == "Command summary"
-        if re.match(r"^### `wf [a-z-]+`\s*$", line):
-            skipping = True
-        elif line.startswith("## ") and line[3:].strip() != "Command summary":
-            skipping = False
-        if not skipping:
-            keep.append(line)
-    # A group heading left with nothing under it goes too.
-    text = "\n".join(keep)
-    return re.sub(r"\n## [^\n]+\n+(?=## |\Z)", "\n", text)
+def cli_groups(kept: dict) -> dict:
+    """The commands by group (`CLI_GROUPS`, in the words named `groups`)."""
+    decls = sitepages.parse(kept.get("groups", ""))
+    groups = next((d.value for d in decls if d.kind == "const" and d.name == "CLI_GROUPS"), {})
+    return {name: g for g, names in groups.items() for name in names}
 
 
 def cli_file(cmds: dict) -> str:
-    out = [HEAD.format(what="The command line's reference: every command, then a page per command", source="wf commands --json")]
-    guide.CLI_COMMANDS[:] = [c["name"] for c in cmds["items"]]
-    own, group_of = cli_sections()
+    kept = words()
+    out = ["// The command line's reference: every command, then a page per command.",
+           "// Written by scripts/docsite/reference.py from `wf commands --json`, but",
+           "// for its words: each part between `// ── words: NAME ──` and",
+           "// `// ── end of the words ──` is written by hand, here, and kept as it is",
+           "// when the rest is written again (`cargo xtask site`). `groups` says",
+           "// which group the index lists each command under; `index` is what the",
+           "// index says above the list; a command's own (`build`) is what its page",
+           "// says under its summary.",
+           ""]
+    out += keep("groups", kept, "")
+    out.append("")
+    group_of = cli_groups(kept)
     out.append("/// Every command: the sidebar of each command's page.")
     out.append(entries_const("CLI_INDEX", [(f"wf {c['name']}", f"/reference/cli/{c['slug']}", group_of.get(c["name"], "Commands") or "Commands") for c in cmds["items"]]))
-    prose_sections, prose = prose_block("/reference/cli", cli_index_md)
     page = [
         'page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", description: "Every wf command and its options, from init, build and serve to render, migrate and verify, and the language server in each editor.") {',
         f'    ReferenceItemShell(t("cli.title"), summary: t("cli.lede", {{ count: {cmds["count"]} }}), signature: "wf <command> [options]", group: t("cli.title"), '
-        f'entries: REFERENCE_PAGES.concat(CLI_INDEX), sections: {anchors([("commands", "t(\"cli.commands\")")] + prose_sections)}, source: "md-docs/reference/cli.md") {{',
-        *prose,
+        f'entries: REFERENCE_PAGES.concat(CLI_INDEX), sections: [Anchor(id: "commands", label: t("cli.commands"))].concat(CLI_INDEX_SECTIONS), source: "site/src/pages/reference/Cli.wf") {{',
+        "        notes {",
+        *keep("index", kept, "            "),
+        "        }",
         '        Heading(t("cli.commands"), id: "commands").h2',
     ]
     groups: list = []
@@ -1069,7 +1035,7 @@ def cli_file(cmds: dict) -> str:
             groups.append(g)
     for g in groups:
         page += [
-            f'        Heading({q(g)}, id: {q(guide.slug(g))}).h3',
+            f'        Heading({q(g)}, id: {q(sitepages.slug(g))}).h3',
             '        Stack(class: "bp-sheet") {',
             "            style { gap: 0 }",
         ]
@@ -1091,19 +1057,14 @@ def cli_file(cmds: dict) -> str:
             f'page Cli{pascal(c["slug"])}(path: "/reference/cli/{c["slug"]}", title: {q("wf " + c["name"] + " — Reference")}, '
             f'description: {q(describe("wf " + c["name"] + ": " + c["summary"] + ". What it writes, and every option it takes."))}) {{',
             f'    ReferenceItemShell({q("wf " + c["name"])}, summary: {q(c["summary"])}, signature: {q(c["usage"])}, group: t("cli.title"), '
-            f'entries: CLI_INDEX, sections: {subsections(c)}, source: "src/cli/app.rs") {{',
+            f'entries: CLI_INDEX, sections: {subsections(c)}, source: "site/src/pages/reference/Cli.wf") {{',
         ]
         if c["writes"]:
             p.append(f'        Markdown(t("cli.writes", {{ what: {q(c["writes"])} }}), class: "bp-prose")')
         if c["preview"]:
             p.append(f'        Markdown(t("cli.preview", {{ flag: {q(c["preview"])} }}), class: "bp-prose")')
-        # What the command is for, its examples and its details: the
-        # command's section of md-docs/reference/cli.md.
-        if c["name"] in own:
-            _, lines = guide.fragment("/reference/cli", without_options_table(own[c["name"]]), "wf " + c["name"])
-            p.append('        Stack(gap: .lg, class: "bp-prose") {')
-            p += ["    " + l for l in lines]
-            p.append("        }")
+        # What the command is for, its examples and its details.
+        p += keep(c["slug"], kept, "        ")
         for sc in c["subcommands"]:
             p.append(f'        Heading({q("wf " + c["name"] + " " + sc["name"])}, id: {q(sc["name"])}).h2')
             p.append(f'        Text({q(sc["summary"])})')
@@ -1133,42 +1094,38 @@ def table(caption: str, heads: list, body: list) -> list:
     return out
 
 
-def config_file(cfg: dict) -> str:
-    out = [HEAD.format(what="Every key of webfluent.app.json, by section", source="wf config schema --json")]
-    # The chapter's tables are the listing — each key with its type,
-    # default and what it does — and tests hold them to the schema; a
-    # second, terser table of every key below them said it all again.
-    prose_sections, prose = prose_block("/reference/config")
-    sections = prose_sections
-    page = [
-        'page ConfigPage(path: "/reference/config", title: "Configuration — Reference", description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.") {',
-        f'    ReferenceItemShell(t("config.title"), summary: t("config.lede", {{ count: {cfg["count"]} }}), signature: "webfluent.app.json", group: t("config.title"), '
-        f'entries: REFERENCE_PAGES, sections: {anchors(sections)}, source: "md-docs/reference/configuration.md") {{',
-        *prose,
+TOKENS_PAGE = ROOT / "site" / "src" / "pages" / "reference" / "Tokens.wf"
+BASELINE = re.compile(r"^([ \t]*)// ── the baseline ──[^\n]*\n.*?^[ \t]*// ── end of the baseline ──[^\n]*\n", re.M | re.S)
+
+
+def compiler_file(cfg: dict, tok: dict) -> str:
+    """What the configuration and design-token pages (`Config.wf`,
+    `Tokens.wf`, whose words are written by hand) take from the compiler:
+    how many settings and tokens there are, and the sections of the
+    baseline's tables."""
+    out = [HEAD.format(what="What the configuration and token pages take from the compiler", source="wf config schema --json` and `wf theme --json")]
+    out += [
+        "/// How many settings `webfluent.app.json` has.",
+        f"const CONFIG_COUNT = {cfg['count']}",
+        "",
+        "/// How many tokens the baseline theme has.",
+        f"const TOKEN_COUNT = {tok['count']}",
+        "",
+        "/// The sections of the baseline's tables on `/reference/tokens`, for its rail.",
+        f"const TOKEN_SECTIONS: [Anchor] = {anchors([('the-baseline', 'The baseline')] + [(f'tokens-{g}', GROUP_TITLES.get(g, g.capitalize())) for g in tok['groups']])}",
+        "",
     ]
-    page += ["    }", "}"]
-    out.append("\n".join(page) + "\n")
     return "\n".join(out)
 
 
-def tokens_file(tok: dict) -> str:
-    out = [HEAD.format(what="Every token of the baseline theme, by group", source="wf theme --json")]
-    # The chapter's prose, without its own tables of the baseline: this
-    # page draws them once, below, with what each is for and who reads it.
-    strip = lambda md: re.sub(r"## The baseline\n.*?<!-- /tokens -->\n", "", md, flags=re.S)
-    prose_sections, prose = prose_block("/reference/tokens", strip)
-    groups = [(f"tokens-{g}", GROUP_TITLES.get(g, g.capitalize())) for g in tok["groups"]]
-    sections = prose_sections + [("the-baseline", "The baseline")] + groups
-    page = [
-        'page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token: its default value, what it is for, which built-ins draw from it, and how a style block or a stylesheet reads it.") {',
-        f'    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", {{ count: {tok["count"]} }}), signature: "theme Brand \\{{ color-primary: #3B82F6 \\}}", group: t("tokens.title"), '
-        f'entries: REFERENCE_PAGES, sections: {anchors(sections)}, source: "md-docs/reference/design-tokens.md") {{',
-        *prose,
-        '        Heading("The baseline", id: "the-baseline").h2',
-        '        Markdown(t("tokens.baseline"), class: "bp-prose")',
-    ]
+def baseline(tok: dict, indent: str) -> str:
+    """The baseline theme, a table a group: the part of `Tokens.wf` between
+    `// ── the baseline ──` and `// ── end of the baseline ──`."""
+    out = [f"{indent}// ── the baseline ── written by scripts/docsite/reference.py from `wf theme --json`; edit the compiler, not this part",
+           f'{indent}Heading("The baseline", id: "the-baseline").h2',
+           f'{indent}Markdown(t("tokens.baseline"), class: "bp-prose")']
     for g in tok["groups"]:
-        page.append(f'        Heading({q(GROUP_TITLES.get(g, g.capitalize()))}, id: "tokens-{g}").h3')
+        out.append(f'{indent}Heading({q(GROUP_TITLES.get(g, g.capitalize()))}, id: "tokens-{g}").h3')
         body = []
         for t in tok["items"]:
             if t["group"] != g:
@@ -1180,10 +1137,18 @@ def tokens_file(tok: dict) -> str:
                          f"Table.Cell {{ Row(align: .center, gap: .xs) {{ style {{ flex-wrap: nowrap; gap: 8px; & p {{ margin: 0 }} }} {swatch}Code({q(t['value'])}) }} }}",
                          f"Table.Cell {{ Markdown({q(t['summary'])}) }}",
                          f"Table.Cell({q(t['usedBy'] or '—')})"])
-        page += table(f"The {GROUP_TITLES.get(g, g)} tokens", ['t("tokens.token")', 't("tokens.value")', 't("tokens.for")', 't("tokens.usedby")'], body)
-    page += ["    }", "}"]
-    out.append("\n".join(page) + "\n")
-    return "\n".join(out)
+        out += [indent + l[8:] if l.startswith("        ") else l for l in table(f"The {GROUP_TITLES.get(g, g)} tokens", ['t("tokens.token")', 't("tokens.value")', 't("tokens.for")', 't("tokens.usedby")'], body)]
+    out.append(f"{indent}// ── end of the baseline ──")
+    return "\n".join(out) + "\n"
+
+
+def tokens_page(tok: dict) -> str:
+    """`Tokens.wf` with its baseline written again from the compiler."""
+    text = TOKENS_PAGE.read_text()
+    m = BASELINE.search(text)
+    if not m:
+        raise SystemExit("site/src/pages/reference/Tokens.wf: no `// ── the baseline ──` part to write")
+    return text[:m.start()] + baseline(tok, m.group(1)) + text[m.end():]
 
 
 def main() -> None:
@@ -1198,8 +1163,8 @@ def main() -> None:
         d.mkdir(parents=True, exist_ok=True)
     for name, value in (("components.json", comps), ("commands.json", cmds), ("config.json", cfg), ("tokens.json", tok)):
         (data_dir / name).write_text(json.dumps(value, indent=1, ensure_ascii=False) + "\n")
-    pages = {"Builtins.wf": builtins_file(comps), "Cli.wf": cli_file(cmds),
-             "Config.wf": config_file(cfg), "Tokens.wf": tokens_file(tok)}
+    pages = {"Builtins.wf": builtins_file(comps), "Cli.wf": cli_file(cmds), "FromTheCompiler.wf": compiler_file(cfg, tok),
+             "Tokens.wf": tokens_page(tok)}
     for name, text in pages.items():
         (pages_dir / name).write_text(text)
         subprocess.run([str(wf), "fmt", str(pages_dir / name)], check=False, stdout=subprocess.DEVNULL)

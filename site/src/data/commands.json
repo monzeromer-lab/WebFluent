@@ -1,5 +1,5 @@
 {
- "count": 27,
+ "count": 29,
  "items": [
   {
    "name": "init",
@@ -323,7 +323,7 @@
   {
    "name": "context",
    "slug": "context",
-   "summary": "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld",
+   "summary": "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the language reference, and what was withheld",
    "writes": "",
    "preview": "",
    "usage": "wf context [options]",
@@ -341,7 +341,7 @@
     {
      "name": "--guide GUIDE",
      "type": "text",
-     "meaning": "The guide as its chapters' sections (`index`) or whole (`full`) (default `index`)"
+     "meaning": "The language reference (the skill's `references/`) as each file's title and sections (`index`), or whole (`full`) (default `index`)"
     },
     {
      "name": "--json",
@@ -592,6 +592,123 @@
      "name": "--host HOST",
      "type": "text",
      "meaning": "The address to listen on: this machine only by default; `0.0.0.0` lets a phone on the same network reach it"
+    },
+    {
+     "name": "--allow-output-outside",
+     "type": "flag",
+     "meaning": "Let `build.output` name a directory outside the project"
+    }
+   ],
+   "subcommands": []
+  },
+  {
+   "name": "start",
+   "slug": "start",
+   "summary": "Serve a built project as a host would: `$PORT`, the build's headers and compressed files, a single-page build's shell for every route, and `--proxy` for an API elsewhere",
+   "writes": "",
+   "preview": "",
+   "usage": "wf start [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--port PORT",
+     "type": "number",
+     "meaning": "The port (default: `$PORT`, else 3000)"
+    },
+    {
+     "name": "--host HOST",
+     "type": "text",
+     "meaning": "The address to listen on (default: every interface)"
+    },
+    {
+     "name": "--proxy PREFIX=URL",
+     "type": "text, repeats",
+     "meaning": "Forward requests under a path to another server, the path replaced by the URL: `--proxy /api=https://api.example.com` (repeatable; http or https)"
+    },
+    {
+     "name": "--allow-output-outside",
+     "type": "flag",
+     "meaning": "Let `build.output` name a directory outside the project"
+    }
+   ],
+   "subcommands": []
+  },
+  {
+   "name": "inspect",
+   "slug": "inspect",
+   "summary": "One page as a reader meets it, as text: landmarks, headings, links, buttons, fields, tables, and anything that failed",
+   "writes": "a screenshot, with `--screenshot`",
+   "preview": "",
+   "usage": "wf inspect TARGET [options]",
+   "options": [
+    {
+     "name": "TARGET",
+     "type": "text",
+     "meaning": "A route of the project's build (`/pokemon/pikachu`), or a URL of a server already running"
+    },
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--proxy PREFIX=URL",
+     "type": "text, repeats",
+     "meaning": "Forward requests under a path to another server, as `wf start` does"
+    },
+    {
+     "name": "--width WIDTH",
+     "type": "number",
+     "meaning": "The window's width, in CSS pixels (default `1280`)"
+    },
+    {
+     "name": "--height HEIGHT",
+     "type": "number",
+     "meaning": "The window's height, in CSS pixels (default `800`)"
+    },
+    {
+     "name": "--mobile",
+     "type": "flag",
+     "meaning": "A phone: 390×844, laid out as a phone lays it out"
+    },
+    {
+     "name": "--screenshot FILE",
+     "type": "path",
+     "meaning": "Also save a PNG of the page (to FILE, or a file it names)"
+    },
+    {
+     "name": "--full-page",
+     "type": "flag",
+     "meaning": "The whole page in the screenshot, not only the window"
+    },
+    {
+     "name": "--wait MS",
+     "type": "number",
+     "meaning": "The most milliseconds the page is given to settle (default `5000`)"
+    },
+    {
+     "name": "--lines LINES",
+     "type": "number",
+     "meaning": "The most lines of outline it prints (default `400`)"
+    },
+    {
+     "name": "--do STEP",
+     "type": "text, repeats",
+     "meaning": "A step to play before the page is read, as a test writes it: `click \"Name\"`, `type \"pika\" into \"Search\"`, `press \"Enter\"`, `expect \"Saved\"` (repeatable, in order)"
+    },
+    {
+     "name": "--fakes FILE",
+     "type": "path",
+     "meaning": "Build the site with these fakes answering its endpoints, as `wf verify --fakes` does, and open that"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
     },
     {
      "name": "--allow-output-outside",

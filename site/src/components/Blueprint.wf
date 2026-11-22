@@ -105,6 +105,7 @@ const FOOTER: [PlaceGroup] = [
     ]),
     PlaceGroup(key: "footer.agents", places: [
         Place(key: "footer.context", to: "/reference/cli/context"),
+        Place(key: "nav.benchmarks", to: "/benchmarks"),
         Place(key: "footer.changelog", to: "/changelog")
     ])
 ]

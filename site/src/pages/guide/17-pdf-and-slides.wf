@@ -1,6 +1,5 @@
-/// Chapter 17 of the guide, written from md-docs/learn/17-pdf-and-slides.md by
-/// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slides", description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.", layout: DocsShell("PDF and slides", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.", source: "md-docs/learn/17-pdf-and-slides.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-what-the-build-writes", label: "Choose what the build writes"), Anchor(id: "the-paged-engine", label: "The paged engine"), Anchor(id: "make-a-pdf-document", label: "Make a PDF document"), Anchor(id: "make-a-slide-deck", label: "Make a slide deck"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Set `build.output_type` to write a PDF document or a slide deck", "Lay out paper with `Document`, `Header`, `Footer`, `PageBreak` and `break-inside: avoid`", "Number pages with `page` and `pages`, and add a `TableOfContents`, charts and QR codes", "Use your own fonts, and lay out a right-to-left document", "Build a deck from `Presentation` and its slide kinds"], prevTo: "/learn/16-testing", prevLabel: t("ch.16"))) {
+/// Chapter 17 of the guide. This page is its source: edit it here.
+page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slides", description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.", layout: DocsShell("PDF and slides", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.", source: "site/src/pages/guide/17-pdf-and-slides.wf", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-what-the-build-writes", label: "Choose what the build writes"), Anchor(id: "the-paged-engine", label: "The paged engine"), Anchor(id: "make-a-pdf-document", label: "Make a PDF document"), Anchor(id: "make-a-slide-deck", label: "Make a slide deck"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Set `build.output_type` to write a PDF document or a slide deck", "Lay out paper with `Document`, `Header`, `Footer`, `PageBreak` and `break-inside: avoid`", "Number pages with `page` and `pages`, and add a `TableOfContents`, charts and QR codes", "Use your own fonts, and lay out a right-to-left document", "Build a deck from `Presentation` and its slide kinds"], prevTo: "/learn/16-testing", prevLabel: t("ch.16"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about compiling a WebFluent project to paper: a paginated PDF document, such as an invoice or a report, or a slide deck for a talk. You write the pages with the same elements and the same CSS as a website, and `wf build` lays them out on pages.\n\nIn this chapter:\n\n- choosing what the build writes;\n- how the paged engine lays out a page;\n- making a PDF document: paper, headers, page breaks, contents, charts, fonts and right-to-left text;\n- making a slide deck.")
 
@@ -434,7 +433,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
         Text("Revenue grew 15% this quarter.")
         Text("Page {page} of {pages}").muted.sm.center
     }
-}"#, title: "wf · draws T13")
+}"#, title: "wf", expect: "T13")
 
         Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already a built-in: the document's footer, drawn at the bottom of every page. A component you name `Footer` takes its place, so it is drawn once, where it is called, and no page gets a footer:")
 
@@ -448,7 +447,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
         Text("Total: $5,480.00").bold
         Footer("Acme Studio · invoice 2026-014")
     }
-}"#, title: "wf · draws V11")
+}"#, title: "wf", expect: "V11")
 
         Markdown("For a line on every page, use the built-in: `Footer \{ Text(\"Acme Studio · invoice 2026-014\") \}`, and name your own component for what it is, such as `component InvoiceNote` ([V11](/errors/V11)).\n\n**A table with no header row.** Without `Table.Head`, a reader of the file has no column names, and a table that runs onto a second page has no header to draw again there:")
 
@@ -462,7 +461,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
             }
         }
     }
-}"#, title: "wf · draws A10")
+}"#, title: "wf", expect: "A10")
 
         Markdown("Add `Table.Head \{ Table.Row \{ Table.Cell(\"Item\")  Table.Cell(\"Amount\") \} \}` ([A10](/errors/A10)).")
     }

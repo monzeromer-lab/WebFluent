@@ -4,8 +4,7 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/load-more
 
-A **Load more** button keeps what the reader has already seen and adds the
-next page below it. To build one, say on the endpoint how it pages:
+A **Load more** button keeps what the reader has already seen and adds the next page below it. To build one, say on the endpoint how it pages:
 
 **Needs:** a server that answers `/api/items?page=…` with a list of items.
 
@@ -27,25 +26,12 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 }
 ```
 
-The page shows the first page of items and a **Load more** button.
-Each press adds the next page beneath what is there, without losing the
-reader's place, and the button goes away once there is nothing more.
-
 ## How it works
 
-- `Catalog` [describes the service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api):
-  its `items` endpoint takes a `page` and returns a list of `Item`, and
-  `pages .number(param: page)` says it pages by that number
-  ([Load results a page at a time](https://webfluent.monzeromer.dev/learn/15-data.md#load-results-a-page-at-a-time)).
-- `list.items` is every item loaded so far, so the `for` lists them all and
-  `item.name` is checked against `Item`.
-- `list.loadMore()` asks for the next page, as a refresh: the items already
-  shown stay while it runs. The read keeps the page number; nothing on the
-  page holds it.
-- `list.pending` is true while a request runs, so the button shows it is
-  busy and cannot ask twice. `list.hasMore` turns false when a page comes
-  back empty, and the button goes.
-- A server that pages by cursor, or by a `Link` header, says so instead:
-  `pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)`
-  (a cursor comes with a page that is a record, so it says where the items
-  are), or `pages .link`.
+The page shows the first page of items and a **Load more** button. Each press adds the next page beneath what is there, without losing the reader's place, and the button goes away once there is nothing more.
+
+- `Catalog` [describes the service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api): its `items` endpoint takes a `page` and returns a list of `Item`, and `pages .number(param: page)` says it pages by that number ([Load results a page at a time](https://webfluent.monzeromer.dev/learn/15-data.md#load-results-a-page-at-a-time)).
+- `list.items` is every item loaded so far, so the `for` lists them all and `item.name` is checked against `Item`.
+- `list.loadMore()` asks for the next page, as a refresh: the items already shown stay while it runs. The read keeps the page number; nothing on the page holds it.
+- `list.pending` is true while a request runs, so the button shows it is busy and cannot ask twice. `list.hasMore` turns false when a page comes back empty, and the button goes.
+- A server that pages by cursor, or by a `Link` header, says so instead: `pages .cursor(param: after, next: p => p.nextCursor, items: p => p.items)` (a cursor comes with a page that is a record, so it says where the items are), or `pages .link`.

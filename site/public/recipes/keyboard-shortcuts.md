@@ -4,13 +4,9 @@
 
 The page: https://webfluent.monzeromer.dev/recipes/keyboard-shortcuts
 
-An app a reader uses every day earns shortcuts: a key to save, and one
-key that opens a list of every command, which they filter by typing and
-run with Enter. This page answers Ctrl+S (⌘S on a Mac) and opens its
-palette on Ctrl+K (⌘K):
+An app a reader uses every day earns shortcuts: a key to save, and one key that opens a list of every command, which they filter by typing and run with Enter. This page answers Ctrl+S (⌘S on a Mac) and opens its palette on Ctrl+K (⌘K):
 
-**Needs:** nothing besides the page. Paste it into a file under
-`src/pages/` and open `/notes`.
+**Needs:** nothing besides the page. Paste it into a file under `src/pages/` and open `/notes`.
 
 ```wf
 type Command { id: String, label: String, keys: String }
@@ -69,38 +65,20 @@ page Notes(path: "/notes", title: "Notes", description: "Notes, with a command p
 }
 ```
 
-Press Ctrl+K, type `sav` and press Enter: the palette closes and the page
-says "Ran “Save”." The two theme commands call `setTheme`, which shows a
-change once the project names a dark theme
-([Add a dark-mode switch](https://webfluent.monzeromer.dev/recipes/dark-mode-switch.md)).
-
 ## How it works
 
-- `on key("mod+k", e) { … }` at the top of the page listens on the whole
-  document for as long as the page shows, and stops when the reader leaves
-  it. `mod` is ⌘ on a Mac and Ctrl elsewhere, which is what an app's
-  shortcuts use. `e` is the key event: `e.preventDefault()` keeps the
-  browser's own Ctrl+K (its search bar) and Ctrl+S (save the page) from
-  running too.
-- The palette is a `Modal`. It traps focus while open, Escape closes it,
-  and `on close` sets `open` back to `false` however it closed.
-- `shown` filters the commands by what is typed. Enter in the field runs
-  the first one left; a click runs any of them.
-- `keyLabel(c.keys)` writes a shortcut the way the reader's system does:
-  `⌘S` on a Mac, `Ctrl+S` elsewhere.
-- Every command goes through `run`, so a shortcut and the palette do the
-  same thing, and the commands stay one list of data.
+Press Ctrl+K, type `sav` and press Enter: the palette closes and the page says "Ran “Save”." The two theme commands call `setTheme`, which shows a change once the project names a dark theme ([Add a dark-mode switch](https://webfluent.monzeromer.dev/recipes/dark-mode-switch.md)).
+
+- `on key("mod+k", e) { … }` at the top of the page listens on the whole document for as long as the page shows, and stops when the reader leaves it. `mod` is ⌘ on a Mac and Ctrl elsewhere, which is what an app's shortcuts use. `e` is the key event: `e.preventDefault()` keeps the browser's own Ctrl+K (its search bar) and Ctrl+S (save the page) from running too.
+- The palette is a `Modal`. It traps focus while open, Escape closes it, and `on close` sets `open` back to `false` however it closed.
+- `shown` filters the commands by what is typed. Enter in the field runs the first one left; a click runs any of them.
+- `keyLabel(c.keys)` writes a shortcut the way the reader's system does: `⌘S` on a Mac, `Ctrl+S` elsewhere.
+- Every command goes through `run`, so a shortcut and the palette do the same thing, and the commands stay one list of data.
 
 ## Variations
 
-- **A shortcut on one element**: written inside an element's block,
-  `on key("Enter") { … }` listens on that element only.
-- **A chord**: `on key("mod+k mod+s") { … }` is Ctrl+K then Ctrl+S, the
-  second within 1.5 seconds.
-- **A shortcut for the whole app**: `on key(…)` at the top of `app`
-  listens on every page.
-- **Check a combination held as data**: `keyIs(e, c.keys)` in an
-  `on keydown(e)` handler says whether the event is that combination, so
-  one handler can serve every command in the list.
-- **Show the shortcut beside a control**: `Tooltip("Save", shortcut: "mod+s")`
-  and `Menu.Item(shortcut: "mod+s")` write it with `keyLabel` for you.
+- **A shortcut on one element**: written inside an element's block, `on key("Enter") { … }` listens on that element only.
+- **A chord**: `on key("mod+k mod+s") { … }` is Ctrl+K then Ctrl+S, the second within 1.5 seconds.
+- **A shortcut for the whole app**: `on key(…)` at the top of `app` listens on every page.
+- **Check a combination held as data**: `keyIs(e, c.keys)` in an `on keydown(e)` handler says whether the event is that combination, so one handler can serve every command in the list.
+- **Show the shortcut beside a control**: `Tooltip("Save", shortcut: "mod+s")` and `Menu.Item(shortcut: "mod+s")` write it with `keyLabel` for you.

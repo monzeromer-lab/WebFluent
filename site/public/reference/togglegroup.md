@@ -48,13 +48,13 @@ Written under its name, inside `ToggleGroup`.
 One choice: its words, and the value bind: holds when it is chosen.
 
 ```wf
-ToggleGroup.Item(_ label: String, value: String or Number or Bool, icon: String, disabled: Bool)
+ToggleGroup.Item(_ label: String, value: String or Number or Bool or Bound, icon: String, disabled: Bool)
 ```
 
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String (positional)` | Its words |
-| `value:` | `String or Number or Bool (required)` | What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then |
+| `value:` | `String or Number or Bool or Bound (required)` | What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then; a case (`.food`) when `bind:` holds an enum (`Bound`) |
 | `icon:` | `String` | An icon before the words, one of the built-in icon names |
 | `disabled:` | `Bool` | Whether the item is inert: it cannot be pressed and the arrow keys pass over it. Written as a flag, `.disabled`, or `disabled: true`. |
 

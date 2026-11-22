@@ -4,20 +4,14 @@
 
 The page: https://webfluent.monzeromer.dev/reference/grammar
 
-This page is a map of what the parser accepts: each keyword, each
-statement, and where it may be written. The other chapters say what each
-form means; this page says where it goes.
+This page is a map of what the parser accepts: each keyword, each statement, and where it may be written. The other chapters say what each form means; this page says where it goes.
 
 How to read the shapes on this page:
 
 - A `text` block shows the shape of a form, not a program to copy.
 - `…` stands for more of the same, and `|` separates alternatives.
-- A word in lower case that is not a keyword, such as `expr`, `Type` or
-  `name`, stands for something you write there.
-- *Render block* means a block that holds elements and the statements that
-  declare state: a page, a component, the `app`, a test, and every
-  element's children. *Imperative block* means a block of statements that
-  run: an action, a handler, an effect, a timer or a hook.
+- A word in lower case that is not a keyword, such as `expr`, `Type` or `name`, stands for something you write there.
+- *Render block* means a block that holds elements and the statements that declare state: a page, a component, the `app`, a test, and every element's children. *Imperative block* means a block of statements that run: an action, a handler, an effect, a timer or a hook.
 
 ## Names
 
@@ -29,19 +23,9 @@ The case of a name says what it is:
 | Elements, and the names declarations introduce | capitalised | `Button`, `UserCard`, `Todo` |
 | Everything else | camelCase | `draft`, `isOpen`, `saveAll` |
 
-A keyword has its meaning only where a statement starts. Everywhere else
-it is an ordinary word, so every keyword works as a map key
-(`{ action: "approve", type: "a" }`), a field name and an enum case.
+A keyword has its meaning only where a statement starts. Everywhere else it is an ordinary word, so every keyword works as a map key (`{ action: "approve", type: "a" }`), a field name and an enum case.
 
-A name the language already gives a meaning cannot be a program's own: the
-words a statement is written with (`state`, `action`, `let`, `if`, `show`,
-`match`, `style`, `on`, and the rest), the built-in functions, and the
-values `env`, `params`, `locale`, `dir`, `now`, `viewport`, `query`,
-`hash`, `theme`, `network` and `update`. Declared as a `state`, a prop, a
-parameter, a loop item, a lambda's parameter or a `const`, one is an
-`E118`. The names a handler brings (`event`, `e`, `value`, `key`) and the
-browser's globals are yours to use. A program's own names may be written in
-any script, Arabic included.
+A name the language already gives a meaning cannot be a program's own: the words a statement is written with (`state`, `action`, `let`, `if`, `show`, `match`, `style`, `on`, and the rest), the built-in functions, and the values `env`, `params`, `locale`, `dir`, `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update`. Declared as a `state`, a prop, a parameter, a loop item, a lambda's parameter or a `const`, one is an `E118`. The names a handler brings (`event`, `e`, `value`, `key`) and the browser's globals are yours to use. A program's own names may be written in any script, Arabic included.
 
 ## Keywords
 
@@ -109,17 +93,11 @@ test "name"(data: { … }, fakes: [Fake, …]) { render block and test steps }
 example Component "what it shows"(fakes: [Fake, …]) { render block }
 ```
 
-An *error enum* is an enum whose cases name statuses with `on`: one
-status (`on 422`) or a class (`on 4XX`, every status of it no other case
-names), and exactly one `http(error: HttpError)` case for the rest (`N12`).
+An *error enum* is an enum whose cases name statuses with `on`: one status (`on 422`) or a class (`on 4XX`, every status of it no other case names), and exactly one `http(error: HttpError)` case for the rest (`N12`).
 
-A `///` comment before a declaration, a prop, a field, an event, an
-endpoint, or a `state`, `persist`, `derived` or `action` of a page, a
-component or a store is its documentation.
+A `///` comment before a declaration, a prop, a field, an event, an endpoint, or a `state`, `persist`, `derived` or `action` of a page, a component or a store is its documentation.
 
-A store's body holds `state`, `persist`, `derived`, `effect`, `action`,
-`resource` and the connections (`socket`, `stream`, `channel`, `peer`,
-`worker`).
+A store's body holds `state`, `persist`, `derived`, `effect`, `action`, `resource` and the connections (`socket`, `stream`, `channel`, `peer`, `worker`).
 
 ## Types
 
@@ -137,15 +115,11 @@ A type is written wherever a `: Type` or a `-> Type` goes:
 | Nothing, but it may fail | `-> !`, `-> ! CreateUserError` — after an action or an endpoint only |
 | A refined type | `Number(1..=30)`, `String(minLength: 8)`, `Date(after: @2026-01-01)` — a condition on its values: `min`, `max`, `minLength`, `maxLength`, `pattern`, `after`, `before`, or a range |
 
-`type Name = Type` gives a type another name. `Any` and `Map` are not
-types (`T23`, `T24`): JSON whose shape is open is `Json`.
+`type Name = Type` gives a type another name. `Any` and `Map` are not types (`T23`, `T24`): JSON whose shape is open is `Json`.
 
 ## Services
 
-An `api` body holds settings, `middleware`, endpoints, and the
-`invalidations { }` and `pagination { }` of its groups. A group,
-`api Name.group { }`, holds endpoints only; it sends what its service
-sends.
+An `api` body holds settings, `middleware`, endpoints, and the `invalidations { }` and `pagination { }` of its groups. A group, `api Name.group { }`, holds endpoints only; it sends what its service sends.
 
 ```text
 api Name(base: expr) {
@@ -163,14 +137,11 @@ api Name(base: expr) {
 }
 ```
 
-Every endpoint has `at "path"`, every `{name}` in it is one of its
-parameters (`N01`), and its answer is `-> T!`, `-> T ! E`, `-> !` or
-`-> ! E`. An endpoint may also say `cache:` and `as:` after its answer.
+Every endpoint has `at "path"`, every `{name}` in it is one of its parameters (`N01`), and its answer is `-> T!`, `-> T ! E`, `-> !` or `-> ! E`. An endpoint may also say `cache:` and `as:` after its answer.
 
 ## Render blocks
 
-A page, a component, the app, a test and every element's children hold
-these statements:
+A page, a component, the app, a test and every element's children hold these statements:
 
 | Statement | Form |
 |---|---|
@@ -196,13 +167,11 @@ these statements:
 | element | `Name(positional, prop: value).flag.flag { block }` |
 | slot use | `children`, `slotName`, `slotName(value: expr)` — a component only |
 
-A connection's options may also be written inside its block, one
-`name: value` to a line.
+A connection's options may also be written inside its block, one `name: value` to a line.
 
 ## Component bodies
 
-A component's body is a render block, and before its elements it may
-declare:
+A component's body is a render block, and before its elements it may declare:
 
 ```text
 slot                                  the default slot, placed with `children`
@@ -244,11 +213,9 @@ Actions, handlers, effects, timers and hooks hold these statements:
 | a result's value | `let v = try await Api.endpoint(args)` — the value, or the error returned from the action |
 | waiting | `await expr` — makes the action asynchronous |
 
-A pattern in a `match` arm or an `if let` is a case (`.ok(v)`), a case
-inside a case (`.err(.http(.status(503, _)))`), `_`, or a literal.
+A pattern in a `match` arm or an `if let` is a case (`.ok(v)`), a case inside a case (`.err(.http(.status(503, _)))`), `_`, or a literal.
 
-`let`, `return` and `emit` written in a render block are an error that
-says to move them into a handler, an action or an effect.
+`let`, `return` and `emit` written in a render block are an error that says to move them into a handler, an action or an effect.
 
 ## Style blocks and themes
 
@@ -268,8 +235,7 @@ A theme's body is the same declarations, without nesting.
 
 ## Test steps
 
-A `test` holds render statements and these steps, run in the order
-written:
+A `test` holds render statements and these steps, run in the order written:
 
 | Step | Form |
 |---|---|
@@ -280,12 +246,9 @@ written:
 | type | `type "text" into "name"` |
 | key | `press "Key"`, `press "Key" in "name"`, `press "mod+k"` |
 
-`test "name"(fakes: [Fake])` answers the endpoints of a `fake`'s group in
-place of the network; `data: { … }` seeds the body's state.
+`test "name"(fakes: [Fake])` answers the endpoints of a `fake`'s group in place of the network; `data: { … }` seeds the body's state.
 
-`example Component "what it shows" { … }` is one way to use a component,
-drawn by `wf docs`: a render block with no steps, checked as a page's body
-and left out of every build.
+`example Component "what it shows" { … }` is one way to use a component, drawn by `wf docs`: a render block with no steps, checked as a page's body and left out of every build.
 
 ## Expressions
 
@@ -304,20 +267,17 @@ The operators, from weakest to strongest binding:
 | 9 | unary `!` `-`, `await`, `try` |
 | 10 | calls `f(…)`, fields `a.b`, `a?.b`, methods `a.m(…)`, `a?.m(…)`, indexes `a[i]`, `a?.[i]`, flags |
 
-So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`.
-Operators of one level group from the left: `a - b - c` is `(a - b) - c`.
+So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. Operators of one level group from the left: `a - b - c` is `(a - b) - c`.
 
 These forms are expressions too:
 
-- `if c { a } else { b }`, which is `null` when there is no `else` and `c`
-  fails;
+- `if c { a } else { b }`, which is `null` when there is no `else` and `c` fails;
 - `if let x = v { a } else { b }`;
 - `match v { .case { a } else { b } }`;
 - lambdas `x => expr`, `(a, b) => expr` and `() => expr`;
 - spreads `...x` in a list, a map or a call's arguments.
 
-A call's named arguments (`due.plus(days: 3)`) are gathered into one map,
-passed last. [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md) explains each form.
+A call's named arguments (`due.plus(days: 3)`) are gathered into one map, passed last. [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md) explains each form.
 
 ## Literals
 
@@ -341,14 +301,4 @@ passed last. [Expressions](https://webfluent.monzeromer.dev/reference/expression
 
 ## Layout
 
-A `.wf` file writes blocks in braces. A `.wfx` file writes them by
-indentation: a line indented deeper than the one before opens a block, and
-a dedent closes it. Braces written by hand still work inside a line
-([Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#two-layouts-wf-and-wfx)).
-Statements need no separator, on one line either: the parser finds where
-one ends. Two on one line read best apart by a `;` or two spaces
-(`count = 0; log(count)`).
-
-## Next
-
-[Browser support](https://webfluent.monzeromer.dev/reference/browser-support.md): which browsers a WebFluent site targets, and what each newer platform feature falls back to where a browser lacks it.
+A `.wf` file writes blocks in braces. A `.wfx` file writes them by indentation: a line indented deeper than the one before opens a block, and a dedent closes it. Braces written by hand still work inside a line ([Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md#two-layouts-wf-and-wfx)). Statements need no separator, on one line either: the parser finds where one ends. Two on one line read best apart by a `;` or two spaces (`count = 0; log(count)`).
