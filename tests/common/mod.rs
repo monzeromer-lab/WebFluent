@@ -595,39 +595,49 @@ pub(crate) fn css_defines_class(css: &str, class: &str) -> bool {
     false
 }
 
-/// Every page of the guide, `md-docs/**/*.md`: its path under `md-docs/`
-/// (`learn/07-state-and-reactivity.md`) and its text, in path order. The
-/// guide's own `README.md` is one of them.
-pub(crate) fn guide_pages() -> Vec<(String, String)> {
-    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
-        for entry in std::fs::read_dir(dir).expect("md-docs").flatten() {
-            let path = entry.path();
-            if path.is_dir() {
-                walk(&path, out);
-            } else if path.extension().is_some_and(|x| x == "md") {
-                out.push(path);
-            }
-        }
-    }
-    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs");
-    let mut paths = Vec::new();
-    walk(&root, &mut paths);
-    let mut out: Vec<(String, String)> = paths
-        .into_iter()
-        .map(|p| {
-            let rel = p
-                .strip_prefix(&root)
-                .unwrap()
-                .to_string_lossy()
-                .replace('\\', "/");
-            (rel, std::fs::read_to_string(&p).unwrap())
-        })
-        .collect();
-    out.sort();
-    out
+// ─── The documentation, read from the site's pages ──────────────────────
+//
+// The guide is the documentation site's own pages: `site/src/pages/` holds a
+// `page` per chapter, recipe and cheat sheet, its words in a few elements —
+// `Heading`, `Markdown(…)`, `DocsCodeBlock`, `DocsCallout`, `Table`,
+// `Terminal`, `Quiz` — inside a shell (`DocsShell`, `RecipeShell`, …). The
+// compiler's parser reads each page, and [`guide_pages`] writes it back as the
+// Markdown it shows, so a check reads a page as a reader does: its headings,
+// its prose, its links, and each code block as a fence carrying what the
+// block says of itself (`DocsCodeBlock(code, expect: "T04")` is
+// ```` ```wf expect=T04 ````, `check: false` is `no-check`). Each code's page
+// is the compiler's explanation of it (`src/diagnostics/explain/CODE.md`).
+
+/// A page of the documentation: its name (its address without the leading
+/// slash: `learn/07-state-and-reactivity`, `errors/T05`, `recipes`), the
+/// file it is written in, and its text — a front matter of what the page
+/// says of itself (`route`, `title`, `description`, `kind`, `group`,
+/// `blurb`, `learned`, `lang`, and `chapter` for a numbered chapter), then
+/// `# Title`, then its Markdown.
+#[derive(Debug, Clone)]
+pub(crate) struct DocPage {
+    pub name: String,
+    pub file: String,
+    pub text: String,
+    /// Every `#anchor` the page has: each element's `id:` (a `Heading`'s,
+    /// its shell's own sections') and each heading of its Markdown.
+    pub anchors: Vec<String>,
 }
 
-/// A value of a guide page's front matter (`chapter: 12`, `route: "guide/state"`),
+/// Every page of the documentation, by name: the site's pages of words and
+/// each code's page.
+pub(crate) fn doc_pages() -> Vec<DocPage> {
+    static PAGES: std::sync::OnceLock<Vec<DocPage>> = std::sync::OnceLock::new();
+    PAGES.get_or_init(read_doc_pages).clone()
+}
+
+/// Every page of the guide, `(name, text)`, in name order — as
+/// [`doc_pages`].
+pub(crate) fn guide_pages() -> Vec<(String, String)> {
+    doc_pages().into_iter().map(|p| (p.name, p.text)).collect()
+}
+
+/// A value of a guide page's front matter (`chapter: 12`, `route: "/learn/…"`),
 /// a quoted one read as the JSON string it is.
 pub(crate) fn front_matter(text: &str, key: &str) -> Option<String> {
     let front = text.strip_prefix("---\n")?.split_once("\n---\n")?.0;
@@ -641,20 +651,560 @@ pub(crate) fn front_matter(text: &str, key: &str) -> Option<String> {
 }
 
 /// The guide's chapters — the pages whose front matter numbers them — as
-/// `(number, path under md-docs/, text)`, in chapter order.
+/// `(number, name, text)`, in chapter order.
 pub(crate) fn guide_chapters() -> Vec<(u32, String, String)> {
     let mut out: Vec<(u32, String, String)> = guide_pages()
         .into_iter()
-        .filter_map(|(path, text)| {
+        .filter_map(|(name, text)| {
             let n = front_matter(&text, "chapter")?.parse().ok()?;
-            Some((n, path, text))
+            Some((n, name, text))
         })
         .collect();
     out.sort();
     out
 }
 
-/// What a code fence in the guide says about its block: ```` ```wf page live ````.
+/// The site's translations in `lang`, by key.
+fn translations(lang: &str) -> HashMap<String, String> {
+    let path = repo().join(format!("site/src/translations/{lang}.json"));
+    std::fs::read_to_string(path)
+        .ok()
+        .and_then(|t| serde_json::from_str(&t).ok())
+        .unwrap_or_default()
+}
+
+fn repo() -> &'static std::path::Path {
+    std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
+}
+
+/// Every `.wf` file under `dir`, in path order.
+pub(crate) fn wf_files(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
+    let mut out = Vec::new();
+    let mut stack = vec![dir.to_path_buf()];
+    while let Some(d) = stack.pop() {
+        for e in std::fs::read_dir(&d).into_iter().flatten().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                stack.push(p);
+            } else if p.extension().is_some_and(|x| x == "wf") {
+                out.push(p);
+            }
+        }
+    }
+    out.sort();
+    out
+}
+
+/// What the page writer needs beside a page: the translations it reads
+/// `t("key")` in, and the components of words a page places
+/// (a shell's own parts).
+struct Writer {
+    lang: HashMap<String, String>,
+    en: HashMap<String, String>,
+    components: HashMap<String, Vec<Statement>>,
+}
+
+impl Writer {
+    fn text(&self, e: &Expr) -> String {
+        match e {
+            Expr::StringLiteral(s) => s.clone(),
+            Expr::InterpolatedString(parts) => parts
+                .iter()
+                .map(|p| match p {
+                    StringPart::Literal(s) => s.clone(),
+                    _ => "{…}".to_string(),
+                })
+                .collect(),
+            Expr::FunctionCall(f, args) if f == "t" => {
+                let key = args.first().map(|a| self.text(a)).unwrap_or_default();
+                self.lang
+                    .get(&key)
+                    .or_else(|| self.en.get(&key))
+                    .cloned()
+                    .unwrap_or(key)
+            }
+            Expr::NumberLiteral(n) => n.to_string(),
+            _ => String::new(),
+        }
+    }
+
+    fn pos(&self, el: &UIElement, i: usize) -> Option<String> {
+        el.args
+            .iter()
+            .filter_map(|a| match a {
+                Arg::Positional(e) => Some(e),
+                Arg::Named(..) => None,
+            })
+            .nth(i)
+            .map(|e| self.text(e))
+    }
+
+    fn markdown(&self, body: &[Statement], out: &mut Vec<String>) {
+        for st in body {
+            match &st.kind {
+                StatementKind::UIElement(el) => self.element(el, out),
+                StatementKind::If(i) => {
+                    self.markdown(&i.then_body, out);
+                    for (_, b) in &i.else_if_branches {
+                        self.markdown(b, out);
+                    }
+                    if let Some(b) = &i.else_body {
+                        self.markdown(b, out);
+                    }
+                }
+                StatementKind::For(f) => self.markdown(&f.body, out),
+                StatementKind::Show(s) => self.markdown(&s.body, out),
+                _ => {}
+            }
+        }
+    }
+
+    fn element(&self, el: &UIElement, out: &mut Vec<String>) {
+        let name = match &el.component {
+            ComponentRef::BuiltIn(n) | ComponentRef::UserDefined(n) => n.clone(),
+            ComponentRef::SubComponent(a, b) => format!("{a}.{b}"),
+        };
+        match name.as_str() {
+            "Heading" => {
+                let level = el
+                    .modifiers
+                    .iter()
+                    .find_map(|m| m.strip_prefix('h').and_then(|n| n.parse::<usize>().ok()))
+                    .unwrap_or(2);
+                out.push(format!(
+                    "{} {}",
+                    "#".repeat(level),
+                    self.pos(el, 0).unwrap_or_default()
+                ));
+            }
+            "Markdown" => out.push(self.pos(el, 0).unwrap_or_default()),
+            "DocsCodeBlock" => {
+                let title =
+                    arg(&el.args, "title").map_or_else(|| "wf".to_string(), |e| self.text(e));
+                let lang = match title.as_str() {
+                    "markdown" => "md".to_string(),
+                    t => t.rsplit('.').next().unwrap_or(t).to_string(),
+                };
+                let mut info = lang;
+                if let Some(code) = arg(&el.args, "expect").map(|e| self.text(e)) {
+                    info.push_str(&format!(" expect={code}"));
+                }
+                if el
+                    .args
+                    .iter()
+                    .any(|a| matches!(a, Arg::Named(k, Expr::BoolLiteral(false)) if k == "check"))
+                {
+                    info.push_str(" no-check");
+                }
+                out.push(fenced(&info, &self.pos(el, 0).unwrap_or_default()));
+            }
+            "Terminal" => {
+                let mut lines = Vec::new();
+                for a in &el.args {
+                    if let Arg::Named(k, Expr::ListLiteral(items)) = a
+                        && k == "lines"
+                    {
+                        for item in items {
+                            if let Expr::Record(_, fields) = item
+                                && let Some((_, c)) = fields.iter().find(|(k, _)| k == "command")
+                            {
+                                lines.push(self.text(c));
+                            }
+                        }
+                    }
+                }
+                out.push(fenced("bash", &lines.join("\n")));
+            }
+            "DocsCallout" => {
+                let kind = el
+                    .args
+                    .iter()
+                    .find_map(|a| match a {
+                        Arg::Named(k, Expr::EnumCase(c)) if k == "kind" => Some(c.to_uppercase()),
+                        _ => None,
+                    })
+                    .unwrap_or_else(|| "NOTE".to_string());
+                let mut text = format!("> [!{kind}]");
+                for l in self.pos(el, 0).unwrap_or_default().lines() {
+                    text.push_str(&format!("\n> {l}"));
+                }
+                out.push(text);
+            }
+            "Quiz" => {
+                let mut lines = vec![self.pos(el, 0).unwrap_or_default()];
+                for a in &el.args {
+                    if let Arg::Named(k, Expr::ListLiteral(items)) = a
+                        && k == "choices"
+                    {
+                        for item in items {
+                            let Expr::Record(_, f) = item else { continue };
+                            let get = |n: &str| f.iter().find(|(k, _)| k == n).map(|(_, v)| v);
+                            let right = matches!(get("right"), Some(Expr::BoolLiteral(true)));
+                            let why = get("why").map(|v| self.text(v)).unwrap_or_default();
+                            let text = get("text").map(|v| self.text(v)).unwrap_or_default();
+                            let why = if why.is_empty() {
+                                String::new()
+                            } else {
+                                format!(" -- {why}")
+                            };
+                            lines.push(format!("{} {text}{why}", if right { '+' } else { '-' }));
+                        }
+                    }
+                }
+                out.push(fenced("quiz", &lines.join("\n")));
+            }
+            "Table" => {
+                let mut rows: Vec<Vec<String>> = Vec::new();
+                self.rows(&el.children, &mut rows);
+                if let Some(head) = rows.first() {
+                    let mut t = format!("| {} |\n|{}", head.join(" | "), "---|".repeat(head.len()));
+                    for r in &rows[1..] {
+                        t.push_str(&format!("\n| {} |", r.join(" | ")));
+                    }
+                    out.push(t);
+                }
+            }
+            "Text" | "Paragraph" if self.pos(el, 0).is_some() => {
+                out.push(self.pos(el, 0).unwrap_or_default());
+            }
+            other => {
+                if let Some(body) = self.components.get(other) {
+                    self.markdown(body, out);
+                }
+                for fill in &el.slot_fills {
+                    self.markdown(&fill.body, out);
+                }
+                self.markdown(&el.children, out);
+            }
+        }
+    }
+
+    /// Every `id:` an element in `body` is given, and in the components it
+    /// places (a shell's own sections), as far as `depth` goes.
+    fn ids(&self, body: &[Statement], out: &mut Vec<String>, depth: usize) {
+        for st in body {
+            match &st.kind {
+                StatementKind::UIElement(el) => {
+                    if let Some(id) = arg(&el.args, "id").map(|e| self.text(e))
+                        && !id.is_empty()
+                    {
+                        out.push(id);
+                    }
+                    if let ComponentRef::UserDefined(n) = &el.component
+                        && depth > 0
+                        && let Some(b) = self.components.get(n)
+                    {
+                        self.ids(b, out, depth - 1);
+                    }
+                    for f in &el.slot_fills {
+                        self.ids(&f.body, out, depth);
+                    }
+                    self.ids(&el.children, out, depth);
+                }
+                StatementKind::If(i) => {
+                    self.ids(&i.then_body, out, depth);
+                    if let Some(b) = &i.else_body {
+                        self.ids(b, out, depth);
+                    }
+                }
+                StatementKind::For(f) => self.ids(&f.body, out, depth),
+                _ => {}
+            }
+        }
+    }
+
+    fn rows(&self, body: &[Statement], rows: &mut Vec<Vec<String>>) {
+        for st in body {
+            let StatementKind::UIElement(el) = &st.kind else {
+                continue;
+            };
+            if matches!(&el.component, ComponentRef::SubComponent(a, b) if a == "Table" && b == "Row")
+            {
+                let cells = el
+                    .children
+                    .iter()
+                    .filter_map(|c| match &c.kind {
+                        StatementKind::UIElement(cell) => {
+                            Some(self.pos(cell, 0).unwrap_or_else(|| {
+                                let mut inner = Vec::new();
+                                self.markdown(&cell.children, &mut inner);
+                                inner.join(" ")
+                            }))
+                        }
+                        _ => None,
+                    })
+                    .map(|t| t.replace('\n', " ").replace('|', "\\|"))
+                    .collect();
+                rows.push(cells);
+            } else {
+                self.rows(&el.children, rows);
+            }
+        }
+    }
+}
+
+/// The anchor a heading gets on the site: its letters and digits in any
+/// script, lower-cased, a combining mark kept with its letter, the rest a
+/// dash — as `scripts/docsite/sitepages.py` and the compiler make it.
+pub(crate) fn slug(text: &str) -> String {
+    let text = text.replace('`', "").to_lowercase();
+    let mut out = String::new();
+    let mut dash = false;
+    for c in text.chars() {
+        if matches!(c, '\u{0300}'..='\u{036F}' | '\u{0610}'..='\u{061A}' | '\u{064B}'..='\u{065F}' | '\u{0670}')
+        {
+            continue;
+        }
+        if c.is_alphanumeric() {
+            out.push(c);
+            dash = false;
+        } else if !dash {
+            out.push('-');
+            dash = true;
+        }
+    }
+    out.trim_matches('-').to_string()
+}
+
+/// The anchors of a text's `##` to `####` headings, outside its code.
+fn markdown_anchors(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut fenced = false;
+    for line in text.lines() {
+        if line.starts_with("```") {
+            fenced = !fenced;
+        } else if !fenced
+            && let Some(h) = ["## ", "### ", "#### "]
+                .iter()
+                .find_map(|p| line.strip_prefix(p))
+        {
+            out.push(slug(h.trim()));
+        }
+    }
+    out
+}
+
+fn fenced(info: &str, code: &str) -> String {
+    let ticks = if code.contains("```") { "````" } else { "```" };
+    format!("{ticks}{info}\n{code}\n{ticks}")
+}
+
+/// A front matter line: `key: "value"`.
+fn meta(key: &str, value: &str) -> String {
+    format!("{key}: {}\n", serde_json::to_string(value).unwrap())
+}
+
+fn arg<'a>(args: &'a [Arg], key: &str) -> Option<&'a Expr> {
+    args.iter().find_map(|a| match a {
+        Arg::Named(k, e) if k == key => Some(e),
+        _ => None,
+    })
+}
+
+fn read_doc_pages() -> Vec<DocPage> {
+    let pages_dir = repo().join("site/src/pages");
+    let mut components: HashMap<String, Vec<Statement>> = HashMap::new();
+    let mut programs = Vec::new();
+    for path in wf_files(&repo().join("site/src")) {
+        let rel = path.strip_prefix(repo()).unwrap().display().to_string();
+        let text = std::fs::read_to_string(&path).unwrap();
+        let program = webfluent::parse_source(&text, &rel)
+            .unwrap_or_else(|e| panic!("{rel} does not parse: {e}"));
+        for d in &program.declarations {
+            if let Declaration::Component(c) = d {
+                components.insert(c.name.clone(), c.body.clone());
+            }
+        }
+        // The pages of words: the guide's chapters, the recipes, the cheat
+        // sheets, the reference's pages of words, and each built-in's page
+        // (its example is `scripts/docsite/examples.py`'s). A command's
+        // page is the CLI's words, read below, and the error pages are
+        // each code's explanation, read below too.
+        let words = ["guide", "recipes", "comingfrom"]
+            .iter()
+            .any(|d| path.starts_with(pages_dir.join(d)))
+            || ["Builtins.wf", "Cli.wf", "Config.wf", "Tokens.wf"]
+                .iter()
+                .any(|f| path == pages_dir.join("reference").join(f));
+        if words {
+            programs.push((path, rel, program));
+        }
+    }
+    let en = translations("en");
+    let mut out = Vec::new();
+    for (path, rel, program) in &programs {
+        for d in &program.declarations {
+            let Declaration::Page(page) = d else { continue };
+            if page.redirect.is_some() || page.path.contains(':') {
+                continue;
+            }
+            let lang = page.lang.clone().unwrap_or_else(|| "en".to_string());
+            let w = Writer {
+                lang: translations(&lang),
+                en: en.clone(),
+                components: components.clone(),
+            };
+            // The shell: the page's layout, or the first element of its body.
+            let mut front = meta("route", &page.path);
+            let mut shell_args: Vec<Arg> = Vec::new();
+            let mut shell_name = String::new();
+            let mut lines = Vec::new();
+            let mut title = page.title.clone().unwrap_or_default();
+            if let Some(layout) = &page.layout {
+                shell_name = layout.name.clone();
+                shell_args = layout.args.clone();
+                // A `DocsShell` page draws its words in one `Stack`.
+                w.markdown(&page.body, &mut lines);
+            } else if let Some(el) = page.body.iter().find_map(|s| match &s.kind {
+                StatementKind::UIElement(el)
+                    if matches!(&el.component, ComponentRef::UserDefined(n) if n.ends_with("Shell")) =>
+                {
+                    Some(el)
+                }
+                _ => None,
+            }) {
+                if let ComponentRef::UserDefined(n) = &el.component {
+                    shell_name = n.clone();
+                }
+                shell_args = el.args.clone();
+                for fill in ["code", "differences", "port", "notes"] {
+                    if let Some(f) = el.slot_fills.iter().find(|f| f.name == fill) {
+                        w.markdown(&f.body, &mut lines);
+                    }
+                }
+                // A recipe's variations come after its words, as the shell draws them.
+                let how = !el
+                    .args
+                    .iter()
+                    .any(|a| matches!(a, Arg::Named(k, Expr::BoolLiteral(false)) if k == "how"));
+                if shell_name == "RecipeShell" && how {
+                    lines.push("## How it works".to_string());
+                }
+                w.markdown(&el.children, &mut lines);
+                if let Some(f) = el.slot_fills.iter().find(|f| f.name == "variations") {
+                    lines.push("## Variations".to_string());
+                    w.markdown(&f.body, &mut lines);
+                }
+            } else {
+                w.markdown(&page.body, &mut lines);
+            }
+            if let Some(Arg::Positional(e)) = shell_args.first() {
+                let t = w.text(e);
+                if !t.is_empty() {
+                    title = t;
+                }
+            }
+            let kind = match shell_name.as_str() {
+                "DocsShell" => arg(&shell_args, "kind")
+                    .and_then(|e| match e {
+                        Expr::EnumCase(c) => Some(c.clone()),
+                        _ => None,
+                    })
+                    .unwrap_or_else(|| "tutorial".to_string()),
+                "RecipeShell" => "howto".to_string(),
+                "ComingFromShell" => "comingfrom".to_string(),
+                "ReferenceItemShell" => "reference".to_string(),
+                _ => "page".to_string(),
+            };
+            front.push_str(&meta("kind", &kind));
+            front.push_str(&meta("title", &title));
+            front.push_str(&meta(
+                "description",
+                page.description.as_deref().unwrap_or(""),
+            ));
+            front.push_str(&meta("lang", &lang));
+            if let Some(Expr::FunctionCall(f, a)) = arg(&shell_args, "chapter")
+                && f == "t"
+                && let Some(key) = a.first().map(|k| w.text(k))
+            {
+                front.push_str(&meta("group", key.trim_start_matches("nav.group.")));
+            }
+            if let Some(blurb) = arg(&shell_args, "blurb") {
+                front.push_str(&meta("blurb", &w.text(blurb)));
+            }
+            if let Some(Expr::ListLiteral(items)) = arg(&shell_args, "learned") {
+                let items: Vec<String> = items.iter().map(|i| w.text(i)).collect();
+                front.push_str(&format!(
+                    "learned: {}\n",
+                    serde_json::to_string(&items).unwrap()
+                ));
+            }
+            // A chapter is a page under `guide/` numbered by its file
+            // (`07-state-and-reactivity.wf`), but a translation.
+            let stem = path.file_name().unwrap().to_string_lossy().to_string();
+            if rel.starts_with("site/src/pages/guide/")
+                && page.lang.is_none()
+                && let Some(n) = stem.get(..2).and_then(|n| n.parse::<u32>().ok())
+            {
+                front.push_str(&format!("chapter: {n}\n"));
+            }
+            let lines: Vec<String> = lines.into_iter().filter(|l| !l.trim().is_empty()).collect();
+            let text = format!("---\n{front}---\n# {title}\n\n{}\n", lines.join("\n\n"));
+            let mut anchors = Vec::new();
+            w.ids(&page.body, &mut anchors, 2);
+            if let Some(layout) = &page.layout
+                && let Some(b) = components.get(&layout.name)
+            {
+                w.ids(b, &mut anchors, 1);
+            }
+            anchors.extend(markdown_anchors(&text));
+            out.push(DocPage {
+                name: page.path.trim_start_matches('/').to_string(),
+                file: rel.clone(),
+                text,
+                anchors,
+            });
+        }
+    }
+    // The command line reference is one page of words: the index's, then
+    // each command's page, under its name.
+    let (commands, rest): (Vec<DocPage>, Vec<DocPage>) = out
+        .into_iter()
+        .partition(|p| p.name.starts_with("reference/cli/"));
+    out = rest;
+    if let Some(cli) = out.iter_mut().find(|p| p.name == "reference/cli") {
+        for c in commands {
+            let body = c
+                .text
+                .split_once("\n---\n")
+                .map_or(c.text.as_str(), |(_, b)| b);
+            let body = body.split_once('\n').map_or("", |(_, b)| b);
+            let title = front_matter(&c.text, "title").unwrap_or_default();
+            cli.text.push_str(&format!("\n### `{title}`\n{body}"));
+        }
+    }
+    // Each code's page: the compiler's explanation of it.
+    for c in webfluent::diagnostics::codes::CODES {
+        if let Some(source) = webfluent::diagnostics::codes::explain_source(c.code) {
+            let (front, body) = source
+                .strip_prefix("---\n")
+                .and_then(|r| r.split_once("\n---\n"))
+                .unwrap_or(("", source));
+            let text = format!(
+                "---\n{front}\n{}{}---\n{body}",
+                meta("route", &format!("/errors/{}", c.code)),
+                meta("kind", "error")
+            );
+            // The error page's sections, as `ErrorShell` names them.
+            let mut anchors: Vec<String> = ["printed", "fix", "why"].map(String::from).to_vec();
+            anchors.extend(markdown_anchors(&text));
+            out.push(DocPage {
+                name: format!("errors/{}", c.code),
+                file: format!(
+                    "{}/{}.md",
+                    webfluent::diagnostics::codes::EXPLAIN_DIR,
+                    c.code
+                ),
+                text,
+                anchors,
+            });
+        }
+    }
+    out.sort_by(|a, b| a.name.cmp(&b.name));
+    out
+}
+
+/// What a code fence in the guide says about its block: ```` ```wf expect=T04 ````.
 ///
 /// The first word is the language; each word after it is one of
 /// `page` (a whole page: built, previewed and run), `live` (the reader may
@@ -662,7 +1212,11 @@ pub(crate) fn guide_chapters() -> Vec<(u32, String, String)> {
 /// `expect=CODE` (it must draw that code), `fixed` (the corrected version of
 /// the `expect=` block before it: it must draw none of that code, and
 /// nothing else), `break="from:to"` (what *Break it* swaps) and `files=a,b`
-/// (the files of a multi-file example this block belongs to). `scripts/docsite/fences.py` reads the same words.
+/// (the files of a multi-file example this block belongs to). A site
+/// page's `DocsCodeBlock` is written as a fence with `expect=` and
+/// `no-check` ([`doc_pages`]); a code's explanation
+/// (`src/diagnostics/explain/CODE.md`) writes its fences by hand, `fixed`
+/// among them.
 #[expect(
     clippy::struct_excessive_bools,
     reason = "each is a word a fence may carry"

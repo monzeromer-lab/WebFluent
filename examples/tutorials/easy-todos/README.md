@@ -4,7 +4,7 @@ A list of things to do, kept in the reader's browser. One page, one store,
 one component; no server.
 
 It is the finished project of the first tutorial in the guide's
-[Tutorials chapter](../../../md-docs/05-tutorial-todos.md), which
+[Todos tutorial](https://webfluent.monzeromer.dev/learn/03-tutorial-todos), which
 builds it step by step.
 
 What it teaches:

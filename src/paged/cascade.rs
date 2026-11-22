@@ -112,6 +112,8 @@ pub const DRAWN: &[&str] = &[
     "color",
     "column-gap",
     "content",
+    "counter-increment",
+    "counter-reset",
     "direction",
     "display",
     "flex",
@@ -988,6 +990,8 @@ impl Styler {
                     v => Some(content_string(v)),
                 }
             }
+            "counter-reset" => s.counter_reset = counters(value, 0),
+            "counter-increment" => s.counter_increment = counters(value, 1),
             "object-fit" => {
                 s.object_fit = match value {
                     "contain" => ObjectFit::Contain,
@@ -1167,11 +1171,39 @@ fn angle(v: &str) -> Option<f32> {
     }
 }
 
-/// `"→"`, `'a' "b"`, `"\2014"` → the generated text.
+/// `counter-reset: a b 3` → `[("a", 0), ("b", 3)]`: each name with the
+/// number after it, else `default`; `none` is none.
+fn counters(v: &str, default: i64) -> Vec<(String, i64)> {
+    let mut out: Vec<(String, i64)> = Vec::new();
+    for word in v.split_whitespace() {
+        match (word.parse::<i64>(), out.last_mut()) {
+            (Ok(n), Some(last)) => last.1 = n,
+            (Ok(_), None) => {}
+            (Err(_), _) if word == "none" => {}
+            (Err(_), _) => out.push((word.to_string(), default)),
+        }
+    }
+    out
+}
+
+/// Where generated text names a counter — `counter(item)` — it holds the
+/// name between these private-use marks, and the box builder, which knows
+/// the counters' values, writes the number in its place.
+pub const COUNTER_OPEN: char = '\u{F8F2}';
+pub const COUNTER_CLOSE: char = '\u{F8F3}';
+
+/// `"→"`, `'a' "b"`, `"\2014"`, `counter(item) "."` → the generated text.
 fn content_string(v: &str) -> String {
     let mut out = String::new();
     for part in split_spaces(v) {
         let p = part.trim();
+        if let Some(inner) = p.strip_prefix("counter(").and_then(|r| r.strip_suffix(')')) {
+            let name = inner.split(',').next().unwrap_or("").trim();
+            out.push(COUNTER_OPEN);
+            out.push_str(name);
+            out.push(COUNTER_CLOSE);
+            continue;
+        }
         if (p.starts_with('"') && p.ends_with('"') && p.len() >= 2)
             || (p.starts_with('\'') && p.ends_with('\'') && p.len() >= 2)
         {
@@ -1547,6 +1579,7 @@ mod tests {
             "border-collapse" => "collapse",
             "list-style" | "list-style-type" => "square",
             "content" => "\"x\"",
+            "counter-reset" | "counter-increment" => "item 2",
             "transform" => "rotate(10deg)",
             "rotate" => "10deg",
             "box-shadow" => "1px 2px 3px #123456",

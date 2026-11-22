@@ -496,8 +496,8 @@ pub static CODES: &[CodeInfo] = &[
     code(
         "R02",
         Error,
-        "A route parameter and a page parameter that do not match",
-        "A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing, and a parameter with no `:name` is never filled.",
+        "A route parameter with no page parameter",
+        "A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing. A parameter with no `:name` is the page's data: the page is a template, which `wf render` and a test hand its data and a build leaves out.",
     ),
     code(
         "R03",
@@ -1021,21 +1021,67 @@ pub fn info(code: &str) -> Option<&'static CodeInfo> {
 
 include!(concat!(env!("OUT_DIR"), "/error_pages.rs"));
 
-/// A code's page, `md-docs/errors/T06.md`, as Markdown, without its front
-/// matter or its title: what `wf explain` prints after the summary, and what
-/// an editor shows when asked to explain a finding. Every code has one (the
-/// docs test sees to it).
+/// Where each code's explanation lives in the repository, as
+/// `<EXPLAIN_DIR>/T05.md`: the compiler's own text, embedded by `build.rs`.
+pub const EXPLAIN_DIR: &str = "src/diagnostics/explain";
+
+/// A code's explanation file, `src/diagnostics/explain/T06.md`, whole: its
+/// front matter (`description:`), its `# CODE — Title` heading and its body.
+pub fn explain_source(code: &str) -> Option<&'static str> {
+    ERROR_PAGES
+        .iter()
+        .find(|(c, _)| *c == code)
+        .map(|(_, page)| *page)
+}
+
+/// A code's explanation, `src/diagnostics/explain/T06.md`, as Markdown,
+/// without its front matter or its title: what `wf explain` prints after
+/// the summary, and what an editor shows when asked to explain a finding.
+/// Every code has one (the tests below see to it).
 pub fn guide_section(code: &str) -> Option<&'static str> {
-    let (_, page) = ERROR_PAGES.iter().find(|(c, _)| *c == code)?;
+    let page = explain_source(code)?;
     let body = page
         .strip_prefix("---\n")
         .and_then(|rest| rest.split_once("\n---\n"))
-        .map_or(*page, |(_, body)| body);
+        .map_or(page, |(_, body)| body);
     let body = match body.strip_prefix("# ") {
         Some(rest) => rest.split_once('\n').map_or("", |(_, b)| b),
         None => body,
     };
     Some(body.trim())
+}
+
+/// A code's description: one line for a search result and a link preview,
+/// the `description:` of its explanation's front matter.
+pub fn description(code: &str) -> Option<String> {
+    let page = explain_source(code)?;
+    let front = page.strip_prefix("---\n")?.split_once("\n---\n")?.0;
+    let raw = front
+        .lines()
+        .find_map(|l| l.strip_prefix("description:"))?
+        .trim();
+    Some(serde_json::from_str::<String>(raw).unwrap_or_else(|_| raw.to_string()))
+}
+
+/// A family's name, as the list of every code heads it: `T` is `Types`.
+pub fn family_name(letter: &str) -> Option<&'static str> {
+    Some(match letter {
+        "E" => "Syntax and structure",
+        "T" => "Types",
+        "C" => "Components",
+        "R" => "Routes",
+        "X" => "State and reactivity",
+        "F" => "Forms and bindings",
+        "D" => "Data and assets",
+        "N" => "Requests",
+        "I" => "Translations",
+        "A" => "Accessibility",
+        "S" => "Search and sharing",
+        "P" => "What is kept in the browser",
+        "U" => "Declared and never read",
+        "V" => "Vocabulary",
+        _ => return None,
+    })
 }
 
 /// The family a code belongs to: its letter.
@@ -1049,7 +1095,7 @@ pub fn docs_url(code: &str) -> String {
     format!("https://webfluent.monzeromer.dev/errors/{code}")
 }
 
-/// A heading's anchor, as the site writes it (`scripts/docsite/guide.py`):
+/// A heading's anchor, as the site writes it (`scripts/docsite/sitepages.py`):
 /// backticks off, lower case, every run of anything but `a–z` and `0–9` a
 /// hyphen, none at either end.
 pub fn slug(heading: &str) -> String {
@@ -1123,7 +1169,7 @@ mod tests {
             let (_, page) = ERROR_PAGES
                 .iter()
                 .find(|(code, _)| *code == c.code)
-                .unwrap_or_else(|| panic!("{} has no page in md-docs/errors/", c.code));
+                .unwrap_or_else(|| panic!("{} has no file in {EXPLAIN_DIR}/", c.code));
             let heading = format!("\n# {} — {}\n", c.code, c.title);
             assert!(
                 page.contains(&heading),
@@ -1132,7 +1178,18 @@ mod tests {
                 heading.trim()
             );
             assert!(guide_section(c.code).is_some_and(|s| !s.is_empty()));
+            assert!(
+                description(c.code).is_some_and(|d| !d.is_empty()),
+                "{} has no description",
+                c.code
+            );
+            assert!(family_name(family(c.code)).is_some(), "{}", c.code);
         }
+        assert_eq!(
+            ERROR_PAGES.len(),
+            CODES.len(),
+            "a file for a code that is none"
+        );
         assert_eq!(
             docs_url("T05"),
             "https://webfluent.monzeromer.dev/errors/T05"

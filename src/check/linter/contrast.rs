@@ -397,6 +397,22 @@ pub fn is_colour_literal(expr: &Expr) -> bool {
 
 #[cfg(test)]
 mod tests {
+    /// A project that declares no theme draws with the baseline, so every
+    /// pair the stylesheet composes — text on a page, a label on each tone —
+    /// clears WCAG AA there with nothing configured.
+    #[test]
+    fn the_baseline_theme_passes_every_pair() {
+        let t = crate::project::themes::tokens::default_tokens();
+        for (fg, bg, min, what) in PAIRS {
+            let r = ratio(&t[*fg], &t[*bg]).unwrap();
+            assert!(r >= *min, "{what}: {r:.2}:1 ({fg} on {bg})");
+        }
+        for (tone, _, what) in ON_TONE {
+            let r = ratio(&t[&on(tone)], &t[*tone]).unwrap();
+            assert!(r >= AA_TEXT, "{what}: {r:.2}:1 ({} on {tone})", on(tone));
+        }
+    }
+
     #[test]
     fn a_ratio_is_read_from_two_colours_as_a_theme_writes_them() {
         let r = ratio("#ffffff", "#000").unwrap();

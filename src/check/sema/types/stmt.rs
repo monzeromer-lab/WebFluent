@@ -765,7 +765,17 @@ impl Checker<'_, '_> {
             | Type::Func(..) => {
                 return;
             }
-            Type::Optional(inner) if **inner == Type::Bool => return,
+            // A `Bool?` is a condition, its `null` false. One whose inner
+            // type is unknown (an item of a list that says nothing, a
+            // field read off `Json`) may be a `Bool` too: comparing it with
+            // `null` would turn `!x` into a test that is never true for
+            // `false`, so nothing is said of it here — what left it unknown
+            // is reported where it is.
+            Type::Optional(inner)
+                if matches!(**inner, Type::Bool | Type::Any | Type::Error | Type::Never) =>
+            {
+                return;
+            }
             Type::Enum(n) if n == super::ty::JSON => {
                 self.json_fault(expr, &format!("`{keyword}` reads it as a condition"));
                 return;

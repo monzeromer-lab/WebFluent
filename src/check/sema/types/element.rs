@@ -79,6 +79,7 @@ impl Checker<'_, '_> {
         // Whether this element shows a list, whose item its parts and slots
         // speak of until it ends.
         let mut pushed = false;
+        let mut binds = false;
         match &el.component {
             ComponentRef::UserDefined(name) => {
                 if let Some(component) = self.world.components.get(name.as_str()) {
@@ -139,6 +140,10 @@ impl Checker<'_, '_> {
                 if let Some(item) = sig.and_then(|sig| self.item_of(el, sig)) {
                     self.items.push(item);
                     pushed = true;
+                }
+                if let Some(enumeration) = self.bound_enum_of(el) {
+                    self.bound_enums.push(enumeration);
+                    binds = true;
                 }
                 self.builtin_args(el, sig, span);
             }
@@ -249,7 +254,16 @@ impl Checker<'_, '_> {
                     ComponentRef::UserDefined(_) => None,
                 }
                 .is_some_and(|c| c.events.contains(&handler.event.as_str()));
-                let event = self.dom_event(handler, own);
+                // A `Combobox`'s `select` hands over the option picked.
+                let picked = (own
+                    && handler.event == "select"
+                    && matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Combobox"))
+                .then(|| self.items.last().cloned())
+                .flatten();
+                let event = match picked {
+                    Some(item) => self.dom_event_as(handler, item),
+                    None => self.dom_event(handler, own),
+                };
                 self.handler_names(handler, &[event], DOM_SENDS);
             }
             let was = std::mem::replace(&mut self.async_ok, true);
@@ -317,6 +331,24 @@ impl Checker<'_, '_> {
         if pushed {
             self.items.pop();
         }
+        if binds {
+            self.bound_enums.pop();
+        }
+    }
+
+    /// What a control's `bind:` holds — or each item of, when it holds a
+    /// list (`.multiple`, a `CheckboxGroup`) — and `None` when the element
+    /// binds nothing.
+    fn bound_enum_of(&mut self, el: &UIElement) -> Option<Type> {
+        let bound = el.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "bind" => Some(v),
+            _ => None,
+        })?;
+        let mut ty = self.infer_quiet(bound);
+        while let Type::Optional(inner) | Type::List(inner) = ty {
+            ty = *inner;
+        }
+        Some(ty)
     }
 
     /// What one of the items a built-in shows is: an item of the list its
@@ -748,6 +780,14 @@ impl Checker<'_, '_> {
                 (PropType::Ty(spelling), prop_name) => {
                     let handle = self.mount_handle(el);
                     let alternatives = self.prop_alternatives(spelling, handle.as_ref());
+                    // `.food` on an option: a case of the enum its control
+                    // binds, or nothing at all.
+                    if let Expr::EnumCase(case) = value
+                        && spelling.contains("Bound")
+                    {
+                        self.bound_case(case, &alternatives, at, prop_name, &name);
+                        continue;
+                    }
                     self.check_alternatives(
                         value,
                         &alternatives,
@@ -772,6 +812,47 @@ impl Checker<'_, '_> {
             }
         }
         self.in_args = false;
+    }
+
+    /// A bare case given to an option's `value:`, held to the enum its
+    /// control binds.
+    fn bound_case(
+        &mut self,
+        case: &str,
+        alternatives: &[Type],
+        at: Span,
+        prop_name: &str,
+        name: &str,
+    ) {
+        let Some(Type::Enum(enumeration)) =
+            alternatives.iter().find(|t| matches!(t, Type::Enum(_)))
+        else {
+            self.error(
+                at,
+                "E103",
+                format!("`{prop_name}` on {name} is not an enum, so `.{case}` means nothing"),
+                "A case is an option's value when its control's `bind:` holds that enum",
+            );
+            return;
+        };
+        let Some(cases) = self
+            .world
+            .enums
+            .get(enumeration.as_str())
+            .map(|e| e.case_names())
+        else {
+            return;
+        };
+        if !cases.iter().any(|c| c == case) {
+            let names: Vec<String> = cases.iter().map(|c| format!(".{c}")).collect();
+            self.error(
+                at,
+                "T02",
+                format!("`{enumeration}` has no case `.{case}`"),
+                &format!("`{enumeration}` takes {}", names.join(", ")),
+            );
+            self.plan_nearest_case(case, &cases);
+        }
     }
 
     /// A choice between a built-in enum prop's cases, checked case by case;
@@ -833,6 +914,14 @@ impl Checker<'_, '_> {
         let item = self.items.last().cloned();
         let mut out = Vec::new();
         for part in split_or(spelling) {
+            // `Bound`: the enum the enclosing control binds, when it binds
+            // one; otherwise no alternative at all.
+            if part == "Bound" {
+                if let Some(enumeration @ Type::Enum(_)) = self.bound_enums.last() {
+                    out.push(enumeration.clone());
+                }
+                continue;
+            }
             let Some(t) = crate::syntax::parser::v2::parse_type_text(part) else {
                 continue;
             };

@@ -76,6 +76,14 @@ pub fn resolve_data_via(
     root: &Path,
     media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<()> {
+    // The records a typed `data` file is read as, for their defaults.
+    let types: Vec<Declaration> = program
+        .declarations
+        .iter()
+        .filter(|d| matches!(d, Declaration::Type(_)))
+        .cloned()
+        .collect();
+    let defaults = crate::project::defaults::Defaults::of(&types);
     for decl in &mut program.declarations {
         let Declaration::Data(d) = decl else {
             continue;
@@ -163,13 +171,17 @@ pub fn resolve_data_via(
             )));
         };
         let text = vfs.read_to_string(path)?;
-        let json: serde_json::Value = serde_json::from_str(&text).map_err(|e| {
+        let mut json: serde_json::Value = serde_json::from_str(&text).map_err(|e| {
             WebFluentError::io(format!(
                 "`data {}`: {} is not JSON: {e}",
                 d.name,
                 path.display()
             ))
         })?;
+        // Read as its type: a field a record leaves out is its default.
+        if let Some(ty) = &d.ty {
+            defaults.fill(&mut json, ty);
+        }
         *decl = Declaration::Const(ConstDecl {
             name: d.name.clone(),
             ty: d.ty.clone(),
@@ -291,10 +303,28 @@ pub(crate) fn each_element_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut U
     }
 }
 
+/// The page a Markdown file's stem names, each word capitalised: `about-en`
+/// is `AboutEn`, `getting_started` `GettingStarted` — never `Abouten`. A
+/// stem that starts with a digit is put after `Page`, since a name cannot.
+fn page_name_of(stem: &str) -> String {
+    let mut name = String::new();
+    for word in stem.split(|c: char| !c.is_alphanumeric()) {
+        let mut chars = word.chars();
+        if let Some(first) = chars.next() {
+            name.extend(first.to_uppercase());
+            name.push_str(chars.as_str());
+        }
+    }
+    if name.starts_with(|c: char| c.is_ascii_digit()) {
+        name.insert_str(0, "Page");
+    }
+    name
+}
+
 /// A `.md` page: front matter between `---` lines names the page's
 /// attributes — `path`, `title`, `description`, `layout`, `image`, `type`,
 /// `noindex`, `lang`, `translates` — and the rest is the page's Markdown. The page's name is the
-/// file's stem, capitalised; its route the `path`, or `/<stem>` (`/` for
+/// file's stem, each word capitalised (`about-en` is `AboutEn`); its route the `path`, or `/<stem>` (`/` for
 /// `index`).
 ///
 /// # Errors
@@ -356,10 +386,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             format!("/{}", stem.to_lowercase().replace(' ', "-"))
         }
     });
-    let mut name: String = stem.chars().filter(|c| c.is_alphanumeric()).collect();
-    if let Some(first) = name.get(..1) {
-        name = format!("{}{}", first.to_uppercase(), &name[1..]);
-    }
+    let mut name = page_name_of(&stem);
     if name.is_empty() {
         name = "Page".to_string();
     }

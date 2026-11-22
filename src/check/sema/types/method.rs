@@ -166,6 +166,11 @@ impl Checker<'_, '_> {
             if self.is_json_namespace(name) {
                 return self.json_case(method, Some(args));
             }
+            // `Status.failed("x")`: a case with its payload, written with
+            // the enum it is of.
+            if method != "decode" && self.is_enum_namespace(name) {
+                return self.qualified_case(name, method, Some(args));
+            }
             if method == "decode"
                 && self.lookup(name).is_none()
                 && !self.world.stores.contains_key(name.as_str())

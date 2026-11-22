@@ -1,12 +1,12 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "65c9d0aabfebee4ef14226a1a2c11bb852a54001ef3b0a177bb388ba61208c28",
-    "app.js.gz": "9e2bd06ba5853b041d6a3de3b1152f0632310b03af12e12def62f0424699cc97",
-    "index.html": "9ab39029888600c25892b19d5ed0bf2d8bc23ff14b09b8b275c9c1817d22e8a3",
-    "index.html.gz": "e3371ad643191b11cad97d3f23850c281d9a7fb5bb93cf40275328c30330af7c",
+    "app.js": "a5766495755c09cadf9f7550fda43fe099a92ba92d4b3fb093f5dcad331524ac",
+    "app.js.gz": "53a1e3f248cf474fdc2645898a7152e8c5bb7f8ab221d20abe49bc44b097e883",
+    "index.html": "3b45cb5064344f2ac7699e619bc88e0ab12044d462c64846f16a10ef97ce5a2d",
+    "index.html.gz": "4977265571ef35b4d8d3b418ad6c8d86168867614e88e1a33f537640dc81051a",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "6b8d8e06c8953b31fafab9ef6214813b314ada7595cb9522acbe9612f64a63f6",
-    "styles.css.gz": "b6e69a3ddef881968338dea33834d8fc5bd7e15785d481fad79f351022d8a471"
+    "styles.css": "0c9fd230ea15c6b698aab2652fcb3f49497a57fc8746d2c6260d6dd8c9d72f78",
+    "styles.css.gz": "5180cb050b0d19b786e33dbf9197345e227b14af1f13fa56b3529a43066b05d0"
   }
 }

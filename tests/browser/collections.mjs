@@ -100,6 +100,10 @@ try {
   const cells = () => page.$$eval(`${table} tbody tr`, (r) => r.map((n) => [...n.querySelectorAll("td")].slice(1).map((t) => t.textContent.trim())));
   check("a row a record, a cell a column, a cell block drawn", JSON.stringify(await cells()) === JSON.stringify([["web", "live", "3"], ["api", "failed", "1"], ["cron", "live", "2"]]), JSON.stringify(await cells()));
   check("…captioned by its label", (await page.$eval(`${table} caption`, (c) => c.textContent)) === "Deploys");
+  const names = await page.$$eval(`${table} tbody .wf-data-table__pick`, (p) => p.map((n) => n.getAttribute("aria-label")));
+  check("each row's box is named for its row", JSON.stringify(names) === '["Choose web","Choose api","Choose cron"]', JSON.stringify(names));
+  const hits = await page.$$eval(`${table} .wf-data-table__hit`, (h) => h.map((n) => { const r = n.getBoundingClientRect(); return Math.min(r.width, r.height); }));
+  check("…and what a pointer aims at is at least 24px across", hits.length === 4 && hits.every((n) => n >= 24), JSON.stringify(hits));
   await page.click(`${table} th:nth-child(4) button`);
   await pause(30);
   check("a sortable header sorts, and says which way", JSON.stringify((await cells()).map((r) => r[2])) === '["1","2","3"]' && (await page.$eval(`${table} th:nth-child(4)`, (t) => t.getAttribute("aria-sort"))) === "ascending", JSON.stringify(await cells()));

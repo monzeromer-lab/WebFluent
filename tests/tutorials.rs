@@ -124,9 +124,9 @@ fn the_chapters_show_the_projects_as_they_are() {
     let chapters: Vec<(String, String)> = crate::common::guide_pages()
         .into_iter()
         .filter(|(n, _)| {
-            n.ends_with("tutorial-todos.md")
-                || n.ends_with("build-a-notebook-site.md")
-                || n.ends_with("build-a-budget-app.md")
+            n.ends_with("tutorial-todos")
+                || n.ends_with("build-a-notebook-site")
+                || n.ends_with("build-a-budget-app")
         })
         .collect();
     // A translation shows the same files, and is held to them too.

@@ -66,8 +66,11 @@ pub(crate) fn index() -> String {
     out
 }
 
-/// A code as data: what `wf explain CODE` prints, with the guide's section
-/// as the Markdown it is written in.
+/// A code as data: what `wf explain CODE` prints, with its explanation as
+/// the Markdown it is written in (`section`), the family's name (`group`),
+/// the line a search result shows (`description`) and the file the
+/// explanation lives in (`source`) — all the documentation site's error
+/// pages are made from.
 pub(crate) fn entry(code: &str) -> serde_json::Value {
     let Some(info) = codes::info(code) else {
         return serde_json::Value::Null;
@@ -75,18 +78,21 @@ pub(crate) fn entry(code: &str) -> serde_json::Value {
     serde_json::json!({
         "code": info.code,
         "family": codes::family(info.code),
+        "group": codes::family_name(codes::family(info.code)).unwrap_or_default(),
         "severity": info.severity.word(),
         "title": info.title,
         "summary": info.summary,
         "lowerable": codes::lowerable(info.code),
         "unnecessary": info.unnecessary,
+        "description": codes::description(info.code).unwrap_or_else(|| info.summary.to_string()),
         "section": section(info.code).unwrap_or_default(),
+        "source": format!("{}/{}.md", codes::EXPLAIN_DIR, info.code),
         "url": codes::docs_url(info.code),
     })
 }
 
-/// A code's entry: its title and severity, its summary, the guide's section
-/// for it, and where the guide is.
+/// A code's entry: its title and severity, its summary, its explanation,
+/// and the page of the site that has it.
 pub(crate) fn explanation(code: &str) -> Option<String> {
     let info = codes::info(&code.to_uppercase())?;
     let mut out = format!(
@@ -104,7 +110,7 @@ pub(crate) fn explanation(code: &str) -> Option<String> {
     Some(out)
 }
 
-/// The text of the chapter's `### CODE — …` section, without its heading.
+/// The code's explanation, without its front matter or its heading.
 fn section(code: &str) -> Option<&'static str> {
     codes::guide_section(code)
 }
@@ -161,11 +167,7 @@ mod tests {
         for c in CODES {
             let text = explanation(c.code).unwrap();
             assert!(text.starts_with(&format!("{} — ", c.code)), "{text}");
-            assert!(
-                section(c.code).is_some(),
-                "{} has no section in the chapter",
-                c.code
-            );
+            assert!(section(c.code).is_some(), "{} has no explanation", c.code);
         }
     }
 
@@ -176,6 +178,12 @@ mod tests {
             assert_eq!(e["code"], c.code);
             assert_eq!(e["severity"], c.severity.word());
             assert!(!e["section"].as_str().unwrap().is_empty(), "{}", c.code);
+            assert!(!e["group"].as_str().unwrap().is_empty(), "{}", c.code);
+            assert!(!e["description"].as_str().unwrap().is_empty(), "{}", c.code);
+            assert_eq!(
+                e["source"],
+                format!("src/diagnostics/explain/{}.md", c.code)
+            );
         }
         assert_eq!(entry("R01")["lowerable"], true);
         assert_eq!(entry("T05")["lowerable"], false);

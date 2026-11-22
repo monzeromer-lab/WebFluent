@@ -38,11 +38,13 @@ wf motion [--json]                        # The animations, eases, speeds and ro
 wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
 wf scope FILE:LINE[:COL] [--data D] [--json]  # What can be read there: each name in scope, its type, where it comes from
 wf translations [--missing L] [--unused] [--plurals] [--json] # The translations table: what each locale lacks, what nothing names
-wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld
+wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld; --guide full: the whole language reference
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf api add SPEC [--name N] [--out DIR] | sync [N] [--skip OP] | check [N] | eject N [--out DIR] | list [--json]  # A service's contract as files, from its OpenAPI spec
 wf explain [CODE] [--json]                       # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR] [--host ADDR] [--allow-output-outside]  # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
+wf start [-d DIR] [--port N] [--host ADDR] [--proxy /api=https://HOST/api]  # Serve a build in production: $PORT, its headers and .gz files, a single-page build's shell for every route; --proxy forwards a path to an API elsewhere
+wf inspect ROUTE|URL [--do STEP]… [--mobile] [--screenshot [FILE]] [--proxy …] [--fakes FILE] [--json]  # One page as a reader meets it, in text: landmarks, headings, links, buttons, fields, tables, and what threw or failed to load; --do 'click "Name"' acts first
 wf generate page|component|store|block <name> [-d DIR]  # Scaffold a file, in the project's layout; a block is a whole page: sign-in, pricing, dashboard, settings
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
@@ -74,6 +76,52 @@ warning, never a failure. `--json` is the same report for a pipeline. It needs a
     ok   /app/deployments                      68ms     657 nodes    360.6 kB   10 req
 
   16 page(s), 0 problem(s)
+```
+
+`wf start` serves what `wf build` wrote, as a host would: on `$PORT`
+(else 3000, on every interface), with the headers the build's `_headers`
+names (its policy, its frame rule), the `.gz` file beside each text file to
+a client that takes gzip, a single-page build's shell for any route a
+navigation asks for and a static build's `404.html` for one it never wrote,
+and a 404 — never the shell — for a missing script, file or API call.
+`--proxy /api=http://localhost:9000/api` forwards every request under
+`/api` to another server, the prefix replaced by the URL, so a page calls
+its own origin (`api Backend(base: "/api")`) and the API's address is
+chosen where the site starts, not when it is built: nothing to add to the
+policy, no CORS. An `https://` API is reached over TLS, trusted as this
+machine trusts it: its certificate store, plus what `SSL_CERT_FILE` or
+`NODE_EXTRA_CA_CERTS` names (a private or development authority).
+
+```json
+{ "scripts": { "build": "wf build", "start": "wf start --proxy /api=$API_BASE_URL/api" } }
+```
+
+`wf inspect /pokemon/pikachu` opens one page of the build (or a URL of a
+server already running) in a headless Chrome and prints it as a reader
+meets it, a line a thing: its landmarks, headings, links and where they
+go, buttons and their states (`[pressed]`, `[current=page]`), fields and
+their values, tables (the first rows), lists, pictures and text — then
+anything that threw, logged an error or failed to arrive. `--mobile` lays
+it out as a phone, `--screenshot [FILE]` also saves a PNG (`--full-page`
+the whole page), `--proxy` serves the build as `wf start` does, and
+`--json` is the same for a tool. `--do` plays a step first, as a test
+writes it — `--do 'type "pika" into "Search"' --do 'click "Name"'`, then
+the page as it stands after; `--do 'expect "Pikachu"'` reports a problem
+when the text is not there. It is how to check a page, and how it behaves:
+one command, a few hundred words, rather than a browser script.
+
+```
+/ — "Dashboard" (en) at 1280×800
+  link "Skip to content" → #wf-main
+  navigation "Main"
+    link "Dashboard" → / [current=page]
+    link "Tasks" → /tasks
+    button "Log in"
+  main
+    h1 Dashboard
+    "Welcome to your dashboard."
+    checkbox "Learn WebFluent"
+no problems: nothing threw, logged an error or failed to arrive
 ```
 
 `wf serve` puts a **stores** button in the corner of every page it serves:
@@ -173,7 +221,8 @@ group's endpoints in place of the network, held to the group's contract
 (`N06`) — every endpoint it answers is one the group has, every name it
 binds one of that endpoint's parameters (a default when the call left it
 out), every answer the result the endpoint declares. A test names its
-fakes and runs in a browser; nothing is sent, a write's `invalidates` asks
+fakes — one beside it, or in any file under `tests/` (`tests/fakes.wf`) —
+and runs in a browser; nothing is sent, a write's `invalidates` asks
 its reads again, and a call to an endpoint no fake answers fails the test,
 naming it. A paged endpoint is answered a page at a time, a `streamed` one
 with the whole list.
@@ -227,7 +276,8 @@ from examples` answers every endpoint it does not answer itself with the
 spec's example of a success, held to the endpoint's result.
 
 `wf verify --fakes tests/fakes.wf` builds the site with that file's fakes
-answering its endpoints, aside from `build/`, and loads every page of
+(and the `const`s and types beside them) answering its endpoints, aside
+from `build/`, and loads every page of
 that — for a site whose API is elsewhere. A build leaves fakes out.
 
 `wf docs` writes `docs/`: a site documenting the project's components
@@ -578,7 +628,9 @@ A `type` the program declares wins over the name — a project with its own
 `DateTime` that keeps itself current, every minute by default, or as often
 as a page asks — `now(every: 1.seconds)`. Read it where it is shown or in a
 `derived` value: a `state` takes it once, so `state clock = now(every:
-1.seconds)` stays at the moment the page opened (`X06`).
+1.seconds)` stays at the moment the page opened (`X06`). The static paint, a template and a test that only looks show
+the moment of the build or render — `SOURCE_DATE_EPOCH`, when set, pins it —
+and `locale` and `dir` are the page's (its `lang:`, else the default locale).
 
 **A condition on a type.** Any type may say what its values must be, and
 the checker holds every value it can read to it:
@@ -599,7 +651,9 @@ ends up in a URL), logged, or kept with `persist`. Each is a `T12`.
 
 A record is built with named fields, `Todo(id: "1", title: "x")`, and one
 whose fields all have defaults with none, `Offers()` — a prop's default
-too, `offers: Offers = Offers()`; a case is written `.calm`. The type checker reads every declared type and infers the
+too, `offers: Offers = Offers()`; a case is written `.calm`, or with its
+enum where nothing says which, `Tone.calm` (`Status.failed("x")` with its
+payload). The type checker reads every declared type and infers the
 rest (literals, records, lists, the built-in methods of strings, numbers and
 lists, store members, lambdas). A value's type is always one the program
 can name: a signature says its types, a body's are inferred, and `Any` and
@@ -680,7 +734,10 @@ page Restore(path: "/", title: "Restore", description: "Settings decoded from te
   time — and read by `match`. Any plain data fits where `Json` is wanted.
 - **`T.decode(json)`** — on every declared record, enum and alias: the value
   checked against the type as the page runs, giving `T ! DecodeError`.
-  `DecodeError` is `{ at: String, message: String }`.
+  `DecodeError` is `{ at: String, message: String }`. A field the JSON
+  leaves out that declares a default is given it, as a record built in the
+  program is — here, in an answer an endpoint or a `resource` declares, a
+  `data` file, a template's data and a test's `data:` alike.
 - **`T ! E`** — a result: `.ok(value)` or `.err(error)`, matched like an
   enum. `T!` is a `T` or a request's failure; `-> ! E` and `-> !` declare
   an action that returns nothing but may fail.
@@ -1166,8 +1223,12 @@ optional field is one message, not two.
 **A refined type validates itself.** `state nights: Number(1..=30)` needs
 no rule written for the range; the condition on the type is already one.
 
-A submit that fails shows every message, moves focus to the first field
-that has one and announces it, and does not run the handler.
+A form holds the rules of the states its own controls bind, and no
+others: with one `Form` a step, a rule on a later step's field does not
+hold back the first. `form.valid`, `form.errors` and the submit are that
+form's fields alone. A submit that fails shows every message of its
+fields, moves focus to the first field that has one and announces it, and
+does not run the handler.
 
 <!-- core -->
 ### Actions, `let`, `return` and `await`
@@ -2403,7 +2464,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | Component | Usage |
 |-----------|-------|
 | `Input` | `Input(bind: var, placeholder: "...", label: "Name", hint: "As on your passport", error: nameError).text` — with `label:`, `hint:` or `error:` the control is wrapped in a field: the label is a `<label for>`, the hint and the error are linked by `aria-describedby`, the error (a string, empty when there is none) is announced as it appears and sets `aria-invalid` |
-| `Select` | `Select(bind: var, label: "Choose", hint: "...", error: roleError) { Select.Option("Label 1", value: "val1") }` — field wrapping as `Input`; an option's positional is its visible label, `value:` what is bound (the label when there is no `value:`) |
+| `Select` | `Select(bind: var, label: "Choose", hint: "...", error: roleError) { Select.Option("Label 1", value: "val1") }` — field wrapping as `Input`; an option's positional is its visible label, `value:` what is bound (the label when there is no `value:`), a case (`value: .food`) when `bind:` holds an enum — as for `RadioGroup.Option`, `ToggleGroup.Item`, `Listbox.Option` and `CheckboxGroup.Option` |
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
@@ -2415,7 +2476,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Field` | `Field(label: "Plan", hint: "…", error: planError) { PlanPicker(bind: plan) }` — a label, hint and error around a control of your own: the first control in its block is named by the label (`aria-labelledby`, `for`), described by the hint and the error, and `aria-invalid` while there is one |
 | `Fieldset` | `Fieldset(legend: "Address") { Input(…) Input(…) }` — controls that belong together, under a legend |
 | `Listbox` | `Listbox(bind: fruit, label: "Fruit") { Listbox.Option("Apple", value: "apple") … }` — options always shown: one (the choice follows the arrow keys) or, `.multiple`, several — Space chooses, Shift with an arrow takes the next in too, Ctrl/⌘+A all; a letter goes to the option it starts; `aria-disabled: "true"` passes one over |
-| `Combobox` | `Combobox(bind: city, options: Cities.all, text: c => c.name, key: c => c.id, label: "City")`, or `search: q => Geo.cities(q: q), debounce: 250` to ask as the reader types; `{ option(c) { … }  empty { … } }` — a field (`role="combobox"`) offering what matches in a layer at it: the arrows go through them with the focus kept in the field (`aria-activedescendant`), Enter takes one, Escape closes; `bind:` holds the key (the option itself without `key:`); `.multiple` keeps several as chips, Backspace in the empty field takes the last back |
+| `Combobox` | `Combobox(bind: city, options: Cities.all, text: c => c.name, key: c => c.id, label: "City")`, or `search: q => Geo.cities(q: q), debounce: 250` to ask as the reader types; `{ option(c) { … }  empty { … } }` — a field (`role="combobox"`) offering what matches in a layer at it: the arrows go through them with the focus kept in the field (`aria-activedescendant`), Enter takes one, Escape closes; `bind:` holds the key (the option itself without `key:`); `.multiple` keeps several as chips, Backspace in the empty field takes the last back; `on select(o)` hears the option picked (the option itself, once `bind:` holds it) — `on change` is the field's, heard as it loses the focus |
 | `CheckboxGroup` | `CheckboxGroup(bind: picked, label: "Toppings", all: "Every topping") { CheckboxGroup.Option("Olives", value: "olives") … }` — boxes under a legend, `bind:` the list of what is ticked; `all:` adds a box for every one, mixed while some are ticked; its options may be drawn by a `for` or an `if` (the box for `all:` needs them written out) |
 | `InputOTP` | `InputOTP(bind: code, length: 6, label: "Code from your app")` — a box a digit: typing moves on, Backspace in an empty box goes back, a paste or the browser's offered code (`autocomplete="one-time-code"`) fills them all |
 | `TagInput` | `TagInput(bind: tags, label: "Tags")` — words become chips at Enter or a comma; Backspace in the empty field takes the last back; each chip has a button to take it out |
@@ -2425,8 +2486,8 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `TransferList` | `TransferList(bind: picked, options: Team.all, text: p => p.name, key: p => p.id, label: "Reviewers", from: "Everyone", to: "Reviewers")` — two lists side by side and the buttons that move the selected, or all, across and back; `bind:` the keys of the chosen, in the options' order |
 | `Editable` | `Editable(bind: title, label: "Project name")` — text that turns into a field when pressed: Enter or leaving keeps it, Escape puts it back, the focus back on the text |
 | `RadioGroup` | `RadioGroup(bind: plan, label: "Plan").cards { RadioGroup.Option("Free", value: "free", hint: "For trying it out") }` — native radios under a legend (the arrow keys choose), each hint read with its option (`aria-description`); `.cards` draws each as a card |
-| `NumberInput` | `NumberInput(bind: qty, min: 1, max: 99, step: 1, label: "Quantity")` — a number input between − and + buttons (out of the Tab order: the arrow keys step it), PageUp and PageDown ten steps, held between its ends |
-| `Calendar` | `Calendar(bind: day, mode: .range, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")` — a month as a grid: one Tab stop, the arrows by day (the other way round right to left) and week, PageUp and PageDown by month (Shift: year), Home and End to the week's ends, Enter or Space chooses; `.single` (a `Date`), `.range` (`{ start, end }`), `.multiple` (a list); `disabled:` a list of days or a test of one; drawn once the page runs |
+| `NumberInput` | `NumberInput(bind: qty, min: 1, max: 99, step: 1, label: "Quantity")` — a number input between − and + buttons (out of the Tab order: the arrow keys step it), PageUp and PageDown ten steps, held between its ends; `decrease:` and `increase:` name the buttons in the page's words (unset, `Decrease` and `Increase`) |
+| `Calendar` | `Calendar(bind: day, mode: .range, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")` — a month as a grid: one Tab stop, the arrows by day (the other way round right to left) and week, PageUp and PageDown by month (Shift: year), Home and End to the week's ends, Enter or Space chooses; `.single` (a `Date`), `.range` (`{ start, end }`), `.multiple` (a list); `disabled:` a list of days or a test of one; the month and weekdays named in the page's locale (the i18n one, followed as it changes); `previous:` and `next:` name its buttons (unset, `Previous month`, `Next month`); drawn once the page runs |
 | `InputGroup` | `InputGroup { Icon("search")  Input(bind: q, aria-label: "Search")  InputGroup.Clear }` — an input and what goes beside it drawn as one box; `InputGroup.Addon("https://")` is text beside it; `InputGroup.Clear` empties the input (its binding follows), gives it the focus back, and hides while it is empty |
 
 Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`. `.time` and `.datetime` are the time pickers, holding a `Time` or a `DateTime`. `.password.reveal` adds a button that shows the password and hides it again.
@@ -2709,7 +2770,8 @@ if showPanel {
     Card(exit: .fadeOut).scaleIn { Text("Animated panel") }
 }
 
-// List with stagger; a keyed list moves items instead of rebuilding them
+// List with stagger; a keyed list moves items instead of rebuilding them,
+// and with an enter or exit, an item whose order changed slides to its place
 for item in items by item.id {
     Text(item.name, exit: .fadeOut, stagger: "50ms").slideUp
 }
@@ -3490,7 +3552,8 @@ and CSS a template renders, and that is laid out on paper:
   descendant, child and sibling combinators, attribute selectors,
   `:first-child`/`:nth-child`, `:not()`/`:is()`/`:where()`, specificity,
   inheritance, `var()`, `em`,
-  `rem`, `%`, `::before`/`::after` content. A `Card` in a PDF looks like the
+  `rem`, `%`, `::before`/`::after` content, CSS counters (`counter-reset`,
+  `counter-increment`, `counter(name)`) — so `List.ordered` is numbered. A `Card` in a PDF looks like the
   `Card` on the page; `class: "callout"` brings its rules.
 - **Layout.** Block, flex and grid as CSS defines them — `Row`, `Stack`,
   `Grid`, `Column` side by side as on the web — absolute positioning, `gap`,
@@ -3537,7 +3600,8 @@ time — there what they read must be known then (a literal, a `const`, a
 - A grid breaks between its rows; side-by-side columns taller than a page
   break each on its own.
 - A heading never ends a page: it moves with what follows.
-- `break-inside: avoid` keeps a box whole (a totals block, a signature).
+- `break-inside: avoid` keeps a box whole (a totals block, a signature),
+  and a table's `Table.Body` its rows together.
 - A box that runs onto the next page is painted on both, its border open
   at the break.
 
@@ -3876,7 +3940,7 @@ And what the type checker finds:
 | `F02` | `bind:` to a state the control cannot hold (a text `Input` on a `Number` — `.number` holds one) |
 | `F03` | `validate x` where no control binds `x`, or `x` is derived: its rules can never pass |
 | `R01` | A link or `navigate()` to a path no page's route matches (spliced paths by their shape; a path with no leading `/`) |
-| `R02` | A route's `:param` with no page parameter of that name, or the reverse |
+| `R02` | A route's `:param` with no page parameter of that name (a parameter with no `:param` is the page's data: a template, left out of a build) |
 | `R05` | A `translates:` that names no page (or its own), or two translations of one page in one language |
 | `R03` | An `app` with no `Router` (no page is ever drawn), or with two |
 | `E117` | An `on key("…")` combination no keyboard sends — an unknown modifier, no key, a key that does not exist, in any step of a chord |
@@ -4265,6 +4329,13 @@ refused with the place it goes wrong — `T33: the data is not what
 name the page reads that is neither a parameter nor declared is `T13`. A
 page that declares no parameters reads the data's top-level keys by name,
 unchecked.
+
+A template page may live in a project's `src/` beside its other pages:
+a parameter its route has no `:name` for is data only a render hands
+over, so `wf build` leaves the page out — no route, no file, no page of a
+PDF — while `wf check` holds it to its types, and `wf render . --page
+Invoice` renders it with the project's components, types and theme,
+and its `.css` files under `src/` as a build bundles them.
 
 ```wf
 // template.wf

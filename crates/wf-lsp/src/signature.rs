@@ -7,7 +7,7 @@ use lsp_types::{
     Documentation, ParameterInformation, ParameterLabel, Position, SignatureHelp,
     SignatureInformation,
 };
-use webfluent::registry::{self, PropType};
+use webfluent::registry::PropType;
 use webfluent::syntax::lexer::{Token, TokenType};
 use webfluent::syntax::parser::ast::{
     ActionDecl, Declaration, PropDecl, Statement, StatementKind, TypeRef,
@@ -267,10 +267,7 @@ fn describe(
         ));
     }
     // A built-in element or part: its own props, the positional first.
-    let sig = match callee.split_once('.') {
-        Some((owner, part)) => registry::part(owner, part),
-        None => registry::component(callee),
-    };
+    let sig = project.builtin(callee);
     if let Some(sig) = sig {
         let mut params: Vec<Param> = Vec::new();
         if let Some(p) = &sig.positional {

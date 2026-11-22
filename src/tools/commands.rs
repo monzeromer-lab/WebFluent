@@ -68,6 +68,8 @@ pub const EFFECTS: &[Effect] = &[
     e("test", "the snapshots, with `--update`", None),
     e("audit", "", None),
     e("verify", "", None),
+    e("start", "", None),
+    e("inspect", "a screenshot, with `--screenshot`", None),
     e("registry", "", None),
     e("types", "", None),
     e("fmt", "the project's source files", Some("--check")),

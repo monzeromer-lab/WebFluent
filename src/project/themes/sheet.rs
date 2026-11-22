@@ -214,6 +214,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-breadcrumb { display: flex; align-items: center; gap: var(--spacing-xs); }
 .wf-breadcrumb__item + .wf-breadcrumb__item::before { content: "/"; margin-inline-end: var(--spacing-xs); }
 /*@both*/
+/* A link of the trail is a target a pointer can hit (WCAG 2.5.8): as tall
+   and as wide as `target-min`, its words where they were. */
+a.wf-breadcrumb__item { display: inline-flex; align-items: center; justify-content: center; min-height: var(--target-min); min-width: var(--target-min); }
 
 /* ─── Link ──────────────────────────────────────────── */
 /*@full*/
@@ -662,7 +665,7 @@ ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 
 .wf-modal__content { background: var(--color-background); width: 100%; max-height: 90vh; overflow-y: auto; }
 .wf-modal__header { padding: var(--spacing-md); display: flex; justify-content: space-between; align-items: center; }
 /*@both*/
-.wf-modal__header h3 { margin: 0; }
+.wf-modal__header h2 { margin: 0; font-size: var(--font-size-lg); }
 /* A heading row with only its close button: the button at the end, no rule under it. */
 .wf-modal__header--bare, .wf-dialog__header--bare, .wf-sheet__header--bare { justify-content: flex-end; border-bottom: 0; padding-block-end: 0; }
 .wf-modal__close, .wf-dialog__close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; border: 0; border-radius: var(--radius-sm, 4px); background: none; color: inherit; cursor: pointer; opacity: 0.7; }
@@ -691,7 +694,7 @@ ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 
 .wf-dialog__content { background: var(--color-background); padding: var(--spacing-lg); width: 100%; display: flex; flex-direction: column; gap: var(--spacing-md); }
 /*@both*/
 .wf-dialog__header { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); }
-.wf-dialog__header h3 { margin: 0; }
+.wf-dialog__header h2 { margin: 0; font-size: var(--font-size-lg); }
 .wf-dialog__detail { margin: 0; }
 .wf-dialog__footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--spacing-sm); }
 
@@ -729,7 +732,7 @@ ol.wf-list > .wf-list__item::before { content: counter(wf-list) "."; min-width: 
 .wf-sheet__handle { align-self: center; width: 44px; min-height: 24px; display: flex; align-items: center; justify-content: center; cursor: grab; touch-action: none; flex-shrink: 0; }
 .wf-sheet__handle::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: var(--color-border); }
 .wf-sheet__header { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-md); touch-action: none; flex-shrink: 0; }
-.wf-sheet__header h3 { margin: 0; }
+.wf-sheet__header h2 { margin: 0; font-size: var(--font-size-lg); }
 .wf-sheet__close { display: inline-flex; align-items: center; justify-content: center; min-width: var(--target-min); min-height: var(--target-min); padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
 .wf-sheet__body { padding: 0 var(--spacing-md) var(--spacing-md); overflow-y: auto; flex: 1; min-height: 0; }
 .wf-sheet__footer { padding: var(--spacing-md); display: flex; justify-content: flex-end; gap: var(--spacing-sm); flex-shrink: 0; padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom)); }
@@ -1195,7 +1198,8 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 th[aria-sort="ascending"] > .wf-data-table__sort::after { content: "↑" / ""; opacity: 1; }
 th[aria-sort="descending"] > .wf-data-table__sort::after { content: "↓" / ""; opacity: 1; }
 .wf-data-table__check { width: 1%; white-space: nowrap; }
-.wf-data-table__pick { min-width: 1rem; min-height: 1rem; }
+.wf-data-table__pick { min-width: 1rem; min-height: 1rem; margin: 0; }
+.wf-data-table__hit { display: inline-flex; align-items: center; justify-content: center; min-width: var(--target-min); min-height: var(--target-min); cursor: pointer; }
 .wf-data-table__empty > td { text-align: center; }
 /*@full*/
 .wf-data-table__table thead th { background: var(--color-background); }
@@ -1243,6 +1247,10 @@ th[aria-sort="descending"] > .wf-data-table__sort::after { content: "↓" / ""; 
 .wf-app-shell > .wf-app-shell__header { grid-column: 1 / -1; position: sticky; top: 0; z-index: var(--z-sticky); }
 .wf-app-shell > .wf-app-shell__footer { grid-column: 1 / -1; }
 .wf-app-shell > main, .wf-app-shell > #wf-main { grid-column: 2; min-width: 0; }
+/* At least a window tall, so the footer starts below the fold: a page that
+   arrives after the frame (a single-page build, data still loading) would
+   otherwise push a footer already on screen down, a layout shift. */
+.wf-app-shell > main, .wf-app-shell > #wf-main { min-height: 100dvh; }
 .wf-app-shell:not(:has(> .wf-sidebar)) > main, .wf-app-shell:not(:has(> .wf-sidebar)) > #wf-main { grid-column: 1 / -1; }
 .wf-app-shell__header { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-md); }
 /*@full*/

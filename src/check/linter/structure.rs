@@ -154,7 +154,10 @@ pub fn lint_structure(
         .declarations
         .iter()
         .filter_map(|d| match d {
-            Declaration::Page(p) => Some((p.path.clone(), route_segments(&p.path))),
+            // A template page is not routed: a build leaves it out.
+            Declaration::Page(p) if !p.takes_data() => {
+                Some((p.path.clone(), route_segments(&p.path)))
+            }
             _ => None,
         })
         .collect();
@@ -459,26 +462,9 @@ fn route_parameters(p: &PageDecl, file: &str, out: &mut Vec<Diagnostic>) {
             );
         }
     }
-    for q in &p.params {
-        if !in_path.contains(&q.name.as_str()) {
-            out.push(
-                Diagnostic::coded(
-                    "R02",
-                    format!(
-                        "`{}` is a parameter of `{}`, and its route `{}` has no `:{}` to fill it",
-                        q.name, p.name, p.path, q.name
-                    ),
-                    file,
-                    q.span.line.max(1) as usize,
-                    q.span.col.max(1) as usize,
-                )
-                .with_hint(format!(
-                    "Add `/:{}` to the path, or make it a `state`",
-                    q.name
-                )),
-            );
-        }
-    }
+    // A parameter the route has no `:name` for is the page's data: the
+    // page is a template (`PageDecl::takes_data`), which a render hands its
+    // data and a build leaves out.
 }
 
 /// How many times each of the program's components is placed, and whether

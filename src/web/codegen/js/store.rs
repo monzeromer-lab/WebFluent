@@ -2,8 +2,8 @@
 
 use super::{
     ActionDecl, ApiDecl, BodyState, ConnectionDecl, Cx, DerivedDecl, Expr, JsCodegen, ResourceDecl,
-    StateDecl, Statement, StatementKind, StmtCx, StoreDecl, TypeRef, api_setting, bare,
-    body_signals, declared_names, fetch_word, js_str, top_level,
+    StateDecl, Statement, StatementKind, StmtCx, StoreDecl, TypeRef, action_lets, api_setting,
+    bare_list, body_signals, declared_names, fetch_word, js_str, top_level,
 };
 
 impl JsCodegen {
@@ -384,6 +384,7 @@ impl JsCodegen {
     pub(super) fn emit_store(&mut self, store: &StoreDecl) {
         self.body = BodyState::default();
         self.body.own_names = declared_names(&store.body);
+        self.body.action_lets = action_lets(&store.body);
         self.body.body_signals = body_signals(&store.body);
         // The definition is a **thunk**: nothing in it is evaluated until
         // something reads the store. A `state` whose value reads another
@@ -526,8 +527,7 @@ impl JsCodegen {
                     if params.is_empty() {
                         String::new()
                     } else {
-                        let named: Vec<String> = params.iter().map(|p| bare(p)).collect();
-                        format!(", {}", named.join(", "))
+                        format!(", {}", bare_list(&params.join(", ")))
                     }
                 ));
                 self.indent += 1;

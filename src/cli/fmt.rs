@@ -65,14 +65,29 @@ fn format_files(files: &[(PathBuf, String)], check: bool, stdout: bool) -> Resul
         return Ok(());
     }
     if check {
+        // `--check` writes nothing: it says what it read, and what `wf fmt`
+        // would change.
+        let checked = files.len() - failed;
+        let failing = if failed > 0 {
+            format!(", {failed} could not be read")
+        } else {
+            String::new()
+        };
         if !would_change.is_empty() {
+            println!(
+                "{checked} file(s) checked, {} would change{failing}",
+                would_change.len()
+            );
+            for file in &would_change {
+                println!("  {file}");
+            }
             return Err(WebFluentError::io(format!(
-                "{} file(s) are not formatted: {}",
+                "{} file(s) are not formatted: {} — run `wf fmt` to format them",
                 would_change.len(),
                 would_change.join(", ")
             )));
         }
-        println!("{} file(s) formatted", files.len() - failed);
+        println!("{checked} file(s) checked, none would change{failing}");
     } else {
         println!(
             "{changed} file(s) formatted, {} already were, {failed} failed",

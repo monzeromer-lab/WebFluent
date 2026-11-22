@@ -115,8 +115,11 @@ pub fn message(
             .or_else(|| messages.get(&format!("{key}.other")))
             .cloned();
     }
+    // A message of plural forms whose count is not known — a template's
+    // data that lacks it — is its `other` form, never its key.
     let mut text = text
         .or_else(|| messages.get(key).cloned())
+        .or_else(|| messages.get(&format!("{key}.other")).cloned())
         .unwrap_or_else(|| key.to_string());
     for (k, v) in params {
         text = text.replace(&format!("{{{k}}}"), &v.to_text());
@@ -160,6 +163,25 @@ mod tests {
             ("b".to_string(), Static::Num(3.0)),
         ];
         assert_eq!(message("ar", &ar, "{a} of {b}", &two), "1 من 3");
+    }
+
+    /// A count the render does not know shows the `other` form, never the
+    /// key (`article.minutes`).
+    #[test]
+    fn an_unknown_count_is_the_other_form() {
+        let messages: HashMap<String, String> = [
+            ("minutes.one", "one minute"),
+            ("minutes.other", "a few minutes"),
+        ]
+        .into_iter()
+        .map(|(k, v)| (k.to_string(), v.to_string()))
+        .collect();
+        let unknown = [("count".to_string(), Static::Null)];
+        assert_eq!(
+            message("en", &messages, "minutes", &unknown),
+            "a few minutes"
+        );
+        assert_eq!(message("en", &messages, "minutes", &[]), "a few minutes");
     }
 
     #[test]

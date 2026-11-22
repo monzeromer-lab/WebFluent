@@ -27,6 +27,34 @@ pub(super) fn says_nothing(ty: &Type) -> bool {
     unknown(ty) || open
 }
 
+/// The state a list is worked out from — `items` in `items.filter(…)`,
+/// `items.slice().sort(…)` or `items` itself — when each step keeps the
+/// items as they are.
+fn list_root(e: &super::Expr) -> Option<&str> {
+    use super::Expr;
+    match e {
+        Expr::Identifier(n) => Some(n),
+        Expr::MethodCall(obj, method, _)
+            if matches!(
+                method.as_str(),
+                "filter"
+                    | "slice"
+                    | "sort"
+                    | "sortBy"
+                    | "reverse"
+                    | "toSorted"
+                    | "toReversed"
+                    | "take"
+                    | "unique"
+                    | "concat"
+            ) =>
+        {
+            list_root(obj)
+        }
+        _ => None,
+    }
+}
+
 /// A state whose value says nothing, waiting for the body to say what is
 /// assigned to it.
 pub(super) struct Untyped {
@@ -120,7 +148,18 @@ impl Checker<'_, '_> {
                     None => ty.clone(),
                 }
             }
-            _ => ty.clone(),
+            other => {
+                // `live = items.filter(…)` where `items` says nothing yet
+                // either: `live` holds what `items` is later found to hold.
+                if let Some(root) = list_root(other)
+                    && root != name
+                    && self.untyped.iter().any(|u| u.name == root)
+                {
+                    self.assigned_from
+                        .push((name.to_string(), root.to_string()));
+                }
+                ty.clone()
+            }
         }
     }
 
@@ -141,7 +180,24 @@ impl Checker<'_, '_> {
     /// type the body assigns it as the fix.
     pub(super) fn report_untyped(&mut self) {
         let untyped = std::mem::take(&mut self.untyped);
-        let assigned: HashMap<String, Type> = std::mem::take(&mut self.assigned);
+        let mut assigned: HashMap<String, Type> = std::mem::take(&mut self.assigned);
+        let from = std::mem::take(&mut self.assigned_from);
+        // A state assigned a list of another's items holds what that one
+        // holds, through as many steps as there are.
+        for _ in 0..from.len() {
+            let mut changed = false;
+            for (to, root) in &from {
+                if !assigned.contains_key(to)
+                    && let Some(ty) = assigned.get(root).filter(|t| matches!(t, Type::List(_)))
+                {
+                    assigned.insert(to.clone(), ty.clone());
+                    changed = true;
+                }
+            }
+            if !changed {
+                break;
+            }
+        }
         for u in untyped {
             let keyword = if u.persist { "persist" } else { "state" };
             // A map literal assigned it is a record, drafted from its
@@ -160,14 +216,16 @@ impl Checker<'_, '_> {
             let hint = if let Some(ty) = now {
                 format!("Write what it holds: `{keyword} {}: {ty} = …`", u.name)
             } else {
-                let example = match u.start {
-                    "[]" => "[Todo]",
-                    "{}" => "[String: Number]",
-                    "null" => "User?",
-                    _ => "Json",
+                // Nothing the body assigns says it: the hint names no type
+                // the program may not have, only the shape of one.
+                let (example, what) = match u.start {
+                    "[]" => ("[T]", ", `T` the type of its items"),
+                    "{}" => ("[String: T]", ", `T` the type of its values"),
+                    "null" => ("T?", ", `T` the type of what it holds"),
+                    _ => ("Json", ""),
                 };
                 format!(
-                    "Write what it holds: `{keyword} {}: {example} = {}`",
+                    "Write what it holds: `{keyword} {}: {example} = {}`{what}",
                     u.name, u.start
                 )
             };

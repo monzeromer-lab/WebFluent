@@ -433,9 +433,14 @@ impl Scope {
         }
     }
 
-    /// The locale at hand: the project's, a `locale` in the data, or English.
+    /// The locale at hand: the project's, a `locale` in the data, the one a
+    /// template renders its messages in, or English.
     pub fn locale(&self) -> String {
-        match self.get("__locale").or_else(|| self.get("locale")) {
+        match self
+            .get("__locale")
+            .or_else(|| self.get("locale"))
+            .or_else(|| self.get("__messages_locale"))
+        {
             Some(Static::Str(l)) => l.clone(),
             _ => "en".to_string(),
         }
@@ -509,7 +514,24 @@ fn stores_with(
             _ => None,
         })
         .collect();
-    let mut known: HashMap<String, Static> = HashMap::new();
+    // The constants, in order (one may read another): a store's first value
+    // may be one — `persist kept: [String] = START`.
+    let mut constants = Scope::of([]);
+    for decl in &program.declarations {
+        if let Declaration::Const(c) = decl
+            && let Some(v) = eval(&c.value, &constants)
+        {
+            constants.set(&c.name, v);
+        }
+    }
+    let mut known: HashMap<String, Static> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Const(c) => Some((c.name.clone(), constants.get(&c.name)?.clone())),
+            _ => None,
+        })
+        .collect();
     for _ in 0..2 {
         for store in &stores {
             let v = store_value_in(store, seeds.and_then(|m| m.get(&store.name)), &known);
@@ -688,7 +710,9 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         Expr::Regex(p, f) => Some(Static::Regex(p.clone(), f.clone())),
 
         Expr::Identifier(name) => {
-            let value = scope.get(name)?;
+            let Some(value) = scope.get(name) else {
+                return page_value(name, scope);
+            };
             fuel.copy(value)?;
             Some(value.clone())
         }
@@ -963,6 +987,8 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     };
                     Some(Static::Str(crate::project::sanitize::sanitize(html)))
                 }
+                // `now(every: 1.seconds)`: the moment of the paint, as `now`.
+                "now" if !scope.functions.contains_key(name) => page_value(name, scope),
                 // `format(value, .style, option)` and `ago(date)`, as the
                 // browser would spell them, in the project's locale.
                 "format" | "ago" if !scope.functions.contains_key(name) => {
@@ -1917,6 +1943,27 @@ fn js_number(v: &Static) -> f64 {
         Static::Bool(true) => 1.0,
         Static::Bool(false) | Static::Null => 0.0,
         _ => f64::NAN,
+    }
+}
+
+/// What the language's own names come to where the page is painted:
+/// `locale` the page's (its `lang:`, else the site's default), `dir` that
+/// locale's direction, and `now` the moment of the build or the render —
+/// `SOURCE_DATE_EPOCH` when the environment names one, so a reproducible
+/// build or a test can pin it. The live page takes each over.
+fn page_value(name: &str, scope: &Scope) -> Option<Static> {
+    match name {
+        "locale" => Some(Static::Str(scope.messages_locale())),
+        "dir" => Some(Static::Str(
+            if crate::project::i18n::table::is_rtl(&scope.messages_locale()) {
+                "rtl"
+            } else {
+                "ltr"
+            }
+            .to_string(),
+        )),
+        "now" => Some(Static::Str(format::iso(crate::base::platform::unix_now()))),
+        _ => None,
     }
 }
 

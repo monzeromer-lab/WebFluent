@@ -123,7 +123,7 @@ const settle = async (ctx) => {
 const ours = (e) => !/NetworkError|is not available|not implemented|showModal|animate is not a function|getAnimations|IntersectionObserver|scrollTo|focus is not a function|AbortController/.test(e);
 
 for (const name of examples) {
-  test(`md-docs ${name} runs`, async () => {
+  test(`the guide's ${name} runs`, async () => {
     const errors = [];
     const onRejection = (e) => errors.push(`unhandled: ${e && e.stack ? e.stack.split("\n").slice(0, 3).join("\n") : e}`);
     process.on("unhandledRejection", onRejection);
@@ -166,6 +166,6 @@ for (const name of examples) {
       process.off("unhandledRejection", onRejection);
     }
     const real = errors.filter(ours);
-    assert.deepEqual(real, [], `md-docs ${name}:\n${real.join("\n\n")}`);
+    assert.deepEqual(real, [], `${name}:\n${real.join("\n\n")}`);
   });
 }

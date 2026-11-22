@@ -7,7 +7,7 @@
 //! `.wf` file of the repository, give the new text when all are accepted,
 //! the old when none are, and what `patch` makes of its unified diff. The
 //! context names everything it gives and withholds every private value,
-//! and its guide's anchors are the site's.
+//! and its guide is the skill's reference.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -375,88 +375,83 @@ fn the_context_names_what_it_gives() {
         context.tokens,
         [] as [(std::string::String, std::string::String); 0]
     );
-    // A chapter is a page whose front matter numbers it, and a recipe is
-    // given beside them; the README and a code's page are not.
-    let numbered = guide()
-        .iter()
-        .filter(|(_, text)| {
-            crate::common::front_matter(text, "chapter").is_some()
-                || crate::common::front_matter(text, "kind").as_deref() == Some("recipe")
-        })
-        .count();
-    assert_eq!(
-        context.guide.len(),
-        numbered,
-        "every chapter and recipe, not the README"
-    );
+    // Every file of the skill's reference, its index of sections not one.
+    assert_eq!(context.guide.len(), guide().len());
+    assert!(guide().len() > 50, "{} files", guide().len());
+    assert_eq!(context.guide[0].file, "references/core.md");
     assert!(
         context
             .guide
             .iter()
-            .all(|c| c.text.is_none() && !c.title.is_empty())
+            .all(|c| c.text.is_none() && !c.title.is_empty() && c.file != "references/language.md")
     );
     let full = context_via(&FsVfs, &dir, None, guide(), Depth::Full).unwrap();
     assert!(full.guide.iter().all(|c| c.text.is_some()));
+    // The whole reference: every section of `AGENTS.md`.
+    let whole = full.to_markdown();
+    for (_, text) in guide() {
+        assert!(whole.contains(text.trim_end()));
+    }
+    assert!(
+        whole.contains("### Data Fetching"),
+        "the language reference is given whole"
+    );
+    assert!(
+        context.to_markdown().len() * 4 < whole.len(),
+        "the index is concise"
+    );
     let _ = std::fs::remove_dir_all(&dir);
 }
 
 #[test]
-fn the_guide_s_anchors_are_the_site_s() {
-    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+fn the_guide_is_the_skill_s_reference() {
     let chapters = chapters(guide(), Depth::Index);
-    assert!(chapters.len() >= 49, "{} chapters", chapters.len());
-    let anchors = regex::Regex::new(r#"Anchor\(id: "([^"]+)""#).unwrap();
-    let mut checked = 0;
+    assert_eq!(chapters.len(), guide().len());
+    // Each section of the language is a heading of `AGENTS.md`, and each
+    // topical file is one of the skill's.
+    let agents =
+        std::fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("AGENTS.md")).unwrap();
     for ch in &chapters {
-        let Some(route) = &ch.route else { continue };
-        // The page the guide's script wrote for it, by the address it
-        // answers.
-        let at = if route.starts_with('/') {
-            route.clone()
-        } else {
-            format!("/docs/{route}")
-        };
-        let Some(text) = std::fs::read_dir(root.join("site/src/pages/guide"))
-            .unwrap()
-            .flatten()
-            .map(|e| std::fs::read_to_string(e.path()).unwrap_or_default())
-            .find(|text| text.contains(&format!("(path: \"{at}\",")))
-        else {
-            continue;
-        };
-        let ids: Vec<String> = anchors
-            .captures_iter(&text)
-            .map(|c| c[1].to_string())
-            .collect();
-        for s in ch.sections.iter().filter(|s| s.level == 2) {
+        if ch.file.starts_with("references/language/") {
             assert!(
-                ids.contains(&s.anchor),
-                "{} › {}: the site has no #{} ({ids:?})",
-                ch.number,
-                s.title,
-                s.anchor
+                agents.contains(&format!("## {}\n", ch.title))
+                    || agents
+                        .lines()
+                        .any(|l| l.trim_start_matches('#').trim().replace('`', "") == ch.title),
+                "{} is no heading of AGENTS.md",
+                ch.title
             );
-            checked += 1;
+        } else {
+            assert!(
+                Path::new(env!("CARGO_MANIFEST_DIR"))
+                    .join("skills/writing-webfluent")
+                    .join(&ch.file)
+                    .exists(),
+                "{}",
+                ch.file
+            );
         }
     }
-    assert!(checked > 200, "{checked} sections");
     assert_eq!(
         anchor("When your rule and a built-in's disagree"),
         "when-your-rule-and-a-built-in-s-disagree"
     );
     assert_eq!(anchor("`style { }`"), "style");
-    let forms = chapters
+    let core = &chapters[0];
+    assert_eq!(core.file, "references/core.md");
+    assert!(core.blurb.is_some(), "core.md opens with a paragraph");
+    let first = &core.sections[0];
+    assert_eq!(first.level, 2);
+    assert_eq!(
+        core.cite(Some(&first.anchor)),
+        format!("{} › {}", core.title, first.title)
+    );
+    assert_eq!(core.cite(None), core.title);
+    let fetching = chapters
         .iter()
-        .find(|c| c.route.as_deref() == Some("/learn/14-forms"))
-        .unwrap();
-    assert_eq!(
-        forms.cite(Some("validate-a-field")),
-        format!("{} {} › Validate a field", forms.number, forms.title)
-    );
-    assert_eq!(
-        forms.cite(None),
-        format!("{} {}", forms.number, forms.title)
-    );
+        .find(|c| c.title == "Data Fetching")
+        .expect("the language's sections are chapters");
+    assert_eq!(fetching.file, "references/language/data-fetching.md");
 }
 
 #[test]

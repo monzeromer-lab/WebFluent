@@ -63,7 +63,7 @@ required-features = ["cli"]
 # the compiler and the template engine alone.
 [features]
 default = ["cli"]
-cli = ["dep:clap", "dep:tiny_http", "dep:mimalloc"]
+cli = ["dep:clap", "dep:tiny_http", "dep:mimalloc", "dep:rustls", "dep:rustls-native-certs"]
 # A native build does everything. A WebAssembly build — `crates/wf-wasm`,
 # which a page downloads before it compiles anything — carries each of these
 # only when asked (see build.rs):
@@ -201,6 +201,10 @@ clap = { version = "4.6.0", features = ["derive"], optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json.workspace = true
 tiny_http = { version = "0.12.0", optional = true }
+# `wf start --proxy` to an https:// API: TLS in Rust (ring), with the
+# system's certificates.
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"], optional = true }
+rustls-native-certs = { version = "0.8", optional = true }
 # The `wf` command's allocator: a build makes and frees millions of small
 # values on every core, which the system's allocator serialises on a lock.
 # The library leaves the allocator to the program that links it.

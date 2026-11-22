@@ -39,13 +39,13 @@ internal! {
 use externals::BROWSER_CLASSES;
 pub use externals::{external_modules, externals_module};
 use names::{
-    action_names, bare, bare_list, body_signals, declared_names, js_component, js_str, sig,
-    template_text, top_level,
+    action_lets, action_names, bare, bare_list, body_signals, declared_names, js_component, js_str,
+    sig, template_text, top_level,
 };
 use net::{api_setting, fetch_word, resource_names};
 use reactive::{BindTarget, MUTATORS, frame_origin, path_of};
 use statement::{StmtCx, emitted, shows_optimistically};
-use widgets::{form_options, has_form, refinement_in, validated_names};
+use widgets::{form_options, forms_in, refinement_in, validated_names};
 
 /// What a connection's handle holds as signals.
 pub const CONNECTION_SIGNALS: &[&str] = &["state", "error", "pending", "messages", "closure"];
@@ -346,12 +346,13 @@ struct BodyState {
     /// The element handles the page or component declares with `ref:`,
     /// and the form handles it declares with `Form(bind: name)`.
     refs: Vec<String>,
-    /// The form handle the body binds, which a `validate` block registers
-    /// into, and which decides when a message is shown.
-    current_form: Option<String>,
-    /// The handle an unbound `Form` is given when the body has `validate`
-    /// rules — so its submit asks them, as a bound form's does.
-    implicit_form: Option<String>,
+    /// Each validated state and the handle of the form whose controls bind
+    /// it: its `validate` block registers there, and nowhere else.
+    field_forms: Vec<(String, String)>,
+    /// The handle each unbound `Form` holding a validated field is given,
+    /// by the form's place — so its submit asks its rules, as a bound
+    /// form's does.
+    implicit_forms: Vec<((u32, u32), String)>,
     /// Every `Form(bind: name)` handle of the page or component being
     /// written: `form.valid` reads signals, so what reads it is followed.
     form_handles: Vec<String>,
@@ -363,6 +364,9 @@ struct BodyState {
     /// Every name the page, component or store being emitted declares, at
     /// any depth: a declared `query` is its own, not the browser's.
     own_names: Vec<String>,
+    /// Those of them declared only as a `let` in an action's or a
+    /// handler's block, which are names only there.
+    action_lets: Vec<String>,
     /// The signals the body declares at its top — its states, derived
     /// values, resources and connections — which a top-level `const` of the
     /// same name gives way to.
@@ -582,7 +586,8 @@ impl JsCodegen {
 
     /// The shape the runtime holds a response to (`shapeProblem` in
     /// `http.js`), for a declared type: `"s"`, `"n"`, `"b"`, `"m"`, `"*"`,
-    /// `["?", s]`, `["l", s]`, `["r", "Name", { field: s }]`, `["e", [cases]]`.
+    /// `["?", s]`, `["l", s]`, `["r", "Name", { field: s }]`, `["e", [cases]]`;
+    /// a record's field with a default is `["?", s, default]`.
     /// Emits `value` — a `let`'s — with its declared type given to the
     /// `http` call it awaits (`await http.get(…)`, `try await http.get(…)`),
     /// so the answer is checked against it: `T!` and `T ! E` are `T`'s.
@@ -664,12 +669,25 @@ impl JsCodegen {
                                 continue;
                             }
                             seen.push(&f.name);
-                            // A field with a default may be left out.
+                            // A field with a default may be left out, and
+                            // is then its default, when that is a constant.
                             let shape = self.shape_of(&f.ty, depth + 1);
-                            let shape = if f.default.is_some() {
-                                format!("[\"?\", {shape}]")
-                            } else {
-                                shape
+                            let shape = match &f.default {
+                                Some(default) => {
+                                    let given = (!matches!(f.ty, TypeRef::Optional(_)))
+                                        .then(|| {
+                                            crate::project::defaults::Defaults::of_types(
+                                                self.shapes.0.values(),
+                                            )
+                                            .default_json(default)
+                                        })
+                                        .flatten();
+                                    match given {
+                                        Some(v) => format!("[\"?\", {shape}, {v}]"),
+                                        None => format!("[\"?\", {shape}]"),
+                                    }
+                                }
+                                None => shape,
                             };
                             fields.push(format!(
                                 "{}: {shape}",

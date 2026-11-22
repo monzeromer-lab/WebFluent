@@ -135,19 +135,18 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
         dir.join(".gitignore"),
         "build/\n.wf-cache/\n.wf-sizes.json\n.env\n",
     )?;
-    // The language reference, where a coding agent looks for it — so the
+    // The core of the language, where a coding agent looks for it — so the
     // one asked to change this project writes the WebFluent of the `wf`
     // that made it, rather than guessing at a language it may never have
-    // seen.
+    // seen. Short on purpose: many agents read `AGENTS.md` into every turn.
     fs::write(dir.join("AGENTS.md"), agents_md()).at(dir.join("AGENTS.md"))?;
-    // The same, as an Agent Skill, in the folders agents look in for one:
-    // `.agents/skills/` (Codex, Cursor, Gemini CLI and the agents that
-    // follow the standard) and `.claude/skills/` (Claude Code). An agent
-    // loads it when the work is WebFluent, and it points at `AGENTS.md`
-    // rather than carrying a second copy of the reference.
+    // The skill, in the folders agents look in for one: `.agents/skills/`
+    // (Codex, Cursor, Gemini CLI and the agents that follow the standard)
+    // and `.claude/skills/` (Claude Code). It holds the whole reference, a
+    // file a section, so an agent reads the section it needs.
     for root in SKILL_ROOTS {
         for (path, text) in skill_files() {
-            let path = dir.join(root).join(path);
+            let path = dir.join(root).join(&path);
             if let Some(parent) = path.parent() {
                 fs::create_dir_all(parent).at(parent)?;
             }
@@ -169,6 +168,10 @@ const SKILL: &[(&str, &str)] = &[
     (
         "SKILL.md",
         include_str!("../../skills/writing-webfluent/SKILL.md"),
+    ),
+    (
+        "references/core.md",
+        include_str!("../../skills/writing-webfluent/references/core.md"),
     ),
     (
         "references/code-quality.md",
@@ -200,20 +203,100 @@ const SKILL: &[(&str, &str)] = &[
     ),
 ];
 
-/// In a project, `references/language.md` is the project's own
-/// `AGENTS.md`, four folders up: the skill names it rather than repeat it.
-const SKILL_LANGUAGE: &str = "# The language reference\n\n\
-This project's language reference is its `AGENTS.md`, at the project's root \
-([../../../../AGENTS.md](../../../../AGENTS.md)), written by the `wf` that \
-made the project. Read it by section: `grep -n '^## ' AGENTS.md`, then the \
-lines you need.\n";
-
 /// Every file of the skill a new project gets, by its path in the skill's
-/// folder.
-pub fn skill_files() -> Vec<(&'static str, &'static str)> {
-    let mut files = SKILL.to_vec();
-    files.push(("references/language.md", SKILL_LANGUAGE));
+/// folder: the hand-written files, and the reference split by section
+/// ([`reference_files`]).
+pub fn skill_files() -> Vec<(String, String)> {
+    let mut files: Vec<(String, String)> = SKILL
+        .iter()
+        .map(|(p, t)| ((*p).to_string(), (*t).to_string()))
+        .collect();
+    files.extend(reference_files(AGENTS));
     files
+}
+
+/// The language reference (`AGENTS.md`), a file a section, under the
+/// skill's `references/`: `language.md` lists them with their sizes, and
+/// `language/<section>.md` holds each — a `##` section, or for the long
+/// `## Core Syntax`, a `###` one. An agent reads one section rather than
+/// the whole reference, which would sit in its context for every turn after.
+/// The repository's `skills/writing-webfluent/references/` is written by
+/// this function (`just bump`), and its tests hold the two equal.
+pub fn reference_files(agents: &str) -> Vec<(String, String)> {
+    // (level, title, text) of each section, fenced code not counted.
+    let mut sections: Vec<(u8, String, String)> = Vec::new();
+    let mut fenced = false;
+    let mut in_core = false;
+    for line in agents.split_inclusive('\n') {
+        if line.trim_start().starts_with("```") {
+            fenced = !fenced;
+        }
+        let heading = if fenced {
+            None
+        } else if let Some(t) = line.strip_prefix("## ") {
+            // The two long chapters are a file a subsection, so each stays one an
+            // agent can afford to read.
+            in_core = matches!(t.trim(), "Core Syntax" | "Built-in Components");
+            Some((2u8, t.trim().to_string()))
+        } else if in_core {
+            line.strip_prefix("### ")
+                .map(|t| (3u8, t.trim().to_string()))
+        } else {
+            None
+        };
+        match heading {
+            Some((level, title)) => sections.push((level, title, line.to_string())),
+            // The title and the lines before the first section go nowhere.
+            None => {
+                if let Some(last) = sections.last_mut() {
+                    last.2.push_str(line);
+                }
+            }
+        }
+    }
+    let mut taken = std::collections::BTreeSet::new();
+    let mut files = Vec::new();
+    let mut rows = String::new();
+    for (level, title, text) in &sections {
+        let mut slug = slug(title);
+        while !taken.insert(slug.clone()) {
+            slug.push_str("-2");
+        }
+        let indent = if *level == 3 { "  " } else { "" };
+        rows.push_str(&format!(
+            "{indent}- [{title}](language/{slug}.md) — {} kB\n",
+            text.len().div_ceil(1000)
+        ));
+        files.push((format!("references/language/{slug}.md"), text.clone()));
+    }
+    let version = env!("CARGO_PKG_VERSION");
+    let index = format!(
+        "# The WebFluent {version} reference, a file a section\n\n\
+         Read [core.md](core.md) first: it covers most sites and apps. For \
+         anything else, read only the section you need — every file you read \
+         stays in your context for the rest of the session, and the whole \
+         reference is about {} kB. Or ask the compiler: `wf components Name`, \
+         `wf explain CODE`, `wf scope FILE:LINE`, `wf config schema`.\n\n{rows}",
+        agents.len().div_ceil(1000)
+    );
+    let mut out = vec![("references/language.md".to_string(), index)];
+    out.extend(files);
+    out
+}
+
+/// A section's file name: its title in lower case, a word joined to the
+/// next by `-`, punctuation dropped (`App (Router + Layout)` is
+/// `app-router-layout`).
+fn slug(title: &str) -> String {
+    let mut out = String::new();
+    for c in title.chars() {
+        if c.is_ascii_alphanumeric() {
+            out.push(c.to_ascii_lowercase());
+        } else if !out.ends_with('-') && !out.is_empty() {
+            out.push('-');
+        }
+    }
+    out.trim_end_matches('-').to_string()
 }
 
 /// The locales of `wf init --locales en,ar`, checked: the default first.
@@ -459,14 +542,27 @@ pub fn locale_name(locale: &str) -> String {
 /// The repository's `AGENTS.md`, as this `wf` was built with it.
 const AGENTS: &str = include_str!("../../AGENTS.md");
 
-/// `AGENTS.md` for a new project: the language reference, headed by the
-/// version it describes and where to find a newer one.
+/// `AGENTS.md` for a new project: the core of the language
+/// (`references/core.md` of the skill), headed by the version it describes,
+/// its links pointing into the skill's folder, where the rest of the
+/// reference is, a file a section. Many agents read `AGENTS.md` into every
+/// turn, so it holds what most work needs and no more.
 pub fn agents_md() -> String {
     let version = env!("CARGO_PKG_VERSION");
+    let core = include_str!("../../skills/writing-webfluent/references/core.md");
+    let core = core
+        .replace(
+            "](language",
+            "](.agents/skills/writing-webfluent/references/language",
+        )
+        .replace(
+            "](testing.md",
+            "](.agents/skills/writing-webfluent/references/testing.md",
+        );
     format!(
-        "<!-- The WebFluent {version} language reference, written by `wf init`. \
-         A newer wf brings a newer one: \
-         https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md -->\n\n{AGENTS}"
+        "<!-- The core of WebFluent {version}, written by `wf init`. The whole \
+         reference, a file a section: .agents/skills/writing-webfluent/references/language.md. \
+         A newer wf brings a newer one. -->\n\n{core}"
     )
 }
 

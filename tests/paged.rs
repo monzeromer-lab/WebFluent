@@ -31,6 +31,45 @@ fn a_document_shorter_than_a_page_is_one_page() {
 }
 
 #[test]
+fn an_ordered_list_numbers_its_items_and_a_nested_one_starts_again() {
+    // The sheet numbers `List.ordered` with a CSS counter, which the engine
+    // did not keep, so every item was a bare "." beside its text.
+    let r = report(
+        r#"page P(path: "/", title: "Steps") {
+    List.ordered {
+        List.Item { Text("Sign") }
+        List.Item {
+            Stack {
+                Text("Pay")
+                List.ordered { List.Item { Text("Deposit") }  List.Item { Text("Balance") } }
+            }
+        }
+        List.Item { Text("Launch") }
+    }
+}"#,
+    );
+    let text = page_text(&r, 0);
+    let lines: Vec<&str> = text.lines().map(str::trim).collect();
+    for (number, word) in [
+        ("1.", "Sign"),
+        ("2.", "Pay"),
+        ("1.", "Deposit"),
+        ("2.", "Balance"),
+        ("3.", "Launch"),
+    ] {
+        let at = lines
+            .iter()
+            .position(|l| l.contains(word))
+            .unwrap_or_else(|| panic!("{word}: {text}"));
+        assert!(
+            lines[at].starts_with(number) || at > 0 && lines[at - 1] == number,
+            "{word} is numbered {number}: {text}"
+        );
+    }
+    assert!(!lines.contains(&"."), "{text}");
+}
+
+#[test]
 fn a_columns_span_reaches_the_paint_a_pdf_is_laid_out_from() {
     // The paint wrote every `Column` as a bare `wf-col`, so a PDF drew
     // `span: 8` and `span: 4` as two equal halves.

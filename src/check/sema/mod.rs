@@ -636,6 +636,10 @@ impl Checker<'_, '_> {
                             && self.decls.animations.contains(&case.as_str());
                         match prop.ty {
                             _ if own_animation => {}
+                            // An option's `value:` may be a case of the enum
+                            // its control binds, which the type checker
+                            // knows and holds it to.
+                            PropType::Ty(spelling) if spelling.contains("Bound") => {}
                             PropType::Enum(cases) if cases.iter().any(|c| c.name == *case) => {}
                             PropType::Enum(cases) => {
                                 let mut names: Vec<String> =
@@ -1134,6 +1138,7 @@ pub fn lower(mut program: Program) -> Program {
     let records = Records {
         defaults: &record_defaults,
         bare: bare_records(&program),
+        cases: qualified_cases(&program),
     };
     let theme_tokens: std::collections::HashSet<String> = program
         .declarations
@@ -1216,6 +1221,36 @@ pub fn lower(mut program: Program) -> Program {
 struct Records<'a> {
     defaults: &'a HashMap<String, Vec<(String, Expr)>>,
     bare: std::collections::HashSet<String>,
+    /// Each declared enum's cases, by the enum's name: `Habitat.reedbed`
+    /// is the case `.reedbed`, written with the enum it is of.
+    cases: HashMap<String, Vec<String>>,
+}
+
+/// The cases of every declared enum no script, constant or store takes the
+/// name of, so `Habitat.reedbed` and `Status.failed("x")` are read as the
+/// cases they name.
+fn qualified_cases(program: &Program) -> HashMap<String, Vec<String>> {
+    let taken: std::collections::HashSet<&str> = program
+        .declarations
+        .iter()
+        .flat_map(|d| match d {
+            Declaration::Script(s) => s.names.iter().map(|n| n.name.as_str()).collect(),
+            Declaration::Const(c) => vec![c.name.as_str()],
+            Declaration::Store(s) => vec![s.name.as_str()],
+            _ => Vec::new(),
+        })
+        .collect();
+    program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Enum(e) if !taken.contains(e.name.as_str()) => Some((
+                e.name.clone(),
+                e.cases.iter().map(|c| c.name.clone()).collect(),
+            )),
+            _ => None,
+        })
+        .collect()
 }
 
 /// The records `Name()` builds: every declared one no script or constant
@@ -1273,6 +1308,25 @@ fn fill_records(stmts: &mut [Statement], records: &Records<'_>) {
 }
 
 fn fill_record(expr: &mut Expr, records: &Records<'_>) {
+    // `Habitat.reedbed`: the case, as `.reedbed` is where a `Habitat` is
+    // wanted. `Status.failed("x")`: the case with its payload.
+    match expr {
+        Expr::PropertyAccess(base, case)
+            if matches!(&**base, Expr::Identifier(n)
+                if records.cases.get(n).is_some_and(|cs| cs.contains(case))) =>
+        {
+            *expr = Expr::EnumCase(std::mem::take(case));
+            return;
+        }
+        Expr::MethodCall(base, case, args)
+            if matches!(&**base, Expr::Identifier(n)
+                if records.cases.get(n).is_some_and(|cs| cs.contains(case))) =>
+        {
+            *expr = Expr::CaseValue(std::mem::take(case), std::mem::take(args));
+            return;
+        }
+        _ => {}
+    }
     if let Expr::FunctionCall(name, args) = expr
         && args.is_empty()
         && records.bare.contains(name)

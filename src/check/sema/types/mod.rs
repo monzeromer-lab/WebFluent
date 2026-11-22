@@ -592,7 +592,10 @@ pub fn check_sources_with<'s>(
                 }),
                 _ => None,
             };
-            let given = if unfit.is_some() {
+            // A file that fits is read as the type, the way `T.decode`
+            // reads it — an enum case by its name, `Money` by its carrier —
+            // never as the JSON literal it was parsed into.
+            let given = if unfit.is_some() || (c.source.is_some() && declared.is_some()) {
                 declared.clone().unwrap_or(Type::Error)
             } else {
                 cx.infer(&c.value, declared.as_ref())
@@ -1045,6 +1048,11 @@ struct Checker<'a, 'p> {
     /// `DataTable`'s row, a `Tree`'s item — innermost last: what its props,
     /// its parts and its slots mean by `Item`.
     items: Vec<Type>,
+    /// What each enclosing control's `bind:` holds (an item of it, for a
+    /// list), innermost last: when it is an enum, what an option's `value:`
+    /// means by `Bound`, so `Select.Option("Food", value: .food)` is a case
+    /// of what the `Select` binds.
+    bound_enums: Vec<Type>,
     /// The states whose declared type says what their values must be —
     /// `Number(1..=30)` — held to it at every assignment, not only the
     /// first.
@@ -1082,6 +1090,9 @@ struct Checker<'a, 'p> {
     /// the body assigns each.
     untyped: Vec<signature::Untyped>,
     assigned: HashMap<String, Type>,
+    /// A state assigned a list worked out from another such state
+    /// (`live = items.filter(…)`): it holds what that one holds.
+    assigned_from: Vec<(String, String)>,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
@@ -1113,6 +1124,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             in_handler: 0,
             in_running: 0,
             items: Vec::new(),
+            bound_enums: Vec::new(),
             refined: HashMap::new(),
             non_empty: Vec::new(),
             in_chain: false,
@@ -1126,6 +1138,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             cyclic: HashSet::new(),
             untyped: Vec::new(),
             assigned: HashMap::new(),
+            assigned_from: Vec::new(),
             source,
         }
     }

@@ -120,6 +120,56 @@ fn an_unbound_form_with_rules_asks_them_before_submitting() {
 }
 
 #[test]
+fn a_form_holds_only_the_rules_of_the_fields_inside_it() {
+    // One form a step: a `required` on the second step's field blocked the
+    // first step's submit, since every rule of the page joined the last
+    // form declared — and its submit gate read that form too.
+    let out = js(&page(
+        "    state name = \"\"\n    state seats = \"\"\n    state note = \"\"\n    state step = 0\n    \
+         validate name { required }\n    validate seats { required }\n    validate note { required }\n    \
+         Form(bind: details) {\n        on submit { step = 1 }\n        Input(bind: name, label: \"Name\").text\n        \
+         Button(\"Next\", type: .submit)\n    }\n    \
+         Form(bind: choice, show: .onSubmit) {\n        on submit { step = 2 }\n        Input(bind: seats, label: \"Seats\").text\n        \
+         Button(\"Next\", type: .submit)\n    }\n    \
+         Form {\n        on submit { step = 0 }\n        Input(bind: note, label: \"Note\").text\n    }\n    \
+         Text(\"{step}\")",
+    ));
+    assert!(out.contains("const details = WF.form();"), "{out}");
+    assert!(
+        out.contains("const choice = WF.form({ show: \"onSubmit\" });"),
+        "each form says its own `show:`:\n{out}"
+    );
+    let rule = |state: &str| {
+        let at = out
+            .find(&format!("const _{state}_check = WF.validate("))
+            .unwrap_or_else(|| panic!("{state}'s rules:\n{out}"));
+        out[at..at + out[at..].find(';').unwrap()].to_string()
+    };
+    assert!(rule("name").contains("form: details"), "{}", rule("name"));
+    assert!(rule("seats").contains("form: choice"), "{}", rule("seats"));
+    assert!(rule("note").contains("form: _wfForm"), "{}", rule("note"));
+    // Each submit asks its own form.
+    for handle in ["details", "choice", "_wfForm"] {
+        assert!(
+            out.contains(&format!("if (!{handle}.__submitting()) return;")),
+            "{handle}'s submit asks it:\n{out}"
+        );
+    }
+
+    // A rule on a field no form holds belongs to none.
+    let loose = js(&page(
+        "    state name = \"\"\n    state q = \"\"\n    validate name { required }\n    validate q { minLength(2) }\n    \
+         Input(bind: q, label: \"Search\").text\n    \
+         Form(bind: form) {\n        on submit { name = \"\" }\n        Input(bind: name, label: \"Name\").text\n    }",
+    ));
+    let at = loose
+        .find("const _q_check = WF.validate(")
+        .expect("q's rules");
+    let q = &loose[at..at + loose[at..].find(';').unwrap()];
+    assert!(!q.contains("form:"), "{q}");
+}
+
+#[test]
 fn a_form_handle_does_not_leak_into_the_next_page() {
     let src = "page A(path: \"/\", title: \"A\", description: \"A\") {\n    Heading(\"A\").h1\n    \
                state n = \"\"\n    validate n { required }\n    Form(bind: form) {\n        on submit { n = \"\" }\n        \
@@ -163,4 +213,16 @@ fn a_validated_checkbox_shows_its_message() {
          Form {\n        on submit { agreed = false }\n        Checkbox(bind: agreed, label: \"I agree\")\n    }",
     ));
     assert!(out.contains("WF.choiceError("), "{out}");
+}
+
+#[test]
+fn a_validated_date_picker_shows_its_message() {
+    // An `Input(…).date` did; a `DatePicker` bound to the same state drew
+    // no message, so a submit refused it with nothing said.
+    let out = js(&page(
+        "    state day: Date? = null\n    validate day { required \"Pick a day\" }\n    \
+         Form {\n        on submit { day = null }\n        DatePicker(bind: day, label: \"Day\")\n    }",
+    ));
+    let picker = &out[out.find("className: \"wf-datepicker").expect("the picker")..];
+    assert!(picker.contains("WF.choiceError("), "{out}");
 }

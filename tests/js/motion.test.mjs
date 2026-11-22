@@ -307,7 +307,7 @@ test("a keyed list measures only the items that move: none as it grows at its en
     const rect = li.getBoundingClientRect.bind(li);
     li.getBoundingClientRect = () => { measured++; return rect(); };
     return li;
-  }, { key: (item) => item.id });
+  }, { key: (item) => item.id, slide: true });
   // A long log appended to: nothing moves, nothing is read.
   for (let n = 4; n < 40; n++) items.set([...items(), { id: n }]);
   assert.equal(measured, 0, "an append moves nothing, so reads no place");
@@ -316,11 +316,12 @@ test("a keyed list measures only the items that move: none as it grows at its en
   measured = 0;
   items.set(items().slice().reverse());
   assert.ok(measured >= 39, `a move reads the places of what moves (${measured})`);
-  // Only the one that moves: the first taken to the end.
+  // Only the one that moves: the first taken to the end, read where it
+  // was and where it went; the rest only closed the gap.
   measured = 0;
   const now = items();
   items.set([...now.slice(1), now[0]]);
-  assert.ok(measured > 0 && measured <= 2 * 39, `${measured}`);
+  assert.equal(measured, 2, `${measured}`);
 
   // Keyed by its index (`by i`), a log cut at its front moves nothing either.
   const log = document.createElement("ul");

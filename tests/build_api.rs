@@ -395,3 +395,27 @@ fn a_message_with_a_line_break_or_a_quote_is_written_as_a_string() {
     assert_eq!(report.errors().count(), 0, "{:?}", report.lines);
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn a_template_page_in_the_project_is_checked_and_left_out_of_the_build() {
+    let dir = project("template");
+    let out = dir.join("out");
+    // Its parameters are data no route fills: a render hands them over, a
+    // build has none to hand, so the page is no route and no file.
+    std::fs::write(
+        dir.join("src/pages/Invoice.wf"),
+        "type Customer { name: String }\npage Invoice(path: \"/invoice\", title: \"Invoice\", description: \"An invoice.\", number: String, customer: Customer) {\n    Heading(\"Invoice {number}\").h1\n    Text(customer.name)\n}\n",
+    )
+    .unwrap();
+    let vfs = FsVfs;
+    build(&BuildOptions {
+        output_dir: Some(out.clone()),
+        ..BuildOptions::new(&dir, &vfs)
+    })
+    .unwrap_or_else(|failure| panic!("{failure}\n{:?}", failure.report.lines));
+    assert!(out.join("index.html").exists());
+    assert!(!out.join("invoice/index.html").exists());
+    let app = std::fs::read_to_string(out.join("app.js")).unwrap();
+    assert!(!app.contains("Invoice"), "{app}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

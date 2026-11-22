@@ -233,8 +233,9 @@ fn hover_text(
         }
     }
 
-    // Names that are global to the project.
-    if let Some(sig) = registry::component(word) {
+    // Names that are global to the project: a built-in, unless the
+    // project declares its own of the name.
+    if let Some(sig) = project.builtin(word) {
         return Some(builtin_doc(project, sig));
     }
     if let Some((script_ix, name)) = project.script_name(word) {
@@ -569,10 +570,10 @@ fn find_enum<'a>(project: &'a Project, name: &str) -> Option<&'a EnumDecl> {
     }
 }
 
-fn signature(reference: &ComponentRef) -> Option<&'static ComponentSig> {
+fn signature(project: &Project, reference: &ComponentRef) -> Option<&'static ComponentSig> {
     match reference {
-        ComponentRef::BuiltIn(name) => registry::component(name),
-        ComponentRef::SubComponent(owner, part) => registry::part(owner, part),
+        ComponentRef::BuiltIn(name) => project.builtin(name),
+        ComponentRef::SubComponent(owner, part) => project.builtin(&format!("{owner}.{part}")),
         ComponentRef::UserDefined(_) => None,
     }
 }
@@ -585,14 +586,19 @@ pub fn type_name(ty: &TypeRef) -> String {
 
 fn component_doc(project: &Project, reference: &ComponentRef) -> String {
     match reference {
+        ComponentRef::BuiltIn(name) if project.declares_component(name) => {
+            component_doc(project, &ComponentRef::UserDefined(name.clone()))
+        }
         ComponentRef::BuiltIn(name) => match registry::component(name) {
             Some(sig) => builtin_doc(project, sig),
             None => format!("**{name}**"),
         },
-        ComponentRef::SubComponent(owner, part) => match registry::part(owner, part) {
-            Some(sig) => builtin_doc(project, sig),
-            None => format!("**{owner}.{part}**\n\n`{owner}` has no part called `{part}`."),
-        },
+        ComponentRef::SubComponent(owner, part) => {
+            match project.builtin(&format!("{owner}.{part}")) {
+                Some(sig) => builtin_doc(project, sig),
+                None => format!("**{owner}.{part}**\n\n`{owner}` has no part called `{part}`."),
+            }
+        }
         ComponentRef::UserDefined(name) => match find_declaration(project, name) {
             Some(decl) => declaration_doc(project, decl),
             None => format!("**{name}**\n\nNo `component {name}` is declared in this project."),
@@ -1115,7 +1121,7 @@ fn declaring_line(file: &SourceFile, binding: &Binding) -> Option<String> {
 /// What a `.flag` on an element sets.
 fn flag_doc(project: &Project, name: &str, component: &ComponentRef) -> String {
     let component_name = analysis::component_name(component);
-    if let Some(sig) = signature(component) {
+    if let Some(sig) = signature(project, component) {
         return match sig.flag(name) {
             Flag::Bool(prop) => format!(
                 "**.{name}** — `{}: true` on `{component_name}`\n\n{}",
@@ -1185,7 +1191,7 @@ fn flag_doc(project: &Project, name: &str, component: &ComponentRef) -> String {
 /// The case a named enum prop is given.
 fn case_doc(project: &Project, component: &ComponentRef, key: &str, case: &str) -> String {
     let component_name = analysis::component_name(component);
-    if let Some(sig) = signature(component)
+    if let Some(sig) = signature(project, component)
         && let Some(prop) = sig.prop(key)
         && let PropType::Enum(cases) = prop.ty
     {
@@ -1239,7 +1245,7 @@ fn argument_doc(project: &Project, component: &ComponentRef, name: &str) -> Stri
             c.name
         );
     }
-    if let Some(sig) = signature(component) {
+    if let Some(sig) = signature(project, component) {
         if let Some(prop) = sig.prop(name) {
             let how = match (prop.sink, prop.ty) {
                 (Sink::Attr, _) => "Written to the element as an attribute.",

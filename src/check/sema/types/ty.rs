@@ -240,6 +240,9 @@ impl Type {
             | Type::Record(_)
             | Type::Enum(_)
             | Type::Case(_) => true,
+            // What is not known yet — the items of an empty list — agrees
+            // with every type, JSON's too: `{ hidden: [] }` is data.
+            Type::Any | Type::Error | Type::Never => true,
             Type::Scalar(s) => *s != Scalar::File && *s != Scalar::Secret,
             Type::List(t) | Type::Optional(t) => t.is_data(),
             Type::Dict(_, v) => v.is_data(),

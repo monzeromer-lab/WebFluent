@@ -63,7 +63,12 @@ fn files() -> Vec<PathBuf> {
         root.join("bindings/node/README.md"),
         root.join("editors/vscode/README.md"),
     ];
-    walk(&root.join("md-docs"), &["md"], &mut out);
+    walk(&root.join("src/diagnostics/explain"), &["md"], &mut out);
+    walk(
+        &root.join("skills/writing-webfluent/references"),
+        &["md"],
+        &mut out,
+    );
     walk(&root.join("site/src"), &["wf", "json"], &mut out);
     out.retain(|p| {
         let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");

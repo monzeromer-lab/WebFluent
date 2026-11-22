@@ -121,6 +121,27 @@ fn errors(src: &str) -> Vec<String> {
         .collect()
 }
 
+/// `else if let` binds its name, or its pattern's, typed, in its branch —
+/// in a body, a handler and an expression.
+#[test]
+fn else_if_let_binds_in_its_branch() {
+    let src = concat!(
+        "type U { name: String }\n",
+        "enum S { idle, done(n: Number) }\n",
+        "page P(path: \"/\") {\n",
+        "  state a = false\n  state u: U? = null\n  state s: S = .idle\n  state out = \"\"\n",
+        "  if a { Text(\"a\") } else if let v = u { Text(v.name) } else if let .done(n) = s { Text(\"{n}\") } else { Text(\"none\") }\n",
+        "  Text(if a { \"a\" } else if let v = u { v.name } else { \"none\" })\n",
+        "  Button(\"Go\") { on click { if a { out = \"a\" } else if let v = u { out = v.name } else { out = \"none\" } } }\n",
+        "  Text(out)\n",
+        "}\n",
+    );
+    assert_eq!(errors(src), Vec::<String>::new());
+    // The pattern's payload is typed: `n` is a `Number`, not a `String`.
+    let wrong = errors(&src.replace("Text(\"{n}\")", "Text(n.toUpperCase())"));
+    assert!(!wrong.is_empty(), "{wrong:?}");
+}
+
 /// `sort` hands its comparator two elements. Typed like `map`'s
 /// `(element, index)`, the second parameter read as a `Number`.
 #[test]
@@ -263,6 +284,29 @@ fn enum_cases_are_checked_against_their_enum() {
 }
 
 #[test]
+fn a_case_may_be_written_with_its_enum() {
+    // `Habitat.reedbed` was a name nothing declares (T13): the enum's
+    // name is not a value. It is the case, held to the enum it names.
+    let src = "enum Habitat { reedbed, forest }\nenum Status { idle, failed(reason: String) }\n\
+               page P(path: \"/\") {\n state h: Habitat = Habitat.reedbed\n state s: Status = Status.failed(\"x\")\n\
+               derived d: Habitat = match Habitat.decode(Json.string(\"forest\")) { .ok(v) { v } else { Habitat.forest } }\n\
+               if h == Habitat.forest { Text(\"woods\") }\n Text(\"{d}\")\n Button(\"x\") { on click { s = Status.idle } } }";
+    let program = parse_v2(src, "<t>").expect("parse");
+    let info = check(&program, &|_| "<t>".to_string());
+    assert!(info.unresolved.is_empty(), "{:#?}", info.unresolved);
+    clean(src);
+    assert_eq!(type_of(src, "h"), "Habitat");
+    has(
+        "enum Habitat { reedbed }\npage P(path: \"/\") { state h: Habitat = Habitat.forst }",
+        "[T02] `Habitat` has no case `.forst`",
+    );
+    has(
+        "enum Status { idle, failed(reason: String) }\npage P(path: \"/\") { state s: Status = Status.failed(3) }",
+        "[T01]",
+    );
+}
+
+#[test]
 fn fields_members_and_methods_that_do_not_exist() {
     has(
         &format!(
@@ -320,6 +364,15 @@ fn a_services_middleware_is_checked() {
     );
     clean(
         "store S { state token = \"\"\n action refresh() { token = \"x\" } }\nmiddleware stamp(req, next) {\n let answer = await next(Request(url: req.url, method: req.method, headers: req.headers.with(\"X-Id\", \"1\"), body: req.body))\n return answer\n}\napi B(base: \"/api\") { middleware [refreshOn401(S.refresh), bearer(S.token), header(\"X-Client\", \"web\"), requestId, log, stamp]\n get me() at \"me\" -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+    );
+    // A token that is not there yet is no header: `bearer` and `header`
+    // take a value that may be null, as the runtime sends none for it.
+    clean(
+        "store S { state token: String? = null\n state client: String? = null }\napi B(base: \"/api\") { middleware [bearer(S.token), header(\"X-Client\", S.client)]\n get me() at \"me\" -> Json! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(\"{v}\") } else { Text(\"…\") } } }",
+    );
+    has(
+        "api B(base: \"/api\") { middleware [bearer(3)]\n get me() at \"me\" -> Json! }",
+        "[T01] `bearer` takes a `String?`",
     );
     // 6.x's headers and hooks are refused, each saying what replaced it.
     has(

@@ -158,7 +158,7 @@
       let answer = false;
       const no = el("button", { className: "wf-btn", type: "button" }, opts.no == null ? "Cancel" : String(opts.no));
       const yes = el("button", { className: `wf-btn wf-btn--${opts.danger ? "danger" : "primary"}`, type: "button" }, opts.yes == null ? "OK" : String(opts.yes));
-      const parts = [el("div", { className: "wf-dialog__header" }, el("h3", { id: `${id}-title` }, String(message)))];
+      const parts = [el("div", { className: "wf-dialog__header" }, el("h2", { id: `${id}-title` }, String(message)))];
       if (opts.detail != null) parts.push(el("p", { id: `${id}-detail`, className: "wf-dialog__detail" }, String(opts.detail)));
       parts.push(el("div", { className: "wf-dialog__footer" }, no, yes));
       const box = el("dialog", {

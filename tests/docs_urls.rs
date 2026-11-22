@@ -149,7 +149,7 @@ fn every_diagnostic_link_6_0_prints_still_lands() {
         let (page_url, anchor) = url.split_once('#').unwrap_or((&url, ""));
         let code = anchor.split('-').next().unwrap_or("").to_uppercase();
         if page_url != "https://webfluent.monzeromer.dev/docs/guide/diagnostics"
-            || !root().join(format!("md-docs/errors/{code}.md")).exists()
+            || webfluent::diagnostics::codes::guide_section(&code).is_none()
         {
             lost.push(url);
         }

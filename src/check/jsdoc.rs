@@ -50,22 +50,8 @@ pub fn parse(comment: &str) -> Doc {
     let text = lines.join("\n");
 
     let mut doc = Doc::default();
-    // Split at each tag that starts a line (or the comment).
-    let mut sections: Vec<String> = Vec::new();
-    let mut current = String::new();
-    for line in text.lines() {
-        if line.trim_start().starts_with('@') && !current.is_empty() {
-            sections.push(std::mem::take(&mut current));
-        }
-        if !current.is_empty() {
-            current.push('\n');
-        }
-        current.push_str(line);
-    }
-    if !current.is_empty() {
-        sections.push(current);
-    }
-    for (i, section) in sections.iter().enumerate() {
+    let parts = sections(&text);
+    for (i, section) in parts.iter().enumerate() {
         let section = section.trim();
         if !section.starts_with('@') {
             if i == 0 {
@@ -135,6 +121,49 @@ pub fn parse(comment: &str) -> Doc {
     doc
 }
 
+/// The comment's text split before each tag: an `@` and a letter at the
+/// start of the text or after white space — so a one-line `/** Text.
+/// @param {string} a @returns {X} */` is three sections — but never inside
+/// a type's braces or a `` `code` `` span, and never in a word
+/// (`user@example.com`). A tag that starts a line always starts a section,
+/// whatever the prose before it left open.
+fn sections(text: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    let (mut start, mut depth, mut code) = (0, 0usize, false);
+    let mut prev: Option<char> = None;
+    // Nothing but white space since the line began.
+    let mut line_start = true;
+    let mut chars = text.char_indices().peekable();
+    while let Some((i, c)) = chars.next() {
+        let tag = c == '@' && chars.peek().is_some_and(|&(_, n)| n.is_ascii_alphabetic());
+        let opens = line_start || (!code && depth == 0 && prev.is_none_or(char::is_whitespace));
+        if tag && opens {
+            (depth, code) = (0, false);
+            if !text[start..i].trim().is_empty() {
+                out.push(&text[start..i]);
+            }
+            start = i;
+        } else {
+            match c {
+                '`' => code = !code,
+                '{' if !code => depth += 1,
+                '}' if !code => depth = depth.saturating_sub(1),
+                _ => {}
+            }
+        }
+        if c == '\n' {
+            line_start = true;
+        } else if !c.is_whitespace() {
+            line_start = false;
+        }
+        prev = Some(c);
+    }
+    if !text[start..].trim().is_empty() {
+        out.push(&text[start..]);
+    }
+    out
+}
+
 /// `{Type} rest` → (`Some("Type")`, `rest`), the braces balanced so an
 /// object type `{{ a: number }}` reads whole.
 fn braced(text: &str) -> (Option<String>, &str) {
@@ -201,10 +230,10 @@ mod tests {
     #[test]
     fn a_one_line_comment_and_the_other_spellings() {
         let doc = parse("/** @param {number=} n @return {string} */");
-        // One line: the first tag swallows the rest, which is fine for a
-        // name and a type.
         assert_eq!(doc.params[0].name, "n");
         assert!(doc.params[0].optional);
+        assert_eq!(doc.params[0].description, "");
+        assert_eq!(doc.returns.as_deref(), Some("string"));
         let doc = parse(
             "/**\n * @arg {boolean} on\n * @param {Object} opts\n * @param {number} opts.max\n * @return {Promise<number>}\n */",
         );
@@ -216,6 +245,47 @@ mod tests {
             ["on", "opts"]
         );
         assert_eq!(doc.returns.as_deref(), Some("Promise<number>"));
+    }
+
+    #[test]
+    fn every_tag_on_one_line_counts_and_the_prose_never_derails_it() {
+        let doc = parse(
+            "/** Text. @param {string} a @param {boolean} b - on or off @returns {Promise<{ n: number }>} */",
+        );
+        assert_eq!(doc.summary, "Text.");
+        let got: Vec<(&str, Option<&str>, &str)> = doc
+            .params
+            .iter()
+            .map(|p| (p.name.as_str(), p.ty.as_deref(), p.description.as_str()))
+            .collect();
+        assert_eq!(
+            got,
+            [
+                ("a", Some("string"), ""),
+                ("b", Some("boolean"), "on or off")
+            ]
+        );
+        assert_eq!(doc.returns.as_deref(), Some("Promise<{ n: number }>"));
+
+        let doc = parse("/** The project's files. @returns {string[]} */");
+        assert_eq!(doc.summary, "The project's files.");
+        assert_eq!(doc.returns.as_deref(), Some("string[]"));
+
+        // An `@` in a word, in `code` or in braces starts no tag.
+        let doc = parse(
+            "/** Mail ada@example.com; `{ x: @y }` and {@link Row} stay prose. @param {number} n @returns {number} */",
+        );
+        assert_eq!(
+            doc.summary,
+            "Mail ada@example.com; `{ x: @y }` and {@link Row} stay prose."
+        );
+        assert_eq!(doc.params[0].name, "n");
+        assert_eq!(doc.returns.as_deref(), Some("number"));
+
+        // A tag starting a line starts a section whatever the line before
+        // left open.
+        let doc = parse("/**\n * Opens { but never closes.\n * @param {string} s\n */");
+        assert_eq!(doc.params[0].name, "s");
     }
 
     #[test]

@@ -1825,3 +1825,37 @@ fn each_name_a_handler_gives_its_values_hovers_with_its_declared_type() {
         assert!(labels.iter().any(|l| l == name), "{name} in {labels:?}");
     }
 }
+
+// ─── A component named like a built-in ────────────────────────────────────
+
+/// The project's `Kbd`: every call of the name draws it (V11), so what the
+/// editor says of the call is the project's, never the built-in's.
+const OWN_KBD: &str = "/// The project's key cap.\ncomponent Kbd(_ keys: String, loud: Bool = false) { Text(keys) }\npage Home(path: \"/\", title: \"Home\") {\n    Kbd(\"mod+k\", loud: true)\n}\n";
+
+#[test]
+fn hover_on_a_component_named_like_a_built_in_is_the_projects() {
+    let hover = hover_text(OWN_KBD, "Kbd(\"mod+k\"").unwrap();
+    assert!(
+        hover.contains("component Kbd(_ keys: String, loud: Bool = …)"),
+        "{hover}"
+    );
+    let decl = hover_text(OWN_KBD, "Kbd(_ keys").unwrap();
+    assert!(decl.contains("component Kbd(_ keys"), "{decl}");
+    let prop = hover_text(OWN_KBD, "loud: true").unwrap();
+    assert!(prop.contains("loud"), "{prop}");
+}
+
+#[test]
+fn completion_and_signature_in_a_component_named_like_a_built_in_are_the_projects() {
+    let src = OWN_KBD.replace("Kbd(\"mod+k\", loud: true)", "Kbd(\"mod+k\", )");
+    let items = labels_after(&src, "Kbd(\"mod+k\", ");
+    assert!(items.contains(&"loud:".to_string()), "{items:?}");
+    let (label, _) = signature_at(OWN_KBD, &OWN_KBD.replace("loud: true", "loud: ‸")).unwrap();
+    assert_eq!(label, "Kbd(_ keys: String, loud: Bool = …)");
+    let flags = labels_mid_edit(
+        OWN_KBD,
+        &OWN_KBD.replace("Kbd(\"mod+k\", loud: true)", "Kbd(\"mod+k\")."),
+        "Kbd(\"mod+k\").",
+    );
+    assert!(flags.contains(&"loud".to_string()), "{flags:?}");
+}

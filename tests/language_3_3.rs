@@ -472,3 +472,187 @@ page Home(path: "/", title: "Home", description: "d", layout: Shell(chapter: t("
     }
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// `wf test` over `dir`, or `None` (said) where there is no Chrome for a
+/// test that acts.
+fn wf_test_in_browser(dir: &Path, args: &[&str]) -> Option<(bool, String)> {
+    let (ok, out) = wf(dir, args);
+    if out.contains("no Chrome or Chromium") {
+        eprintln!("\n  SKIPPED: no Chrome or Chromium for `wf test`.\n");
+        return None;
+    }
+    Some((ok, out))
+}
+
+#[test]
+fn a_store_whose_first_value_is_a_constant_renders_it() {
+    let dir = scratch("const-store");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "const START: [String] = [\"alpha\", \"beta\"]\nconst FIRST = START[0]\n\nstore Kept {\n    persist kept: [String] = START\n    state held: [String] = START\n    state first: String = FIRST\n    derived count = held.length\n}\n\npage P(path: \"/\", title: \"T\", description: \"d\") {\n    use Kept\n    Heading(\"x\").h1\n    Text(\"{Kept.kept.length} {Kept.count} {Kept.first}\")\n}\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/kept.wf"),
+        "test \"a constant is a store's first value\" {\n    use Kept\n    Text(\"kept {Kept.kept.length} held {Kept.held.length} count {Kept.count} first {Kept.first}\")\n    expect \"kept 2 held 2 count 2 first alpha\"\n}\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["test"]);
+    assert!(ok, "{out}");
+}
+
+const SEEDED_APP: &str = r#"type Svc { name: String }
+
+component Tile(_ s: Svc) {
+    Text("Tile {s.name}")
+}
+
+page Seeded(path: "/", title: "Seeded", description: "d") {
+    state greeting = "start"
+    derived loud = greeting.toUpperCase()
+    Heading("Seeded").h1
+    Text("Greeting {greeting} {loud}")
+    Button("Again") { on click { greeting = greeting } }
+}
+"#;
+
+#[test]
+fn a_tests_data_seeds_a_pages_state_and_a_name_in_a_browser_as_in_a_render() {
+    let dir = scratch("seeded");
+    std::fs::write(dir.join("src/App.wf"), SEEDED_APP).unwrap();
+    std::fs::write(
+        dir.join("tests/seeded.wf"),
+        r#"test "rendered"(data: { greeting: "hello" }) {
+    Seeded
+    expect "Greeting hello HELLO"
+}
+
+test "in a browser"(data: { greeting: "hello" }) {
+    Seeded
+    click "Again"
+    expect "Greeting hello HELLO"
+}
+
+test "a derived value seeded in a browser"(data: { loud: "QUIET" }) {
+    Seeded
+    click "Again"
+    expect "Greeting start QUIET"
+}
+
+test "a name the data gives, in a browser"(data: { s: { name: "billing" } }) {
+    Tile(s)
+    Button("Look") { on click { } }
+    click "Look"
+    expect "Tile billing"
+}
+"#,
+    )
+    .unwrap();
+    let Some((ok, out)) = wf_test_in_browser(&dir, &["test"]) else {
+        return;
+    };
+    assert!(ok, "{out}");
+    assert!(!out.contains("ReferenceError"), "{out}");
+}
+
+#[test]
+fn a_step_brings_what_it_acts_on_into_view() {
+    let dir = scratch("in-view");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page P(path: \"/\", title: \"T\", description: \"d\") {\n    Heading(\"x\").h1\n}\n",
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/fold.wf"),
+        r#"test "a popconfirm below the fold asks"(data: { gone: false }) {
+    Stack { style { height: 4000px } }
+    Popconfirm(title: "Delete this file?", yes: "Delete").danger {
+        on confirm { gone = true }
+        Button("Delete it")
+    }
+    click "Delete it"
+    expect "Delete this file?"
+}
+"#,
+    )
+    .unwrap();
+    let Some((ok, out)) = wf_test_in_browser(&dir, &["test"]) else {
+        return;
+    };
+    assert!(ok, "{out}");
+}
+
+#[test]
+fn a_call_is_still_counted_after_a_navigate_loads_another_page() {
+    let dir = scratch("calls-navigate");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        r#"api Backend(base: "/api") { }
+api Backend.hits {
+    post ping() at "ping" -> !
+}
+
+page Pinger(path: "/", title: "Pinger", description: "d") {
+    Heading("Pinger").h1
+    Button("Ping") {
+        on click {
+            match await Backend.hits.ping() { .ok { navigate("/elsewhere") } .err(_) { } }
+        }
+    }
+}
+
+page Elsewhere(path: "/elsewhere", title: "Elsewhere", description: "d") {
+    Heading("Elsewhere").h1
+}
+"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/ping.wf"),
+        r#"fake Quiet for Backend.hits {
+    ping() { .ok }
+}
+
+test "a ping is heard after the page moves on"(fakes: [Quiet]) {
+    Pinger
+    click "Ping"
+    expect called Backend.hits.ping
+}
+"#,
+    )
+    .unwrap();
+    let Some((ok, out)) = wf_test_in_browser(&dir, &["test"]) else {
+        return;
+    };
+    assert!(ok, "{out}");
+}
+
+#[test]
+fn fmt_check_says_what_it_checked_and_what_would_change() {
+    let dir = scratch("fmt-check");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page P(path: \"/\", title: \"T\", description: \"d\") {\n    Heading(\"x\").h1\n}\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["fmt", "--check"]);
+    assert!(ok, "{out}");
+    assert!(
+        out.contains("1 file(s) checked, none would change"),
+        "{out}"
+    );
+    assert!(!out.contains("formatted"), "nothing was formatted: {out}");
+
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page P(path: \"/\", title: \"T\", description: \"d\"){\n  Heading(\"x\").h1\n}\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["fmt", "--check"]);
+    assert!(!ok, "{out}");
+    assert!(out.contains("1 file(s) checked, 1 would change"), "{out}");
+    assert!(out.contains("App.wf"), "{out}");
+    let before = std::fs::read_to_string(dir.join("src/App.wf")).unwrap();
+    assert!(before.contains("\"d\"){"), "--check writes nothing");
+}

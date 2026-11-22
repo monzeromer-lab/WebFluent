@@ -1447,9 +1447,13 @@ fn an_image_is_read_at_build_time_and_written_at_every_width_a_page_asks_for() {
         html.contains("width=\"600\"") && html.contains("height=\"400\""),
         "{html}"
     );
+    // The placeholder is a rule of the sheet the element names by class, so the
+    // page keeps a strict style policy.
+    assert!(html.contains("wf-ph "), "the placeholder's class: {html}");
+    let sheet = std::fs::read_to_string(dir.join("build/styles.css")).unwrap();
     assert!(
-        html.contains("data:image/webp;base64,"),
-        "the placeholder is inlined: {html}"
+        sheet.contains("data:image/webp;base64,"),
+        "the placeholder is in the sheet"
     );
     // And the name is a value.
     assert!(html.contains("600 by 400, mostly #0F766E"), "{html}");

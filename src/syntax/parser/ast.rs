@@ -675,6 +675,24 @@ pub struct PageDecl {
     pub body_span: Span,
 }
 
+impl PageDecl {
+    /// Whether the page is a template: it declares a parameter its route
+    /// has no `:name` for — `page Invoice(path: "/", number: String)` —
+    /// which only data handed to a render (`wf render`, the `Template` API,
+    /// a test's `data:`) can fill. A build has none to hand it, so it
+    /// leaves such a page out.
+    #[must_use]
+    pub fn takes_data(&self) -> bool {
+        self.params.iter().any(|q| {
+            !self
+                .path
+                .split('/')
+                .filter_map(|s| s.strip_prefix(':'))
+                .any(|seg| seg == q.name)
+        })
+    }
+}
+
 /// One tag of a page's `head { }`: `meta(name: "x", content: y)`.
 #[derive(Debug, Clone)]
 pub struct HeadTag {

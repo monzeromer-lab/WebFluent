@@ -27,15 +27,9 @@ pub fn writes_inline_styles(program: &crate::syntax::parser::ast::Program) -> bo
                 .iter()
                 .any(|p| crate::project::scoped_css::static_declaration(p).is_none())
         });
-        // An image's placeholder is a blurred copy or an average colour:
-        // one value per picture, painted under it until it arrives.
-        let placeholder = matches!(&el.component, crate::syntax::parser::ast::ComponentRef::BuiltIn(n) if n == "Image")
-            && el.args.iter().any(
-                |a| matches!(a, crate::syntax::parser::ast::Arg::Named(k, _) if k == "placeholder"),
-            );
-        own || placeholder
-            || statements(&el.children)
-            || el.slot_fills.iter().any(|f| statements(&f.body))
+        // An image's placeholder is a class the sheet carries a rule for
+        // (`scoped_css::placeholder_rules`), never a `style=` attribute.
+        own || statements(&el.children) || el.slot_fills.iter().any(|f| statements(&f.body))
     }
     fn statements(body: &[crate::syntax::parser::ast::Statement]) -> bool {
         use crate::syntax::parser::ast::StatementKind as K;

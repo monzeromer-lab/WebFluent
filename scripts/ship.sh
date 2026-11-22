@@ -131,11 +131,12 @@ just bump "$version"
 
 step "The docs site"
 # The version the site states: the header's pill (major.minor), its own
-# config, and the release the guide's install examples pin.
+# config, and the release the guide's install examples pin (the site's
+# pages are the guide).
 sed -i "s/^  \"version\": \".*\"/  \"version\": \"$version\"/" site/webfluent.app.json
 sed -i "s/^const VERSION = \".*\"/const VERSION = \"${version%.*}\"/" site/src/model.wf
 sed -i "s/^const WF_RELEASE = \".*\"/const WF_RELEASE = \"$version\"/" site/src/model.wf
-find md-docs -name '*.md' -exec sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" {} +
+find site/src/pages -name '*.wf' -exec sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" {} +
 cargo build --release --quiet
 WF_BIN=target/release/wf python3 scripts/docsite >/dev/null
 # The gallery (/showcase): every example rendered by this compiler, with
@@ -168,7 +169,7 @@ fi
 
 step "Commit, push, tag"
 git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml \
-    bindings/node/package.json skills RELEASE_NOTES.md site md-docs tests/golden
+    bindings/node/package.json skills RELEASE_NOTES.md site tests/golden
 if git diff --cached --quiet; then
     [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
     echo "  ..  the release commit is already made"

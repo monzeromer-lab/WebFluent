@@ -478,7 +478,7 @@ impl JsCodegen {
             // to the first field that has one, and stops there.
             let body = if name == "Form"
                 && handler.event == "submit"
-                && let Some(form) = &self.body.current_form
+                && let Some(form) = self.form_handle_of(ui)
             {
                 format!("if (!{form}.__submitting()) return; {body}")
             } else {
@@ -1355,6 +1355,18 @@ impl JsCodegen {
                 attrs.push("multiple: true".to_string());
             }
         }
+        // A number field takes any number unless it says its step: the
+        // browser's `step="1"` refused `12.5` and blocked the form's
+        // submit with nothing shown.
+        if name == "Input"
+            && attrs.iter().any(|a| a == "type: \"number\"")
+            && !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "step"))
+        {
+            attrs.push("step: \"any\"".to_string());
+        }
         // A button submits its form only when it says so: the
         // browser's default, `submit`, made every button in a
         // form — "Add a row", "Show password" — send it.
@@ -1388,11 +1400,11 @@ impl JsCodegen {
         // is attached after creation, on top of this.
         if name == "Form" {
             attrs.push("\"on:submit\": (e) => e.preventDefault()".to_string());
-            if let Some(implicit) = &self.body.implicit_form
-                && !ui
-                    .args
-                    .iter()
-                    .any(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
+            if !ui
+                .args
+                .iter()
+                .any(|a| matches!(a, Arg::Named(k, _) if k == "bind"))
+                && let Some(implicit) = self.form_handle_of(ui)
             {
                 attrs.push(format!("ref: {implicit}"));
             }

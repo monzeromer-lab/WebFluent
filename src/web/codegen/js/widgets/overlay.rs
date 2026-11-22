@@ -101,15 +101,15 @@ impl JsCodegen {
         if let Some(t) = title {
             let header_var = self.fresh_var();
             if let Some(drawn) = &heading_part {
-                let h3 = self.fresh_var();
+                let heading = self.fresh_var();
                 self.emit_line(&format!(
-                    "const {h3} = WF.el(\"h3\", {{ id: \"{title_id}\" }});"
+                    "const {heading} = WF.el(\"h2\", {{ id: \"{title_id}\" }});"
                 ));
                 for child in drawn {
-                    self.emit_statement_dom(child, &h3);
+                    self.emit_statement_dom(child, &heading);
                 }
                 self.emit_line(&format!(
-                    "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header\" }}, {h3});"
+                    "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header\" }}, {heading});"
                 ));
             } else {
                 // A title that reads state follows it, as any text does:
@@ -120,7 +120,7 @@ impl JsCodegen {
                     t
                 };
                 self.emit_line(&format!(
-                    "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header\" }}, WF.el(\"h3\", {{ id: \"{title_id}\" }}, {t}));"
+                    "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header\" }}, WF.el(\"h2\", {{ id: \"{title_id}\" }}, {t}));"
                 ));
             }
             // `.closable`: a close button in the heading row, closing it as
@@ -256,7 +256,7 @@ impl JsCodegen {
             ui.case_of("mode", &["single", "range", "multiple"])
                 .unwrap_or("single")
         )];
-        for key in ["min", "max", "disabled", "label"] {
+        for key in ["min", "max", "disabled", "label", "previous", "next"] {
             if let Some(v) = ui.args.iter().find_map(|a| match a {
                 Arg::Named(k, v) if k == key => Some(v.clone()),
                 _ => None,

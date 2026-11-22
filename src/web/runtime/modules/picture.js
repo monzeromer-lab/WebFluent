@@ -39,7 +39,9 @@
       // On the image the reader sees: a pre-rendered page keeps its own
       // (often the page's largest paint), which may have arrived already.
       const wire = (shown) => {
-        const clear = () => { shown.style.background = ""; };
+        // A pre-rendered image carries its placeholder as a class the
+        // sheet styles (`wf-ph`), kept off a policy's inline styles.
+        const clear = () => { shown.style.background = ""; shown.classList.remove("wf-ph"); };
         if (shown.complete && shown.naturalWidth) return clear();
         shown.addEventListener("load", clear);
         shown.addEventListener("error", clear);

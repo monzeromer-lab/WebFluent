@@ -369,3 +369,131 @@ fn a_read_in_render_data_paints_what_it_holds() {
         "{refused}"
     );
 }
+
+#[test]
+fn a_test_names_a_fake_any_test_file_declares() {
+    let dir = scratch("elsewhere");
+    // A file of fakes, with what its fakes read beside them.
+    let fake = FAKE.replace("name: \"Ada\"", "name: WHO");
+    std::fs::write(
+        dir.join("tests/fakes.wf"),
+        format!("const WHO = \"Ada\"\n{fake}"),
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("tests/users.wf"),
+        "test \"lists\"(fakes: [OneUser]) {\n    Users\n    expect \"Ada\"\n}\n",
+    )
+    .unwrap();
+    assert_eq!(faults(&dir), Vec::<String>::new());
+    let tests = testing::collect(&dir).unwrap();
+    let mut browser = Looker::default();
+    let (_, test) = &tests.tests[0];
+    assert_eq!(
+        tests.run_acting(&mut browser, test, &dir.join(".work")),
+        testing::Outcome::Passed
+    );
+    assert!(
+        browser
+            .app
+            .contains("window.__wfFakes[\"Backend.users.list\"]"),
+        "the other file's fake answers"
+    );
+    assert!(
+        browser.app.contains("\"Ada\""),
+        "with the constant beside it"
+    );
+
+    // One file named runs its tests alone, and still reaches the fake.
+    let only = testing::collect(&dir.join("tests/users.wf")).unwrap();
+    assert_eq!(only.tests.len(), 1);
+    assert_eq!(only.tests[0].0, "tests/users.wf");
+
+    // A fake of one name in two other files cannot be told apart.
+    std::fs::write(
+        dir.join("tests/more.wf"),
+        format!("const WHO = \"Bo\"\n{fake}"),
+    )
+    .unwrap();
+    let found = faults(&dir);
+    assert!(
+        found.iter().any(|f| f.contains("[N06]")
+            && f.contains("`OneUser`")
+            && f.contains("tests/fakes.wf")
+            && f.contains("tests/more.wf")),
+        "{found:#?}"
+    );
+    // One beside the test wins over another file's.
+    std::fs::write(
+        dir.join("tests/users.wf"),
+        format!(
+            "{}\ntest \"lists\"(fakes: [OneUser]) {{\n    Users\n    expect \"Cy\"\n}}\n",
+            FAKE.replace("name: \"Ada\"", "name: \"Cy\"")
+        ),
+    )
+    .unwrap();
+    assert_eq!(faults(&dir), Vec::<String>::new());
+}
+
+#[test]
+fn a_file_of_fakes_brings_its_constants_and_types_to_the_build() {
+    let dir = scratch("verify-consts");
+    std::fs::write(
+        dir.join("tests/fakes.wf"),
+        format!(
+            "type Seed {{ name: String }}\nconst SEED = Seed(name: \"Ada\")\n{}",
+            FAKE.replace("name: \"Ada\"", "name: SEED.name")
+        ),
+    )
+    .unwrap();
+    let mut options = webfluent::build::BuildOptions::new(&dir, &webfluent::vfs::FsVfs);
+    options.output_dir = Some(dir.join("faked"));
+    options.fakes = Some("tests/fakes.wf");
+    webfluent::build::build(&options).unwrap_or_else(|f| {
+        let said: Vec<String> = f.report.lines.iter().map(|l| l.text.clone()).collect();
+        panic!("{}\n{}", f.error, said.join("\n"))
+    });
+    let app = std::fs::read_to_string(dir.join("faked/app.js")).unwrap();
+    assert!(app.contains("window.__wfFakes[\"Backend.users.list\"]"));
+    assert!(
+        app.contains("Ada"),
+        "the constant the fake reads is built in"
+    );
+}
+
+#[test]
+fn inspect_opens_a_route_with_a_file_of_fakes_answering() {
+    let dir = scratch("inspect");
+    std::fs::write(dir.join("tests/fakes.wf"), FAKE).unwrap();
+    let run = |args: &[&str]| {
+        let out = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
+            .args(args)
+            .current_dir(&dir)
+            .output()
+            .expect("wf runs");
+        (
+            out.status.success(),
+            format!(
+                "{}{}",
+                String::from_utf8_lossy(&out.stdout),
+                String::from_utf8_lossy(&out.stderr)
+            ),
+        )
+    };
+    // A URL is a server already running: there is nothing to build fakes into.
+    let (ok, out) = run(&[
+        "inspect",
+        "http://127.0.0.1:9/",
+        "--fakes",
+        "tests/fakes.wf",
+    ]);
+    assert!(!ok && out.contains("--fakes"), "{out}");
+
+    let (ok, out) = run(&["inspect", "/", "--fakes", "tests/fakes.wf"]);
+    if out.contains("no Chrome or Chromium") {
+        eprintln!("\n  SKIPPED: no Chrome or Chromium for `wf inspect`.\n");
+        return;
+    }
+    assert!(ok, "{out}");
+    assert!(out.contains("\"Ada\""), "the fake's user is listed: {out}");
+}

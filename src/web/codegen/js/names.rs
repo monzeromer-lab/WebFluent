@@ -189,13 +189,24 @@ pub(super) fn top_level(name: &str) -> String {
     }
 }
 
-/// A lambda's parameters, `a, b`, each as [`bare`] has it.
+/// A lambda's parameters, `a, b`, each as [`bare`] has it. `_` is a value
+/// left unnamed, and may be written more than once — `(_, _, y)` — which an
+/// arrow function refuses, so each `_` after the first is `_$2`, `_$3`, …
+/// by its place, which no program spells.
 pub(super) fn bare_list(params: &str) -> String {
+    let mut seen_discard = false;
     params
         .split(',')
         .map(str::trim)
         .filter(|p| !p.is_empty())
-        .map(bare)
+        .enumerate()
+        .map(|(i, p)| {
+            if p == "_" && std::mem::replace(&mut seen_discard, true) {
+                format!("_${}", i + 1)
+            } else {
+                bare(p)
+            }
+        })
         .collect::<Vec<_>>()
         .join(", ")
 }
@@ -241,6 +252,66 @@ pub(super) fn declared_names(body: &[Statement]) -> Vec<String> {
     let mut out = Vec::new();
     walk(body, &mut out);
     out
+}
+
+/// The names `body` declares only as a `let` of an action's or a handler's
+/// block: each is a name there, from its `let` to the end of its block,
+/// and nowhere else — a `let ask` in one action leaves `ask(…)` in another
+/// the runtime's.
+pub(super) fn action_lets(body: &[Statement]) -> Vec<String> {
+    fn walk(
+        stmts: &[Statement],
+        imperative: bool,
+        lets: &mut Vec<String>,
+        outer: &mut Vec<String>,
+    ) {
+        for stmt in stmts {
+            let named = match &stmt.kind {
+                StatementKind::State(s) => Some(&s.name),
+                StatementKind::Derived(d) => Some(&d.name),
+                StatementKind::Resource(r) => Some(&r.name),
+                StatementKind::Action(a) => Some(&a.name),
+                _ => None,
+            };
+            if let Some(name) = named {
+                let into = if imperative && matches!(stmt.kind, StatementKind::State(_)) {
+                    &mut *lets
+                } else {
+                    &mut *outer
+                };
+                if !into.contains(name) {
+                    into.push(name.clone());
+                }
+            }
+            if let StatementKind::Action(a) = &stmt.kind {
+                outer.extend(a.params.iter().map(|p| p.name.clone()));
+            }
+            let inside = imperative
+                || matches!(
+                    stmt.kind,
+                    StatementKind::Action(_)
+                        | StatementKind::EventHandler(_)
+                        | StatementKind::Effect(_)
+                        | StatementKind::Timer(_)
+                );
+            for body in stmt.kind.bodies() {
+                walk(body, inside, lets, outer);
+            }
+            if let StatementKind::UIElement(el) = &stmt.kind {
+                walk(&el.children, imperative, lets, outer);
+                for h in &el.events {
+                    walk(&h.body, true, lets, outer);
+                }
+                for f in &el.slot_fills {
+                    walk(&f.body, imperative, lets, outer);
+                }
+            }
+        }
+    }
+    let (mut lets, mut outer) = (Vec::new(), Vec::new());
+    walk(body, false, &mut lets, &mut outer);
+    lets.retain(|l| !outer.contains(l));
+    lets
 }
 
 /// The signals declared directly in `body`: states, derived values,

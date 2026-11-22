@@ -248,7 +248,7 @@ mod tests {
         let tokens = resolve_tokens(&parse(PAGE), &config(None)).unwrap();
         assert_eq!(
             tokens.get("color-primary").map(String::as_str),
-            Some("#3B82F6")
+            Some("#2563EB")
         );
         assert!(
             tokens.contains_key("spacing-md"),
@@ -345,7 +345,7 @@ mod tests {
         let tokens = resolve_tokens(&parse(PAGE), &config(Some("default"))).unwrap();
         assert_eq!(
             tokens.get("color-primary").map(String::as_str),
-            Some("#3B82F6")
+            Some("#2563EB")
         );
     }
 }

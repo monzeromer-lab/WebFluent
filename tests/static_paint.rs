@@ -41,6 +41,38 @@ fn a_table_and_a_tree_of_known_rows_are_painted() {
 }
 
 #[test]
+fn a_tables_row_boxes_are_named_for_their_rows_and_big_enough_to_aim_at() {
+    // Every row's box was "Choose this row": a screen reader could not tell
+    // them apart, nor a test pick one. Each is named for its first column,
+    // a `value:` or a `cell` block alike, inside a label at least
+    // `target-min` across.
+    let html = ssg_html(&page(
+        "state rows = [{ id: \"1\", name: \"Ada Lovelace\" }, { id: \"2\", name: \"Grace Hopper\" }]\n    state picked: [String] = []\n    state one = \"\"\n    \
+         DataTable(rows: rows, key: r => r.id, bind: picked, label: \"People\").multiple {\n        DataTable.Column(\"Name\", value: r => r.name)\n    }\n    \
+         DataTable(rows: rows, key: r => r.id, bind: one, label: \"One\") {\n        DataTable.Column(\"Who\") { cell(r) { Badge(r.name) } }\n    }",
+    ));
+    for want in [
+        "<label class=\"wf-data-table__hit\"><input type=\"checkbox\" class=\"wf-data-table__pick\" aria-label=\"Choose every row\"></label>",
+        "<label class=\"wf-data-table__hit\"><input type=\"checkbox\" class=\"wf-data-table__pick\" aria-label=\"Choose Ada Lovelace\"></label>",
+        "aria-label=\"Choose Grace Hopper\"",
+        "<input type=\"radio\" class=\"wf-data-table__pick\" aria-label=\"Choose Ada Lovelace\">",
+    ] {
+        assert!(html.contains(want), "{want}: {html}");
+    }
+    assert!(!html.contains("Choose this row"), "{html}");
+    let css = crate::common::built_in_css();
+    let rule = css
+        .lines()
+        .find(|l| l.starts_with(".wf-data-table__hit {"))
+        .expect("the label's rule");
+    assert!(
+        rule.contains("min-width: var(--target-min)")
+            && rule.contains("min-height: var(--target-min)"),
+        "{rule}"
+    );
+}
+
+#[test]
 fn a_rating_a_ring_and_an_avatar_group_are_painted() {
     let html = ssg_html(&page(
         "state stars = 3.5\n    state done = 40\n    Rating(bind: stars, label: \"Score\").half\n    CircularProgress(value: done, label: \"Upload\")\n    AvatarGroup(max: 2) {\n        for n in [\"A\", \"B\", \"C\", \"D\"] { Avatar(initials: n) }\n    }\n    Button(\"x\") { on click { done = 50  stars = 4 } }",

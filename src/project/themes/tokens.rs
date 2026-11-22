@@ -4,12 +4,12 @@ pub fn default_tokens() -> HashMap<String, String> {
     let mut t = HashMap::new();
 
     // Colors
-    t.insert("color-primary".into(), "#3B82F6".into());
+    t.insert("color-primary".into(), "#2563EB".into());
     t.insert("color-secondary".into(), "#64748B".into());
-    t.insert("color-success".into(), "#22C55E".into());
-    t.insert("color-danger".into(), "#EF4444".into());
+    t.insert("color-success".into(), "#15803D".into());
+    t.insert("color-danger".into(), "#DC2626".into());
     t.insert("color-warning".into(), "#F59E0B".into());
-    t.insert("color-info".into(), "#06B6D4".into());
+    t.insert("color-info".into(), "#0E7490".into());
     t.insert("color-background".into(), "#FFFFFF".into());
     t.insert("color-surface".into(), "#F8FAFC".into());
     t.insert("color-text".into(), "#0F172A".into());

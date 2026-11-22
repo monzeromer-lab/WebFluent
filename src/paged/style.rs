@@ -376,6 +376,12 @@ pub struct Style {
     pub break_after: Break,
     pub break_inside: Break,
     pub content: Option<String>,
+    /// `counter-reset: item 0`: the counters this element starts again,
+    /// each at its value.
+    pub counter_reset: Vec<(String, i64)>,
+    /// `counter-increment: item`: the counters this element moves on, each
+    /// by its step.
+    pub counter_increment: Vec<(String, i64)>,
     pub object_fit: ObjectFit,
     pub aspect_ratio: Option<f32>,
     pub text_overflow_ellipsis: bool,
@@ -500,6 +506,8 @@ impl Style {
             break_after: Break::Auto,
             break_inside: Break::Auto,
             content: None,
+            counter_reset: Vec::new(),
+            counter_increment: Vec::new(),
             object_fit: ObjectFit::Fill,
             aspect_ratio: None,
             text_overflow_ellipsis: false,

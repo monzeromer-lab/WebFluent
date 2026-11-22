@@ -440,9 +440,9 @@ page P(path: "/", title: "T", description: "A modal.") {
         let html = raw_output(backend, src);
         let name = backend.name();
         let at = html
-            .find("<h3 id=\"wf-dlg-s1\">")
+            .find("<h2 id=\"wf-dlg-s1\">")
             .unwrap_or_else(|| panic!("{name}: the heading: {html}"));
-        let heading = &html[at..at + html[at..].find("</h3>").unwrap()];
+        let heading = &html[at..at + html[at..].find("</h2>").unwrap()];
         assert!(
             heading.contains("Rename <code>Deploys</code>"),
             "{name}: {heading}"
@@ -457,7 +457,7 @@ page P(path: "/", title: "T", description: "A modal.") {
         );
         assert!(
             html.contains(
-                "</h3><button class=\"wf-modal__close\" type=\"button\" aria-label=\"Close\">"
+                "</h2><button class=\"wf-modal__close\" type=\"button\" aria-label=\"Close\">"
             ),
             "{name}: `.closable` is a close button in the heading row: {html}"
         );
@@ -468,7 +468,7 @@ page P(path: "/", title: "T", description: "A modal.") {
     }
     let js = raw_output(Backend::Spa, src);
     let h3 = js
-        .find("WF.el(\"h3\", { id: \"wf-dlg-")
+        .find("WF.el(\"h2\", { id: \"wf-dlg-")
         .expect("the heading");
     assert!(
         js[h3..].find("markdown").is_some_and(|m| m < 400),

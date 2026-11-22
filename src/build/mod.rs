@@ -554,8 +554,17 @@ pub fn analyse_via(
             .map_err(|e| crate::diagnostics::error::WebFluentError::io(format!("{file}: {e}")))?;
         let (fakes, errors) = crate::syntax::parse_source_recovering(&source, file);
         parse_errors.extend(errors);
+        // What the fakes read beside them — a `const`, a `type`, an `enum` —
+        // comes with them, as it does for a test in that file; what is drawn
+        // (a page, a test, an example) is the tests' alone.
         for d in fakes.declarations {
-            if matches!(d, Declaration::Fake(_)) {
+            if !matches!(
+                d,
+                Declaration::Page(_)
+                    | Declaration::App(_)
+                    | Declaration::Test(_)
+                    | Declaration::Example(_)
+            ) {
                 program.declarations.push(d);
                 declaration_files.push(file.clone());
             }
@@ -686,7 +695,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     if program
         .declarations
         .iter()
-        .filter(|d| matches!(d, Declaration::Page(_)))
+        .filter(|d| matches!(d, Declaration::Page(p) if !p.takes_data()))
         .count()
         <= 1
     {
@@ -717,6 +726,11 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     // the pages as a reader who last visited then.
     crate::check::linter::project::keep_persisted_values(project_dir, &program, &config.env);
     let mut program = lowered;
+    // A template page — one whose parameters its route does not fill — is
+    // drawn by a render that hands it data; a build has none to hand it.
+    program
+        .declarations
+        .retain(|d| !matches!(d, Declaration::Page(p) if p.takes_data()));
     // A project translated by its own words: each string a reader sees is
     // the `t()` it stands for, from here to the code it is written as.
     if config.i18n.as_ref().is_some_and(|i| i.literals) {
@@ -858,6 +872,9 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
         css.push_str(&crate::project::scoped_css::scoped_rules(&program));
         BTreeMap::default()
     };
+    // What a pre-rendered image shows until it arrives: a class a page
+    // names, so its policy needs no inline styles.
+    css.push_str(&crate::project::scoped_css::placeholder_rules(&program));
     let mut js_codegen = JsCodegen::new()
         .with_options(&crate::web::codegen::JsOptions {
             ssg: config.build.pre_renders(),
@@ -1298,7 +1315,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
             if loose.len() > 5 {
                 out.say(format!("    … and {} more", loose.len() - 5));
             }
-            out.say("    A `style { }` value that reads state is set on the element; a literal is a class.");
+            out.say("    Each names the first element there with a `style=` attribute. A `style { }` value that reads state is set on the element; a literal compiles to a class.");
         }
         fs::write(output_dir.join("_headers"), headers_file(&config))?;
         // A policy is a promise about what the pages contain. Reading them
@@ -2179,16 +2196,43 @@ fn headers_file(config: &ProjectConfig) -> String {
 fn inline_styled_pages(output_dir: &Path, written: &[PathBuf]) -> Vec<String> {
     let mut out: Vec<String> = written
         .iter()
-        .filter(|p| fs::read_to_string(p).is_ok_and(|html| html.contains(" style=\"")))
-        .map(|p| {
-            p.strip_prefix(output_dir)
+        .filter_map(|p| {
+            let html = fs::read_to_string(p).ok()?;
+            let at = html.find(" style=\"")?;
+            let page = p
+                .strip_prefix(output_dir)
                 .unwrap_or(p)
                 .display()
-                .to_string()
+                .to_string();
+            Some(match styled_element(&html, at) {
+                Some(element) => format!("{page}: {element}"),
+                None => page,
+            })
         })
         .collect();
     out.sort();
     out
+}
+
+/// The element whose `style=` stands at `at`, named by its tag and its
+/// classes — `<p class="wf-text wf-sabc123">` — so the note says what
+/// carries the style rather than guessing at why.
+fn styled_element(html: &str, at: usize) -> Option<String> {
+    let start = html[..at].rfind('<')?;
+    let tag: String = html[start + 1..]
+        .chars()
+        .take_while(|c| c.is_ascii_alphanumeric() || *c == '-')
+        .collect();
+    let end = start + html[start..].find('>')?;
+    let open = &html[start..end];
+    let class = open
+        .split_once(" class=\"")
+        .and_then(|(_, rest)| rest.split_once('"'))
+        .map(|(c, _)| c);
+    Some(match class {
+        Some(class) => format!("<{tag} class=\"{class}\">"),
+        None => format!("<{tag}>"),
+    })
 }
 
 /// The page a route a static build wrote belongs to: its own `path`, or the
@@ -2448,6 +2492,23 @@ fn in_parallel<T: Sync, R: Send>(items: &[T], work: &(dyn Fn(&T) -> R + Sync)) -
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// The note that the policy was widened names what carries the style,
+    /// rather than blaming a `style { }` value that may not be there.
+    #[test]
+    fn the_note_names_the_element_that_carries_a_style() {
+        let html = r#"<main><p class="wf-text wf-sabc">x</p><div class="wf-progress__bar" style="width: 40%"></div></main>"#;
+        let at = html.find(" style=\"").unwrap();
+        assert_eq!(
+            styled_element(html, at).as_deref(),
+            Some(r#"<div class="wf-progress__bar">"#)
+        );
+        let bare = r#"<span style="color: red">x</span>"#;
+        assert_eq!(
+            styled_element(bare, bare.find(" style=").unwrap()).as_deref(),
+            Some("<span>")
+        );
+    }
 
     #[test]
     fn a_script_the_browser_would_refuse_is_e901_the_compiler_s_fault() {

@@ -160,6 +160,19 @@ impl JsCodegen {
                     self.emit_line(&format!("{target} = {value};"));
                 }
             }
+            // `let _ = x` reads `x` — an effect's way to depend on it — and
+            // binds nothing, so a block may hold any number of them.
+            (StatementKind::State(s), StmtCx::Page) if s.name == "_" => {
+                let val =
+                    self.with_answer_type(s.ty.as_ref(), &s.value, || self.emit_expr(&s.value));
+                self.emit_line(&format!("void ({val});"));
+            }
+            (StatementKind::State(s), StmtCx::Store { states, .. }) if s.name == "_" => {
+                let val = self.with_answer_type(s.ty.as_ref(), &s.value, || {
+                    self.emit_store_expr(&s.value, states)
+                });
+                self.emit_line(&format!("void ({val});"));
+            }
             (StatementKind::State(s), StmtCx::Page) => {
                 let val =
                     self.with_answer_type(s.ty.as_ref(), &s.value, || self.emit_expr(&s.value));

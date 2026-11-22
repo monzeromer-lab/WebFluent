@@ -211,3 +211,24 @@ fn a_paged_resource_s_items_are_what_its_pages_hold() {
     assert_eq!(found.len(), 2, "{found:?}");
     assert!(diagnostics(src, "T01").is_empty(), "`hasMore` is a Bool");
 }
+
+#[test]
+fn a_records_default_travels_in_its_shape_so_an_answer_that_leaves_it_out_has_it() {
+    let js = spa_generated(
+        "enum Status { draft, sent }
+type Row { name: String, currency: String = \"EUR\", status: Status = .sent, note: String? = null, count: Number = width }
+const width = 3
+page P(path: \"/\", title: \"T\") {
+    resource rows: [Row] = http.get(\"/api/rows\")
+    Heading(\"Rows\").h1
+    for r in rows.value ?? [] { Text(r.currency) }
+}
+",
+    );
+    assert!(
+        js.contains(
+            "shape: [\"l\", [\"r\", \"Row\", { \"name\": \"s\", \"currency\": [\"?\", \"s\", \"EUR\"], \"status\": [\"?\", [\"e\", [\"draft\", \"sent\"]], \"sent\"], \"note\": [\"?\", [\"?\", \"s\"]], \"count\": [\"?\", \"n\"] }]]"
+        ),
+        "a constant default is written into the shape; one the type cannot say alone is not: {js}"
+    );
+}

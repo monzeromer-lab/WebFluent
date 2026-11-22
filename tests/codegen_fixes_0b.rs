@@ -261,3 +261,60 @@ fn a_base_path_and_locale_names_are_strings() {
     );
     assert!(out.contains(r#""e\"n","#), "{out}");
 }
+
+// ─── A `Json` match reads JSON's cases, by the checked type ─────────────
+
+/// A `match` on a `Json` field of an item of `x ?? []` — whose items are
+/// known only through the `??` — reads JSON's cases (`WF.jsonCase`), not an
+/// enum's: the action takes the `.string` arm, as it does with the list's
+/// type written out.
+#[test]
+fn a_json_match_through_a_fallback_list_reads_json_cases() {
+    use std::io::Write;
+    use std::process::Stdio;
+    for ps in [
+        "let ps = sig.parameters ?? []",
+        "let ps: [PIn] = sig.parameters ?? []",
+    ] {
+        let src = format!(
+            "type PIn {{ label: Json }}\ntype SIn {{ parameters: [PIn]? = null }}\nstore Dbg {{\n    action b(sig: SIn) -> String {{\n        {ps}\n        let out = \"\"\n        for p in ps {{ match p.label {{ .string(w) {{ out = out + \"str\" }} else {{ out = out + \"else\" }} }} }}\n        return out\n    }}\n}}\n"
+        );
+        let out = js(&src);
+        let start = out
+            .find("const Dbg = WF.store(")
+            .expect("the store is written");
+        let end = start
+            + out[start..]
+                .find("}), { scope: \"app\" });")
+                .expect("the store ends");
+        let store = &out[start..end + "}), { scope: \"app\" });".len()];
+        assert!(store.contains("WF.jsonCase("), "{store}");
+        if Command::new("node").arg("--version").output().is_err() {
+            eprintln!("no node: skipped");
+            continue;
+        }
+        let script = format!(
+            "globalThis.window = globalThis; globalThis.document = undefined;\n{}\n{store}\nconsole.log(Dbg.b({{ parameters: [{{ label: \"x\" }}, {{ label: 1 }}] }}));\n",
+            webfluent::runtime::full()
+        );
+        let mut node = Command::new("node")
+            .stdin(Stdio::piped())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+        node.stdin
+            .take()
+            .unwrap()
+            .write_all(script.as_bytes())
+            .unwrap();
+        let ran = node.wait_with_output().unwrap();
+        let said = String::from_utf8_lossy(&ran.stdout);
+        assert!(
+            ran.status.success(),
+            "{}{said}",
+            String::from_utf8_lossy(&ran.stderr)
+        );
+        assert_eq!(said.trim(), "strelse", "{ps}");
+    }
+}

@@ -1051,8 +1051,17 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                     body(b, block, indent)
                 ));
             }
-            if let Some(b) = &i.else_body {
-                out.push_str(&format!(" else{}", body(b, block, indent)));
+            match i.else_body.as_deref() {
+                // `else if let …`, which the parser reads as an `else`
+                // holding the one `if let`.
+                Some([nested])
+                    if matches!(&nested.kind, StatementKind::If(n)
+                        if n.binding.is_some() || n.pattern.is_some()) =>
+                {
+                    out.push_str(&format!(" else {}", bare_statement(nested, block, indent)));
+                }
+                Some(b) => out.push_str(&format!(" else{}", body(b, block, indent))),
+                None => {}
             }
             out
         }
@@ -2513,6 +2522,8 @@ mod tests {
         items = [...items, item]
         if a == b {
             log(a)
+        } else if let v = x {
+            return v
         } else if x {
             return
         } else {
@@ -2596,6 +2607,12 @@ page Home(path: "/", title: "Home", description: "Home.") {
         Heading("Home").h1
         if let u = Cart.user {
             Text(u.name)
+        } else if let .ok(n, _) = Cart.result {
+            Text("{n}")
+        } else if open {
+            Text("open")
+        } else {
+            Text("none")
         }
         for d in Cart.items by d {
             Row(label: d) {
@@ -2646,7 +2663,7 @@ test "home" {
                     .join("\n\n")
             )
         });
-        assert_eq!(proven, 56, "every statement of the sample");
+        assert_eq!(proven, 62, "every statement of the sample");
     }
     /// Every kind of declaration, printed whole and put back, reads as
     /// itself; and so does the file printed from its tree alone.

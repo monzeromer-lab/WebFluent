@@ -1,11 +1,11 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "c162af5b318de383e33884deb81f55eb3df4b07a26031b820b4ba0027e2a2d9c",
-    "app.js.gz": "efa28078a5ddcf300479680426cc0b0928734f5108b897323e3e010613ed585e",
+    "app.js": "463f213b8fffab635308163cfb055bb4535bb5857bde617bd34c23a264f3e8f3",
+    "app.js.gz": "ea2f4872dec0dc83ff48cd3a550932020a2c2e7e9637d58227320440af0707b4",
     "index.html": "d160f088eb525b1a4b556983a0567e8a53c49d8fef242e4d54655ceb766617ed",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "5621438bd5b5c9734c18212d6f27880b66f413f6257d3a50a53aef58358fdd29",
-    "styles.css.gz": "19e04ad9dd2f5fc1d9091fe7ad5427e00943c604a0dcb8bd0216bf8d1733d0a7"
+    "styles.css": "dd75d5f22581cb7d656cde4290d5b577c028e2f588c11f376a92fcbb81a6c924",
+    "styles.css.gz": "11aa001cb5be876c117c389587a6b8d745264d58f9295a0e3c832a3fc13ff739"
   }
 }

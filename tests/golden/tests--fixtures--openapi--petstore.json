@@ -1,15 +1,15 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "64240e95485b47a237eb371e4b38a3c9995d0795b15b4c72b61c2b1a8f66b65f",
-    "app.js.gz": "0b8b22472ff3ea8bf5fdd8e49e45d397dbaff68cb5db77ba0b80dcc9aefad37f",
+    "app.js": "b8b1f3ab034c7c9afe6bdaeb10edb1332f5aeef888319d6de1eba0842740940e",
+    "app.js.gz": "52fff97555f53b0a60ddc48fe86d68d17ed1c316ce1eadea10c5801ccbae6f8b",
     "index.html": "30695fa4fabc97bb123f6f5a4f710a5d23e3068a2c57a2a3b865666c9bbdf332",
     "pages/Pet.js": "54b971c520e70ea7a584563c8f90fc59b3a3cd53021fcbbc9963ee166afa5948",
     "pages/Pet.js.gz": "277038ec1dbef1c8f6a662424618b593f8f8d1dfcdeb9980502842b191f47ee7",
     "pages/Pets.js": "153b7312ff43bac67b6cbb9690d435c5f5c131af63d890e99e059502d468e4eb",
     "pages/Pets.js.gz": "335d57c760fad3c30348bb95710a319ecc7df8eff31fe77d3c7c3e97eba6849b",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "583c120ba5105f1e47e7b69ca94deca8f6ba742180c608f474dfc5cd0098deaf",
-    "styles.css.gz": "dc12474178e0e4c1bcb41ef615f69597b187eb58a12d215d47d53a90497469ff"
+    "styles.css": "22200d4300283d98859460804ea9676cdaaa33c1e612363be20d2b1867bab349",
+    "styles.css.gz": "95bdcbc02a6cde6ec9c33b806f6cd0380d586e0b64c751f59ca5ccae33b1f86b"
   }
 }

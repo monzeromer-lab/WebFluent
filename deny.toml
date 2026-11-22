@@ -43,6 +43,9 @@ allow = [
     "Unicode-3.0",
     "BSL-1.0",
     "Unlicense",
+    # rustls's verifier and ring (TLS for `wf start --proxy`): a permissive
+    # licence of the MIT family.
+    "ISC",
 ]
 
 [sources]

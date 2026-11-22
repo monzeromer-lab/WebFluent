@@ -144,3 +144,43 @@ fn a_tests_seed_is_held_to_the_state_it_seeds() {
     assert!(ok, "{out}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+const QUOTE: &str = "enum Status { draft, sent }\ntype Line { name: String, qty: Number = 1 }\ntype Quote { number: String, currency: String = \"EUR\", status: Status = .sent, lines: [Line] = [], note: String? }\n";
+
+#[test]
+fn a_field_the_data_leaves_out_is_its_declared_default_wherever_data_comes_in() {
+    // A template's data.
+    let tpl = Template::from_str(&format!(
+        "{QUOTE}page Q(path: \"/\", quote: Quote) {{\n    Heading(\"Quote {{quote.number}} in {{quote.currency}}, {{quote.status}}\").h1\n    for l in quote.lines {{ Text(\"{{l.name}} x{{l.qty}}\") }}\n    Text(quote.note ?? \"no note\")\n}}\n"
+    ))
+    .expect("checks");
+    let html = tpl
+        .render_html_fragment(&json!({ "quote": { "number": "7", "lines": [{ "name": "Logo" }] } }))
+        .unwrap();
+    assert!(html.contains("Quote 7 in EUR, sent"), "{html}");
+    assert!(
+        html.contains("Logo x1") && html.contains("no note"),
+        "{html}"
+    );
+    let given = tpl
+        .render_html_fragment(&json!({ "quote": { "number": "7", "currency": "GBP" } }))
+        .unwrap();
+    assert!(given.contains("in GBP"), "what is given is kept: {given}");
+
+    // A `data` file, and a test's seed.
+    let dir = scratch("defaults");
+    std::fs::write(
+        dir.join("src/App.wf"),
+        format!("{QUOTE}data quotes: [Quote] = \"quotes.json\"\ncomponent Show(quote: Quote) {{ Text(\"show {{quote.number}} {{quote.currency}} {{quote.lines.length}}\") }}\npage Home(path: \"/\", title: \"Home\", description: \"d\") {{\n    Heading(\"Quotes\").h1\n    for q in quotes {{ Show(quote: q) }}\n}}\n"),
+    )
+    .unwrap();
+    std::fs::write(dir.join("quotes.json"), r#"[{ "number": "1" }]"#).unwrap();
+    std::fs::write(
+        dir.join("tests/defaults.wf"),
+        "test \"from the file\" {\n    for q in quotes { Show(quote: q) }\n    expect \"show 1 EUR 0\"\n}\ntest \"from a seed\"(data: { q: { number: \"9\" } }) {\n    state q: Quote = Quote(number: \"0\", currency: \"GBP\")\n    Show(quote: q)\n    expect \"show 9 EUR 0\"\n}\n",
+    )
+    .unwrap();
+    let (ok, out) = wf(&dir, &["test"]);
+    assert!(ok, "{out}");
+    let _ = std::fs::remove_dir_all(&dir);
+}

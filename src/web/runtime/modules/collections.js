@@ -232,12 +232,16 @@
     };
     const isChosen = (key) => (opts.multiple ? chosen().some((k) => _sameKey(k, key)) : _sameKey(chosen(), key));
     const picking = !!opts.write;
+    // A box is drawn at the browser's size; the label around it is what a
+    // pointer aims at, at least `target-min` across.
+    const hit = (input) => el("label", { className: "wf-data-table__hit" }, input);
     const table = el("table", { className: "wf-table wf-data-table__table" });
     const caption = el("caption", { className: "wf-visually-hidden" }, () => (opts.label ? opts.label() : ""));
     table.appendChild(caption);
     const headRow = el("tr", {});
     if (picking) {
       const all = el("input", { type: "checkbox", className: "wf-data-table__pick", "aria-label": "Choose every row" });
+
       if (opts.multiple) {
         effect(() => {
           const rows = (opts.rows() || []);
@@ -246,7 +250,7 @@
           all.indeterminate = n > 0 && n < rows.length;
         });
         all.addEventListener("change", () => opts.write(all.checked ? (opts.rows() || []).map(keyOf) : []));
-        headRow.appendChild(el("th", { scope: "col", className: "wf-data-table__check" }, all));
+        headRow.appendChild(el("th", { scope: "col", className: "wf-data-table__check" }, hit(all)));
       } else {
         headRow.appendChild(el("th", { scope: "col", className: "wf-data-table__check" }, el("span", { className: "wf-visually-hidden" }, "Chosen")));
       }
@@ -335,7 +339,6 @@
           type: opts.multiple ? "checkbox" : "radio",
           className: "wf-data-table__pick",
           name: opts.multiple ? null : "wf-data-table",
-          "aria-label": "Choose this row",
         });
         effect(() => { pick.checked = isChosen(key); });
         pick.addEventListener("change", () => {
@@ -343,7 +346,7 @@
           const now = chosen();
           opts.write(pick.checked ? [...now, key] : now.filter((k) => !_sameKey(k, key)));
         });
-        tr.appendChild(el("td", { className: "wf-data-table__check" }, pick));
+        tr.appendChild(el("td", { className: "wf-data-table__check" }, hit(pick)));
       }
       for (const col of opts.columns) {
         const td = el("td", {});
@@ -354,8 +357,16 @@
         }
         tr.appendChild(td);
       }
+      // Each row's box is named for the row — the text of its first
+      // column, `Choose Ada Lovelace` — so a screen reader, and a test,
+      // can tell one from the next.
+      if (picking) {
+        const first = tr.children[1];
+        const words = first ? String(first.textContent || "").replace(/\s+/g, " ").trim() : "";
+        tr.firstChild.querySelector("input").setAttribute("aria-label", words ? `Choose ${words}` : "Choose this row");
+      }
       return tr;
-    }, { key: (row) => JSON.stringify(keyOf(row)) });
+    }, { key: (row) => JSON.stringify(keyOf(row)), slide: true });
     if (opts.empty) {
       const span = opts.columns.length + (picking ? 1 : 0);
       const emptyRow = el("tr", { className: "wf-data-table__empty" }, el("td", { colspan: String(span) }, opts.empty()));
@@ -449,6 +460,9 @@
         query.set(input.value);
         showing.set(false);
       }
+      // `on select(o)`: the option picked (or, with `.multiple`, ticked or
+      // taken back), once `bind:` holds what it changed.
+      if (opts.select) opts.select(o);
     };
 
     // The options shown, drawn again when what matches changes.

@@ -107,7 +107,7 @@ enum Commands {
     },
     /// What an agent is given: the files, the open file, the problems, the
     /// components, the theme, the config with only its public env, the
-    /// guide, and what was withheld
+    /// language reference, and what was withheld
     Context {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]
@@ -116,7 +116,8 @@ enum Commands {
         /// `src/pages/Home.wf` or `src/pages/Home.wf:120-180`
         #[arg(long)]
         open: Option<String>,
-        /// The guide as its chapters' sections (`index`) or whole (`full`)
+        /// The language reference (the skill's `references/`) as each file's
+        /// title and sections (`index`), or whole (`full`)
         #[arg(long, default_value = "index")]
         guide: String,
         /// Print JSON, for tools; otherwise one Markdown document
@@ -248,6 +249,77 @@ enum Commands {
         /// lets a phone on the same network reach it
         #[arg(long, default_value = "127.0.0.1")]
         host: String,
+        /// Let `build.output` name a directory outside the project
+        #[arg(long)]
+        allow_output_outside: bool,
+    },
+    /// Serve a built project as a host would: `$PORT`, the build's headers
+    /// and compressed files, a single-page build's shell for every route,
+    /// and `--proxy` for an API elsewhere
+    Start {
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// The port (default: `$PORT`, else 3000)
+        #[arg(long)]
+        port: Option<u16>,
+        /// The address to listen on (default: every interface)
+        #[arg(long, default_value = "0.0.0.0")]
+        host: String,
+        /// Forward requests under a path to another server, the path replaced
+        /// by the URL: `--proxy /api=https://api.example.com` (repeatable;
+        /// http or https)
+        #[arg(long, value_name = "PREFIX=URL")]
+        proxy: Vec<String>,
+        /// Let `build.output` name a directory outside the project
+        #[arg(long)]
+        allow_output_outside: bool,
+    },
+    /// One page as a reader meets it, as text: landmarks, headings, links,
+    /// buttons, fields, tables, and anything that failed
+    Inspect {
+        /// A route of the project's build (`/pokemon/pikachu`), or a URL of a
+        /// server already running
+        target: String,
+        /// Project directory (default: current directory)
+        #[arg(short, long, default_value = ".")]
+        dir: PathBuf,
+        /// Forward requests under a path to another server, as `wf start` does
+        #[arg(long, value_name = "PREFIX=URL")]
+        proxy: Vec<String>,
+        /// The window's width, in CSS pixels
+        #[arg(long, default_value_t = 1280)]
+        width: u32,
+        /// The window's height, in CSS pixels
+        #[arg(long, default_value_t = 800)]
+        height: u32,
+        /// A phone: 390×844, laid out as a phone lays it out
+        #[arg(long)]
+        mobile: bool,
+        /// Also save a PNG of the page (to FILE, or a file it names)
+        #[arg(long, value_name = "FILE", num_args = 0..=1, default_missing_value = "-")]
+        screenshot: Option<PathBuf>,
+        /// The whole page in the screenshot, not only the window
+        #[arg(long)]
+        full_page: bool,
+        /// The most milliseconds the page is given to settle
+        #[arg(long, default_value_t = 5000, value_name = "MS")]
+        wait: u64,
+        /// The most lines of outline it prints
+        #[arg(long, default_value_t = 400)]
+        lines: usize,
+        /// A step to play before the page is read, as a test writes it:
+        /// `click "Name"`, `type "pika" into "Search"`, `press "Enter"`,
+        /// `expect "Saved"` (repeatable, in order)
+        #[arg(long = "do", value_name = "STEP")]
+        steps: Vec<String>,
+        /// Build the site with these fakes answering its endpoints, as
+        /// `wf verify --fakes` does, and open that
+        #[arg(long, value_name = "FILE")]
+        fakes: Option<PathBuf>,
+        /// Print JSON, for tools
+        #[arg(long)]
+        json: bool,
         /// Let `build.output` name a directory outside the project
         #[arg(long)]
         allow_output_outside: bool,
@@ -693,6 +765,56 @@ pub fn main() {
             allow_output_outside,
             fakes.as_deref(),
         ),
+        Commands::Start {
+            dir,
+            port,
+            host,
+            proxy,
+            allow_output_outside,
+        } => super::start::run_start(&dir, port, &host, &proxy, allow_output_outside),
+        Commands::Inspect {
+            target,
+            dir,
+            proxy,
+            width,
+            height,
+            mobile,
+            screenshot,
+            full_page,
+            wait,
+            lines,
+            steps,
+            fakes,
+            json,
+            allow_output_outside,
+        } => {
+            let (width, height) = if mobile { (390, 844) } else { (width, height) };
+            let screenshot = screenshot.map(|p| {
+                if p.as_os_str() == "-" {
+                    super::inspect::default_screenshot(&dir, &target)
+                } else {
+                    p
+                }
+            });
+            super::inspect::run_inspect(
+                &target,
+                &dir,
+                &proxy,
+                &super::inspect::Look {
+                    width,
+                    height,
+                    mobile,
+                    screenshot: screenshot.as_deref(),
+                    full_page,
+                    wait_ms: wait,
+                    lines,
+                    steps: &steps,
+                    fakes: fakes.as_deref(),
+                },
+                super::Report::from_json_flag(json),
+                allow_output_outside,
+            )
+        }
         Commands::Registry { json } => super::describe::run_registry(json),
         Commands::Types { path, json, holes } => {
             if holes {

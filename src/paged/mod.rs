@@ -4,7 +4,6 @@
 //! and printed: the HTML is read into a tree, styled by the page's sheets,
 //! turned into boxes, laid out (taffy for block, flex and grid; our own
 //! inline layout for text), cut into pages, painted, and written by krilla.
-//! See `spec/PDF_PLAN.md`.
 
 pub mod boxes;
 pub mod cascade;

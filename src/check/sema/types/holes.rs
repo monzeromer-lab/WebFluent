@@ -350,6 +350,16 @@ impl Checker<'_, '_> {
             "resize" if own => Type::list(Type::Number),
             event => Self::event_type(event),
         };
+        self.dom_event_as(handler, ty)
+    }
+
+    /// [`dom_event`](Self::dom_event), for an event that hands over `ty`:
+    /// a `Combobox`'s `select`, the option picked.
+    pub(super) fn dom_event_as(
+        &mut self,
+        handler: &crate::syntax::parser::ast::EventHandler,
+        ty: Type,
+    ) -> Type {
         let mut implicit = vec![("value", Type::String), ("key", Type::String)];
         if handler.params.is_empty() {
             implicit.push(("event", ty.clone()));

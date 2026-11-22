@@ -30,11 +30,14 @@ pub fn lint_accessibility_in(
     let mut warnings = Vec::new();
     // A page's outline includes the headings of the components it calls, so
     // the outline check reads through a call to the component's body.
-    let components: std::collections::HashMap<&str, &ComponentDecl> = program
+    // Each with the file it is written in, so a heading inside one is
+    // reported there, not in the page that places it.
+    let components: Components<'_> = program
         .declarations
         .iter()
-        .filter_map(|d| match d {
-            Declaration::Component(c) => Some((c.name.as_str(), c)),
+        .enumerate()
+        .filter_map(|(index, d)| match d {
+            Declaration::Component(c) => Some((c.name.as_str(), (c, file_of(index)))),
             _ => None,
         })
         .collect();
@@ -324,6 +327,10 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnos
         // `seen_paths` holds `(name, path)`: this compared a page's path with
         // the names of the pages before it, so two pages on one route were
         // never reported.
+        // A template page is never routed, so its path claims nothing.
+        if page.takes_data() {
+            continue;
+        }
         if let Some((other, _)) = seen_paths.iter().find(|(_, p)| *p == page.path) {
             warnings.push(crate::diagnostics::finding(
                 "S04",
@@ -343,6 +350,9 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnos
     warnings
 }
 
+/// The program's components by name, each with the file it is written in.
+type Components<'p> = HashMap<&'p str, (&'p ComponentDecl, String)>;
+
 /// Track heading levels within a page for skip detection.
 ///
 /// It borrows the program it walks: the component map is built once per
@@ -359,7 +369,7 @@ struct HeadingTracker<'p> {
     /// on its own first build.
     checks_outline: bool,
     /// The program's components by name (see [`Self::component`]).
-    components: &'p HashMap<&'p str, &'p ComponentDecl>,
+    components: &'p Components<'p>,
     /// Components being expanded, so a component that calls itself stops.
     expanding: Vec<String>,
     /// While a component is expanded: its `Bool` props, resolved from the
@@ -376,7 +386,7 @@ struct HeadingTracker<'p> {
 
 impl<'p> HeadingTracker<'p> {
     /// A tracker that knows the program's components.
-    fn new(components: &'p HashMap<&'p str, &'p ComponentDecl>) -> Self {
+    fn new(components: &'p Components<'p>) -> Self {
         Self {
             levels_seen: Vec::new(),
             h1_count: 0,
@@ -391,7 +401,7 @@ impl<'p> HeadingTracker<'p> {
 
     /// A tracker for output that is not one HTML page — a deck or a paginated
     /// document. Every other accessibility rule still runs.
-    fn without_outline_checks(components: &'p HashMap<&'p str, &'p ComponentDecl>) -> Self {
+    fn without_outline_checks(components: &'p Components<'p>) -> Self {
         Self {
             checks_outline: false,
             ..Self::new(components)
@@ -402,7 +412,13 @@ impl<'p> HeadingTracker<'p> {
     /// the headings of its body to the outline being checked. It borrows
     /// from the program, not from the tracker, so the tracker can walk it.
     fn component(&self, name: &str) -> Option<&'p ComponentDecl> {
-        self.components.get(name).copied()
+        self.components.get(name).map(|(c, _)| *c)
+    }
+
+    /// The file the component by that name is written in, where a finding
+    /// about its own elements belongs.
+    fn component_file(&self, name: &str) -> Option<&'p str> {
+        self.components.get(name).map(|(_, f)| f.as_str())
     }
 
     /// The one branch of an `if` a call renders, when its condition is a
@@ -456,7 +472,7 @@ fn lint_page<'p>(
     page: &'p PageDecl,
     file: &str,
     warnings: &mut Vec<Diagnostic>,
-    components: &'p HashMap<&'p str, &'p ComponentDecl>,
+    components: &'p Components<'p>,
 ) {
     let mut tracker = if is_document_or_deck(&page.body) {
         HeadingTracker::without_outline_checks(components)
@@ -472,9 +488,26 @@ fn lint_page<'p>(
     {
         Some(layout) => {
             tracker.page_body = Some((&page.body, file.to_string()));
+            let layout_file = page
+                .layout
+                .as_ref()
+                .and_then(|l| tracker.component_file(&l.name))
+                .unwrap_or(file)
+                .to_string();
             let mut quiet = Vec::new();
-            lint_statements(&layout.body, file, &mut quiet, &mut tracker);
-            warnings.extend(quiet.into_iter().filter(|w| w.code == "A11"));
+            lint_statements(&layout.body, &layout_file, &mut quiet, &mut tracker);
+            // A skip in the layout's own headings is the layout's to mend,
+            // and is reported where it is written; the page names it.
+            let (line, col) = page.layout.as_ref().map_or((1, 1), |l| {
+                (l.span.line.max(1) as usize, l.span.col.max(1) as usize)
+            });
+            warnings.extend(quiet.into_iter().filter(|w| w.code == "A11").map(|w| {
+                if w.file == layout_file && layout_file != file {
+                    w.with_related(format!("`{}` frames this page", page.name), file, line, col)
+                } else {
+                    w
+                }
+            }));
             match tracker.page_body.take() {
                 // The layout placed the page: its findings are the page's.
                 None => warnings.append(&mut tracker.page_warnings),
@@ -811,8 +844,13 @@ fn lint_ui_element(
                     }
                 }
 
-                // Check for empty text
-                if !has_positional_arg(&ui.args) {
+                // Check for empty text: a heading's words may be in its
+                // block — `Heading { Link("Docs", to: "/docs") }` — or its
+                // `aria-label`.
+                if !has_positional_arg(&ui.args)
+                    && !has_accessible_name(&ui.args)
+                    && !shows_text(&ui.children, heading_tracker)
+                {
                     warnings.push(crate::diagnostics::finding(
                         "A07",
                         "Heading has no text content",
@@ -1005,12 +1043,23 @@ fn lint_ui_element(
     {
         heading_tracker.expanding.push(name.clone());
         let outer = std::mem::replace(&mut heading_tracker.props, bool_props(comp, ui));
+        let comp_file = heading_tracker
+            .component_file(name)
+            .unwrap_or(file)
+            .to_string();
         let mut quiet = Vec::new();
-        lint_statements(&comp.body, file, &mut quiet, heading_tracker);
+        lint_statements(&comp.body, &comp_file, &mut quiet, heading_tracker);
         heading_tracker.props = outer;
         // Only the outline findings from inside the expansion matter
-        // here — and they are about this page's outline.
-        warnings.extend(quiet.into_iter().filter(|w| w.code == "A11"));
+        // here — they are about this page's outline, but the heading to
+        // mend is in the component, so that is where they point, with the
+        // place that put it in this outline beside it.
+        warnings.extend(
+            quiet
+                .into_iter()
+                .filter(|w| w.code == "A11")
+                .map(|w| w.with_related(format!("`{name}` is placed here"), file, line, col)),
+        );
         heading_tracker.expanding.pop();
     }
 
@@ -1309,6 +1358,21 @@ fn draws_text(body: &[Statement], tracker: &HeadingTracker<'_>, depth: usize) ->
                     Arg::Positional(_) => true,
                     Arg::Named(..) => false,
                 })
+            }
+            // What draws its first argument as its words — `Link("Home",
+            // to: "/")` in a heading is the heading's text — or, without
+            // one, what its block draws.
+            ComponentRef::BuiltIn(n)
+                if matches!(
+                    n.as_str(),
+                    "Link" | "Code" | "Badge" | "Tag" | "Kbd" | "Highlight" | "Markdown" | "Chip"
+                ) =>
+            {
+                el.args.iter().any(|a| match a {
+                    Arg::Positional(Expr::StringLiteral(s)) => !s.trim().is_empty(),
+                    Arg::Positional(_) => true,
+                    Arg::Named(..) => false,
+                }) || within(&el.children)
             }
             ComponentRef::UserDefined(name) => {
                 tracker.component(name).is_some_and(|c| within(&c.body)) || within(&el.children)
@@ -1649,6 +1713,55 @@ mod structure_tests {
         // A skip across the boundary is seen: h1 in the layout, h3 in the page.
         let skip = "component Shell {\n    slot\n    Heading(\"Hi\").h1\n    children\n}\npage P(path: \"/\", title: \"t\", description: \"d\", layout: Shell) {\n    Heading(\"Deep\").h3\n}\n";
         assert!(warnings(skip).iter().any(|w| w.code == "A11"));
+    }
+
+    #[test]
+    fn a_heading_whose_words_are_a_link_in_its_block_has_text() {
+        let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"Top\").h1\n    Heading { Link(\"Docs\", to: \"/docs\") }\n    Heading { Link(to: \"/a\") { Text(\"About\") } }\n}\n";
+        let found = warnings(src);
+        assert!(found.iter().all(|w| w.code != "A07"), "{found:?}");
+        // A heading with nothing in it still has no text.
+        let empty = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"Top\").h1\n    Heading { Spacer }\n}\n";
+        assert!(warnings(empty).iter().any(|w| w.code == "A07"));
+    }
+
+    #[test]
+    fn a_skip_inside_a_component_is_reported_in_the_components_file() {
+        // The page's h1, then the component's h3: the heading to mend is in
+        // the component, so the finding names its file and its line — not
+        // the page's file at the component's line — and the call beside it.
+        let src = "component Tile(_ title: String) {\n    Card {\n        Heading(title).h3\n    }\n}\npage Events(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"Events\").h1\n    Tile(\"x\")\n}\n";
+        let found: Vec<_> = warnings(src)
+            .into_iter()
+            .filter(|w| w.code == "A11")
+            .collect();
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert_eq!(found[0].file, "src/components/Tile.wf");
+        assert_eq!((found[0].line, found[0].column), (3, 9));
+        let placed = &found[0].related;
+        assert_eq!(placed.len(), 1, "{placed:?}");
+        assert_eq!(placed[0].file, "src/pages/Events.wf");
+        assert_eq!((placed[0].line, placed[0].column), (8, 5));
+
+        // A layout's own skip is the layout's, with the page beside it.
+        let framed = "component Shell {\n    slot\n    Heading(\"Hi\").h1\n    Heading(\"Deep\").h3\n    children\n}\npage P(path: \"/\", title: \"t\", description: \"d\", layout: Shell) {\n    Text(\"x\")\n}\n";
+        let found: Vec<_> = warnings(framed)
+            .into_iter()
+            .filter(|w| w.code == "A11")
+            .collect();
+        assert!(!found.is_empty(), "{found:?}");
+        assert!(
+            found
+                .iter()
+                .all(|w| w.file == "src/components/Shell.wf" && w.line == 4),
+            "{found:?}"
+        );
+        assert!(
+            found
+                .iter()
+                .any(|w| w.related.iter().any(|r| r.file == "src/pages/P.wf")),
+            "{found:?}"
+        );
     }
 
     #[test]

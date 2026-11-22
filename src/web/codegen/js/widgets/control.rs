@@ -53,56 +53,79 @@ pub(in super::super) fn validated_names(stmts: &[Statement]) -> Vec<String> {
     out
 }
 
-/// Whether a `Form` is anywhere in the body.
-pub(in super::super) fn has_form(stmts: &[Statement]) -> bool {
-    stmts.iter().any(|stmt| {
-        if let StatementKind::UIElement(el) = &stmt.kind {
-            if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form") {
-                return true;
-            }
-            if has_form(&el.children) || el.slot_fills.iter().any(|f| has_form(&f.body)) {
-                return true;
-            }
-        }
-        stmt.kind.bodies().into_iter().any(has_form)
-    })
-}
-
-/// `Form(show: .live)` — when a message is shown — as the runtime takes it.
-pub(in super::super) fn form_options(stmts: &[Statement]) -> String {
-    fn find(stmts: &[Statement]) -> Option<String> {
+/// Each `Form` of a body, in the order written, with the states the
+/// controls inside it bind — the fields whose rules are that form's. A form
+/// holds only its own: one with a rule on a field of another form, or of
+/// none, could never be submitted.
+pub(in super::super) fn forms_in(stmts: &[Statement]) -> Vec<(&UIElement, Vec<String>)> {
+    fn walk<'a>(stmts: &'a [Statement], out: &mut Vec<(&'a UIElement, Vec<String>)>) {
         for stmt in stmts {
-            if let StatementKind::UIElement(el) = &stmt.kind
-                && matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form")
-            {
-                for arg in &el.args {
-                    if let Arg::Named(key, Expr::EnumCase(case)) = arg
-                        && key == "show"
-                    {
-                        return Some(case.clone());
+            if let StatementKind::UIElement(el) = &stmt.kind {
+                if matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Form") {
+                    let mut bound = Vec::new();
+                    bound_in(&el.children, &mut bound);
+                    for fill in &el.slot_fills {
+                        bound_in(&fill.body, &mut bound);
                     }
+                    out.push((el, bound));
                 }
-                // An enum prop written as a flag is a modifier by now.
-                for modifier in &el.modifiers {
-                    if matches!(modifier.as_str(), "onBlur" | "onSubmit" | "live") {
-                        return Some(modifier.clone());
-                    }
+                walk(&el.children, out);
+                for fill in &el.slot_fills {
+                    walk(&fill.body, out);
                 }
             }
             for body in stmt.kind.bodies() {
-                if let Some(found) = find(body) {
-                    return Some(found);
-                }
-            }
-            if let StatementKind::UIElement(el) = &stmt.kind
-                && let Some(found) = find(&el.children)
-            {
-                return Some(found);
+                walk(body, out);
             }
         }
-        None
     }
-    match find(stmts) {
+    let mut out = Vec::new();
+    walk(stmts, &mut out);
+    out
+}
+
+/// The states a `bind:` names anywhere in `stmts`: a built-in control's,
+/// or a component's that binds one of its own (`PlanPicker(bind: plan)`).
+fn bound_in(stmts: &[Statement], out: &mut Vec<String>) {
+    for stmt in stmts {
+        if let StatementKind::UIElement(el) = &stmt.kind {
+            for arg in &el.args {
+                if let Arg::Named(k, Expr::Identifier(name)) = arg
+                    && k == "bind"
+                    && !out.contains(name)
+                {
+                    out.push(name.clone());
+                }
+            }
+            bound_in(&el.children, out);
+            for fill in &el.slot_fills {
+                bound_in(&fill.body, out);
+            }
+        }
+        for body in stmt.kind.bodies() {
+            bound_in(body, out);
+        }
+    }
+}
+
+/// `Form(show: .live)` — when its messages are shown — as the runtime
+/// takes it.
+pub(in super::super) fn form_options(el: &UIElement) -> String {
+    let show = el
+        .args
+        .iter()
+        .find_map(|arg| match arg {
+            Arg::Named(key, Expr::EnumCase(case)) if key == "show" => Some(case.clone()),
+            _ => None,
+        })
+        // An enum prop written as a flag is a modifier by now.
+        .or_else(|| {
+            el.modifiers
+                .iter()
+                .find(|m| matches!(m.as_str(), "onBlur" | "onSubmit" | "live"))
+                .cloned()
+        });
+    match show {
         Some(show) => format!("{{ show: \"{show}\" }}"),
         None => String::new(),
     }
@@ -185,7 +208,8 @@ impl JsCodegen {
         out
     }
 
-    /// The message a validated `Checkbox` or `Switch` shows, beneath it.
+    /// The message a validated `Checkbox`, `Switch` or `DatePicker` shows,
+    /// beneath it.
     pub(in super::super) fn emit_choice_message(
         &mut self,
         ui: &UIElement,
@@ -716,6 +740,9 @@ impl JsCodegen {
             "const {input_var} = WF.el(\"input\", {{ {input_attrs} }});"
         ));
         self.emit_line(&format!("{wrapper_var}.appendChild({input_var});"));
+        // What a `validate` block says of the day it binds, beneath it, as
+        // a validated `Checkbox` shows it.
+        self.emit_choice_message(ui, &wrapper_var, &wrapper_var);
 
         self.emit_line(&format!("const {var} = {wrapper_var};"));
         self.emit_line(&format!("{parent}.appendChild({var});"));
@@ -881,8 +908,14 @@ impl JsCodegen {
             }
             rules.push(format!("{{ {} }}", parts.join(", ")));
         }
-        let mut form = match &self.body.current_form {
-            Some(name) => format!(", form: {name}"),
+        // The form whose controls bind this state, and no other.
+        let mut form = match self
+            .body
+            .field_forms
+            .iter()
+            .find(|(state, _)| *state == v.name)
+        {
+            Some((_, handle)) => format!(", form: {handle}"),
             None => String::new(),
         };
         // What asks an async rule ships only with a program that has one.

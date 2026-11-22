@@ -107,6 +107,22 @@ fn radio_cards_and_a_number_input() {
 }
 
 #[test]
+fn a_number_input_and_a_calendar_say_their_buttons_in_the_pages_words() {
+    for html in painted(
+        "state qty = 2\n    NumberInput(bind: qty, label: \"Menge\", decrease: \"Weniger\", increase: \"Mehr\")",
+    ) {
+        assert!(html.contains("aria-label=\"Weniger\""), "{html}");
+        assert!(html.contains("aria-label=\"Mehr\""), "{html}");
+        assert!(!html.contains("Decrease"), "{html}");
+    }
+    let js = spa_generated(&page(
+        "state day: Date? = null\n    Calendar(bind: day, label: \"Tag\", previous: \"Voriger Monat\", next: \"Nächster Monat\")",
+    ));
+    assert!(js.contains("previous: () => \"Voriger Monat\""), "{js}");
+    assert!(js.contains("next: () => \"Nächster Monat\""), "{js}");
+}
+
+#[test]
 fn a_calendar_is_the_runtimes_to_draw() {
     let js = spa_generated(&page(
         "state day: Date? = null\n    Calendar(bind: day, mode: .range, min: @2026-01-01, disabled: d => d.weekday() >= 6)",

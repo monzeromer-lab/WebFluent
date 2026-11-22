@@ -245,8 +245,15 @@
     // said by name.
     const whole = (config.name ? config.name + "." : "") + name;
     const faked = (args) => {
-      const calls = window.__wfCalls || (window.__wfCalls = []);
+      // Kept in the tab's storage as well, so a call made before a
+      // `navigate()` that loads another page is still counted after it.
+      let calls = window.__wfCalls;
+      if (!calls) {
+        try { calls = JSON.parse(sessionStorage.getItem("wf:calls") || "[]"); } catch (e) { calls = []; }
+        window.__wfCalls = calls;
+      }
       calls.push(whole);
+      try { sessionStorage.setItem("wf:calls", JSON.stringify(calls)); } catch (e) { /* the page's own count still holds */ }
       const answer = window.__wfFakes[whole];
       if (!answer) {
         const message = "No fake answers " + whole + ": answer it in a fake the test names (`fakes:`) or the file `wf verify --fakes` reads";

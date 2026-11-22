@@ -36,7 +36,14 @@
     live(box);
     const opts = options || {};
     const mode = opts.mode || "single";
-    const lang = () => (document.documentElement.lang || (typeof navigator !== "undefined" && navigator.language) || "en");
+    // The page's locale, as `format` reads it: the i18n locale when the
+    // project has one — a signal, so a change of locale redraws the month —
+    // else the document's language.
+    const lang = () =>
+      (i18nInstance && i18nInstance.locale()) ||
+      document.documentElement.lang ||
+      (typeof navigator !== "undefined" && navigator.language) ||
+      "en";
     const today = _iso(new Date(Date.now() - new Date().getTimezoneOffset() * 60000));
     const chosen = () => {
       const v = read();
@@ -96,8 +103,11 @@
       }
     };
 
-    const prev = el("button", { type: "button", className: "wf-calendar__nav", "aria-label": "Previous month" }, "‹");
-    const next = el("button", { type: "button", className: "wf-calendar__nav", "aria-label": "Next month" }, "›");
+    // Its buttons' names: the page's words (`previous:`, `next:`), else
+    // English.
+    const said = (key, fallback) => (opts[key] && opts[key]()) || fallback;
+    const prev = el("button", { type: "button", className: "wf-calendar__nav" }, "‹");
+    const next = el("button", { type: "button", className: "wf-calendar__nav" }, "›");
     const title = el("p", { className: "wf-calendar__title", "aria-live": "polite" });
     const head = el("div", { className: "wf-calendar__head" }, prev, title, next);
     const grid = el("table", { className: "wf-calendar__grid", role: "grid" });
@@ -109,6 +119,8 @@
     next.addEventListener("click", () => focus.set(_plusMonths(focus(), 1)));
 
     const draw = () => {
+      prev.setAttribute("aria-label", said("previous", "Previous month"));
+      next.setAttribute("aria-label", said("next", "Next month"));
       const at = focus();
       const d = _day(at);
       const year = d.getUTCFullYear();

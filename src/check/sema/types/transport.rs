@@ -106,11 +106,13 @@ impl Checker<'_, '_> {
             match item {
                 Expr::Identifier(n) if matches!(n.as_str(), "requestId" | "log") => {}
                 Expr::Identifier(n) if self.world.consts.get(n) == Some(&middleware_type()) => {}
+                // A token that may not be there yet: the header is sent
+                // only when there is one, as with a value `header` is given.
                 Expr::FunctionCall(name, args) if name == "bearer" => {
-                    self.middleware_args(name, args, &[Type::String]);
+                    self.middleware_args(name, args, &[Type::optional(Type::String)]);
                 }
                 Expr::FunctionCall(name, args) if name == "header" => {
-                    self.middleware_args(name, args, &[Type::String, Type::String]);
+                    self.middleware_args(name, args, &[Type::String, Type::optional(Type::String)]);
                 }
                 Expr::FunctionCall(name, args) if name == "refreshOn401" => {
                     if args.len() == 1 {

@@ -1,11 +1,11 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "faf657871e6fc2a2364743cec7b9274fe5278a688d52f5fa25665874da1a26f2",
-    "app.js.gz": "65fb5a03bc78e60cc14db73c268d9f742dbf428eff5fa9870d041bb9772e8966",
+    "app.js": "5a8af18bb16c95c0dd2e53a393bb5f1c1cfc9f69695a875bdeec1e87f419a07a",
+    "app.js.gz": "dbfc482915064b545be37fefcc48f79d650c2ade5ecb47a5ad7ade8af9431993",
     "index.html": "51ace5456fca596435f5d914fda374d5a93bf16b18648ad7a69cd21890c83a4f",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "ce7a7c45c522549069dd17657f1213c143fea27d68ff1186e74ed377e8527f0d",
-    "styles.css.gz": "8939ea117c0fd32057f8c298cea88276ab7be38484cb475148967480196a894b"
+    "styles.css": "c23ee0f8e3cb8bcaacb9113a4e8a0046fa9921e933620ec2251e30cae5bcf0d1",
+    "styles.css.gz": "660b447a2ef7697456124edb723196b80e9f4d5fb42d2256560f2388cf24c9df"
   }
 }

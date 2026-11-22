@@ -95,23 +95,20 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
 fn build_all() -> (Vec<String>, Vec<String>) {
     let out_root = repo_root().join("target/e2e/guide");
     let _ = std::fs::remove_dir_all(&out_root);
-    // Every chapter and every recipe: a code's page under `errors/` shows a
+    // Every page of the site's guide: a code's page under `errors/` shows a
     // program that fails on purpose.
-    let mut names: Vec<String> = crate::common::guide_pages()
+    let pages: Vec<(String, String)> = crate::common::guide_pages()
         .into_iter()
-        .map(|(path, _)| path)
-        .filter(|n| n.contains('/') && !n.starts_with("errors/") && !n.ends_with("/index.md"))
+        .filter(|(n, _)| n.contains('/') && !n.starts_with("errors/"))
         // A template reads the JSON it is rendered with, not a browser.
-        .filter(|n| !n.contains("render-a-template") && !n.contains("render-from-"))
+        .filter(|(n, _)| !n.contains("render-a-template") && !n.contains("render-from-"))
         .collect();
-    names.sort();
     let mut built = Vec::new();
     let mut failures = Vec::new();
-    for name in names {
-        let markdown = std::fs::read_to_string(repo_root().join("md-docs").join(&name)).unwrap();
+    for (name, markdown) in pages {
         let scripts = chapter_scripts(&markdown);
         for (line, src) in page_examples(&markdown) {
-            let dir_name = format!("{}-{line}", name[..name.len() - 3].replace('/', "--"));
+            let dir_name = format!("{}-{line}", name.replace('/', "--"));
             let dir = out_root.join(&dir_name);
             std::fs::create_dir_all(dir.join("src")).unwrap();
             let i18n = if src.contains("t(\"") || src.contains("setLocale") {
@@ -171,7 +168,7 @@ fn build_all() -> (Vec<String>, Vec<String>) {
                 built.push(dir_name);
             } else {
                 failures.push(format!(
-                    "md-docs/{name}:{line} does not build:\n{}",
+                    "/{name}:{line} does not build:\n{}",
                     String::from_utf8_lossy(&out.stderr)
                 ));
             }

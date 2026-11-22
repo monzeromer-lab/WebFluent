@@ -541,7 +541,7 @@ fn a_modal_s_title_is_painted_as_its_heading() {
         assert!(tag.contains("data-k=\"v\""), "{name}: {tag}");
         assert!(
             html.contains(&format!(
-                "<div class=\"wf-modal__header\"><h3 id=\"{id}\">Explain</h3></div>"
+                "<div class=\"wf-modal__header\"><h2 id=\"{id}\">Explain</h2></div>"
             )),
             "{name}: {html}"
         );
@@ -552,11 +552,11 @@ fn a_modal_s_title_is_painted_as_its_heading() {
             "{name}: the body, then the footer: {html}"
         );
         assert!(
-            html.contains("<h3 id=\"") && html.contains(">Sure?</h3>"),
+            html.contains("<h2 id=\"") && html.contains(">Sure?</h2>"),
             "{name}: a dialog's too: {html}"
         );
         let ids: Vec<&str> = html
-            .split("<h3 id=\"")
+            .split("<h2 id=\"")
             .skip(1)
             .map(|r| r.split('"').next().unwrap())
             .collect();
@@ -854,4 +854,46 @@ fn a_checkboxs_style_is_its_inputs_on_both_pages() {
             );
         }
     }
+}
+
+/// A global attribute given `null` is no attribute, as an `aria-*` or a
+/// `data-*` one is: the pre-render and the template engine (and so
+/// `wf test`) wrote `id=""` and `title=""`, which the live page never does.
+#[test]
+fn a_null_global_attribute_is_left_out() {
+    const GLOBALS: &[&str] = &["id", "title", "role", "tabindex", "lang", "dir", "data-x"];
+    let given = GLOBALS
+        .iter()
+        .map(|k| format!("{k}: none"))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let src = format!(
+        "component Box(_ label: String) {{ Card {{ Text(label) }} }}\n{}",
+        page(&format!(
+            "    state none: String? = null\n    Row({given}) {{ Text(\"a\") }}\n    Button(\"B\", {given})\n    Link(\"L\", to: \"/\", {given})\n    Box(\"b\", {given})"
+        ))
+    );
+    for backend in [Backend::Ssg, Backend::Template] {
+        let els = elems(backend, &src);
+        for class in ["wf-row", "wf-btn", "wf-link", "wf-card"] {
+            let el = els
+                .iter()
+                .find(|e| e.has_class(class))
+                .unwrap_or_else(|| panic!("no {class} in {}", common::render(backend, &src)));
+            for key in GLOBALS {
+                assert_eq!(
+                    el.attr(key),
+                    None,
+                    "`{key}` on {class} in {}: {}",
+                    backend.name(),
+                    el.raw
+                );
+            }
+        }
+    }
+    // The live page hands the runtime a getter, whose `null` unsets the
+    // attribute (`plainAttr`, `rootAttrs`): never a string made of it.
+    let js = spa_generated(&src);
+    assert!(js.contains("id: () => _none()"), "{js}");
+    assert!(!js.contains("_none() ?? \"\""), "{js}");
 }

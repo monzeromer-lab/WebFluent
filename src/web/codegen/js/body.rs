@@ -2,9 +2,9 @@
 
 use super::{
     AppDecl, Arg, BodyState, ComponentDecl, ComponentRef, Expr, JsCodegen, PageDecl, Statement,
-    StatementKind, UIElement, action_names, bare, body_signals, builtin_to_html, declared_names,
-    emitted, form_options, has_form, js_component, js_str, layout_arg_classes, resource_names,
-    route_order, sig, validated_names,
+    StatementKind, UIElement, action_lets, action_names, bare, body_signals, builtin_to_html,
+    declared_names, emitted, form_options, forms_in, js_component, js_str, layout_arg_classes,
+    resource_names, route_order, sig, validated_names,
 };
 
 impl JsCodegen {
@@ -70,23 +70,61 @@ impl JsCodegen {
     /// components with a form declared one name twice in the bundle, and
     /// every copy of a component shared one form.
     pub(super) fn open_forms(&mut self, body: &[Statement]) -> Vec<String> {
-        self.body.current_form = None;
-        self.body.implicit_form = None;
+        self.body.field_forms = Vec::new();
+        self.body.implicit_forms = Vec::new();
         self.body.form_handles = crate::check::sema::types::form_names(body);
+        let validated = validated_names(body);
+        let forms = forms_in(body);
         let mut lines = Vec::new();
         for name in crate::check::sema::types::form_names(body) {
             let handle = bare(&name);
-            lines.push(format!("const {handle} = WF.form({});", form_options(body)));
-            self.body.current_form = Some(handle);
+            // When its messages show is said on the form that binds it.
+            let options = forms
+                .iter()
+                .find(|(el, _)| bound_handle(el).as_deref() == Some(name.as_str()))
+                .map(|(el, _)| form_options(el))
+                .unwrap_or_default();
+            lines.push(format!("const {handle} = WF.form({options});"));
             self.body.refs.push(name);
         }
-        if self.body.current_form.is_none() && has_form(body) && !validated_names(body).is_empty() {
-            let name = "_wfForm".to_string();
-            lines.push(format!("const {name} = WF.form({});", form_options(body)));
-            self.body.current_form = Some(name.clone());
-            self.body.implicit_form = Some(name);
+        for (el, bound) in &forms {
+            let handle = match bound_handle(el) {
+                Some(name) => bare(&name),
+                None if bound.iter().any(|b| validated.contains(b)) => {
+                    let name = match self.body.implicit_forms.len() {
+                        0 => "_wfForm".to_string(),
+                        n => format!("_wfForm{n}"),
+                    };
+                    lines.push(format!("const {name} = WF.form({});", form_options(el)));
+                    self.body
+                        .implicit_forms
+                        .push(((el.span.start, el.span.end), name.clone()));
+                    name
+                }
+                None => continue,
+            };
+            // A state is the first form's that binds it.
+            for state in bound.iter().filter(|b| validated.contains(b)) {
+                if !self.body.field_forms.iter().any(|(s, _)| s == state) {
+                    self.body.field_forms.push((state.clone(), handle.clone()));
+                }
+            }
         }
         lines
+    }
+
+    /// The handle a `Form` of this body asks before its submit runs: its
+    /// own `bind:`, or the one an unbound form holding validated fields is
+    /// given.
+    pub(super) fn form_handle_of(&self, el: &UIElement) -> Option<String> {
+        if let Some(name) = bound_handle(el) {
+            return Some(bare(&name));
+        }
+        self.body
+            .implicit_forms
+            .iter()
+            .find(|(at, _)| *at == (el.span.start, el.span.end))
+            .map(|(_, handle)| handle.clone())
     }
 
     /// Each `state` of `body`, in the order written, and before each the
@@ -160,6 +198,7 @@ impl JsCodegen {
         self.body.own_actions = action_names(&comp.body);
         self.body.refs = crate::check::sema::types::ref_names(&comp.body);
         self.body.own_names = declared_names(&comp.body);
+        self.body.action_lets = action_lets(&comp.body);
         self.body.body_signals = body_signals(&comp.body);
         // A form handle resolves as a bare name like a ref does, but is
         // declared here, once, as a form.
@@ -238,6 +277,7 @@ impl JsCodegen {
         self.body.own_actions = action_names(&page.body);
         self.body.refs = crate::check::sema::types::ref_names(&page.body);
         self.body.own_names = declared_names(&page.body);
+        self.body.action_lets = action_lets(&page.body);
         self.body.body_signals = body_signals(&page.body);
         self.emit_pending_signals(&page.body);
         let handles = self.body.refs.clone();
@@ -319,6 +359,7 @@ impl JsCodegen {
         // of `chosen` and never the `const` behind it, so the site threw on
         // load.
         self.body.own_names = declared_names(&app.body);
+        self.body.action_lets = action_lets(&app.body);
         self.body.body_signals = body_signals(&app.body);
         self.body.own_actions = action_names(&app.body);
         self.body.resources = resource_names(&app.body);
@@ -542,4 +583,12 @@ impl JsCodegen {
             ComponentRef::SubComponent(p, s) => format!("{p}.{s}"),
         }
     }
+}
+
+/// The handle a `Form(bind: name)` names.
+fn bound_handle(el: &UIElement) -> Option<String> {
+    el.args.iter().find_map(|arg| match arg {
+        Arg::Named(k, Expr::Identifier(name)) if k == "bind" => Some(name.clone()),
+        _ => None,
+    })
 }

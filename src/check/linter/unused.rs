@@ -81,6 +81,16 @@ pub fn lint_unused_in(
             }
             continue;
         }
+        // A middleware step reads what its body does: an action it runs
+        // around every request (`Session.refresh()`) is used.
+        if let Declaration::Middleware(m) = decl {
+            let mut reads = Reads::default();
+            read_statements(&m.handler.body, &mut reads);
+            for (store, member) in reads.members {
+                store_reads.entry(store).or_default().insert(member);
+            }
+            continue;
+        }
         let body = match decl {
             Declaration::Page(p) => &p.body,
             Declaration::Component(c) => &c.body,
@@ -450,6 +460,14 @@ mod tests {
                 "[U04] `S.go` is declared but never read".to_string(),
             ]
         );
+    }
+
+    #[test]
+    fn a_middleware_step_reads_the_store_actions_it_runs() {
+        let found = codes(
+            "store Session { state token: String? = null\n action refreshed() { token = \"x\" } }\nmiddleware stamp(req, next) {\n    Session.refreshed()\n    return await next(req)\n}\napi B(base: \"/api\") { middleware [stamp, bearer(Session.token)]\n get me() at \"me\" -> String! }\npage P(path: \"/\") { resource m = B.me()\n match m { .loaded(v) { Text(v) } else { Text(\"…\") } } }",
+        );
+        assert!(found.is_empty(), "{found:?}");
     }
 
     #[test]

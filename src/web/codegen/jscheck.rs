@@ -191,6 +191,12 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
                 };
                 if word == "function" && !after_dot {
                     params = function_params(bytes, i);
+                    if let Some(name) = params.as_ref().and_then(|(_, names)| twice(names)) {
+                        return fault(
+                            line,
+                            format!("`{name}` names two parameters of one function"),
+                        );
+                    }
                 }
                 if let Some(kind) = kind.filter(|_| !after_dot) {
                     let block = blocks.last_mut().expect("the top block is never popped");
@@ -228,6 +234,19 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
                 last_was_word = true;
                 last_word.clear();
                 last_word.push_str(word);
+            }
+            // `(a, a) => …`: an arrow function's parameters, which may not
+            // repeat a name.
+            b'=' if bytes.get(i + 1) == Some(&b'>') => {
+                if let Some(name) = arrow_params(bytes, i).as_deref().and_then(twice) {
+                    return fault(
+                        line,
+                        format!("`{name}` names two parameters of one function"),
+                    );
+                }
+                i += 2;
+                last = Some(b'>');
+                last_was_word = false;
             }
             // `--0.02` and `++1`: a number is no place to store a value,
             // so a browser refuses the script — what `-(-0.02)` written
@@ -313,6 +332,41 @@ fn function_params(bytes: &[u8], mut i: usize) -> Option<(usize, Vec<String>)> {
     (bytes.get(i) == Some(&b'{')).then_some((i, names))
 }
 
+/// The plain parameters of the arrow function whose `=>` is at `i` — `(a,
+/// b) =>` — or `None` for one parameter without brackets, or a list with
+/// anything but names and commas in it.
+fn arrow_params(bytes: &[u8], at: usize) -> Option<Vec<String>> {
+    let mut i = at;
+    while i > 0 && bytes[i - 1].is_ascii_whitespace() {
+        i -= 1;
+    }
+    if i == 0 || bytes[i - 1] != b')' {
+        return None;
+    }
+    let close = i - 1;
+    let open = bytes[..close].iter().rposition(|&b| b == b'(')?;
+    let inner = std::str::from_utf8(&bytes[open + 1..close]).ok()?;
+    let names: Vec<String> = inner
+        .split(',')
+        .map(str::trim)
+        .filter(|n| !n.is_empty())
+        .map(str::to_string)
+        .collect();
+    names
+        .iter()
+        .all(|n| n.bytes().all(is_word_byte))
+        .then_some(names)
+}
+
+/// The first name a list holds twice.
+fn twice(names: &[String]) -> Option<&str> {
+    names
+        .iter()
+        .enumerate()
+        .find(|(k, n)| names[..*k].contains(n))
+        .map(|(_, n)| n.as_str())
+}
+
 /// The line of `source` a fault points at, trimmed, for a message.
 pub fn line_of(source: &str, line: usize) -> String {
     let text = source
@@ -360,6 +414,19 @@ mod tests {
         assert!(msg.contains("`_a` is declared twice"), "{msg}");
         assert_eq!(check_js("const K = 1;\nlet K = 2;").unwrap_err().line, 2);
         assert!(fault("function f() {}\nconst f = 1;").contains("`f`"));
+    }
+
+    #[test]
+    fn a_parameter_named_twice_is_found() {
+        let msg = fault("const f = (_, _, y) => y;");
+        assert!(msg.contains("`_` names two parameters"), "{msg}");
+        assert!(fault("xs.reduce(((_, _) => 1), 0);").contains("`_`"));
+        assert!(fault("function g(a, b, a) { }").contains("`a`"));
+        assert_eq!(
+            check_js("const f = (_, _$2, y) => y;\nconst g = x => x;"),
+            Ok(())
+        );
+        assert_eq!(check_js("const f = ({ a }, [a2]) => a;"), Ok(()));
     }
 
     #[test]

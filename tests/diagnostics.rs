@@ -191,15 +191,15 @@ fn a_template_s_errors_are_coded_findings() {
     assert!(err.to_string().contains("error[E101]"), "{err}");
 }
 
-/// Every finding the guide's programs draw carries a code the registry
+/// Every finding the explanations' programs draw carries a code the registry
 /// holds — nothing the compiler says is uncoded.
 #[test]
 fn every_finding_has_a_registered_code() {
-    // Every code's page, `md-docs/errors/CODE.md`, one after another.
-    let chapter: String = crate::common::guide_pages()
-        .into_iter()
-        .filter(|(n, _)| n.starts_with("errors/"))
-        .map(|(_, text)| text)
+    // Every code's explanation, `src/diagnostics/explain/CODE.md`, one
+    // after another.
+    let chapter: String = webfluent::diagnostics::codes::CODES
+        .iter()
+        .filter_map(|c| webfluent::diagnostics::codes::guide_section(c.code))
         .collect::<Vec<_>>()
         .join("\n");
     let mut seen = 0;

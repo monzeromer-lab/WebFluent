@@ -98,7 +98,7 @@ try {
   await open(1000);
   await page.click("#edit");
   await pause(50);
-  await page.click("#modal h3");
+  await page.click("#modal h2");
   await pause(100);
   check("a press inside the modal leaves it open", (await page.$eval("#modal", (d) => d.open)) && (await text(page, "editing")) === "editing");
   await page.mouse.click(5, 5);

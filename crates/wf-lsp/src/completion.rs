@@ -1072,7 +1072,13 @@ fn after_dot(
                         .map(|m| binding_item(&m, Some(&store.name)))
                         .collect();
                 }
-                let mut items = parts(word);
+                // The parts of a built-in, unless the project's own of
+                // the name takes its place.
+                let mut items = if project.declares_component(word) {
+                    Vec::new()
+                } else {
+                    parts(word)
+                };
                 items.extend(flags(project, word));
                 // `Math.`, `JSON.`, `Date.`: a browser object.
                 if items.is_empty()
@@ -1903,7 +1909,7 @@ fn fake_items(
 fn takes_positional(project: &Project, name: &str) -> bool {
     match find_component(project, name) {
         Some(component) => component.props.iter().any(|p| p.positional),
-        None => signature(name).is_some_and(|sig| sig.positional.is_some()),
+        None => signature(project, name).is_some_and(|sig| sig.positional.is_some()),
     }
 }
 
@@ -2335,18 +2341,17 @@ fn find_enum<'a>(project: &'a Project, name: &str) -> Option<&'a EnumDecl> {
     })
 }
 
-fn signature(name: &str) -> Option<&'static ComponentSig> {
-    match name.split_once('.') {
-        Some((owner, part)) => registry::part(owner, part),
-        None => registry::component(name),
-    }
+/// The built-in a call of `name` draws, unless the project declares its
+/// own of the name (`Project::builtin`).
+fn signature(project: &Project, name: &str) -> Option<&'static ComponentSig> {
+    project.builtin(name)
 }
 
 /// The flags an element takes: its boolean props and the cases of its enum
 /// props, then the universal ones.
 fn flags(project: &Project, name: &str) -> Vec<CompletionItem> {
     let mut items = Vec::new();
-    if let Some(sig) = signature(name) {
+    if let Some(sig) = signature(project, name) {
         for prop in sig.all_props() {
             if !prop.shorthand {
                 continue;
@@ -2439,7 +2444,7 @@ fn parts(owner: &str) -> Vec<CompletionItem> {
 
 /// The cases the prop `key` of `element` takes, offered after `key: .`.
 fn cases_of(project: &Project, element: &str, key: &str) -> Vec<CompletionItem> {
-    if let Some(sig) = signature(element)
+    if let Some(sig) = signature(project, element)
         && let Some(prop) = sig.prop(key)
         && let PropType::Enum(cases) = prop.ty
     {
@@ -3165,7 +3170,7 @@ fn element_props(project: &Project, name: &str, previous: &[&Token]) -> Vec<Comp
         return items;
     }
 
-    let Some(sig) = signature(name) else {
+    let Some(sig) = signature(project, name) else {
         return items;
     };
     for prop in sig.all_props() {

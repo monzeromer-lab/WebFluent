@@ -442,3 +442,37 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .props-table td .wf-markdown code { font-size: 12px; }
 .props-table tr:last-child td { border-bottom: 0; }
 .props-table__name { margin: 0; white-space: nowrap; color: inherit; font: inherit; }
+
+/* The benchmarks page (BenchmarksShell): headline figures, tables with
+   WebFluent's column tinted and each row's best in bold, and the agents'
+   bars. */
+.bp-bench-figure { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; }
+.bp-bench-figure__value { font-size: clamp(26px, 3.4vw, 34px); font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; }
+.bp-bench-body, .bp-main .bp-bench-body { max-width: 760px; }
+.bp-bench-table td, .bp-bench-table th { white-space: nowrap; vertical-align: middle; }
+.bp-bench-table tbody th { font-weight: 500; color: inherit; font-size: 14px; white-space: normal; min-width: 180px; }
+.bp-bench-ours, tr.bp-bench-ours > th, tr.bp-bench-ours > td { background: color-mix(in srgb, var(--color-primary) 7%, transparent); }
+.bp-bench-best { font-weight: 700; }
+.bp-bench-bar { display: grid; grid-template-columns: minmax(110px, 160px) 1fr 56px; align-items: center; gap: 12px; }
+.bp-bench-bar__track { height: 14px; border-radius: 3px; background: color-mix(in srgb, var(--line) 60%, transparent); overflow: hidden; }
+.bp-bench-bar__fill { height: 100%; background: var(--muted); border-radius: 3px; }
+.bp-bench-bar--ours .bp-bench-bar__fill { background: var(--color-primary); }
+.bp-bench-bar--ours .bp-bench-bar__label, .bp-bench-bar--ours .bp-bench-bar__value { font-weight: 700; }
+.bp-bench-bar__value { text-align: end; }
+.bp-bench-figure__value { font-variant-numeric: tabular-nums; }
+.bp-bench-figure__note p { margin: 0; }
+/* A figure with a unit (`73.3 ms`, `100 MiB`) is a left-to-right run, in
+   an Arabic page too, still at the cell's end. */
+.bp-bench-table td.bp-num, .bp-bench-bar__value { direction: ltr; unicode-bidi: isolate; }
+[dir="rtl"] .bp-bench-table td.bp-num, [dir="rtl"] .bp-bench-bar__value { text-align: right; }
+[dir="rtl"] .bp-bench-bar__value { text-align: left; }
+/* A default the starter gets right: a green tick, the theme's `ok`. */
+.bp-bench-table td.bp-bench-yes { color: var(--ok); font-family: var(--font-family); font-size: 17px; font-weight: 700; line-height: 1; }
+/* What it leaves out, a dash: there, but quieter than a tick. */
+.bp-bench-table td.bp-bench-no { color: var(--muted); }
+/* The capability table: each cell a link to the docs that say so. What is
+   done for you is green, a feature you call is plain, by hand is muted. */
+.bp-bench-cap { text-decoration: none; color: inherit; font-size: 13px; white-space: nowrap; }
+.bp-bench-cap:hover, .bp-bench-cap:focus-visible { text-decoration: underline; }
+.bp-bench-cap[data-level="default"], .bp-bench-cap[data-level="setting"] { color: var(--ok); font-weight: 650; }
+.bp-bench-cap[data-level="manual"] { color: var(--muted); }

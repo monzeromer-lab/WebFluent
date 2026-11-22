@@ -2,13 +2,13 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "80ae7f0bf9d85ab38325d659f5caea1ffee2ca3ac2913dfb0ef996c07772c679",
-    "app.js.gz": "58b6e443532c056083b6d8806b96f2f014ba777253a82feb92cd7bdc11f6e74c",
-    "index.html": "390ec3450ec9f733c20c5c1a836e8eac5a41ac5228bc971723267c7c3bb3fe2f",
-    "index.html.gz": "f4aec7eb303f1ae5f42341c03d86f4eced5065a9f069236c8ffd815673922dd4",
+    "app.js": "b60e739d365841aa5a2e6137a966f2c6ac916fdeb772a54217b3663b0c39a9bc",
+    "app.js.gz": "01ed56d630aedc5fc2cea7dd2325ddae7932897b243b8805b6b76fe5ddf6b40f",
+    "index.html": "5bf29b7cb1c962e7c2e52d221a6179493c0564137271b2177d6543d02cad2df6",
+    "index.html.gz": "108daeca273122353315ac333084813c1653a738b8d272dad3f11422ed24da56",
     "js/wait.js": "29ef4e930fcc693923b9264ff4ce7c2be9a68c3646eb32c12a65d99d7c0c32a3",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "ccc9a72dec2b360f8fb234106c94d5a2ff78b4d9144652bedadf9229d78365c7",
-    "styles.css.gz": "ea6f15a991b97f9159c6ddf105152837863dbf9731af36fb03cf3ec3253259d0"
+    "styles.css": "b2c5d5f29d5ee058324d10670f2aa142f8d852539dd20e4b8f2d40cfece42579",
+    "styles.css.gz": "4759bbda366f5eec28823f8f0fdd32e3f9b3e24990ea5f6cfb2a9f92d5bc1087"
   }
 }

@@ -209,7 +209,24 @@ impl JsCodegen {
         let empty = self
             .fill_function(ui, "empty")
             .unwrap_or_else(|| "null".into());
-        self.collection_root("Combobox", "div", var, ui);
+        // The root and the DOM events written on it; `select` is the
+        // option picked, handed to the runtime below.
+        let extra = self.root_attrs("Combobox", ui, &[]);
+        self.emit_line(&format!(
+            "const {var} = WF.el(\"div\", {{ className: \"{}\"{extra}{} }});",
+            self.class_attr("Combobox", ui),
+            self.wf_node_inline(ui)
+        ));
+        let mut select = "null".to_string();
+        for handler in &ui.events {
+            let body = self.emit_event_body(handler);
+            if handler.event == "select" {
+                select = format!("({} => {{ {body} }})", self.handler_head(handler, "event"));
+            } else {
+                let line = self.element_listener(var, handler, &body);
+                self.emit_line(&line);
+            }
+        }
         let (read, write) = self.bind_pair(ui);
         let options = self
             .named_js(ui, "options")
@@ -225,7 +242,7 @@ impl JsCodegen {
             .named_js(ui, "placeholder")
             .unwrap_or_else(|| "\"\"".into());
         self.emit_line(&format!(
-            "WF.combobox({var}, {{ options: {options}, search: {search}, text: {text}, key: {key}, read: {read}, write: {write}, multiple: {}, debounce: {debounce}, label: () => {label}, placeholder: () => {placeholder}, option: {option}, empty: {empty} }});",
+            "WF.combobox({var}, {{ options: {options}, search: {search}, text: {text}, key: {key}, read: {read}, write: {write}, multiple: {}, debounce: {debounce}, label: () => {label}, placeholder: () => {placeholder}, option: {option}, empty: {empty}, select: {select} }});",
             Self::flag_given(ui, "multiple")
         ));
         self.emit_line(&format!("{parent}.appendChild({var});"));

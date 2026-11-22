@@ -886,6 +886,9 @@ fn number_input(el: &mut UIElement) {
     let step = take(el, "step").map_or_else(|| "1".to_string(), |e| src(&e));
     let label = take(el, "label").map(|e| src(&e));
     let hint = take(el, "hint").map(|e| src(&e));
+    // The buttons' names, in the page's words when it gives them.
+    let decrease = take(el, "decrease").map_or_else(|| lit("Decrease"), |e| src(&e));
+    let increase = take(el, "increase").map_or_else(|| lit("Increase"), |e| src(&e));
     // Its name where the field's label cannot reach it yet (the static
     // paint); the label names it once the page runs.
     let named = format!(
@@ -919,11 +922,11 @@ fn number_input(el: &mut UIElement) {
             }}
             on change {{ if {b} != null {{ {b} = {held} }} }}
         }}
-        NumberInput.Decrease(type: "button", tabindex: "-1", aria-label: "Decrease", disabled: ({b}) <= {lo}) {{
+        NumberInput.Decrease(type: "button", tabindex: "-1", aria-label: {decrease}, disabled: ({b}) <= {lo}) {{
             on click {{ {b} = {down} }}
             Icon("minus", aria-hidden: "true")
         }}
-        NumberInput.Increase(type: "button", tabindex: "-1", aria-label: "Increase", disabled: ({b}) >= {hi}) {{
+        NumberInput.Increase(type: "button", tabindex: "-1", aria-label: {increase}, disabled: ({b}) >= {hi}) {{
             on click {{ {b} = {up} }}
             Icon("plus", aria-hidden: "true")
         }}

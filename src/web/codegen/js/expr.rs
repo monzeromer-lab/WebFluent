@@ -162,8 +162,12 @@ impl JsCodegen {
             }
             Cx::Page => false,
         };
+        // A `let` of one action or handler is a name inside its block,
+        // where it is bound, and not in another's.
+        let declared = self.body.own_names.contains(name)
+            && (!self.body.action_lets.contains(name) || self.block_lets.contains(name));
         store
-            || self.body.own_names.contains(name)
+            || declared
             || self.body.own_actions.contains(name)
             || self.body.current_props.contains(name)
             || self.consts.contains(name)

@@ -27,7 +27,10 @@ const BINARIES: &[&str] = &[
     "/Applications/Chromium.app/Contents/MacOS/Chromium",
 ];
 
-/// The browser this machine has, if it has one.
+/// The browser this machine has, if it has one: `WF_CHROME`, a Chrome or
+/// Chromium where a system installs one, else the Chromium Playwright
+/// downloaded — the browser a machine set up for tests or for a coding
+/// agent most often has.
 pub fn find() -> Option<String> {
     if let Ok(named) = std::env::var("WF_CHROME")
         && std::path::Path::new(&named).exists()
@@ -38,6 +41,48 @@ pub fn find() -> Option<String> {
         .iter()
         .find(|p| std::path::Path::new(p).exists())
         .map(std::string::ToString::to_string)
+        .or_else(playwright_chromium)
+}
+
+/// The newest Chromium in Playwright's folder of browsers
+/// (`$PLAYWRIGHT_BROWSERS_PATH`, else its cache in the home folder).
+fn playwright_chromium() -> Option<String> {
+    let mut roots = Vec::new();
+    if let Some(p) = std::env::var_os("PLAYWRIGHT_BROWSERS_PATH").filter(|p| p != "0") {
+        roots.push(PathBuf::from(p));
+    }
+    if let Some(home) = std::env::var_os("HOME") {
+        let home = PathBuf::from(home);
+        roots.push(home.join(".cache/ms-playwright"));
+        roots.push(home.join("Library/Caches/ms-playwright"));
+    }
+    let inside = [
+        "chrome-linux64/chrome",
+        "chrome-linux/chrome",
+        "chrome-mac/Chromium.app/Contents/MacOS/Chromium",
+        "chrome-mac-arm64/Chromium.app/Contents/MacOS/Chromium",
+    ];
+    for root in roots {
+        let Ok(entries) = std::fs::read_dir(&root) else {
+            continue;
+        };
+        let mut found: Vec<PathBuf> = entries
+            .flatten()
+            .map(|e| e.path())
+            .filter(|p| {
+                p.file_name()
+                    .and_then(|n| n.to_str())
+                    .is_some_and(|n| n.starts_with("chromium-"))
+            })
+            .flat_map(|dir| inside.iter().map(move |i| dir.join(i)))
+            .filter(|p| p.is_file())
+            .collect();
+        found.sort();
+        if let Some(newest) = found.pop() {
+            return Some(newest.to_string_lossy().into_owned());
+        }
+    }
+    None
 }
 
 /// What one page did.
@@ -99,6 +144,10 @@ pub struct Browser {
     /// nothing it asked for is still on its way, and it has said nothing
     /// for `ms` — what `wf verify` waits for, rather than the whole settle.
     quiet: Option<u64>,
+    /// The size every page opened from now on is laid out at, and whether
+    /// it is a phone's (`wf inspect --width`, `--mobile`); `None` is
+    /// Chrome's own window.
+    viewport: Option<(u32, u32, bool)>,
     /// The profile Chrome was started with: a directory of this browser's
     /// own, removed with it. A profile is ~150 MB, and where `/tmp` is
     /// memory, one left behind per run fills it and then the swap.
@@ -120,8 +169,28 @@ static MADE: AtomicU64 = AtomicU64::new(0);
 /// The [`std::io::Error`] of making the directory when it cannot be made,
 /// or an `AlreadyExists` one when 64 names in a row were taken.
 pub fn private_dir(prefix: &str) -> std::io::Result<PathBuf> {
+    // The temporary folder, unless this user may not write there (a
+    // container whose `/tmp` is another user's): then the home folder's
+    // cache, then the working folder's `.wf-cache`.
+    let mut places = vec![std::env::temp_dir()];
+    if let Some(home) = std::env::var_os("HOME") {
+        places.push(PathBuf::from(home).join(".cache"));
+    }
+    places.push(PathBuf::from(".wf-cache"));
+    let mut last = None;
+    for place in places {
+        let _ = std::fs::create_dir_all(&place);
+        match private_dir_in(&place, prefix) {
+            Ok(dir) => return Ok(dir),
+            Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => last = Some(e),
+            Err(e) => return Err(e),
+        }
+    }
+    Err(last.unwrap_or_else(|| std::io::Error::other("nowhere to make a directory")))
+}
+
+fn private_dir_in(tmp: &Path, prefix: &str) -> std::io::Result<PathBuf> {
     use std::hash::{BuildHasher, Hasher};
-    let tmp = std::env::temp_dir();
     let mut last = None;
     for _ in 0..64 {
         // A hasher seeded at random by the standard library, over the time
@@ -180,10 +249,26 @@ fn sandbox_off_by_request() -> bool {
 /// The command that starts `binary` with `args`, watched where there is a
 /// shell to watch it.
 fn launch(binary: &str, args: &[String], profile: &Path) -> std::io::Result<Child> {
+    // Chrome makes a socket folder in the temporary folder and stops at once
+    // where it cannot (a container whose `/tmp` belongs to another user).
+    // When the profile could not go there either ([`private_dir`] fell back),
+    // Chrome's temporary files go where the profile went: a short path, as a
+    // socket's must be.
+    let tmp = profile
+        .parent()
+        .filter(|p| *p != std::env::temp_dir())
+        .map_or_else(std::env::temp_dir, Path::to_path_buf);
+    // A home of its own, its profile: what a browser reads and writes there
+    // (its settings, its caches, the crash reporter's database) is then
+    // never the account's, which a sandboxed agent's may not let it touch.
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
         Command::new("/bin/sh")
+            .env("TMPDIR", &tmp)
+            .env("HOME", profile)
+            .env("XDG_CONFIG_HOME", profile.join(".config"))
+            .env("XDG_CACHE_HOME", profile.join(".cache"))
             .arg("-c")
             .arg(WATCHER)
             .arg("wf-chrome")
@@ -198,8 +283,9 @@ fn launch(binary: &str, args: &[String], profile: &Path) -> std::io::Result<Chil
     }
     #[cfg(not(unix))]
     {
-        let _ = profile;
         Command::new(binary)
+            .env("TMP", &tmp)
+            .env("TEMP", &tmp)
             .args(args)
             .stdout(Stdio::null())
             .stderr(Stdio::piped())
@@ -250,6 +336,10 @@ fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)>
         "--disable-component-update",
         "--disable-default-apps",
         "--disable-sync",
+        // No crash reporter: its handler is a process of its own, and in a
+        // sandboxed account it can fail before the browser is ready.
+        "--disable-breakpad",
+        "--disable-crash-reporter",
     ]
     .iter()
     .map(std::string::ToString::to_string)
@@ -269,24 +359,56 @@ fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)>
         }
     };
 
-    // It prints its endpoint on stderr once it is listening.
+    // It prints its endpoint on stderr once it is listening. Read on a
+    // thread of its own, so a browser that stops before it says (its pipe
+    // held open by the watcher) is given up on rather than waited for.
     let stderr = child.stderr.take().expect("piped");
-    let mut lines = BufReader::new(stderr).lines();
+    let (send, heard) = std::sync::mpsc::channel::<String>();
+    std::thread::spawn(move || {
+        for line in BufReader::new(stderr).lines().take(400) {
+            let Ok(line) = line else { break };
+            if send.send(line).is_err() {
+                break;
+            }
+        }
+    });
     let mut endpoint = None;
-    for _ in 0..200 {
-        let Some(Ok(line)) = lines.next() else { break };
+    let mut said: Vec<String> = Vec::new();
+    let until = Instant::now() + Duration::from_secs(30);
+    while let Some(left) = until.checked_duration_since(Instant::now()) {
+        let Ok(line) = heard.recv_timeout(left.min(Duration::from_millis(250))) else {
+            // Nothing for a while: still starting, or gone.
+            if matches!(child.try_wait(), Ok(Some(_))) {
+                break;
+            }
+            continue;
+        };
         if let Some(at) = line.find("ws://") {
             endpoint = Some(line[at..].trim().to_string());
             break;
         }
+        said.push(line);
     }
     if let Some(endpoint) = endpoint {
         Ok((child, profile, endpoint))
     } else {
         abandon(&mut child, &profile);
-        Err(WebFluentError::io(
-            "the browser started but never said where to talk to it",
-        ))
+        // What the browser said last, which is usually why.
+        let why: Vec<&str> = said
+            .iter()
+            .rev()
+            .filter(|l| l.contains("ERROR") || l.contains("FATAL"))
+            .take(2)
+            .map(String::as_str)
+            .collect();
+        Err(WebFluentError::io(if why.is_empty() {
+            "the browser started but never said where to talk to it".to_string()
+        } else {
+            format!(
+                "the browser stopped before it was ready: {}",
+                why.into_iter().rev().collect::<Vec<_>>().join(" / ")
+            )
+        }))
     }
 }
 
@@ -335,6 +457,7 @@ impl Browser {
             next: 1,
             heard: Vec::new(),
             quiet: None,
+            viewport: None,
             profile,
         })
     }
@@ -370,6 +493,39 @@ impl Browser {
         self.before_each = source;
     }
 
+    /// Lay every page opened from now on out at `width` × `height` CSS
+    /// pixels, as a phone when `mobile` (its touch, its user agent's
+    /// layout).
+    pub fn set_viewport(&mut self, width: u32, height: u32, mobile: bool) {
+        self.viewport = Some((width, height, mobile));
+    }
+
+    /// The page as a PNG: what is on screen, or with `full` the whole page,
+    /// as tall as its content.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the browser refuses or the
+    /// connection to it fails.
+    pub fn screenshot(&mut self, page: &Page, full: bool) -> Result<String> {
+        let mut params = json!({ "format": "png" });
+        if full {
+            let metrics = self.call("Page.getLayoutMetrics", &json!({}), Some(&page.session))?;
+            let size = &metrics["cssContentSize"];
+            let (w, h) = (
+                size["width"].as_f64().unwrap_or(1280.0),
+                size["height"].as_f64().unwrap_or(800.0).min(16_000.0),
+            );
+            params = json!({
+                "format": "png",
+                "captureBeyondViewport": true,
+                "clip": { "x": 0, "y": 0, "width": w, "height": h, "scale": 1 },
+            });
+        }
+        let shot = self.call("Page.captureScreenshot", &params, Some(&page.session))?;
+        Ok(shot["data"].as_str().unwrap_or_default().to_string())
+    }
+
     /// Open `url` and wait for it to settle. The page stays open until
     /// it is closed, so a caller can act on it.
     ///
@@ -400,6 +556,18 @@ impl Browser {
             "Page.enable",
         ] {
             self.call(method, &json!({}), Some(&session))?;
+        }
+        if let Some((width, height, mobile)) = self.viewport {
+            self.call(
+                "Emulation.setDeviceMetricsOverride",
+                &json!({
+                    "width": width,
+                    "height": height,
+                    "deviceScaleFactor": 1,
+                    "mobile": mobile,
+                }),
+                Some(&session),
+            )?;
         }
         if let Some(source) = &self.before_each {
             self.call(

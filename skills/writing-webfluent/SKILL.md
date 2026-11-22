@@ -17,7 +17,10 @@ installed. Ask it before you guess, and believe it over memory.
 
 ## Pick the reference for the task
 
-Read this file, then only the reference the task needs:
+Read this file, then [references/core.md](references/core.md): what most
+sites and apps are made of, in about 4,000 words. Then only what the task
+needs. Every file you read stays in your context for the rest of the work,
+so read a section, never the whole reference.
 
 | The task | Read |
 |---|---|
@@ -28,16 +31,15 @@ Read this file, then only the reference the task needs:
 | A finding from `wf check` you don't understand | [references/diagnostics.md](references/diagnostics.md) |
 | A PDF, a slide deck, or rendering a template on a server | [references/documents.md](references/documents.md) |
 | An app for Linux, macOS, Windows, Android or iOS with Tauri (or Electron): the bridge to Rust, window chrome, safe areas and the back gesture, packaging and signing | [references/tauri-apps.md](references/tauri-apps.md) |
-| The exact grammar, a component's every prop, a config key, a code's meaning | [references/language.md](references/language.md), the whole reference: read it by section |
+| Anything core.md doesn't cover: the exact grammar, a service (`api`), sockets, offline, a config key | One section, from the index [references/language.md](references/language.md) |
+| A component's every prop, a code's meaning, a setting | The compiler: `wf components Name`, `wf explain CODE`, `wf config schema` |
 
 ## Before you write
 
 1. **Check the version.** Run `wf --version`.
-   - A project's own `AGENTS.md` is the reference for the version that made
-     it. Read it by section (`grep -n '^## ' AGENTS.md`, then the lines you
-     need).
-   - With no `AGENTS.md`, use [references/language.md](references/language.md),
-     the reference of WebFluent 7.1.1.
+   - A project's own `AGENTS.md` is `core.md` for the version that made it,
+     with the skill it came with beside it. Don't read both.
+   - This skill is the reference of WebFluent 7.1.1.
    - If the compiler and the reference disagree, the compiler is right. Say so.
    - A project written for WebFluent 6 is refused by 7 until it's migrated:
      `wf migrate --check` lists what changes, `wf migrate` rewrites it, then
@@ -77,12 +79,19 @@ Read this file, then only the reference the task needs:
 3. **`wf fmt`** settles the layout.
 4. **`wf test`** runs the project's tests. Add one for new behaviour.
 5. **`wf build`** compiles it. Use `wf build --stats` when weight matters.
-6. **`wf verify`** loads every page in a headless Chrome. It fails on a thrown
+6. **`wf inspect /route`** shows one page as a reader meets it, in text:
+   headings, links, buttons and their states, fields, tables, and anything
+   that threw or failed to load (`--mobile`, `--screenshot`). `--do 'click
+   "Sort by name"'` acts first, as a test step does, and shows the page
+   after. Look at a page with it; don't write a browser script to.
+7. **`wf verify`** loads every page in a headless Chrome. It fails on a thrown
    error, a `console.error`, a missing file or a failed image. Run it before
    you say a page works.
 
 `wf serve` is the dev server. It rebuilds on save and shows a failed build's
-error over the page.
+error over the page. `wf start` serves a build in production (`$PORT`, a
+single-page build's shell for every route, `--proxy /api=URL` for an API
+elsewhere): use it rather than writing a server.
 
 Don't silence a finding by deleting what it's about. Fix it, or say why not.
 

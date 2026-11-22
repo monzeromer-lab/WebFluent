@@ -86,6 +86,35 @@ fn a_tree_a_table_and_a_combobox_are_drawn_from_their_data() {
 }
 
 #[test]
+fn a_combobox_says_which_option_was_picked() {
+    // `on change` is the field's, heard when it loses the focus; `on
+    // select(o)` is the option a reader picked, typed as the options are.
+    let src = page(
+        "state who: String? = null\n    state said = \"\"\n    Combobox(bind: who, options: [Person(id: \"1\", name: \"Ada\")], text: p => p.name, key: p => p.id, label: \"Who\") {\n        on select(p) { said = p.name }\n        on focus { said = \"\" }\n    }\n    Text(said)",
+    );
+    let src = format!("type Person {{ id: String, name: String }}\n{src}");
+    let js = spa_generated(&src);
+    assert!(js.contains("select: ((p) => {"), "{js}");
+    assert!(!js.contains("addEventListener(\"select\""), "{js}");
+    assert!(
+        js.contains("addEventListener(\"focus\""),
+        "other events stay the element's: {js}"
+    );
+    let found = findings(&src);
+    assert!(
+        found
+            .iter()
+            .all(|d| d.severity != webfluent::diagnostics::Severity::Error && d.code != "V09"),
+        "{found:?}"
+    );
+    let typo = src.replace("said = p.name", "said = p.nmae");
+    assert!(
+        findings(&typo).iter().any(|d| d.code == "T05"),
+        "the option is a `Person`"
+    );
+}
+
+#[test]
 fn a_built_in_names_the_blocks_it_takes() {
     let src = page(
         "state f = \"\"\n    Tree(items: [], children: x => x.kids, key: x => x.id, label: \"T\") { rows(x) { Text(x) } }",

@@ -10,6 +10,8 @@ mod mangled_runtime;
 
 #[path = "agent.rs"]
 mod agent;
+#[path = "app_reports.rs"]
+mod app_reports;
 #[path = "arabic_source.rs"]
 mod arabic_source;
 #[path = "assets_data.rs"]

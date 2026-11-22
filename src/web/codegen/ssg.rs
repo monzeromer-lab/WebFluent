@@ -2657,6 +2657,17 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             attrs.push("multiple".to_string());
         }
     }
+    // A number field takes any number unless it says its step, as on the
+    // live page.
+    if name == "Input"
+        && attrs.iter().any(|a| a == "type=\"number\"")
+        && !ui
+            .args
+            .iter()
+            .any(|a| matches!(a, Arg::Named(k, _) if k == "step"))
+    {
+        attrs.push("step=\"any\"".to_string());
+    }
     // A button submits its form only when it says so, as on the live page.
     if matches!(name, "Button" | "IconButton") && !attrs.iter().any(|a| a.starts_with("type=")) {
         attrs.push("type=\"button\"".to_string());
@@ -3144,17 +3155,22 @@ fn render_picture<C: Paint>(class: &str, ui: &UIElement, ctx: &mut C) -> String 
                 .find(|m| matches!(m.as_str(), "blur" | "color" | "none"))
                 .cloned()
         });
-    match placeholder.as_deref() {
-        Some("blur") if !text("placeholder").is_empty() => {
-            img.push(format!(
-                "style=\"background: url(&quot;{}&quot;) center / cover no-repeat\"",
-                text("placeholder")
-            ));
+    // On a page of the site it is a class whose rule the sheet carries
+    // (`scoped_css::placeholder_rules`), so the page keeps a policy with no
+    // `'unsafe-inline'`; a template, which ships its own CSS and no policy,
+    // writes it on the element.
+    if let Some(kind) = placeholder.as_deref()
+        && let Some(fill) =
+            crate::project::scoped_css::placeholder_fill(kind, &text("placeholder"), &text("color"))
+    {
+        if ctx.scope.is_lenient() {
+            img.push(format!("style=\"background: {}\"", html_escape(&fill)));
+        } else {
+            img[0] = format!(
+                "class=\"{class} {}\"",
+                crate::project::scoped_css::placeholder_class(&fill)
+            );
         }
-        Some("color") if !text("color").is_empty() => {
-            img.push(format!("style=\"background: {}\"", text("color")));
-        }
-        _ => {}
     }
 
     // What any element takes is the image's, as on the live page.
@@ -3301,6 +3317,10 @@ fn render_labelled_input<C: Paint>(
 
 /// Paint the branch a resolvable condition takes, or `None` to defer to the client.
 fn render_if_static(if_stmt: &IfStmt, ctx: &mut SsgContext) -> Option<String> {
+    // `if let .case(x) = v`: which case a value is, the browser decides.
+    if if_stmt.pattern.is_some() {
+        return None;
+    }
     let value = eval(&if_stmt.condition, &ctx.scope)?;
     if value.truthy() {
         // `if let p = post { … }`: the branch reads `p` as the value.
@@ -3677,7 +3697,7 @@ pub fn static_dialog(indent: &str, d: &DialogPaint<'_>) -> String {
             String::new()
         };
         out.push_str(&format!(
-            "{part}<div class=\"{}__header\"><h3 id=\"{id}\">{words}</h3>{close}</div>\n",
+            "{part}<div class=\"{}__header\"><h2 id=\"{id}\">{words}</h2>{close}</div>\n",
             d.class
         ));
     }
@@ -3803,9 +3823,12 @@ fn own_attrs(name: &str, ui: &UIElement, ctx: &PaintState, reads: &[&str]) -> St
     )
 }
 
+/// An attribute's value as the build knows it, as text: `None` when it
+/// cannot know it, and for `null`, which is no attribute at all (the live
+/// page leaves a null attribute off too, never `id=""`).
 fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {
     expr_to_static_string(expr).or_else(|| match eval(expr, scope)? {
-        Static::List(_) | Static::Map(_) => None,
+        Static::Null | Static::List(_) | Static::Map(_) => None,
         value => Some(value.to_text()),
     })
 }
@@ -3860,10 +3883,18 @@ fn resolve_text(expr: &Expr, messages: &HashMap<String, String>) -> Option<Strin
         Expr::StringLiteral(s) => Some(s.clone()),
         Expr::NumberLiteral(n) => Some(crate::base::text::number(*n)),
         Expr::BoolLiteral(b) => Some(format!("{b}")),
-        Expr::FunctionCall(name, args) if name == "t" => {
+        // A message whose values the build cannot read — a `count` that
+        // picks its plural form, a `{name}` it fills — is left to the live
+        // page: painting its key (`article.minutes`) or its placeholders
+        // would show the reader text the page never says.
+        Expr::FunctionCall(name, args) if name == "t" && args.len() == 1 => {
             // i18n: resolve from default locale
             if let Some(Expr::StringLiteral(key)) = args.first() {
-                messages.get(key).cloned().or_else(|| Some(key.clone()))
+                messages
+                    .get(key)
+                    .or_else(|| messages.get(&format!("{key}.other")))
+                    .cloned()
+                    .or_else(|| Some(key.clone()))
             } else {
                 None
             }
@@ -4637,7 +4668,7 @@ fn paint_data_table(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
     );
     if picking {
         out.push_str(if multiple {
-            "<th scope=\"col\" class=\"wf-data-table__check\"><input type=\"checkbox\" class=\"wf-data-table__pick\" aria-label=\"Choose every row\"></th>"
+            "<th scope=\"col\" class=\"wf-data-table__check\"><label class=\"wf-data-table__hit\"><input type=\"checkbox\" class=\"wf-data-table__pick\" aria-label=\"Choose every row\"></label></th>"
         } else {
             "<th scope=\"col\" class=\"wf-data-table__check\"><span class=\"wf-visually-hidden\">Chosen</span></th>"
         });
@@ -4664,24 +4695,35 @@ fn paint_data_table(ui: &UIElement, ctx: &mut SsgContext) -> Option<String> {
     let inner = ctx.indent;
     ctx.indent += 1;
     for row in &rows {
-        out.push_str(&format!("{}<tr>", ctx.indent_str()));
-        if picking {
-            let kind = if multiple { "checkbox" } else { "radio" };
-            out.push_str(&format!(
-                "<td class=\"wf-data-table__check\"><input type=\"{kind}\" class=\"wf-data-table__pick\" aria-label=\"Choose this row\"></td>"
-            ));
-        }
+        let mut cells = String::new();
+        let mut first = None;
         for col in &columns {
-            out.push_str("<td>");
+            let mut cell = String::new();
             if let Some(fill) = col.slot_fills.iter().find(|f| f.name == "cell") {
-                out.push_str(paint_fill(fill, row, ctx).trim());
+                cell.push_str(paint_fill(fill, row, ctx).trim());
             } else if let Some(v) =
                 named_arg(col, "value").and_then(|f| apply_static(f, row, &ctx.scope))
             {
-                out.push_str(&html_escape(&v.to_text()));
+                cell.push_str(&html_escape(&v.to_text()));
             }
-            out.push_str("</td>");
+            first.get_or_insert_with(|| html_text(&cell));
+            cells.push_str(&format!("<td>{cell}</td>"));
         }
+        out.push_str(&format!("{}<tr>", ctx.indent_str()));
+        if picking {
+            let kind = if multiple { "checkbox" } else { "radio" };
+            // Named for the row, as the live page names it: the text of
+            // its first column.
+            let name = match first.as_deref() {
+                Some(words) if !words.is_empty() => format!("Choose {words}"),
+                _ => "Choose this row".to_string(),
+            };
+            out.push_str(&format!(
+                "<td class=\"wf-data-table__check\"><label class=\"wf-data-table__hit\"><input type=\"{kind}\" class=\"wf-data-table__pick\" aria-label=\"{}\"></label></td>",
+                html_escape(&name)
+            ));
+        }
+        out.push_str(&cells);
         out.push_str("</tr>\n");
     }
     if rows.is_empty()

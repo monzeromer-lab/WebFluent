@@ -278,7 +278,7 @@ fn a_dev_build_carries_the_shapes_of_declared_responses() {
     let out = dev.generate(&program);
     assert!(
         out.contains(
-            r#"shape: ["l", ["r", "User", { "id": "s", "name": "s", "tag": ["?", "s"] }]]"#
+            r#"shape: ["l", ["r", "User", { "id": "s", "name": "s", "tag": ["?", "s", ""] }]]"#
         ),
         "the resource's shape:\n{out}"
     );
@@ -369,7 +369,7 @@ fn a_modals_title_that_reads_state_follows_it() {
          Modal(visible: open, title: \"Fixed\") {\n        Text(\"y\")\n    }\n    Button(\"Next\") { on click { code = \"T07\"  open = true } }",
     ));
     let headings: Vec<&str> = out
-        .match_indices("WF.el(\"h3\", { id: ")
+        .match_indices("WF.el(\"h2\", { id: ")
         .map(|(at, _)| out[at..].split("));").next().unwrap_or_default())
         .collect();
     assert_eq!(headings.len(), 2, "{out}");

@@ -568,7 +568,16 @@ fn r01_links_and_navigation_are_held_to_the_routes() {
 #[test]
 fn r02_r03_r04_route_parameters_the_router_and_relative_urls() {
     let params = "page U(path: \"/u/:id\", title: \"T\", description: \"D\") { Heading(\"u\").h1 }\npage V(path: \"/v\", title: \"T\", description: \"D\", id: String) { Heading(id).h1 }\n";
-    assert_eq!(with(params, "R02").len(), 2);
+    let r02 = with(params, "R02");
+    assert_eq!(r02.len(), 1, "{r02:?}");
+    assert!(r02[0].contains("`:id`"), "{r02:?}");
+    // A parameter its route does not fill is the page's data: a template,
+    // which a render hands its data and a build leaves out — so it claims
+    // no route (no S04 beside a page on `/`) and a link to it leads nowhere.
+    let template = "page Home(path: \"/\", title: \"T\", description: \"D\") { Heading(\"h\").h1  Link(\"i\", to: \"/invoice\") }\npage Invoice(path: \"/invoice\", title: \"I\", description: \"D\", number: String) { Heading(number).h1 }\npage Receipt(path: \"/\", title: \"R\", description: \"D\", total: Number) { Heading(\"{total}\").h1 }\n";
+    assert_eq!(with(template, "R02"), Vec::<String>::new());
+    assert_eq!(with(template, "S04"), Vec::<String>::new());
+    assert_eq!(with(template, "R01").len(), 1);
     let no_router = "app { Text(\"chrome\") }\npage P(path: \"/\", title: \"T\", description: \"D\") { Heading(\"p\").h1 }\n";
     assert!(with(no_router, "R03")[0].contains("no `Router`"));
     let two = "app { Router  Router }\npage P(path: \"/\", title: \"T\", description: \"D\") { Heading(\"p\").h1 }\n";
@@ -1464,6 +1473,44 @@ fn t29_a_condition_is_a_bool_and_the_fix_writes_the_comparison() {
     let after = fixed(&src, "T29");
     assert!(after.contains("derived e = n == 0"), "{after}");
     clean(&after);
+    // `!` before each kind writes its own comparison: text is empty,
+    // a value that may be null is null.
+    let src = page("    state name = \"\"\n    derived e = !name\n    Text(\"{e}\")");
+    let after = fixed(&src, "T29");
+    assert!(after.contains("derived e = name == \"\""), "{after}");
+    clean(&after);
+    let src = page("    state picked: String? = null\n    derived e = !picked\n    Text(\"{e}\")");
+    let after = fixed(&src, "T29");
+    assert!(after.contains("derived e = picked == null"), "{after}");
+    clean(&after);
+}
+
+#[test]
+fn t29_a_bool_read_through_null_is_never_rewritten_as_a_null_test() {
+    // `!a?.vector` is true for `false` and for `null`; `a?.vector == null`
+    // only for `null`. A `Bool?` needs no comparison, and one whose type
+    // is unknown — read off `Json`, or an item of a list that says
+    // nothing — is not given one either: what it is is reported where the
+    // type was lost (`T28`, `T25`).
+    clean(&format!(
+        "type Asset {{ vector: Bool, name: String }}\ntype Item {{ folder: Bool? = null }}\n{}",
+        page(
+            "    state a: Asset? = null\n    state i: Item? = null\n    derived r = !a?.vector\n    derived f = !(i?.folder)\n    if !a?.vector && !i?.folder { Text(\"{r} {f}\") }"
+        )
+    ));
+    let src = format!(
+        "component C(a: Json) {{\n    if !a?.vector {{ Text(\"x\") }}\n}}\n{}",
+        page(
+            "    state items = []\n    derived cur = items.find(x => x.name == \"a\")\n    derived r = !cur?.off\n    C(a: Json.null)\n    Text(\"{r}\")"
+        )
+    );
+    assert!(with(&src, "T29").is_empty(), "{:?}", with(&src, "T29"));
+    for f in findings(&src) {
+        for fix in &f.fixes {
+            let after = webfluent::diagnostics::fixes::apply(&src, fix);
+            assert!(!after.contains("== null"), "{}: {after}", f.code);
+        }
+    }
 }
 
 #[test]
@@ -1501,6 +1548,29 @@ fn a_map_is_held_to_the_record_it_is_given_as_field_by_field() {
         "{types}{}",
         page(
             "    state u: User = User(id: \"0\", name: \"\")\n    state good = { id: \"1\", name: \"Ada\" }\n    Button(\"x\") { on click { u = good\n u = { ...u, name: \"Bo\" } } }\n    Text(u.name)"
+        )
+    ));
+}
+
+#[test]
+fn a_fallback_empty_list_takes_the_other_sides_type() {
+    // `dict[k] ?? []` is a `[String]`, in a lambda's result as anywhere:
+    // calling it gives a list of strings, and a map holding one is data.
+    let src = format!(
+        "type Guide {{ id: String }}\n{}",
+        page(
+            "    state dict: [String: [String]] = { a: [\"x\"] }\n    state guides: [String: [Guide]] = {}\n    derived f = (k: String) => dict[k.toLowerCase()] ?? []\n    derived g = (k: String) => guides[k] ?? []\n    derived h = dict[\"a\"] ?? []\n    derived n: Number = f(\"a\")\n    derived m: Number = g(\"a\")\n    derived o: Number = h\n    Text(\"{n} {m} {o}\")"
+        )
+    );
+    let found = with(&src, "T01");
+    assert_eq!(found.len(), 3, "{found:?}");
+    assert!(found[0].contains("is `[String]`"), "{found:?}");
+    assert!(found[1].contains("is `[Guide]`"), "{found:?}");
+    assert!(found[2].contains("is `[String]`"), "{found:?}");
+    clean(&format!(
+        "store S {{\n    state dict: [String: [String]] = {{ a: [\"x\"] }}\n    derived f = (k: String) => dict[k] ?? []\n    action send(j: Json) {{ log(j) }}\n}}\n{}",
+        page(
+            "    use S\n    Button(\"Go\") { on click { S.send({ hidden: S.f(\"a\"), shown: [], n: 1 }) } }"
         )
     ));
 }

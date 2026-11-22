@@ -799,10 +799,18 @@ impl LexerV2 {
         let symbol = self.current().to_string();
         self.advance();
         let mut amount = String::new();
-        while self.pos < self.source.len()
-            && (self.current().is_ascii_digit() || self.current() == '.')
-        {
-            amount.push(self.current());
+        // One decimal point, and only before a digit: the `.` of
+        // `€0.01.times(3)` is the method the literal is asked for.
+        while self.pos < self.source.len() {
+            let c = self.current();
+            let part = c.is_ascii_digit()
+                || (c == '.'
+                    && !amount.contains('.')
+                    && self.peek().is_some_and(|n| n.is_ascii_digit()));
+            if !part {
+                break;
+            }
+            amount.push(c);
             self.advance();
         }
         Token::new(TokenType::MoneyLiteral(symbol, amount), line, column)

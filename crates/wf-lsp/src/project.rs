@@ -232,6 +232,29 @@ impl FileCache {
 }
 
 impl Project {
+    /// The built-in a call of `name` draws — `Card`, or a part, `Card.Header`
+    /// — or `None` when the project declares a component of that name (or
+    /// of the part's owner): every call of the name draws the project's own
+    /// (`V11`), so what the editor says of it is the project's too.
+    pub fn builtin(&self, name: &str) -> Option<&'static webfluent::registry::ComponentSig> {
+        let owner = name.split_once('.').map_or(name, |(owner, _)| owner);
+        if self.declares_component(owner) {
+            return None;
+        }
+        match name.split_once('.') {
+            Some((owner, part)) => webfluent::registry::part(owner, part),
+            None => webfluent::registry::component(name),
+        }
+    }
+
+    /// Whether the project declares a component called `name`.
+    pub fn declares_component(&self, name: &str) -> bool {
+        self.program
+            .declarations
+            .iter()
+            .any(|d| matches!(d, Declaration::Component(c) if c.name == name))
+    }
+
     /// What the type checker makes of the program: worked out once for
     /// this project, then shared by every request that asks.
     /// Keep `types` as what the type checker makes of this project: the
@@ -518,6 +541,10 @@ impl Project {
         }
         let added = program.declarations.len() - before;
         decl_file.extend(std::iter::repeat_n(from_file.unwrap_or(0), added));
+        // A file read alone cannot know a component another file declares:
+        // across the project, a call of its name is the project's, as the
+        // build reads it.
+        webfluent::syntax::prefer_own_components(&mut program);
         let declarations = program.declarations;
 
         Project {

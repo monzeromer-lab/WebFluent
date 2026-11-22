@@ -1,5 +1,5 @@
 //! Validation as data, both ways, over every `validate` block the
-//! repository writes — its projects and the guide's examples: each block is
+//! repository writes — its projects and the programs the site's pages show: each block is
 //! read as the rows an inspector shows, in order and at their lines; read
 //! back and written unchanged it moves no byte; a rule added and taken out
 //! again gives the file back; a block is made beside its state and goes
@@ -19,7 +19,7 @@ use webfluent::validation::{
 };
 
 /// Every `.wf` source that holds a `validate` block: the projects' files,
-/// and each guide example that parses on its own.
+/// and each program a site page shows that parses on its own.
 fn sources() -> Vec<(String, String)> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut out = Vec::new();
@@ -46,15 +46,49 @@ fn sources() -> Vec<(String, String)> {
             }
         }
     }
-    for (name, text) in crate::common::guide_pages() {
-        for (i, block) in text.split("```wf\n").skip(1).enumerate() {
-            let code = format!("{}\n", block.split("\n```").next().unwrap_or(""));
-            if code.contains("validate ") && webfluent::parse_source(&code, "guide.wf").is_ok() {
-                out.push((format!("md-docs/{name}#{i}"), code));
+    // The guide's examples: each program a site page shows in a
+    // `DocsCodeBlock(#"…"#)`, a raw string, so its text is the program.
+    let mut pages: Vec<PathBuf> = vec![root.join("site/src/pages")];
+    while let Some(d) = pages.pop() {
+        let Ok(entries) = std::fs::read_dir(&d) else {
+            continue;
+        };
+        for e in entries.flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                pages.push(p);
+                continue;
+            }
+            let Ok(text) = std::fs::read_to_string(&p) else {
+                continue;
+            };
+            for (i, code) in shown_programs(&text).into_iter().enumerate() {
+                if code.contains("validate ") && webfluent::parse_source(&code, "guide.wf").is_ok()
+                {
+                    let rel = p.strip_prefix(root).unwrap_or(&p).to_string_lossy();
+                    out.push((format!("{rel}#{i}"), code));
+                }
             }
         }
     }
     out.sort();
+    out
+}
+
+/// The programs a site page shows: the raw string each
+/// `DocsCodeBlock(#"…"#)` opens with, however many `#` it takes.
+fn shown_programs(page: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for piece in page.split("DocsCodeBlock(").skip(1) {
+        let hashes = piece.chars().take_while(|c| *c == '#').count();
+        if hashes == 0 || !piece[hashes..].starts_with('"') {
+            continue;
+        }
+        let close = format!("\"{}", "#".repeat(hashes));
+        if let Some(end) = piece[hashes + 1..].find(&close) {
+            out.push(format!("{}\n", &piece[hashes + 1..hashes + 1 + end]));
+        }
+    }
     out
 }
 

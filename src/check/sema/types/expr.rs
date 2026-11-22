@@ -51,6 +51,13 @@ impl Checker<'_, '_> {
         {
             return self.json_case(case, None);
         }
+        // `Habitat.reedbed`: a case written with the enum it is of.
+        if let Expr::PropertyAccess(base, case) = expr
+            && let Expr::Identifier(name) = &**base
+            && self.is_enum_namespace(name)
+        {
+            return self.qualified_case(name, case, None);
+        }
         // `.ok(value)`, `.err(e)`: a result's cases, where one is wanted.
         if let Expr::EnumCase(case) | Expr::CaseValue(case, _) = expr
             && let Some(Type::Result(value, error)) = expected.map(Type::unwrapped)
@@ -442,10 +449,12 @@ impl Checker<'_, '_> {
                         })
                     }
                     // An empty list or map, or a bare case, says nothing of its
-                    // own: it is what the left side is.
+                    // own: it is what the left side is — whatever is wanted of
+                    // the whole, which the left side was read against already
+                    // (`{ hidden: names ?? [] }` given as `Json` is a list of
+                    // strings, not a list of nothing).
                     (BinOp::NullCoalesce, left)
-                        if side_wanted.is_none()
-                            && !left.is_any()
+                        if !left.is_any()
                             && matches!(&**r, Expr::ListLiteral(i) if i.is_empty())
                                 | matches!(&**r, Expr::MapLiteral(i) if i.is_empty())
                                 | matches!(&**r, Expr::EnumCase(_)) =>
@@ -558,10 +567,12 @@ impl Checker<'_, '_> {
                 }
                 Type::list(match item {
                     Some(item) => item,
-                    None if matches!(expected.map(Type::unwrapped), Some(Type::List(_))) => {
-                        Type::Any
-                    }
-                    None => self.hole(HoleKind::EmptyList, "[]"),
+                    // `[]` where a list of something is wanted is a list of
+                    // that: `names ?? []` stays a `[String]`.
+                    None => match expected.map(Type::unwrapped) {
+                        Some(Type::List(inner)) => *inner,
+                        _ => self.hole(HoleKind::EmptyList, "[]"),
+                    },
                 })
             }
             // A map literal has the shape it was written with; a spread inside
@@ -1675,6 +1686,33 @@ impl Checker<'_, '_> {
             && self.lookup(name).is_none()
             && !self.world.consts.contains_key(name)
             && !self.world.scripts.contains_key(name)
+    }
+
+    /// Whether `name`, where it is read, is a declared enum's — not a
+    /// value of the program's, nor the language's `Json` — so `name.case`
+    /// is one of its cases.
+    pub(super) fn is_enum_namespace(&self, name: &str) -> bool {
+        name != super::ty::JSON
+            && self.world.enums.contains_key(name)
+            && self.lookup(name).is_none()
+            && !self.world.consts.contains_key(name)
+            && !self.world.scripts.contains_key(name)
+            && !self.world.stores.contains_key(name)
+            && !self.world.apis.contains_key(name)
+    }
+
+    /// `Habitat.reedbed`, `Status.failed("x")`: the case, held to the
+    /// enum it names as `.reedbed` is where a `Habitat` is wanted — and a
+    /// case the enum lacks is reported wherever it is written.
+    pub(super) fn qualified_case(&mut self, name: &str, case: &str, args: Option<&[Expr]>) -> Type {
+        let written = match args {
+            Some(args) => Expr::CaseValue(case.to_string(), args.to_vec()),
+            None => Expr::EnumCase(case.to_string()),
+        };
+        let in_args = std::mem::replace(&mut self.in_args, false);
+        let ty = self.infer(&written, Some(&Type::Enum(name.to_string())));
+        self.in_args = in_args;
+        ty
     }
 
     /// `Json.null`, `Json.string("x")`: one of the cases of the language's

@@ -260,6 +260,37 @@ fn a_directory_is_one_template_with_its_data_files() {
     let _ = std::fs::remove_dir_all(&dir);
 }
 
+#[test]
+fn a_projects_own_stylesheets_come_with_its_templates() {
+    let dir = scratch("css");
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::create_dir_all(dir.join("build")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "q" }"#).unwrap();
+    std::fs::write(
+        dir.join("src/print.css"),
+        ".quote-total { color: #123456 }\n",
+    )
+    .unwrap();
+    // What a build wrote is not the project's own.
+    std::fs::write(dir.join("build/styles.css"), ".stale { color: red }\n").unwrap();
+    std::fs::write(
+        dir.join("src/pages/Quote.wf"),
+        "page Quote(path: \"/\", total: Number) {\n    Text(\"{total}\", class: \"quote-total\")\n    Text(\"x\") { style { color: #654321 } }\n}\n",
+    )
+    .unwrap();
+    let tpl = Template::from_dir(&dir).unwrap().page("Quote").unwrap();
+    let html = tpl.render_html(&json!({ "total": 3 })).unwrap();
+    let own = html
+        .find(".quote-total")
+        .expect("the project's sheet is in");
+    assert!(!html.contains(".stale"), "{html}");
+    // In a build's order: the author's sheet before the `style { }` rules.
+    assert!(own < html.find("#654321").unwrap(), "{html}");
+    let (css, _) = tpl.render_html_parts(&json!({ "total": 3 })).unwrap();
+    assert!(css.contains(".quote-total"));
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
 /// The text a PDF draws, every page, a line at a time.
 fn pdf_text(tpl: &Template, data: &serde_json::Value) -> String {
     let report = tpl.render_pdf_report(data).unwrap();
@@ -400,4 +431,31 @@ fn a_render_for_the_studio_marks_each_element_with_its_node_id() {
         2,
         "{marked}"
     );
+}
+
+/// `if let` and `else if let` choose as the browser does: a pattern by the
+/// case the value is, with its payload bound; a name when the value is not
+/// null — `0` and `""` included.
+#[test]
+fn if_let_matches_its_pattern_and_binds_what_is_not_null() {
+    let tpl = Template::from_str(
+        r#"type U { name: String }
+enum S { idle, done(n: Number) }
+page P(path: "/", title: "P", a: Bool, u: U?, s: S, count: Number?) {
+    if a { Text("is-a") } else if let v = u { Text("named {v.name}") } else if let .done(n) = s { Text("n={n}") } else { Text("none") }
+    if let c = count { Text("count={c}") }
+}
+"#,
+    )
+    .unwrap();
+    let render = |data: serde_json::Value| tpl.render_html_fragment(&data).unwrap();
+    let html = render(json!({ "a": false, "u": null, "s": ["done", 3], "count": 0 }));
+    assert!(html.contains("n=3") && html.contains("count=0"), "{html}");
+    let html = render(json!({ "a": false, "u": null, "s": "idle", "count": null }));
+    assert!(
+        html.contains("none") && !html.contains("n=") && !html.contains("count="),
+        "{html}"
+    );
+    let html = render(json!({ "a": false, "u": { "name": "Ada" }, "s": "idle", "count": null }));
+    assert!(html.contains("named Ada"), "{html}");
 }

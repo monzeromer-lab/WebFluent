@@ -2,7 +2,7 @@ use crate::base::text::camel_to_kebab;
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::project::builtin::{builtin_to_html, class_list, layout_arg_classes, span_class};
 use crate::project::config::project::{PdfConfig, SlidesConfig};
-use crate::syntax::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
+use crate::syntax::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, Pattern, PropDecl};
 use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
@@ -93,6 +93,10 @@ pub struct Template {
     /// for the studio: `data-wf-node`, and `data-wf-call` on what a
     /// component's call drew.
     studio: bool,
+    /// The author's own stylesheets: a project's `.css` files under
+    /// `src/`, as `wf build` bundles them, for a template read with
+    /// [`from_dir`](Template::from_dir).
+    project_css: Arc<str>,
 }
 
 impl std::fmt::Debug for Template {
@@ -169,7 +173,10 @@ impl Template {
     }
 
     /// Every `.wf` and `.wfx` file under `dir`, in path order, as one
-    /// template — a project's worth of components and pages, loaded once:
+    /// template — a project's worth of components and pages, loaded once.
+    /// Its own stylesheets come with it, as `wf build` bundles them: every
+    /// `.css` file under the project's `src/`, or under `dir` when it has
+    /// no `src/`:
     ///
     /// ```rust,no_run
     /// # use webfluent::Template;
@@ -212,7 +219,18 @@ impl Template {
         files.sort();
         let files: Vec<&Path> = files.iter().map(std::path::PathBuf::as_path).collect();
         // `data` files are read from the directory itself.
-        Self::load(&files, Some(dir))
+        let mut template = Self::load(&files, Some(dir))?;
+        // Its stylesheets, as a build bundles them: a project's `.css` files
+        // under `src/` (never its `build/` or `public/`), or every one under
+        // a directory of templates that is no project.
+        let sheets = if dir.join("src").is_dir() {
+            dir.join("src")
+        } else {
+            dir.to_path_buf()
+        };
+        template.project_css =
+            Arc::from(crate::web::codegen::project_css::bundle(dir, &sheets)?.as_str());
+        Ok(template)
     }
 
     /// Read `files` (a `.wfx` one through its braced spelling) and build
@@ -363,6 +381,7 @@ impl Template {
             slides: SlidesConfig::default(),
             root: root.map(std::path::Path::to_path_buf),
             studio: false,
+            project_css: Arc::from(""),
         })
     }
 
@@ -470,10 +489,13 @@ impl Template {
     }
 
     /// The stylesheet a rendered document links: the engine's sheet over the
-    /// template's tokens, plus the rules its pseudo-state and media blocks
-    /// compile to.
+    /// template's tokens, the project's own `.css` files, and the rules its
+    /// pseudo-state and media blocks compile to.
     fn stylesheet(&self) -> Result<String> {
         let mut css = generate_css(&self.tokens()?);
+        // In a build's order: the engine's rules, the author's sheets, then
+        // what `style { }` blocks compile to.
+        css.push_str(&self.project_css);
         css.push_str(&crate::project::scoped_css::scoped_rules(&self.program));
         Ok(css)
     }
@@ -498,7 +520,7 @@ impl Template {
     /// whatever it is given.
     fn input<T: Serialize + ?Sized>(&self, data: &T) -> Result<Value> {
         use crate::check::sema::types::shape::Shape;
-        let value = to_value(data)?;
+        let mut value = to_value(data)?;
         let drawn = self.drawn();
         let Some(page) = drawn.declarations.iter().find_map(|d| match d {
             Declaration::Page(p) => Some(p),
@@ -506,6 +528,30 @@ impl Template {
         }) else {
             return Ok(value);
         };
+        // Read as its type, a record the data gives is given each field it
+        // leaves out that has a default — as `Quote(…)` built in the
+        // program would be.
+        let defaults = crate::project::defaults::Defaults::of(&self.program.declarations);
+        if let Value::Object(given) = &mut value {
+            for p in &page.params {
+                if let Some(v) = given.get_mut(&p.name) {
+                    defaults.fill(v, &p.prop_type);
+                }
+            }
+            // And a read's value, `{ "users": { "loaded": [ … ] } }`.
+            for stmt in &page.body {
+                if let StatementKind::Resource(r) = &stmt.kind
+                    && let Some(loaded) = given
+                        .get_mut(&r.name)
+                        .and_then(|read| read.get_mut("loaded"))
+                    && let Some(ty) =
+                        r.ty.clone()
+                            .or_else(|| read_type(r, &self.program.declarations))
+                {
+                    defaults.fill(loaded, &ty);
+                }
+            }
+        }
         let shapes = crate::check::sema::types::shape::Shapes::of(&self.program.declarations);
         // A read's value in the data is held to the type the read declares:
         // `{ "users": { "loaded": [ … ] } }` for `resource users: [User]`.
@@ -776,8 +822,18 @@ impl Template {
 
     fn render_fragment(&self, data: &Value) -> Result<String> {
         let drawn = self.drawn();
+        // The document's language is the render's: what `locale` and `dir`
+        // read, and what `format` speaks.
+        let locale = self.document_lang();
         if !self.studio {
-            return render_program_fragment(&drawn, data);
+            return render_program_with(
+                &drawn,
+                data,
+                Rendering {
+                    locale,
+                    ..Rendering::default()
+                },
+            );
         }
         // The ids travel with this render's context, so nothing of one
         // render outlives it — a render that panics on a server's thread
@@ -791,6 +847,7 @@ impl Template {
             data,
             Rendering {
                 studio: Some(std::rc::Rc::new(nodes)),
+                locale,
                 ..Rendering::default()
             },
         )
@@ -1777,17 +1834,33 @@ fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext<'_>) ->
 
 fn render_if(if_stmt: &IfStmt, ctx: &mut RenderContext<'_>) -> String {
     let cond = ctx.eval_expr(&if_stmt.condition);
-    if is_truthy(&cond) {
-        // `if let p = post { … }`: the branch reads `p` as the value.
-        let Some(name) = &if_stmt.binding else {
-            return render_statements(&if_stmt.then_body, ctx);
-        };
-        let old = ctx.locals.insert(name.clone(), cond);
+    // `if let .done(n) = s { … }`: the branch when the value is that case,
+    // reading what the pattern binds; `if let p = post { … }` when the value
+    // is not null, reading it as `p`; a plain `if` when it is true.
+    let mut binds = Vec::new();
+    let taken = match (&if_stmt.pattern, &if_stmt.binding) {
+        (Some(pattern), _) => match_pattern(pattern, &cond, ctx, &mut binds),
+        (None, Some(name)) => {
+            binds.push((name.clone(), cond.clone()));
+            !cond.is_null()
+        }
+        (None, None) => is_truthy(&cond),
+    };
+    if taken {
+        let saved: Vec<_> = binds
+            .into_iter()
+            .map(|(name, v)| {
+                let old = ctx.locals.insert(name.clone(), v);
+                (name, old)
+            })
+            .collect();
         let html = render_statements(&if_stmt.then_body, ctx);
-        match old {
-            Some(v) => ctx.locals.insert(name.clone(), v),
-            None => ctx.locals.remove(name),
-        };
+        for (name, old) in saved.into_iter().rev() {
+            match old {
+                Some(v) => ctx.locals.insert(name, v),
+                None => ctx.locals.remove(&name),
+            };
+        }
         return html;
     }
     // Check else-if branches
@@ -2585,6 +2658,37 @@ fn value_to_string(val: &Value) -> String {
 
 /// The case of an enum value: a bare case is its name, a case with a payload
 /// the list `["case", …payload]`.
+/// Whether `value` is what `pattern` describes, with what it binds pushed
+/// to `binds`: a case is its name, or `[name, ...payload]` with a payload.
+fn match_pattern(
+    pattern: &Pattern,
+    value: &Value,
+    ctx: &mut RenderContext<'_>,
+    binds: &mut Vec<(String, Value)>,
+) -> bool {
+    match pattern {
+        Pattern::Bind(name) => {
+            binds.push((name.clone(), value.clone()));
+            true
+        }
+        Pattern::Wildcard => true,
+        Pattern::Literal(e) => ctx.eval_expr(e) == *value,
+        Pattern::Case(case, inner) => {
+            if case_of(value) != Value::String(case.clone()) {
+                return false;
+            }
+            let payload = match value {
+                Value::Array(items) => items.get(1..).unwrap_or_default(),
+                _ => &[],
+            };
+            inner.iter().enumerate().all(|(k, p)| {
+                let item = payload.get(k).cloned().unwrap_or(Value::Null);
+                match_pattern(p, &item, ctx, binds)
+            })
+        }
+    }
+}
+
 fn case_of(v: &Value) -> Value {
     match v {
         Value::Array(items) => items.first().cloned().unwrap_or(Value::Null),

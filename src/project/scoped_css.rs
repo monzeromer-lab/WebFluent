@@ -463,6 +463,155 @@ fn fnv1a(text: &str) -> u32 {
     hash
 }
 
+// ─── Image placeholders ──────────────────────────────────
+
+/// The class that paints an image's placeholder — its blurred copy or its
+/// average colour — under it until it arrives: `fill` is the `background`
+/// it stands for. A rule of the sheet ([`placeholder_rules`]) rather than a
+/// `style=` attribute, so a page of pictures keeps a policy without
+/// `'unsafe-inline'`; the runtime takes `wf-ph` off once the image lands.
+pub fn placeholder_class(fill: &str) -> String {
+    format!("wf-ph wf-ph-{:08x}", fnv1a(fill))
+}
+
+/// The `background` a placeholder of `kind` (`blur`, `color`) paints for an
+/// asset with this `placeholder` data URI and `color`, when it has one the
+/// sheet may carry.
+pub fn placeholder_fill(kind: &str, placeholder: &str, color: &str) -> Option<String> {
+    match kind {
+        "blur"
+            if placeholder.starts_with("data:image/")
+                && placeholder
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || "+/=:;,.-_".contains(c)) =>
+        {
+            Some(format!("url(\"{placeholder}\") center / cover no-repeat"))
+        }
+        "color"
+            if color.starts_with('#')
+                && color.len() > 1
+                && color[1..].chars().all(|c| c.is_ascii_hexdigit()) =>
+        {
+            Some(color.to_string())
+        }
+        _ => None,
+    }
+}
+
+/// The sheet's rules for every placeholder a static page may paint: each
+/// picture the build made (an `image`, or an `Image(src:)` it processed),
+/// in each kind an `Image` asks for. Nothing when no `Image` asks for one.
+pub fn placeholder_rules(program: &Program) -> String {
+    fn kinds_in(stmts: &[Statement], kinds: &mut BTreeSet<String>) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
+                if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Image") {
+                    for arg in &ui.args {
+                        match arg {
+                            Arg::Named(k, Expr::EnumCase(case)) if k == "placeholder" => {
+                                kinds.insert(case.clone());
+                            }
+                            // A kind chosen as the page runs may be either.
+                            Arg::Named(k, _) if k == "placeholder" => {
+                                kinds.insert("blur".to_string());
+                                kinds.insert("color".to_string());
+                            }
+                            _ => {}
+                        }
+                    }
+                    for m in &ui.modifiers {
+                        if matches!(m.as_str(), "blur" | "color") {
+                            kinds.insert(m.clone());
+                        }
+                    }
+                }
+                kinds_in(&ui.children, kinds);
+                for fill in &ui.slot_fills {
+                    kinds_in(&fill.body, kinds);
+                }
+            }
+            for body in stmt.kind.bodies() {
+                kinds_in(body, kinds);
+            }
+        }
+    }
+    fn assets_in(expr: &Expr, out: &mut Vec<(String, String)>) {
+        match expr {
+            Expr::MapLiteral(pairs) => {
+                let text = |name: &str| {
+                    pairs.iter().find_map(|(k, v)| match v {
+                        Expr::StringLiteral(s) if k == name => Some(s.clone()),
+                        _ => None,
+                    })
+                };
+                if let (Some(placeholder), Some(color), Some(_)) =
+                    (text("placeholder"), text("color"), text("src"))
+                {
+                    out.push((placeholder, color));
+                }
+                for (_, v) in pairs {
+                    assets_in(v, out);
+                }
+            }
+            Expr::ListLiteral(items) => items.iter().for_each(|e| assets_in(e, out)),
+            Expr::Typed(_, inner) => assets_in(inner, out),
+            _ => {}
+        }
+    }
+    fn assets_of_elements(stmts: &[Statement], out: &mut Vec<(String, String)>) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(ui) = &stmt.kind {
+                if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Image") {
+                    for arg in &ui.args {
+                        if let Arg::Positional(e) = arg {
+                            assets_in(e, out);
+                        }
+                    }
+                }
+                assets_of_elements(&ui.children, out);
+                for fill in &ui.slot_fills {
+                    assets_of_elements(&fill.body, out);
+                }
+            }
+            for body in stmt.kind.bodies() {
+                assets_of_elements(body, out);
+            }
+        }
+    }
+    let mut kinds = BTreeSet::new();
+    let mut assets = Vec::new();
+    for decl in &program.declarations {
+        match decl {
+            Declaration::Page(p) => {
+                kinds_in(&p.body, &mut kinds);
+                assets_of_elements(&p.body, &mut assets);
+            }
+            Declaration::Component(c) => {
+                kinds_in(&c.body, &mut kinds);
+                assets_of_elements(&c.body, &mut assets);
+            }
+            Declaration::App(a) => {
+                kinds_in(&a.body, &mut kinds);
+                assets_of_elements(&a.body, &mut assets);
+            }
+            Declaration::Const(c) => assets_in(&c.value, &mut assets),
+            _ => {}
+        }
+    }
+    let mut rules = BTreeSet::new();
+    for kind in &kinds {
+        for (placeholder, color) in &assets {
+            if let Some(fill) = placeholder_fill(kind, placeholder, color) {
+                rules.insert(format!(
+                    ".wf-ph.wf-ph-{:08x} {{ background: {fill}; }}\n",
+                    fnv1a(&fill)
+                ));
+            }
+        }
+    }
+    rules.into_iter().collect()
+}
+
 // ─── Responsive values ───────────────────────────────────
 
 /// The `@media` a condition means.

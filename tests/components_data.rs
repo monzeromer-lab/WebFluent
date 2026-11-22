@@ -428,3 +428,50 @@ fn a_built_in_says_what_each_prop_takes() {
     let said: serde_json::Value = serde_json::from_slice(&out.stdout).unwrap();
     assert_eq!(said, serde_json::to_value(&catalog).unwrap());
 }
+
+/// A component the project declares under a built-in's name — Halyard's
+/// own `Kbd` — is what every call of the name draws (`V11`), so the
+/// catalogue a tool reads (`wf components`, the studio's inspector)
+/// answers with the project's: its props, never the built-in's. The
+/// built-in stays reachable by name, as `wf registry` lists it.
+#[test]
+fn a_project_component_named_like_a_built_in_takes_its_place() {
+    let dir = Path::new("/wf-components-shadow");
+    let mut vfs = OverlayVfs::over_disk();
+    vfs.set(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "t" }"#.to_string(),
+    );
+    vfs.set(
+        dir.join("src/App.wf"),
+        "/// Ours.\ncomponent Kbd(_ keys: String, loud: Bool = false) { Text(keys) }\npage Home(path: \"/\", title: \"Home\") {\n    Kbd(\"mod+k\").loud\n}\n"
+            .to_string(),
+    );
+    let catalog = schema::of_project_via(&vfs, dir);
+    let kbd = catalog.get("Kbd").unwrap();
+    assert_eq!(kbd.source, "project");
+    assert_eq!(
+        kbd.props
+            .iter()
+            .map(|p| p.name.as_str())
+            .collect::<Vec<_>>(),
+        ["keys", "loud"]
+    );
+    assert_eq!(
+        catalog
+            .components
+            .iter()
+            .filter(|c| c.name == "Kbd")
+            .count(),
+        1,
+        "the built-in `Kbd` is not listed beside the project's"
+    );
+    // The rest of the built-ins are, and the built-in is still there by name.
+    assert_eq!(catalog.get("Button").unwrap().source, "builtin");
+    assert_eq!(schema::builtin("Kbd").unwrap().source, "builtin");
+    assert!(
+        schema::catalog(None)
+            .get("Kbd")
+            .is_some_and(|c| c.source == "builtin")
+    );
+}

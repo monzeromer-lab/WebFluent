@@ -5,7 +5,9 @@
   /// What is wrong with `value` against a declared type's shape — where,
   /// and what — or nothing. A shape is `"s"`, `"n"`, `"b"`, `"m"`, `"j"`
   /// (any JSON), `"*"`, `["?", s]`, `["l", s]`, `["d", s]`,
-  /// `["r", name, { field: s }]` or `["e", [cases]]`.
+  /// `["r", name, { field: s }]` or `["e", [cases]]`. A record's field with
+  /// a default is `["?", s, default]`: left out (or `null`), the value is
+  /// given the default, as a record the program builds is.
   function shapeFault(value, shape, at) {
     const what = (v) => Array.isArray(v) ? "a list" : v === null ? "null" : typeof v === "object" ? "a map" : JSON.stringify(v);
     if (shape === "*") return null;
@@ -34,7 +36,9 @@
       if (kind === "r") {
         if (typeof value !== "object" || Array.isArray(value)) return { at, message: "is " + what(value) + ", not a " + a };
         for (const field of Object.keys(b)) {
-          const wrong = shapeFault(value[field], b[field], at + "." + field);
+          const s = b[field];
+          if (value[field] == null && Array.isArray(s) && s[0] === "?" && s.length > 2) value[field] = JSON.parse(JSON.stringify(s[2]));
+          const wrong = shapeFault(value[field], s, at + "." + field);
           if (wrong) return wrong;
         }
         return null;

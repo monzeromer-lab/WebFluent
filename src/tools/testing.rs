@@ -125,10 +125,10 @@ pub fn collect(path: &Path) -> Result<Tests> {
     let mut declarations = program.declarations;
     let mut owners: Vec<String> = files;
     let mut own: HashMap<String, Vec<Declaration>> = HashMap::new();
-    // The test files: `tests/*.wf` and `tests/*.wfx`, or the one named.
-    let test_files: Vec<PathBuf> = if path.is_file() {
-        vec![path.to_path_buf()]
-    } else {
+    // The test files: `tests/*.wf` and `tests/*.wfx`, and the one named.
+    // Every one is read — a fake one declares serves the others' tests —
+    // and with a file named, only its tests run.
+    let test_files: Vec<PathBuf> = {
         let dir = project_dir.join("tests");
         let mut found = Vec::new();
         if dir.is_dir() {
@@ -140,16 +140,46 @@ pub fn collect(path: &Path) -> Result<Tests> {
             }
         }
         found.sort();
+        if path.is_file() {
+            let named = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+            let listed = found
+                .iter()
+                .any(|f| f.canonicalize().is_ok_and(|f| f == named));
+            if !listed {
+                found.push(named);
+            }
+        }
         found
     };
+    let only: Option<PathBuf> = path
+        .is_file()
+        .then(|| path.canonicalize().unwrap_or_else(|_| path.to_path_buf()));
+    let mut running: Vec<String> = Vec::new();
     for file in &test_files {
         let source = std::fs::read_to_string(file).at(file)?;
-        let name = file
-            .strip_prefix(&project_dir)
-            .unwrap_or(file)
+        let relative = file
+            .canonicalize()
+            .ok()
+            .zip(project_dir.canonicalize().ok())
+            .and_then(|(f, p)| f.strip_prefix(&p).ok().map(Path::to_path_buf));
+        let name = relative
+            .as_deref()
+            .unwrap_or_else(|| file.strip_prefix(&project_dir).unwrap_or(file))
             .to_string_lossy()
             .to_string();
-        let parsed = crate::syntax::parse_source(&source, &name)?;
+        if only
+            .as_ref()
+            .is_none_or(|o| file.canonicalize().is_ok_and(|f| f == *o))
+        {
+            running.push(name.clone());
+        }
+        // A file whose tests do not run is read for its fakes alone: one
+        // that does not parse is left to its own run to report.
+        let parsed = match crate::syntax::parse_source(&source, &name) {
+            Ok(parsed) => parsed,
+            Err(_) if !running.contains(&name) => continue,
+            Err(e) => return Err(e),
+        };
         own.insert(
             name.clone(),
             parsed
@@ -162,12 +192,26 @@ pub fn collect(path: &Path) -> Result<Tests> {
         owners.extend(parsed.declarations.iter().map(|_| name.clone()));
         declarations.extend(parsed.declarations);
     }
-    let tests: Vec<(String, TestDecl)> = declarations
+    // Every test, for what is checked of them; `tests` below is those run.
+    let all_tests: Vec<(String, TestDecl)> = declarations
         .iter()
         .zip(&owners)
         .filter_map(|(d, file)| match d {
             Declaration::Test(t) => Some((file.clone(), t.clone())),
             _ => None,
+        })
+        .collect();
+    // A seed is read as the state it seeds: a record it leaves a field of
+    // out has that field's default, as one the program builds does.
+    let defaults = crate::project::defaults::Defaults::of(&declarations);
+    let tests: Vec<(String, TestDecl)> = all_tests
+        .into_iter()
+        .filter(|(file, _)| only.is_none() || running.contains(file))
+        .map(|(file, mut test)| {
+            if let Some(data) = &mut test.data {
+                defaults.fill_seeds(data, &test.body, &declarations);
+            }
+            (file, test)
         })
         .collect();
     let mut shared: Vec<Declaration> = declarations
@@ -370,16 +414,44 @@ fn fake_faults(
         }));
     }
     // What a test names.
+    // A test's own file and the project come first; a fake another test
+    // file declares is the tests' too — they are one program — so a file of
+    // fakes serves every test that names one.
     let fake_decls = |file: &str| -> Vec<&crate::syntax::parser::ast::FakeDecl> {
-        declarations
+        let near = |f: &String| !own.contains_key(f) || f == file;
+        let all = || {
+            declarations
+                .iter()
+                .zip(owners)
+                .filter_map(|(d, f)| match d {
+                    Declaration::Fake(fake) => Some((fake, f)),
+                    _ => None,
+                })
+        };
+        let mut known: Vec<&crate::syntax::parser::ast::FakeDecl> =
+            all().filter(|(_, f)| near(f)).map(|(d, _)| d).collect();
+        for (d, f) in all() {
+            if !near(f) && !known.iter().any(|k| k.name == d.name) {
+                known.push(d);
+            }
+        }
+        known
+    };
+    // A fake no nearer file declares, which two other test files each do:
+    // which one is meant cannot be told.
+    let elsewhere = |file: &str, name: &str| -> Vec<&String> {
+        let mut files: Vec<&String> = declarations
             .iter()
             .zip(owners)
-            .filter(|(_, f)| !own.contains_key(*f) || *f == file)
-            .filter_map(|(d, _)| match d {
-                Declaration::Fake(f) => Some(f),
-                _ => None,
+            .filter(|(d, f)| {
+                own.contains_key(*f)
+                    && *f != file
+                    && matches!(d, Declaration::Fake(fake) if fake.name == name)
             })
-            .collect()
+            .map(|(_, f)| f)
+            .collect();
+        files.dedup();
+        files
     };
     let apis: Vec<&crate::syntax::parser::ast::ApiDecl> = declarations
         .iter()
@@ -429,6 +501,27 @@ fn fake_faults(
                 ));
                 continue;
             };
+            let near = declarations.iter().zip(owners).any(|(d, f)| {
+                (!own.contains_key(f) || f == file)
+                    && matches!(d, Declaration::Fake(x) if x.name == *name)
+            });
+            let others = elsewhere(file, name);
+            if !near && others.len() > 1 {
+                out.push(at(
+                    "N06",
+                    format!(
+                        "test \"{}\" names the fake `{name}`, which {} each declare",
+                        test.name,
+                        others
+                            .iter()
+                            .map(|f| format!("`{f}`"))
+                            .collect::<Vec<_>>()
+                            .join(" and ")
+                    ),
+                    "Keep one fake of a name among the test files, or declare it beside the test",
+                ));
+                continue;
+            }
             for a in &fake.answers {
                 let endpoint = format!("{}.{}", fake.target, a.endpoint);
                 if let Some((_, first)) = answered.iter().find(|(e, _)| *e == endpoint) {
@@ -590,13 +683,46 @@ impl Tests {
                     .find(|(_, t)| t.name == test.name && t.span == test.span)
             })
             .map(|(file, _)| file.as_str());
-        self.declarations_in(file)
+        self.declarations_in(file, &test.fakes)
     }
 
-    fn declarations_in(&self, file: Option<&str>) -> Vec<Declaration> {
+    /// The project's declarations and `file`'s own, and — for a fake of
+    /// `fakes` neither has — the test file that declares it, with what it
+    /// declares beside it that the test does not already have.
+    fn declarations_in(&self, file: Option<&str>, fakes: &[String]) -> Vec<Declaration> {
         let mut all = self.shared.clone();
         if let Some(own) = file.and_then(|f| self.own.get(f)) {
             all.extend(own.iter().cloned());
+        }
+        let mut others: Vec<(&String, &Vec<Declaration>)> = self
+            .own
+            .iter()
+            .filter(|(f, _)| Some(f.as_str()) != file)
+            .collect();
+        others.sort_by_key(|(f, _)| *f);
+        for name in fakes {
+            let has = |all: &[Declaration]| {
+                all.iter()
+                    .any(|d| matches!(d, Declaration::Fake(f) if f.name == *name))
+            };
+            if has(&all) {
+                continue;
+            }
+            let Some((_, decls)) = others.iter().find(|(_, decls)| has(decls)) else {
+                continue;
+            };
+            for d in *decls {
+                let taken = match crate::check::edit::declaration_name(d) {
+                    Some(n) => all
+                        .iter()
+                        .any(|a| crate::check::edit::declaration_name(a) == Some(n)),
+                    None => false,
+                };
+                let wanted = !matches!(d, Declaration::Fake(f) if !fakes.contains(&f.name));
+                if !taken && wanted {
+                    all.push(d.clone());
+                }
+            }
         }
         all
     }
@@ -623,7 +749,7 @@ impl Tests {
         let locale = self.locale();
         let literals = self.i18n.as_ref().is_some_and(|(i, _)| i.literals);
         match run_one(
-            &self.declarations_in(Some(file)),
+            &self.declarations_in(Some(file), &test.fakes),
             test,
             &self.snapshots,
             file,
@@ -1232,6 +1358,42 @@ pub fn visible_text(page: &mut dyn Page) -> Result<String> {
     Ok(value.as_str().unwrap_or_default().to_string())
 }
 
+/// The steps a test's body may hold, read from `source` — `click "Save"`,
+/// `type "Ada" into "Name"`, `press "Enter"`, `expect "Saved"` — as a test
+/// writes them, for a command that plays them on a page of its own
+/// (`wf inspect --do`).
+///
+/// # Errors
+///
+/// The parser's error when `source` is not steps.
+pub fn parse_steps(source: &str) -> Result<Vec<Step>> {
+    // A test must expect something; the steps alone are what was asked for,
+    // so an expectation is added to read them and taken off after.
+    let program = crate::syntax::parse_source(
+        &format!("test \"steps\" {{\n{source}\nexpect not \"wf-inspect-unseen\"\n}}\n"),
+        "--do",
+    )?;
+    let mut steps = program
+        .declarations
+        .into_iter()
+        .find_map(|d| match d {
+            Declaration::Test(t) => Some(t.steps),
+            _ => None,
+        })
+        .unwrap_or_default();
+    steps.pop();
+    Ok(steps)
+}
+
+/// `step_one`, for a command that drives a page of its own.
+///
+/// # Errors
+///
+/// What `step_one` returns.
+pub fn play_step(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), String>> {
+    step_one(page, step)
+}
+
 /// One step, against the open page.
 fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), String>> {
     let text = |e: &Expr| {
@@ -1326,7 +1488,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
             // Every endpoint the page asked, as the runtime counted them
             // when a fake answered — or no fake did.
             let read = format!(
-                "(window.__wfCalls || []).includes({})",
+                "(window.__wfCalls || (() => {{ try {{ return JSON.parse(sessionStorage.getItem('wf:calls') || '[]'); }} catch (e) {{ return []; }} }})()).includes({})",
                 serde_json::to_string(endpoint).unwrap_or_default()
             );
             let called = |page: &mut dyn Page| -> Result<bool> {
@@ -1500,11 +1662,52 @@ fn as_program(shared: &[Declaration], test: &TestDecl) -> Program {
     one_page(
         shared,
         &test.name,
-        seeded(&test.body, test.data.as_ref()),
+        with_data(shared, &test.body, test.data.as_ref()),
         &test.fakes,
         test.data.as_ref(),
         test.span,
     )
+}
+
+/// The test's body with its `data` in it, as a render reads it: a `state`
+/// (or `derived` value) the data names starts at the data's value, and a
+/// name the data gives that nothing declares — `data: { s: … }` for a body
+/// that places `Tile(s)` — is a `state` of the body, read by name as the
+/// render reads it. A store's name is the store's seed ([`one_page`]).
+fn with_data(shared: &[Declaration], body: &[Statement], data: Option<&Expr>) -> Vec<Statement> {
+    let mut body = seeded(body, data);
+    let Some(Expr::MapLiteral(pairs)) = data else {
+        return body;
+    };
+    let declared = |name: &str| {
+        body.iter().any(|s| match &s.kind {
+            StatementKind::State(st) => st.name == name,
+            StatementKind::Derived(d) => d.name == name,
+            _ => false,
+        }) || shared
+            .iter()
+            .any(|d| crate::check::edit::declaration_name(d) == Some(name))
+    };
+    let given: Vec<Statement> = pairs
+        .iter()
+        .map(|(k, v)| (k.trim_matches('"'), v))
+        .filter(|(k, _)| !declared(k))
+        .map(|(k, v)| {
+            Statement::new(
+                StatementKind::State(crate::syntax::parser::ast::StateDecl {
+                    name: k.to_string(),
+                    ty: None,
+                    value: v.clone(),
+                    persist: false,
+                    policy: None,
+                    doc: None,
+                }),
+                crate::syntax::parser::ast::Span::default(),
+            )
+        })
+        .collect();
+    body.splice(0..0, given);
+    body
 }
 
 /// An example as a site of one page, written under `dir`: the project's
@@ -1566,6 +1769,12 @@ fn one_page(
                 }
                 Declaration::Store(store)
             }
+            // A component's own state — a page's, placed by its name — is
+            // seeded by name too, as a render seeds every body's.
+            Declaration::Component(mut c) => {
+                c.body = seeded(&c.body, data);
+                Declaration::Component(c)
+            }
             other => other,
         })
         .collect();
@@ -1599,20 +1808,40 @@ fn one_page(
 
 /// The body, with any `state` the test's `data` names starting at that
 /// value — the same seeding a rendered test gets, for the one thing a built
-/// page can take it from.
+/// page can take it from. A `derived` value the data names is the data's,
+/// as in a render: a `state` that starts there.
 fn seeded(body: &[Statement], data: Option<&Expr>) -> Vec<Statement> {
     let Some(Expr::MapLiteral(pairs)) = data else {
         return body.to_vec();
     };
+    let given = |name: &str| {
+        pairs
+            .iter()
+            .find(|(k, _)| k.trim_matches('"') == name)
+            .map(|(_, v)| v.clone())
+    };
     body.iter()
         .map(|stmt| {
             let mut stmt = stmt.clone();
-            if let StatementKind::State(state) = &mut stmt.kind
-                && let Some((_, value)) = pairs
-                    .iter()
-                    .find(|(k, _)| k.trim_matches('"') == state.name)
-            {
-                state.value = value.clone();
+            match &mut stmt.kind {
+                StatementKind::State(state) => {
+                    if let Some(value) = given(&state.name) {
+                        state.value = value;
+                    }
+                }
+                StatementKind::Derived(d) if !matches!(d.value, Expr::Lambda(..)) => {
+                    if let Some(value) = given(&d.name) {
+                        stmt.kind = StatementKind::State(crate::syntax::parser::ast::StateDecl {
+                            name: d.name.clone(),
+                            ty: d.ty.clone(),
+                            value,
+                            persist: false,
+                            policy: None,
+                            doc: d.doc.clone(),
+                        });
+                    }
+                }
+                _ => {}
             }
             stmt
         })
@@ -1707,6 +1936,12 @@ const FIND: &str = r#"
   // ones, or more than one a reader could mean.
   const missing = () => (seen.hidden > 0 ? "hidden:" + seen.hidden : "none");
   const many = () => (seen.reachable > 1 ? "many:" + seen.reachable : null);
+  // A reader brings what they act on into view first: a control below the
+  // fold is scrolled to, so what it opens (a popconfirm, a menu) is drawn
+  // on the screen, at it, as it would be for them.
+  const inView = (el) => {
+    if (el && el.scrollIntoView && el !== document.body) el.scrollIntoView({ block: "center", inline: "nearest", behavior: "instant" });
+  };
 "#;
 
 const ACT: &str = r#"
@@ -1717,6 +1952,7 @@ const ACT: &str = r#"
     const el = find(name, "button, a, [role=button], [role=link], [role=tab], [role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option], [role=treeitem], [role=switch], [role=checkbox], [role=radio], input, select, summary, label, [onclick]");
     if (!el) return missing();
     if (many()) return many();
+    inView(el);
     // A real press puts the focus on what it presses, when that can take
     // it — so a key pressed next goes there, as it would for a reader.
     if (el.focus && el.matches && el.matches("button, a[href], input, select, textarea, summary, [tabindex]")) el.focus({ preventScroll: true });
@@ -1727,6 +1963,7 @@ const ACT: &str = r#"
     const el = find(name, "input, textarea, select");
     if (!el) return missing();
     if (many()) return many();
+    inView(el);
     el.focus();
     if (el.tagName === "SELECT") {
       // A select is chosen by what the reader sees: an option's text, or
@@ -1751,6 +1988,7 @@ const ACT: &str = r#"
     const el = name ? find(name, "input, textarea, select, button, a, [tabindex]") : (document.activeElement || document.body);
     if (!el) return missing();
     if (name && many()) return many();
+    if (name) inView(el);
     // `press "ctrl+k"`, `press "mod+shift+p"`: the modifiers held with the
     // key, read as `on key("…")` reads them — `mod` is ⌘ on a Mac and Ctrl
     // elsewhere — and the key's short names (`esc`, `down`, `space`).

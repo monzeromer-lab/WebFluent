@@ -214,6 +214,30 @@ fn t25_writes_the_type_the_body_assigns() {
     clean(&twice);
 }
 
+#[test]
+fn t25_names_only_types_the_program_has() {
+    // `live` is assigned a list of `items`' items, and `items` is found to
+    // hold `Deploy`s: `live` holds them too. `other` is assigned only `[]`,
+    // which says nothing — its hint names no type the program lacks.
+    let src = "store Deploys {\n    state items = []\n    state live = []\n    state other = []\n    action refresh() { live = items.filter(d => d.status == .live) }\n    action add(d: Deploy) { items = items.concat([d]) }\n    action clear() {\n        live = []\n        other = []\n    }\n}\ntype Deploy { id: String, status: Status = .queued }\nenum Status { queued, live }\n";
+    let found = diagnostics(src, &[]);
+    let hints: Vec<String> = found
+        .iter()
+        .filter(|d| d.code == "T25")
+        .map(|d| d.hint.clone().unwrap_or_default())
+        .collect();
+    assert_eq!(hints.len(), 3, "{hints:#?}");
+    assert!(hints[0].contains("`state items: [Deploy]"), "{hints:#?}");
+    assert!(hints[1].contains("`state live: [Deploy]"), "{hints:#?}");
+    assert!(hints[2].contains("`state other: [T] = []`"), "{hints:#?}");
+    for hint in &hints {
+        assert!(!hint.contains("Todo"), "{hints:#?}");
+    }
+    let once = fixed(src, &[], "T25", "t.wf");
+    let twice = fixed(&once, &[], "T25", "t.wf");
+    assert!(twice.contains("state live: [Deploy] = []"), "{twice}");
+}
+
 // ─── A parameter written with no type ─────────────────────────────────
 
 #[test]

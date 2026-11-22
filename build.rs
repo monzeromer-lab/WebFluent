@@ -22,7 +22,7 @@ fn main() {
     }
     println!("cargo:rustc-env=WF_SOURCE_FINGERPRINT={hash:016x}");
     println!("cargo:rerun-if-changed=src");
-    guide();
+    explanations();
     capabilities();
 }
 
@@ -47,65 +47,39 @@ fn capabilities() {
     }
 }
 
-// The guide, every `md-docs/**/*.md`, listed for `include_str!`, so `wf`
-// carries the pages of exactly the compiler it was built from
-// (`agent::guide`). A page is named by its path under `md-docs/`
-// (`learn/07-state-and-reactivity.md`).
-fn guide() {
-    let dir = Path::new("md-docs");
-    println!("cargo:rerun-if-changed=md-docs");
+// Each code's explanation, `src/diagnostics/explain/T05.md`, for
+// `wf explain` and the editor (`diagnostics::codes::guide_section`).
+fn explanations() {
+    let dir = Path::new("src/diagnostics/explain");
+    println!("cargo:rerun-if-changed=src/diagnostics/explain");
     let mut paths = Vec::new();
     walk(dir, &mut paths);
-    let mut names: Vec<String> = paths
+    let mut codes: Vec<String> = paths
         .iter()
         .filter(|p| p.extension().is_some_and(|x| x == "md"))
-        .filter_map(|p| p.strip_prefix(dir).ok())
-        .map(|p| p.to_string_lossy().replace('\\', "/"))
+        .filter_map(|p| p.file_stem().map(|s| s.to_string_lossy().into_owned()))
+        .filter(|code| {
+            code.chars().next().is_some_and(|c| c.is_ascii_uppercase())
+                && code[1..].chars().all(|c| c.is_ascii_digit())
+        })
         .collect();
-    names.sort();
+    codes.sort();
     let root = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
-    let mut out = String::from(
-        "/// Every page of `md-docs/`, by its path there, in path order.\npub(crate) static FILES: &[(&str, &str)] = &[\n",
-    );
-    for name in &names {
-        let path = Path::new(&root).join("md-docs").join(name);
-        println!("cargo:rerun-if-changed={}", path.display());
-        out.push_str(&format!(
-            "    ({name:?}, include_str!({:?})),\n",
-            path.display().to_string()
-        ));
-    }
-    out.push_str("];\n");
-    let out_dir = std::env::var("OUT_DIR").unwrap_or_default();
-    std::fs::write(Path::new(&out_dir).join("guide_files.rs"), out)
-        .expect("write the guide's list");
-
-    // Each code's page, `md-docs/errors/T05.md`, for `wf explain` and the
-    // editor (`diagnostics::codes::guide_section`).
     let mut pages = String::from(
-        "/// Every code's page under `md-docs/errors/`, by code.\npub(crate) static ERROR_PAGES: &[(&str, &str)] = &[\n",
+        "/// Every code's explanation under `src/diagnostics/explain/`, by code.\npub(crate) static ERROR_PAGES: &[(&str, &str)] = &[\n",
     );
-    for name in &names {
-        let Some(code) = name
-            .strip_prefix("errors/")
-            .and_then(|n| n.strip_suffix(".md"))
-        else {
-            continue;
-        };
-        if !code.chars().next().is_some_and(|c| c.is_ascii_uppercase())
-            || !code[1..].chars().all(|c| c.is_ascii_digit())
-        {
-            continue;
-        }
-        let path = Path::new(&root).join("md-docs").join(name);
+    for code in &codes {
+        let path = Path::new(&root).join(dir).join(format!("{code}.md"));
+        println!("cargo:rerun-if-changed={}", path.display());
         pages.push_str(&format!(
             "    ({code:?}, include_str!({:?})),\n",
             path.display().to_string()
         ));
     }
     pages.push_str("];\n");
+    let out_dir = std::env::var("OUT_DIR").unwrap_or_default();
     std::fs::write(Path::new(&out_dir).join("error_pages.rs"), pages)
-        .expect("write the error pages' list");
+        .expect("write the explanations' list");
 }
 
 fn walk(dir: &Path, out: &mut Vec<std::path::PathBuf>) {

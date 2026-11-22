@@ -42,6 +42,9 @@ pub enum Kind {
         columns: usize,
         header_rows: usize,
         row_styles: Vec<Rc<Style>>,
+        /// The rows, first to last, that a row group asking `break-inside:
+        /// avoid` holds: kept on one page when they fit on one.
+        kept: Vec<(usize, usize)>,
     },
     Cell {
         row: usize,
@@ -152,6 +155,9 @@ pub struct Builder<'a> {
     /// Each picture read so far, by its address: one picture a document
     /// shows on every row is read, decoded and embedded once.
     loaded: std::collections::HashMap<String, Option<usize>>,
+    /// The CSS counters in scope, by name: what `counter(name)` in
+    /// generated text writes.
+    counters: std::collections::HashMap<String, i64>,
 }
 
 impl std::fmt::Debug for Builder<'_> {
@@ -205,6 +211,7 @@ impl<'a> Builder<'a> {
             page_vars: None,
             keep_running: false,
             loaded: std::collections::HashMap::new(),
+            counters: std::collections::HashMap::new(),
         }
     }
 
@@ -323,7 +330,7 @@ impl<'a> Builder<'a> {
         let Some(ps) = self.styler.compute_pseudo(self.dom, node, style, before) else {
             return;
         };
-        let text = ps.content.clone().unwrap_or_default();
+        let text = self.with_counters(ps.content.as_deref().unwrap_or_default());
         if text.is_empty()
             && ps.background_color.a == 0.0
             && !ps.border.iter().any(super::style::BorderSide::visible)
@@ -365,6 +372,30 @@ impl<'a> Builder<'a> {
                 out.push(b);
             }
         }
+    }
+
+    /// Generated text with each `counter(name)` its counter's value (0 for
+    /// one no element has started).
+    fn with_counters(&self, text: &str) -> String {
+        use super::cascade::{COUNTER_CLOSE, COUNTER_OPEN};
+        let mut out = String::new();
+        let mut rest = text;
+        while let Some(at) = rest.find(COUNTER_OPEN) {
+            out.push_str(&rest[..at]);
+            let after = &rest[at + COUNTER_OPEN.len_utf8()..];
+            let end = after.find(COUNTER_CLOSE).unwrap_or(after.len());
+            out.push_str(
+                &self
+                    .counters
+                    .get(&after[..end])
+                    .copied()
+                    .unwrap_or(0)
+                    .to_string(),
+            );
+            rest = after.get(end + COUNTER_CLOSE.len_utf8()..).unwrap_or("");
+        }
+        out.push_str(rest);
+        out
     }
 
     /// Turn the pending inline content into a paragraph box.
@@ -463,59 +494,94 @@ impl<'a> Builder<'a> {
                 if style.display == Display::None {
                     return;
                 }
-                if tag == "br" {
-                    items.push(Item::Break {
-                        style: Rc::new(style),
-                    });
-                    return;
+                // Its counters start and move on before its content is
+                // built; the ones it starts again are the outer ones once
+                // it ends.
+                let outer: Vec<(String, Option<i64>)> = style
+                    .counter_reset
+                    .iter()
+                    .map(|(name, _)| (name.clone(), self.counters.get(name).copied()))
+                    .collect();
+                for (name, n) in &style.counter_reset {
+                    self.counters.insert(name.clone(), *n);
                 }
-                if style.display == Display::Contents {
-                    let kids = self.dom.nodes[node].children.clone();
-                    for k in kids {
-                        self.child(k, &style, ctx, span, items, out);
-                    }
-                    return;
+                for (name, step) in &style.counter_increment {
+                    *self.counters.entry(name.clone()).or_insert(0) += step;
                 }
-                let replaced = matches!(tag.as_str(), "img" | "svg" | "progress" | "i")
-                    && self.is_replaced(node);
-                let inline = style.display == Display::Inline && !replaced;
-                if inline && ctx == Ctx::Flow {
-                    // An inline element: its text joins the paragraph, styled.
-                    let href = el.attr("href").map(std::string::ToString::to_string);
-                    let st = Rc::new(style.clone());
-                    self.tree.spans.push(Span {
-                        style: st,
-                        href,
-                        node,
-                    });
-                    let my_span = self.tree.spans.len() - 1;
-                    self.pseudo(node, &style, true, ctx, items, out);
-                    let kids = self.dom.nodes[node].children.clone();
-                    for k in kids {
-                        self.child(k, &style, ctx, Some(my_span), items, out);
-                    }
-                    self.pseudo(node, &style, false, ctx, items, out);
-                    return;
-                }
-                let atom = ctx == Ctx::Flow
-                    && (style.display.is_inline_level()
-                        || replaced && style.display == Display::Inline);
-                if !atom {
-                    self.flush(items, parent, out);
-                }
-                let Some(b) = self.element(node, style, parent) else {
-                    return;
-                };
-                if atom {
-                    let st = Rc::clone(&self.tree.boxes[b].style);
-                    items.push(Item::Atom {
-                        boxed: b,
-                        style: st,
-                    });
-                } else {
-                    out.push(b);
+                self.element_child(node, &tag, style, parent, ctx, span, items, out);
+                for (name, was) in outer {
+                    match was {
+                        Some(n) => self.counters.insert(name, n),
+                        None => self.counters.remove(&name),
+                    };
                 }
             }
+        }
+    }
+
+    /// [`child`](Self::child) for an element, its style worked out.
+    #[expect(clippy::too_many_arguments, reason = "the walk's state, handed on")]
+    fn element_child(
+        &mut self,
+        node: usize,
+        tag: &str,
+        style: Style,
+        parent: &Style,
+        ctx: Ctx,
+        span: Option<usize>,
+        items: &mut Vec<Item>,
+        out: &mut Vec<usize>,
+    ) {
+        let el = self.dom.element(node).expect("an element");
+        if tag == "br" {
+            items.push(Item::Break {
+                style: Rc::new(style),
+            });
+            return;
+        }
+        if style.display == Display::Contents {
+            let kids = self.dom.nodes[node].children.clone();
+            for k in kids {
+                self.child(k, &style, ctx, span, items, out);
+            }
+            return;
+        }
+        let replaced = matches!(tag, "img" | "svg" | "progress" | "i") && self.is_replaced(node);
+        let inline = style.display == Display::Inline && !replaced;
+        if inline && ctx == Ctx::Flow {
+            // An inline element: its text joins the paragraph, styled.
+            let href = el.attr("href").map(std::string::ToString::to_string);
+            let st = Rc::new(style.clone());
+            self.tree.spans.push(Span {
+                style: st,
+                href,
+                node,
+            });
+            let my_span = self.tree.spans.len() - 1;
+            self.pseudo(node, &style, true, ctx, items, out);
+            let kids = self.dom.nodes[node].children.clone();
+            for k in kids {
+                self.child(k, &style, ctx, Some(my_span), items, out);
+            }
+            self.pseudo(node, &style, false, ctx, items, out);
+            return;
+        }
+        let atom = ctx == Ctx::Flow
+            && (style.display.is_inline_level() || replaced && style.display == Display::Inline);
+        if !atom {
+            self.flush(items, parent, out);
+        }
+        let Some(b) = self.element(node, style, parent) else {
+            return;
+        };
+        if atom {
+            let st = Rc::clone(&self.tree.boxes[b].style);
+            items.push(Item::Atom {
+                boxed: b,
+                style: st,
+            });
+        } else {
+            out.push(b);
         }
     }
 
@@ -790,6 +856,20 @@ impl<'a> Builder<'a> {
         // Header rows first, as a browser draws them.
         rows.sort_by_key(|(_, head)| !*head);
         let header_rows = rows.iter().filter(|(_, h)| *h).count();
+        // A body (or a foot) that is not to break: the rows it holds.
+        let kept: Vec<(usize, usize)> = groups
+            .iter()
+            .filter(|(_, gs)| gs.break_inside == super::style::Break::Avoid)
+            .filter_map(|(g, _)| {
+                let mine = rows
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, (tr, _))| dom.nodes[*tr].parent == Some(*g))
+                    .map(|(i, _)| i);
+                let first = mine.clone().min()?;
+                Some((first, mine.max()?))
+            })
+            .collect();
         let mut cells = Vec::new();
         let mut row_styles = Vec::new();
         let mut occupied: Vec<Vec<bool>> = Vec::new();
@@ -859,6 +939,7 @@ impl<'a> Builder<'a> {
                 columns,
                 header_rows,
                 row_styles,
+                kept,
             },
             children: cells,
             node: Some(node),

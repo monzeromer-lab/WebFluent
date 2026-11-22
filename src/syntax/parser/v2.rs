@@ -3207,8 +3207,9 @@ impl ParserV2 {
         }))
     }
 
-    /// `if [let x [= e]] cond { … } else if … else { … }` — in a render
-    /// block the bodies hold elements, in an imperative one statements.
+    /// `if [let x [= e]] cond { … } else if [let …] … else { … }` — in a
+    /// render block the bodies hold elements, in an imperative one
+    /// statements.
     fn parse_if(&mut self, imperative: bool) -> Result<StatementKind> {
         self.expect_word("if")?;
         let mut pattern = None;
@@ -3234,6 +3235,15 @@ impl ParserV2 {
         let mut else_if_branches = Vec::new();
         let mut else_body = None;
         while self.eat_word("else") {
+            if self.is_word("if") && self.is_word_at(1, "let") {
+                // `else if let …` is `else { if let … }`: the nested `if`
+                // binds its name in its own branch and takes the rest of
+                // the chain as its own `else if`s and `else`.
+                let mark = self.mark();
+                let nested = self.parse_if(imperative)?;
+                else_body = Some(vec![Statement::new(nested, self.span_since(mark))]);
+                break;
+            }
             if self.eat_word("if") {
                 let cond = self.parse_expression()?;
                 let body = self.parse_branch(imperative)?;

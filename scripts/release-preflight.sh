@@ -45,10 +45,10 @@ if [ "$have" = "$version" ] && grep -q "the reference of WebFluent $version" "$s
 else
     fail "$skill is ${have:-unversioned}, but the tag is $tag. Bump it with \`just bump $version\`."
 fi
-if cmp -s AGENTS.md skills/writing-webfluent/references/language.md; then
-    ok "the skill's references/language.md is this AGENTS.md"
+if cargo test --quiet --test it the_writing_webfluent_skill_is_true_of_this_version >/dev/null 2>&1; then
+    ok "the skill's reference sections are this AGENTS.md's"
 else
-    fail "skills/writing-webfluent/references/language.md is not AGENTS.md. \`just bump\` copies it."
+    fail "skills/writing-webfluent/references/language/ is not this AGENTS.md's. \`just bump\` writes it."
 fi
 
 # 1b. The Node binding is published at the compiler's version.

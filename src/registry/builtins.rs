@@ -2294,7 +2294,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Some(special("label", PropType::Str, "The visible label")),
         &[special(
             "value",
-            PropType::Ty("String or Number or Bool"),
+            PropType::Ty("String or Number or Bool or Bound"),
             "The value `bind` takes when this one is chosen; the label when absent",
         )],
         G,
@@ -2309,7 +2309,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Some(special("label", PropType::Str, "The visible label")),
         &[special(
             "value",
-            PropType::Ty("String or Number or Bool"),
+            PropType::Ty("String or Number or Bool or Bound"),
             "The value sent with the form",
         )],
         &[],
@@ -2340,7 +2340,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             BIND,
             special(
                 "value",
-                PropType::Ty("String or Number or Bool"),
+                PropType::Ty("String or Number or Bool or Bound"),
                 "The value `bind` takes when this one is chosen",
             ),
             CHECKED,
@@ -3114,7 +3114,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One choice: its words, and the value `bind:` holds when it is chosen.",
         Some(required(special("label", PropType::Str, "Its words"))),
         &[
-            required(special("value", PropType::Ty("String or Number or Bool"), "What `bind:` holds when it is chosen")),
+            required(special("value", PropType::Ty("String or Number or Bool or Bound"), "What `bind:` holds when it is chosen")),
             special("icon", PropType::Str, "An icon before the words"),
             DISABLED,
         ],
@@ -3146,7 +3146,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One choice: its words, its value, and a hint said with it.",
         Some(required(special("label", PropType::Str, "Its words"))),
         &[
-            required(special("value", PropType::Ty("String or Number or Bool"), "What `bind:` holds when it is chosen")),
+            required(special("value", PropType::Ty("String or Number or Bool or Bound"), "What `bind:` holds when it is chosen")),
             special("hint", PropType::Str, "A line beneath it, read with it"),
         ],
         G,
@@ -3229,6 +3229,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special("step", PropType::Num, "How far a press moves it (unset, 1)"),
             LABEL,
             HINT,
+            special("decrease", PropType::Str, "The − button's name (unset, `Decrease`)"),
+            special("increase", PropType::Str, "The + button's name (unset, `Increase`)"),
         ],
         &["Decrease", "Increase"],
         G,
@@ -3261,6 +3263,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special("max", PropType::Ty("Date"), "The last day that can be chosen"),
             special("disabled", PropType::Ty("[Date] or (Date) -> Bool"), "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`"),
             special("label", PropType::Str, "Its name for a screen reader; unset, `Calendar`"),
+            special("previous", PropType::Str, "The previous month button's name (unset, `Previous month`)"),
+            special("next", PropType::Str, "The next month button's name (unset, `Next month`)"),
         ],
         &[],
         G,
@@ -3294,7 +3298,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "One option: its words, and the value `bind:` holds when it is chosen.",
         Some(required(special("label", PropType::Str, "Its words"))),
         &[
-            required(special("value", PropType::Ty("String or Number or Bool"), "What `bind:` holds when it is chosen")),
+            required(special("value", PropType::Ty("String or Number or Bool or Bound"), "What `bind:` holds when it is chosen")),
             special("icon", PropType::Str, "An icon before the words"),
             attr("aria-disabled", PropType::Str, "`\"true\"`: shown, passed over, never chosen"),
         ],
@@ -3360,7 +3364,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Children::None,
     )
     .slots(&["cell"]),
-    comp(
+    ComponentSig {
+        events: &["select"],
+        ..comp(
         "Combobox",
         "Form",
         "A text field that offers what matches as the reader types: from `options:`, or `search:` asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; `.multiple` keeps several, each a chip Backspace takes back. `option(o) { … }` draws an offer; `empty { … }` shows when nothing matches.",
@@ -3380,6 +3386,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::None,
     )
+    }
     .html("div", "wf-combobox")
     .slots(&["option", "empty"])
     .css(&["Combobox", "Layer", "Chip"])
@@ -3463,7 +3470,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Ir::Sub("CheckboxGroup", "Option"),
         "One box: its words and its value.",
         Some(required(special("label", PropType::Str, "Its words"))),
-        &[special("value", PropType::Ty("String or Number or Bool"), "What the list holds while it is ticked; unset, its words")],
+        &[special("value", PropType::Ty("String or Number or Bool or Bound"), "What the list holds while it is ticked; unset, its words")],
         G,
         Children::None,
     )

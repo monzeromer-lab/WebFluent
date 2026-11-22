@@ -1,9 +1,9 @@
 //! What an agent is given, named, so nothing it is told is a mystery:
 //! the file tree, the open file and its selection, the problems, every
 //! component a call can name, the theme's tokens, the project's config
-//! with only its public `env`, and the guide — its chapters' titles and
-//! sections to cite, or the chapters whole — and a list of what was
-//! withheld and why.
+//! with only its public `env`, and the language reference — the skill's
+//! files' titles and sections to cite, or the files whole — and a list of
+//! what was withheld and why.
 
 use std::path::Path;
 
@@ -44,44 +44,38 @@ pub struct Section {
     pub level: u8,
 }
 
-/// One chapter of the guide.
+/// One file of the reference: `references/core.md`, or a section of the
+/// language's, `references/language/data-fetching.md`.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Chapter {
-    /// Its chapter number; 0 for a recipe, which has none.
-    pub number: u32,
+    /// Its path in the skill: `references/language/pages.md`.
     pub file: String,
     pub title: String,
-    /// Where the site has it: `guide/forms`, or `/recipes/debounce-a-search`.
-    pub route: Option<String>,
+    /// Its first paragraph, when it opens with one.
     pub blurb: Option<String>,
     pub sections: Vec<Section>,
-    /// The chapter itself, when the whole guide is given.
+    /// The file itself, when the whole reference is given.
     pub text: Option<String>,
 }
 
 impl Chapter {
-    /// How the agent cites it: `16 Forms`, or `16 Forms › validate` for a
+    /// How the agent cites it: `Pages`, or `Pages › Head tags` for a
     /// section.
     pub fn cite(&self, anchor: Option<&str>) -> String {
-        let head = if self.number == 0 {
-            self.title.clone()
-        } else {
-            format!("{} {}", self.number, self.title)
-        };
         match anchor.and_then(|a| self.sections.iter().find(|s| s.anchor == a)) {
-            Some(s) => format!("{head} › {}", s.title),
-            None => head,
+            Some(s) => format!("{} › {}", self.title, s.title),
+            None => self.title.clone(),
         }
     }
 }
 
-/// How much of the guide to give.
+/// How much of the reference to give.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Depth {
-    /// Each chapter's title, blurb and sections: enough to cite, and to
-    /// ask for a chapter by name.
+    /// Each file's title, blurb and sections: enough to cite, and to
+    /// read the one file that is wanted.
     Index,
-    /// The chapters whole.
+    /// The files whole: the whole reference.
     Full,
 }
 
@@ -104,93 +98,65 @@ pub fn anchor(title: &str) -> String {
     out
 }
 
-/// A value of a page's front matter: `"…"` is a JSON string, anything else
-/// is as written.
-fn front_value(raw: &str) -> String {
-    let raw = raw.trim();
-    serde_json::from_str::<String>(raw).unwrap_or_else(|_| raw.to_string())
-}
-
-/// The guide's chapters and recipes, read from its pages
-/// (`md-docs/<kind>/<slug>.md`). A page is a chapter when its front matter
-/// names one (`chapter: 12`), and those come first, in that order; a recipe
-/// (`kind: "recipe"`, numbered 0) follows, by route. A code's page under
-/// `errors/` is `wf explain`'s, not here.
-pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
+/// The reference's files as chapters: each file of the skill's
+/// `references/` (`core.md`, `styling.md`, …, `language/pages.md`), titled
+/// by its first heading, with the headings under it as its sections and its
+/// first paragraph as its blurb. The files keep the order they are given in.
+pub fn chapters(files: &[(String, String)], depth: Depth) -> Vec<Chapter> {
     let mut out = Vec::new();
     for (file, text) in files {
-        let Some(rest) = text.strip_prefix("---\n") else {
-            continue;
-        };
-        let Some((front, body)) = rest.split_once("\n---\n") else {
-            continue;
-        };
-        let mut number = None;
-        let mut route = None;
-        let mut blurb = None;
-        let mut recipe = false;
-        for line in front.lines() {
-            let Some((key, value)) = line.split_once(':') else {
-                continue;
-            };
-            match key.trim() {
-                "chapter" => number = value.trim().parse::<u32>().ok(),
-                "route" => route = Some(front_value(value)),
-                "blurb" => blurb = Some(front_value(value)),
-                "description" if blurb.is_none() => blurb = Some(front_value(value)),
-                "kind" => recipe = front_value(value) == "recipe",
-                _ => {}
-            }
-        }
-        let Some(number) = number.or((recipe && route.is_some()).then_some(0)) else {
-            continue;
-        };
         let mut title = String::new();
+        let mut top = 0usize;
+        let mut blurb: Vec<&str> = Vec::new();
+        let mut blurb_done = false;
         let mut sections = Vec::new();
         let mut fenced = false;
-        for line in body.lines() {
-            if line.starts_with("```") {
+        for line in text.lines() {
+            if line.trim_start().starts_with("```") {
                 fenced = !fenced;
+                blurb_done |= !title.is_empty();
                 continue;
             }
             if fenced {
                 continue;
             }
-            if let Some(t) = line.strip_prefix("# ") {
-                if title.is_empty() {
-                    title = t.split_once(". ").map_or(t, |(_, t)| t).trim().to_string();
+            let depth = line.chars().take_while(|c| *c == '#').count();
+            let heading =
+                (depth > 0 && line[depth..].starts_with(' ')).then(|| line[depth..].trim());
+            match heading {
+                Some(t) if title.is_empty() => {
+                    title = t.replace('`', "");
+                    top = depth;
                 }
-            } else if let Some(t) = line.strip_prefix("## ")
-                // `## Next` is the link to the next chapter, not a section.
-                && t.trim() != "Next"
-            {
-                sections.push(Section {
-                    anchor: anchor(t),
-                    title: t.trim().replace('`', ""),
-                    level: 2,
-                });
-            } else if let Some(t) = line.strip_prefix("### ") {
-                sections.push(Section {
-                    anchor: anchor(t),
-                    title: t.trim().replace('`', ""),
-                    level: 3,
-                });
+                Some(t) => {
+                    blurb_done = true;
+                    // A section one or two levels under the file's title.
+                    let level = depth.saturating_sub(top) + 1;
+                    if (2..=3).contains(&level) {
+                        sections.push(Section {
+                            anchor: anchor(t),
+                            title: t.replace('`', ""),
+                            level: u8::try_from(level).unwrap_or(3),
+                        });
+                    }
+                }
+                None if title.is_empty() || blurb_done => {}
+                None if line.trim().is_empty() => blurb_done = !blurb.is_empty(),
+                None if line.trim_start().starts_with(['|', '-', '<']) => blurb_done = true,
+                None => blurb.push(line.trim()),
             }
         }
+        if title.is_empty() {
+            continue;
+        }
         out.push(Chapter {
-            number,
-            file: file.to_string(),
+            file: file.clone(),
             title,
-            route,
-            blurb,
+            blurb: (!blurb.is_empty()).then(|| blurb.join(" ")),
             sections,
-            text: (depth == Depth::Full).then(|| text.to_string()),
+            text: (depth == Depth::Full).then(|| text.clone()),
         });
     }
-    // Chapters by number, then the recipes by route.
-    out.sort_by(|a, b| {
-        (a.number == 0, a.number, &a.route).cmp(&(b.number == 0, b.number, &b.route))
-    });
     out
 }
 
@@ -290,13 +256,21 @@ pub fn reference_section(title: &str) -> std::result::Result<String, Vec<String>
         .to_string())
 }
 
-mod bundled {
-    include!(concat!(env!("OUT_DIR"), "/guide_files.rs"));
-}
-
-/// The guide this `wf` was built with: every chapter of `md-docs/`.
-pub fn guide() -> &'static [(&'static str, &'static str)] {
-    bundled::FILES
+/// The guide this `wf` was built with: the language reference as the
+/// `writing-webfluent` skill gives it to a project (`wf init` writes the
+/// same files), each file of its `references/` by its path in the skill —
+/// `references/core.md` first, then the topical files, then
+/// `references/language/<section>.md` for each section of `AGENTS.md`. The
+/// skill's index of those sections, `references/language.md`, is not a
+/// chapter: the chapters are its entries.
+pub fn guide() -> &'static [(String, String)] {
+    static GUIDE: std::sync::OnceLock<Vec<(String, String)>> = std::sync::OnceLock::new();
+    GUIDE.get_or_init(|| {
+        crate::tools::init::skill_files()
+            .into_iter()
+            .filter(|(path, _)| path.starts_with("references/") && path != "references/language.md")
+            .collect()
+    })
 }
 
 /// Everything an agent is given.
@@ -316,6 +290,7 @@ pub struct Context {
     pub tokens: Vec<(String, String)>,
     /// `webfluent.app.json`, its private `env` values withheld.
     pub config: serde_json::Value,
+    /// The language reference: each file of the skill's `references/`.
     pub guide: Vec<Chapter>,
     /// What was not given, and why.
     pub withheld: Vec<String>,
@@ -361,7 +336,7 @@ fn tree(vfs: &dyn Vfs, dir: &Path) -> Vec<String> {
 
 /// What an agent is given for the project at `dir`, as the editor holds
 /// it (`vfs`: an unsaved buffer is the one read), with `open` the file in
-/// the editor (a path inside the project) and its selection, and the guide
+/// the editor (a path inside the project) and its selection, and the reference
 /// to the given depth.
 ///
 /// # Errors
@@ -373,7 +348,7 @@ pub fn context_via(
     vfs: &dyn Vfs,
     dir: &Path,
     open: Option<(&str, Option<(usize, usize)>)>,
-    guide_files: &[(&str, &str)],
+    guide_files: &[(String, String)],
     depth: Depth,
 ) -> Result<Context> {
     let mut withheld = Vec::new();
@@ -528,20 +503,33 @@ impl Context {
             "\n## webfluent.app.json\n\n```json\n{}\n```\n",
             serde_json::to_string_pretty(&in_order(&self.config)).unwrap_or_default()
         ));
-        out.push_str("\n## The guide\n\n");
+        out.push_str("\n## The reference\n\n");
+        if self.guide.iter().any(|ch| ch.text.is_none()) {
+            out.push_str(
+                "Each file of the `writing-webfluent` skill's reference, by its path in the \
+                 skill (a project `wf init` made has it in `.claude/skills/writing-webfluent/` \
+                 and `.agents/skills/writing-webfluent/`): read the one a task needs, or run \
+                 `wf context --guide full` for all of them.\n\n",
+            );
+        }
         for ch in &self.guide {
-            out.push_str(&format!("### {} {}\n\n", ch.number, ch.title));
-            if let Some(b) = &ch.blurb {
-                out.push_str(&format!("{b}\n\n"));
-            }
+            out.push_str(&format!("### {} (`{}`)\n\n", ch.title, ch.file));
             if let Some(t) = &ch.text {
-                out.push_str(t);
-                out.push('\n');
+                out.push_str(t.trim_end());
+                out.push_str("\n\n");
             } else {
-                for s in ch.sections.iter().filter(|s| s.level == 2) {
-                    out.push_str(&format!("- {}\n", s.title));
+                if let Some(b) = &ch.blurb {
+                    out.push_str(&format!("{b}\n\n"));
                 }
-                out.push('\n');
+                let sections: Vec<&str> = ch
+                    .sections
+                    .iter()
+                    .filter(|s| s.level == 2)
+                    .map(|s| s.title.as_str())
+                    .collect();
+                if !sections.is_empty() {
+                    out.push_str(&format!("Sections: {}\n\n", sections.join(" · ")));
+                }
             }
         }
         out.push_str("## Withheld\n\n");

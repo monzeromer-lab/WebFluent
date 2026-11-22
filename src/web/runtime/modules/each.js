@@ -18,6 +18,9 @@
     const key = (config && config.key) || keyFn || null;
     const byIndex = !!(config && config.index);
     const live = !!(key && config && config.live);
+    // A list that moves with motion — one with an enter or an exit, or that
+    // asks to (a sortable table) — slides a moved item from where it was.
+    const slides = !!(config && (config.slide || config.enter || config.exit));
     let entries = new Map();
     const exiting = new Set();
     // What each item's body created, disposed of when the item leaves.
@@ -148,6 +151,27 @@
       }
     });
 
+    // The places of the longest run of `olds` (old indices, -1 for an item
+    // not kept) that still ascends: the items that need not move.
+    function staying(olds) {
+      const tails = [];
+      const prev = new Array(olds.length).fill(-1);
+      for (let i = 0; i < olds.length; i++) {
+        const v = olds[i];
+        if (v < 0) continue;
+        let lo = 0, hi = tails.length;
+        while (lo < hi) {
+          const mid = (lo + hi) >> 1;
+          if (olds[tails[mid]] < v) lo = mid + 1; else hi = mid;
+        }
+        if (lo > 0) prev[i] = tails[lo - 1];
+        tails[lo] = i;
+      }
+      const out = new Set();
+      for (let i = tails.length ? tails[tails.length - 1] : -1; i >= 0; i = prev[i]) out.add(i);
+      return out;
+    }
+
     function draw(items) {
       if (items === lastList) return;
       lastList = items;
@@ -189,19 +213,19 @@
           taken.add(k);
           keys.push(k);
         });
-        // The kept items whose place in the list changes: the ones that
-        // can slide.
-        const moving = [];
-        keys.forEach((k, index) => {
-          const old = entries.get(k);
-          if (old && old.index !== index) moving.push(old);
-        });
-        const before = positions(moving);
+        // Which kept items stay where they are: the longest run of them
+        // still in their old order. Only the others are moved — a row taken
+        // out of a thousand moves none, two rows swapped move two — and only
+        // they can slide (a row that merely closed a gap stays still).
+        const olds = keys.map((k) => entries.get(k));
+        const stay = staying(olds.map((o, i) => (o && (live || (o.item === items[i] && (!byIndex || o.index === i))) ? o.index : -1)));
+        const moving = olds.filter((o, i) => o && !stay.has(i));
+        const before = slides ? positions(moving) : new Map();
         const next = new Map();
         let cursor = start;
         items.forEach((item, index) => {
           const k = keys[index];
-          const old = entries.get(k);
+          const old = olds[index];
           let entry;
           if (old && live) {
             // The same key: the same nodes, told what the item and its
@@ -224,14 +248,15 @@
           }
           entries.delete(k);
           const nodes = nodesNow(entry.nodes);
-          cursor = place(host, nodes, cursor);
+          if (entry === old && stay.has(index) && nodes.length) cursor = nodes[nodes.length - 1];
+          else cursor = place(host, nodes, cursor);
           if (!old) enter(nodes, index);
           next.set(k, entry);
         });
         // What is left never came back.
         for (const gone of entries.values()) { if (gone.dispose) gone.dispose(); depart(nodesNow(gone.nodes)); }
         entries = next;
-        slide(before);
+        if (slides) slide(before);
       });
     }
   }

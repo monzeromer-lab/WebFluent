@@ -146,7 +146,8 @@ A test never reaches the network. A `fake` answers a group's endpoints in
 its place, held to the group's contract (`N06`): every endpoint it answers
 is one the group has, every name it binds one of the endpoint's parameters,
 every answer the result the endpoint declares (`.ok(…)` or `.err(…)`). A
-test names its fakes with `fakes:` and runs in Chrome. A write's
+test names its fakes with `fakes:` — declared beside it or in any file
+under `tests/` — and runs in Chrome. A write's
 `invalidates` asks its reads again, and a call to an endpoint no fake
 answers fails the test, naming it.
 

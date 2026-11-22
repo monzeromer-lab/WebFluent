@@ -533,10 +533,29 @@ pub fn project(c: &ComponentDecl, program: &Program, file: Option<String>) -> Co
 }
 
 /// Every component a call can name: the built-ins, then — given a program
-/// — the project's, in the order they are declared.
+/// — the project's, in the order they are declared. A component the
+/// project declares under a built-in's name takes the built-in's place
+/// (`V11`: every call of the name draws the project's), so the built-in and
+/// its parts are left out and `Catalog::get` answers with the project's;
+/// `builtin` still reaches the built-in by name.
 pub fn catalog(program: Option<(&Program, &dyn Fn(usize) -> String)>) -> Catalog {
-    let mut components: Vec<Component> =
-        crate::registry::COMPONENTS.iter().map(builtin_of).collect();
+    let own: std::collections::HashSet<&str> = program
+        .map(|(program, _)| {
+            program
+                .declarations
+                .iter()
+                .filter_map(|d| match d {
+                    Declaration::Component(c) => Some(c.name.as_str()),
+                    _ => None,
+                })
+                .collect()
+        })
+        .unwrap_or_default();
+    let mut components: Vec<Component> = crate::registry::COMPONENTS
+        .iter()
+        .filter(|sig| !own.contains(sig.owner.unwrap_or(sig.name)))
+        .map(builtin_of)
+        .collect();
     if let Some((program, file_of)) = program {
         for (i, d) in program.declarations.iter().enumerate() {
             if let Declaration::Component(c) = d {

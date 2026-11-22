@@ -89,3 +89,23 @@ test("a call no fake answers fails, naming the endpoint", async () => {
   assert.match(errors.join("\n"), /No fake answers Backend\.users\.list/);
   assert.deepEqual(sent, [], "and it is not sent to find out");
 });
+
+test("a call counted before a navigate that loads another page is still counted after it", async () => {
+  // The tab's storage outlives the page; each `load` is a page of its own.
+  const kept = new Map();
+  globalThis.sessionStorage = {
+    getItem: (k) => (kept.has(k) ? kept.get(k) : null),
+    setItem: (k, v) => kept.set(k, String(v)),
+  };
+  try {
+    const answers = { "Backend.users.list": () => ["ok", []] };
+    const first = load(answers);
+    await service(first.WF).list({});
+    const second = load(answers);
+    assert.equal(second.window.__wfCalls, undefined, "a new page");
+    await service(second.WF).list({ page: 2 });
+    assert.deepEqual(second.window.__wfCalls, ["Backend.users.list", "Backend.users.list"]);
+  } finally {
+    delete globalThis.sessionStorage;
+  }
+});

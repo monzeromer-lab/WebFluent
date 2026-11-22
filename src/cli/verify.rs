@@ -56,7 +56,11 @@ pub(crate) fn run_verify(
 
 /// The project built with the fakes `file` declares answering its
 /// endpoints, into a folder of its own: where it was written.
-fn build_with_fakes(project_dir: &Path, file: &Path, json: bool) -> Result<std::path::PathBuf> {
+pub(crate) fn build_with_fakes(
+    project_dir: &Path,
+    file: &Path,
+    json: bool,
+) -> Result<std::path::PathBuf> {
     // The file as the project names it: relative to the project, whether it
     // was given that way or from where the command was run.
     let absolute = |p: &Path| p.canonicalize().unwrap_or_else(|_| p.to_path_buf());

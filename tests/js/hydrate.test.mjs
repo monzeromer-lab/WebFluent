@@ -1462,7 +1462,7 @@ test("a component's motion markers land on its root, and a reader who asked for 
   assert.equal(parent.querySelectorAll("div").length, 0, "removed at once under reduced motion");
 });
 
-test("a keyed list slides a moved item from where it was", () => {
+test("a keyed list that moves with motion slides the item whose order changed, and only it", () => {
   const { WF, document, window } = loadRuntime();
   const frames = [];
   window.requestAnimationFrame = (fn) => frames.push(fn);
@@ -1475,19 +1475,56 @@ test("a keyed list slides a moved item from where it was", () => {
       const li = WF.el("li", {}, [String(item.id)]);
       li.getBoundingClientRect = () => ({ left: 0, top: parent.children.indexOf(li) * 20 });
       return li;
-    }, { key: (item) => item.id });
+    }, { key: (item) => item.id, slide: true });
     const [a, b] = parent.children;
     items.set([items()[1], items()[0]]);
-    // Measured before the move, each node is held at its old offset until
-    // the next frame plays the slide to where it now sits.
-    assert.equal(a.style.transform, "translate(0px, -20px)", `${a.style.transform}`);
-    assert.equal(b.style.transform, "translate(0px, 20px)");
-    assert.equal(frames.length, 2);
+    // Two swapped: one stays where it is and the other moves past it. The
+    // one moved is held at its old offset until the next frame plays the
+    // slide to where it now sits.
+    assert.deepEqual(parent.children, [b, a]);
+    assert.equal(a.style.transform || "", "", "the item that kept its place does not slide");
+    assert.equal(b.style.transform, "translate(0px, 20px)", `${b.style.transform}`);
+    assert.equal(frames.length, 1);
     for (const f of frames) f();
     // The timer runs inline here, so the transition has already been taken
     // off with the transform: the node rests where it now sits.
-    assert.equal(a.style.transform, "", "the slide plays to the new place");
-    assert.equal(a.style.transition, "");
+    assert.equal(b.style.transform, "", "the slide plays to the new place");
+    assert.equal(b.style.transition, "");
+  } finally {
+    delete globalThis.requestAnimationFrame;
+  }
+});
+
+test("a keyed list moves nothing for a removal, and a list with no motion slides nothing", () => {
+  const { WF, document, window } = loadRuntime();
+  const frames = [];
+  window.requestAnimationFrame = (fn) => frames.push(fn);
+  globalThis.requestAnimationFrame = window.requestAnimationFrame;
+  try {
+    for (const slide of [true, false]) {
+      const parent = document.createElement("ul");
+      const items = WF.signal([1, 2, 3, 4, 5].map((id) => ({ id })));
+      const moved = [];
+      WF.each(parent, () => items(), (item) => {
+        const li = WF.el("li", {}, [String(item.id)]);
+        li.getBoundingClientRect = () => ({ left: 0, top: parent.children.indexOf(li) * 20 });
+        return li;
+      }, { key: (item) => item.id, slide });
+      const kept = [...parent.children];
+      const insert = parent.insertBefore.bind(parent);
+      parent.insertBefore = (n, ref) => { moved.push(n); return insert(n, ref); };
+      // The third taken out: the rest closed the gap without being moved,
+      // and none of them slides into it.
+      items.set(items().filter((r) => r.id !== 3));
+      assert.deepEqual(parent.children, [kept[0], kept[1], kept[3], kept[4]]);
+      assert.equal(moved.length, 0, "no node moved for a removal");
+      // Reversed: every node but one moves, and only a list with motion slides.
+      items.set(items().slice().reverse());
+      assert.deepEqual(parent.children, [kept[4], kept[3], kept[1], kept[0]]);
+      assert.equal(moved.length, 3);
+      assert.equal(kept.some((n) => (n.style.transform || "") !== ""), slide, `slide: ${slide}`);
+      frames.splice(0);
+    }
   } finally {
     delete globalThis.requestAnimationFrame;
   }

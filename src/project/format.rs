@@ -3,9 +3,11 @@
 //! The browser formats with `Intl`; the static paint and a template have no
 //! `Intl`, so this is the same surface over a small table: digit grouping
 //! and the decimal mark of the common locales, the symbols of the common
-//! currencies, English month and weekday names. What the table lacks falls
-//! back to the English spelling, and the page corrects itself once it is
-//! live.
+//! currencies, English and Arabic month and weekday names, and the digits
+//! a locale writes by default (`ar-EG` and `ar-u-nu-arab` in Arabic-Indic,
+//! `ar` and the Maghreb in Latin, as `Intl` writes them). What the table
+//! lacks falls back to the English spelling, and the page corrects itself
+//! once it is live.
 
 /// A value to format: a number, or a date read from its text.
 #[derive(Debug, Clone, PartialEq)]
@@ -50,10 +52,108 @@ const WEEKDAYS: [&str; 7] = [
     "Saturday",
 ];
 
+const MONTHS_AR: [&str; 12] = [
+    "يناير",
+    "فبراير",
+    "مارس",
+    "أبريل",
+    "مايو",
+    "يونيو",
+    "يوليو",
+    "أغسطس",
+    "سبتمبر",
+    "أكتوبر",
+    "نوفمبر",
+    "ديسمبر",
+];
+/// The Levant's and Iraq's month names, which `Intl` gives `ar-SY`,
+/// `ar-LB`, `ar-JO`, `ar-PS` and `ar-IQ`.
+const MONTHS_AR_LEVANT: [&str; 12] = [
+    "كانون الثاني",
+    "شباط",
+    "آذار",
+    "نيسان",
+    "أيار",
+    "حزيران",
+    "تموز",
+    "آب",
+    "أيلول",
+    "تشرين الأول",
+    "تشرين الثاني",
+    "كانون الأول",
+];
+const WEEKDAYS_AR: [&str; 7] = [
+    "الأحد",
+    "الاثنين",
+    "الثلاثاء",
+    "الأربعاء",
+    "الخميس",
+    "الجمعة",
+    "السبت",
+];
+
+/// The language of a locale tag, lower-cased: `ar-EG` is `ar`.
+fn language(locale: &str) -> String {
+    locale
+        .split(['-', '_'])
+        .next()
+        .unwrap_or("en")
+        .to_ascii_lowercase()
+}
+
+/// The region of a locale tag, upper-cased, when it names one: `ar-EG` is
+/// `EG`; `ar-u-nu-arab` names none.
+fn region(locale: &str) -> Option<String> {
+    let mut parts = locale.split(['-', '_']).skip(1);
+    let next = parts.next()?;
+    // A script subtag (`zh-Hant-TW`) comes before the region.
+    let candidate = if next.len() == 4 { parts.next()? } else { next };
+    ((candidate.len() == 2 && candidate.chars().all(|c| c.is_ascii_alphabetic()))
+        || (candidate.len() == 3 && candidate.chars().all(|c| c.is_ascii_digit())))
+    .then(|| candidate.to_ascii_uppercase())
+}
+
+/// Whether `locale` writes its digits as Arabic-Indic ones (`١٢٣`), as
+/// `Intl` does: an `-u-nu-` extension says so outright; otherwise Arabic
+/// with a region outside the Maghreb and the Emirates does, and Arabic
+/// without one does not.
+pub fn arabic_digits(locale: &str) -> bool {
+    let lower = locale.to_ascii_lowercase();
+    if lower.contains("-u-nu-arab") {
+        return true;
+    }
+    if lower.contains("-u-nu-") || language(locale) != "ar" {
+        return false;
+    }
+    region(locale)
+        .is_some_and(|r| !matches!(r.as_str(), "001" | "AE" | "EH" | "MA" | "LY" | "TN" | "DZ"))
+}
+
+/// `text` with its ASCII digits written as the locale writes them.
+fn localize_digits(text: String, locale: &str) -> String {
+    if !arabic_digits(locale) {
+        return text;
+    }
+    text.chars()
+        .map(|c| match c.to_digit(10) {
+            Some(d) => char::from_u32(0x0660 + d).unwrap_or(c),
+            None => c,
+        })
+        .collect()
+}
+
 /// The digit-group and decimal marks of a locale.
 fn separators(locale: &str) -> (&'static str, &'static str) {
-    let lang = locale.split(['-', '_']).next().unwrap_or("en");
-    match lang {
+    let lang = language(locale);
+    if arabic_digits(locale) {
+        return ("\u{66c}", "\u{66b}");
+    }
+    if lang == "ar"
+        && region(locale).is_some_and(|r| matches!(r.as_str(), "MA" | "LY" | "TN" | "DZ"))
+    {
+        return (".", ",");
+    }
+    match lang.as_str() {
         "de" | "es" | "it" | "pt" | "nl" | "tr" | "id" | "da" | "el" | "ro" | "hr" | "sl" => {
             (".", ",")
         }
@@ -137,7 +237,7 @@ pub fn number(value: f64, places: Option<usize>, locale: &str) -> String {
         out.push_str(point);
         out.push_str(&f);
     }
-    out
+    localize_digits(out, locale)
 }
 
 /// `1.2K`, `3.4M`: the compact notation.
@@ -163,7 +263,7 @@ fn compact(value: f64, locale: &str) -> String {
     let text = number(scaled, places, locale);
     let (_, point) = separators(locale);
     let text = match text.split_once(point) {
-        Some((w, f)) if f.chars().all(|c| c == '0') => w.to_string(),
+        Some((w, f)) if f.chars().all(|c| matches!(c, '0' | '\u{660}')) => w.to_string(),
         _ => text,
     };
     format!("{text}{suffix}")
@@ -247,6 +347,16 @@ fn from_unix(seconds: i64) -> Moment {
     }
 }
 
+/// `seconds` since the epoch as the ISO 8601 text a `DateTime` carries:
+/// `2026-11-19T09:30:00Z`.
+pub fn iso(seconds: i64) -> String {
+    let m = from_unix(seconds);
+    format!(
+        "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}Z",
+        m.year, m.month, m.day, m.hour, m.minute, m.second
+    )
+}
+
 impl Moment {
     /// Seconds since the epoch, the moment taken as UTC.
     pub fn unix(&self) -> i64 {
@@ -263,8 +373,37 @@ impl Moment {
     }
 
     /// The moment written to a pattern: `yyyy-MM-dd`, `d MMM yyyy`,
-    /// `EEEE, HH:mm`, `h:mm a`.
+    /// `EEEE, HH:mm`, `h:mm a` — in English.
     pub fn pattern(&self, pattern: &str) -> String {
+        self.pattern_in(pattern, "en")
+    }
+
+    /// The moment written to a pattern, its month and weekday names, its
+    /// AM and PM and its digits the locale's (English where the table has
+    /// none of its own).
+    pub fn pattern_in(&self, pattern: &str, locale: &str) -> String {
+        let arabic = language(locale) == "ar";
+        let months: &[&str; 12] = if !arabic {
+            &MONTHS
+        } else if region(locale)
+            .is_some_and(|r| matches!(r.as_str(), "SY" | "LB" | "JO" | "PS" | "IQ"))
+        {
+            &MONTHS_AR_LEVANT
+        } else {
+            &MONTHS_AR
+        };
+        let weekdays: &[&str; 7] = if arabic { &WEEKDAYS_AR } else { &WEEKDAYS };
+        let month = months[self.month as usize - 1];
+        let weekday = weekdays[self.weekday()];
+        // An Arabic name is not cut short: `Intl`'s short month is the
+        // long one.
+        let short = |name: &str| {
+            if arabic {
+                name.to_string()
+            } else {
+                name.chars().take(3).collect::<String>()
+            }
+        };
         let mut out = String::new();
         let chars: Vec<char> = pattern.chars().collect();
         let mut i = 0;
@@ -281,27 +420,33 @@ impl Moment {
             let piece = match (c, run) {
                 ('y', 2) => format!("{:02}", self.year.rem_euclid(100)),
                 ('y', _) => format!("{}", self.year),
-                ('M', 4) => MONTHS[self.month as usize - 1].to_string(),
-                ('M', 3) => MONTHS[self.month as usize - 1][..3].to_string(),
+                ('M', 4) => month.to_string(),
+                ('M', 3) => short(month),
                 ('M', 2) => format!("{:02}", self.month),
                 ('M', _) => format!("{}", self.month),
                 ('d', 2) => format!("{:02}", self.day),
                 ('d', _) => format!("{}", self.day),
-                ('E', 4) => WEEKDAYS[self.weekday()].to_string(),
-                ('E', _) => WEEKDAYS[self.weekday()][..3].to_string(),
+                ('E', 4) => weekday.to_string(),
+                ('E', _) => short(weekday),
                 ('H', 2) => format!("{:02}", self.hour),
                 ('H', _) => format!("{}", self.hour),
                 ('h', 2) => format!("{h12:02}"),
                 ('h', _) => format!("{h12}"),
                 ('m', _) => format!("{:02}", self.minute),
                 ('s', _) => format!("{:02}", self.second),
-                ('a', _) => (if self.hour < 12 { "AM" } else { "PM" }).to_string(),
+                ('a', _) => match (arabic, self.hour < 12) {
+                    (true, true) => "ص",
+                    (true, false) => "م",
+                    (false, true) => "AM",
+                    (false, false) => "PM",
+                }
+                .to_string(),
                 _ => std::iter::repeat_n(c, run).collect(),
             };
             out.push_str(&piece);
             i += run;
         }
-        out
+        localize_digits(out, locale)
     }
 }
 
@@ -384,32 +529,62 @@ pub fn format(
         Some("compact") => Some(compact(as_number(value)?, locale)),
         Some("date") => {
             let m = parse_moment(value)?;
-            Some(match option_text(option).as_deref() {
-                Some("short") => m.pattern("M/d/yy"),
-                Some("long") => m.pattern("MMMM d, yyyy"),
-                Some("full") => m.pattern("EEEE, MMMM d, yyyy"),
-                _ => m.pattern("MMM d, yyyy"),
-            })
+            let style = option_text(option);
+            Some(m.pattern_in(date_pattern(locale, style.as_deref()), locale))
         }
         Some("time") => {
             let m = parse_moment(value)?;
-            Some(match option_text(option).as_deref() {
-                Some("medium" | "long" | "full") => m.pattern("h:mm:ss a"),
-                _ => m.pattern("h:mm a"),
-            })
+            let style = option_text(option);
+            Some(m.pattern_in(time_pattern(locale, style.as_deref()), locale))
         }
         Some("datetime") => {
             let m = parse_moment(value)?;
-            Some(match option_text(option).as_deref() {
-                Some("short") => m.pattern("M/d/yy, h:mm a"),
-                Some("long") => m.pattern("MMMM d, yyyy, h:mm a"),
-                Some("full") => m.pattern("EEEE, MMMM d, yyyy, h:mm a"),
-                _ => m.pattern("MMM d, yyyy, h:mm a"),
-            })
+            let style = option_text(option);
+            let date = m.pattern_in(date_pattern(locale, style.as_deref()), locale);
+            // `Intl` gives a date and time no seconds unless asked.
+            let time = m.pattern_in(time_pattern(locale, None), locale);
+            let joiner = match (language(locale).as_str(), style.as_deref()) {
+                ("ar", Some("long" | "full")) => " في ",
+                ("ar", _) => "، ",
+                _ => ", ",
+            };
+            Some(format!("{date}{joiner}{time}"))
         }
         Some("relative") => ago(value, None),
         // Anything else is a date pattern.
-        Some(pattern) => Some(parse_moment(value)?.pattern(pattern)),
+        Some(pattern) => Some(parse_moment(value)?.pattern_in(pattern, locale)),
+    }
+}
+
+/// The pattern `Intl.DateTimeFormat(locale, { dateStyle })` writes a date
+/// to, for the locales the table knows; English for the rest.
+fn date_pattern(locale: &str, style: Option<&str>) -> &'static str {
+    if language(locale) == "ar" {
+        // The right-to-left marks keep the slashes between the numbers.
+        return match style {
+            Some("long") => "d MMMM yyyy",
+            Some("full") => "EEEE، d MMMM yyyy",
+            _ => "d\u{200f}/M\u{200f}/yyyy",
+        };
+    }
+    match style {
+        Some("short") => "M/d/yy",
+        Some("long") => "MMMM d, yyyy",
+        Some("full") => "EEEE, MMMM d, yyyy",
+        _ => "MMM d, yyyy",
+    }
+}
+
+/// The pattern `Intl.DateTimeFormat(locale, { timeStyle })` writes a time
+/// to.
+fn time_pattern(locale: &str, style: Option<&str>) -> &'static str {
+    let maghreb = language(locale) == "ar"
+        && region(locale).is_some_and(|r| matches!(r.as_str(), "MA" | "LY" | "TN" | "DZ"));
+    match (maghreb, style) {
+        (true, Some("medium" | "long" | "full")) => "HH:mm:ss",
+        (true, _) => "HH:mm",
+        (false, Some("medium" | "long" | "full")) => "h:mm:ss a",
+        (false, _) => "h:mm a",
     }
 }
 
@@ -481,6 +656,35 @@ mod tests {
     }
     fn t(v: &str) -> Input {
         Input::Text(v.to_string())
+    }
+
+    /// The static paint of an Arabic page wrote its dates in English
+    /// ("November 12, 2026") while the live page wrote them in Arabic.
+    #[test]
+    fn arabic_dates_and_digits_are_what_intl_writes() {
+        let day = t("2026-11-12T14:05:00Z");
+        let date = |style: &str, locale: &str| {
+            format(&day, Some("date"), Some(&t(style)), locale).unwrap()
+        };
+        assert_eq!(date("long", "ar"), "12 نوفمبر 2026");
+        assert_eq!(date("full", "ar"), "الخميس، 12 نوفمبر 2026");
+        assert_eq!(date("short", "ar"), "12\u{200f}/11\u{200f}/2026");
+        assert_eq!(date("long", "ar-EG"), "١٢ نوفمبر ٢٠٢٦");
+        assert_eq!(date("long", "ar-u-nu-arab"), "١٢ نوفمبر ٢٠٢٦");
+        assert_eq!(date("long", "ar-SY"), "١٢ تشرين الثاني ٢٠٢٦");
+        assert_eq!(date("long", "en"), "November 12, 2026");
+        assert_eq!(format(&day, Some("time"), None, "ar").unwrap(), "2:05 م");
+        assert_eq!(
+            format(&day, Some("datetime"), Some(&t("long")), "ar").unwrap(),
+            "12 نوفمبر 2026 في 2:05 م"
+        );
+        assert_eq!(format(&n(1234.5), None, None, "ar").unwrap(), "1,234.5");
+        assert_eq!(format(&n(1234.5), None, None, "ar-EG").unwrap(), "١٬٢٣٤٫٥");
+        assert_eq!(format(&n(1234.5), None, None, "ar-MA").unwrap(), "1.234,5");
+        assert_eq!(
+            format(&n(2000.0), Some("compact"), None, "ar-EG").unwrap(),
+            "٢K"
+        );
     }
 
     #[test]

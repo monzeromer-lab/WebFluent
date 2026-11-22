@@ -33,7 +33,7 @@ pub(crate) fn run_init(name: &str, template: &str, locales: Option<&str>) -> Res
         };
         println!("  It speaks {default} by default{others}: src/translations/ holds each");
     }
-    println!("  AGENTS.md is the language reference, for you and your coding agent");
+    println!("  AGENTS.md is the core of the language, for you and your coding agent");
     println!("  .agents/skills/ and .claude/skills/ teach your coding agent to write it well");
     println!();
     println!("  cd {name}");

@@ -151,6 +151,42 @@ fn an_if_let_in_an_imperative_body_binds_a_plain_name() {
     assert!(!out.contains("_p()"), "{out}");
 }
 
+/// `else if let` is an `else` holding the `if let`, in a page's body and
+/// in a handler; `let _ = x` reads `x` and binds nothing, so a block may
+/// hold several — they compiled to one `const __` declared twice; and `_`
+/// may name several parameters of one lambda or action.
+#[test]
+fn else_if_let_nests_and_a_discarded_let_declares_nothing() {
+    let out = compile(concat!(
+        "type U { name: String }\n",
+        "enum S { idle, done(n: Number) }\n",
+        "store K {\n",
+        "  state a = 0\n",
+        "  action poke() { let _ = a\n let _ = a + 1\n let [_, _, c] = [1, 2, 3]\n log(c) }\n",
+        "  action both(_: Number, _: Number) { a = a + 1 }\n",
+        "}\n",
+        "page P(path: \"/\") {\n",
+        "  use K\n",
+        "  state a = false\n",
+        "  state u: U? = null\n",
+        "  state s: S = .idle\n",
+        "  state out = \"\"\n",
+        "  effect { let _ = a\n let _ = u\n log(\"x\") }\n",
+        "  if a { Text(\"a\") } else if let v = u { Text(v.name) } else if let .done(n) = s { Text(\"{n}\") } else { Text(\"none\") }\n",
+        "  Button(\"Go\") { on click { if a { out = \"a\" } else if let .done(n) = s { out = \"{n}\" } else { out = \"none\" } } }\n",
+        "  Text(out)\n",
+        "  Text(\"{[1, 2].reduce((_, _) => 1, 0)}\")\n",
+        "}\n",
+    ));
+    crate::web::codegen::jscheck::check_js(&out).unwrap_or_else(|f| panic!("{f:?}\n{out}"));
+    assert!(out.contains("void (_a());"), "{out}");
+    assert!(out.contains("void (_u());"), "{out}");
+    assert!(!out.contains("const __ ="), "{out}");
+    assert!(!out.contains("let _ ="), "{out}");
+    assert!(out.contains("(_, _$2) =>"), "{out}");
+    assert!(out.contains("both: (store, _, _$2) =>"), "{out}");
+}
+
 #[test]
 fn a_sockets_handler_reads_what_arrived_by_name() {
     let out = compile(concat!(
@@ -1441,6 +1477,34 @@ fn a_store_action_keeps_its_own_names_inside_try_for_and_else_if() {
         !action.contains("_user") && !action.contains("WF.signal("),
         "{action}"
     );
+}
+
+#[test]
+fn a_case_written_with_its_enum_is_the_case() {
+    let out = compile(
+        "enum Habitat { reedbed, forest }\nenum Status { idle, failed(reason: String) }\n\
+         store S { state h: Habitat = Habitat.reedbed\n action go() { h = Habitat.forest } }\n\
+         page P(path: \"/\") { use S\n state s: Status = Status.idle\n Button(\"x\") { on click { s = Status.failed(\"late\") } }\n if S.h == Habitat.forest { Text(\"woods\") } }",
+    );
+    assert!(!out.contains("Habitat."), "{out}");
+    assert!(!out.contains("Status."), "{out}");
+    assert!(out.contains("store.h = \"forest\";"), "{out}");
+    assert!(out.contains("[\"failed\", \"late\"]"), "{out}");
+}
+
+#[test]
+fn a_let_in_one_action_leaves_the_runtimes_ask_to_another() {
+    // `let ask` in one action made `ask(…)` in every other one the
+    // program's own name — a ReferenceError when it ran.
+    let out = compile(
+        "store S { state note = \"\"\n action pick() { let ask = \"x\"\n note = ask }\n action check() { if await ask(\"Sure?\") { note = \"y\" } }\n action mine() { let ask = (q: String) => q != \"\"\n if ask(\"q\") { note = \"z\" } } }\n\
+         page P(path: \"/\") { use S\n Button(\"Go\") { on click { let toast = 1\n log(toast) } }\n Button(\"Say\") { on click { toast(\"Saved\") } }\n Text(S.note) }",
+    );
+    assert!(out.contains("(await WF.ask(\"Sure?\"))"), "{out}");
+    // Inside the block that binds it, the name is the local.
+    let i = out.find("mine: ").unwrap();
+    assert!(out[i..].contains("if (ask(\"q\"))"), "{out}");
+    assert!(out.contains("WF.toast(\"Saved\")"), "{out}");
 }
 
 #[test]

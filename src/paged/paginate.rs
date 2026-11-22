@@ -129,7 +129,9 @@ impl State<'_> {
                 - f.y;
             match &lb.kind {
                 Kind::Inline(_) => self.lines(f),
-                Kind::Table { header_rows, .. } => self.table(f, *header_rows),
+                Kind::Table {
+                    header_rows, kept, ..
+                } => self.table(f, *header_rows, kept),
                 _ => self.children(f, before),
             }
             f.h = match &lb.kind {
@@ -380,7 +382,7 @@ impl State<'_> {
 
     /// A table: rows move whole; a row moved to a new page brings the
     /// header rows with it.
-    fn table(&mut self, f: &mut Frag, header_rows: usize) {
+    fn table(&mut self, f: &mut Frag, header_rows: usize, kept: &[(usize, usize)]) {
         let tree = self.tree;
         let row_of = |c: &Frag| match tree.boxes[c.boxed].kind {
             Kind::Cell { row, .. } => row,
@@ -410,9 +412,24 @@ impl State<'_> {
                 .iter()
                 .map(|&i| f.children[i].y)
                 .fold(f32::MAX, f32::min);
-            let bottom = idx
+            // The first row of a group kept whole moves when the group,
+            // not the row, would straddle the page's end; the rows after
+            // it follow, and then fit.
+            let group_end = kept
                 .iter()
-                .map(|&i| f.children[i].y + f.children[i].h)
+                .find(|(first, last)| *first == r && last > first)
+                .map(|&(_, last)| last);
+            let bottom = (0..f.children.len())
+                .filter(|&i| {
+                    let row = row_of(&f.children[i]);
+                    row == r || group_end.is_some_and(|last| row > r && row <= last)
+                })
+                .map(|i| {
+                    let c = &f.children[i];
+                    // The rows below have not moved by `off` yet.
+                    let moved = if row_of(c) == r { 0.0 } else { self.off };
+                    c.y + c.h + moved
+                })
                 .fold(f32::MIN, f32::max);
             let end = self.page_top(top + EPS) + self.h;
             let height = bottom - top;
@@ -547,5 +564,39 @@ mod tests {
             assert!((c.y % 200.0).abs() < 0.01, "{}", c.y);
         }
         assert_no_straddle(&f, 200.0);
+    }
+
+    #[test]
+    fn a_table_body_that_avoids_breaking_moves_whole_to_the_next_page() {
+        let rows: String = (0..4).fold(String::new(), |mut acc, i| {
+            let _ = write!(acc, "<tr><td>{i}</td></tr>");
+            acc
+        });
+        let filler = "<p>x</p>".repeat(7);
+        let html = format!(
+            "<body>{filler}<table><tbody>{rows}</tbody><tbody class=\"after\"><tr><td>z</td></tr></tbody></table></body>"
+        );
+        let css = "p { margin: 0; height: 20pt } td { padding: 0; height: 20pt } table { border-spacing: 0 }";
+        let row_tops = |f: &Frag| -> Vec<f32> {
+            let table = f.children.last().unwrap();
+            table.children.iter().map(|c| c.y).collect()
+        };
+        // 7 × 20 = 140: four 20pt rows would run to 220, past 200. Left to
+        // itself the body breaks between its rows.
+        let (_, loose, _) = pages(&html, css, 200.0);
+        assert!(row_tops(&loose)[0] < 200.0, "{:?}", row_tops(&loose));
+        // Kept whole, all four start the next page, and what follows goes on
+        // after them.
+        let (_, kept, p) = pages(
+            &html,
+            &format!("{css} tbody {{ break-inside: avoid }} .after {{ break-inside: auto }}"),
+            200.0,
+        );
+        let tops = row_tops(&kept);
+        assert!((tops[0] - 200.0).abs() < 0.01, "{tops:?}");
+        assert!(tops.windows(2).all(|w| w[1] > w[0]), "{tops:?}");
+        assert!((tops[4] - 280.0).abs() < 0.5, "{tops:?}");
+        assert_eq!(p.count, 2);
+        assert_no_straddle(&kept, 200.0);
     }
 }

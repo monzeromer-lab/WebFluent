@@ -42,6 +42,24 @@ test("decode names the place a value goes wrong, and what is wrong there", () =>
   assert.deepEqual(WF.decode(USER, null), ["err", { at: "$", message: "is null" }]);
 });
 
+test("decode gives a field left out its declared default", () => {
+  const WF = loadRuntime();
+  // `type Quote { number: String, currency: String = "EUR", lines: [Line] = [] }`
+  // `type Line { qty: Number = 1 }`
+  const LINE = ["r", "Line", { qty: ["?", "n", 1] }];
+  const QUOTE = ["r", "Quote", { number: "s", currency: ["?", "s", "EUR"], lines: ["?", ["l", LINE], []] }];
+  assert.deepEqual(
+    WF.decode(QUOTE, { number: "7", lines: [{}, { qty: 3 }] }),
+    ["ok", { number: "7", currency: "EUR", lines: [{ qty: 1 }, { qty: 3 }] }],
+  );
+  assert.deepEqual(WF.decode(QUOTE, { number: "7", currency: null }), ["ok", { number: "7", currency: "EUR", lines: [] }]);
+  assert.deepEqual(WF.decode(QUOTE, { number: "7", currency: "GBP" })[1].currency, "GBP");
+  // Two values decoded do not share one default.
+  const a = WF.decode(QUOTE, { number: "1" })[1];
+  a.lines.push({ qty: 2 });
+  assert.deepEqual(WF.decode(QUOTE, { number: "2" })[1].lines, []);
+});
+
 test("a dictionary decodes key by key, and Json takes any JSON", () => {
   const WF = loadRuntime();
   assert.deepEqual(WF.decode(["d", "n"], { a: 1, b: 2 }), ["ok", { a: 1, b: 2 }]);
