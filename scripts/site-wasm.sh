@@ -52,8 +52,8 @@ budget() { # <label> <bytes> <limit>
 echo "The compiler, shipped under /wasm/$version/"
 glue=$(cat "$dest/wf.js" "$dest/pkg/wf_wasm.js" | gzip -9c | wc -c)
 budget "wf.js + bindings (the first edit's script)" "$glue" 12000
-budget "pkg/wf_wasm_bg.wasm (the first edit)" "$(gz "$dest/pkg/wf_wasm_bg.wasm")" 1950000
-budget "pkg-pdf/wf_wasm_pdf_bg.wasm (the first PDF)" "$(gz "$dest/pkg-pdf/wf_wasm_pdf_bg.wasm")" 3050000
+budget "pkg/wf_wasm_bg.wasm (the first edit)" "$(gz "$dest/pkg/wf_wasm_bg.wasm")" 2000000
+budget "pkg-pdf/wf_wasm_pdf_bg.wasm (the first PDF)" "$(gz "$dest/pkg-pdf/wf_wasm_pdf_bg.wasm")" 3150000
 fonts=$(cat "$dest"/pkg-pdf/fonts/*.ttf.z | wc -c)
 budget "pkg-pdf/fonts/*.ttf.z (with the first PDF)" "$fonts" 2500000
 [ "$failed" = 0 ] || stop "over the size budget"

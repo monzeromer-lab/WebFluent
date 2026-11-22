@@ -963,9 +963,13 @@ impl core::marker::Unpin for webfluent::diagnostics::codes::CodeInfo
 impl core::marker::UnsafeUnpin for webfluent::diagnostics::codes::CodeInfo
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::codes::CodeInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::codes::CodeInfo
+pub const webfluent::diagnostics::codes::EXPLAIN_DIR: &str
 pub static webfluent::diagnostics::codes::CODES: &[webfluent::diagnostics::codes::CodeInfo]
+pub fn webfluent::diagnostics::codes::description(&str) -> core::option::Option<alloc::string::String>
 pub fn webfluent::diagnostics::codes::docs_url(&str) -> alloc::string::String
+pub fn webfluent::diagnostics::codes::explain_source(&str) -> core::option::Option<&'static str>
 pub fn webfluent::diagnostics::codes::family(&str) -> &str
+pub fn webfluent::diagnostics::codes::family_name(&str) -> core::option::Option<&'static str>
 pub fn webfluent::diagnostics::codes::guide_section(&str) -> core::option::Option<&'static str>
 pub fn webfluent::diagnostics::codes::info(&str) -> core::option::Option<&'static webfluent::diagnostics::codes::CodeInfo>
 pub fn webfluent::diagnostics::codes::lowerable(&str) -> bool
@@ -1704,7 +1708,8 @@ pub fn webfluent::init::create(&std::path::Path, &str, webfluent::init::Template
 pub fn webfluent::init::create_with(&std::path::Path, &str, &webfluent::init::Options) -> webfluent::diagnostics::error::diagnostic::Result<()>
 pub fn webfluent::init::locale_name(&str) -> alloc::string::String
 pub fn webfluent::init::parse_locales(&str) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
-pub fn webfluent::init::skill_files() -> alloc::vec::Vec<(&'static str, &'static str)>
+pub fn webfluent::init::reference_files(&str) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::init::skill_files() -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
 pub mod webfluent::memory
 #[non_exhaustive] pub enum webfluent::memory::Contents
 pub webfluent::memory::Contents::Bytes(alloc::vec::Vec<u8>)
@@ -3271,6 +3276,8 @@ pub webfluent::syntax::parser::ast::PageDecl::span: webfluent::syntax::parser::S
 pub webfluent::syntax::parser::ast::PageDecl::title: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::PageDecl::title_expr: core::option::Option<webfluent::syntax::parser::Expr>
 pub webfluent::syntax::parser::ast::PageDecl::translates: core::option::Option<alloc::string::String>
+impl webfluent::syntax::parser::PageDecl
+pub fn webfluent::syntax::parser::PageDecl::takes_data(&self) -> bool
 impl core::clone::Clone for webfluent::syntax::parser::PageDecl
 pub fn webfluent::syntax::parser::PageDecl::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::PageDecl
@@ -4883,6 +4890,8 @@ pub webfluent::syntax::parser::PageDecl::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::PageDecl::title: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::PageDecl::title_expr: core::option::Option<webfluent::syntax::parser::Expr>
 pub webfluent::syntax::parser::PageDecl::translates: core::option::Option<alloc::string::String>
+impl webfluent::syntax::parser::PageDecl
+pub fn webfluent::syntax::parser::PageDecl::takes_data(&self) -> bool
 impl core::clone::Clone for webfluent::syntax::parser::PageDecl
 pub fn webfluent::syntax::parser::PageDecl::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::syntax::parser::PageDecl

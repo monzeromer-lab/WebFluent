@@ -95,7 +95,7 @@ try {
   await pause(50);
   const asked = await page.evaluate(() => {
     const d = [...document.querySelectorAll("dialog[role=alertdialog]")].find((n) => n.open);
-    return d && { title: d.querySelector("h3").textContent, focus: document.activeElement.textContent, yes: d.querySelector(".wf-btn--danger")?.textContent };
+    return d && { title: d.querySelector("h2").textContent, focus: document.activeElement.textContent, yes: d.querySelector(".wf-btn--danger")?.textContent };
   });
   check("it asks in an alert dialog, with the focus on the answer that loses nothing",
     asked && asked.title === "Delete the project?" && asked.focus === "Cancel" && asked.yes === "Delete", JSON.stringify(asked));
