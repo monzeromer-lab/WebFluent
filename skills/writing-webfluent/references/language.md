@@ -1,4 +1,4 @@
-# The WebFluent 7.1.1 reference, a file a section
+# The WebFluent 7.2.0 reference, a file a section
 
 Read [core.md](core.md) first: it covers most sites and apps. For anything else, read only the section you need — every file you read stays in your context for the rest of the session, and the whole reference is about 251 kB. Or ask the compiler: `wf components Name`, `wf explain CODE`, `wf scope FILE:LINE`, `wf config schema`.
 

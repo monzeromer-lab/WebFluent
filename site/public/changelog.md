@@ -4,6 +4,96 @@
 
 The page: https://webfluent.monzeromer.dev/changelog
 
+Two commands for checking a site as a host and a reader meet it, keyed
+lists that move only what moved, a baseline palette that meets WCAG AA, and
+the fixes twelve new apps and a migrated studio turned up.
+
+## `wf start` and `wf inspect`
+
+- **`wf start`** serves what `wf build` wrote as a host would: on `$PORT`
+  (else 3000), with the headers its `_headers` file names, the `.gz` file
+  beside each text file, a single-page build's shell for any route a
+  navigation asks for and a static build's `404.html`, and a 404 — never
+  the shell — for a missing file or API call. `--proxy /api=https://HOST/api`
+  forwards a path to an API elsewhere, over http or https (this machine's
+  certificates, and what `SSL_CERT_FILE` or `NODE_EXTRA_CA_CERTS` names),
+  so a page calls its own origin and the API's address is chosen where the
+  site starts.
+- **`wf inspect ROUTE`** opens one page in a headless Chrome and prints it
+  as a reader meets it, a line a thing — landmarks, headings, links and
+  where they go, buttons and their states, fields, tables, pictures — then
+  anything that threw, logged an error or failed to arrive. `--do 'click
+  "Save"'` plays a step first, as a test writes it; `--mobile`,
+  `--screenshot`, `--proxy`, `--fakes` and `--json` as their names say.
+
+## Lists, colours and what a new site gets
+
+- **A keyed list moves only the items whose order changed.** Taking one
+  row out of a thousand moved every row after it, and swapping two moved
+  almost all of them; now each moves none and two. In js-framework-benchmark
+  removing a row went from 9.3 s to 46 ms and swapping from 421 ms to 52 ms.
+  A moved item slides to its place only in a list with an enter or exit
+  animation, or a sortable `DataTable`: a plain `for` no longer animates.
+- **The baseline palette meets WCAG AA.** `color-primary`, `-success`,
+  `-danger` and `-info` are darker (`#2563EB`, `#15803D`, `#DC2626`,
+  `#0E7490`), so a label on each tone has 4.5:1 or more and a new static
+  site scores 100 on Lighthouse's accessibility. A theme that names its own
+  colours is unchanged.
+
+## Fixes
+
+- **The language:** `else if let` binds in its branch; `let _` twice in
+  one action no longer writes a script a browser refuses; a lambda kept in
+  a `derived` keeps its list's item type; a case written with its enum
+  (`Tone.loud`) is that case; an option's `value:` may be a case of the
+  bound enum; a `Money` literal takes a method; a fallback empty list (`xs
+  ?? []`) takes the other side's type.
+- **Data:** a field the data leaves out is its declared default wherever
+  data comes in — an endpoint's answer, a `data` file, a template's data,
+  a test's `data:` — at any depth; a store whose first value is a
+  constant renders it; a data file is read as its declared type.
+- **`wf fix`** no longer offers a rewrite that is always false (a `Bool`
+  read through null is never made a null test), and `T25` names only types
+  the program has.
+- **Templates and builds:** a template page in a project is checked and
+  left out of the build; a template in a language formats in it; a
+  project's stylesheets come with its templates; an image placeholder no
+  longer needs `'unsafe-inline'`; a null global attribute is left out.
+- **PDFs:** CSS counters, so `List.ordered` numbers its items and a nested
+  list starts again; a `Table.Body` that avoids breaking moves whole to the
+  next page.
+- **Arabic and locales:** an Arabic page paints its dates in Arabic as
+  `Intl` writes them; a `NumberInput`'s and a `Calendar`'s buttons say the
+  page's words; a plural with an unknown count never paints its key.
+- **Controls and tests:** a `Combobox` says which option was picked; a
+  validated `DatePicker` shows its message; a form holds only the rules of
+  its own fields; a test step brings what it acts on into view; a test
+  names a fake any test file declares, and a file of fakes brings its
+  constants and types; a test's `data:` seeds a page's state in a browser
+  as in a render.
+- **Editors:** completion, signature help and hover in a project component
+  named like a built-in are the project's.
+
+## The docs
+
+- **`md-docs/` is gone.** The guide, recipes and the other pages are the
+  docs site's own WebFluent pages; what is written from the compiler — the
+  reference, the error pages — and from the pages — search, the Markdown
+  twins, `llms.txt` — is still written for you. Each diagnostic's
+  explanation lives with the compiler, which `wf explain` and `wf context`
+  read.
+- **The agents' skill** is a file for each section of `AGENTS.md` under
+  `references/language/`, so an agent reads the section it needs. For the
+  library: `webfluent::init::skill_files()` returns owned strings now, and
+  `reference_files(agents)` the sections a given `AGENTS.md` makes.
+- **[Benchmarks](https://webfluent.monzeromer.dev/benchmarks):** WebFluent
+  against Next.js, Astro, SvelteKit, Nuxt and React — what a site gets
+  without a package, Lighthouse, build times, runtime speed, PDFs, and what
+  an AI agent spends to build an app — each a script under `bench/` with
+  its raw results.
+
+# WebFluent v7.1.1 Release Notes
+
 A fix to the language server.
 
 - **Arabic in a splice no longer crashes the server.** Finding a name's

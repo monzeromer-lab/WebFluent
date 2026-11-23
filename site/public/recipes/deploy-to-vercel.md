@@ -8,7 +8,7 @@ This recipe has Vercel build a WebFluent site on every push and serve it. Vercel
 
 ```json
 {
-  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.1.1 bash && ~/.webfluent/bin/wf build",
+  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash && ~/.webfluent/bin/wf build",
   "outputDirectory": "build",
   "headers": [
     {

@@ -9,7 +9,7 @@ This recipe packs a WebFluent site into a Docker image that serves it with nginx
 ```dockerfile
 FROM debian:stable-slim AS build
 RUN apt-get update && apt-get install -y curl ca-certificates
-RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.1.1 bash
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash
 WORKDIR /site
 COPY . .
 RUN /root/.webfluent/bin/wf build

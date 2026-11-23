@@ -5,7 +5,7 @@ license: MPL-2.0
 compatibility: Needs the wf command on PATH (install.sh or install.ps1 in the WebFluent repository). Tests that click, and wf verify, need Chrome or Chromium.
 metadata:
   author: Monzer Omer
-  version: "7.1.1"
+  version: "7.2.0"
 ---
 
 # Writing WebFluent
@@ -39,7 +39,7 @@ so read a section, never the whole reference.
 1. **Check the version.** Run `wf --version`.
    - A project's own `AGENTS.md` is `core.md` for the version that made it,
      with the skill it came with beside it. Don't read both.
-   - This skill is the reference of WebFluent 7.1.1.
+   - This skill is the reference of WebFluent 7.2.0.
    - If the compiler and the reference disagree, the compiler is right. Say so.
    - A project written for WebFluent 6 is refused by 7 until it's migrated:
      `wf migrate --check` lists what changes, `wf migrate` rewrites it, then
