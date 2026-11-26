@@ -2921,8 +2921,11 @@ stylesheet rule the element carries by class.
 A PDF or a deck is laid out from the same HTML and CSS the page would
 get, so a `style { }` block, a theme and the project's `.css` files mean
 there what they mean on the web — every property the engine draws, on any
-element (see [PDF Output](#pdf-output)). `@media print { }` applies to
-paper only; a rule only a screen has (`:hover`, a width query) does not.
+element (see [PDF Output](#pdf-output)). `@media print`, `all` and a
+width or orientation query (answered against the page area) apply; a rule
+only a screen has (`@media screen`, `:hover`) does not. `@page` sets the
+paper and its margins (`:first`, `:left`, `:right`); `Document(size:)`
+and `margin:` win over it.
 
 ### Responsive values
 
