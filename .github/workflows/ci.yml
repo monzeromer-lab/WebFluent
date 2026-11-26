@@ -151,10 +151,12 @@ jobs:
           tool: cargo-nextest
       # Before the tests: the format parity tests hold the build's tables to
       # this Node's `Intl`, and the runner's own Node carries an older ICU,
-      # which words some locales otherwise (Korean's `오전` for `AM`).
+      # which words some locales otherwise (Korean's `오전` or `AM`). Pinned
+      # to the Node `src/project/format_locales.rs` was written from, so the
+      # check compares one ICU with itself and runs (another ICU skips it).
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '22'
+          node-version: '22.23.5'
 
       - name: Tests
         run: >-
@@ -488,10 +490,12 @@ jobs:
       # again here in debug.
       # Before the tests: the format parity tests hold the build's tables to
       # this Node's `Intl`, and the runner's own Node carries an older ICU,
-      # which words some locales otherwise (Korean's `오전` for `AM`).
+      # which words some locales otherwise (Korean's `오전` or `AM`). Pinned
+      # to the Node `src/project/format_locales.rs` was written from, so the
+      # check compares one ICU with itself and runs (another ICU skips it).
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version: '22'
+          node-version: '22.23.5'
 
       - name: Tests
         run: >-

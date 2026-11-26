@@ -1,4 +1,4 @@
-// Written by `tests/js/format-tables.mjs` from ICU 78.2 (Node 22.23.0): do not
+// Written by `tests/js/format-tables.mjs` from ICU 78.3 (Node 22.23.5): do not
 // edit by hand — run it again. `tests/build_and_runtime_agree.rs` holds the
 // build's formatting to the browser's `Intl` for these locales.
 
@@ -340,7 +340,7 @@ static DATES_18: Dates = Dates {
 
 static NUMBERS_19: Numbers = Numbers {
     zero: '0',
-    group: "\u{202f}",
+    group: "'",
     decimal: ",",
     minus: "-",
     negative: "-",
@@ -350,7 +350,7 @@ static NUMBERS_19: Numbers = Numbers {
     percent_negative: "-#%",
     currency: "#\u{a0}¤",
     currency_negative: "-#\u{a0}¤",
-    currency_group: "\u{202f}",
+    currency_group: "'",
     currency_decimal: ".",
     symbols: &[("USD", "$US"), ("EUR", "€"), ("GBP", "£GB"), ("INR", "₹"), ("KRW", "₩"), ("CAD", "$CA"), ("AUD", "$AU"), ("BRL", "R$"), ("MXN", "$MX"), ("ILS", "₪"), ("VND", "₫")],
     compact: &[
@@ -906,10 +906,10 @@ static DATES_51: Dates = Dates {
     datetime: ["yy. M. d. a h:mm", "yyyy. M. d. a h:mm", "yyyy년 MMMM d일 a h:mm", "yyyy년 MMMM d일 EEEE a h:mm"],
     months: [["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"], ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"]],
     weekdays: ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"],
-    periods: ["AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM"],
+    periods: ["오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후"],
     standalone_months: [["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"], ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"]],
     standalone_weekdays: [["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"], ["일", "월", "화", "수", "목", "금", "토"]],
-    standalone_periods: ["AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "AM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM", "PM"],
+    standalone_periods: ["오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오전", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후", "오후"],
 };
 
 static NUMBERS_52: Numbers = Numbers {

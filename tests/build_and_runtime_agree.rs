@@ -696,8 +696,9 @@ fn node_available(what: &str) -> bool {
 
 /// Whether this `node` reads the CLDR the build's tables were written from
 /// (`src/project/format_locales.rs` names its ICU). Another ICU words some
-/// locales otherwise — CLDR 48 writes Korean's day period `AM` where 46
-/// wrote `오전` — so a comparison with it says nothing about the build.
+/// locales otherwise — ICU 78.2 writes Korean's day period `AM` where 78.3
+/// and Chrome write `오전` — so a comparison with it says nothing about the
+/// build.
 fn node_has_the_tables_icu(what: &str) -> bool {
     if !node_available(what) {
         return false;
@@ -706,7 +707,7 @@ fn node_has_the_tables_icu(what: &str) -> bool {
     let written = tables
         .split("from ICU ")
         .nth(1)
-        .and_then(|rest| rest.split(['.', ' ']).next())
+        .and_then(|rest| rest.split(' ').next())
         .expect("format_locales.rs names the ICU it was written from")
         .to_string();
     let out = Command::new("node")
@@ -714,12 +715,14 @@ fn node_has_the_tables_icu(what: &str) -> bool {
         .output()
         .unwrap();
     let running = String::from_utf8_lossy(&out.stdout).trim().to_string();
-    let same = running.split('.').next() == Some(written.as_str());
+    // The whole version: ICU 78.2 wrote Korean's day period `AM`, 78.3
+    // and the browsers `오전`.
+    let same = running == written;
     if !same {
         eprintln!(
             "skipped: node has ICU {running}, the tables were written from ICU {written}; \
              {what} did not run. Run it with that Node, or write the tables again: \
-             node tests/js/format-tables.mjs"
+             TZ=UTC node tests/js/format-tables.mjs > src/project/format_locales.rs"
         );
     }
     same
