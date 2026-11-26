@@ -22,25 +22,111 @@ pub struct Pages {
     pub extra: Vec<Frag>,
 }
 
+/// How tall each page's content area is, the strip cut at those heights:
+/// the first page's, then the pages after it two by two — the second,
+/// fourth… (`even`) and the third, fifth… (`odd`), which is how `@page
+/// :first`, `:left` and `:right` margins differ.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Bands {
+    pub first: f32,
+    pub even: f32,
+    pub odd: f32,
+}
+
+impl Bands {
+    /// Every page the same height.
+    pub fn uniform(h: f32) -> Bands {
+        let h = h.max(10.0);
+        Bands {
+            first: h,
+            even: h,
+            odd: h,
+        }
+    }
+
+    /// The height of page `i` (from 0).
+    pub fn height(&self, i: usize) -> f32 {
+        match i {
+            0 => self.first,
+            _ if i % 2 == 1 => self.even,
+            _ => self.odd,
+        }
+    }
+
+    /// Where page `i` (from 0) starts on the strip.
+    pub fn top(&self, i: usize) -> f32 {
+        if self.alike() {
+            return i as f32 * self.first;
+        }
+        if i == 0 {
+            return 0.0;
+        }
+        let k = i - 1;
+        let rest = if k % 2 == 1 { self.even } else { 0.0 };
+        self.first + (k / 2) as f32 * (self.even + self.odd) + rest
+    }
+
+    /// The page (from 0) the strip's `y` is on.
+    pub fn index_of(&self, y: f32) -> usize {
+        if self.alike() {
+            return (y / self.first).floor().max(0.0) as usize;
+        }
+        if y < self.first {
+            return 0;
+        }
+        let r = y - self.first;
+        let pair = self.even + self.odd;
+        let k = (r / pair).floor();
+        let rem = r - k * pair;
+        1 + 2 * k as usize + usize::from(rem >= self.even)
+    }
+
+    /// How many pages a strip ending at `bottom` takes.
+    pub fn count(&self, bottom: f32) -> usize {
+        if bottom - EPS <= 0.0 {
+            return 1;
+        }
+        self.index_of(bottom - EPS) + 1
+    }
+
+    /// Every page alike: worked out as one height, so a place exactly at a
+    /// page's top lands on that page whatever the rounding.
+    fn alike(&self) -> bool {
+        self.first.to_bits() == self.even.to_bits() && self.even.to_bits() == self.odd.to_bits()
+    }
+
+    fn max(&self) -> f32 {
+        self.first.max(self.even).max(self.odd)
+    }
+}
+
 struct State<'a> {
     tree: &'a Tree,
+    bands: Bands,
+    /// The tallest page: what "fits on a page" is measured against.
     h: f32,
     off: f32,
     force: bool,
     extra: Vec<Frag>,
 }
 
+/// Cut the strip into pages all `page_height` tall.
 pub fn paginate(root: &mut Frag, tree: &Tree, page_height: f32) -> Pages {
+    paginate_bands(root, tree, Bands::uniform(page_height))
+}
+
+/// Cut the strip into pages as tall as `bands` says.
+pub fn paginate_bands(root: &mut Frag, tree: &Tree, bands: Bands) -> Pages {
     let mut st = State {
         tree,
-        h: page_height.max(10.0),
+        bands,
+        h: bands.max(),
         off: 0.0,
         force: false,
         extra: Vec::new(),
     };
     st.process(root);
-    let bottom = root.y + root.h;
-    let count = ((bottom - EPS) / st.h).ceil().max(1.0) as usize;
+    let count = bands.count(root.y + root.h);
     Pages {
         count,
         extra: st.extra,
@@ -49,11 +135,17 @@ pub fn paginate(root: &mut Frag, tree: &Tree, page_height: f32) -> Pages {
 
 impl State<'_> {
     fn page_top(&self, y: f32) -> f32 {
-        (y / self.h).floor() * self.h
+        self.bands.top(self.bands.index_of(y))
+    }
+
+    /// Where the page holding `y` ends.
+    fn page_end(&self, y: f32) -> f32 {
+        let i = self.bands.index_of(y);
+        self.bands.top(i) + self.bands.height(i)
     }
 
     fn next_top(&self, y: f32) -> f32 {
-        self.page_top(y + EPS) + self.h
+        self.page_end(y + EPS)
     }
 
     fn at_top(&self, y: f32) -> bool {
@@ -63,7 +155,7 @@ impl State<'_> {
     /// Move a piece that straddles a page end to the next page.
     fn fit(&mut self, top: f32, height: f32) -> f32 {
         let bottom = top + height;
-        let end = self.page_top(top + EPS) + self.h;
+        let end = self.page_end(top + EPS);
         if bottom > end + EPS && height <= self.h && !self.at_top(top) {
             let d = end - top;
             self.off += d;
@@ -246,7 +338,7 @@ impl State<'_> {
                     let next = &f.children[rows[r + 1][0]];
                     let need = next.h.min(self.first_unit_height(next)).min(self.h / 4.0);
                     let c = &f.children[ix];
-                    let end = self.page_top(c.y + EPS) + self.h;
+                    let end = self.page_end(c.y + EPS);
                     if c.y + c.h + need > end + EPS && !self.at_top(c.y) {
                         let d = end - c.y;
                         f.children[ix].shift(0.0, d);
@@ -336,7 +428,7 @@ impl State<'_> {
             let height = f.lines[i].height;
             let page = self.page_top(top + EPS);
             let straddles =
-                top + height > page + self.h + EPS && height <= self.h && !self.at_top(top);
+                top + height > self.page_end(top + EPS) + EPS && height <= self.h && !self.at_top(top);
             if !straddles {
                 i += 1;
                 continue;
@@ -431,9 +523,27 @@ impl State<'_> {
                     c.y + c.h + moved
                 })
                 .fold(f32::MIN, f32::max);
-            let end = self.page_top(top + EPS) + self.h;
+            let end = self.page_end(top + EPS);
             let height = bottom - top;
             let repeat = header_rows > 0 && r >= header_rows && !header.is_empty();
+            // A row that falls at the very top of a later page, with no
+            // break to make, still has the header drawn above it.
+            if repeat
+                && self.at_top(top)
+                && self.bands.index_of(top + EPS) > self.bands.index_of(f.y + EPS)
+            {
+                let at = self.page_top(top + EPS);
+                for h in &header {
+                    let mut copy = h.clone();
+                    copy.shift(0.0, at - header_top);
+                    self.extra.push(copy);
+                }
+                for &i in &idx {
+                    f.children[i].shift(0.0, header_h);
+                }
+                self.off += header_h;
+                continue;
+            }
             if bottom > end + EPS && height <= self.h && !self.at_top(top) {
                 let mut d = end - top;
                 if repeat {

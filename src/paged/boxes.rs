@@ -14,6 +14,15 @@ use super::html::{Dom, NodeKind};
 use super::style::{Display, ListStyle, Style};
 use super::text::{Item, Shaped};
 
+/// What a drawn picture that is not an `img` (an `svg`, an icon) is
+/// called: its `aria-label`, unless it is hidden from a reader.
+fn named(el: &super::html::Element) -> String {
+    if el.attr("aria-hidden") == Some("true") {
+        return String::new();
+    }
+    el.attr("aria-label").unwrap_or("").to_string()
+}
+
 /// A picture a box draws: decoded later, sized now.
 #[derive(Debug)]
 pub enum Asset {
@@ -681,7 +690,7 @@ impl<'a> Builder<'a> {
                     style: Rc::new(style),
                     kind: Kind::Image {
                         asset,
-                        alt: String::new(),
+                        alt: named(&el),
                     },
                     children: Vec::new(),
                     node: Some(node),
@@ -715,7 +724,7 @@ impl<'a> Builder<'a> {
                     style: Rc::new(style),
                     kind: Kind::Image {
                         asset,
-                        alt: String::new(),
+                        alt: named(&el),
                     },
                     children: Vec::new(),
                     node: Some(node),

@@ -555,3 +555,321 @@ fn one_colour_png(width: u32, height: u32, rgb: [u8; 3]) -> Vec<u8> {
     png.extend_from_slice(&chunk(b"IEND", b""));
     png
 }
+
+// ─── The page box, media, fixed boxes, selectors, tagging ──────────
+
+/// A PDF of `html` (its `<style>` elements and all) with the default
+/// configuration — A4, one-inch margins — and `tagged` as asked.
+fn pdf_tagged(html: &str, tagged: bool) -> webfluent::paged::Output {
+    let config = PdfConfig::default();
+    let reader = |_: &str| -> Option<Vec<u8>> { None };
+    let mut options = webfluent::paged::Options::from_pdf(&config, &reader, None);
+    options.tagged = tagged;
+    webfluent::paged::render(html, "", &options).unwrap()
+}
+
+fn pdf(html: &str) -> webfluent::paged::Output {
+    pdf_tagged(html, true)
+}
+
+/// The first page's `/MediaBox`, as written.
+fn media_box(out: &webfluent::paged::Output) -> String {
+    let bytes = String::from_utf8_lossy(&out.bytes);
+    let at = bytes.find("/MediaBox[").expect("a media box");
+    let rest = &bytes[at + "/MediaBox[".len()..];
+    rest[..rest.find(']').unwrap()].to_string()
+}
+
+fn paragraphs(n: usize) -> String {
+    (0..n).fold(String::new(), |mut acc, i| {
+        let _ = write!(acc, "<p>Paragraph {i} of the document.</p>");
+        acc
+    })
+}
+
+#[test]
+fn page_rules_size_the_paper_and_the_document_element_wins_over_them() {
+    let a5 =
+        pdf("<html><head><style>@page { size: A5 }</style></head><body><p>x</p></body></html>");
+    assert_eq!(media_box(&a5), "0 0 419.53 595.28");
+    let turned = pdf(
+        "<html><head><style>@page { size: A5 landscape }</style></head><body><p>x</p></body></html>",
+    );
+    assert_eq!(media_box(&turned), "0 0 595.28 419.53");
+    // `Document(size:)` is written on the element, over every sheet.
+    let doc = pdf(
+        "<html><head><style>@page { size: A5 }</style></head><body><div class=\"wf-document\" data-size=\"Letter\"><p>x</p></div></body></html>",
+    );
+    assert_eq!(media_box(&doc), "0 0 612 792");
+    // With nothing said, the configuration's paper.
+    assert_eq!(media_box(&pdf("<p>x</p>")), "0 0 595.28 841.89");
+}
+
+#[test]
+fn page_margins_differ_on_the_first_page_and_by_side() {
+    let body = paragraphs(120);
+    let plain = pdf(&format!("<html><body>{body}</body></html>"));
+    let first = pdf(&format!(
+        "<html><head><style>@page :first {{ margin-top: 400pt }}</style></head><body>{body}</body></html>"
+    ));
+    // The first page holds fewer lines under its deep top margin; the
+    // second as many as before.
+    assert!(
+        first.text[0].len() + 10 < plain.text[0].len(),
+        "{} vs {}",
+        first.text[0].len(),
+        plain.text[0].len()
+    );
+    assert_eq!(first.text[1].len(), plain.text[1].len());
+    // Every paragraph is somewhere, once.
+    let all = first.text.concat().join("\n");
+    for i in 0..120 {
+        assert_eq!(all.matches(&format!("Paragraph {i} ")).count(), 1, "{i}");
+    }
+    // `:left` pages (2, 4…) with a deeper bottom hold less than `:right`
+    // ones.
+    let sides = pdf(&format!(
+        "<html><head><style>@page :left {{ margin-bottom: 300pt }}</style></head><body>{body}</body></html>"
+    ));
+    let lens: Vec<usize> = sides.text.iter().map(Vec::len).collect();
+    // Page 1 is a right-hand page, so the left ones are 2 and 4.
+    assert!(
+        lens[1] + 5 < lens[2] && lens[3] + 5 < lens[2] && lens[0] == lens[2],
+        "{lens:?}"
+    );
+    // A margin box is noted, not drawn.
+    let boxed = pdf(
+        "<html><head><style>@page { @top-center { content: \"x\" } margin: 1in }</style></head><body><p>x</p></body></html>",
+    );
+    assert!(
+        boxed.notes.iter().any(|n| n.contains("@top-center")),
+        "{:?}",
+        boxed.notes
+    );
+}
+
+#[test]
+fn width_media_queries_are_asked_of_the_page_area() {
+    let css = ".n, .w, .p, .s { display: none }
+        @media (max-width: 500px) { .n { display: block } }
+        @media (min-width: 501px) { .w { display: block } }
+        @media print and (orientation: portrait) { .p { display: block } }
+        @media screen { .s { display: block } }";
+    let html = |page: &str| {
+        format!(
+            "<html><head><style>{page}{css}</style></head><body><p class=\"n\">narrow</p><p class=\"w\">wide</p><p class=\"p\">portrait</p><p class=\"s\">screen</p></body></html>"
+        )
+    };
+    // A4 inside one-inch margins is 451pt, 602 CSS pixels, wide.
+    let a4 = pdf(&html("")).text.concat();
+    assert_eq!(a4, vec!["wide", "portrait"]);
+    // A6 leaves 153pt, 204 pixels: narrow.
+    let a6 = pdf(&html("@page { size: A6 }")).text.concat();
+    assert_eq!(a6, vec!["narrow", "portrait"]);
+    // Turned, the page is no longer portrait.
+    let wide = pdf(&html("@page { size: A4 landscape }")).text.concat();
+    assert_eq!(wide, vec!["wide"]);
+}
+
+#[test]
+fn a_fixed_box_is_drawn_on_every_page_and_takes_no_room() {
+    let body = paragraphs(120);
+    let out = pdf(&format!(
+        "<html><body><div style=\"position: fixed; top: 10pt; right: 10pt\">CONFIDENTIAL</div>{body}</body></html>"
+    ));
+    assert!(out.pages >= 2, "{} pages", out.pages);
+    for (i, page) in out.text.iter().enumerate() {
+        assert_eq!(
+            page.iter().filter(|l| l.contains("CONFIDENTIAL")).count(),
+            1,
+            "page {}: {page:?}",
+            i + 1
+        );
+    }
+    // The flow starts where it would without it.
+    let plain = pdf(&format!("<html><body>{body}</body></html>"));
+    assert_eq!(out.pages, plain.pages);
+}
+
+/// The computed style of the element with `id`, through its ancestors.
+fn style_of(html: &str, css: &str, id: &str) -> webfluent::paged::style::Style {
+    use webfluent::paged::cascade::{Styler, UA_SHEET};
+    use webfluent::paged::css::Sheet;
+    use webfluent::paged::html::Dom;
+    use webfluent::paged::style::{Style, Units};
+    let dom = Dom::parse(html);
+    let styler = Styler::new(
+        &Sheet::parse(UA_SHEET),
+        &Sheet::parse(css),
+        Units {
+            em: 12.0,
+            rem: 12.0,
+            vw: 600.0,
+            vh: 800.0,
+        },
+    );
+    let node = dom
+        .descendants(0)
+        .into_iter()
+        .find(|&n| dom.element(n).and_then(|e| e.attr("id")) == Some(id))
+        .unwrap_or_else(|| panic!("no #{id}"));
+    let mut chain = vec![node];
+    while let Some(p) = dom.nodes[*chain.last().unwrap()].parent {
+        chain.push(p);
+    }
+    let mut style = Style::root(12.0, "sans-serif");
+    for &n in chain.iter().rev() {
+        if dom.element(n).is_some() {
+            style = styler.compute(&dom, n, &style);
+        }
+    }
+    style
+}
+
+#[test]
+fn logical_insets_and_sides_follow_the_direction() {
+    use webfluent::paged::style::Length;
+    let css = "#a { position: absolute; inset-inline-start: 5pt; inset-inline-end: 7pt; margin-inline-start: 3pt; padding-inline-end: 2pt }";
+    let ltr = style_of("<div id=\"a\">x</div>", css, "a");
+    assert_eq!(ltr.inset[3], Length::Pt(5.0));
+    assert_eq!(ltr.inset[1], Length::Pt(7.0));
+    assert_eq!(ltr.margin[3], Length::Pt(3.0));
+    assert_eq!(ltr.padding[1], Length::Pt(2.0));
+    let rtl = style_of("<div dir=\"rtl\"><div id=\"a\">x</div></div>", css, "a");
+    assert_eq!(rtl.inset[1], Length::Pt(5.0));
+    assert_eq!(rtl.inset[3], Length::Pt(7.0));
+    assert_eq!(rtl.margin[1], Length::Pt(3.0));
+    assert_eq!(rtl.padding[3], Length::Pt(2.0));
+    // The direction a rule sets on the element itself counts, wherever in
+    // the rule it is written.
+    let own = style_of(
+        "<div id=\"a\">x</div>",
+        "#a { inset-inline-start: 5pt; direction: rtl }",
+        "a",
+    );
+    assert_eq!(own.inset[1], Length::Pt(5.0));
+}
+
+#[test]
+fn text_shadow_is_read_and_drawn_under_the_text_once() {
+    let s = style_of(
+        "<p id=\"a\">x</p>",
+        "#a { text-shadow: 1px 2px 3px #ff0000, 0 0 2pt }",
+        "a",
+    );
+    assert_eq!(s.text_shadows.len(), 2);
+    assert!((s.text_shadows[0].x - 0.75).abs() < 0.01);
+    assert!((s.text_shadows[0].blur - 2.25).abs() < 0.01);
+    assert!(s.text_shadows[0].color.is_some());
+    // No colour named: the text's own.
+    assert!(s.text_shadows[1].color.is_none());
+    // Inherited.
+    let child = style_of(
+        "<div style=\"text-shadow: 1px 1px red\"><p id=\"a\">x</p></div>",
+        "",
+        "a",
+    );
+    assert_eq!(child.text_shadows.len(), 1);
+    let plain = pdf("<p>Shadowed words</p>");
+    let shadowed = pdf("<p style=\"text-shadow: 1pt 1pt 2pt #888\">Shadowed words</p>");
+    assert_eq!(shadowed.text, plain.text, "the words are there once");
+    assert!(
+        shadowed.bytes.len() > plain.bytes.len() + 200,
+        "the shadow is drawn: {} vs {}",
+        shadowed.bytes.len(),
+        plain.bytes.len()
+    );
+}
+
+#[test]
+fn structural_and_relational_pseudo_classes_match() {
+    let html = "<ul><li id=\"a\">a</li><li id=\"b\">b</li><li id=\"c\">c</li></ul>
+        <div id=\"card\"><img src=\"x.png\"><p id=\"only\">t</p></div>
+        <div id=\"plain\"><p>t</p></div>
+        <h2 id=\"h\">h</h2><p id=\"after\">p</p>
+        <div dir=\"rtl\" lang=\"ar-EG\"><span id=\"ar\">ع</span></div>";
+    let css = "li:nth-last-child(1) { color: #ff0000 }
+        li:nth-last-of-type(2) { color: #00ff00 }
+        p:only-of-type { font-weight: 700 }
+        div:has(> img) { color: #0000ff }
+        h2:has(+ p) { color: #ff00ff }
+        span:dir(rtl):lang(ar) { color: #00ffff }";
+    let red = |id: &str| style_of(html, css, id).color;
+    assert!(red("c").r > 0.9 && red("c").g < 0.1);
+    assert!(red("b").g > 0.9);
+    assert!(red("a").r < 0.1 && red("a").g < 0.1);
+    assert_eq!(style_of(html, css, "only").font_weight, 700);
+    assert!(red("card").b > 0.9);
+    assert!(red("plain").b < 0.1);
+    assert!(red("h").r > 0.9 && red("h").b > 0.9);
+    assert!(red("ar").g > 0.9 && red("ar").b > 0.9);
+    // A pseudo-class the engine does not know leaves its rule out, and
+    // says so once; one only a screen has leaves it out quietly.
+    let out = pdf(
+        "<html><head><style>p:frobnicate { color: red } p:frobnicate > b { color: red } a:hover { color: red }</style></head><body><p>x</p></body></html>",
+    );
+    let unknown: Vec<&String> = out
+        .notes
+        .iter()
+        .filter(|n| n.contains("frobnicate"))
+        .collect();
+    assert_eq!(unknown.len(), 1, "{:?}", out.notes);
+    assert!(
+        !out.notes.iter().any(|n| n.contains("hover")),
+        "{:?}",
+        out.notes
+    );
+}
+
+#[test]
+fn a_pdf_is_tagged_with_its_structure_and_language() {
+    let html = "<html lang=\"en\"><body>
+        <h1>Report</h1>
+        <p>Read <a href=\"https://example.com\">the site</a> first.</p>
+        <ul><li>One</li><li>Two</li></ul>
+        <table><thead><tr><th>Item</th></tr></thead><tbody><tr><td>Tea</td></tr></tbody></table>
+        <svg aria-label=\"A square\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\"><rect width=\"20\" height=\"20\"/></svg>
+        <svg aria-hidden=\"true\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\"><rect width=\"20\" height=\"20\"/></svg>
+        </body></html>";
+    let out = pdf(html);
+    let bytes = String::from_utf8_lossy(&out.bytes);
+    for tag in [
+        "/StructTreeRoot",
+        "/Marked true",
+        "/Lang(en)",
+        "/S/H1",
+        "/S/P",
+        "/S/Link",
+        "/S/L",
+        "/S/LI",
+        "/S/LBody",
+        "/S/Table",
+        "/S/TH",
+        "/S/TD",
+        "/S/Figure",
+        "/Alt(A square)",
+    ] {
+        assert!(bytes.contains(tag), "{tag} is in the file");
+    }
+    // The decorative picture is no figure.
+    assert_eq!(bytes.matches("/S/Figure").count(), 1);
+    // Untagged, the structure is left out.
+    let plain = pdf_tagged(html, false);
+    assert!(!String::from_utf8_lossy(&plain.bytes).contains("/StructTreeRoot"));
+}
+
+#[test]
+fn the_reference_documents_are_tagged() {
+    let (out, tmp) = build_document("invoice");
+    let pdf = std::fs::read_dir(tmp.join("documents/invoice/build"))
+        .unwrap()
+        .flatten()
+        .find(|e| e.path().extension().is_some_and(|x| x == "pdf"))
+        .unwrap()
+        .path();
+    let bytes = std::fs::read(&pdf).unwrap();
+    let text = String::from_utf8_lossy(&bytes);
+    assert!(text.contains("/StructTreeRoot"), "{out}");
+    assert!(text.contains("/S/Table") && text.contains("/S/H1"));
+    let _ = std::fs::remove_dir_all(&tmp);
+}

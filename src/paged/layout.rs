@@ -252,6 +252,17 @@ impl<'a> Layout<'a> {
         )
     }
 
+    /// Lay out a box out of the flow at its shrink-to-fit width: as wide as
+    /// its content, and no wider than `max`.
+    pub fn layout_shrink(&self, root: usize, max: f32) -> Frag {
+        let natural = self.layout_natural(root);
+        if natural.w <= max + 0.01 {
+            natural
+        } else {
+            self.layout(root, max)
+        }
+    }
+
     /// Lay out a box as wide as its content: a watermark.
     pub fn layout_natural(&self, root: usize) -> Frag {
         self.layout_with(
@@ -365,6 +376,10 @@ impl<'a> Layout<'a> {
         let mut st = Style {
             display: match s.display {
                 D::None => Display::None,
+                // A fixed box is the page's, not its parent's: it is laid out
+                // on its own against the page box and drawn on every page
+                // (see `paged::render`), and takes no room here.
+                _ if s.position == P::Fixed && !root => Display::None,
                 D::Flex | D::InlineFlex => Display::Flex,
                 D::Grid | D::InlineGrid | D::Table => Display::Grid,
                 _ => Display::Block,

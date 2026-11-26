@@ -211,6 +211,16 @@ pub struct Shadow {
     pub inset: bool,
 }
 
+/// One shadow of `text-shadow`: drawn under the glyphs, offset, in its
+/// colour (`None`: the text's).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TextShadow {
+    pub x: f32,
+    pub y: f32,
+    pub blur: f32,
+    pub color: Option<Rgba>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum FlexDirection {
     #[default]
@@ -371,6 +381,8 @@ pub struct Style {
     pub line_through: bool,
     pub overline: bool,
     pub decoration_color: Option<Rgba>,
+    /// `text-shadow`, first on top; inherited.
+    pub text_shadows: Rc<Vec<TextShadow>>,
     pub vertical_align: VerticalAlign,
     pub break_before: Break,
     pub break_after: Break,
@@ -501,6 +513,7 @@ impl Style {
             line_through: false,
             overline: false,
             decoration_color: None,
+            text_shadows: Rc::new(Vec::new()),
             vertical_align: VerticalAlign::Baseline,
             break_before: Break::Auto,
             break_after: Break::Auto,
@@ -536,6 +549,7 @@ impl Style {
         s.orphans = self.orphans;
         s.widows = self.widows;
         s.border_collapse = self.border_collapse;
+        s.text_shadows = Rc::clone(&self.text_shadows);
         s.vars = Rc::clone(&self.vars);
         s
     }
@@ -1185,6 +1199,39 @@ pub fn shadows(value: &str, u: &Units) -> Vec<Shadow> {
                 spread: lengths.get(3).copied().unwrap_or(0.0),
                 color: col,
                 inset,
+            })
+        })
+        .collect()
+}
+
+/// `text-shadow: 1px 1px 2px #000, 0 0 1em red`: each shadow's offset, blur
+/// and colour, `None` for the text's own colour (`currentcolor`, or none
+/// named). A shadow that cannot be read leaves the whole value out, as a
+/// browser drops an invalid declaration.
+pub fn text_shadows(value: &str, u: &Units) -> Option<Vec<TextShadow>> {
+    if value.trim() == "none" {
+        return Some(Vec::new());
+    }
+    split_top_level(value, b',')
+        .into_iter()
+        .map(|s| {
+            let mut lengths = Vec::new();
+            let mut col = None;
+            for w in split_spaces(s.trim()) {
+                if let Some(l) = length_pt(w, u) {
+                    lengths.push(l);
+                } else if !w.eq_ignore_ascii_case("currentcolor") {
+                    col = Some(color(w)?);
+                }
+            }
+            if !(2..=3).contains(&lengths.len()) {
+                return None;
+            }
+            Some(TextShadow {
+                x: lengths[0],
+                y: lengths[1],
+                blur: lengths.get(2).copied().unwrap_or(0.0).max(0.0),
+                color: col,
             })
         })
         .collect()

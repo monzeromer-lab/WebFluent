@@ -12,10 +12,12 @@ pub mod fonts;
 pub mod html;
 pub mod icons;
 pub mod layout;
+pub mod page;
 pub mod paginate;
 pub mod paint;
 pub mod style;
 pub mod style_value;
+pub mod tags;
 pub mod text;
 pub mod toc;
 
@@ -23,11 +25,12 @@ use std::path::PathBuf;
 
 use krilla::geom::{Point, Rect, Transform};
 use krilla::page::PageSettings;
+use krilla::tagging::{Artifact, ArtifactType, ContentTag};
 use krilla::{Document, SerializeSettings};
 
 use boxes::{AssetReader, Builder, On, Tree};
 use cascade::{Styler, UA_SHEET};
-use css::Sheet;
+use css::{Media, Sheet};
 use fonts::FontDb;
 use html::Dom;
 use layout::{Frag, Layout};
@@ -110,6 +113,11 @@ pub struct Options<'a> {
     /// Whether the machine's fonts may stand in for a family or a character
     /// nothing else has.
     pub system_fonts: bool,
+    /// Whether to write a tagged PDF: a structure of headings, paragraphs,
+    /// lists, tables, figures and links over what is drawn, and everything
+    /// else (backgrounds, borders, running headers and footers) marked as
+    /// an artifact.
+    pub tagged: bool,
 }
 
 impl std::fmt::Debug for Options<'_> {
@@ -120,6 +128,7 @@ impl std::fmt::Debug for Options<'_> {
             .field("font_family", &self.font_family)
             .field("font_dirs", &self.font_dirs)
             .field("system_fonts", &self.system_fonts)
+            .field("tagged", &self.tagged)
             .finish_non_exhaustive()
     }
 }
@@ -135,25 +144,48 @@ pub struct Output {
     pub notes: Vec<String>,
 }
 
-/// The sheets a page ships: the `<style>` elements of the document, then
-/// any given beside it.
 /// The author's sheet: the engine's paged rules, then `defaults` (rules the
 /// configuration implies, which the page's own may override), then every
-/// `<style>` of the page, then `extra`.
-fn sheets(dom: &Dom, defaults: &str, extra: &str) -> Sheet {
-    let mut sheet = Sheet::parse(PAGED_SHEET);
+/// `<style>` of the page, then `extra` — each `@media` query asked of
+/// `media`, the page area.
+fn sheets(dom: &Dom, defaults: &str, extra: &str, media: Media) -> Sheet {
+    let mut sheet = Sheet::parse_for(PAGED_SHEET, media);
     if !defaults.is_empty() {
-        sheet.extend(Sheet::parse(defaults));
+        sheet.extend(Sheet::parse_for(defaults, media));
     }
     for n in dom.descendants(0) {
         if dom.tag(n) == Some("style") {
-            sheet.extend(Sheet::parse(&dom.text_content(n)));
+            sheet.extend(Sheet::parse_for(&dom.text_content(n), media));
         }
     }
     if !extra.is_empty() {
-        sheet.extend(Sheet::parse(extra));
+        sheet.extend(Sheet::parse_for(extra, media));
     }
     sheet
+}
+
+/// What the reader of the build should know about the sheets: a selector
+/// naming a pseudo-class the engine does not know, an `@page` margin box.
+fn sheet_notes(sheet: &Sheet) -> Vec<String> {
+    let mut out: Vec<String> = sheet
+        .unknown
+        .iter()
+        .map(|p| format!("the PDF engine does not know `{p}`; the rules that name it are left out"))
+        .collect();
+    out.extend(sheet.unsupported.iter().map(|u| {
+        format!("{u} is not drawn; a document's `Header` and `Footer` go in the margins")
+    }));
+    out
+}
+
+/// Whether the document reads right to left: its root's or body's `dir`.
+fn document_rtl(dom: &Dom) -> bool {
+    ["html", "body"].iter().any(|t| {
+        dom.find_tag(t)
+            .and_then(|n| dom.element(n))
+            .and_then(|e| e.attr("dir"))
+            .is_some_and(|d| d.eq_ignore_ascii_case("rtl"))
+    })
 }
 
 /// The root style: the base size and family, with the page's `html` and
@@ -166,8 +198,9 @@ fn root_style(opts: &Options<'_>) -> Style {
     Style::root(opts.font_size, &family)
 }
 
-/// The paper a document asks for on its `Document` element, over the
-/// configured one.
+/// The paper a document asks for on its `Document` element, over `base`:
+/// the configured paper with the sheets' `@page` rules applied (see
+/// [`page`] for the order).
 fn document_paper(dom: &Dom, doc: Option<usize>, base: Paper) -> Paper {
     let Some(el) = doc.and_then(|d| dom.element(d)) else {
         return base;
@@ -239,6 +272,61 @@ fn metadata(dom: &Dom, doc: Option<usize>) -> krilla::metadata::Metadata {
     m
 }
 
+/// The `position: fixed` boxes, each laid out on its own against the page
+/// box — as paged media has it, a fixed box is drawn on every page, placed
+/// by its insets from the paper's edges (a percentage of the paper's width
+/// or height), and as wide as its content unless both `left` and `right`
+/// (or a `width`) say otherwise. One with no inset on a side sits at the
+/// first page's margin on that side.
+fn fixed_frags(tree: &Tree, db: &FontDb, geometry: &page::Geometry) -> Vec<Frag> {
+    let (pw, ph) = (geometry.width, geometry.height);
+    let m = geometry.first;
+    let layout = Layout::new(tree, db);
+    let mut out = Vec::new();
+    for (b, lb) in tree.boxes.iter().enumerate() {
+        let s = &lb.style;
+        if s.position != style::Position::Fixed
+            || s.display == style::Display::None
+            || b == tree.flow
+        {
+            continue;
+        }
+        let inset = |i: usize| s.inset[i].resolve(if i.is_multiple_of(2) { ph } else { pw });
+        let (top, right, bottom, left) = (inset(0), inset(1), inset(2), inset(3));
+        let margin = |i: usize| s.margin[i].or_zero(pw);
+        let mut frag = match (left, right) {
+            (Some(l), Some(r)) if s.width == style::Length::Auto => {
+                let w = (pw - l - r - margin(1) - margin(3)).max(1.0);
+                match (top, bottom) {
+                    (Some(t), Some(bo)) if s.height == style::Length::Auto => {
+                        let h = (ph - t - bo - margin(0) - margin(2)).max(1.0);
+                        layout.layout_page(b, w, h)
+                    }
+                    _ => layout.layout(b, w),
+                }
+            }
+            _ if s.width != style::Length::Auto => {
+                layout.layout(b, s.width.resolve(pw).unwrap_or(pw))
+            }
+            _ => layout.layout_shrink(b, (pw - left.unwrap_or(0.0) - right.unwrap_or(0.0)).max(1.0)),
+        };
+        let x = match (left, right) {
+            (Some(l), _) => l + margin(3),
+            (None, Some(r)) => pw - r - margin(1) - frag.w,
+            (None, None) => m[3] + margin(3),
+        };
+        let y = match (top, bottom) {
+            (Some(t), _) => t + margin(0),
+            (None, Some(bo)) => ph - bo - margin(2) - frag.h,
+            (None, None) => m[0] + margin(0),
+        };
+        frag.shift(x - frag.x, y - frag.y);
+        frag.measure_extent();
+        out.push(frag);
+    }
+    out
+}
+
 /// Where every box's frag sits, by box.
 fn positions(f: &Frag, out: &mut std::collections::HashMap<usize, (f32, f32)>) {
     out.entry(f.boxed).or_insert((f.x, f.y));
@@ -281,7 +369,29 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
         return Err(NO_PDF.to_string());
     }
     let dom = Dom::parse(html);
-    let author = sheets(&dom, "", css);
+    let doc = dom
+        .descendants(0)
+        .into_iter()
+        .find(|&n| dom.element(n).is_some_and(|e| e.has_class("wf-document")));
+    // The page box first — the configuration, then the sheets' `@page`,
+    // then the document's own size — and then the sheets again, their
+    // `@media` queries asked of the page area it leaves.
+    let configured = Media::page(opts.paper.content_width(), opts.paper.content_height());
+    let probe = sheets(&dom, "", css, configured);
+    let (geometry, page_notes) = page::resolve(
+        opts.paper,
+        &probe.pages,
+        |p| document_paper(&dom, doc, p),
+        document_rtl(&dom),
+        opts.font_size,
+    );
+    let paper = geometry.paper();
+    let media = Media::page(paper.content_width(), paper.content_height());
+    let author = if media == configured {
+        probe
+    } else {
+        sheets(&dom, "", css, media)
+    };
     let mut db = FontDb::new(opts.system_fonts);
     for dir in &opts.font_dirs {
         db.add_dir_via(opts.vfs, dir);
@@ -320,18 +430,13 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
         Units {
             em: opts.font_size,
             rem: opts.font_size,
-            vw: opts.paper.width,
-            vh: opts.paper.height,
+            vw: paper.width,
+            vh: paper.height,
         },
     );
     let rem = dom
         .find_tag("html")
         .map_or(opts.font_size, |h| first.compute(&dom, h, &base).font_size);
-    let doc = dom
-        .descendants(0)
-        .into_iter()
-        .find(|&n| dom.element(n).is_some_and(|e| e.has_class("wf-document")));
-    let paper = document_paper(&dom, doc, opts.paper);
     let styler = Styler::new(
         &ua,
         &author,
@@ -342,7 +447,8 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
             vh: paper.height,
         },
     );
-    let (cw, ch) = (paper.content_width(), paper.content_height());
+    let cw = paper.content_width();
+    let bands = geometry.bands();
 
     // A table of contents: entries with a placeholder for each page, laid
     // out once to learn where each heading lands, then filled in.
@@ -352,7 +458,7 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
         let tree = Builder::new(dom, &styler, db, opts.assets).build(&base);
         let layout = Layout::new(&tree, db);
         let mut flow = layout.layout(tree.flow, cw);
-        let pages = paginate::paginate(&mut flow, &tree, ch);
+        let pages = paginate::paginate_bands(&mut flow, &tree, bands);
         (tree, flow, pages)
     };
     let (mut tree, mut flow, mut pages) = lay(&dom, &mut db);
@@ -363,7 +469,7 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
             let changed = toc::fill(&mut dom, &entries, |node| {
                 let b = tree.boxes.iter().position(|b| b.node == Some(node))?;
                 let (_, y) = box_pos.get(&b)?;
-                Some((y / ch).floor() as usize + 1)
+                Some(bands.index_of(*y) + 1)
             });
             if !changed {
                 break;
@@ -378,6 +484,7 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
         e.measure_extent();
     }
     let count = pages.count;
+    let fixed = fixed_frags(&tree, &db, &geometry);
 
     let mut running: Vec<RunningFrag> = Vec::new();
     let lists: [(u8, &Vec<(On, usize)>); 4] = [
@@ -402,15 +509,15 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
                         _ => layout.layout(rt.flow, cw),
                     }
                 };
-                // Where it goes on the page.
+                // Where it goes on the page, in that page's margins.
+                let m = geometry.margins(page - 1);
                 let (x, y) = match kind {
                     0 => (0.0, 0.0),
                     1 => ((paper.width - frag.w) / 2.0, (paper.height - frag.h) / 2.0),
-                    2 => (paper.margin[3], ((paper.margin[0] - frag.h) / 2.0).max(0.0)),
+                    2 => (m[3], ((m[0] - frag.h) / 2.0).max(0.0)),
                     _ => (
-                        paper.margin[3],
-                        paper.height - paper.margin[2]
-                            + ((paper.margin[2] - frag.h) / 2.0).max(0.0),
+                        m[3],
+                        paper.height - m[2] + ((m[2] - frag.h) / 2.0).max(0.0),
                     ),
                 };
                 frag.shift(x - frag.x, y - frag.y);
@@ -441,11 +548,24 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
         tree.boxes[tree.flow].style = std::rc::Rc::new(body);
     }
 
-    let mut document = Document::new_with(SerializeSettings::default());
+    let settings = SerializeSettings {
+        enable_tagging: opts.tagged,
+        ..SerializeSettings::default()
+    };
+    let mut document = Document::new_with(settings);
     document.set_metadata(metadata(&dom, doc));
     let mut box_pos = std::collections::HashMap::new();
     positions(&flow, &mut box_pos);
     let mut painter = Painter::new(&tree, &db);
+    painter.tagging = opts.tagged;
+    // The link annotations, as tagged content of the element they are on.
+    let mut link_leaves: Vec<paint::Leaf> = Vec::new();
+    // Where a place on the strip lands: its page, and its point there.
+    let place = |x: f32, y: f32| {
+        let p = bands.index_of(y).min(count - 1);
+        let m = geometry.margins(p);
+        (p, Point::from_xy(x + m[3], y - bands.top(p) + m[0]))
+    };
     let mut page_text: Vec<Vec<String>> = Vec::new();
     for page_ix in 0..count {
         painter.text.clear();
@@ -453,11 +573,27 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
             PageSettings::from_wh(paper.width, paper.height).ok_or("a page with no size")?;
         let mut page = document.start_page_with(settings);
         let mut links = Vec::new();
+        let m = geometry.margins(page_ix);
+        let (top, band_h) = (bands.top(page_ix), bands.height(page_ix));
         {
             let mut s = page.surface();
+            // Everything the page draws beside its own content — the
+            // canvas, backgrounds, watermarks, headers, footers, fixed
+            // boxes, a repeated table header — is an artifact.
+            let artifact = |s: &mut krilla::surface::Surface<'_>, kind| {
+                if opts.tagged {
+                    s.start_tagged(ContentTag::Artifact(Artifact::new(kind, None)));
+                }
+            };
+            let end = |s: &mut krilla::surface::Surface<'_>| {
+                if opts.tagged {
+                    s.end_tagged();
+                }
+            };
             if canvas.is_visible()
                 && let Some(p) = paint::rounded(0.0, 0.0, paper.width, paper.height, [0.0; 4])
             {
+                artifact(&mut s, ArtifactType::Layout);
                 s.set_stroke(None);
                 s.set_fill(Some(krilla::paint::Fill {
                     paint: krilla::color::rgb::Color::new(
@@ -470,7 +606,9 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
                     rule: krilla::paint::FillRule::default(),
                 }));
                 s.draw_path(&p);
+                end(&mut s);
             }
+            painter.artifact = true;
             // Backgrounds and watermarks, behind the content.
             for r in running
                 .iter()
@@ -481,6 +619,7 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
                 painter.dx = 0.0;
                 painter.dy = 0.0;
                 if r.kind == 1 {
+                    artifact(&mut s, ArtifactType::Watermark);
                     let style = &r.tree.boxes[r.tree.flow].style;
                     let angle = if style.rotate.abs() > 0.01 {
                         0.0
@@ -495,30 +634,45 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
                     painter.frag(&mut s, &r.frag);
                     s.pop();
                 } else {
+                    artifact(&mut s, ArtifactType::Layout);
                     painter.frag(&mut s, &r.frag);
                 }
+                end(&mut s);
                 links.append(&mut painter.links);
             }
             // The content: this page's band of the strip.
             painter.tree = &tree;
-            let top = page_ix as f32 * ch;
-            painter.band = (top, top + ch);
-            painter.dx = paper.margin[3];
-            painter.dy = paper.margin[0] - top;
-            if let Some(clip) = paint::rounded(0.0, paper.margin[0], paper.width, ch, [0.0; 4]) {
+            painter.band = (top, top + band_h);
+            painter.dx = m[3];
+            painter.dy = m[0] - top;
+            if let Some(clip) = paint::rounded(0.0, m[0], paper.width, band_h, [0.0; 4]) {
                 s.push_clip_path(&clip, &krilla::paint::FillRule::NonZero);
-                s.push_transform(&Transform::from_translate(
-                    paper.margin[3],
-                    paper.margin[0] - top,
-                ));
+                s.push_transform(&Transform::from_translate(m[3], m[0] - top));
                 // A repeated table header first: it is what the page reads
                 // first.
-                for e in extra.iter().filter(|e| e.y >= top - 0.5 && e.y < top + ch) {
+                for e in extra
+                    .iter()
+                    .filter(|e| e.y >= top - 0.5 && e.y < top + band_h)
+                {
+                    artifact(&mut s, ArtifactType::PaginationOther);
                     painter.frag(&mut s, e);
+                    end(&mut s);
                 }
+                painter.artifact = false;
                 painter.frag(&mut s, &flow);
+                painter.artifact = true;
                 s.pop();
                 s.pop();
+            }
+            links.append(&mut painter.links);
+            // The fixed boxes, the same on every page, over the content.
+            painter.band = (f32::MIN, f32::MAX);
+            painter.dx = 0.0;
+            painter.dy = 0.0;
+            for f in &fixed {
+                artifact(&mut s, ArtifactType::PaginationOther);
+                painter.frag(&mut s, f);
+                end(&mut s);
             }
             links.append(&mut painter.links);
             // Headers and footers, in the margins.
@@ -530,9 +684,19 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
                 painter.band = (f32::MIN, f32::MAX);
                 painter.dx = 0.0;
                 painter.dy = 0.0;
+                artifact(
+                    &mut s,
+                    if r.kind == 2 {
+                        ArtifactType::Header
+                    } else {
+                        ArtifactType::Footer
+                    },
+                );
                 painter.frag(&mut s, &r.frag);
+                end(&mut s);
                 links.append(&mut painter.links);
             }
+            painter.artifact = false;
             s.finish();
         }
         page_text.push(std::mem::take(&mut painter.text));
@@ -551,24 +715,40 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
                     .and_then(|n| tree.boxes.iter().position(|b| b.node == Some(n)))
                     .and_then(|b| box_pos.get(&b).copied());
                 let Some((bx, by)) = found else { continue };
-                let p = ((by / ch).floor() as usize).min(count - 1);
+                let (p, at) = place(bx, by);
                 krilla::annotation::Target::Destination(krilla::destination::Destination::Xyz(
-                    krilla::destination::XyzDestination::new(
-                        p,
-                        Point::from_xy(bx + paper.margin[3], by - p as f32 * ch + paper.margin[0]),
-                    ),
+                    krilla::destination::XyzDestination::new(p, at),
                 ))
             } else {
                 krilla::annotation::Target::Action(krilla::action::Action::Link(
                     krilla::action::LinkAction::new(l.href.clone()),
                 ))
             };
-            page.add_annotation(krilla::annotation::Annotation::new_link(
+            let annotation = krilla::annotation::Annotation::new_link(
                 krilla::annotation::LinkAnnotation::new(rect, target),
                 Some(l.href),
-            ));
+            );
+            // A link in the content is tagged with the element it is on; one
+            // in a header or a footer is not part of the structure.
+            match l.node.filter(|_| opts.tagged) {
+                Some(node) => {
+                    let id = page.add_tagged_annotation(annotation);
+                    link_leaves.push(paint::Leaf {
+                        node,
+                        seq: l.seq,
+                        label: false,
+                        id,
+                    });
+                }
+                _ => page.add_annotation(annotation),
+            }
         }
         page.finish();
+    }
+    if opts.tagged {
+        let mut leaves = std::mem::take(&mut painter.leaves);
+        leaves.extend(link_leaves);
+        document.set_tag_tree(tags::tree(&dom, leaves));
     }
 
     // The outline: the headings, nested by level.
@@ -600,11 +780,8 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
             continue;
         }
         finish(&mut stack, &mut outline, level);
-        let p = ((y / ch).floor() as usize).min(count - 1);
-        let dest = krilla::destination::XyzDestination::new(
-            p,
-            Point::from_xy(x + paper.margin[3], y - p as f32 * ch + paper.margin[0]),
-        );
+        let (p, at) = place(x, y);
+        let dest = krilla::destination::XyzDestination::new(p, at);
         stack.push((level, krilla::outline::OutlineNode::new(text, dest)));
     }
     finish(&mut stack, &mut outline, 0);
@@ -614,6 +791,8 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
         .finish()
         .map_err(|e| format!("the PDF could not be written: {e:?}"))?;
     let mut notes = font_notes;
+    notes.extend(page_notes);
+    notes.extend(sheet_notes(&author));
     notes.extend(tree.notes.iter().cloned());
     for (ch, _) in &tree.missing {
         notes.push(format!(
@@ -805,6 +984,9 @@ impl<'a> Options<'a> {
             vfs,
             font_dirs: font_dirs_via(vfs, root, &config.fonts),
             system_fonts: config.system_fonts,
+            // Every PDF is tagged: the configuration has no setting for it
+            // yet (`build.pdf.tagged` would be one).
+            tagged: true,
         }
     }
 
@@ -848,6 +1030,7 @@ impl<'a> Options<'a> {
             vfs,
             font_dirs: font_dirs_via(vfs, root, &config.fonts),
             system_fonts: config.system_fonts,
+            tagged: false,
         };
         let chrome = SlideChrome {
             margin: config.margin as f32,
@@ -908,7 +1091,12 @@ pub fn render_slides(
     let slide_css = format!(
         ".wf-slide, .wf-title-slide, .wf-section-slide, .wf-two-column, .wf-image-slide {{ padding: {m}pt; overflow: hidden; }}"
     );
-    let author = sheets(&dom, &slide_css, css);
+    let author = sheets(
+        &dom,
+        &slide_css,
+        css,
+        Media::page(opts.paper.width, opts.paper.height),
+    );
     let mut db = FontDb::new(opts.system_fonts);
     for dir in &opts.font_dirs {
         db.add_dir_via(opts.vfs, dir);

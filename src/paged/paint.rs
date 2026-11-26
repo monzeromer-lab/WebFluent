@@ -14,6 +14,7 @@ use krilla::paint::{
     Fill, FillRule, LineCap, LinearGradient, RadialGradient, SpreadMethod, Stop, Stroke, StrokeDash,
 };
 use krilla::surface::Surface;
+use krilla::tagging::{Artifact, ArtifactType, ContentTag, Identifier, SpanTag};
 use krilla::text::{Font, GlyphId, KrillaGlyph};
 use krilla_svg::{SurfaceExt, SvgSettings};
 
@@ -25,15 +26,51 @@ use super::style::{
 };
 use super::text::{Item, Line};
 
-/// A link drawn on a page: where, and to what.
+/// A link drawn on a page: where, to what, and — for a tagged PDF — the
+/// element it belongs to and where it falls in the reading order.
 #[derive(Debug)]
 pub struct LinkBox {
     pub rect: (f32, f32, f32, f32),
     pub href: String,
+    pub node: Option<usize>,
+    pub seq: u64,
+}
+
+/// A piece of tagged content: the element it belongs to, its place in the
+/// order it was drawn (which is the reading order within an element), and
+/// whether it is a list item's marker.
+#[derive(Debug)]
+pub struct Leaf {
+    pub node: usize,
+    pub seq: u64,
+    pub label: bool,
+    pub id: Identifier,
+}
+
+/// What the content being drawn is marked as.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Mark {
+    Artifact,
+    Content { node: usize, label: bool, image: bool },
 }
 
 #[derive(Debug)]
 pub struct Painter<'a> {
+    /// Whether what is drawn is tagged: content as a leaf of its element,
+    /// decoration as an artifact.
+    pub tagging: bool,
+    /// Inside an artifact the caller opened — a running header, a fixed
+    /// box, a repeated table header — nothing more is marked.
+    pub artifact: bool,
+    /// The tagged content drawn so far, every page.
+    pub leaves: Vec<Leaf>,
+    seq: u64,
+    /// The elements being painted, innermost last: what content belongs to.
+    owner: Vec<usize>,
+    /// Painting a list item's marker.
+    label: bool,
+    /// The mark open on the surface, if any.
+    open: Option<Mark>,
     /// The tree being painted: the document's, or a running element's.
     pub tree: &'a Tree,
     pub db: &'a FontDb,
@@ -188,6 +225,13 @@ fn stops(list: &[GradientStop]) -> Vec<Stop> {
 impl<'a> Painter<'a> {
     pub fn new(tree: &'a Tree, db: &'a FontDb) -> Painter<'a> {
         Painter {
+            tagging: false,
+            artifact: false,
+            leaves: Vec::new(),
+            seq: 0,
+            owner: Vec::new(),
+            label: false,
+            open: None,
             tree,
             db,
             fonts: HashMap::new(),
@@ -197,6 +241,75 @@ impl<'a> Painter<'a> {
             dy: 0.0,
             band: (f32::MIN, f32::MAX),
             text: Vec::new(),
+        }
+    }
+
+    /// The next place in the order things are drawn.
+    pub fn next_seq(&mut self) -> u64 {
+        self.seq += 1;
+        self.seq
+    }
+
+    /// Mark what is drawn next as an artifact — decoration, no part of what
+    /// the document says.
+    fn mark_artifact(&mut self, s: &mut Surface<'_>) {
+        self.mark(s, Mark::Artifact);
+    }
+
+    /// Mark what is drawn next as content of `node` (else of the element
+    /// being painted), recorded as a leaf of it.
+    fn mark_content(&mut self, s: &mut Surface<'_>, node: Option<usize>, image: bool) {
+        match node.or_else(|| self.owner.last().copied()) {
+            Some(node) => self.mark(
+                s,
+                Mark::Content {
+                    node,
+                    label: self.label,
+                    image,
+                },
+            ),
+            None => self.mark(s, Mark::Artifact),
+        }
+    }
+
+    /// Go on with the mark that is open when it is the one wanted — the runs
+    /// of a line in one element are one piece of content — or close it and
+    /// open that one.
+    fn mark(&mut self, s: &mut Surface<'_>, want: Mark) {
+        if !self.tagging || self.artifact || self.open == Some(want) {
+            return;
+        }
+        self.close_mark(s);
+        match want {
+            Mark::Artifact => {
+                s.start_tagged(ContentTag::Artifact(Artifact::new(
+                    ArtifactType::Layout,
+                    None,
+                )));
+            }
+            Mark::Content { node, label, image } => {
+                let id = s.start_tagged(if image {
+                    ContentTag::Other
+                } else {
+                    ContentTag::Span(SpanTag::empty())
+                });
+                let seq = self.next_seq();
+                self.leaves.push(Leaf {
+                    node,
+                    seq,
+                    label,
+                    id,
+                });
+            }
+        }
+        self.open = Some(want);
+    }
+
+    /// Close the open mark: before the graphics state is pushed or popped,
+    /// which a marked sequence may not straddle, and when painting stops.
+    pub fn close_mark(&mut self, s: &mut Surface<'_>) {
+        if self.open.take().is_some() {
+            s.end_tagged();
         }
     }
 
@@ -242,8 +355,13 @@ impl<'a> Painter<'a> {
             .clone()
     }
 
-    /// Paint a fragment and everything in it.
+    /// Paint a fragment and everything in it, leaving no mark open.
     pub fn frag(&mut self, s: &mut Surface<'_>, f: &Frag) {
+        self.paint_frag(s, f);
+        self.close_mark(s);
+    }
+
+    fn paint_frag(&mut self, s: &mut Surface<'_>, f: &Frag) {
         if f.extent.1 <= self.band.0 + 0.01 || f.extent.0 >= self.band.1 - 0.01 {
             return;
         }
@@ -254,6 +372,7 @@ impl<'a> Painter<'a> {
             return;
         }
         let mut pushed = 0;
+        self.close_mark(s);
         if style.opacity < 0.999 {
             s.push_opacity(opacity(style.opacity));
             pushed += 1;
@@ -267,16 +386,39 @@ impl<'a> Painter<'a> {
             s.push_transform(&Transform::from_translate(-cx, -cy));
             pushed += 4;
         }
+        if let Some(n) = lb.node {
+            self.owner.push(n);
+        }
         if style.visible {
-            self.decoration(s, f, style);
+            let draws = style.background_color.is_visible()
+                || !style.background_images.is_empty()
+                || !style.shadows.is_empty()
+                || style.border.iter().any(super::style::BorderSide::visible);
+            if draws {
+                self.mark_artifact(s);
+                self.decoration(s, f, style);
+            }
         }
         match &lb.kind {
-            Kind::Image { asset, .. } => self.picture(s, f, *asset, style),
-            Kind::Progress(frac) => self.progress(s, f, *frac, style),
+            Kind::Image { asset, alt } => {
+                // A picture with an empty `alt` (an icon beside its words) is
+                // decoration.
+                if alt.trim().is_empty() {
+                    self.mark_artifact(s);
+                } else {
+                    self.mark_content(s, lb.node, true);
+                }
+                self.picture(s, f, *asset, style);
+            }
+            Kind::Progress(frac) => {
+                self.mark_artifact(s);
+                self.progress(s, f, *frac, style);
+            }
             _ => {}
         }
         let clip = style.clip && !matches!(lb.kind, Kind::Inline(_));
         if clip && let Some(p) = rounded(f.x, f.y, f.w, f.h, radii(style, f.w, f.h)) {
+            self.close_mark(s);
             s.push_clip_path(&p, &FillRule::NonZero);
             pushed += 1;
         }
@@ -292,20 +434,34 @@ impl<'a> Painter<'a> {
             .iter()
             .filter(|c| tree.boxes[c.boxed].style.position == Position::Static)
         {
-            self.frag(s, c);
+            self.paint_frag(s, c);
         }
         for c in f
             .children
             .iter()
-            .filter(|c| tree.boxes[c.boxed].style.position != Position::Static)
+            .filter(|c| {
+                let p = tree.boxes[c.boxed].style.position;
+                // A fixed box is drawn on its own, on every page.
+                p != Position::Static && p != Position::Fixed
+            })
         {
-            self.frag(s, c);
+            self.paint_frag(s, c);
         }
-        for a in &f.atoms {
-            self.frag(s, a);
+        for a in f
+            .atoms
+            .iter()
+            .filter(|a| tree.boxes[a.boxed].style.position != Position::Fixed)
+        {
+            self.paint_frag(s, a);
+        }
+        if pushed > 0 {
+            self.close_mark(s);
         }
         for _ in 0..pushed {
             s.pop();
+        }
+        if lb.node.is_some() {
+            self.owner.pop();
         }
     }
 
@@ -675,7 +831,9 @@ impl<'a> Painter<'a> {
         } else {
             cx - line.width - style.font_size * 0.5
         };
+        self.label = true;
         self.runs(s, shaped, line, x, baseline - line.baseline);
+        self.label = false;
     }
 
     fn lines(&mut self, s: &mut Surface<'_>, f: &Frag, ix: usize) {
@@ -731,6 +889,11 @@ impl<'a> Painter<'a> {
                 ext.width + pl + pr,
                 fs * 1.15 + pt + pb,
             );
+            let decorated = st.background_color.is_visible()
+                || st.border.iter().any(super::style::BorderSide::visible);
+            if decorated {
+                self.mark_artifact(s);
+            }
             if st.background_color.is_visible()
                 && let Some(p) = rounded(x, y, w, h, radii(st, w, h))
             {
@@ -753,9 +916,12 @@ impl<'a> Painter<'a> {
                 self.border(s, &fr, st, radii(st, w, h));
             }
             if let Some(href) = &span.href {
+                let seq = self.next_seq();
                 self.links.push(LinkBox {
                     rect: (x0 + ext.x + self.dx, top + self.dy, ext.width, line.height),
                     href: href.clone(),
+                    node: (self.tagging && !self.artifact).then_some(span.node),
+                    seq,
                 });
             }
         }
@@ -770,6 +936,11 @@ impl<'a> Painter<'a> {
         x0: f32,
         top: f32,
     ) {
+        let line_end = line
+            .runs
+            .iter()
+            .flat_map(|r| r.glyphs.iter().map(|g| g.range.end))
+            .max();
         for run in &line.runs {
             let style = std::rc::Rc::clone(shaped.style_of(run.item));
             if !style.visible {
@@ -787,19 +958,38 @@ impl<'a> Painter<'a> {
                 .map(|g| g.range.end)
                 .max()
                 .unwrap_or(start);
-            let text = &shaped.text[start..end];
+            // In a tagged PDF a reader joins the lines of a paragraph as
+            // its structure has them: the space a line was broken at, which
+            // draws nothing, goes with the line's last glyph, so the words
+            // either side of the break stay two words.
+            let tail = if self.tagging && !self.artifact && Some(end) == line_end {
+                shaped.text[end..]
+                    .chars()
+                    .next()
+                    .filter(|c| matches!(c, ' ' | '\n' | '\t'))
+                    .map_or(0, char::len_utf8)
+            } else {
+                0
+            };
+            let text = &shaped.text[start..end + tail];
             let size = run.size;
+            let mut tailed = tail == 0;
             let glyphs: Vec<KrillaGlyph> = run
                 .glyphs
                 .iter()
                 .map(|g| {
+                    let mut range = (g.range.start - start)..(g.range.end - start);
+                    if !tailed && g.range.end == end {
+                        range.end += tail;
+                        tailed = true;
+                    }
                     KrillaGlyph::new(
                         GlyphId::new(u32::from(g.id)),
                         g.advance / size,
                         g.x_offset / size,
                         g.y_offset / size,
                         0.0,
-                        (g.range.start - start)..(g.range.end - start),
+                        range,
                         None,
                     )
                 })
@@ -808,11 +998,57 @@ impl<'a> Painter<'a> {
             let baseline = top + line.baseline - run.rise;
             let mut pushed = 0;
             if run.pick.synthetic_italic {
+                self.close_mark(s);
                 // An oblique: a 12° skew about the baseline.
                 let k = 0.21;
                 s.push_transform(&Transform::from_row(1.0, 0.0, -k, 1.0, k * baseline, 0.0));
                 pushed += 1;
             }
+            // The shadows under the text, the first on top. Each is drawn
+            // as outlines, so the text is copied and searched once; a blur
+            // is approximated by fainter copies spread around the offset
+            // over half the blur radius (a PDF has no Gaussian blur short of
+            // a soft mask per run).
+            if !style.text_shadows.is_empty() {
+                self.mark_artifact(s);
+            }
+            for sh in style.text_shadows.iter().rev() {
+                let c = sh.color.unwrap_or(style.color);
+                if c.a <= 0.0 {
+                    continue;
+                }
+                let at = |dx: f32, dy: f32| Point::from_xy(x + sh.x + dx, baseline + sh.y + dy);
+                s.set_stroke(None);
+                if sh.blur < 0.5 {
+                    s.set_fill(Some(fill(c)));
+                    s.draw_glyphs(at(0.0, 0.0), &glyphs, font.clone(), text, size, true);
+                    continue;
+                }
+                let r = sh.blur / 2.0;
+                s.set_fill(Some(fill(c.with_alpha(c.a * 0.35))));
+                s.draw_glyphs(at(0.0, 0.0), &glyphs, font.clone(), text, size, true);
+                s.set_fill(Some(fill(c.with_alpha(c.a * 0.12))));
+                for k in 0..8 {
+                    let a = k as f32 * std::f32::consts::FRAC_PI_4;
+                    s.draw_glyphs(
+                        at(r * a.cos(), r * a.sin()),
+                        &glyphs,
+                        font.clone(),
+                        text,
+                        size,
+                        true,
+                    );
+                }
+            }
+            // The text, as content of the inline element it is in (else of
+            // the block being painted).
+            let node = match shaped.items.get(run.item) {
+                Some(Item::Text {
+                    span: Some(span), ..
+                }) => self.tree.spans.get(*span).map(|sp| sp.node),
+                _ => None,
+            };
+            self.mark_content(s, node, false);
             s.set_fill(Some(fill(style.color)));
             s.set_stroke(if run.pick.synthetic_bold {
                 Some(Stroke {
@@ -833,10 +1069,17 @@ impl<'a> Painter<'a> {
                 false,
             );
             s.set_stroke(None);
+            if pushed > 0 {
+                self.close_mark(s);
+            }
             for _ in 0..pushed {
                 s.pop();
             }
             // Decorations, the width of the run.
+            let decorated = style.underline || style.line_through || style.overline;
+            if decorated {
+                self.mark_artifact(s);
+            }
             let deco = style.decoration_color.unwrap_or(style.color);
             let thick = (size * 0.06).max(0.5);
             let mut deco_line = |y: f32| {
@@ -861,7 +1104,6 @@ impl<'a> Painter<'a> {
             if style.overline {
                 deco_line(baseline - size * 0.9);
             }
-            let _ = Item::Break { style };
         }
     }
 }

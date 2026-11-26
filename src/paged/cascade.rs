@@ -9,7 +9,7 @@ use super::css::{
     parse_declarations, split_spaces, split_top_level,
 };
 use super::html::{Dom, Element, NodeKind};
-use super::style::{Units, Style, substitute_vars, length, Rgba, color, parse_family_list, Length, font_weight, LineHeight, length_pt, TextAlign, TextTransform, WhiteSpace, Direction, Display, Position, four, BorderStyle, image, shadows, FlexDirection, align, tracks, grid_placement, VerticalAlign, ObjectFit, BorderSide, ListStyle, Break};
+use super::style::{Units, Style, substitute_vars, length, Rgba, color, parse_family_list, Length, font_weight, LineHeight, length_pt, TextAlign, TextTransform, WhiteSpace, Direction, Display, Position, four, BorderStyle, image, shadows, text_shadows, FlexDirection, align, tracks, grid_placement, VerticalAlign, ObjectFit, BorderSide, ListStyle, Break};
 
 /// What a browser draws before any author's rule: the display of each tag
 /// and the few typographic defaults a page relies on.
@@ -205,6 +205,7 @@ pub const DRAWN: &[&str] = &[
     "text-decoration-color",
     "text-decoration-line",
     "text-overflow",
+    "text-shadow",
     "text-transform",
     "top",
     "transform",
@@ -377,16 +378,17 @@ impl Styler {
         if let Some(v) = vars {
             style.vars = Rc::new(v);
         }
-        // The font size next: `em` everywhere else means it.
+        // The font size next: `em` everywhere else means it; and the
+        // direction, which says which physical side `inline-start` is.
         for d in decls
             .iter()
-            .filter(|d| d.name == "font-size" || d.name == "font")
+            .filter(|d| d.name == "font-size" || d.name == "font" || d.name == "direction")
         {
             let value = substitute_vars(&d.value, &style.vars);
             self.apply(&mut style, parent, &d.name, &value);
         }
         for d in decls {
-            if d.name.starts_with("--") || d.name == "font-size" {
+            if d.name.starts_with("--") || d.name == "font-size" || d.name == "direction" {
                 continue;
             }
             let value = substitute_vars(&d.value, &style.vars);
@@ -408,6 +410,14 @@ impl Styler {
             return;
         }
         let len = |v: &str| length(v, &u);
+        // The physical sides the inline start and end are, by the element's
+        // direction: left and right in a left-to-right box, the other way
+        // round in a right-to-left one.
+        let (start, end) = if s.direction == Direction::Rtl {
+            (1, 3)
+        } else {
+            (3, 1)
+        };
         let col = |v: &str| -> Option<Option<Rgba>> {
             if v.eq_ignore_ascii_case("currentcolor") {
                 Some(None)
@@ -513,6 +523,11 @@ impl Styler {
                 }
             }
             "text-decoration-color" => s.decoration_color = color(value),
+            "text-shadow" => {
+                if let Some(list) = text_shadows(value, &u) {
+                    s.text_shadows = Rc::new(list);
+                }
+            }
             "white-space" => {
                 s.white_space = match value {
                     "nowrap" => WhiteSpace::NoWrap,
@@ -581,12 +596,12 @@ impl Styler {
                     s.inset = f;
                 }
             }
-            // The logical insets, read for a left-to-right page, as the
-            // logical paddings and margins are.
+            // The logical insets: the block sides are the top and bottom, the
+            // inline sides follow the element's direction.
             "inset-block-start" => s.inset[0] = len(value).unwrap_or(Length::Auto),
-            "inset-inline-end" => s.inset[1] = len(value).unwrap_or(Length::Auto),
+            "inset-inline-end" => s.inset[end] = len(value).unwrap_or(Length::Auto),
             "inset-block-end" => s.inset[2] = len(value).unwrap_or(Length::Auto),
-            "inset-inline-start" => s.inset[3] = len(value).unwrap_or(Length::Auto),
+            "inset-inline-start" => s.inset[start] = len(value).unwrap_or(Length::Auto),
             "inset-block" | "inset-inline" => {
                 let v: Vec<Length> = split_spaces(value).iter().filter_map(|w| len(w)).collect();
                 let (a, b) = match v.as_slice() {
@@ -598,8 +613,8 @@ impl Styler {
                     s.inset[0] = a;
                     s.inset[2] = b;
                 } else {
-                    s.inset[3] = a;
-                    s.inset[1] = b;
+                    s.inset[start] = a;
+                    s.inset[end] = b;
                 }
             }
             "width" => s.width = len(value).unwrap_or(Length::Auto),
@@ -640,7 +655,8 @@ impl Styler {
             "padding-right" => s.padding[1] = len(value).unwrap_or(Length::Pt(0.0)),
             "padding-bottom" => s.padding[2] = len(value).unwrap_or(Length::Pt(0.0)),
             "padding-left" => s.padding[3] = len(value).unwrap_or(Length::Pt(0.0)),
-            // The logical properties, read for a left-to-right page.
+            // The logical properties: block sides top and bottom, inline
+            // sides by the element's direction.
             "margin-block" | "padding-block" | "margin-inline" | "padding-inline" => {
                 let v: Vec<Length> = split_spaces(value).iter().filter_map(|w| len(w)).collect();
                 let (a, b) = match v.as_slice() {
@@ -651,7 +667,7 @@ impl Styler {
                 let sides = if name.ends_with("block") {
                     (0, 2)
                 } else {
-                    (3, 1)
+                    (start, end)
                 };
                 let target = if name.starts_with("margin") {
                     &mut s.margin
@@ -663,12 +679,12 @@ impl Styler {
             }
             "margin-block-start" => s.margin[0] = len(value).unwrap_or(Length::Pt(0.0)),
             "margin-block-end" => s.margin[2] = len(value).unwrap_or(Length::Pt(0.0)),
-            "margin-inline-start" => s.margin[3] = len(value).unwrap_or(Length::Pt(0.0)),
-            "margin-inline-end" => s.margin[1] = len(value).unwrap_or(Length::Pt(0.0)),
+            "margin-inline-start" => s.margin[start] = len(value).unwrap_or(Length::Pt(0.0)),
+            "margin-inline-end" => s.margin[end] = len(value).unwrap_or(Length::Pt(0.0)),
             "padding-block-start" => s.padding[0] = len(value).unwrap_or(Length::Pt(0.0)),
             "padding-block-end" => s.padding[2] = len(value).unwrap_or(Length::Pt(0.0)),
-            "padding-inline-start" => s.padding[3] = len(value).unwrap_or(Length::Pt(0.0)),
-            "padding-inline-end" => s.padding[1] = len(value).unwrap_or(Length::Pt(0.0)),
+            "padding-inline-start" => s.padding[start] = len(value).unwrap_or(Length::Pt(0.0)),
+            "padding-inline-end" => s.padding[end] = len(value).unwrap_or(Length::Pt(0.0)),
 
             "border" => {
                 let side = border_side(value, &u);
@@ -690,8 +706,8 @@ impl Styler {
             }
             "border-block-start" => s.border[0] = border_side(value, &u),
             "border-block-end" => s.border[2] = border_side(value, &u),
-            "border-inline-start" => s.border[3] = border_side(value, &u),
-            "border-inline-end" => s.border[1] = border_side(value, &u),
+            "border-inline-start" => s.border[start] = border_side(value, &u),
+            "border-inline-end" => s.border[end] = border_side(value, &u),
             "border-width" => {
                 let v: Vec<f32> = split_spaces(value)
                     .iter()
@@ -1055,6 +1071,7 @@ fn inherit_one(s: &mut Style, parent: &Style, name: &str) {
         "font-size" => s.font_size = parent.font_size,
         "font-weight" => s.font_weight = parent.font_weight,
         "line-height" => s.line_height = parent.line_height,
+        "text-shadow" => s.text_shadows = Rc::clone(&parent.text_shadows),
         "text-align" => s.text_align = parent.text_align,
         "background" | "background-color" => s.background_color = parent.background_color,
         "border-color" => {
@@ -1261,37 +1278,69 @@ fn matches(dom: &Dom, node: usize, sel: &Selector, pseudo: Option<&Pseudo>) -> b
         (Some(a), Some(b)) if a == b => {}
         _ => return false,
     }
-    match_from(dom, node, parts, last)
+    match_from(dom, node, parts, last, None)
 }
 
-fn match_from(dom: &Dom, node: usize, parts: &[(Compound, Option<Combinator>)], ix: usize) -> bool {
+/// Whether `node` matches `parts[..=ix]`, read right to left. With an
+/// `anchor` — the element a `:has()` is on, and the combinator its relative
+/// selector starts with — the leftmost compound must also stand in that
+/// relation to it.
+fn match_from(
+    dom: &Dom,
+    node: usize,
+    parts: &[(Compound, Option<Combinator>)],
+    ix: usize,
+    anchor: Option<(usize, Combinator)>,
+) -> bool {
     if !compound_matches(dom, node, &parts[ix].0) {
         return false;
     }
     if ix == 0 {
-        return true;
+        return match anchor {
+            None => true,
+            Some((a, Combinator::Child)) => parent_element(dom, node) == Some(a),
+            Some((a, Combinator::Descendant)) => {
+                let mut cur = parent_element(dom, node);
+                while let Some(p) = cur {
+                    if p == a {
+                        return true;
+                    }
+                    cur = parent_element(dom, p);
+                }
+                false
+            }
+            Some((a, Combinator::Adjacent)) => previous_element(dom, node) == Some(a),
+            Some((a, Combinator::Sibling)) => {
+                let mut cur = previous_element(dom, node);
+                while let Some(p) = cur {
+                    if p == a {
+                        return true;
+                    }
+                    cur = previous_element(dom, p);
+                }
+                false
+            }
+        };
     }
     match parts[ix].1.unwrap_or(Combinator::Descendant) {
-        Combinator::Child => {
-            parent_element(dom, node).is_some_and(|p| match_from(dom, p, parts, ix - 1))
-        }
+        Combinator::Child => parent_element(dom, node)
+            .is_some_and(|p| match_from(dom, p, parts, ix - 1, anchor)),
         Combinator::Descendant => {
             let mut cur = parent_element(dom, node);
             while let Some(p) = cur {
-                if match_from(dom, p, parts, ix - 1) {
+                if match_from(dom, p, parts, ix - 1, anchor) {
                     return true;
                 }
                 cur = parent_element(dom, p);
             }
             false
         }
-        Combinator::Adjacent => {
-            previous_element(dom, node).is_some_and(|p| match_from(dom, p, parts, ix - 1))
-        }
+        Combinator::Adjacent => previous_element(dom, node)
+            .is_some_and(|p| match_from(dom, p, parts, ix - 1, anchor)),
         Combinator::Sibling => {
             let mut cur = previous_element(dom, node);
             while let Some(p) = cur {
-                if match_from(dom, p, parts, ix - 1) {
+                if match_from(dom, p, parts, ix - 1, anchor) {
                     return true;
                 }
                 cur = previous_element(dom, p);
@@ -1299,6 +1348,49 @@ fn match_from(dom: &Dom, node: usize, parts: &[(Compound, Option<Combinator>)], 
             false
         }
     }
+}
+
+/// `:has(rel)` on `node`: some element where the relative selector can
+/// reach — below it, or after it among its siblings and below those —
+/// matches, joined back to `node` as the selector starts.
+fn has_matches(dom: &Dom, node: usize, lead: Combinator, sel: &Selector) -> bool {
+    let candidates: Vec<usize> = match lead {
+        Combinator::Child | Combinator::Descendant => dom.descendants(node),
+        Combinator::Adjacent | Combinator::Sibling => {
+            let sibs = siblings(dom, node);
+            let pos = sibs.iter().position(|&s| s == node).unwrap_or(sibs.len());
+            let after = sibs.get(pos + 1..).unwrap_or_default();
+            // `+ a` reaches only the next sibling, but `+ a b` reaches below
+            // it; `~` reaches every later sibling.
+            let reach = if lead == Combinator::Adjacent {
+                &after[..after.len().min(1)]
+            } else {
+                after
+            };
+            reach
+                .iter()
+                .flat_map(|&s| std::iter::once(s).chain(dom.descendants(s)))
+                .collect()
+        }
+    };
+    let last = sel.parts.len() - 1;
+    candidates
+        .into_iter()
+        .filter(|&c| dom.element(c).is_some())
+        .any(|c| match_from(dom, c, &sel.parts, last, Some((node, lead))))
+}
+
+/// The value of `name` on the element or the nearest element above it that
+/// has one: how `dir` and `lang` reach what they hold.
+fn inherited_attr<'d>(dom: &'d Dom, node: usize, name: &str) -> Option<&'d str> {
+    let mut cur = Some(node);
+    while let Some(n) = cur {
+        if let Some(v) = dom.element(n).and_then(|e| e.attr(name)) {
+            return Some(v);
+        }
+        cur = parent_element(dom, n);
+    }
+    None
 }
 
 fn parent_element(dom: &Dom, node: usize) -> Option<usize> {
@@ -1384,6 +1476,36 @@ fn pseudo_matches(dom: &Dom, node: usize, el: &Element, p: &Pseudo) -> bool {
         Pseudo::Is(inner) | Pseudo::Where(inner) => {
             inner.iter().any(|c| compound_matches(dom, node, c))
         }
+        Pseudo::Has(inner) => inner
+            .iter()
+            .any(|(lead, sel)| has_matches(dom, node, *lead, sel)),
+        Pseudo::Dir(rtl) => {
+            inherited_attr(dom, node, "dir").is_some_and(|d| d.eq_ignore_ascii_case("rtl")) == *rtl
+        }
+        Pseudo::Lang(langs) => inherited_attr(dom, node, "lang").is_some_and(|l| {
+            let l = l.to_ascii_lowercase();
+            langs
+                .iter()
+                .any(|want| l == *want || l.starts_with(&format!("{want}-")))
+        }),
+        Pseudo::Link => matches!(el.tag.as_str(), "a" | "area") && el.attr("href").is_some(),
+        Pseudo::Checked => match el.tag.as_str() {
+            "input" => el.attr("checked").is_some(),
+            "option" => el.attr("selected").is_some(),
+            _ => false,
+        },
+        Pseudo::Disabled | Pseudo::Enabled => {
+            let form_control = matches!(
+                el.tag.as_str(),
+                "button" | "input" | "select" | "textarea" | "option" | "optgroup" | "fieldset"
+            );
+            let disabled = form_control && el.attr("disabled").is_some();
+            if matches!(p, Pseudo::Disabled) {
+                disabled
+            } else {
+                form_control && !disabled
+            }
+        }
         _ => {
             let sibs = siblings(dom, node);
             let pos = sibs.iter().position(|&s| s == node).unwrap_or(0);
@@ -1401,6 +1523,9 @@ fn pseudo_matches(dom: &Dom, node: usize, el: &Element, p: &Pseudo) -> bool {
                 Pseudo::LastOfType => type_pos + 1 == same.len(),
                 Pseudo::NthChild(a, b) => nth(*a, *b, pos as i32 + 1),
                 Pseudo::NthOfType(a, b) => nth(*a, *b, type_pos as i32 + 1),
+                Pseudo::OnlyOfType => same.len() == 1,
+                Pseudo::NthLastChild(a, b) => nth(*a, *b, (sibs.len() - pos) as i32),
+                Pseudo::NthLastOfType(a, b) => nth(*a, *b, (same.len() - type_pos) as i32),
                 _ => false,
             }
         }
@@ -1582,7 +1707,7 @@ mod tests {
             "counter-reset" | "counter-increment" => "item 2",
             "transform" => "rotate(10deg)",
             "rotate" => "10deg",
-            "box-shadow" => "1px 2px 3px #123456",
+            "box-shadow" | "text-shadow" => "1px 2px 3px #123456",
             "background-image" => "linear-gradient(red, blue)",
             "background-size" => "cover",
             "text-decoration" | "text-decoration-line" => "underline",
