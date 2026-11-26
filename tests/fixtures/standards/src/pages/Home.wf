@@ -7,7 +7,6 @@
 page Home(path: "/", title: "Standards", description: "The built-ins, held to the rules.") {
     state notify = false
     state editing = false
-    state saved = false
     state visible = true
     state said = ""
     state tab = "two"
@@ -29,9 +28,8 @@ page Home(path: "/", title: "Standards", description: "The built-ins, held to th
         Button("Edit", id: "edit") { on click { editing = true } }
         Text(if editing { "editing" } else { "closed" }, id: "editing")
         Modal(visible: editing, title: "Edit profile", id: "modal") {
-            Button("Save", id: "save-modal") { on click { saved = true } }
+            Button("Save", id: "save-modal") { on click { toast("Profile saved", tone: .success) } }
         }
-        if saved { Toast("Profile saved").success }
 
         Button("Toggle", id: "toggle") { on click { visible = !visible } }
         show visible { Text("Shown", id: "shown", exit: .fadeOut, duration: "600ms") }

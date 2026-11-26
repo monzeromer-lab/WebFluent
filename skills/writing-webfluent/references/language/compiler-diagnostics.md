@@ -253,6 +253,7 @@ paint alike.
 | `X06` | A `state` whose initial value reads `now`, `viewport`, `query`, `hash`, `theme`, `network` or `update` (outside a lambda) and that nothing assigns, binds or changes in place: it holds the value it started with, so `state clock = now(every: 1.seconds)` never ticks. The fix makes it `derived` |
 | `I05` | Under `i18n.literals`, shown words no table can translate: text splicing more than a name, or a value shown by a name that does not say it is words |
 | `V12` | A `VirtualList` whose body is not one keyed `for`: it draws every row |
+| `V13` | A deprecated built-in — `Dialog`, `Dropdown`, `Tag`, `Toast`, `Code(…).block`, `CircularProgress` — which draws as it did through 8.x and is removed in 9.0; it names the replacement, and `wf fix` rewrites it where the rewrite is exact |
 | `E119` | A hidden direction control (U+202A–U+202E, U+2066–U+2069) in the source: Trojan Source |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or

@@ -75,7 +75,7 @@ page Report(path: "/", description: "A generated report.", title: "{{name}} Repo
 
             Spacer
 
-            Code("Document(size: \"A4\") \{\n    Heading(\"Hello!\").h1\n    Text(\"Generated with WebFluent.\")\n\}").block
+            CodeBlock("Document(size: \"A4\") \{\n    Heading(\"Hello!\").h1\n    Text(\"Generated with WebFluent.\")\n\}")
 
             Spacer
 

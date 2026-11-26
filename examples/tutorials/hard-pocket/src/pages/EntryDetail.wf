@@ -25,7 +25,7 @@ page EntryDetail(path: "/entries/:id", id: String, paths: SAMPLE_ENTRIES.take(2)
                 }
             }
         }
-        Dialog(visible: confirming, title: t("delete.title")) {
+        Modal(visible: confirming, title: t("delete.title")) {
             Text(t("delete.body"))
             Row(gap: .sm, justify: .end) {
                 Button(t("action.cancel")) { on click { confirming = false } }

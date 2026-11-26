@@ -158,7 +158,8 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "V09 An event the element does not fire", to: "/errors/V09", group: "Vocabulary"),
     IndexEntry(label: "V12 A long list that is not windowed", to: "/errors/V12", group: "Vocabulary"),
     IndexEntry(label: "V10 A Host tag it does not make", to: "/errors/V10", group: "Vocabulary"),
-    IndexEntry(label: "V11 A component named like a built-in", to: "/errors/V11", group: "Vocabulary")
+    IndexEntry(label: "V11 A component named like a built-in", to: "/errors/V11", group: "Vocabulary"),
+    IndexEntry(label: "V13 A deprecated built-in", to: "/errors/V13", group: "Vocabulary")
 ]
 
 page ErrorE001(path: "/errors/E001", title: "E001 — Text the compiler cannot read", description: "A character that begins nothing the language has, or a string, comment or splice that never closes. The file is not read past it.") {
@@ -4101,5 +4102,35 @@ page P(path: "/", title: "T", description: "D") {
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("A component the project declares takes the place of a built-in of the same\nname: every call of the name draws the project's own component. This is\ninformation (`info`), not a warning. Nothing is wrong, and a new built-in in a later\nWebFluent never changes what an existing project draws. The one thing to\nknow is that the built-in of that name cannot be placed in this project.\n\nTo use the built-in as well, rename the component and its call sites:")
+    }
+}
+
+page ErrorV13(path: "/errors/V13", title: "V13 — A deprecated built-in", description: "A built-in on its way out: it draws as it always has through 8.x and is removed in 9.0; the finding names what replaces it, and wf fix rewrites it where the…") {
+    ErrorShell("V13", title: "A deprecated built-in", severity: "warning", family: "Vocabulary", summary: "A built-in on its way out: it still draws as it always has through 8.x, and is removed in 9.0. The finding names what replaces it, and `wf fix` rewrites it where the rewrite is exact.", printed: #"warning[V13]: `Dialog` is deprecated since 8.0: `Modal` takes its place, and `Dialog` is removed in 9.0
+ --> src/App.wf:4:5
+  |
+4 |     Dialog(visible: asking, title: "Discard the draft?") {
+  |     ^^^^^^
+  = help: It takes the same props, events and `Title` part. A `Modal` is drawn wider (500px against 400px) with its heading and body padded apart; `class:` or `style { width: … }` sizes it. `wf fix --code V13` rewrites it
+  = docs: https://webfluent.monzeromer.dev/errors/V13"#, quickfix: "Write `Modal`", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "src/diagnostics/explain/V13.md") {
+        broken { DocsCodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state asking = false
+    Heading("Settings").h1
+    Dialog(visible: asking, title: "Discard the draft?") {
+        Text("What you wrote is lost.")
+    }
+}"#, title: "wf") }
+        fixed { DocsCodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state asking = false
+    Heading("Settings").h1
+    Modal(visible: asking, title: "Discard the draft?") {
+        Text("What you wrote is lost.")
+    }
+}"#, title: "wf") }
+        note {
+            Markdown("Write the replacement the finding names, or run `wf fix --code V13`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("A few built-ins were near-copies of another, and are on their way out. Each\nstill draws exactly as it did through every 8.x release, and is removed in\n9.0. The finding names what takes its place:\n\n| Deprecated | Write instead |\n|---|---|\n| `Dialog`, `Dialog.Title` | `Modal`, `Modal.Title` |\n| `Dropdown(label: x) \{ Dropdown.Item \{ … \} \}` | `Menu(trigger: x) \{ Menu.Item \{ … \} \}` |\n| `Tag(\"x\")` | `Chip(\"x\")` |\n| `Toast(\"Saved\").success` | `toast(\"Saved\", tone: .success)`, called where it becomes true |\n| `Code(text).block` | `CodeBlock(text)` |\n| `CircularProgress(…)` | `Progress(…).circular` |\n\n`wf fix --code V13` — and `wf migrate`, for a project moving to 8 — makes\neach rewrite that is exact: the name, the parts in its block, a\n`Dropdown`'s label as the menu's `trigger:`, a `.block` flag dropped. A\n`Toast` is rewritten as a `toast(…)` call only at the top of a page or a\ncomponent, where it is drawn once; one inside an `if` or a `for` is shown\neach time that branch or item is drawn, so the call belongs in the handler\nor action that makes it true, which a person writes.")
     }
 }

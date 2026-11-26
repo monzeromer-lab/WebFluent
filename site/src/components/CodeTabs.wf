@@ -23,6 +23,6 @@ component CodeTabs(files: [CodeFile] = []) {
             }
             Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), class: "bp-button") { on click { copy() } }
         }
-        Code(file.code, language: file.language, class: "bp-console__code").block
+        CodeBlock(file.code, language: file.language, class: "bp-console__code")
     }
 }

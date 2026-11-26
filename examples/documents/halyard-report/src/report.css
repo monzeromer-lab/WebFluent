@@ -83,4 +83,6 @@ p { margin: 0 0 7pt; }
 .wf-toc__entry--2 { font-size: 9pt; color: var(--text-secondary); padding-left: 14pt; }
 .wf-toc__page { font-family: var(--font-mono); color: var(--text-brand); }
 
-pre.wf-code, .wf-code--block { background: var(--surface-sunken); border: 0.75pt solid var(--line-default); border-radius: 6pt; padding: 10pt 12pt; font-size: 7.6pt; line-height: 1.6; color: var(--text-secondary); white-space: pre; }
+pre.wf-code, .wf-code--block, .wf-code-block > .wf-code--block { background: var(--surface-sunken); border: 0.75pt solid var(--line-default); border-radius: 6pt; padding: 10pt 12pt; font-size: 7.6pt; line-height: 1.6; color: var(--text-secondary); white-space: pre; }
+/* A `CodeBlock` is its code in a box of its own: the box draws nothing. */
+.wf-code-block { background: none; border-radius: 0; overflow: visible; }

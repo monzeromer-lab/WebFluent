@@ -33,7 +33,7 @@ component Console(_ code: String, title: String = "wf", small: Bool = false) {
             Row(class: "console__dots") { Text("")  Text("")  Text("") }
             Text(title, class: "console__title")
         }
-        Code(code, language: "wf").block
+        CodeBlock(code, language: "wf")
     }
 }
 
@@ -400,7 +400,7 @@ page Deck(path: "/", title: "Rethinking the web layout", description: "Why your 
                             Row(class: "console__dots") { Text("")  Text("")  Text("") }
                             Text("wf check", class: "console__title")
                         }
-                        Code(ERROR).block { style { color: #E6E9EC } }
+                        CodeBlock(ERROR, class: "console__plain")
                     }
                 }
                 Stack(class: "pane facts") {

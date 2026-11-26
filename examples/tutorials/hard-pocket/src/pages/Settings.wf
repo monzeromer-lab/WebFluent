@@ -104,7 +104,7 @@ page Settings(path: "/settings", title: "Settings", description: "Language, appe
         }
     }
 
-    Dialog(visible: confirmingReset, title: t("reset.title")) {
+    Modal(visible: confirmingReset, title: t("reset.title")) {
         Text(t("reset.body"))
         Row(gap: .sm, justify: .end) {
             Button(t("action.cancel")) { on click { confirmingReset = false } }

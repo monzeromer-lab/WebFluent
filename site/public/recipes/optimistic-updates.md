@@ -13,16 +13,14 @@ type Item { id: String, liked: Bool }
 
 page Likes(path: "/", title: "Likes", description: "A like that shows at once.") {
     state items: [Item] = [Item(id: "a", liked: false)]
-    state error = ""
     action like(id: String) {
-        error = ""
         let before = items
         items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
         match await http.post("/api/like/{id}") {
             .ok { }
             .err(_) {
                 items = before
-                error = "Could not save. Try again."
+                toast("Could not save. Try again.", tone: .danger)
             }
         }
     }
@@ -30,7 +28,6 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
     for i in items by i.id {
         Button(if i.liked { "♥" } else { "♡" }, aria-label: "Like").sm { on click { like(i.id) } }
     }
-    if error != "" { Toast(error).danger }
 }
 ```
 
@@ -38,8 +35,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 
 - `let before = items` keeps the list as it was. A [`let`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals) is local to the action.
 - The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.
-- The request is [awaited](https://webfluent.monzeromer.dev/learn/15-data.md#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.
-- The action clears `error` first. A `Toast` shows once, when its branch is drawn, so without the reset a second failure would leave `error` as it was and show nothing.
+- The request is [awaited](https://webfluent.monzeromer.dev/learn/15-data.md#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and a `toast(…)` tells the reader — a second failure, a second toast.
 
 ## Variations
 

@@ -617,7 +617,7 @@ document.addEventListener("wf:render", (e) => {
                 Table.Row {
                     Table.Cell { Markdown("`avatarGroup`, `ring`, `scrollArea`, `sticky`, `panelGroup`") }
                     Table.Cell { Markdown("`display`") }
-                    Table.Cell { Markdown("What `AvatarGroup`, `CircularProgress`, `ScrollArea`, `Sticky` and `PanelGroup` compile to.") }
+                    Table.Cell { Markdown("What `AvatarGroup`, `Progress(…).circular`, `ScrollArea`, `Sticky` and `PanelGroup` compile to.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`colorPicker`, `transferList`, `editable`, `fab`, `backToTop`, `popconfirm`, `markMatches`") }

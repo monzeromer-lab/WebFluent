@@ -1,10 +1,10 @@
 // A recipe. This page is its source: edit it here.
-page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — Recipes", description: "Show code on a page with Code: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.") {
-    RecipeShell("Show code on a page", summary: "`Code` shows code: inline inside a sentence, or as a block, coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Pre-render a page for each item", to: "/recipes/pre-render-each-item"), RelatedLink(kind: "Recipe", title: "Show your own page for an unknown address", to: "/recipes/not-found-page")], source: "site/src/pages/recipes/RecipeShowCode.wf", how: true, hasVariations: false, project: { "src/pages/ShowCode.wf": #"page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
+page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — Recipes", description: "Show code on a page: inline in a sentence with Code, or as a block with CodeBlock, coloured by its language — wf, json, bash or css.") {
+    RecipeShell("Show code on a page", summary: "`Code` shows code inline inside a sentence, and `CodeBlock` as a block, each coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Pre-render a page for each item", to: "/recipes/pre-render-each-item"), RelatedLink(kind: "Recipe", title: "Show your own page for an unknown address", to: "/recipes/not-found-page")], source: "site/src/pages/recipes/RecipeShowCode.wf", how: true, hasVariations: false, project: { "src/pages/ShowCode.wf": #"page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
     Heading("Snippets").h1
     Text("Run ")  Code("wf serve")  Text(" to start.")
-    Code("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf").block
-    Code("$ wf build", language: "bash").block
+    CodeBlock("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf")
+    CodeBlock("$ wf build", language: "bash")
 }
 "#, "webfluent.app.json": #"{
   "name": "show-code"
@@ -15,11 +15,11 @@ page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — 
             DocsCodeBlock(#"page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
     Heading("Snippets").h1
     Text("Run ")  Code("wf serve")  Text(" to start.")
-    Code("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf").block
-    Code("$ wf build", language: "bash").block
+    CodeBlock("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf")
+    CodeBlock("$ wf build", language: "bash")
 }"#, title: "wf")
         }
-        Markdown("- **`Code(\"…\")`** is inline code. Placed between two `Text`s, it reads as part of the sentence.\n- **`Code(\"…\").block`** is a block, for code over several lines.\n- **`language:`** colours it — `wf`, `json`, `bash` or `css`. The colouring is done at build time and in the browser alike, with the theme's `syntax-*` tokens, and a `Markdown` fence in one of those languages is coloured the same way.")
+        Markdown("- **`Code(\"…\")`** is inline code. Placed between two `Text`s, it reads as part of the sentence.\n- **`CodeBlock(\"…\")`** is a block, for code over several lines; `title:`, `.copy` and `.lines` add a bar with the file name, a copy button and line numbers.\n- **`language:`** colours it — `wf`, `json`, `bash` or `css`. The colouring is done at build time and in the browser alike, with the theme's `syntax-*` tokens, and a `Markdown` fence in one of those languages is coloured the same way.")
 
     }
 }

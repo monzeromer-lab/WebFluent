@@ -196,7 +196,8 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
     Heading("Release notes").h1                // a real <h1>; .h2 is the default
     Text("{count} changes").bold.muted         // a run of text
     Paragraph("Prose, as a <p>.")
-    Code("let x = 1").block
+    Code("let x = 1")                          // code in a line of text
+    CodeBlock("let x = 1\nlet y = 2")          // a block of code
     Blockquote("A quotation.")
     Markdown("**Bold** and a [link](/docs)")   // Markdown, rendered as HTML
 }"#, title: "wf")
@@ -247,7 +248,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Data display")
-                    Table.Cell { Markdown("`Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime`") }
+                    Table.Cell { Markdown("`Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime`") }
                 }
                 Table.Row {
                     Table.Cell("Content")
@@ -259,11 +260,11 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Feedback")
-                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays))") }
+                    Table.Cell { Markdown("`Alert`, `Modal`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays))") }
                 }
                 Table.Row {
                     Table.Cell("Actions")
-                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop`") }
+                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop`") }
                 }
                 Table.Row {
                     Table.Cell("Media")

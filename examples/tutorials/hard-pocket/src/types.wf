@@ -35,12 +35,6 @@ type BudgetLine {
     share: Number
 }
 
-/// A message that slides in from the corner and goes away again.
-type Notice {
-    id: Uuid
-    text: String
-}
-
 /// Nothing yet: the starting point every sum adds to.
 const ZERO: Money = $0.00
 

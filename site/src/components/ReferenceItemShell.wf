@@ -3,7 +3,10 @@
 /// composition examples (the page's body); the codes it can raise; the
 /// release it arrived in (`older` for one already there before 5.0) and the
 /// outputs it works in; and the hand notes, if any. The index of every item is in the sidebar.
-component ReferenceItemShell(_ name: String, summary: String = "", signature: String = "", since: String = "", older: Bool = false, outputs: [String] = [], missing: [String] = [], group: String = "", entries: [IndexEntry] = [], sections: [Anchor] = [], codes: [RelatedLink] = [], source: String = "site/src/pages", other: String = "", lang: String = "en") {
+/// A built-in on its way out names, under its lede, what replaces it
+/// (`deprecated`), since when (`deprecatedSince`) and what differs — or,
+/// when only one flag's use is (`deprecatedFlag`), what replaces that.
+component ReferenceItemShell(_ name: String, summary: String = "", signature: String = "", since: String = "", older: Bool = false, outputs: [String] = [], missing: [String] = [], group: String = "", entries: [IndexEntry] = [], sections: [Anchor] = [], codes: [RelatedLink] = [], source: String = "site/src/pages", other: String = "", lang: String = "en", deprecated: String = "", deprecatedSince: String = "", deprecatedNote: String = "", deprecatedFlag: String = "") {
     slot stage
     slot notes
     slot
@@ -28,6 +31,9 @@ component ReferenceItemShell(_ name: String, summary: String = "", signature: St
                 Heading(name).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
                 if summary != "" {
                     Text(summary, class: "bp-lede")
+                }
+                if deprecated != "" {
+                    Callout(t("ref.deprecated", { instead: deprecated, note: deprecatedNote }), title: if deprecatedFlag == "" { t("ref.deprecated.title", { since: deprecatedSince }) } else { t("ref.deprecated.flag.title", { flag: deprecatedFlag, since: deprecatedSince }) }).warning
                 }
                 PageContents(entries: entries, sections: sections, label: t("nav.reference"))
                 if signature != "" {

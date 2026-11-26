@@ -337,3 +337,4 @@ Warnings.
 - [V12](https://webfluent.monzeromer.dev/errors/V12.md) — A long list that is not windowed
 - [V10](https://webfluent.monzeromer.dev/errors/V10.md) — A `Host` tag it does not make
 - [V11](https://webfluent.monzeromer.dev/errors/V11.md) — A component named like a built-in
+- [V13](https://webfluent.monzeromer.dev/errors/V13.md) — A deprecated built-in

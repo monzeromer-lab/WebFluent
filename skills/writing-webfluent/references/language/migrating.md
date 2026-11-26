@@ -21,7 +21,7 @@ the step writes `Json`). `lints` and `// wf-allow` lower only the
 errors that ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`,
 `I04`); `T20` is not one.
 
-`wf migrate [path] [--check] [--stdout] [--wfx]` does four things.
+`wf migrate [path] [--check] [--stdout] [--wfx]` does five things.
 
 **WebFluent 2 → 3** rewrites every `.wf` under `src/` in place, with a
 note for anything that needed a decision. It is a change of spelling and
@@ -47,6 +47,13 @@ signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element`
 call `Element("tag", …)`. It lists every `.js` already under `src/`, which
 now ships on every page.
 
-**WebFluent 6 → 7** runs last, over the project, as said above; `--check`
+**WebFluent 6 → 7** runs over the project, as said above; `--check`
 says what it would fix and writes nothing.
+
+**WebFluent 7 → 8** runs last: every deprecated built-in (`V13`) whose
+rewrite is exact is rewritten — `Dialog` → `Modal`, `Dropdown(label: x)` →
+`Menu(trigger: x)`, `Tag` → `Chip`, `Code(…).block` → `CodeBlock(…)`,
+`CircularProgress(…)` → `Progress(…).circular`, a `Toast` at the top of a
+page → a `toast(…)` call — and the rest are listed. They keep working
+through 8.x and are removed in 9.0.
 

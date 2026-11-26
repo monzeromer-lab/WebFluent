@@ -52,7 +52,7 @@ component OutputTabs(html: String = "", css: String = "", js: String = "", findi
                 }
             }
         } else {
-            Code(if shown != "" { shown } else { t("playground.nothing") }, language: language, class: "bp-console__code").block { style { max-height: 420px } }
+            CodeBlock(if shown != "" { shown } else { t("playground.nothing") }, language: language, class: "bp-console__code") { style { max-height: 420px } }
         }
     }
 }

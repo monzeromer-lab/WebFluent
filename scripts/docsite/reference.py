@@ -297,6 +297,7 @@ def components(reg: dict) -> dict:
             "outputs": outputs_of(owner or c),
             "since": since[c["qualified"]],
             "codes": codes_of(c, table, titles),
+            "deprecated": c.get("deprecated"),
         })
     order = {f: i for i, f in enumerate(FAMILIES + [LEGACY])}
     unknown = sorted({i["family"] for i in items} - set(order))
@@ -731,7 +732,7 @@ def part_section(p: dict, owner: dict) -> list:
     not already show it."""
     out = [f'        Heading({q(p["name"])}, id: {q(p["slug"])}).h3',
            f'        Text({q(p["plain"])})',
-           f'        Code({q(p["signature"])}).block']
+           f'        CodeBlock({q(p["signature"])})']
     if p["props"]:
         out.append(f'        PropsTable(rows: {rows(p["props"])}, caption: {q("Props of " + p["name"])}, defaults: true)')
     if p["flags"]:
@@ -761,6 +762,15 @@ def moved_page(c: dict, to: str, label: str, how: str) -> list:
         "    }",
         "}",
     ]
+
+
+def deprecated_call(name: str, gone: dict, line: str) -> bool:
+    """Whether `line` calls the deprecated built-in `name` — with its
+    deprecated flag, when only that use is on its way out."""
+    # The call, not one of its parts (`Dropdown.Item`), which is warned of
+    # with its owner.
+    m = re.search(r"(?<![\w.])" + re.escape(name) + r"(?=[({\s]|\.[a-z]|$)", line)
+    return bool(m) and (not gone.get("flag") or f".{gone['flag']}" in line)
 
 
 def builtin_page(c: dict, by_slug: dict, universal: list, parts: list = ()) -> list:
@@ -795,8 +805,13 @@ def builtin_page(c: dict, by_slug: dict, universal: list, parts: list = ()) -> l
         f'RelatedLink(kind: {q(k["kind"])}, title: {q(k["title"])}, to: {q(k["to"])})' for k in c["codes"]) + "]"
     since = "" if c["since"] == OLDER else f'since: {q(c["since"])}, '
     older = "older: true, " if c["since"] == OLDER else ""
+    gone = c.get("deprecated")
+    # On its way out: what replaces it, said under the lede.
+    deprecated = (f'deprecated: {q(gone["replacement"])}, deprecatedSince: {q(gone["since"])}, '
+                  f'deprecatedNote: {q(gone["note"])}, '
+                  + (f'deprecatedFlag: {q(gone["flag"])}, ' if gone.get("flag") else "")) if gone else ""
     out.append(f'    ReferenceItemShell({q(c["name"])}, summary: {q(c["plain"])}, signature: {q(c["signature"])}, '
-               f'{since}{older}outputs: {outputs}, group: {q(c["family"])}, entries: BUILTIN_INDEX, sections: {sections}, '
+               f'{since}{older}{deprecated}outputs: {outputs}, group: {q(c["family"])}, entries: BUILTIN_INDEX, sections: {sections}, '
                f'codes: {codes}, source: "src/registry/builtins.rs") {{')
     out.append("        stage {")
     out.append(f'            Stage(label: {q(c["name"])}) {{')
@@ -821,6 +836,9 @@ def builtin_page(c: dict, by_slug: dict, universal: list, parts: list = ()) -> l
             # `Unsafe.Html` is drawn to show it: its `V03` is the point.
             if "Unsafe.Html(" in line:
                 out.append("                // wf-allow(V03)")
+            # A deprecated built-in's page draws it: its `V13` is the point.
+            if gone and deprecated_call(c["name"], gone, line):
+                out.append("                // wf-allow(V13)")
             # A blank line stays blank: in a block string its spaces would
             # be the string's.
             out.append(f"                {line}" if line.strip() else "")
@@ -1068,7 +1086,7 @@ def cli_file(cmds: dict) -> str:
         for sc in c["subcommands"]:
             p.append(f'        Heading({q("wf " + c["name"] + " " + sc["name"])}, id: {q(sc["name"])}).h2')
             p.append(f'        Text({q(sc["summary"])})')
-            p.append(f'        Code({q(sc["usage"])}).block')
+            p.append(f'        CodeBlock({q(sc["usage"])})')
             if sc["options"]:
                 p.append(f'        PropsTable(rows: {rows(sc["options"])}, caption: {q("Options of wf " + c["name"] + " " + sc["name"])}, nameLabel: t("cli.option"))')
         if not c["subcommands"]:

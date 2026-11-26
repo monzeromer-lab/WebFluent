@@ -315,6 +315,9 @@ Stack(gap: .sm) {
 }''',
         "variations": [
             ("Out of a hundred", '''Progress(value: 64, max: 100)'''),
+            ("A ring, its value in the middle", '''state done = 40
+Progress(value: done, max: 100, label: "Upload").circular { Text("{done}%").sm }'''),
+            ("A ring turning, with no value", '''Progress(label: "Loading the report").circular'''),
         ],
     },
     "Skeleton": {

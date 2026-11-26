@@ -1,10 +1,10 @@
 # Chip
 
-> A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.
+> A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). With none of it, it is a static label.
 
 The page: https://webfluent.monzeromer.dev/reference/chip
 
-A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.
+A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). With none of it, it is a static label.
 
 ```wf
 Chip(_ label: String, icon: String, selected: Bool, removable: Bool)

@@ -179,7 +179,7 @@ What the control-flow statements and slots compile to.
 | `otp`, `tagInput`, `rating`, `rangeSlider`, `dropzone`, `dateRange`, `checkboxGroup`, `autosize`, `reveal` | `forms` | What `InputOTP`, `TagInput`, `Rating`, `Slider.range`, `FileUpload.dropzone`, `DateRangePicker`, `CheckboxGroup`, `Textarea.autosize` and `.password.reveal` compile to. |
 | `listbox`, `tree`, `dataTable`, `combobox`, `commandPalette` | `collections` | What `Listbox`, `Tree`, `DataTable`, `Combobox` and `CommandPalette` compile to. |
 | `navMenu`, `menuBar`, `contextMenu` | `navigation` | What `NavigationMenu`, `Menubar` and `ContextMenu` compile to. |
-| `avatarGroup`, `ring`, `scrollArea`, `sticky`, `panelGroup` | `display` | What `AvatarGroup`, `CircularProgress`, `ScrollArea`, `Sticky` and `PanelGroup` compile to. |
+| `avatarGroup`, `ring`, `scrollArea`, `sticky`, `panelGroup` | `display` | What `AvatarGroup`, `Progress(…).circular`, `ScrollArea`, `Sticky` and `PanelGroup` compile to. |
 | `colorPicker`, `transferList`, `editable`, `fab`, `backToTop`, `popconfirm`, `markMatches` | `extras` | What `ColorPicker`, `TransferList`, `Editable`, `Fab`, `BackToTop`, `Popconfirm` and `Highlight` compile to. |
 | `copyButton`, `themeToggle`, `localeSwitch`, `fieldFor`, `inputClear`, `onThisPage` | `content` | What `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Field`, `InputGroup.Clear` and `OnThisPage` compile to. |
 

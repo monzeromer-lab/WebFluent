@@ -39,8 +39,8 @@ page Home(path: "/", title: "Display", description: "Pairs, events, rings and pa
         Card { Text("Three") }
     }
 
-    CircularProgress(value: progress, label: "Upload", id: "ring") { Text("{progress}%").sm }
-    CircularProgress(label: "Working", id: "spinning")
+    Progress(value: progress, label: "Upload", id: "ring").circular { Text("{progress}%").sm }
+    Progress(label: "Working", id: "spinning").circular
     Button("More", id: "more") { on click { progress = progress + 30 } }
 
     Meter(value: level, high: 0.9, label: "Disk", id: "disk")

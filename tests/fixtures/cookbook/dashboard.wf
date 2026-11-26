@@ -133,12 +133,11 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.",
     use Ui
     state sort: Sort = .newest
     state q = ""
-    state rolledBack = ""
     resource deploys: [Deploy] = http.get("/api/deploys")
     action rollback(id: String) {
         let done: Json! = await http.post("/api/deploys/{id}/rollback")
         if let .err(_) = done { return }
-        rolledBack = id
+        toast("Rolled back {id}", tone: .success)
         Ui.close()
         deploys.reload()
     }
@@ -191,7 +190,6 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.",
             Button("Roll back", disabled: rollback.pending).danger { on click { if let id = Ui.confirmId { rollback(id) } } }
         }
     }
-    if rolledBack != "" { Toast("Rolled back {rolledBack}").success }
 }
 
 page DeployDetail(path: "/deploys/:id", id: String, title: "Deploy", description: "One deploy.", guard: Session.loggedIn, redirect: "/login", layout: Shell) {

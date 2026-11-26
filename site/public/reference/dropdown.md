@@ -10,6 +10,8 @@ Button that opens a menu of Dropdown.Items.
 Dropdown(_ label: String) { … }
 ```
 
+**Deprecated since 8.0:** write `Menu(trigger: …)` instead. It still draws as it always has through every 8.x release and is removed in 9.0; `wf fix --code V13` rewrites it where the rewrite is exact. Its label is the menu's `trigger:`, and its parts are `Menu.Item` and `Menu.Divider`. A `Menu` draws and behaves as it does, under `.wf-menu` classes: a stylesheet's `.wf-dropdown` rules are written for `.wf-menu`.
+
 ## Example
 
 ```wf

@@ -141,6 +141,8 @@ body { font-family: var(--font-family); color: var(--color-text); }
 }
 .console.big pre, .console.big .wf-code--block { font-size: 18px; line-height: 30px; padding: 26px 28px; }
 .console.small pre, .console.small .wf-code--block { font-size: 13px; line-height: 21px; }
+/* Unhighlighted output, such as a compiler's message: in the terminal's own ink. */
+.console__plain > .wf-code--block { color: #E6E9EC; }
 .term-line { font-family: var(--font-family-mono); font-size: 14px; line-height: 22px; color: var(--term-ink); }
 .term-line.dim { color: var(--term-dim); }
 .term-line.ok { color: var(--syntax-string); }

@@ -10,6 +10,8 @@ Compact chip.
 Tag(_ label: String)
 ```
 
+**Deprecated since 8.0:** write `Chip` instead. It still draws as it always has through every 8.x release and is removed in 9.0; `wf fix --code V13` rewrites it where the rewrite is exact. A `Chip` with no `selected:`, `.removable` or `on click` is the same static label, drawn as a pill at least 24px tall.
+
 ## Example
 
 ```wf

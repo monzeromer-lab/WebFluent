@@ -62,7 +62,7 @@ component PostCard(_ post: Post) {
         Text(format(post.date, .date, "long")).muted.sm
         Text(post.summary)
         Row(gap: .xs) {
-            for tag in post.tags by tag { Tag(tag) }
+            for tag in post.tags by tag { Chip(tag) }
         }
     }
 }

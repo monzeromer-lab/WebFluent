@@ -138,7 +138,7 @@ component BookCard(_ book: Book) {
             Text("{book.author} · {book.year}").muted.sm
             Text(book.summary)
             Row(gap: .xs) {
-                for tag in book.tags { Tag(tag) }
+                for tag in book.tags { Chip(tag) }
             }
             Button(if Shelf.saved.includes(book.slug) { "On your shelf" } else { "Want to read" }).sm {
                 on click { Shelf.toggle(book.slug) }
@@ -533,7 +533,7 @@ component BookCard(_ book: Book) {
             Text("{book.author} · {book.year}").muted.sm
             Text(book.summary)
             Row(gap: .xs) {
-                for tag in book.tags { Tag(tag) }
+                for tag in book.tags { Chip(tag) }
             }
             Button(if Shelf.saved.includes(book.slug) { "On your shelf" } else { "Want to read" }).sm {
                 on click { Shelf.toggle(book.slug) }

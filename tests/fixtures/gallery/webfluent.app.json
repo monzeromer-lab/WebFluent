@@ -9,5 +9,6 @@
   "meta": {
     "title": "Component Gallery",
     "description": "Every built-in component, once."
-  }
+  },
+  "lints": { "V13": "off" }
 }

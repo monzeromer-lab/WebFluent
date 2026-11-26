@@ -689,7 +689,7 @@ def markdown(items: list, with_info: bool = False, inline: bool = False, expand=
             out.append(text_of(it.pos(0)))
         elif n == "DocsCodeBlock":
             out.append(code_block(it, with_info))
-        elif n == "Code" and "block" in it.flags:
+        elif n == "CodeBlock" or (n == "Code" and "block" in it.flags):
             out.append(code_fence(text_of(it.pos(0)), text_of(it.arg("language", ""))))
         elif n == "Code" and it.pos(0) is not None:
             out.append(f"`{text_of(it.pos(0))}`")

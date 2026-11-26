@@ -205,7 +205,7 @@ page Report(path: "/", title: "Halyard platform report — {QUARTER}", descripti
         Stack(class: "section") {
             SectionHead("05", title: "Configuration")
             Text("Routing rules ship with the deploy, versioned with the code. This is the rule set in production at the end of the quarter.", class: "secondary")
-            Code("""
+            CodeBlock("""
                 # halyard.toml — routing, as deployed in rl_4a91
                 [routing]
                 default = "nearest"
@@ -222,7 +222,7 @@ page Report(path: "/", title: "Halyard platform report — {QUARTER}", descripti
                 [kv]
                 leader      = "fra1"
                 replication = "async"
-                """).block
+                """)
         }
 
         // ─── 6 ─────────────────────────────────────────────────

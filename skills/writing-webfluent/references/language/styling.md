@@ -243,9 +243,9 @@ them, new ones included. What is written on a tone is a token too —
 label — so a theme with a light primary names a dark one (`A13` checks the
 pair). Alerts, focus rings and highlights are mixed from the tone and the
 page's colours, so a dark theme needs nothing more; `color-backdrop` dims
-the page behind a modal, a dialog, a sheet and a drawer. A `Modal` or
-`Dialog` is as wide as its `<dialog>`, so `class:` or `style { width: … }`
-on it sizes what it shows.
+the page behind a modal, a dialog, a sheet and a drawer. A `Modal` is as
+wide as its `<dialog>`, so `class:` or `style { width: … }` on it sizes what
+it shows.
 
 The baseline holds a stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`,
 `z-modal`, `z-toast`, `z-tooltip`, `z-skip-link` — for a page's own sticky

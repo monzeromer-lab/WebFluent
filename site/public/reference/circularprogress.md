@@ -10,6 +10,8 @@ A ring that fills to value: of max:, announced as a progress bar; with no value:
 CircularProgress(value: Number, max: Number, label: String) { … }
 ```
 
+**Deprecated since 8.0:** write `Progress(…).circular` instead. It still draws as it always has through every 8.x release and is removed in 9.0; `wf fix --code V13` rewrites it where the rewrite is exact. `Progress(…).circular` draws the same ring, with its block in the middle.
+
 ## Example
 
 ```wf

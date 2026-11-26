@@ -53,6 +53,6 @@ component DocsCodeBlock(_ code: String, title: String = "wf", note: String = "",
             }
         }
         // It scrolls sideways when a line is long, so the keyboard can reach it.
-        Code(code, language: language, class: "bp-console__code", tabindex: "0").block
+        CodeBlock(code, language: language, class: "bp-console__code")
     }
 }

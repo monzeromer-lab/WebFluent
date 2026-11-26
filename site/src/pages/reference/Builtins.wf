@@ -435,7 +435,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/chip", class: "bp-card") {
                 Text("Chip", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). With none of it, it is a static label.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/visuallyhidden", class: "bp-card") {
                 Text("VisuallyHidden", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -621,7 +621,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/progress", class: "bp-card") {
                 Text("Progress", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("Progress bar; a value that reads state moves with it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("Progress bar; a value that reads state moves with it. .circular draws it as a ring that fills, its block in the middle.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/skeleton", class: "bp-card") {
                 Text("Skeleton", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -726,7 +726,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/code", class: "bp-card") {
                 Text("Code", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("Inline code, or a code block with block; language: colours it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("Code in a line of text; language: colours it. A block of code is a CodeBlock.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/markdown", class: "bp-card") {
                 Text("Markdown", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -2028,7 +2028,7 @@ PanelGroup(bind: widths, label: "Resize the columns") {
         Markdown(t("ref.parts.body", { name: "PanelGroup" }), class: "bp-prose")
         Heading("PanelGroup.Panel", id: "panelgroup-panel").h3
         Text("One panel.")
-        Code("PanelGroup.Panel(min: Number, collapsible: Bool) \{ … \}").block
+        CodeBlock("PanelGroup.Panel(min: Number, collapsible: Bool) \{ … \}")
         PropsTable(rows: [{ name: "min:", type: "Number", meaning: "The least it may be, in percent of the group", default: "10" }, { name: "collapsible:", type: "Bool", meaning: "Enter or a double press on the handle after it folds it away, its share to its neighbour; again brings it back. Written as a flag, `.collapsible`, or `collapsible: true`.", default: "false" }], caption: "Props of PanelGroup.Panel", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -2177,10 +2177,10 @@ page BuiltinAppshell(path: "/reference/appshell", title: "AppShell — Reference
         Markdown(t("ref.parts.body", { name: "AppShell" }), class: "bp-prose")
         Heading("AppShell.Header", id: "appshell-header").h3
         Text("The bar across the top.")
-        Code("AppShell.Header \{ … \}").block
+        CodeBlock("AppShell.Header \{ … \}")
         Heading("AppShell.Footer", id: "appshell-footer").h3
         Text("The bar along the bottom.")
-        Code("AppShell.Footer \{ … \}").block
+        CodeBlock("AppShell.Footer \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-app-shell" }), class: "bp-prose")
     }
 }
@@ -2402,13 +2402,13 @@ page BuiltinNavbar(path: "/reference/navbar", title: "Navbar — Reference", des
         Markdown(t("ref.parts.body", { name: "Navbar" }), class: "bp-prose")
         Heading("Navbar.Brand", id: "navbar-brand").h3
         Text("The brand area, usually a link home.")
-        Code("Navbar.Brand \{ … \}").block
+        CodeBlock("Navbar.Brand \{ … \}")
         Heading("Navbar.Links", id: "navbar-links").h3
         Text("The navigation links; collapses behind a toggle on small screens.")
-        Code("Navbar.Links \{ … \}").block
+        CodeBlock("Navbar.Links \{ … \}")
         Heading("Navbar.Actions", id: "navbar-actions").h3
         Text("Buttons at the end of the bar.")
-        Code("Navbar.Actions \{ … \}").block
+        CodeBlock("Navbar.Actions \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-navbar" }), class: "bp-prose")
     }
 }
@@ -2510,10 +2510,10 @@ page BuiltinSidebar(path: "/reference/sidebar", title: "Sidebar — Reference", 
         Markdown(t("ref.parts.body", { name: "Sidebar" }), class: "bp-prose")
         Heading("Sidebar.Header", id: "sidebar-header").h3
         Text("The sidebar's heading area.")
-        Code("Sidebar.Header \{ … \}").block
+        CodeBlock("Sidebar.Header \{ … \}")
         Heading("Sidebar.Item", id: "sidebar-item").h3
         Text("One navigation entry.")
-        Code("Sidebar.Item(to: Path, icon: String, active: Enum) \{ … \}").block
+        CodeBlock("Sidebar.Item(to: Path, icon: String, active: Enum) \{ … \}")
         PropsTable(rows: [{ name: "to:", type: "Path", meaning: "The route it links to, navigated in place; while it matches the current route the item carries `.active` and `aria-current=\"page\"`. Unset, the item is not a link", default: "none" }, { name: "icon:", type: "String", meaning: "The name of a built-in icon, drawn before its words", default: "none" }, { name: "active:", type: "one of its cases", meaning: "How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.\n\n- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms`", default: "exact match" }], caption: "Props of Sidebar.Item", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -2521,7 +2521,7 @@ page BuiltinSidebar(path: "/reference/sidebar", title: "Sidebar — Reference", 
         }
         Heading("Sidebar.Divider", id: "sidebar-divider").h3
         Text("A rule between groups of items.")
-        Code("Sidebar.Divider").block
+        CodeBlock("Sidebar.Divider")
         Markdown(t("ref.renders", { cls: "wf-sidebar" }), class: "bp-prose")
     }
 }
@@ -2697,7 +2697,7 @@ Tabs(label: "Report") {
         Markdown(t("ref.parts.body", { name: "Tabs" }), class: "bp-prose")
         Heading("Tabs.Page", id: "tabs-page").h3
         Text("One tab and its panel.")
-        Code("Tabs.Page(_ label: String, value: String or Number, disabled: Bool) \{ … \}").block
+        CodeBlock("Tabs.Page(_ label: String, value: String or Number, disabled: Bool) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The words on its tab button", default: "`Tab 0`, `Tab 1`, … by its place" }, { name: "value:", type: "String or Number", meaning: "What the Tabs' `bind:` holds while this tab is open", default: "its place from 0" }, { name: "disabled:", type: "Bool", meaning: "Shown, but cannot be opened: the button is disabled and the arrow keys pass over it; `.disabled`, or `disabled: value` to follow state. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }], caption: "Props of Tabs.Page", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -2765,7 +2765,7 @@ page BuiltinBreadcrumb(path: "/reference/breadcrumb", title: "Breadcrumb — Ref
         Markdown(t("ref.parts.body", { name: "Breadcrumb" }), class: "bp-prose")
         Heading("Breadcrumb.Item", id: "breadcrumb-item").h3
         Text("One step of the trail.")
-        Code("Breadcrumb.Item(to: Path) \{ … \}").block
+        CodeBlock("Breadcrumb.Item(to: Path) \{ … \}")
         PropsTable(rows: [{ name: "to:", type: "Path", meaning: "The route the step links to, followed through the router as a `Link` is. Without it the step is the current page, `aria-current=\"page\"`", default: "none: the current page" }], caption: "Props of Breadcrumb.Item", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-breadcrumb" }), class: "bp-prose")
     }
@@ -2898,7 +2898,7 @@ Menu(visible: asked, at: point) {
         Markdown(t("ref.parts.body", { name: "Menu" }), class: "bp-prose")
         Heading("Menu.Item", id: "menu-item").h3
         Text("One entry of the menu; on click is what choosing it does.")
-        Code("Menu.Item(shortcut: String, checked: Bool, disabled: Bool, …) \{ … \}").block
+        CodeBlock("Menu.Item(shortcut: String, checked: Bool, disabled: Bool, …) \{ … \}")
         PropsTable(rows: [{ name: "shortcut:", type: "String", meaning: "The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`); in a `Menubar` the keys also run it", default: "none" }, { name: "checked:", type: "Bool", meaning: "A check mark that follows the value (`menuitemcheckbox`, `aria-checked`): the item turns something on and off. Written as a flag, `.checked`, or `checked: true`.", default: "none: a plain item" }, { name: "disabled:", type: "Bool", meaning: "Shown dimmed (`aria-disabled`), skipped by the arrow keys, and cannot be chosen. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }, { name: "danger:", type: "Bool", meaning: "What it does cannot be taken back — Delete, Discard: drawn in the danger colour. Written as a flag, `.danger`, or `danger: true`.", default: "false" }], caption: "Props of Menu.Item", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -2908,11 +2908,11 @@ Menu(visible: asked, at: point) {
         }
         Heading("Menu.Sub", id: "menu-sub").h3
         Text("An entry that opens a menu of its own beside it.")
-        Code("Menu.Sub(label: String) \{ … \}").block
+        CodeBlock("Menu.Sub(label: String) \{ … \}")
         PropsTable(rows: [{ name: "label:", type: "String", meaning: "The words of the entry that opens its menu beside it", default: "empty" }], caption: "Props of Menu.Sub", defaults: true)
         Heading("Menu.Divider", id: "menu-divider").h3
         Text("A rule between groups of entries.")
-        Code("Menu.Divider").block
+        CodeBlock("Menu.Divider")
         Markdown(t("ref.renders", { cls: "wf-menu" }), class: "bp-prose")
     }
 }
@@ -3011,11 +3011,11 @@ page BuiltinNavigationmenu(path: "/reference/navigationmenu", title: "Navigation
         Markdown(t("ref.parts.body", { name: "NavigationMenu" }), class: "bp-prose")
         Heading("NavigationMenu.Item", id: "navigationmenu-item").h3
         Text("An entry that opens a panel: its words are its button, its block the panel.")
-        Code("NavigationMenu.Item(_ label: String) \{ … \}").block
+        CodeBlock("NavigationMenu.Item(_ label: String) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The words on the button that opens its panel; the block is the panel", default: "—" }], caption: "Props of NavigationMenu.Item", defaults: true)
         Heading("NavigationMenu.Link", id: "navigationmenu-link").h3
         Text("An entry that is a link, beside the ones that open panels.")
-        Code("NavigationMenu.Link(_ label: String, to: Path, active: Enum)").block
+        CodeBlock("NavigationMenu.Link(_ label: String, to: Path, active: Enum)")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The link's words", default: "—" }, { name: "to:", type: "Path (required)", meaning: "The route it links to, navigated in place; while it matches the current route it carries `.active` and `aria-current=\"page\"`", default: "—" }, { name: "active:", type: "one of its cases", meaning: "How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.\n\n- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms`", default: "exact match" }], caption: "Props of NavigationMenu.Link", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -3137,7 +3137,7 @@ Text(said).muted.sm"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "Menubar" }), class: "bp-prose")
         Heading("Menubar.Menu", id: "menubar-menu").h3
         Text("One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.")
-        Code("Menubar.Menu(_ label: String) \{ … \}").block
+        CodeBlock("Menubar.Menu(_ label: String) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The words on its button, and the name of the menu it opens", default: "—" }], caption: "Props of Menubar.Menu", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-menubar" }), class: "bp-prose")
     }
@@ -3216,7 +3216,7 @@ Text(said).muted.sm"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "ContextMenu" }), class: "bp-prose")
         Heading("ContextMenu.Items", id: "contextmenu-items").h3
         Text("The menu: Menu.Items, Menu.Subs and Menu.Dividers.")
-        Code("ContextMenu.Items(label: String) \{ … \}").block
+        CodeBlock("ContextMenu.Items(label: String) \{ … \}")
         PropsTable(rows: [{ name: "label:", type: "String", meaning: "The menu's accessible name (`aria-label`)", default: "none" }], caption: "Props of ContextMenu.Items", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-context-menu" }), class: "bp-prose")
     }
@@ -3291,7 +3291,7 @@ page BuiltinBottomnavigation(path: "/reference/bottomnavigation", title: "Bottom
         Markdown(t("ref.parts.body", { name: "BottomNavigation" }), class: "bp-prose")
         Heading("BottomNavigation.Item", id: "bottomnavigation-item").h3
         Text("One entry: its words, where it goes, and its icon.")
-        Code("BottomNavigation.Item(_ label: String, to: Path, active: Enum, icon: String)").block
+        CodeBlock("BottomNavigation.Item(_ label: String, to: Path, active: Enum, icon: String)")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "Its words, under the icon", default: "—" }, { name: "to:", type: "Path (required)", meaning: "The route it links to, navigated in place; while it matches the current route it carries `.active` and `aria-current=\"page\"`", default: "—" }, { name: "active:", type: "one of its cases", meaning: "How it decides it is the current page: unset, the route must equal `to`; `.prefix` also matches routes beneath it. Written as a flag, `.prefix`, or by name, `active: .prefix`.\n\n- `.prefix`: Also current on every route beneath `to`: `/docs` for `/docs/forms`", default: "exact match" }, { name: "icon:", type: "String", meaning: "The name of a built-in icon, drawn over its words", default: "none" }], caption: "Props of BottomNavigation.Item", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -3353,11 +3353,11 @@ page BuiltinPrevnext(path: "/reference/prevnext", title: "PrevNext — Reference
         Markdown(t("ref.parts.body", { name: "PrevNext" }), class: "bp-prose")
         Heading("PrevNext.Prev", id: "prevnext-prev").h3
         Text("The page before: its title, and where it is.")
-        Code("PrevNext.Prev(_ title: String, to: Path, label: String)").block
+        CodeBlock("PrevNext.Prev(_ title: String, to: Path, label: String)")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "The previous page's title, shown bold under the word", default: "—" }, { name: "to:", type: "Path (required)", meaning: "The route of the previous page, linked with `rel=\"prev\"` and navigated in place", default: "—" }, { name: "label:", type: "String", meaning: "The small word above the title", default: "`Previous`" }], caption: "Props of PrevNext.Prev", defaults: true)
         Heading("PrevNext.Next", id: "prevnext-next").h3
         Text("The page after: its title, and where it is.")
-        Code("PrevNext.Next(_ title: String, to: Path, label: String)").block
+        CodeBlock("PrevNext.Next(_ title: String, to: Path, label: String)")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "The next page's title, shown bold under the word", default: "—" }, { name: "to:", type: "Path (required)", meaning: "The route of the next page, linked with `rel=\"next\"` and navigated in place", default: "—" }, { name: "label:", type: "String", meaning: "The small word above the title", default: "`Next`" }], caption: "Props of PrevNext.Next", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-prev-next" }), class: "bp-prose")
     }
@@ -3607,7 +3607,7 @@ Stepper(bind: step) {
         Markdown(t("ref.parts.body", { name: "Stepper" }), class: "bp-prose")
         Heading("Stepper.Step", id: "stepper-step").h3
         Text("One step: its title in the list, its block shown while it is the current one.")
-        Code("Stepper.Step(_ title: String, done: Bool, error: Bool) \{ … \}").block
+        CodeBlock("Stepper.Step(_ title: String, done: Bool, error: Bool) \{ … \}")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "Its title, on its button in the list and as its panel's name", default: "—" }, { name: "done:", type: "Bool", meaning: "Passed: drawn with a check while it is not the current step; `.done`, or `done: value` to follow state. Written as a flag, `.done`, or `done: true`.", default: "false" }, { name: "error:", type: "Bool", meaning: "Something in it needs fixing: drawn as an error, before current or done; `.error`, or `error: value` to follow state. Written as a flag, `.error`, or `error: true`.", default: "false" }], caption: "Props of Stepper.Step", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -3717,11 +3717,11 @@ CommandPalette(open: palette) {
         Markdown(t("ref.parts.body", { name: "CommandPalette" }), class: "bp-prose")
         Heading("CommandPalette.Group", id: "commandpalette-group").h3
         Text("Items under a heading.")
-        Code("CommandPalette.Group(_ title: String) \{ … \}").block
+        CodeBlock("CommandPalette.Group(_ title: String) \{ … \}")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "Its heading, and the group's accessible name", default: "—" }], caption: "Props of CommandPalette.Group", defaults: true)
         Heading("CommandPalette.Item", id: "commandpalette-item").h3
         Text("One thing to do or go to; on select is what it does.")
-        Code("CommandPalette.Item(_ label: String, icon: String, shortcut: String) \{ … \}").block
+        CodeBlock("CommandPalette.Item(_ label: String, icon: String, shortcut: String) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "Its words, which the typing matches", default: "—" }, { name: "icon:", type: "String", meaning: "The name of a built-in icon, drawn before its words", default: "none" }, { name: "shortcut:", type: "String", meaning: "Its keys, shown at its end as this system writes them (`⌘H`); only shown — the key is not bound", default: "none" }], caption: "Props of CommandPalette.Item", defaults: true)
         EventsTable(rows: [PropRow(name: "select", kind: "", detail: "")], caption: "Events of CommandPalette.Item")
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
@@ -3865,7 +3865,7 @@ page BuiltinDescriptionlist(path: "/reference/descriptionlist", title: "Descript
         Markdown(t("ref.parts.body", { name: "DescriptionList" }), class: "bp-prose")
         Heading("DescriptionList.Item", id: "descriptionlist-item").h3
         Text("One pair: its term, and value: or its block.")
-        Code("DescriptionList.Item(_ term: String, value: String or Number or Bool) \{ … \}").block
+        CodeBlock("DescriptionList.Item(_ term: String, value: String or Number or Bool) \{ … \}")
         PropsTable(rows: [{ name: "term", type: "String (positional)", meaning: "What it is: the term (`<dt>`)", default: "—" }, { name: "value:", type: "String or Number or Bool", meaning: "Its value, shown as text in the `<dd>`; unset, the item's block is the value", default: "the item's block" }], caption: "Props of DescriptionList.Item", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "DescriptionList" }), class: "bp-prose")
@@ -3964,7 +3964,7 @@ Timeline {
         Markdown(t("ref.parts.body", { name: "Timeline" }), class: "bp-prose")
         Heading("Timeline.Item", id: "timeline-item").h3
         Text("One event: its title, at: its time, and its block.")
-        Code("Timeline.Item(_ title: String, at: Date or DateTime or String) \{ … \}").block
+        CodeBlock("Timeline.Item(_ title: String, at: Date or DateTime or String) \{ … \}")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "What happened, in bold above the date", default: "—" }, { name: "at:", type: "Date or DateTime or String", meaning: "When: a `Date`, a `DateTime` or an ISO string, written as a medium date (`Jan 2, 2026`) in a `<time datetime>`", default: "none: no date" }], caption: "Props of Timeline.Item", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "Timeline" }), class: "bp-prose")
@@ -4117,10 +4117,10 @@ Stack(gap: .sm) {
         Markdown(t("ref.parts.body", { name: "Item" }), class: "bp-prose")
         Heading("Item.Media", id: "item-media").h3
         Text("What goes at its start: an icon, an avatar, a picture.")
-        Code("Item.Media \{ … \}").block
+        CodeBlock("Item.Media \{ … \}")
         Heading("Item.Actions", id: "item-actions").h3
         Text("What goes at its end: a switch, a button, a menu.")
-        Code("Item.Actions \{ … \}").block
+        CodeBlock("Item.Actions \{ … \}")
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "Item" }), class: "bp-prose")
         PropsTable(rows: [{ name: "Item.Content", type: "—", meaning: "Its title, description and block." }], caption: t("ref.drawnparts"), nameLabel: t("ref.part"), typeLabel: t("ref.class"))
@@ -4332,13 +4332,13 @@ page BuiltinCard(path: "/reference/card", title: "Card — Reference", descripti
         Markdown(t("ref.parts.body", { name: "Card" }), class: "bp-prose")
         Heading("Card.Header", id: "card-header").h3
         Text("The card's heading area.")
-        Code("Card.Header \{ … \}").block
+        CodeBlock("Card.Header \{ … \}")
         Heading("Card.Body", id: "card-body").h3
         Text("The card's content area.")
-        Code("Card.Body \{ … \}").block
+        CodeBlock("Card.Body \{ … \}")
         Heading("Card.Footer", id: "card-footer").h3
         Text("The card's action area.")
-        Code("Card.Footer \{ … \}").block
+        CodeBlock("Card.Footer \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-card" }), class: "bp-prose")
     }
 }
@@ -4437,16 +4437,16 @@ Table(caption: "Regions") {
         Markdown(t("ref.parts.body", { name: "Table" }), class: "bp-prose")
         Heading("Table.Head", id: "table-head").h3
         Text("Header section; its cells become <th scope=\"col\">.")
-        Code("Table.Head \{ … \}").block
+        CodeBlock("Table.Head \{ … \}")
         Heading("Table.Body", id: "table-body").h3
         Text("The body of a table: its rows of data.")
-        Code("Table.Body \{ … \}").block
+        CodeBlock("Table.Body \{ … \}")
         Heading("Table.Row", id: "table-row").h3
         Text("A row of cells.")
-        Code("Table.Row \{ … \}").block
+        CodeBlock("Table.Row \{ … \}")
         Heading("Table.Cell", id: "table-cell").h3
         Text("A cell. header makes it a <th> anywhere, as Table.Head does for its cells.")
-        Code("Table.Cell(_ content: String or Number or Bool, header: Bool) \{ … \}").block
+        CodeBlock("Table.Cell(_ content: String or Number or Bool, header: Bool) \{ … \}")
         PropsTable(rows: [{ name: "content", type: "String or Number or Bool (positional)", meaning: "The cell's text: a string, number or boolean; unset, its block", default: "none" }, { name: "header:", type: "Bool", meaning: "Drawn as a header cell, `<th scope=\"col\">`, outside a `Table.Head` too (a cell a component draws). Written as a flag, `.header`, or `header: true`.", default: "false" }], caption: "Props of Table.Cell", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -4549,7 +4549,7 @@ List { for g in groceries by g { List.Item { Text(g) } } }"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "List" }), class: "bp-prose")
         Heading("List.Item", id: "list-item").h3
         Text("One entry (<li>).")
-        Code("List.Item \{ … \}").block
+        CodeBlock("List.Item \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-list" }), class: "bp-prose")
     }
 }
@@ -4634,7 +4634,7 @@ Badge(if failing { "Failing" } else { "Passing" }, tone: if failing { .danger } 
 
 page BuiltinTag(path: "/reference/tag", title: "Tag — Reference", description: "Tag: Compact chip.") {
     state stageLabel = "Cooking"
-    ReferenceItemShell("Tag", summary: "Compact chip.", signature: "Tag(_ label: String)", older: true, outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Tag", summary: "Compact chip.", signature: "Tag(_ label: String)", older: true, deprecated: "Chip", deprecatedSince: "8.0", deprecatedNote: "A `Chip` with no `selected:`, `.removable` or `on click` is the same static label, drawn as a pill at least 24px tall.", outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Tag") {
                 controls {
@@ -4643,8 +4643,11 @@ page BuiltinTag(path: "/reference/tag", title: "Tag — Reference", description:
                 Stack(gap: .sm) {
                     Heading("Slow roasting, explained").h3
                     Row(gap: .xs) {
+                        // wf-allow(V13)
                         Tag(stageLabel)
+                        // wf-allow(V13)
                         Tag("Technique")
+                        // wf-allow(V13)
                         Tag("Long read")
                     }
                 }
@@ -4980,7 +4983,7 @@ DataTable(rows: people, key: p => p.id, bind: picked, label: "People", filter: q
         Markdown(t("ref.parts.body", { name: "DataTable" }), class: "bp-prose")
         Heading("DataTable.Column", id: "datatable-column").h3
         Text("One column: its title, its value: (what it shows and sorts by), and a cell(r) \{ … \} that draws it instead.")
-        Code("DataTable.Column(_ title: String, value: (Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money, sortable: Bool)").block
+        CodeBlock("DataTable.Column(_ title: String, value: (Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money, sortable: Bool)")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "Its header", default: "—" }, { name: "value:", type: "(Item) -> String or (Item) -> Number or (Item) -> Bool or (Item) -> Money", meaning: "What the column holds for a row: `r => r.service`; shown as text unless `cell(r)` draws it, and what sorting and `filter:` read", default: "none" }, { name: "sortable:", type: "Bool", meaning: "Its header is a button that sorts the rows by its `value:`, ascending then descending (`aria-sort`); needs `value:`. Written as a flag, `.sortable`, or `sortable: true`.", default: "false" }], caption: "Props of DataTable.Column", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -5191,7 +5194,7 @@ page BuiltinCallout(path: "/reference/callout", title: "Callout — Reference", 
         Markdown(t("ref.parts.body", { name: "Callout" }), class: "bp-prose")
         Heading("Callout.Title", id: "callout-title").h3
         Text("Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.")
-        Code("Callout.Title \{ … \}").block
+        CodeBlock("Callout.Title \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-callout" }), class: "bp-prose")
     }
 }
@@ -5305,15 +5308,15 @@ EmptyState(icon: "search", title: "No results for “{q}”", text: "Try a short
         Markdown(t("ref.parts.body", { name: "EmptyState" }), class: "bp-prose")
         Heading("EmptyState.Title", id: "emptystate-title").h3
         Text("Its title.")
-        Code("EmptyState.Title(_ text: String)").block
+        CodeBlock("EmptyState.Title(_ text: String)")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "The title", default: "none" }], caption: "Props of EmptyState.Title", defaults: true)
         Heading("EmptyState.Text", id: "emptystate-text").h3
         Text("Its sentence.")
-        Code("EmptyState.Text(_ text: String)").block
+        CodeBlock("EmptyState.Text(_ text: String)")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "The sentence", default: "none" }], caption: "Props of EmptyState.Text", defaults: true)
         Heading("EmptyState.Actions", id: "emptystate-actions").h3
         Text("What to do: the block it was given.")
-        Code("EmptyState.Actions \{ … \}").block
+        CodeBlock("EmptyState.Actions \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-empty-state" }), class: "bp-prose")
     }
 }
@@ -5402,15 +5405,15 @@ page BuiltinStat(path: "/reference/stat", title: "Stat — Reference", descripti
         Markdown(t("ref.parts.body", { name: "Stat" }), class: "bp-prose")
         Heading("Stat.Label", id: "stat-label").h3
         Text("Its label.")
-        Code("Stat.Label(_ text: String)").block
+        CodeBlock("Stat.Label(_ text: String)")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "The label", default: "none" }], caption: "Props of Stat.Label", defaults: true)
         Heading("Stat.Value", id: "stat-value").h3
         Text("Its figure.")
-        Code("Stat.Value(_ text: String or Number)").block
+        CodeBlock("Stat.Value(_ text: String or Number)")
         PropsTable(rows: [{ name: "text", type: "String or Number (positional)", meaning: "The figure", default: "none" }], caption: "Props of Stat.Value", defaults: true)
         Heading("Stat.Change", id: "stat-change").h3
         Text("How it moved, with its direction.")
-        Code("Stat.Change(_ text: String)").block
+        CodeBlock("Stat.Change(_ text: String)")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "The change", default: "none" }], caption: "Props of Stat.Change", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-stat" }), class: "bp-prose")
     }
@@ -5504,10 +5507,10 @@ page BuiltinCodeblock(path: "/reference/codeblock", title: "CodeBlock — Refere
         Markdown(t("ref.parts.body", { name: "CodeBlock" }), class: "bp-prose")
         Heading("CodeBlock.Bar", id: "codeblock-bar").h3
         Text("The bar above the code.")
-        Code("CodeBlock.Bar \{ … \}").block
+        CodeBlock("CodeBlock.Bar \{ … \}")
         Heading("CodeBlock.Lines", id: "codeblock-lines").h3
         Text("The line numbers.")
-        Code("CodeBlock.Lines(_ text: String)").block
+        CodeBlock("CodeBlock.Lines(_ text: String)")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "The numbers, one a line", default: "none" }], caption: "Props of CodeBlock.Lines", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "CodeBlock" }), class: "bp-prose")
@@ -5548,7 +5551,7 @@ page BuiltinChip(path: "/reference/chip", title: "Chip — Reference", descripti
     state langs = ["Rust", "TypeScript", "Go", "Python"]
     state openOnly = false
     state stageIcon = "code"
-    ReferenceItemShell("Chip", summary: "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.", signature: "Chip(_ label: String, icon: String, selected: Bool, removable: Bool)", since: "6.2.0", outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "chip-action", label: "Chip.Action"), Anchor(id: "chip-label", label: "Chip.Label"), Anchor(id: "chip-remove", label: "Chip.Remove")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Chip", summary: "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). With none of it, it is a static label.", signature: "Chip(_ label: String, icon: String, selected: Bool, removable: Bool)", since: "6.2.0", outputs: [], group: "Content", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "chip-action", label: "Chip.Action"), Anchor(id: "chip-label", label: "Chip.Label"), Anchor(id: "chip-remove", label: "Chip.Remove")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Chip") {
                 controls {
@@ -5616,15 +5619,15 @@ Row(gap: .xs) {
         Markdown(t("ref.parts.body", { name: "Chip" }), class: "bp-prose")
         Heading("Chip.Action", id: "chip-action").h3
         Text("What pressing a chip presses: its icon and words, a toggle button when it can be selected:.")
-        Code("Chip.Action(_ text: String) \{ … \}").block
+        CodeBlock("Chip.Action(_ text: String) \{ … \}")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "Its words", default: "none" }], caption: "Props of Chip.Action", defaults: true)
         Heading("Chip.Label", id: "chip-label").h3
         Text("Its icon and words, when pressing it does nothing.")
-        Code("Chip.Label(_ text: String) \{ … \}").block
+        CodeBlock("Chip.Label(_ text: String) \{ … \}")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "Its words", default: "none" }], caption: "Props of Chip.Label", defaults: true)
         Heading("Chip.Remove", id: "chip-remove").h3
         Text("Its remove button.")
-        Code("Chip.Remove \{ … \}").block
+        CodeBlock("Chip.Remove \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-chip" }), class: "bp-prose")
     }
 }
@@ -5785,7 +5788,7 @@ page BuiltinAccordion(path: "/reference/accordion", title: "Accordion — Refere
         Markdown(t("ref.parts.body", { name: "Accordion" }), class: "bp-prose")
         Heading("Accordion.Item", id: "accordion-item").h3
         Text("One section: its title is what a reader presses, its block what opens.")
-        Code("Accordion.Item(_ title: String, open: Bool, name: String) \{ … \}").block
+        CodeBlock("Accordion.Item(_ title: String, open: Bool, name: String) \{ … \}")
         PropsTable(rows: [{ name: "title", type: "String (positional)", meaning: "What a reader presses: the `<summary>`", default: "—" }, { name: "open:", type: "Bool", meaning: "Open when it is drawn; the reader opens and closes it after. Written as a flag, `.open`, or `open: true`.", default: "false" }, { name: "name:", type: "String", meaning: "Items of one name open one at a time, as `<details name>` does: what `.single` writes for you", default: "none" }], caption: "Props of Accordion.Item", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -6124,7 +6127,7 @@ Select(bind: plan, label: "Plan").disabled {
         Markdown(t("ref.parts.body", { name: "Select" }), class: "bp-prose")
         Heading("Select.Option", id: "select-option").h3
         Text("One choice: the visible label, and the value sent with the form.")
-        Code("Select.Option(_ label: String, value: String or Number or Bool or Bound)").block
+        CodeBlock("Select.Option(_ label: String, value: String or Number or Bool or Bound)")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The words the option shows; also its value when it has no `value:`", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound", meaning: "What `bind:` holds when this one is chosen, kept as written (`String`, `Number` or `Bool`); a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "its label" }], caption: "Props of Select.Option", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-select" }), class: "bp-prose")
     }
@@ -6873,11 +6876,11 @@ Stack(gap: .md) {
         Markdown(t("ref.parts.body", { name: "InputGroup" }), class: "bp-prose")
         Heading("InputGroup.Addon", id: "inputgroup-addon").h3
         Text("Text beside the input: https://, .com, kg.")
-        Code("InputGroup.Addon(_ text: String) \{ … \}").block
+        CodeBlock("InputGroup.Addon(_ text: String) \{ … \}")
         PropsTable(rows: [{ name: "text", type: "String (positional)", meaning: "The words drawn beside the input, inside the group's box: `https://`, `.com`, `kg`", default: "—" }], caption: "Props of InputGroup.Addon", defaults: true)
         Heading("InputGroup.Clear", id: "inputgroup-clear").h3
         Text("A button that empties the input and puts the focus back in it; hidden while it is empty.")
-        Code("InputGroup.Clear").block
+        CodeBlock("InputGroup.Clear")
         Markdown(t("ref.renders", { cls: "wf-input-group" }), class: "bp-prose")
     }
 }
@@ -6958,7 +6961,7 @@ RadioGroup(bind: billing, label: "Billing") {
         Markdown(t("ref.parts.body", { name: "RadioGroup" }), class: "bp-prose")
         Heading("RadioGroup.Option", id: "radiogroup-option").h3
         Text("One choice: its words, its value, and a hint said with it.")
-        Code("RadioGroup.Option(_ label: String, value: String or Number or Bool or Bound, hint: String) \{ … \}").block
+        CodeBlock("RadioGroup.Option(_ label: String, value: String or Number or Bool or Bound, hint: String) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words, beside its radio", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound (required)", meaning: "What `bind:` holds when it is chosen; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "—" }, { name: "hint:", type: "String", meaning: "A line beneath its words, read with the option (`aria-description`)", default: "none" }], caption: "Props of RadioGroup.Option", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "RadioGroup" }), class: "bp-prose")
@@ -7183,7 +7186,7 @@ Text("Chosen: {toppings.join(", ")}")"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "Listbox" }), class: "bp-prose")
         Heading("Listbox.Option", id: "listbox-option").h3
         Text("One option: its words, and the value bind: holds when it is chosen.")
-        Code("Listbox.Option(_ label: String, value: String or Number or Bool or Bound, icon: String, aria-disabled: String) \{ … \}").block
+        CodeBlock("Listbox.Option(_ label: String, value: String or Number or Bool or Bound, icon: String, aria-disabled: String) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words; a letter typed goes to the next option they start with", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound (required)", meaning: "What `bind:` holds when it is chosen (or, with `.multiple`, what the list holds while it is chosen); a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "—" }, { name: "icon:", type: "String", meaning: "The name of a built-in icon drawn before its words", default: "none" }, { name: "aria-disabled:", type: "String", meaning: "`\"true\"`: shown, passed over by the arrow keys, never chosen", default: "none" }], caption: "Props of Listbox.Option", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-listbox" }), class: "bp-prose")
     }
@@ -7321,7 +7324,7 @@ Text("Chosen: {channels.join(", ")}").muted"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "CheckboxGroup" }), class: "bp-prose")
         Heading("CheckboxGroup.Option", id: "checkboxgroup-option").h3
         Text("One box: its words and its value.")
-        Code("CheckboxGroup.Option(_ label: String, value: String or Number or Bool or Bound)").block
+        CodeBlock("CheckboxGroup.Option(_ label: String, value: String or Number or Bool or Bound)")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The option's words, beside its box; also its value when it has no `value:`", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound", meaning: "What the list holds while it is ticked; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "its label" }], caption: "Props of CheckboxGroup.Option", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "CheckboxGroup" }), class: "bp-prose")
@@ -7589,7 +7592,7 @@ page BuiltinHovercard(path: "/reference/hovercard", title: "HoverCard — Refere
         Markdown(t("ref.parts.body", { name: "HoverCard" }), class: "bp-prose")
         Heading("HoverCard.Content", id: "hovercard-content").h3
         Text("What the card shows. The rest of the block is what it is at.")
-        Code("HoverCard.Content \{ … \}").block
+        CodeBlock("HoverCard.Content \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-hover-card" }), class: "bp-prose")
     }
 }
@@ -7752,7 +7755,7 @@ Tour(open: touring, back: "Previous", next: "Continue", done: "Got it", close: "
         Markdown(t("ref.parts.body", { name: "Tour" }), class: "bp-prose")
         Heading("Tour.Step", id: "tour-step").h3
         Text("One step: what it points at, its title, and its block.")
-        Code("Tour.Step(target: Element, title: String) \{ … \}").block
+        CodeBlock("Tour.Step(target: Element, title: String) \{ … \}")
         PropsTable(rows: [{ name: "target:", type: "Element (required)", meaning: "The element the step points at and lights up, by its `ref:` (even one written further down); unset, the card sits mid-window with nothing lit", default: "—" }, { name: "title:", type: "String", meaning: "The step's heading, drawn as an `h2` above its block, and the card's accessible name", default: "none" }], caption: "Props of Tour.Step", defaults: true)
         Markdown(t("ref.renders", { cls: "wf-tour" }), class: "bp-prose")
     }
@@ -7850,7 +7853,7 @@ page BuiltinCircularprogress(path: "/reference/circularprogress", title: "Circul
     state done = 40
     state stageMax = 100
     state stageLabel = "Upload"
-    ReferenceItemShell("CircularProgress", summary: "A ring that fills to value: of max:, announced as a progress bar; with no value:, it turns, for work of no known length. Its block is drawn in the middle.", signature: "CircularProgress(value: Number, max: Number, label: String) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("CircularProgress", summary: "A ring that fills to value: of max:, announced as a progress bar; with no value:, it turns, for work of no known length. Its block is drawn in the middle.", signature: "CircularProgress(value: Number, max: Number, label: String) \{ … \}", since: "6.2.0", deprecated: "Progress(…).circular", deprecatedSince: "8.0", deprecatedNote: "`Progress(…).circular` draws the same ring, with its block in the middle.", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "CircularProgress") {
                 controls {
@@ -7859,6 +7862,7 @@ page BuiltinCircularprogress(path: "/reference/circularprogress", title: "Circul
                     StageControl({ name: "label", kind: "string", options: [], value: "" }, live: true, current: stageLabel) { on pick(v) { stageLabel = v } }
                 }
                 Row(gap: .lg, align: .center) {
+                    // wf-allow(V13)
                     CircularProgress(value: done, max: stageMax, label: stageLabel) { Text("{done}%").sm }
                     Stack(gap: .xs) {
                         Text("Uploading photos.zip").bold
@@ -8100,7 +8104,7 @@ if failed {
 
 page BuiltinToast(path: "/reference/toast", title: "Toast — Reference", description: "Toast: Temporary notification.") {
     state archived = 0
-    ReferenceItemShell("Toast", summary: "Temporary notification.", signature: "Toast(_ message: String, tone: Enum)", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Toast", summary: "Temporary notification.", signature: "Toast(_ message: String, tone: Enum)", older: true, deprecated: "toast(…)", deprecatedSince: "8.0", deprecatedNote: "The element shows its toast each time it is drawn; call `toast(\"…\", tone: .success)` where what it shows becomes true — the handler or action that sets it.", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Toast") {
                 controls {
@@ -8255,10 +8259,10 @@ Modal(visible: open, title: "Delete deploys.wf?").closable {
         Markdown(t("ref.parts.body", { name: "Modal" }), class: "bp-prose")
         Heading("Modal.Title", id: "modal-title").h3
         Text("What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title \{ Text \{ \"Rename \"  Code(name) \} \}.")
-        Code("Modal.Title \{ … \}").block
+        CodeBlock("Modal.Title \{ … \}")
         Heading("Modal.Footer", id: "modal-footer").h3
         Text("The modal's action row.")
-        Code("Modal.Footer \{ … \}").block
+        CodeBlock("Modal.Footer \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-modal" }), class: "bp-prose")
     }
 }
@@ -8370,7 +8374,7 @@ page BuiltinDialog(path: "/reference/dialog", title: "Dialog — Reference", des
     state asking = false
     state stageTitle = "Leave without saving?"
     state stageClosable = true
-    ReferenceItemShell("Dialog", summary: "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.", signature: "Dialog(visible: State, title: String, closable: Bool, …) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "dialog-title", label: "Dialog.Title")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A08", title: "A dialog with no title", to: "/errors/A08")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Dialog", summary: "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.", signature: "Dialog(visible: State, title: String, closable: Bool, …) \{ … \}", older: true, deprecated: "Modal", deprecatedSince: "8.0", deprecatedNote: "It takes the same props, events and `Title` part. A `Modal` is drawn wider (500px against 400px) with its heading and body padded apart; `class:` or `style \{ width: … \}` sizes it.", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "dialog-title", label: "Dialog.Title")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A08", title: "A dialog with no title", to: "/errors/A08")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Dialog") {
                 controls {
@@ -8379,6 +8383,7 @@ page BuiltinDialog(path: "/reference/dialog", title: "Dialog — Reference", des
                     StageControl({ name: "dismiss", kind: "enum", options: ["any", "escape", "none"], value: "any", sink: "special" })
                 }
                 Button("Close the editor") { on click { asking = true } }
+                // wf-allow(V13)
                 Dialog(visible: asking, title: stageTitle, closable: stageClosable) {
                     Text("Your draft of notes.md has changes that are not saved.")
                     Row(gap: .sm, justify: .end) {
@@ -8443,7 +8448,7 @@ Dialog(visible: asking, title: "Sign out of every device?", dismiss: .none) {
         Markdown(t("ref.parts.body", { name: "Dialog" }), class: "bp-prose")
         Heading("Dialog.Title", id: "dialog-title").h3
         Text("What the dialog's heading draws, in place of its title:'s words, which stay its name.")
-        Code("Dialog.Title \{ … \}").block
+        CodeBlock("Dialog.Title \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-dialog" }), class: "bp-prose")
     }
 }
@@ -8527,10 +8532,10 @@ AlertDialog(visible: sure, title: "Delete the branch fix-login?") {
         Markdown(t("ref.parts.body", { name: "AlertDialog" }), class: "bp-prose")
         Heading("AlertDialog.Title", id: "alertdialog-title").h3
         Text("What the alert dialog's heading draws, in place of its title:'s words, which stay its name.")
-        Code("AlertDialog.Title \{ … \}").block
+        CodeBlock("AlertDialog.Title \{ … \}")
         Heading("AlertDialog.Footer", id: "alertdialog-footer").h3
         Text("Its answers: the button that loses nothing first.")
-        Code("AlertDialog.Footer \{ … \}").block
+        CodeBlock("AlertDialog.Footer \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-dialog wf-alert-dialog" }), class: "bp-prose")
     }
 }
@@ -8635,10 +8640,10 @@ Sheet(visible: nav, side: .start, label: "Navigation") {
         Markdown(t("ref.parts.body", { name: "Sheet" }), class: "bp-prose")
         Heading("Sheet.Title", id: "sheet-title").h3
         Text("What the sheet's heading draws, in place of its title:'s words, which stay its name.")
-        Code("Sheet.Title \{ … \}").block
+        CodeBlock("Sheet.Title \{ … \}")
         Heading("Sheet.Footer", id: "sheet-footer").h3
         Text("The sheet's action row, kept in view below what scrolls.")
-        Code("Sheet.Footer \{ … \}").block
+        CodeBlock("Sheet.Footer \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-sheet" }), class: "bp-prose")
     }
 }
@@ -8710,15 +8715,17 @@ page BuiltinSpinner(path: "/reference/spinner", title: "Spinner — Reference", 
     }
 }
 
-page BuiltinProgress(path: "/reference/progress", title: "Progress — Reference", description: "Progress: Progress bar; a value that reads state moves with it.") {
+page BuiltinProgress(path: "/reference/progress", title: "Progress — Reference", description: "Progress: Progress bar; a value that reads state moves with it. .circular draws it as a ring that fills, its block in the middle.") {
     state sent = 3
     state stageMax = 8
-    ReferenceItemShell("Progress", summary: "Progress bar; a value that reads state moves with it.", signature: "Progress(value: Number, max: Number)", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Progress", summary: "Progress bar; a value that reads state moves with it. .circular draws it as a ring that fills, its block in the middle.", signature: "Progress(value: Number, max: Number, label: String, …) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Progress") {
                 controls {
                     StageControl({ name: "value", kind: "number", options: [], value: "" })
                     StageControl({ name: "max", kind: "number", options: [], value: "" }, live: true, current: "{stageMax}") { on pick(v) { stageMax = parseFloat(v) } }
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "circular", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Stack(gap: .sm) {
                     Text("Sending invitations: {sent} of 8")
@@ -8736,6 +8743,11 @@ Stack(gap: .sm) {
 }"#, title: "wf")
         Text("Out of a hundred") { style { margin: 8px 0 0; font-weight: 600 } }
         DocsCodeBlock(#"Progress(value: 64, max: 100)"#, title: "wf")
+        Text("A ring, its value in the middle") { style { margin: 8px 0 0; font-weight: 600 } }
+        DocsCodeBlock(#"state done = 40
+Progress(value: done, max: 100, label: "Upload").circular { Text("{done}%").sm }"#, title: "wf")
+        Text("A ring turning, with no value") { style { margin: 8px 0 0; font-weight: 600 } }
+        DocsCodeBlock(#"Progress(label: "Loading the report").circular"#, title: "wf")
         Row(gap: .sm, align: .center) {
             style { gap: 8px; flex-wrap: wrap; margin-top: 8px }
             Text(t("ref.related"), class: "bp-small")
@@ -8745,15 +8757,18 @@ Stack(gap: .sm) {
             Link("Skeleton", to: "/reference/skeleton", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "value:", type: "Number", meaning: "How far along, out of `max:`; unset, the bar shows activity with no amount (indeterminate); a value that reads state follows it", default: "none: indeterminate" }, { name: "max:", type: "Number", meaning: "The value at which the bar is full (the native `<progress>`'s `max`); with it unset `value:` is a fraction of 1", default: "1" }], caption: "Props of Progress", defaults: true)
+        PropsTable(rows: [{ name: "value:", type: "Number", meaning: "How far along, out of `max:`; unset, the bar shows activity with no amount (indeterminate); a value that reads state follows it", default: "none: indeterminate" }, { name: "max:", type: "Number", meaning: "The value at which the bar is full (the native `<progress>`'s `max`); with it unset `value:` is a fraction of 1", default: "1" }, { name: "label:", type: "String", meaning: "What is progressing: the progress bar's accessible name (`aria-label`)", default: "none" }, { name: "circular:", type: "Bool", meaning: "Drawn as a ring that fills, announced as a progress bar, its block in the middle; with no `value:` the ring turns. Written as a flag, `.circular`, or `circular: true`.", default: "false: a bar" }], caption: "Props of Progress", defaults: true)
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
-        Text(t("ref.noflags"), class: "bp-small")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".circular", class: "bp-label bp-mono")
+        }
         Heading(t("ref.tab.events"), id: "events").h2
         Markdown(t("ref.universal.link"), class: "bp-prose")
         Heading(t("ref.slots"), id: "slots").h2
-        SlotsTable(slots: [])
+        SlotsTable(slots: [PropRow(name: "children", kind: "", detail: "")])
         Markdown(t("ref.renders", { cls: "wf-progress" }), class: "bp-prose")
     }
 }
@@ -8873,7 +8888,7 @@ Text("{notes} notes")"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "Fab" }), class: "bp-prose")
         Heading("Fab.Action", id: "fab-action").h3
         Text("One more action the button opens: its words and its icon; on click is what it does.")
-        Code("Fab.Action(_ label: String, icon: String) \{ … \}").block
+        CodeBlock("Fab.Action(_ label: String, icon: String) \{ … \}")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "The action's words, shown beside its icon while the dial is open", default: "—" }, { name: "icon:", type: "String", meaning: "An icon before the words, one of the built-in icon names", default: "none" }], caption: "Props of Fab.Action", defaults: true)
         Heading(t("ref.drawnparts"), id: "drawn-parts").h2
         Markdown(t("ref.drawnparts.body", { name: "Fab" }), class: "bp-prose")
@@ -9199,7 +9214,7 @@ Text("{styles.length} on")"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "ToggleGroup" }), class: "bp-prose")
         Heading("ToggleGroup.Item", id: "togglegroup-item").h3
         Text("One choice: its words, and the value bind: holds when it is chosen.")
-        Code("ToggleGroup.Item(_ label: String, value: String or Number or Bool or Bound, icon: String, disabled: Bool)").block
+        CodeBlock("ToggleGroup.Item(_ label: String, value: String or Number or Bool or Bound, icon: String, disabled: Bool)")
         PropsTable(rows: [{ name: "label", type: "String (positional)", meaning: "Its words", default: "—" }, { name: "value:", type: "String or Number or Bool or Bound (required)", meaning: "What `bind:` holds (or its list contains) while it is chosen; it is drawn pressed then; a case (`.food`) when `bind:` holds an enum (`Bound`)", default: "—" }, { name: "icon:", type: "String", meaning: "An icon before the words, one of the built-in icon names", default: "none" }, { name: "disabled:", type: "Bool", meaning: "Whether the item is inert: it cannot be pressed and the arrow keys pass over it. Written as a flag, `.disabled`, or `disabled: true`.", default: "false" }], caption: "Props of ToggleGroup.Item", defaults: true)
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
@@ -9477,12 +9492,13 @@ Text("Showing one {range}").muted"#, title: "wf")
 page BuiltinDropdown(path: "/reference/dropdown", title: "Dropdown — Reference", description: "Dropdown: Button that opens a menu of Dropdown.Items.") {
     state said = "Nothing chosen"
     state stageLabel = "Actions"
-    ReferenceItemShell("Dropdown", summary: "Button that opens a menu of Dropdown.Items.", signature: "Dropdown(_ label: String) \{ … \}", older: true, outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "dropdown-item", label: "Dropdown.Item"), Anchor(id: "dropdown-divider", label: "Dropdown.Divider")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Dropdown", summary: "Button that opens a menu of Dropdown.Items.", signature: "Dropdown(_ label: String) \{ … \}", older: true, deprecated: "Menu(trigger: …)", deprecatedSince: "8.0", deprecatedNote: "Its label is the menu's `trigger:`, and its parts are `Menu.Item` and `Menu.Divider`. A `Menu` draws and behaves as it does, under `.wf-menu` classes: a stylesheet's `.wf-dropdown` rules are written for `.wf-menu`.", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots")), Anchor(id: "parts", label: t("ref.parts")), Anchor(id: "dropdown-item", label: "Dropdown.Item"), Anchor(id: "dropdown-divider", label: "Dropdown.Divider")], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Dropdown") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" }, live: true, current: stageLabel) { on pick(v) { stageLabel = v } }
                 }
+                // wf-allow(V13)
                 Dropdown(stageLabel) {
                     Dropdown.Item { Button("Duplicate") { on click { said = "Duplicated" } } }
                     Dropdown.Item { Button("Rename") { on click { said = "Renamed" } } }
@@ -9529,10 +9545,10 @@ Text(said).muted"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "Dropdown" }), class: "bp-prose")
         Heading("Dropdown.Item", id: "dropdown-item").h3
         Text("One entry of the menu.")
-        Code("Dropdown.Item \{ … \}").block
+        CodeBlock("Dropdown.Item \{ … \}")
         Heading("Dropdown.Divider", id: "dropdown-divider").h3
         Text("A rule between groups of entries.")
-        Code("Dropdown.Divider").block
+        CodeBlock("Dropdown.Divider")
         Markdown(t("ref.renders", { cls: "wf-dropdown" }), class: "bp-prose")
     }
 }
@@ -10095,7 +10111,7 @@ page BuiltinCarousel(path: "/reference/carousel", title: "Carousel — Reference
         Markdown(t("ref.parts.body", { name: "Carousel" }), class: "bp-prose")
         Heading("Carousel.Slide", id: "carousel-slide").h3
         Text("One slide of a carousel.")
-        Code("Carousel.Slide \{ … \}").block
+        CodeBlock("Carousel.Slide \{ … \}")
         Markdown(t("ref.renders", { cls: "wf-carousel" }), class: "bp-prose")
     }
 }
@@ -10338,9 +10354,9 @@ page BuiltinHeading(path: "/reference/heading", title: "Heading — Reference", 
     }
 }
 
-page BuiltinCode(path: "/reference/code", title: "Code — Reference", description: "Code: Inline code, or a code block with block; language: colours it.") {
+page BuiltinCode(path: "/reference/code", title: "Code — Reference", description: "Code: Code in a line of text; language: colours it. A block of code is a CodeBlock.") {
     state stageBlock = false
-    ReferenceItemShell("Code", summary: "Inline code, or a code block with block; language: colours it.", signature: "Code(_ content: String or Number or Bool, block: Bool, language: String)", older: true, outputs: [], group: "Typography", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Code", summary: "Code in a line of text; language: colours it. A block of code is a CodeBlock.", signature: "Code(_ content: String or Number or Bool, block: Bool, language: String)", older: true, deprecated: "CodeBlock(…)", deprecatedSince: "8.0", deprecatedNote: "`CodeBlock` draws the same code in a box of its own that a keyboard can scroll, and takes `title:`, `.copy` and `.lines`. `Code` stays for code in a line of text.", deprecatedFlag: "block", outputs: [], group: "Typography", entries: BUILTIN_INDEX, sections: [Anchor(id: "example", label: t("ref.example")), Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slots"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Code") {
                 controls {
@@ -10349,27 +10365,17 @@ page BuiltinCode(path: "/reference/code", title: "Code — Reference", descripti
                 }
                 Stack(gap: .sm) {
                     Text { Text("Start the dev server with ")  Code("wf serve", block: stageBlock)  Text(", then open the page.") }
-                    Code("""
-                        page Home(path: "/", title: "Home") {
-                            state count = 0
-                            Button("+1") { on click { count = count + 1 } }
-                        }
-                        """, language: "wf").block
+                    Text { Text("A page opens with ")  Code("page Home(path: \"/\")", language: "wf")  Text(".") }
                 }
             }
         }
         Heading(t("ref.example"), id: "example").h2
         DocsCodeBlock(#"Stack(gap: .sm) {
     Text { Text("Start the dev server with ")  Code("wf serve")  Text(", then open the page.") }
-    Code("""
-        page Home(path: "/", title: "Home") {
-            state count = 0
-            Button("+1") { on click { count = count + 1 } }
-        }
-        """, language: "wf").block
+    Text { Text("A page opens with ")  Code("page Home(path: \"/\")", language: "wf")  Text(".") }
 }"#, title: "wf")
-        Text("A shell command on its own") { style { margin: 8px 0 0; font-weight: 600 } }
-        DocsCodeBlock(#"Code("wf build --stats", language: "bash").block"#, title: "wf")
+        Text("A block of code is a CodeBlock") { style { margin: 8px 0 0; font-weight: 600 } }
+        DocsCodeBlock(#"CodeBlock("wf build --stats", language: "bash")"#, title: "wf")
         Row(gap: .sm, align: .center) {
             style { gap: 8px; flex-wrap: wrap; margin-top: 8px }
             Text(t("ref.related"), class: "bp-small")
@@ -10383,7 +10389,7 @@ page BuiltinCode(path: "/reference/code", title: "Code — Reference", descripti
             Link("VisuallyHidden", to: "/reference/visuallyhidden", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "content", type: "String or Number or Bool (positional)", meaning: "The code, as text in a monospace font", default: "none" }, { name: "block:", type: "Bool", meaning: "A block of several lines that keeps its line breaks and scrolls sideways, on the terminal colours, rather than a span in a line. Written as a flag, `.block`, or `block: true`.", default: "false" }, { name: "language:", type: "String", meaning: "Colours the code as this language: `wf` (or `wfx`), `json`, `bash` (`sh`, `shell`) or `css`; any other is shown plain", default: "none: plain" }], caption: "Props of Code", defaults: true)
+        PropsTable(rows: [{ name: "content", type: "String or Number or Bool (positional)", meaning: "The code, as text in a monospace font", default: "none" }, { name: "block:", type: "Bool", meaning: "A block of several lines that keeps its line breaks and scrolls sideways, on the terminal colours, rather than a span in a line — deprecated since 8.0: a block of code is a `CodeBlock`. Written as a flag, `.block`, or `block: true`.", default: "false" }, { name: "language:", type: "String", meaning: "Colours the code as this language: `wf` (or `wfx`), `json`, `bash` (`sh`, `shell`) or `css`; any other is shown plain", default: "none: plain" }], caption: "Props of Code", defaults: true)
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -10507,7 +10513,7 @@ Unsafe.Html(sanitize(body))"#, title: "wf")
         Markdown(t("ref.parts.body", { name: "Unsafe" }), class: "bp-prose")
         Heading("Unsafe.Html", id: "unsafe-html").h3
         Text("Markup, put in as markup. It is **not** sanitised — the name says so — and sanitize(…) is one call away for anything the project did not write itself.")
-        Code("Unsafe.Html(_ markup: String)").block
+        CodeBlock("Unsafe.Html(_ markup: String)")
         PropsTable(rows: [{ name: "markup", type: "String (positional)", meaning: "The HTML to insert, as it is: not sanitised (wrap it in `sanitize(…)` unless the project wrote it); every use is a `V03`", default: "none" }], caption: "Props of Unsafe.Html", defaults: true)
     }
 }

@@ -209,7 +209,8 @@ page Article(path: "/", title: "Article", description: "Every kind of text.") {
     Heading("Release notes").h1                // a real <h1>; .h2 is the default
     Text("{count} changes").bold.muted         // a run of text
     Paragraph("Prose, as a <p>.")
-    Code("let x = 1").block
+    Code("let x = 1")                          // code in a line of text
+    CodeBlock("let x = 1\nlet y = 2")          // a block of code
     Blockquote("A quotation.")
     Markdown("**Bold** and a [link](/docs)")   // Markdown, rendered as HTML
 }
@@ -251,11 +252,11 @@ The built-ins fall into these families:
 |---|---|
 | Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
-| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
+| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-elements)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays)) |
-| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
+| Feedback | `Alert`, `Modal`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays)) |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md), [Video and audio](https://webfluent.monzeromer.dev/recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md), [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)) |

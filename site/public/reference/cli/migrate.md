@@ -1,10 +1,10 @@
 # wf migrate
 
-> Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)
+> Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first)
 
 The page: https://webfluent.monzeromer.dev/reference/cli/migrate
 
-Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)
+Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first)
 
 ```bash
 wf migrate [PATH] [options]

@@ -190,7 +190,7 @@ The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a drawe
 
 - `viewport` is the window's size as a value. It follows `matchMedia`, so the switch happens once, as the window crosses the breakpoint ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).
 - The layout itself — grids that are one column on a phone — uses responsive values, `Grid(columns: { base: 1, lg: 2 })`, which need no script.
-- A second store, `Ui`, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.
+- A second store, `Ui`, holds what the interface is doing — the dialog and the menu — apart from what the ledger holds.
 
 **Check it:** on a wide window, the sidebar shows. Narrow the window: a top bar replaces it, and its menu button opens the drawer, which a click on the dimmed page behind it closes.
 

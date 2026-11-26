@@ -161,11 +161,11 @@ page Workshop(path: "/", title: "واجهات عربية من ملف واحد", 
             Row(class: "code-pair") {
                 Stack(class: "code-card") {
                     Text("src/pages/Home.wf", class: "code-card__bar")
-                    Code(PAGE, language: "wf").block
+                    CodeBlock(PAGE, language: "wf")
                 }
                 Stack(class: "code-card") {
                     Text("src/translations/ar.json", class: "code-card__bar")
-                    Code(MESSAGES, language: "json").block
+                    CodeBlock(MESSAGES, language: "json")
                 }
             }
             Row(class: "result") {

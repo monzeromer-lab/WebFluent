@@ -117,7 +117,7 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
                         on edit(next) { edited(next) }
                     }
                 } else {
-                    Code(shown, language: language, class: "bp-console__code").block
+                    CodeBlock(shown, language: language, class: "bp-console__code")
                 }
                 if split {
                     Stack(class: "bp-grid") {

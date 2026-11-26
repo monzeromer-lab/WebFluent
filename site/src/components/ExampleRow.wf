@@ -14,7 +14,7 @@ component ExampleRow(_ title: String, body: String = "", code: String = "") {
                 Text(body, class: "bp-small")
             }
             if code != "" {
-                Code(code, language: "wf", class: "bp-console__code bp-console bp-ltr", dir: "ltr").block { style { padding: 12px; font-size: 12px } }
+                CodeBlock(code, language: "wf", class: "bp-console__code bp-console bp-ltr", dir: "ltr") { style { padding: 12px; font-size: 12px } }
             }
         }
     }

@@ -1384,6 +1384,14 @@
   "lang": "en"
  },
  {
+  "route": "/errors/V13",
+  "twin": "/errors/V13.md",
+  "title": "V13 — A deprecated built-in",
+  "description": "A built-in on its way out: it draws as it always has through 8.x and is removed in 9.0; the finding names what replaces it, and `wf fix` rewrites it where the rewrite is exact.",
+  "part": "Errors",
+  "lang": "en"
+ },
+ {
   "route": "/errors/X01",
   "twin": "/errors/X01.md",
   "title": "X01 — An assignment to something that cannot change",
@@ -1435,7 +1443,7 @@
   "route": "/errors/upgrading",
   "twin": "/errors/upgrading.md",
   "title": "Upgrading",
-  "description": "How to upgrade wf, what each release from 4.0 to 7.0 asks of a project, and moving an older project forward with wf migrate.",
+  "description": "How to upgrade wf, what each release from 4.0 to 8.0 asks of a project, and moving an older project forward with wf migrate.",
   "part": "Errors",
   "lang": "en"
  },
@@ -2203,7 +2211,7 @@
   "route": "/recipes/show-code",
   "twin": "/recipes/show-code.md",
   "title": "Show code on a page",
-  "description": "Show code on a page with Code: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.",
+  "description": "Show code on a page: inline in a sentence with Code, or as a block with CodeBlock, coloured by its language — wf, json, bash or css.",
   "part": "Recipes",
   "lang": "en"
  },
@@ -2675,7 +2683,7 @@
   "route": "/reference/chip",
   "twin": "/reference/chip.md",
   "title": "Chip",
-  "description": "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.",
+  "description": "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). With none of it, it is a static label.",
   "part": "Reference",
   "lang": "en"
  },
@@ -2851,7 +2859,7 @@
   "route": "/reference/cli/migrate",
   "twin": "/reference/cli/migrate.md",
   "title": "wf migrate",
-  "description": "Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)",
+  "description": "Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first)",
   "part": "Reference",
   "lang": "en"
  },
@@ -2963,7 +2971,7 @@
   "route": "/reference/code",
   "twin": "/reference/code.md",
   "title": "Code",
-  "description": "Inline code, or a code block with block; language: colours it.",
+  "description": "Code in a line of text; language: colours it. A block of code is a CodeBlock.",
   "part": "Reference",
   "lang": "en"
  },
@@ -4043,7 +4051,7 @@
   "route": "/reference/progress",
   "twin": "/reference/progress.md",
   "title": "Progress",
-  "description": "Progress bar; a value that reads state moves with it.",
+  "description": "Progress bar; a value that reads state moves with it. .circular draws it as a ring that fills, its block in the middle.",
   "part": "Reference",
   "lang": "en"
  },

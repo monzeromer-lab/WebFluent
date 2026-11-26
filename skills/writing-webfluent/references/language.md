@@ -1,6 +1,6 @@
 # The WebFluent 7.2.0 reference, a file a section
 
-Read [core.md](core.md) first: it covers most sites and apps. For anything else, read only the section you need — every file you read stays in your context for the rest of the session, and the whole reference is about 253 kB. Or ask the compiler: `wf components Name`, `wf explain CODE`, `wf scope FILE:LINE`, `wf config schema`.
+Read [core.md](core.md) first: it covers most sites and apps. For anything else, read only the section you need — every file you read stays in your context for the rest of the session, and the whole reference is about 254 kB. Or ask the compiler: `wf components Name`, `wf explain CODE`, `wf scope FILE:LINE`, `wf config schema`.
 
 - [Project Structure](language/project-structure.md) — 2 kB
 - [CLI](language/cli.md) — 17 kB
@@ -62,8 +62,8 @@ Read [core.md](core.md) first: it covers most sites and apps. For anything else,
 - [PDF Output](language/pdf-output.md) — 8 kB
 - [Slides Output (PDF Slide Decks)](language/slides-output-pdf-slide-decks.md) — 4 kB
 - [Strings](language/strings.md) — 2 kB
-- [Compiler diagnostics](language/compiler-diagnostics.md) — 24 kB
-- [Migrating](language/migrating.md) — 3 kB
+- [Compiler diagnostics](language/compiler-diagnostics.md) — 25 kB
+- [Migrating](language/migrating.md) — 4 kB
 - [Configuration Reference (webfluent.app.json)](language/configuration-reference-webfluent-app-json.md) — 4 kB
 - [Template Engine (Server-Side Rendering)](language/template-engine-server-side-rendering.md) — 8 kB
 - [For agents](language/for-agents.md) — 6 kB

@@ -139,8 +139,8 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 
 **Refused in a PDF or a deck** (`E109`, where it is written): controls
 (`Button`, `Input`, `Select`, `Checkbox`, `Switch`, `Form`, …), navigation
-(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`,
-`AlertDialog`, `Sheet`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
+(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`,
+`AlertDialog`, `Sheet`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
 elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, motion.
 Everything static draws.
 

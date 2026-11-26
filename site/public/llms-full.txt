@@ -504,7 +504,7 @@ component BookCard(_ book: Book) {
             Text("{book.author} · {book.year}").muted.sm
             Text(book.summary)
             Row(gap: .xs) {
-                for tag in book.tags { Tag(tag) }
+                for tag in book.tags { Chip(tag) }
             }
             Button(if Shelf.saved.includes(book.slug) { "On your shelf" } else { "Want to read" }).sm {
                 on click { Shelf.toggle(book.slug) }
@@ -899,7 +899,7 @@ component BookCard(_ book: Book) {
             Text("{book.author} · {book.year}").muted.sm
             Text(book.summary)
             Row(gap: .xs) {
-                for tag in book.tags { Tag(tag) }
+                for tag in book.tags { Chip(tag) }
             }
             Button(if Shelf.saved.includes(book.slug) { "On your shelf" } else { "Want to read" }).sm {
                 on click { Shelf.toggle(book.slug) }
@@ -2468,7 +2468,8 @@ page Article(path: "/", title: "Article", description: "Every kind of text.") {
     Heading("Release notes").h1                // a real <h1>; .h2 is the default
     Text("{count} changes").bold.muted         // a run of text
     Paragraph("Prose, as a <p>.")
-    Code("let x = 1").block
+    Code("let x = 1")                          // code in a line of text
+    CodeBlock("let x = 1\nlet y = 2")          // a block of code
     Blockquote("A quotation.")
     Markdown("**Bold** and a [link](/docs)")   // Markdown, rendered as HTML
 }
@@ -2510,11 +2511,11 @@ The built-ins fall into these families:
 |---|---|
 | Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
-| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
+| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-elements)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](/learn/14-forms)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays)) |
-| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
+| Feedback | `Alert`, `Modal`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays)) |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script)) |
@@ -3223,17 +3224,15 @@ An *overlay* is something a page opens over itself: a modal that asks a question
 ```wf
 page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
     state confirm = false
-    state deleted = false
     Heading("Overlays").h1
     Button("Delete").danger { on click { confirm = true } }
     Modal(visible: confirm, title: "Delete this?") {
         Text("This cannot be undone.")
         Modal.Footer {
             Button("Cancel") { on click { confirm = false } }
-            Button("Delete").danger { on click { confirm = false  deleted = true } }
+            Button("Delete").danger { on click { confirm = false  toast("Deleted", tone: .success) } }
         }
     }
-    if deleted { Toast("Deleted").success }
     Menu(trigger: "More") {
         Menu.Item { Text("Rename") }
         Menu.Divider
@@ -3243,19 +3242,19 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 }
 ```
 
-- **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their `visible:` state is true.
+- **`Modal`** is a real `<dialog>` element, open while its `visible:` state is true.
   - The browser traps focus and makes the rest of the page inert. Escape or a press on the backdrop closes it, and the state is set back to `false`, so it never disagrees with what is on screen.
   - When it opens, the focus goes to what says `autofocus`, else its first control; when it closes, the focus goes back to what had it.
   - It fades out before it goes, however it was closed.
   - `on close` runs when it closes, however it was closed.
   - `title:` is its heading, which names it (`A08` without one). `Modal.Footer` is the row of actions, and `.closable` adds a close button. [`Modal`](/reference/modal) lists the rest.
-- **`Toast`** shows the moment it is rendered and leaves after three seconds. It is announced politely to screen readers. Put it under a condition that turns true, or call `toast(…)` from a handler (below).
-- **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.
+- **`toast(…)`**, called from the handler, shows a toast that leaves after three seconds and is announced politely to screen readers (below).
+- **`Menu`** opens a list from its `trigger:` button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.
 - **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.
 
 ### Closing overlays and focus
 
-`dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:
+`dismiss:` says what closes a `Modal`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:
 
 ```wf
 page Profile(path: "/", title: "Profile", description: "A modal that starts in a field.") {
@@ -8907,7 +8906,7 @@ The shell draws a `Sidebar` when `viewport.lg` holds, and a top bar with a drawe
 
 - `viewport` is the window's size as a value. It follows `matchMedia`, so the switch happens once, as the window crosses the breakpoint ([Styling](/learn/13-styling)).
 - The layout itself — grids that are one column on a phone — uses responsive values, `Grid(columns: { base: 1, lg: 2 })`, which need no script.
-- A second store, `Ui`, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.
+- A second store, `Ui`, holds what the interface is doing — the dialog and the menu — apart from what the ledger holds.
 
 **Check it:** on a wide window, the sidebar shows. Narrow the window: a top bar replaces it, and its menu button opens the drawer, which a click on the dimmed page behind it closes.
 
@@ -10069,32 +10068,26 @@ A **Copy** button saves the reader selecting a link by hand. To copy text, call 
 
 ```wf
 page Share(path: "/share", title: "Share", description: "Copy the link.") {
-    state copied = false
-    state failed = false
     action copy(text: String) {
-        copied = false
-        failed = false
         try {
             await navigator.clipboard.writeText(text)
-            copied = true
+            toast("Copied", tone: .success)
         } catch e {
-            failed = true
+            toast("Could not copy. Select the address and copy it by hand.", tone: .danger)
         }
     }
     Heading("Share").h1
     Button("Copy the link") { on click { copy(location.href) } }
-    if copied { Toast("Copied").success }
-    if failed { Toast("Could not copy. Select the address and copy it by hand.").danger }
 }
 ```
 
 ## How it works
 
 - `navigator.clipboard` and `location` are browser globals, used as written with no prefix.
-- `writeText` returns a promise, so the [action](/learn/07-state-and-reactivity#actions-and-locals) awaits it. `await` makes the action async, and `copied` is set only once the text is on the clipboard.
-- The browser may refuse: the page is not focused, it is not served over HTTPS, or the reader denied the permission. The promise then rejects, the `catch` sets `failed`, and the reader is told to copy by hand instead of seeing nothing.
+- `writeText` returns a promise, so the [action](/learn/07-state-and-reactivity#actions-and-locals) awaits it. `await` makes the action async, and the toast that says so shows only once the text is on the clipboard.
+- The browser may refuse: the page is not focused, it is not served over HTTPS, or the reader denied the permission. The promise then rejects, and the `catch` tells the reader to copy by hand instead of showing nothing.
 - The button's click handler calls `copy` with the page's own address.
-- A `Toast` shows once, when its branch is drawn. The action sets `copied` and `failed` back to `false` before it starts, so the branch is drawn again on every click and a second copy shows a second toast. Without that, `copied` would stay `true` and the second click would show nothing.
+- `toast(…)` shows a toast each time it is called, so a second copy shows a second toast; `tone:` colours it, and a `.danger` one is announced at once.
 
 
 
@@ -12105,16 +12098,14 @@ type Item { id: String, liked: Bool }
 
 page Likes(path: "/", title: "Likes", description: "A like that shows at once.") {
     state items: [Item] = [Item(id: "a", liked: false)]
-    state error = ""
     action like(id: String) {
-        error = ""
         let before = items
         items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
         match await http.post("/api/like/{id}") {
             .ok { }
             .err(_) {
                 items = before
-                error = "Could not save. Try again."
+                toast("Could not save. Try again.", tone: .danger)
             }
         }
     }
@@ -12122,7 +12113,6 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
     for i in items by i.id {
         Button(if i.liked { "♥" } else { "♡" }, aria-label: "Like").sm { on click { like(i.id) } }
     }
-    if error != "" { Toast(error).danger }
 }
 ```
 
@@ -12130,8 +12120,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 
 - `let before = items` keeps the list as it was. A [`let`](/learn/07-state-and-reactivity#actions-and-locals) is local to the action.
 - The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.
-- The request is [awaited](/learn/15-data#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.
-- The action clears `error` first. A `Toast` shows once, when its branch is drawn, so without the reset a second failure would leave `error` as it was and show nothing.
+- The request is [awaited](/learn/15-data#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and a `toast(…)` tells the reader — a second failure, a second toast.
 
 ## Variations
 
@@ -14237,7 +14226,7 @@ For an icon that is not built in, put an SVG file in `public/` and show it with 
 
 https://webfluent.monzeromer.dev/recipes/show-code
 
-`Code` shows code: inline inside a sentence, or as a block, coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:
+`Code` shows code inline inside a sentence, and `CodeBlock` as a block, each coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:
 
 **Needs:** nothing besides the page. It claims `/`: paste it into a new project, or replace the starter's `src/pages/Home.wf` with it.
 
@@ -14245,15 +14234,15 @@ https://webfluent.monzeromer.dev/recipes/show-code
 page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
     Heading("Snippets").h1
     Text("Run ")  Code("wf serve")  Text(" to start.")
-    Code("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf").block
-    Code("$ wf build", language: "bash").block
+    CodeBlock("page Home(path: \"/\") {\n    Text(\"Hi\")\n}", language: "wf")
+    CodeBlock("$ wf build", language: "bash")
 }
 ```
 
 ## How it works
 
 - **`Code("…")`** is inline code. Placed between two `Text`s, it reads as part of the sentence.
-- **`Code("…").block`** is a block, for code over several lines.
+- **`CodeBlock("…")`** is a block, for code over several lines; `title:`, `.copy` and `.lines` add a bar with the file name, a copy button and line numbers.
 - **`language:`** colours it — `wf`, `json`, `bash` or `css`. The colouring is done at build time and in the browser alike, with the theme's `syntax-*` tokens, and a `Markdown` fence in one of those languages is coloured the same way.
 
 
@@ -18845,7 +18834,7 @@ What the control-flow statements and slots compile to.
 | `otp`, `tagInput`, `rating`, `rangeSlider`, `dropzone`, `dateRange`, `checkboxGroup`, `autosize`, `reveal` | `forms` | What `InputOTP`, `TagInput`, `Rating`, `Slider.range`, `FileUpload.dropzone`, `DateRangePicker`, `CheckboxGroup`, `Textarea.autosize` and `.password.reveal` compile to. |
 | `listbox`, `tree`, `dataTable`, `combobox`, `commandPalette` | `collections` | What `Listbox`, `Tree`, `DataTable`, `Combobox` and `CommandPalette` compile to. |
 | `navMenu`, `menuBar`, `contextMenu` | `navigation` | What `NavigationMenu`, `Menubar` and `ContextMenu` compile to. |
-| `avatarGroup`, `ring`, `scrollArea`, `sticky`, `panelGroup` | `display` | What `AvatarGroup`, `CircularProgress`, `ScrollArea`, `Sticky` and `PanelGroup` compile to. |
+| `avatarGroup`, `ring`, `scrollArea`, `sticky`, `panelGroup` | `display` | What `AvatarGroup`, `Progress(…).circular`, `ScrollArea`, `Sticky` and `PanelGroup` compile to. |
 | `colorPicker`, `transferList`, `editable`, `fab`, `backToTop`, `popconfirm`, `markMatches` | `extras` | What `ColorPicker`, `TransferList`, `Editable`, `Fab`, `BackToTop`, `Popconfirm` and `Highlight` compile to. |
 | `copyButton`, `themeToggle`, `localeSwitch`, `fieldFor`, `inputClear`, `onThisPage` | `content` | What `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Field`, `InputGroup.Clear` and `OnThisPage` compile to. |
 
@@ -19699,7 +19688,7 @@ See also: [Render a template](/recipes/render-a-template).
 
 #### `wf migrate`
 
-Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first): [its page](/reference/cli/migrate).
+Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first): [its page](/reference/cli/migrate).
 
 ```bash
 wf migrate [PATH] [options]
@@ -20677,4 +20666,5 @@ Warnings.
 - [V12](/errors/V12) — A long list that is not windowed
 - [V10](/errors/V10) — A `Host` tag it does not make
 - [V11](/errors/V11) — A component named like a built-in
+- [V13](/errors/V13) — A deprecated built-in
 

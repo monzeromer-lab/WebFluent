@@ -5,7 +5,7 @@
 | `Button` | `Button("Label").primary.lg` — click handler: `Button("Save") { on click { doSave() } }`; `loading: Checkout.pay.pending` keeps it busy while a value holds (a spinner at its width, a press does nothing), as a click whose action is still running does by itself |
 | `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }` — flags: `.sm`, `.lg`, `.primary`, `.danger` |
 | `ButtonGroup` | `ButtonGroup { Button("A") Button("B") }` |
-| `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
+| `Dropdown` | Deprecated since 8.0 (`V13`): `Menu(trigger: "Actions") { Menu.Item { ... } }` draws and behaves the same |
 | `Toggle` | `Toggle("Bold", bind: bold, icon: "type")` — a button that stays pressed while `bind:` holds (`aria-pressed`); a press flips it |
 | `ToggleGroup` | `ToggleGroup(bind: view, label: "View") { ToggleGroup.Item("Grid", value: "grid", icon: "grid") … }` — one choice (a segmented control, a view switcher) or, `.multiple`, several (`bind:` a list); one Tab stop, the arrow keys inside, each `aria-pressed` |
 | `CopyButton` | `CopyButton("Copy link", value: url, copied: "Link copied")` — copies `value:`, says `copied:` (unset, `Copied`) for a moment and announces it |

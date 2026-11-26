@@ -10,6 +10,8 @@ Temporary notification.
 Toast(_ message: String, tone: Enum)
 ```
 
+**Deprecated since 8.0:** write `toast(…)` instead. It still draws as it always has through every 8.x release and is removed in 9.0; `wf fix --code V13` rewrites it where the rewrite is exact. The element shows its toast each time it is drawn; call `toast("…", tone: .success)` where what it shows becomes true — the handler or action that sets it.
+
 ## Example
 
 ```wf

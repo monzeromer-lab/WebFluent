@@ -1,10 +1,10 @@
 # Upgrading
 
-> How to upgrade wf, what each release from 4.0 to 7.0 asks of a project, and moving an older project forward with wf migrate.
+> How to upgrade wf, what each release from 4.0 to 8.0 asks of a project, and moving an older project forward with wf migrate.
 
 The page: https://webfluent.monzeromer.dev/errors/upgrading
 
-This page says what each release asks of your project when you upgrade, newest first, from 7.0 back to WebFluent 2.
+This page says what each release asks of your project when you upgrade, newest first, from 8.0 back to WebFluent 2.
 
 The policy behind it: a release should ask nothing of a project that works. When one does ask, it is because the old behaviour shipped a broken page, and the compiler then names every place that needs a change, with a code, instead of leaving you to find them in the browser. Most rows of the table below say "Nothing"; the others say which findings to look for.
 
@@ -18,6 +18,7 @@ The full notes for every release are in [`RELEASE_NOTES.md`](https://github.com/
 
 | Release | What to do |
 |---|---|
+| [8.0](#8-0) | Nothing breaks; run `wf fix --code V13` (or `wf migrate`) to move off the six deprecated built-ins before 9.0 |
 | [7.0](#7-0) | Run `wf migrate`, then fix what it lists; read the changes that need no edit |
 | [6.2](#6-2) | Nothing; a component named like a built-in now draws the project's own (`V11`). |
 | [6.1](#6-1) | Run `wf check` (`T10`, `E111`, `R05`); a stylesheet that selects `main#wf-main` should select `#wf-main` |
@@ -56,6 +57,19 @@ After installing, bring each project forward:
 2. Run `wf check`. It writes nothing, and every finding names its code, its place and what to do.
 3. Run `wf test`. If snapshots changed, look at each difference, then run `wf test --update`.
 4. Build, and load the result with `wf verify`.
+
+## 8.0
+
+8.0 deprecates six built-ins that were near-copies of another. Each still draws exactly as it did through every 8.x release, draws a warning (`V13`) that names its replacement, and is removed in 9.0:
+
+- `Dialog` → `Modal` (and `Dialog.Title` → `Modal.Title`)
+- `Dropdown(label: x) { Dropdown.Item { … } }` → `Menu(trigger: x) { Menu.Item { … } }`
+- `Tag("x")` → `Chip("x")`
+- `Toast("Saved").success` → `toast("Saved", tone: .success)`, called where it becomes true
+- `Code(text).block` → `CodeBlock(text)`
+- `CircularProgress(…)` → `Progress(…).circular`
+
+`wf fix --code V13` rewrites each one whose rewrite is exact, and `wf migrate` does the same as its 7 → 8 step. A `Toast` inside an `if` or a `for` is left for you: move it into the handler or action that makes the condition true, as a `toast(…)` call.
 
 ## 7.0
 

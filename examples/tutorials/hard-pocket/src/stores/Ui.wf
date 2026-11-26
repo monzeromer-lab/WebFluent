@@ -1,10 +1,8 @@
 /// What the interface is doing, as opposed to what the ledger holds: whether
-/// the "new entry" dialog is open, whether the narrow-screen menu is, and
-/// the notices waiting in the corner.
+/// the "new entry" dialog is open, and whether the narrow-screen menu is.
 store Ui {
     state composing = false
     state menuOpen = false
-    state notices: [Notice] = []
 
     action compose() {
         menuOpen = false
@@ -18,10 +16,9 @@ store Ui {
 
     action toggleMenu() { menuOpen = !menuOpen }
 
-    // Shows a message in the corner. Each notice is drawn once, which is
-    // what makes a `Toast` appear, so a new one is a new item in the list.
+    // Shows a message in the corner, which slides in and goes away again.
     action notify(text: String) {
-        notices = [...notices.slice(-4), Notice(id: uuid(), text: text)]
+        toast(text, tone: .success)
     }
 }
 

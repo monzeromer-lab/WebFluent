@@ -427,6 +427,11 @@ def moved(c, to: str, label: str, older: bool) -> str:
 
 def component(c, parts=()) -> str:
     out = [c["plain"], "", "```wf", c["signature"], "```", ""]
+    if c.get("deprecated"):
+        d = c["deprecated"]
+        out += [f"**Deprecated since {d['since']}:** write `{d['replacement']}` instead. It still draws as it "
+                f"always has through every 8.x release and is removed in 9.0; `wf fix --code V13` rewrites it "
+                f"where the rewrite is exact. {d['note']}".rstrip(), ""]
     if c.get("example"):
         out += ["## Example", "", "```wf", c["example"], "```", ""]
     if c.get("modern", ("", ""))[0]:

@@ -1,6 +1,6 @@
 // The shell every page shares: a sidebar on a wide screen, a bar with a
 // menu on a narrow one, the "new entry" dialog, the shortcuts that open
-// and close it, and the notices in the corner.
+// and close it.
 app {
     use Ui
     use Prefs
@@ -69,6 +69,4 @@ app {
             }
         }
     }
-
-    for n in Ui.notices by n.id { Toast(n.text).success }
 }

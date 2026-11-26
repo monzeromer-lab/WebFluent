@@ -50,7 +50,7 @@ wf fmt [path] [--check] [--stdout]       # Format sources (--check: fail if anyt
 wf fmt --to wfx|wf [path] [--stdout]     # Convert a project between .wf and .wfx
 wf test [path] [--update]                # Run the tests under tests/
 wf docs [-d DIR] [-o OUT]                # Generate a documentation site for the project's components
-wf migrate [path] [--check] [--stdout] [--wfx] # Migrate WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7
+wf migrate [path] [--check] [--stdout] [--wfx] # Migrate WebFluent 2 → 3, 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8
 wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside] # Load every page in headless Chrome: errors, failed requests, paint timing
 wf audit [path] [--json]                 # Report what the project trusts: markup, origins, storage, env, CSP, dependencies
 wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE] # Render a template with JSON data (see Template Engine)
@@ -213,7 +213,7 @@ the toasts as well as the page, and a handler that throws fails the test.
 | `expect focus "Beta"` | What has the focus is called that (its `aria-label`, label, placeholder or text) |
 | `click "Save"` | Clicks whatever carries that name, and puts the focus on it as a real click does |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` |
+| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` |
 | `expect called Backend.users.create` · `expect not called …` | Whether the page has asked that endpoint |
 
 A page that reads a service is tested against a **fake**: what answers a
@@ -2491,7 +2491,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Table` | `Table(caption: "Deployments") { Table.Head { Table.Row { Table.Cell("Col") } } Table.Body { Table.Row { Table.Cell("Val") } } }` — cells inside `Table.Head` are `<th scope="col">`, as is `Table.Cell("Build").header` anywhere (a header cell a component renders); `caption` is the table's accessible name, rendered visually hidden |
 | `List` | `List { List.Item { Text("Item 1") } List.Item { Text("Item 2") } }` — `List.ordered` for numbered |
 | `Badge` | `Badge("Label").primary` — tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`; `.pill` |
-| `Tag` | `Tag("JavaScript")` |
+| `Tag` | Deprecated since 8.0 (`V13`): `Chip("JavaScript")` draws the same static label |
 | `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.md`, `.lg`, `.primary` |
 | `Tooltip` | `Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save").primary }` — wraps children; shows above everything after `delay:` ms of hover (unset, 500), at once on keyboard focus |
 | `DescriptionList` | `DescriptionList.grid { DescriptionList.Item("Region", value: "eu-west")  DescriptionList.Item("Status") { Badge("Live").success } }` — terms and their values (`<dl>`), in a column or, `.grid`, each term beside its value |
@@ -2545,7 +2545,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | `EmptyState` | `EmptyState(icon: "folder", title: "No projects yet", text: "Create one.") { Button("New project").primary }` — what a list shows with nothing in it; the block is its actions |
 | `Stat` | `Stat("Revenue", value: total, format: .currency, change: 0.124, count: "600ms")` — a figure, its label, and which way it moved (`▲ 12.4%`, read "Up 12.4%"); `format:` is `.number`, `.integer`, `.currency`, `.percent`, `.compact`; `trend: [31, 40, 28]` draws its recent values as a sparkline under it |
 | `CodeBlock` | `CodeBlock(code, language: "wf", title: "App.wf").copy.lines` — a bar with the file name and a copy button, line numbers beside the code; `highlight: [3, 4]` marks lines, and `files: [{ name: "App.wf", code: app, language: "wf" }, …]` is a tab a file |
-| `Chip` | `Chip("Rust", icon: "code", selected: on).removable { on click { on = !on }  on remove { drop("Rust") } }` — `selected:` (or an `on click`) makes it a toggle button with `aria-pressed`; `.removable` adds a button named `Remove Rust` that fires `on remove`. `Tag` is the one that does neither |
+| `Chip` | `Chip("Rust", icon: "code", selected: on).removable { on click { on = !on }  on remove { drop("Rust") } }` — `selected:` (or an `on click`) makes it a toggle button with `aria-pressed`; `.removable` adds a button named `Remove Rust` that fires `on remove`. with neither it is a static label |
 | `Accordion` | `Accordion.single { Accordion.Item("Shipping") { … }  Accordion.Item("Returns", open: true) { … } }` — native `<details>`, its title the `<summary>`; `.single` keeps one open at a time (a shared `name`) |
 | `VisuallyHidden` | `Link(to: url) { Text("Docs")  VisuallyHidden("(opens in a new tab)") }` — words for a screen reader only |
 
@@ -2558,9 +2558,9 @@ static paint, by the template engine and in a PDF.
 | Component | Usage |
 |-----------|-------|
 | `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
-| `Toast` | `Toast("Saved!").success` — temporary notification, drawn above everything (an open modal included) and announced; from a handler, `toast(…)` (below) |
+| `Toast` | Deprecated since 8.0 (`V13`): call `toast("Saved!", tone: .success)` (below) from the handler or action that makes it true |
 | `Modal` | `Modal(visible: showModal, title: "Title", dismiss: .escape, initialFocus: nameField) { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; Escape or a press on its backdrop closes it, as `dismiss:` allows (`.any`, the default · `.escape` · `.none`); the focus goes to `initialFocus:` (a `ref:`), else what says `autofocus`, else its first control, and back to what had it when it closes; it fades out however it closes; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
-| `Dialog` | `Dialog(visible: asking, title: "Confirm") { ... }` — as `Modal`, with `Dialog.Title` and no footer part |
+| `Dialog` | Deprecated since 8.0 (`V13`): write `Modal`, which takes the same props, events and `Title` part |
 | `AlertDialog` | `AlertDialog(visible: sure, title: "Discard changes?") { Text("Your edits will be lost.") AlertDialog.Footer { Button("Keep editing") { … } Button("Discard").danger { … } } }` — `role="alertdialog"`, read with its body; Escape answers it and a press beside it does not (`dismiss: .escape` unless it says otherwise); the answer that loses nothing goes first |
 | `Popconfirm` | `Popconfirm(title: "Delete this file?", yes: "Delete").danger { on confirm { Files.remove(f) }  Button("Delete") }` — the button in its block asks before it acts: a question in a layer at it (`role="alertdialog"`), the focus on no; `on confirm` hears yes, `on cancel` no or Escape |
 | `Sheet` | `Sheet(visible: filters, title: "Filters", side: .bottom, snap: [0.5, 1]).closable { … Sheet.Footer { … } }` — a modal `<dialog>` from an edge: `.bottom` (the default), `.start` or `.end`, swapped in a right-to-left page; dragged by its handle or heading toward its edge past 30% of its size, or flicked, it closes; a bottom sheet opens at its first `snap:` point (fractions of the window's height) and settles at the nearest; `dismiss:`, `initialFocus:`, `Sheet.Title` as on `Modal`; `label:` names one with no title |
@@ -2571,8 +2571,8 @@ static paint, by the template engine and in a PDF.
 | `ConsentBanner` | `ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") { Link("How we count", to: "/privacy") }` — shown until the reader chooses, Decline first and drawn as Accept is; the choice is kept, and Accept loads the `meta.scripts` entries marked `"load": "consent"` — then and on every later visit. Nothing they name loads before |
 | `ConsentSettings` | `ConsentSettings("Cookie settings")` — a button that asks again: it forgets the reader's answer and shows the `ConsentBanner` (a script already loaded stays until the page loads again) |
 | `Spinner` | `Spinner` or `Spinner.lg` |
-| `Progress` | `Progress(value: 75, max: 100)` |
-| `CircularProgress` | `CircularProgress(value: done, max: total, label: "Upload") { Text("{done}%").sm }` — a ring that fills, announced as a progress bar; with no `value:` it turns; its block sits in its middle |
+| `Progress` | `Progress(value: 75, max: 100)`, or `Progress(value: done, max: total, label: "Upload").circular { Text("{done}%").sm }` — a bar; `.circular` a ring that fills, announced as a progress bar, its block in its middle; with no `value:` the bar shows activity and the ring turns |
+| `CircularProgress` | Deprecated since 8.0 (`V13`): `Progress(…).circular` draws the same ring |
 | `Meter` | `Meter(value: used, max: 1, high: 0.9, label: "Disk")` — a level against its range, the native `<meter>`: past `high:` or under `low:` its colour says so, `optimum:` which end is good |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
 
@@ -2583,7 +2583,7 @@ static paint, by the template engine and in a PDF.
 | `Button` | `Button("Label").primary.lg` — click handler: `Button("Save") { on click { doSave() } }`; `loading: Checkout.pay.pending` keeps it busy while a value holds (a spinner at its width, a press does nothing), as a click whose action is still running does by itself |
 | `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }` — flags: `.sm`, `.lg`, `.primary`, `.danger` |
 | `ButtonGroup` | `ButtonGroup { Button("A") Button("B") }` |
-| `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
+| `Dropdown` | Deprecated since 8.0 (`V13`): `Menu(trigger: "Actions") { Menu.Item { ... } }` draws and behaves the same |
 | `Toggle` | `Toggle("Bold", bind: bold, icon: "type")` — a button that stays pressed while `bind:` holds (`aria-pressed`); a press flips it |
 | `ToggleGroup` | `ToggleGroup(bind: view, label: "View") { ToggleGroup.Item("Grid", value: "grid", icon: "grid") … }` — one choice (a segmented control, a view switcher) or, `.multiple`, several (`bind:` a list); one Tab stop, the arrow keys inside, each `aria-pressed` |
 | `CopyButton` | `CopyButton("Copy link", value: url, copied: "Link copied")` — copies `value:`, says `copied:` (unset, `Copied`) for a moment and announces it |
@@ -2614,7 +2614,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 |-----------|-------|
 | `Text` | `Text("Hello").bold.muted.center` |
 | `Heading` | `Heading("Title").h1` — levels: `.h1` … `.h6` (`.h2` is the default) |
-| `Code` | `Code("const x = 1").block` — `.block` for multi-line |
+| `Code` | `Code("const x = 1")` — code in a line of text; `language:` colours it. `.block` is deprecated since 8.0 (`V13`): a block of code is a `CodeBlock` |
 | `Blockquote` | `Blockquote { Text("Quote text") }` |
 | `Unsafe.Html` | `Unsafe.Html(sanitize(body))` — markup, as markup. The one door for HTML a page did not write; every use draws a `V03` |
 | `Markdown` | `Markdown(text)` — a small Markdown rendered as HTML, at build time and live: `#` headings, paragraphs (a line ending in two spaces or `\` breaks, and the paragraph's last line shows its `\`; any other newline is a space, as in CommonMark), fenced code, `>` quotes, one-level `-`/`1.` lists, `---`, GFM tables (a header row, a `|---|:-:|` row, then rows; `\|` is a pipe in a cell), `` `code` ``, `**strong**`, `*em*`, `[text](url)` (its words hold no unescaped `[`), `![alt](src)`; a backslash before ASCII punctuation is that character and nothing more, as in CommonMark (`\*not em\*`, `\[not a link\]`, `\#` starting a line is no heading, `\\` is one backslash; in a URL `javascript\:` is checked as `javascript:`), and a backslash before anything else, or in code or a fence, is shown; the text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run (`javascript:`, `vbscript:`, `data:`) is drawn as its words — a picture carried in its address (`![dot](data:image/png;base64,…)`) is drawn, a link to one is not; a site-relative one takes the `base_path`. `Markdown(text).inert` is for text somebody else wrote, such as a language server's or a `///` comment's documentation: entities are decoded before escaping (`&lt;T&gt;` shows `<T>`, a `<script>` stays text; in `` `code` `` and fences they stay as written), a link is drawn as its words, a picture is left out with the space after it, and the rest, backslash escapes too, is drawn as plain `Markdown` draws it (a language server's `margin\-top` shows `margin-top`) |
@@ -3133,9 +3133,9 @@ them, new ones included. What is written on a tone is a token too —
 label — so a theme with a light primary names a dark one (`A13` checks the
 pair). Alerts, focus rings and highlights are mixed from the tone and the
 page's colours, so a dark theme needs nothing more; `color-backdrop` dims
-the page behind a modal, a dialog, a sheet and a drawer. A `Modal` or
-`Dialog` is as wide as its `<dialog>`, so `class:` or `style { width: … }`
-on it sizes what it shows.
+the page behind a modal, a dialog, a sheet and a drawer. A `Modal` is as
+wide as its `<dialog>`, so `class:` or `style { width: … }` on it sizes what
+it shows.
 
 The baseline holds a stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`,
 `z-modal`, `z-toast`, `z-tooltip`, `z-skip-link` — for a page's own sticky
@@ -3726,8 +3726,8 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 
 **Refused in a PDF or a deck** (`E109`, where it is written): controls
 (`Button`, `Input`, `Select`, `Checkbox`, `Switch`, `Form`, …), navigation
-(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`,
-`AlertDialog`, `Sheet`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
+(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`,
+`AlertDialog`, `Sheet`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
 elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, motion.
 Everything static draws.
 
@@ -4112,6 +4112,7 @@ paint alike.
 | `X06` | A `state` whose initial value reads `now`, `viewport`, `query`, `hash`, `theme`, `network` or `update` (outside a lambda) and that nothing assigns, binds or changes in place: it holds the value it started with, so `state clock = now(every: 1.seconds)` never ticks. The fix makes it `derived` |
 | `I05` | Under `i18n.literals`, shown words no table can translate: text splicing more than a name, or a value shown by a name that does not say it is words |
 | `V12` | A `VirtualList` whose body is not one keyed `for`: it draws every row |
+| `V13` | A deprecated built-in — `Dialog`, `Dropdown`, `Tag`, `Toast`, `Code(…).block`, `CircularProgress` — which draws as it did through 8.x and is removed in 9.0; it names the replacement, and `wf fix` rewrites it where the rewrite is exact |
 | `E119` | A hidden direction control (U+202A–U+202E, U+2066–U+2069) in the source: Trojan Source |
 
 The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
@@ -4140,7 +4141,7 @@ the step writes `Json`). `lints` and `// wf-allow` lower only the
 errors that ship no broken page (`R01`, `C02`, `S04`, `I01`, `I02`,
 `I04`); `T20` is not one.
 
-`wf migrate [path] [--check] [--stdout] [--wfx]` does four things.
+`wf migrate [path] [--check] [--stdout] [--wfx]` does five things.
 
 **WebFluent 2 → 3** rewrites every `.wf` under `src/` in place, with a
 note for anything that needed a decision. It is a change of spelling and
@@ -4166,8 +4167,15 @@ signatures as JSDoc (`X.f(…)` becomes `f(…)`), and an `external element`
 call `Element("tag", …)`. It lists every `.js` already under `src/`, which
 now ships on every page.
 
-**WebFluent 6 → 7** runs last, over the project, as said above; `--check`
+**WebFluent 6 → 7** runs over the project, as said above; `--check`
 says what it would fix and writes nothing.
+
+**WebFluent 7 → 8** runs last: every deprecated built-in (`V13`) whose
+rewrite is exact is rewritten — `Dialog` → `Modal`, `Dropdown(label: x)` →
+`Menu(trigger: x)`, `Tag` → `Chip`, `Code(…).block` → `CodeBlock(…)`,
+`CircularProgress(…)` → `Progress(…).circular`, a `Toast` at the top of a
+page → a `toast(…)` call — and the rest are listed. They keep working
+through 8.x and are removed in 9.0.
 
 ## Configuration Reference (webfluent.app.json)
 

@@ -249,7 +249,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
         Markdown("Warnings.")
 
         // ── codes: Vocabulary ── written by scripts/docsite/errors.py from `wf explain --json`
-        Markdown("- [V01](/errors/V01) — A bare word that means nothing\n- [V02](/errors/V02) — A flag no stylesheet styles\n- [V03](/errors/V03) — Markup put in as markup\n- [V04](/errors/V04) — A class that is the engine's\n- [V05](/errors/V05) — A CSS property no browser knows\n- [V06](/errors/V06) — A design token the theme does not declare\n- [V07](/errors/V07) — A number where CSS wants a length\n- [V08](/errors/V08) — An icon the runtime does not draw\n- [V09](/errors/V09) — An event the element does not fire\n- [V12](/errors/V12) — A long list that is not windowed\n- [V10](/errors/V10) — A `Host` tag it does not make\n- [V11](/errors/V11) — A component named like a built-in")
+        Markdown("- [V01](/errors/V01) — A bare word that means nothing\n- [V02](/errors/V02) — A flag no stylesheet styles\n- [V03](/errors/V03) — Markup put in as markup\n- [V04](/errors/V04) — A class that is the engine's\n- [V05](/errors/V05) — A CSS property no browser knows\n- [V06](/errors/V06) — A design token the theme does not declare\n- [V07](/errors/V07) — A number where CSS wants a length\n- [V08](/errors/V08) — An icon the runtime does not draw\n- [V09](/errors/V09) — An event the element does not fire\n- [V12](/errors/V12) — A long list that is not windowed\n- [V10](/errors/V10) — A `Host` tag it does not make\n- [V11](/errors/V11) — A component named like a built-in\n- [V13](/errors/V13) — A deprecated built-in")
         // ── end of the codes ──
     }
 }

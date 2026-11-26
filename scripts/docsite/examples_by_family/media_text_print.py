@@ -210,15 +210,10 @@ Text("{count} items in your cart").bold.underline'''),
     "Code": {
         "code": '''Stack(gap: .sm) {
     Text { Text("Start the dev server with ")  Code("wf serve")  Text(", then open the page.") }
-    Code("""
-        page Home(path: "/", title: "Home") {
-            state count = 0
-            Button("+1") { on click { count = count + 1 } }
-        }
-        """, language: "wf").block
+    Text { Text("A page opens with ")  Code("page Home(path: \\"/\\")", language: "wf")  Text(".") }
 }''',
         "variations": [
-            ("A shell command on its own", '''Code("wf build --stats", language: "bash").block'''),
+            ("A block of code is a CodeBlock", '''CodeBlock("wf build --stats", language: "bash")'''),
         ],
     },
     "Markdown": {

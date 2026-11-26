@@ -25,7 +25,7 @@ wf fmt [path] [--check] [--stdout]       # Format sources (--check: fail if anyt
 wf fmt --to wfx|wf [path] [--stdout]     # Convert a project between .wf and .wfx
 wf test [path] [--update]                # Run the tests under tests/
 wf docs [-d DIR] [-o OUT]                # Generate a documentation site for the project's components
-wf migrate [path] [--check] [--stdout] [--wfx] # Migrate WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7
+wf migrate [path] [--check] [--stdout] [--wfx] # Migrate WebFluent 2 → 3, 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8
 wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside] # Load every page in headless Chrome: errors, failed requests, paint timing
 wf audit [path] [--json]                 # Report what the project trusts: markup, origins, storage, env, CSP, dependencies
 wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE] # Render a template with JSON data (see Template Engine)
@@ -188,7 +188,7 @@ the toasts as well as the page, and a handler that throws fails the test.
 | `expect focus "Beta"` | What has the focus is called that (its `aria-label`, label, placeholder or text) |
 | `click "Save"` | Clicks whatever carries that name, and puts the focus on it as a real click does |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` |
+| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` |
 | `expect called Backend.users.create` · `expect not called …` | Whether the page has asked that endpoint |
 
 A page that reads a service is tested against a **fake**: what answers a

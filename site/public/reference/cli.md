@@ -765,7 +765,7 @@ See also: [Render a template](https://webfluent.monzeromer.dev/recipes/render-a-
 
 #### `wf migrate`
 
-Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first): [its page](https://webfluent.monzeromer.dev/reference/cli/migrate.md).
+Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first): [its page](https://webfluent.monzeromer.dev/reference/cli/migrate.md).
 
 ```bash
 wf migrate [PATH] [options]

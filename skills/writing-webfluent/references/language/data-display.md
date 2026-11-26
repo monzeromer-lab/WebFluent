@@ -8,7 +8,7 @@
 | `Table` | `Table(caption: "Deployments") { Table.Head { Table.Row { Table.Cell("Col") } } Table.Body { Table.Row { Table.Cell("Val") } } }` — cells inside `Table.Head` are `<th scope="col">`, as is `Table.Cell("Build").header` anywhere (a header cell a component renders); `caption` is the table's accessible name, rendered visually hidden |
 | `List` | `List { List.Item { Text("Item 1") } List.Item { Text("Item 2") } }` — `List.ordered` for numbered |
 | `Badge` | `Badge("Label").primary` — tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`; `.pill` |
-| `Tag` | `Tag("JavaScript")` |
+| `Tag` | Deprecated since 8.0 (`V13`): `Chip("JavaScript")` draws the same static label |
 | `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.md`, `.lg`, `.primary` |
 | `Tooltip` | `Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save").primary }` — wraps children; shows above everything after `delay:` ms of hover (unset, 500), at once on keyboard focus |
 | `DescriptionList` | `DescriptionList.grid { DescriptionList.Item("Region", value: "eu-west")  DescriptionList.Item("Status") { Badge("Live").success } }` — terms and their values (`<dl>`), in a column or, `.grid`, each term beside its value |

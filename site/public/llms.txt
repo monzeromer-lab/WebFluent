@@ -112,7 +112,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Show a carousel](https://webfluent.monzeromer.dev/recipes/show-a-carousel.md): Show slides one at a time with Carousel and Carousel.Slide: previous and next buttons, a dot per slide, and autoplay that pauses.
 - [Show another page in a frame](https://webfluent.monzeromer.dev/recipes/show-a-page-in-a-frame.md): Show another page inside yours with Frame (a video player, a map, a preview), hear what it posts back, and draw HTML you give it, sandboxed.
 - [Show an icon](https://webfluent.monzeromer.dev/recipes/show-an-icon.md): Draw one of the 83 built-in icons inline with Icon("name"), size and colour it with flags, and use one on a button or a sidebar item.
-- [Show code on a page](https://webfluent.monzeromer.dev/recipes/show-code.md): Show code on a page with Code: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.
+- [Show code on a page](https://webfluent.monzeromer.dev/recipes/show-code.md): Show code on a page: inline in a sentence with Code, or as a block with CodeBlock, coloured by its language — wf, json, bash or css.
 - [Show HTML from outside the project](https://webfluent.monzeromer.dev/recipes/show-html-from-outside.md): Show HTML that arrived from outside the project, such as a CMS body, through sanitize and Unsafe.Html, the one door for markup.
 - [Show what the network is doing](https://webfluent.monzeromer.dev/recipes/show-the-network.md): Change what a page does on a slow connection or none at all by reading network: online, connection speed, data saver and queued writes.
 - [Sign in with a session cookie](https://webfluent.monzeromer.dev/recipes/sign-in-with-a-session-cookie.md): Sign a reader in with an httpOnly session cookie: an api with credentials: .sameOrigin, a Session store, and a guarded account page.
@@ -182,7 +182,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [CheckboxGroup](https://webfluent.monzeromer.dev/reference/checkboxgroup.md): Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.
 - [CheckboxGroup.Legend](https://webfluent.monzeromer.dev/reference/checkboxgroup-legend.md): Its legend. Drawn for it.
 - [CheckboxGroup.Option](https://webfluent.monzeromer.dev/reference/checkboxgroup-option.md): One box: its words and its value.
-- [Chip](https://webfluent.monzeromer.dev/reference/chip.md): A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.
+- [Chip](https://webfluent.monzeromer.dev/reference/chip.md): A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). With none of it, it is a static label.
 - [Chip.Action](https://webfluent.monzeromer.dev/reference/chip-action.md): What pressing a chip presses: its icon and words, a toggle button when it can be selected:.
 - [Chip.Label](https://webfluent.monzeromer.dev/reference/chip-label.md): Its icon and words, when pressing it does nothing.
 - [Chip.Remove](https://webfluent.monzeromer.dev/reference/chip-remove.md): Its remove button.
@@ -204,7 +204,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [wf generate](https://webfluent.monzeromer.dev/reference/cli/generate.md): Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings
 - [wf init](https://webfluent.monzeromer.dev/reference/cli/init.md): Create a new WebFluent project
 - [wf inspect](https://webfluent.monzeromer.dev/reference/cli/inspect.md): One page as a reader meets it, as text: landmarks, headings, links, buttons, fields, tables, and anything that failed
-- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)
+- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first)
 - [wf motion](https://webfluent.monzeromer.dev/reference/cli/motion.md): The animations an element can play, the eases and speeds, the route transitions and the project's default
 - [wf registry](https://webfluent.monzeromer.dev/reference/cli/registry.md): Describe every built-in component: props, cases, flags, events, slots, parts
 - [wf render](https://webfluent.monzeromer.dev/reference/cli/render.md): Render a .wf template with JSON data
@@ -218,7 +218,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [wf types](https://webfluent.monzeromer.dev/reference/cli/types.md): Describe what a project declares: enums, types, components, stores, pages
 - [wf verify](https://webfluent.monzeromer.dev/reference/cli/verify.md): Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew
 - [ClientOnly](https://webfluent.monzeromer.dev/reference/clientonly.md): Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data. A placeholder { … } block is what those show in its place.
-- [Code](https://webfluent.monzeromer.dev/reference/code.md): Inline code, or a code block with block; language: colours it.
+- [Code](https://webfluent.monzeromer.dev/reference/code.md): Code in a line of text; language: colours it. A block of code is a CodeBlock.
 - [CodeBlock](https://webfluent.monzeromer.dev/reference/codeblock.md): A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code; highlight: marks lines; files: makes it a tab for each file.
 - [CodeBlock.Bar](https://webfluent.monzeromer.dev/reference/codeblock-bar.md): The bar above the code.
 - [CodeBlock.Lines](https://webfluent.monzeromer.dev/reference/codeblock-lines.md): The line numbers.
@@ -353,7 +353,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [PrevNext](https://webfluent.monzeromer.dev/reference/prevnext.md): The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.
 - [PrevNext.Next](https://webfluent.monzeromer.dev/reference/prevnext-next.md): The page after: its title, and where it is.
 - [PrevNext.Prev](https://webfluent.monzeromer.dev/reference/prevnext-prev.md): The page before: its title, and where it is.
-- [Progress](https://webfluent.monzeromer.dev/reference/progress.md): Progress bar; a value that reads state moves with it.
+- [Progress](https://webfluent.monzeromer.dev/reference/progress.md): Progress bar; a value that reads state moves with it. .circular draws it as a ring that fills, its block in the middle.
 - [Project structure](https://webfluent.monzeromer.dev/reference/project.md): Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.
 - [QrCode](https://webfluent.monzeromer.dev/reference/qrcode.md): A QR code for a URL or any text, drawn as vector graphics when the page is built.
 - [Radio](https://webfluent.monzeromer.dev/reference/radio.md): One choice of a group; every radio bound to the same state is one group.
@@ -590,13 +590,14 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [V10 — A `Host` tag it does not make](https://webfluent.monzeromer.dev/errors/V10.md): A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.
 - [V11 — A component named like a built-in](https://webfluent.monzeromer.dev/errors/V11.md): A component the project declares takes the place of a built-in of its name, so the built-in cannot be placed in that project.
 - [V12 — A long list that is not windowed](https://webfluent.monzeromer.dev/errors/V12.md): A `VirtualList` draws only the rows in view of one keyed `for` — `for row in rows by row.id { … }` — that is the whole of its body; with anything…
+- [V13 — A deprecated built-in](https://webfluent.monzeromer.dev/errors/V13.md): A built-in on its way out: it draws as it always has through 8.x and is removed in 9.0; the finding names what replaces it, and `wf fix` rewrites it where the rewrite is exact.
 - [X01 — An assignment to something that cannot change](https://webfluent.monzeromer.dev/errors/X01.md): A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy…
 - [X02 — An effect that feeds itself](https://webfluent.monzeromer.dev/errors/X02.md): An effect re-runs when what it reads changes. One that writes, every run, something it reads starts the next run itself: the page never settles, and…
 - [X04 — A derived value that changes something](https://webfluent.monzeromer.dev/errors/X04.md): A `derived` value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state…
 - [X05 — `use` of a store nothing declares](https://webfluent.monzeromer.dev/errors/X05.md): `use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.
 - [X06 — A state that copies a live value once](https://webfluent.monzeromer.dev/errors/X06.md): `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock…
 - [Troubleshooting](https://webfluent.monzeromer.dev/errors/troubleshooting.md): What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.
-- [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md): How to upgrade wf, what each release from 4.0 to 7.0 asks of a project, and moving an older project forward with wf migrate.
+- [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md): How to upgrade wf, what each release from 4.0 to 8.0 asks of a project, and moving an older project forward with wf migrate.
 
 ## About
 

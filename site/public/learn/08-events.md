@@ -234,17 +234,15 @@ An *overlay* is something a page opens over itself: a modal that asks a question
 ```wf
 page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
     state confirm = false
-    state deleted = false
     Heading("Overlays").h1
     Button("Delete").danger { on click { confirm = true } }
     Modal(visible: confirm, title: "Delete this?") {
         Text("This cannot be undone.")
         Modal.Footer {
             Button("Cancel") { on click { confirm = false } }
-            Button("Delete").danger { on click { confirm = false  deleted = true } }
+            Button("Delete").danger { on click { confirm = false  toast("Deleted", tone: .success) } }
         }
     }
-    if deleted { Toast("Deleted").success }
     Menu(trigger: "More") {
         Menu.Item { Text("Rename") }
         Menu.Divider
@@ -254,19 +252,19 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 }
 ```
 
-- **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their `visible:` state is true.
+- **`Modal`** is a real `<dialog>` element, open while its `visible:` state is true.
   - The browser traps focus and makes the rest of the page inert. Escape or a press on the backdrop closes it, and the state is set back to `false`, so it never disagrees with what is on screen.
   - When it opens, the focus goes to what says `autofocus`, else its first control; when it closes, the focus goes back to what had it.
   - It fades out before it goes, however it was closed.
   - `on close` runs when it closes, however it was closed.
   - `title:` is its heading, which names it (`A08` without one). `Modal.Footer` is the row of actions, and `.closable` adds a close button. [`Modal`](https://webfluent.monzeromer.dev/reference/modal.md) lists the rest.
-- **`Toast`** shows the moment it is rendered and leaves after three seconds. It is announced politely to screen readers. Put it under a condition that turns true, or call `toast(…)` from a handler (below).
-- **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.
+- **`toast(…)`**, called from the handler, shows a toast that leaves after three seconds and is announced politely to screen readers (below).
+- **`Menu`** opens a list from its `trigger:` button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.
 - **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.
 
 ### Closing overlays and focus
 
-`dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:
+`dismiss:` says what closes a `Modal`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:
 
 ```wf
 page Profile(path: "/", title: "Profile", description: "A modal that starts in a field.") {

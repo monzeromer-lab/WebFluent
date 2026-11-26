@@ -8,12 +8,12 @@ component CheatRow(_ concept: String, theirs: String = "", ours: String = "", la
         Stack(role: "cell") {
             style { gap: 4px; min-width: 0 }
             Text(t("coming.theirs"), class: "bp-section-label bp-only-sm") { style { margin: 0 } }
-            Code(theirs, language: language, class: "bp-console__code bp-console bp-ltr", dir: "ltr", tabindex: "0").block { style { padding: 10px 12px; font-size: 12.5px } }
+            CodeBlock(theirs, language: language, class: "bp-console__code bp-console bp-ltr", dir: "ltr") { style { padding: 10px 12px; font-size: 12.5px } }
         }
         Stack(role: "cell") {
             style { gap: 4px; min-width: 0 }
             Text(t("coming.ours"), class: "bp-section-label bp-only-sm") { style { margin: 0 } }
-            Code(ours, language: "wf", class: "bp-console__code bp-console bp-ltr", dir: "ltr", tabindex: "0").block { style { padding: 10px 12px; font-size: 12.5px } }
+            CodeBlock(ours, language: "wf", class: "bp-console__code bp-console bp-ltr", dir: "ltr") { style { padding: 10px 12px; font-size: 12.5px } }
         }
     }
 }

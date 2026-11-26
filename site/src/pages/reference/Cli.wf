@@ -382,7 +382,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
             Link(to: "/reference/cli/migrate") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
                 Text("wf migrate", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
-                Text("Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)", class: "bp-small")
+                Text("Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first)", class: "bp-small")
             }
         }
         Heading("Formatting", id: "formatting").h3
@@ -513,19 +513,19 @@ page CliConfig(path: "/reference/cli/config", title: "wf config — Reference", 
         // ── end of the words ──
         Heading("wf config schema", id: "schema").h2
         Text("Every setting: its type, its default and what it does")
-        Code("wf config schema [options]").block
+        CodeBlock("wf config schema [options]")
         PropsTable(rows: [{ name: "--json", type: "flag", meaning: "As JSON, for a tool" }], caption: "Options of wf config schema", nameLabel: t("cli.option"))
         Heading("wf config get", id: "get").h2
         Text("What the project sets at PATH, or the default")
-        Code("wf config get PATH [options]").block
+        CodeBlock("wf config get PATH [options]")
         PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `build.budget.app.js`" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config get", nameLabel: t("cli.option"))
         Heading("wf config set", id: "set").h2
         Text("Set PATH to VALUE — JSON, or a word as a string — keeping the file's shape")
-        Code("wf config set PATH VALUE [options]").block
+        CodeBlock("wf config set PATH VALUE [options]")
         PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `meta.site_url`" }, { name: "VALUE", type: "text", meaning: "The value: JSON (`true`, `3`, `[\"en\", \"ar\"]`), or a word, which is taken as a string" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config set", nameLabel: t("cli.option"))
         Heading("wf config unset", id: "unset").h2
         Text("Remove PATH, so its default applies")
-        Code("wf config unset PATH [options]").block
+        CodeBlock("wf config unset PATH [options]")
         PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `meta.site_url`" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config unset", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
     }
@@ -552,23 +552,23 @@ page CliApi(path: "/reference/cli/api", title: "wf api — Reference", descripti
         // ── end of the words ──
         Heading("wf api add", id: "add").h2
         Text("Keep a service read from SPEC: record it in `apis`, write its `service.wf` once, and its `generated/` files")
-        Code("wf api add SPEC [options]").block
+        CodeBlock("wf api add SPEC [options]")
         PropsTable(rows: [{ name: "SPEC", type: "text", meaning: "The OpenAPI spec, JSON or YAML, a file in the project" }, { name: "--name NAME", type: "text", meaning: "The service's name, as the program calls it (default `Backend`)" }, { name: "--out OUT", type: "text", meaning: "The folder its files go in (default: `src/api/<name>`)" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api add", nameLabel: t("cli.option"))
         Heading("wf api sync", id: "sync").h2
         Text("Rewrite each service's `generated/` from its spec")
-        Code("wf api sync [NAME] [options]").block
+        CodeBlock("wf api sync [NAME] [options]")
         PropsTable(rows: [{ name: "[NAME]", type: "text", meaning: "One service (default: every one `apis` keeps)" }, { name: "--skip SKIP", type: "text, repeats", meaning: "Leave an operation out, by its name or `METHOD /path`; kept in the config, so the next sync and `check` leave it out too" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api sync", nameLabel: t("cli.option"))
         Heading("wf api check", id: "check").h2
         Text("Fail when `sync` would change anything: for CI")
-        Code("wf api check [NAME] [options]").block
+        CodeBlock("wf api check [NAME] [options]")
         PropsTable(rows: [{ name: "[NAME]", type: "text", meaning: "One service (default: every one `apis` keeps)" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api check", nameLabel: t("cli.option"))
         Heading("wf api eject", id: "eject").h2
         Text("Turn `api NAME from \"openapi.json\"` into a kept service's files")
-        Code("wf api eject NAME [options]").block
+        CodeBlock("wf api eject NAME [options]")
         PropsTable(rows: [{ name: "NAME", type: "text", meaning: "The service" }, { name: "--out OUT", type: "text", meaning: "The folder its files go in (default: `src/api/<name>`)" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api eject", nameLabel: t("cli.option"))
         Heading("wf api list", id: "list").h2
         Text("Every service read from a spec: its spec, its folder, its groups and their endpoints")
-        Code("wf api list [options]").block
+        CodeBlock("wf api list [options]")
         PropsTable(rows: [{ name: "--json", type: "flag", meaning: "Print JSON, for tools" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf api list", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
     }
@@ -940,8 +940,8 @@ page CliRender(path: "/reference/cli/render", title: "wf render — Reference", 
     }
 }
 
-page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference", description: "wf migrate: Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first). What…") {
-    ReferenceItemShell("wf migrate", summary: "Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)", signature: "wf migrate [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "site/src/pages/reference/Cli.wf") {
+page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference", description: "wf migrate: Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first).…") {
+    ReferenceItemShell("wf migrate", summary: "Carry a project forward: WebFluent 3 → 4, 4 → 4.2, 6 → 7 and 7 → 8, each step that applies (a WebFluent 2 project: migrate with 7.x first)", signature: "wf migrate [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "site/src/pages/reference/Cli.wf") {
         Markdown(t("cli.writes", { what: "the project's source files" }), class: "bp-prose")
         Markdown(t("cli.preview", { flag: "--check" }), class: "bp-prose")
         // ── words: migrate ── written by hand, and kept as it is when scripts/docsite/reference.py writes the rest

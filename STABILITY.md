@@ -66,6 +66,14 @@ deprecated in an 8.x minor: it keeps working, a warning names its
 replacement, and `wf migrate` rewrites it. A deprecation lasts at least
 one minor release and at least three months before the next major.
 
+8.0 itself deprecates six built-ins that were near-copies of another, so
+the line freezes without them: `Dialog` (write `Modal`), `Dropdown`
+(`Menu(trigger: …)`), `Tag` (`Chip`), the `Toast` element (the `toast(…)`
+function), `Code(…).block` (`CodeBlock(…)`) and `CircularProgress`
+(`Progress(…).circular`). Each draws as it did through every 8.x release,
+is warned of as `V13`, is rewritten by `wf fix --code V13` and by `wf
+migrate`'s 7 → 8 step where the rewrite is exact, and is removed in 9.0.
+
 ## Upgrading between majors
 
 `wf migrate` takes a project from one major to the next and reports

@@ -3,9 +3,9 @@
 | Component | Usage |
 |-----------|-------|
 | `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
-| `Toast` | `Toast("Saved!").success` — temporary notification, drawn above everything (an open modal included) and announced; from a handler, `toast(…)` (below) |
+| `Toast` | Deprecated since 8.0 (`V13`): call `toast("Saved!", tone: .success)` (below) from the handler or action that makes it true |
 | `Modal` | `Modal(visible: showModal, title: "Title", dismiss: .escape, initialFocus: nameField) { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; Escape or a press on its backdrop closes it, as `dismiss:` allows (`.any`, the default · `.escape` · `.none`); the focus goes to `initialFocus:` (a `ref:`), else what says `autofocus`, else its first control, and back to what had it when it closes; it fades out however it closes; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
-| `Dialog` | `Dialog(visible: asking, title: "Confirm") { ... }` — as `Modal`, with `Dialog.Title` and no footer part |
+| `Dialog` | Deprecated since 8.0 (`V13`): write `Modal`, which takes the same props, events and `Title` part |
 | `AlertDialog` | `AlertDialog(visible: sure, title: "Discard changes?") { Text("Your edits will be lost.") AlertDialog.Footer { Button("Keep editing") { … } Button("Discard").danger { … } } }` — `role="alertdialog"`, read with its body; Escape answers it and a press beside it does not (`dismiss: .escape` unless it says otherwise); the answer that loses nothing goes first |
 | `Popconfirm` | `Popconfirm(title: "Delete this file?", yes: "Delete").danger { on confirm { Files.remove(f) }  Button("Delete") }` — the button in its block asks before it acts: a question in a layer at it (`role="alertdialog"`), the focus on no; `on confirm` hears yes, `on cancel` no or Escape |
 | `Sheet` | `Sheet(visible: filters, title: "Filters", side: .bottom, snap: [0.5, 1]).closable { … Sheet.Footer { … } }` — a modal `<dialog>` from an edge: `.bottom` (the default), `.start` or `.end`, swapped in a right-to-left page; dragged by its handle or heading toward its edge past 30% of its size, or flicked, it closes; a bottom sheet opens at its first `snap:` point (fractions of the window's height) and settles at the nearest; `dismiss:`, `initialFocus:`, `Sheet.Title` as on `Modal`; `label:` names one with no title |
@@ -16,8 +16,8 @@
 | `ConsentBanner` | `ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") { Link("How we count", to: "/privacy") }` — shown until the reader chooses, Decline first and drawn as Accept is; the choice is kept, and Accept loads the `meta.scripts` entries marked `"load": "consent"` — then and on every later visit. Nothing they name loads before |
 | `ConsentSettings` | `ConsentSettings("Cookie settings")` — a button that asks again: it forgets the reader's answer and shows the `ConsentBanner` (a script already loaded stays until the page loads again) |
 | `Spinner` | `Spinner` or `Spinner.lg` |
-| `Progress` | `Progress(value: 75, max: 100)` |
-| `CircularProgress` | `CircularProgress(value: done, max: total, label: "Upload") { Text("{done}%").sm }` — a ring that fills, announced as a progress bar; with no `value:` it turns; its block sits in its middle |
+| `Progress` | `Progress(value: 75, max: 100)`, or `Progress(value: done, max: total, label: "Upload").circular { Text("{done}%").sm }` — a bar; `.circular` a ring that fills, announced as a progress bar, its block in its middle; with no `value:` the bar shows activity and the ring turns |
+| `CircularProgress` | Deprecated since 8.0 (`V13`): `Progress(…).circular` draws the same ring |
 | `Meter` | `Meter(value: used, max: 1, high: 0.9, label: "Disk")` — a level against its range, the native `<meter>`: past `high:` or under `low:` its colour says so, `optimum:` which end is good |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
 

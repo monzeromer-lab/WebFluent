@@ -177,6 +177,10 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-console__bar a { margin-bottom: 9px; color: var(--syntax-keyword); font-size: 13px; text-decoration: none; white-space: nowrap; }
 .bp-console__bar a:hover { text-decoration: underline; }
 .bp-console__code { margin: 0; padding: var(--space-4); overflow-x: auto; background: var(--console); color: var(--syntax-punct); font-family: var(--font-family-mono); font-size: var(--type-code); line-height: var(--type-code-leading); white-space: pre; border-radius: 0; }
+/* A `CodeBlock` drawn as the console's code: its box is the console's, and
+   the code in it bare, so it reads as the one element it was. */
+.wf-code-block.bp-console__code { display: block; overflow: auto; }
+.bp-console__code > .wf-code { margin: 0; padding: 0; overflow: visible; background: none; color: inherit; font: inherit; line-height: inherit; white-space: inherit; border-radius: 0; }
 .bp-console__foot { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-2) var(--space-3); border-top: 1px solid var(--console-line); background: var(--console-bar); color: var(--term-dim); font-size: 12px; }
 .bp-console__foot p { margin: 0; }
 .bp-dot { display: inline-block; flex-shrink: 0; width: 8px; height: 8px; border-radius: 50%; background: var(--construction); }

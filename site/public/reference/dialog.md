@@ -10,6 +10,8 @@ Confirmation <dialog>, opened by a state flag. on close runs when it closes, how
 Dialog(visible: State, title: String, closable: Bool, …) { … }
 ```
 
+**Deprecated since 8.0:** write `Modal` instead. It still draws as it always has through every 8.x release and is removed in 9.0; `wf fix --code V13` rewrites it where the rewrite is exact. It takes the same props, events and `Title` part. A `Modal` is drawn wider (500px against 400px) with its heading and body padded apart; `class:` or `style { width: … }` sizes it.
+
 ## Example
 
 ```wf

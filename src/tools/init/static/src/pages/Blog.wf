@@ -13,8 +13,8 @@ page Blog(path: "/blog", description: "Writing from the team.", title: "Blog") {
                     Heading("Getting Started with WebFluent").h2
                     Text("Learn how to build your first web application using the WebFluent language.").muted
                     Spacer.sm
-                    Tag("Tutorial")
-                    Tag("Beginner")
+                    Chip("Tutorial")
+                    Chip("Beginner")
                 }
                 Card.Footer {
                     Link(to: "/blog") { Text(t("blog.read")).primary }
@@ -27,8 +27,8 @@ page Blog(path: "/blog", description: "Writing from the team.", title: "Blog") {
                     Heading("Building with SSG").h2
                     Text("How to use Static Site Generation for lightning-fast page loads.").muted
                     Spacer.sm
-                    Tag("SSG")
-                    Tag("Performance")
+                    Chip("SSG")
+                    Chip("Performance")
                 }
                 Card.Footer {
                     Link(to: "/blog") { Text(t("blog.read")).primary }
@@ -40,8 +40,8 @@ page Blog(path: "/blog", description: "Writing from the team.", title: "Blog") {
                     Heading("Multi-Language Sites").h2
                     Text("Add internationalization to your WebFluent site with built-in i18n support.").muted
                     Spacer.sm
-                    Tag("i18n")
-                    Tag("RTL")
+                    Chip("i18n")
+                    Chip("RTL")
                 }
                 Card.Footer {
                     Link(to: "/blog") { Text(t("blog.read")).primary }
