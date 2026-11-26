@@ -483,13 +483,20 @@ impl JsCodegen {
                 )
             }
             (Expr::OptionalMethod(obj, method, args), _) => {
+                const HOLE: &str = "__wfOpt";
                 let args: Vec<String> = args.iter().map(|a| self.emit_expr_in(a, cx)).collect();
-                format!(
-                    "{}?.{}({})",
-                    self.emit_expr_in(obj, cx),
-                    method,
-                    args.join(", ")
-                )
+                let obj = self.emit_expr_in(obj, cx);
+                // A method the language routes — `first()`, `sum()`, a
+                // date's `plus(…)` — is the runtime's, through `?.` as
+                // without it: `list?.first()` was a plain `.first()`, which
+                // no array has. The receiver is read once, and the call
+                // made only when it is there.
+                let routed = method_to_js(method, HOLE, &args, Holder::Plain);
+                if routed == format!("{HOLE}.{method}({})", args.join(", ")) {
+                    format!("{obj}?.{method}({})", args.join(", "))
+                } else {
+                    format!("(({HOLE}) => {HOLE} == null ? undefined : {routed})({obj})")
+                }
             }
             (Expr::BinaryOp(left, op, right), _) => {
                 let l = self.emit_expr_in(left, cx);

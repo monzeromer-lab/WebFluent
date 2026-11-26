@@ -1659,3 +1659,17 @@ fn an_endpoints_declared_failures_are_held_to_their_types_in_development() {
     );
     assert!(!out.contains("errorShapes: {"), "{out}");
 }
+
+#[test]
+fn a_helper_called_through_optional_chaining_is_the_runtimes() {
+    // `list?.first()` was a plain `.first()`, which no array has: the page
+    // threw where `list.first()` worked.
+    let out = compile(
+        "type Row { name: String }\nconst BY: [String: [Row]] = { a: [] }\nconst NUMS: [String: [Number]] = { a: [] }\npage P(path: \"/\") {\n derived one = BY[\"a\"]?.first()?.name ?? \"none\"\n derived two = NUMS[\"a\"]?.sum() ?? 0\n derived three = BY[\"a\"]?.map(r => r.name)?.join(\",\") ?? \"\"\n Text(\"{one} {two} {three}\")\n}",
+    );
+    assert!(out.contains("WF.first(__wfOpt)"), "{out}");
+    assert!(out.contains("__wfOpt.reduce("), "{out}");
+    assert!(!out.contains("?.first()"), "{out}");
+    // A method JavaScript has keeps its own `?.`.
+    assert!(out.contains("?.map("), "{out}");
+}
