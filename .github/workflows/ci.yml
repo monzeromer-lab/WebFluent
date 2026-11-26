@@ -256,6 +256,10 @@ jobs:
         working-directory: tests/browser
         run: node portal.mjs
 
+      - name: A pre-rendered page taken over in place
+        working-directory: tests/browser
+        run: node hydration.mjs
+
       - name: Pictures
         working-directory: tests/browser
         run: node pictures.mjs
