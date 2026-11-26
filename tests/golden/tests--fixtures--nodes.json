@@ -4,8 +4,8 @@
     "{\"code\":\"A16\",\"severity\":\"warning\",\"message\":\"`id: \\\"item\\\"` is inside a `for`, so the page has several elements with one id\",\"file\":\"src/pages/Home.wf\",\"line\":11,\"column\":13,\"end_line\":0,\"end_column\":0,\"hint\":\"Make it unique — `id: \\\"row-{item.id}\\\"` — or drop it; a label's `for` and `aria-*` find one element by id\",\"related\":[],\"fixes\":[],\"tags\":[]}"
   ],
   "files": {
-    "app.js": "7dcfa69e552e717a40e881cf754008287e869062c1d1d5a5caae715abe0c4048",
-    "app.js.gz": "25ee9716efd64733bd3af52de0a71c0b3a9adb91719b01352af006eb77baeaf5",
+    "app.js": "47832adaf9fe3ae70a85c41cb684ec8e7f57f26930b486f788c0fdc4e3123b4a",
+    "app.js.gz": "08c50c0ed0f51f4fca4338d8a321327c03ebe45e8851e2f3bc4b09f9950d8d26",
     "index.html": "508a6ca34ed908771ff7c5696656cda497c2e46fdd322dee00b5c56b468bdc93",
     "index.html.gz": "1001d9d597e11bbf2d323abd6889f06089546f16c72b8f80bfcfd826548bfbd3",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
