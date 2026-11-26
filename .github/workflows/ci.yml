@@ -127,6 +127,69 @@ jobs:
   # called from `.wf`, `mount:`/`cleanup:` across an `if` and a route,
   # `Element`, `wf:render`, under the CSP). The runner has Chrome;
   # `puppeteer-core` drives it.
+  # The tests on macOS and Windows, which before ran nowhere but in release
+  # builds. Report only until both are green once: a failure here is a
+  # finding to fix, not yet a gate.
+  other-systems:
+    name: Tests on ${{ matrix.os }} (report only)
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
+        with:
+          tool: cargo-nextest
+      - name: Tests
+        run: >-
+          cargo nextest run --workspace --profile ci
+          -E 'not test(/^(printer_corpus|reprint_corpus|golden)::/)'
+
+  # The release builds Linux arm64 and a static musl binary; build both here
+  # too, so a dependency that breaks either is found on the change that
+  # brought it, not on the tag.
+  linux-builds:
+    name: Build for ${{ matrix.target }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+    env:
+      TARGET: ${{ matrix.target }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: musl-gcc
+        if: endsWith(matrix.target, 'musl')
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+      - name: Build
+        run: cargo build --release --locked --workspace --target "$TARGET"
+      - name: It runs
+        run: |
+          "target/$TARGET/release/wf" --version
+          "target/$TARGET/release/wf" init smoke
+          "target/$TARGET/release/wf" build -d smoke
+
   browser:
     name: Offline, peers and scripts in a real browser
     runs-on: ubuntu-latest

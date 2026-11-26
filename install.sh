@@ -4,7 +4,7 @@
 #   curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 #
 # Set WF_INSTALL_DIR to choose where the binary lands, WF_VERSION to pin a
-# release (`v5.15.0`). Prefer `cargo install webfluent` if you have Rust — it
+# release (`v8.0.0`), WF_LIBC=musl for the static Linux build. Prefer `cargo install webfluent` if you have Rust — it
 # covers every platform, including the ones without a prebuilt binary here.
 #
 # The archive is checked against the release's SHA256SUMS before anything is
@@ -14,6 +14,22 @@
 set -euo pipefail
 
 REPO="monzeromer-lab/WebFluent"
+
+# The glibc the Linux build needs: what the release's build machine has.
+GLIBC_NEEDED="2.39"
+
+# `gnu` when this machine's glibc is at least GLIBC_NEEDED, `musl` otherwise
+# (no glibc at all, as on Alpine, is musl too).
+pick_libc() {
+    have=$(ldd --version 2>/dev/null | head -n1 | grep -Eo '[0-9]+\.[0-9]+$' || true)
+    if [ -z "$have" ]; then
+        echo musl
+    elif [ "$(printf '%s\n%s\n' "$GLIBC_NEEDED" "$have" | sort -V | head -n1)" = "$GLIBC_NEEDED" ]; then
+        echo gnu
+    else
+        echo musl
+    fi
+}
 
 die() { echo "error: $*" >&2; exit 1; }
 
@@ -89,9 +105,14 @@ main() {
         *)             die "unsupported architecture: $(uname -m). Try: cargo install webfluent";;
     esac
 
-    # Only macOS ships an arm64 build; Linux arm64 has to come from source.
-    if [ "$OS" = "linux" ] && [ "$ARCH" = "aarch64" ]; then
-        die "no prebuilt binary for linux/arm64 yet. Install with Rust instead: cargo install webfluent"
+    # Linux x86_64 has two builds from 8.0 on: one against glibc (built on
+    # the newest Ubuntu GitHub offers, so it needs that glibc or newer) and
+    # one linked statically against musl, which runs anywhere — an older
+    # distribution, Alpine, a container. The glibc one is chosen when this
+    # machine's glibc is new enough; `WF_LIBC=musl` asks for the other.
+    LIBC=""
+    if [ "$OS" = "linux" ] && [ "$ARCH" = "x86_64" ]; then
+        LIBC="${WF_LIBC:-$(pick_libc)}"
     fi
 
     if [ -n "${WF_VERSION:-}" ]; then
@@ -106,10 +127,13 @@ main() {
     printf '%s' "$VERSION" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$' \
         || die "a version is vX.Y.Z, not $VERSION"
 
-    ASSET="wf-$VERSION-$ARCH-$OS.tar.gz"
+    case "$LIBC" in
+        musl) ASSET="wf-$VERSION-$ARCH-$OS-musl.tar.gz";;
+        *)    ASSET="wf-$VERSION-$ARCH-$OS.tar.gz";;
+    esac
     BASE=$(base_url "$VERSION")
 
-    echo "Installing wf $VERSION ($ARCH-$OS)…"
+    echo "Installing wf $VERSION ($ARCH-$OS${LIBC:+, $LIBC})…"
 
     # Unpack through a temporary directory so a failed download cannot leave
     # a half-written binary where a working one used to be. `-f` makes curl

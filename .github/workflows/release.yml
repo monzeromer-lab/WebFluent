@@ -91,6 +91,62 @@ jobs:
           name: linux-packages
           path: dist/*
 
+  # Linux beyond x86_64 glibc: arm64 on GitHub's arm runner, and x86_64
+  # linked statically against musl, which runs on any distribution (an
+  # older glibc, Alpine, a container). install.sh picks the musl build when
+  # the machine's glibc is older than the x86_64 build's. mimalloc and
+  # libwebp are C, so the musl build needs musl-gcc.
+  build-linux-more:
+    needs: preflight
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+    strategy:
+      matrix:
+        include:
+          - runner: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            suffix: aarch64-linux
+            lsp: true
+          - runner: ubuntu-latest
+            target: x86_64-unknown-linux-musl
+            suffix: x86_64-linux-musl
+            lsp: false
+    env:
+      TARGET: ${{ matrix.target }}
+      SUFFIX: ${{ matrix.suffix }}
+      LSP: ${{ matrix.lsp }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: musl-gcc
+        if: endsWith(matrix.target, 'musl')
+        run: sudo apt-get update && sudo apt-get install -y musl-tools
+
+      - name: Build release
+        run: cargo build --release --locked --workspace --target "$TARGET"
+
+      - name: Create tarballs
+        run: |
+          mkdir -p dist
+          tar czf "dist/wf-$TAG-$SUFFIX.tar.gz" -C "target/$TARGET/release" wf
+          if [ "$LSP" = "true" ]; then
+            tar czf "dist/wf-lsp-$TAG-$SUFFIX.tar.gz" -C "target/$TARGET/release" wf-lsp
+            cp "target/$TARGET/release/wf-lsp" "dist/wf-lsp-$TAG-$SUFFIX"
+          fi
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: linux-packages-${{ matrix.suffix }}
+          path: dist/*
+
   build-windows:
     needs: preflight
     runs-on: windows-latest
@@ -186,7 +242,7 @@ jobs:
   # The only job that may mint an OIDC token, and it writes nothing to the
   # repository.
   attest:
-    needs: [build-linux, build-windows, build-macos]
+    needs: [build-linux, build-linux-more, build-windows, build-macos]
     runs-on: ubuntu-latest
     permissions:
       contents: read
