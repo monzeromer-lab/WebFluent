@@ -8,6 +8,8 @@ section) and read that one file, or ask the compiler (`wf components Button`,
 
 ## Project and dev loop
 
+A project is a folder with `webfluent.app.json` and `.wf` sources under `src/`; `wf` checks, tests and builds it.
+
 ```
 my-app/
 ├── webfluent.app.json   # the config
@@ -40,6 +42,8 @@ my-app/
 
 ## Configuration
 
+`webfluent.app.json` holds the project's settings; these are the ones apps usually change.
+
 ```json
 {
   "name": "Shop",
@@ -67,6 +71,8 @@ my-app/
 - `wf config schema` lists every key.
 
 ## Pages and routes
+
+A page is a declaration with a route (`path:`) and a body of elements; `app` wraps every page and places the `Router`.
 
 ```wf
 type Post { slug: String, title: String, body: String }
@@ -129,6 +135,8 @@ app {
 
 ## Components
 
+A component is a reusable element with typed props, events and slots.
+
 ```wf
 /// A product, at a glance.
 component ProductCard(_ name: String, price: Number, sale: Bool = false) {
@@ -164,6 +172,8 @@ page Shop(path: "/shop", title: "Shop", description: "What we sell.") {
   `on add(n) { … }`. Values go down as props, news comes up as events.
 
 ## State
+
+`state` is a reactive value, `derived` a value computed from others, and an `action` a function that changes state.
 
 ```wf
 type Todo { id: String, title: String, done: Bool = false }
@@ -204,6 +214,8 @@ page Todos(path: "/todos", title: "Todos", description: "What's left to do.") {
 
 ## Types
 
+`type` declares a record and `enum` a set of cases; state, props and data are checked against them.
+
 ```wf
 enum Tone { calm, loud }
 type User { id: String, name: String, email: String?, tone: Tone = .calm }
@@ -221,6 +233,8 @@ enum Status { idle, failed(reason: String), done(count: Number) }
   `Uuid`. `Any` and `Map` are not types.
 
 ## Stores
+
+A store holds state, derived values and actions that several pages share.
 
 ```wf
 type Item { name: String, price: Number }
@@ -321,6 +335,8 @@ when you need one. `fetch` is not in the language: use `http` or `api`.
 
 ## Control flow
 
+`if`, `if let`, `for`, `show` and `match` choose and repeat what a body draws.
+
 ```wf
 type Row { id: String, label: String, score: Number }
 
@@ -395,6 +411,8 @@ to it show what's wrong; see
 
 ## Styling
 
+Style an element with a `style { }` block of CSS and design tokens (`$name`); a theme sets the tokens for the whole site.
+
 ```wf
 page Plans(path: "/plans", title: "Plans", description: "What it costs.") {
     Heading("Plans").h1
@@ -440,6 +458,8 @@ function wordCount(text) {
 ```
 
 ## Tests
+
+A `test` declaration under `tests/` renders elements, acts on them and checks the text a reader sees; `wf test` runs them.
 
 ```wf
 test "adding a todo shows it" {

@@ -252,7 +252,7 @@ The rules:
 - Copy one into a `state` and you keep the value it had when the page opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it where it is shown, or in a `derived`.
 - The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values), which are right in the first paint.
 
-## Initialization order
+## Name resolution
 
 When a body reads a name, the nearest declaration wins. The compiler looks in this order, innermost first:
 

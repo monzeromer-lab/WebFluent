@@ -155,7 +155,7 @@ const OLD_LINKS = {
  "/learn/06-elements#what-the-compiler-checks-on-every-element": "/learn/06-elements#element-checks",
  "/learn/06-elements#where-a-built-in-puts-them": "/learn/06-elements#where-attributes-go",
  "/learn/07-state-and-reactivity#the-browser-as-values": "/learn/07-state-and-reactivity#browser-values",
- "/learn/07-state-and-reactivity#where-values-come-from-in-order": "/learn/07-state-and-reactivity#initialization-order",
+ "/learn/07-state-and-reactivity#where-values-come-from-in-order": "/learn/07-state-and-reactivity#name-resolution",
  "/learn/08-events#emitting-events-from-components": "/learn/08-events#component-events",
  "/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter": "/learn/08-events#gestures",
  "/learn/08-events#how-often-a-handler-runs": "/learn/08-events#debounce-and-throttle",

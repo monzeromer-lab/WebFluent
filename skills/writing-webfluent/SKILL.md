@@ -245,6 +245,8 @@ The full version, with the review checklist, is
 
 ## Slots and children
 
+A component places its caller's block with `children`, and named blocks with `slot`.
+
 ```wf
 component Panel(_ title: String) {
     event closed()
