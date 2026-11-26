@@ -2010,7 +2010,7 @@ mod tests {
         let failures = FAILED.with(|f| f.borrow_mut().split_off(before));
         assert_eq!(failures.len(), 2, "{failures:#?}");
         assert_eq!(failures[0].source, "Text(");
-        assert!(!failures[0].error.is_empty());
+        assert_ne!(failures[0].error, "");
         assert_eq!(failures[1].source, "1 +");
     }
 

@@ -310,7 +310,9 @@ fn a_migration_is_planned_in_memory_and_then_written() {
     let before = std::fs::read_to_string(dir.join("src/App.wf")).unwrap();
     let plan = webfluent::migrate::project::plan(&dir, false).unwrap();
     assert!(
-        plan.four_two.as_ref().is_some_and(|s| s.anything()),
+        plan.four_two
+            .as_ref()
+            .is_some_and(webfluent::migrate::project::FourTwo::anything),
         "{plan:?}"
     );
     assert_eq!(plan.failed().count(), 0);
@@ -330,7 +332,12 @@ fn a_migration_is_planned_in_memory_and_then_written() {
     // Carried forward, the project has nothing left to migrate.
     let again = webfluent::migrate::project::plan(&dir, false).unwrap();
     assert_eq!(again.changed().count(), 0, "{again:?}");
-    assert!(!again.four_two.as_ref().is_some_and(|s| s.anything()));
+    assert!(
+        !again
+            .four_two
+            .as_ref()
+            .is_some_and(webfluent::migrate::project::FourTwo::anything)
+    );
 }
 
 #[test]

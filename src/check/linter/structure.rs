@@ -1026,12 +1026,12 @@ mod tests {
         );
         assert_eq!(found.len(), 1, "{found:?}");
         assert!(found[0].contains("`:id`"), "{found:?}");
-        assert!(
+        assert_eq!(
             with(
                 "page User(path: \"/u/:id\", title: \"U\", description: \"D\", id: String) {\n    Text(id)\n}\n",
                 "R02"
-            )
-            .is_empty()
+            ),
+            [] as [std::string::String; 0]
         );
     }
 
@@ -1048,7 +1048,7 @@ mod tests {
             "{found:?}"
         );
         let one = format!("app {{\n    Row {{ Router }}\n}}\n{PAGE}    Text(\"x\")\n}}\n");
-        assert!(with(&one, "R03").is_empty());
+        assert_eq!(with(&one, "R03"), [] as [std::string::String; 0]);
     }
 
     #[test]
@@ -1067,19 +1067,19 @@ mod tests {
         assert_eq!(found.len(), 1, "{found:?}");
         // At the root it resolves where it is meant to; site-relative is
         // right anywhere.
-        assert!(
+        assert_eq!(
             with(
                 &format!("{PAGE}    Image(src: \"logo.png\", alt: \"Logo\")\n}}\n"),
                 "R04"
-            )
-            .is_empty()
+            ),
+            [] as [std::string::String; 0]
         );
-        assert!(
+        assert_eq!(
             with(
                 "page Doc(path: \"/docs/intro\", title: \"D\", description: \"D\") {\n    Image(src: \"/logo.png\", alt: \"Logo\")\n}\n",
                 "R04"
-            )
-            .is_empty()
+            ),
+            [] as [std::string::String; 0]
         );
     }
 
@@ -1120,7 +1120,7 @@ mod tests {
         let once = format!(
             "component Panel(id: String) {{\n    persist open = false\n    Text(\"x\")\n}}\n{PAGE}    Panel(id: \"a\")\n}}\n"
         );
-        assert!(with(&once, "D03").is_empty());
+        assert_eq!(with(&once, "D03"), [] as [std::string::String; 0]);
         let keyed = format!(
             "component Panel(id: String) {{\n    persist open = false {{ key: id }}\n    Text(\"x\")\n}}\n{PAGE}    for p in [\"a\", \"b\"] {{ Panel(id: p) }}\n}}\n"
         );

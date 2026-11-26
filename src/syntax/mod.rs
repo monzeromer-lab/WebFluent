@@ -7,7 +7,7 @@
 //! braces in a `.wf` file and by indentation in a `.wfx` file
 //! (`crate::syntax::lexer::v2::Layout`). A file in the grammar WebFluent 2
 //! had is refused here (`E004`) with the release whose `wf migrate` still
-//! reads it ([`WF2_MIGRATION`]). The dialect is read from a file's first
+//! reads it (`WF2_MIGRATION`). The dialect is read from a file's first
 //! word: the declarations of the current grammar are lowercase (`page`,
 //! `component`, `store`, `theme`, `app`, `type`, `enum`); the old
 //! grammar's were capitalised.
