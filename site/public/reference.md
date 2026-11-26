@@ -4994,7 +4994,7 @@ TitleSlide(title, subtitle: …)
 
 ```wf
 Presentation {
-    TitleSlide("Shipping WebFluent 7", subtitle: "Platform team · 17 November 2026")
+    TitleSlide("Shipping WebFluent 8", subtitle: "Platform team · 17 November 2026")
 }
 ```
 

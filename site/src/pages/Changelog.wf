@@ -8,6 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
+                ReleaseNotes(version: "8.0.0", id: "8.0.0"),
                 ReleaseNotes(version: "7.2.0", id: "7.2.0", date: "2026-11-23"),
                 ReleaseNotes(version: "7.1.1", id: "7.1.1", date: "2026-11-18"),
                 ReleaseNotes(version: "7.1.0", id: "7.1.0", date: "2026-11-18"),
@@ -78,6 +79,92 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                     Link("RELEASE_NOTES.md", href: "{REPO}/blob/master/RELEASE_NOTES.md")
                 }
             }
+
+            ReleaseEntry(ReleaseNotes(version: "8.0.0", id: "8.0.0", summary: #"The first long-term release. For all of 8.x the language does not break:
+syntax, semantics, the built-ins and their props, the config keys and the
+CLI stay as they are, and a minor release only adds. 8.x gets fixes for at
+least twelve months after 9.0, and 9.0 comes no sooner than nine months
+after 8.0. [STABILITY.md](https://github.com/monzeromer-lab/WebFluent/blob/master/STABILITY.md) is the whole promise."#, sections: [
+                NotesSection(title: #"Upgrading from 7.x"#, id: "8.0.0-upgrading-from-7-x", items: [
+                    Change(text: #"**Six built-ins are deprecated**, so the line freezes without
+near-copies: `Dialog` (write `Modal`), `Dropdown` (`Menu(trigger: …)`),
+`Tag` (`Chip`), the `Toast` element (the `toast(…)` function),
+`Code(…).block` (`CodeBlock(…)`) and `CircularProgress`
+(`Progress(…).circular`, new in this release). Each draws as before
+through every 8.x release and is removed in 9.0. A use is warned of as
+`V13`, naming its replacement; `wf fix --code V13` and `wf migrate`
+rewrite the ones that convert exactly. A `Toast` inside an `if` or `for`
+is left to you: call `toast(…)` from the handler that makes it true."#),
+                    Change(text: #"**WebFluent 2 is no longer read or migrated.** Migrate such a project
+with 7.x first (`cargo install webfluent --version ^7`, then
+`wf migrate`), then with 8."#),
+                    Change(text: #"**PDFs answer width media queries against the paper**, as a browser's
+print does, so the engine's own narrow-screen rules now apply on A4 and
+Letter: an invoice's table, for one, is denser. A rule meant for screens
+only belongs in `@media screen`."#)
+                ]),
+                NotesSection(title: #"PDFs"#, id: "8.0.0-pdfs", items: [
+                    Change(text: #"`@page` sets the paper and its margins, with `:first`, `:left` and
+`:right`; `Document(size:)` still has the last word."#),
+                    Change(text: #"Width and orientation media queries are answered against the page area."#),
+                    Change(text: #"`position: fixed` repeats on every page, logical insets follow
+right-to-left text, and `text-shadow` is drawn."#),
+                    Change(text: #"More selectors: `:has()`, `:nth-last-child()`, `:nth-last-of-type()`,
+`:only-of-type`, `:dir()`, `:lang()`, `:link`, `:checked`, `:disabled`,
+`:enabled`. An unknown pseudo-class still drops its rule, now with a
+note naming it."#),
+                    Change(text: #"**Every PDF is tagged**: headings, paragraphs, lists, tables, figures
+with their alt text, links and the document's language, so a screen
+reader and reflow work. A repeated table header now also repeats when a
+row lands exactly at the top of a page."#)
+                ]),
+                NotesSection(title: #"The static paint and the browser agree"#, id: "8.0.0-the-static-paint-and-the-browser-agree", items: [
+                    Change(text: #"Numbers, money, percentages, compact numbers and dates are formatted at
+build time from tables read off `Intl` for about sixty locales, so a
+German or French price no longer changes when the page takes over. The
+build is checked against the browser on about 12,500 values."#),
+                    Change(text: #"The build-time and browser sanitisers share one allow-list and agree on
+134 cases and thousands of generated ones; an unusual character entity
+no longer throws in the browser."#),
+                    Change(text: #"A page title from route parameters is filled in one pass, through the
+evaluator."#),
+                    Change(text: #"A theme's breakpoints (`screen-md`) and the motion tokens the runtime
+reads by name are no longer pruned from the sheet, so `viewport.md` and
+an animation's defaults follow the theme."#)
+                ]),
+                NotesSection(title: #"Faster lists and reactivity"#, id: "8.0.0-faster-lists-and-reactivity", items: [
+                    Change(text: #"A change's effects run from a heap, so a change that reaches many
+bindings — selecting a row in a long table — costs the same per binding
+however many there are."#),
+                    Change(text: #"A keyed list that keeps none of its rows is drawn in one insertion and
+emptied in one write; effects, signal reads and elements allocate less."#)
+                ]),
+                NotesSection(title: #"Errors"#, id: "8.0.0-errors", items: [
+                    Change(text: #"An undeclared name is reported once (`T13`, carrying any flag
+suggestion), and `now`, `locale`, `document` and `Math` no longer draw a
+false `V01`."#),
+                    Change(text: #"A misspelled flag lists the component's own flags by kind, not every
+animation flag."#),
+                    Change(text: #"An error lands on the exact name it quotes, never inside a longer word."#),
+                    Change(text: #"A composite built-in whose expansion fails is reported (`E901`) rather
+than drawn as nothing."#)
+                ]),
+                NotesSection(title: #"Installing"#, id: "8.0.0-installing", items: [
+                    Change(text: #"Linux arm64 and a static musl build (any distribution, Alpine, a
+container) are released beside the x86_64 glibc one. `install.sh` picks
+the arm64 build on arm64, and the musl one when the machine's glibc is
+older or `WF_LIBC=musl` asks for it."#)
+                ]),
+                NotesSection(title: #"Docs"#, id: "8.0.0-docs", items: [
+                    Change(text: #"The reference, the agent skill and the guide name their sections
+plainly (Validation, Portals, Network status, WebSockets, streams and
+channels, …), each opening with a one-line definition; old addresses
+forward. `wf init` writes a short `AGENTS.md` (about 220 lines) that
+points into the bundled skill."#),
+                    Change(text: #"The README lists every command, and the Node package says MPL-2.0, as
+the rest of WebFluent does."#)
+                ])
+            ], count: 21))
 
             ReleaseEntry(ReleaseNotes(version: "7.2.0", id: "7.2.0", date: "2026-11-23", when: "23 November 2026", summary: #"Two commands for checking a site as a host and a reader meet it, keyed
 lists that move only what moved, a baseline palette that meets WCAG AA, and
@@ -4606,6 +4693,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        DocsOnThisPage(sections: [Anchor(id: "7.2.0-wf-start-and-wf-inspect", label: #"`wf start` and `wf inspect`"#), Anchor(id: "7.2.0-lists-colours-and-what-a-new-site-gets", label: #"Lists, colours and what a new site gets"#), Anchor(id: "7.2.0-fixes", label: #"Fixes"#), Anchor(id: "7.2.0-the-docs", label: #"The docs"#)], source: "RELEASE_NOTES.md")
+        DocsOnThisPage(sections: [Anchor(id: "8.0.0-upgrading-from-7-x", label: #"Upgrading from 7.x"#), Anchor(id: "8.0.0-pdfs", label: #"PDFs"#), Anchor(id: "8.0.0-the-static-paint-and-the-browser-agree", label: #"The static paint and the browser agree"#), Anchor(id: "8.0.0-faster-lists-and-reactivity", label: #"Faster lists and reactivity"#), Anchor(id: "8.0.0-errors", label: #"Errors"#), Anchor(id: "8.0.0-installing", label: #"Installing"#), Anchor(id: "8.0.0-docs", label: #"Docs"#)], source: "RELEASE_NOTES.md")
     }
 }

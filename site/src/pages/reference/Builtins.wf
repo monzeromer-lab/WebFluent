@@ -11194,7 +11194,7 @@ page BuiltinTitleslide(path: "/reference/titleslide", title: "TitleSlide — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.example"), id: "example").h2
         DocsCodeBlock(#"Presentation {
-    TitleSlide("Shipping WebFluent 7", subtitle: "Platform team · 17 November 2026")
+    TitleSlide("Shipping WebFluent 8", subtitle: "Platform team · 17 November 2026")
 }"#, title: "wf")
         Row(gap: .sm, align: .center) {
             style { gap: 8px; flex-wrap: wrap; margin-top: 8px }

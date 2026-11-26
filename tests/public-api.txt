@@ -943,6 +943,7 @@ pub fn webfluent::diagnostics::allow::apply(&mut alloc::vec::Vec<webfluent::diag
 pub mod webfluent::diagnostics::codes
 pub struct webfluent::diagnostics::codes::CodeInfo
 pub webfluent::diagnostics::codes::CodeInfo::code: &'static str
+pub webfluent::diagnostics::codes::CodeInfo::deprecated: bool
 pub webfluent::diagnostics::codes::CodeInfo::severity: webfluent::diagnostics::Severity
 pub webfluent::diagnostics::codes::CodeInfo::summary: &'static str
 pub webfluent::diagnostics::codes::CodeInfo::title: &'static str
@@ -1406,6 +1407,10 @@ pub webfluent::diagnostics::fixes::Plan::Replace
 pub webfluent::diagnostics::fixes::Plan::Replace::end: usize
 pub webfluent::diagnostics::fixes::Plan::Replace::start: usize
 pub webfluent::diagnostics::fixes::Plan::Replace::text: alloc::string::String
+pub webfluent::diagnostics::fixes::Plan::Swap
+pub webfluent::diagnostics::fixes::Plan::Swap::from: alloc::string::String
+pub webfluent::diagnostics::fixes::Plan::Swap::start: usize
+pub webfluent::diagnostics::fixes::Plan::Swap::to: alloc::string::String
 impl core::clone::Clone for webfluent::diagnostics::fixes::Plan
 pub fn webfluent::diagnostics::fixes::Plan::clone(&self) -> Self
 impl core::cmp::Eq for webfluent::diagnostics::fixes::Plan
@@ -5430,6 +5435,7 @@ impl core::marker::Unpin for webfluent::syntax::Dialect
 impl core::marker::UnsafeUnpin for webfluent::syntax::Dialect
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::Dialect
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::Dialect
+pub const webfluent::syntax::WF2_MIGRATION: &str
 pub fn webfluent::syntax::comments(&str, &str) -> alloc::vec::Vec<(usize, usize, alloc::string::String)>
 pub fn webfluent::syntax::detect_dialect(&str) -> webfluent::syntax::Dialect
 pub fn webfluent::syntax::is_source_file(&std::path::Path) -> bool

@@ -4,6 +4,100 @@
 
 The page: https://webfluent.monzeromer.dev/changelog
 
+The first long-term release. For all of 8.x the language does not break:
+syntax, semantics, the built-ins and their props, the config keys and the
+CLI stay as they are, and a minor release only adds. 8.x gets fixes for at
+least twelve months after 9.0, and 9.0 comes no sooner than nine months
+after 8.0. [STABILITY.md](STABILITY.md) is the whole promise.
+
+## Upgrading from 7.x
+
+- **Six built-ins are deprecated**, so the line freezes without
+  near-copies: `Dialog` (write `Modal`), `Dropdown` (`Menu(trigger: …)`),
+  `Tag` (`Chip`), the `Toast` element (the `toast(…)` function),
+  `Code(…).block` (`CodeBlock(…)`) and `CircularProgress`
+  (`Progress(…).circular`, new in this release). Each draws as before
+  through every 8.x release and is removed in 9.0. A use is warned of as
+  `V13`, naming its replacement; `wf fix --code V13` and `wf migrate`
+  rewrite the ones that convert exactly. A `Toast` inside an `if` or `for`
+  is left to you: call `toast(…)` from the handler that makes it true.
+- **WebFluent 2 is no longer read or migrated.** Migrate such a project
+  with 7.x first (`cargo install webfluent --version ^7`, then
+  `wf migrate`), then with 8.
+- **PDFs answer width media queries against the paper**, as a browser's
+  print does, so the engine's own narrow-screen rules now apply on A4 and
+  Letter: an invoice's table, for one, is denser. A rule meant for screens
+  only belongs in `@media screen`.
+
+## PDFs
+
+- `@page` sets the paper and its margins, with `:first`, `:left` and
+  `:right`; `Document(size:)` still has the last word.
+- Width and orientation media queries are answered against the page area.
+- `position: fixed` repeats on every page, logical insets follow
+  right-to-left text, and `text-shadow` is drawn.
+- More selectors: `:has()`, `:nth-last-child()`, `:nth-last-of-type()`,
+  `:only-of-type`, `:dir()`, `:lang()`, `:link`, `:checked`, `:disabled`,
+  `:enabled`. An unknown pseudo-class still drops its rule, now with a
+  note naming it.
+- **Every PDF is tagged**: headings, paragraphs, lists, tables, figures
+  with their alt text, links and the document's language, so a screen
+  reader and reflow work. A repeated table header now also repeats when a
+  row lands exactly at the top of a page.
+
+## The static paint and the browser agree
+
+- Numbers, money, percentages, compact numbers and dates are formatted at
+  build time from tables read off `Intl` for about sixty locales, so a
+  German or French price no longer changes when the page takes over. The
+  build is checked against the browser on about 12,500 values.
+- The build-time and browser sanitisers share one allow-list and agree on
+  134 cases and thousands of generated ones; an unusual character entity
+  no longer throws in the browser.
+- A page title from route parameters is filled in one pass, through the
+  evaluator.
+- A theme's breakpoints (`screen-md`) and the motion tokens the runtime
+  reads by name are no longer pruned from the sheet, so `viewport.md` and
+  an animation's defaults follow the theme.
+
+## Faster lists and reactivity
+
+- A change's effects run from a heap, so a change that reaches many
+  bindings — selecting a row in a long table — costs the same per binding
+  however many there are.
+- A keyed list that keeps none of its rows is drawn in one insertion and
+  emptied in one write; effects, signal reads and elements allocate less.
+
+## Errors
+
+- An undeclared name is reported once (`T13`, carrying any flag
+  suggestion), and `now`, `locale`, `document` and `Math` no longer draw a
+  false `V01`.
+- A misspelled flag lists the component's own flags by kind, not every
+  animation flag.
+- An error lands on the exact name it quotes, never inside a longer word.
+- A composite built-in whose expansion fails is reported (`E901`) rather
+  than drawn as nothing.
+
+## Installing
+
+- Linux arm64 and a static musl build (any distribution, Alpine, a
+  container) are released beside the x86_64 glibc one. `install.sh` picks
+  the arm64 build on arm64, and the musl one when the machine's glibc is
+  older or `WF_LIBC=musl` asks for it.
+
+## Docs
+
+- The reference, the agent skill and the guide name their sections
+  plainly (Validation, Portals, Network status, WebSockets, streams and
+  channels, …), each opening with a one-line definition; old addresses
+  forward. `wf init` writes a short `AGENTS.md` (about 220 lines) that
+  points into the bundled skill.
+- The README lists every command, and the Node package says MPL-2.0, as
+  the rest of WebFluent does.
+
+# WebFluent v7.2.0 Release Notes
+
 Two commands for checking a site as a host and a reader meet it, keyed
 lists that move only what moved, a baseline palette that meets WCAG AA, and
 the fixes twelve new apps and a migrated studio turned up.

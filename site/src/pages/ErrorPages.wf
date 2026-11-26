@@ -235,7 +235,7 @@ page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 
   |
 1 | Page Home (path: "/") {
   | ^^^^
-  = help: WebFluent 8 no longer reads the WebFluent 2 grammar: migrate the project with WebFluent 7.x first (`cargo install webfluent --version ^7`, then `wf migrate`), then run this `wf migrate` for the rest
+  = help: WebFluent 8 no longer reads the WebFluent 2 grammar: migrate the project with a 7.x release first (`cargo install webfluent --version ^7`, then `wf migrate`), then run this `wf migrate` for the rest
   = docs: https://webfluent.monzeromer.dev/errors/E004"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "src/diagnostics/explain/E004.md") {
         broken { DocsCodeBlock(#"Page Home (path: "/") {
     Text("Hi")

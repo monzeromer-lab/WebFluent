@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages
 This recipe has Cloudflare Pages build a WebFluent site on every push and serve it, with the security headers the build writes.  You need a Cloudflare account and a Pages project connected to the repository; the build command installs `wf` as [Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md) shows.  In the Pages project's build settings, set the build command:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash && ~/.webfluent/bin/wf build
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash && ~/.webfluent/bin/wf build
 ```
 
 and set the build output directory to `build`.

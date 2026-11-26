@@ -24059,7 +24059,7 @@
     "data"
    ],
    "cssClass": "wf-title-slide",
-   "example": "Presentation {\n    TitleSlide(\"Shipping WebFluent 7\", subtitle: \"Platform team · 17 November 2026\")\n}",
+   "example": "Presentation {\n    TitleSlide(\"Shipping WebFluent 8\", subtitle: \"Platform team · 17 November 2026\")\n}",
    "variations": [],
    "drawn": false,
    "preview": false,

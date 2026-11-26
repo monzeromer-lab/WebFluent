@@ -15,7 +15,7 @@ This page is the reference for the compiler used as a library: the `webfluent` c
 This Rust program renders a template to HTML:
 
 ```rust
-// Cargo.toml: webfluent = { version = "7", default-features = false }
+// Cargo.toml: webfluent = { version = "8", default-features = false }
 //             serde_json = "1"
 use webfluent::Template;
 
@@ -37,7 +37,7 @@ The crate is the compiler: `wf`, the language server and the WebAssembly build a
 
 ```toml
 [dependencies]
-webfluent = { version = "7", default-features = false }
+webfluent = { version = "8", default-features = false }
 ```
 
 `default-features = false` leaves out the `wf` command's own dependencies (its argument parser and the development server). A program that only renders templates or builds projects needs neither.

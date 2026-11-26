@@ -6,8 +6,8 @@
     "kind": "document",
     "lang": "en",
     "pages": 9,
-    "bytes": 133446,
-    "size": "133 kB",
+    "bytes": 227279,
+    "size": "227 kB",
     "file": "/showcase/halyard-q3-2026.pdf",
     "previews": [
       "/showcase/halyard-q3-2026-1.webp",
@@ -24,8 +24,8 @@
     "kind": "document",
     "lang": "en",
     "pages": 4,
-    "bytes": 44749,
-    "size": "45 kB",
+    "bytes": 94818,
+    "size": "95 kB",
     "file": "/showcase/invoice-2026-0417.pdf",
     "previews": [
       "/showcase/invoice-2026-0417-1.webp",
@@ -42,8 +42,8 @@
     "kind": "document",
     "lang": "ar",
     "pages": 2,
-    "bytes": 60693,
-    "size": "61 kB",
+    "bytes": 70676,
+    "size": "71 kB",
     "file": "/showcase/resume-ar.pdf",
     "previews": [
       "/showcase/resume-ar-1.webp",
@@ -132,8 +132,8 @@
     "kind": "document",
     "lang": "ar",
     "pages": 1,
-    "bytes": 46385,
-    "size": "46 kB",
+    "bytes": 59664,
+    "size": "60 kB",
     "file": "/showcase/invoice-ar.pdf",
     "previews": [
       "/showcase/invoice-ar-1.webp"

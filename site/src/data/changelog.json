@@ -1,5 +1,176 @@
 [
  {
+  "version": "8.0.0",
+  "id": "8.0.0",
+  "date": "",
+  "when": "",
+  "summary": "The first long-term release. For all of 8.x the language does not break:\nsyntax, semantics, the built-ins and their props, the config keys and the\nCLI stay as they are, and a minor release only adds. 8.x gets fixes for at\nleast twelve months after 9.0, and 9.0 comes no sooner than nine months\nafter 8.0. [STABILITY.md](https://github.com/monzeromer-lab/WebFluent/blob/master/STABILITY.md) is the whole promise.",
+  "sections": [
+   {
+    "title": "Upgrading from 7.x",
+    "id": "8.0.0-upgrading-from-7-x",
+    "intro": "",
+    "items": [
+     {
+      "text": "**Six built-ins are deprecated**, so the line freezes without\nnear-copies: `Dialog` (write `Modal`), `Dropdown` (`Menu(trigger: …)`),\n`Tag` (`Chip`), the `Toast` element (the `toast(…)` function),\n`Code(…).block` (`CodeBlock(…)`) and `CircularProgress`\n(`Progress(…).circular`, new in this release). Each draws as before\nthrough every 8.x release and is removed in 9.0. A use is warned of as\n`V13`, naming its replacement; `wf fix --code V13` and `wf migrate`\nrewrite the ones that convert exactly. A `Toast` inside an `if` or `for`\nis left to you: call `toast(…)` from the handler that makes it true.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**WebFluent 2 is no longer read or migrated.** Migrate such a project\nwith 7.x first (`cargo install webfluent --version ^7`, then\n`wf migrate`), then with 8.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**PDFs answer width media queries against the paper**, as a browser's\nprint does, so the engine's own narrow-screen rules now apply on A4 and\nLetter: an invoice's table, for one, is denser. A rule meant for screens\nonly belongs in `@media screen`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "PDFs",
+    "id": "8.0.0-pdfs",
+    "intro": "",
+    "items": [
+     {
+      "text": "`@page` sets the paper and its margins, with `:first`, `:left` and\n`:right`; `Document(size:)` still has the last word.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "Width and orientation media queries are answered against the page area.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`position: fixed` repeats on every page, logical insets follow\nright-to-left text, and `text-shadow` is drawn.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "More selectors: `:has()`, `:nth-last-child()`, `:nth-last-of-type()`,\n`:only-of-type`, `:dir()`, `:lang()`, `:link`, `:checked`, `:disabled`,\n`:enabled`. An unknown pseudo-class still drops its rule, now with a\nnote naming it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Every PDF is tagged**: headings, paragraphs, lists, tables, figures\nwith their alt text, links and the document's language, so a screen\nreader and reflow work. A repeated table header now also repeats when a\nrow lands exactly at the top of a page.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "The static paint and the browser agree",
+    "id": "8.0.0-the-static-paint-and-the-browser-agree",
+    "intro": "",
+    "items": [
+     {
+      "text": "Numbers, money, percentages, compact numbers and dates are formatted at\nbuild time from tables read off `Intl` for about sixty locales, so a\nGerman or French price no longer changes when the page takes over. The\nbuild is checked against the browser on about 12,500 values.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The build-time and browser sanitisers share one allow-list and agree on\n134 cases and thousands of generated ones; an unusual character entity\nno longer throws in the browser.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A page title from route parameters is filled in one pass, through the\nevaluator.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A theme's breakpoints (`screen-md`) and the motion tokens the runtime\nreads by name are no longer pruned from the sheet, so `viewport.md` and\nan animation's defaults follow the theme.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Faster lists and reactivity",
+    "id": "8.0.0-faster-lists-and-reactivity",
+    "intro": "",
+    "items": [
+     {
+      "text": "A change's effects run from a heap, so a change that reaches many\nbindings — selecting a row in a long table — costs the same per binding\nhowever many there are.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A keyed list that keeps none of its rows is drawn in one insertion and\nemptied in one write; effects, signal reads and elements allocate less.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Errors",
+    "id": "8.0.0-errors",
+    "intro": "",
+    "items": [
+     {
+      "text": "An undeclared name is reported once (`T13`, carrying any flag\nsuggestion), and `now`, `locale`, `document` and `Math` no longer draw a\nfalse `V01`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A misspelled flag lists the component's own flags by kind, not every\nanimation flag.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "An error lands on the exact name it quotes, never inside a longer word.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A composite built-in whose expansion fails is reported (`E901`) rather\nthan drawn as nothing.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Installing",
+    "id": "8.0.0-installing",
+    "intro": "",
+    "items": [
+     {
+      "text": "Linux arm64 and a static musl build (any distribution, Alpine, a\ncontainer) are released beside the x86_64 glibc one. `install.sh` picks\nthe arm64 build on arm64, and the musl one when the machine's glibc is\nolder or `WF_LIBC=musl` asks for it.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Docs",
+    "id": "8.0.0-docs",
+    "intro": "",
+    "items": [
+     {
+      "text": "The reference, the agent skill and the guide name their sections\nplainly (Validation, Portals, Network status, WebSockets, streams and\nchannels, …), each opening with a one-line definition; old addresses\nforward. `wf init` writes a short `AGENTS.md` (about 220 lines) that\npoints into the bundled skill.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The README lists every command, and the Node package says MPL-2.0, as\nthe rest of WebFluent does.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   }
+  ],
+  "count": 21
+ },
+ {
   "version": "7.2.0",
   "id": "7.2.0",
   "date": "2026-11-23",

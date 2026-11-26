@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/recipes/install-wf-in-ci
 This recipe installs `wf` on a machine that builds the site for you — a CI runner, or the build step of a host such as Netlify — and runs the build there. Every hosting recipe uses it.  You need a project that builds with `wf build` on your own machine, and a build machine with `curl` and `bash`.
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash
 ~/.webfluent/bin/wf build
 ```
 

@@ -42,7 +42,7 @@ pub enum Dialect {
 
 /// What to do with a file in the grammar of WebFluent 2: this release no
 /// longer migrates it, the 7.x releases do, and then this one takes over.
-pub const WF2_MIGRATION: &str = "WebFluent 8 no longer reads the WebFluent 2 grammar: migrate the project with WebFluent 7.x first (`cargo install webfluent --version ^7`, then `wf migrate`), then run this `wf migrate` for the rest";
+pub const WF2_MIGRATION: &str = "WebFluent 8 no longer reads the WebFluent 2 grammar: migrate the project with a 7.x release first (`cargo install webfluent --version ^7`, then `wf migrate`), then run this `wf migrate` for the rest";
 
 /// Whether `path` is a WebFluent source file: `.wf`, or `.wfx` for the
 /// indented layout.

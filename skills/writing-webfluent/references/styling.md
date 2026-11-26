@@ -37,7 +37,7 @@ while `background: $surface` follows the theme. A token the theme doesn't
 declare is `V06`, an error. Every built-in draws from these tokens alone, so a
 theme restyles all of them.
 
-The baseline's 87 tokens (WebFluent 7.0):
+The baseline's 87 tokens:
 
 | Group | Tokens |
 |---|---|

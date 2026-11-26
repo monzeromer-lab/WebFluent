@@ -59,7 +59,7 @@ required-features = ["cli"]
 
 # `cli` is the `wf` command: its argument parser and the dev server. A
 # program that only renders templates leaves it out —
-# `webfluent = { version = "7", default-features = false }` — and builds
+# `webfluent = { version = "8", default-features = false }` — and builds
 # the compiler and the template engine alone.
 [features]
 default = ["cli"]
@@ -88,7 +88,7 @@ exclude = ["editors/zed", "fuzz"]
 
 # What every crate here shares. `just bump` sets the version once, here.
 [workspace.package]
-version = "7.2.0"
+version = "8.0.0"
 edition = "2024"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
 license = "MPL-2.0"

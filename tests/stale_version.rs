@@ -20,6 +20,8 @@ const EXEMPT: &[&str] = &[
     "CHANGELOG.md",
     "51-upgrading.md",
     "51-upgrading.wf",
+    // Measured results: each names the version it measured.
+    "benchmarks.json",
 ];
 
 fn root() -> PathBuf {

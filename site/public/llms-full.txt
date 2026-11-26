@@ -190,7 +190,7 @@ Both installers read two environment variables:
 | Variable | Effect | Example |
 |---|---|---|
 | `WF_INSTALL_DIR` | Installs the binary somewhere other than `~/.webfluent/bin` | `WF_INSTALL_DIR=/opt/wf/bin` |
-| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v7.2.0` |
+| `WF_VERSION` | Installs that release instead of the latest | `WF_VERSION=v8.0.0` |
 
 Running the installer again upgrades `wf` in place.
 
@@ -10279,7 +10279,7 @@ https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages
 This recipe has Cloudflare Pages build a WebFluent site on every push and serve it, with the security headers the build writes.  You need a Cloudflare account and a Pages project connected to the repository; the build command installs `wf` as [Install wf on a build machine](/recipes/install-wf-in-ci) shows.  In the Pages project's build settings, set the build command:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash && ~/.webfluent/bin/wf build
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash && ~/.webfluent/bin/wf build
 ```
 
 and set the build output directory to `build`.
@@ -10338,7 +10338,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash
+      - run: curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash
       - run: ~/.webfluent/bin/wf build
       # Only for a single-page build ("ssg": false): GitHub serves
       # 404.html for an address it has no file for, so the app loads there
@@ -10377,7 +10377,7 @@ This recipe has Netlify build a WebFluent site on every push and serve it, with 
 
 ```toml
 [build]
-  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash && ~/.webfluent/bin/wf build"
+  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash && ~/.webfluent/bin/wf build"
   publish = "build"
 ```
 
@@ -10411,7 +10411,7 @@ This recipe has Vercel build a WebFluent site on every push and serve it. Vercel
 
 ```json
 {
-  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash && ~/.webfluent/bin/wf build",
+  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash && ~/.webfluent/bin/wf build",
   "outputDirectory": "build",
   "headers": [
     {
@@ -10454,7 +10454,7 @@ This recipe packs a WebFluent site into a Docker image that serves it with nginx
 ```dockerfile
 FROM debian:stable-slim AS build
 RUN apt-get update && apt-get install -y curl ca-certificates
-RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash
 WORKDIR /site
 COPY . .
 RUN /root/.webfluent/bin/wf build
@@ -11139,7 +11139,7 @@ https://webfluent.monzeromer.dev/recipes/install-wf-in-ci
 This recipe installs `wf` on a machine that builds the site for you — a CI runner, or the build step of a host such as Netlify — and runs the build there. Every hosting recipe uses it.  You need a project that builds with `wf build` on your own machine, and a build machine with `curl` and `bash`.
 
 ```bash
-curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash
 ~/.webfluent/bin/wf build
 ```
 
@@ -12947,7 +12947,7 @@ To use the engine without the `wf` command's own dependencies (its argument pars
 
 ```toml
 [dependencies]
-webfluent = { version = "7", default-features = false }
+webfluent = { version = "8", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 
@@ -17036,7 +17036,7 @@ If those costs are acceptable, what you get in return is a site whose mistakes t
 - To learn the language, start with [Your first page](/learn/01-getting-started).
 - Coming from a framework, read [Coming from React](/coming-from/react) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](/reference).
-- This guide describes WebFluent 7. [Upgrading](/errors/upgrading) lists what each release changed.
+- This guide describes WebFluent 8. [Upgrading](/errors/upgrading) lists what each release changed.
 
 
 

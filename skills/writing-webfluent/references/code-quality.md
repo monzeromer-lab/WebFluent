@@ -100,7 +100,7 @@ type Issue {
 - **`Json` says little.** `Any` and `Map` are not types in 7.0 (`T23`,
   `T24`); `Json` is for JSON whose shape is open, at a boundary you have not
   typed yet. Decode it into a `type` as soon as you know the shape.
-- **Say the type where nothing else does.** WebFluent 7 has no value of
+- **Say the type where nothing else does.** WebFluent has no value of
   unknown type, so the checker refuses what it can't work out:
   - a `state` or `persist` whose first value says nothing (`[]`, `{}`,
     `null`) names its type: `state items: [Issue] = []`,

@@ -35,7 +35,7 @@ To use the engine without the `wf` command's own dependencies (its argument pars
 
 ```toml
 [dependencies]
-webfluent = { version = "7", default-features = false }
+webfluent = { version = "8", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 

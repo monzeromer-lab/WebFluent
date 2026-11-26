@@ -120,4 +120,4 @@ If those costs are acceptable, what you get in return is a site whose mistakes t
 - To learn the language, start with [Your first page](https://webfluent.monzeromer.dev/learn/01-getting-started.md).
 - Coming from a framework, read [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md) (or Vue, or Svelte) first.
 - To look a fact up, use the [reference](https://webfluent.monzeromer.dev/reference.md).
-- This guide describes WebFluent 7. [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md) lists what each release changed.
+- This guide describes WebFluent 8. [Upgrading](https://webfluent.monzeromer.dev/errors/upgrading.md) lists what each release changed.

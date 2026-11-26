@@ -32,7 +32,7 @@ page LibraryGuide(path: "/reference/library", title: "Library", description: "Th
 
         Markdown("This Rust program renders a template to HTML:")
 
-        DocsCodeBlock(##"// Cargo.toml: webfluent = { version = "7", default-features = false }
+        DocsCodeBlock(##"// Cargo.toml: webfluent = { version = "8", default-features = false }
 //             serde_json = "1"
 use webfluent::Template;
 
@@ -52,7 +52,7 @@ fn main() -> webfluent::Result<()> {
         Heading("Add it", id: "add-it").h3
 
         DocsCodeBlock(#"[dependencies]
-webfluent = { version = "7", default-features = false }"#, title: "toml")
+webfluent = { version = "8", default-features = false }"#, title: "toml")
 
         Markdown("`default-features = false` leaves out the `wf` command's own dependencies (its argument parser and the development server). A program that only renders templates or builds projects needs neither.")
 

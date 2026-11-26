@@ -8,7 +8,7 @@ This recipe has Netlify build a WebFluent site on every push and serve it, with 
 
 ```toml
 [build]
-  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v7.2.0 bash && ~/.webfluent/bin/wf build"
+  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v8.0.0 bash && ~/.webfluent/bin/wf build"
   publish = "build"
 ```
 
