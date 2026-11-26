@@ -15,7 +15,10 @@
 
 use super::markdown::escape;
 
-const WF_KEYWORDS: &[&str] = &[
+/// The words `wf` code colours as keywords. The runtime keeps the same list
+/// (`HL_KEYWORDS` in `text.js`), and `tests/build_and_runtime_agree.rs`
+/// holds the two to each other.
+pub const WF_KEYWORDS: &[&str] = &[
     "page",
     "component",
     "store",

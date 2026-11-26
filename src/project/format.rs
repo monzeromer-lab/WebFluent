@@ -1,13 +1,28 @@
 //! `format(value, style, option)` and `ago(date)` at build time.
 //!
 //! The browser formats with `Intl`; the static paint and a template have no
-//! `Intl`, so this is the same surface over a small table: digit grouping
-//! and the decimal mark of the common locales, the symbols of the common
-//! currencies, English and Arabic month and weekday names, and the digits
-//! a locale writes by default (`ar-EG` and `ar-u-nu-arab` in Arabic-Indic,
-//! `ar` and the Maghreb in Latin, as `Intl` writes them). What the table
-//! lacks falls back to the English spelling, and the page corrects itself
-//! once it is live.
+//! `Intl`, so this is the same surface over tables read off it:
+//! `format_locales.rs`, which `tests/js/format-tables.mjs` writes from the
+//! ICU that Node carries — each locale's digits, grouping, decimal mark,
+//! minus sign, percent and currency patterns, currency symbols, compact
+//! notation, and its date and time patterns with their month, weekday and
+//! day-period names. `tests/build_and_runtime_agree.rs` holds every style
+//! to the runtime's `Intl`, locale by locale.
+//!
+//! What still differs from the live page, and why:
+//!
+//! - A tag the table does not know is written as its language is (`de-LU`
+//!   as `de`), and a language it does not know as English; the page
+//!   corrects itself once it is live.
+//! - A date is the moment as written: the static paint knows no reader's
+//!   time zone, so `DateTime`s show in UTC (and `.time` in the `long` and
+//!   `full` styles names UTC) where the browser shows the reader's zone.
+//! - Only the Gregorian calendar is reckoned: a locale whose default
+//!   calendar is another (`fa`, `th`) is not in the table.
+//! - `ago(date)` and `.relative` are spelled in English whatever the
+//!   locale; the page speaks the reader's language once it runs.
+//! - The tables are one ICU's (see the head of `format_locales.rs`); a
+//!   browser on another release may spell a rare case differently.
 
 /// A value to format: a number, or a date read from its text.
 #[derive(Debug, Clone, PartialEq)]
@@ -28,245 +43,547 @@ pub struct Moment {
     pub second: u32,
 }
 
-const MONTHS: [&str; 12] = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-];
-const WEEKDAYS: [&str; 7] = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-];
-
-const MONTHS_AR: [&str; 12] = [
-    "يناير",
-    "فبراير",
-    "مارس",
-    "أبريل",
-    "مايو",
-    "يونيو",
-    "يوليو",
-    "أغسطس",
-    "سبتمبر",
-    "أكتوبر",
-    "نوفمبر",
-    "ديسمبر",
-];
-/// The Levant's and Iraq's month names, which `Intl` gives `ar-SY`,
-/// `ar-LB`, `ar-JO`, `ar-PS` and `ar-IQ`.
-const MONTHS_AR_LEVANT: [&str; 12] = [
-    "كانون الثاني",
-    "شباط",
-    "آذار",
-    "نيسان",
-    "أيار",
-    "حزيران",
-    "تموز",
-    "آب",
-    "أيلول",
-    "تشرين الأول",
-    "تشرين الثاني",
-    "كانون الأول",
-];
-const WEEKDAYS_AR: [&str; 7] = [
-    "الأحد",
-    "الاثنين",
-    "الثلاثاء",
-    "الأربعاء",
-    "الخميس",
-    "الجمعة",
-    "السبت",
-];
-
-/// The language of a locale tag, lower-cased: `ar-EG` is `ar`.
-fn language(locale: &str) -> String {
-    locale
-        .split(['-', '_'])
-        .next()
-        .unwrap_or("en")
-        .to_ascii_lowercase()
+/// How a locale writes numbers. In a pattern, `#` is the number, `¤` the
+/// currency and `-` the minus sign; anything else is written as it is.
+struct Numbers {
+    /// The digit zero; the other nine follow it.
+    zero: char,
+    group: &'static str,
+    decimal: &'static str,
+    minus: &'static str,
+    /// What goes before a negative number: the sign, and the marks that
+    /// keep it on the number's side in right-to-left text.
+    negative: &'static str,
+    /// Groups of two above the first three: `12,34,567`.
+    indian: bool,
+    /// How many digits the first group must have before any is set off:
+    /// 2 writes `1234` and `12.345`.
+    min_grouping: u8,
+    percent: &'static str,
+    percent_negative: &'static str,
+    currency: &'static str,
+    currency_negative: &'static str,
+    /// The marks an amount of money is grouped and divided with, where they
+    /// are not the number's.
+    currency_group: &'static str,
+    currency_decimal: &'static str,
+    /// Each currency the locale writes other than by its code.
+    symbols: &'static [(&'static str, &'static str)],
+    /// The compact notation, from the smallest magnitude it shortens.
+    compact: &'static [Compact],
 }
 
-/// The region of a locale tag, upper-cased, when it names one: `ar-EG` is
-/// `EG`; `ar-u-nu-arab` names none.
-fn region(locale: &str) -> Option<String> {
-    let mut parts = locale.split(['-', '_']).skip(1);
-    let next = parts.next()?;
-    // A script subtag (`zh-Hant-TW`) comes before the region.
-    let candidate = if next.len() == 4 { parts.next()? } else { next };
-    ((candidate.len() == 2 && candidate.chars().all(|c| c.is_ascii_alphabetic()))
-        || (candidate.len() == 3 && candidate.chars().all(|c| c.is_ascii_digit())))
-    .then(|| candidate.to_ascii_uppercase())
+/// The compact notation at one magnitude (`10^magnitude` and up): the
+/// power it divides by, and the pattern of each plural form.
+struct Compact {
+    magnitude: u8,
+    scale: u8,
+    other: &'static str,
+    forms: &'static [(&'static str, &'static str)],
 }
 
-/// Whether `locale` writes its digits as Arabic-Indic ones (`١٢٣`), as
-/// `Intl` does: an `-u-nu-` extension says so outright; otherwise Arabic
-/// with a region outside the Maghreb and the Emirates does, and Arabic
-/// without one does not.
-pub fn arabic_digits(locale: &str) -> bool {
-    let lower = locale.to_ascii_lowercase();
-    if lower.contains("-u-nu-arab") {
-        return true;
+/// How a locale writes dates and times: the patterns of each style
+/// (`short`, `medium`, `long`, `full`), quoted where they hold letters,
+/// and the names they use. The `standalone_` names are the ones a pattern
+/// of the program's own (`MMMM yyyy`) takes, as `Intl` gives a month or a
+/// weekday alone.
+struct Dates {
+    date: [&'static str; 4],
+    time: [&'static str; 4],
+    datetime: [&'static str; 4],
+    months: [[&'static str; 12]; 2],
+    weekdays: [&'static str; 7],
+    /// The day period of each hour (`AM`, `PM`; `凌晨`, `上午`, `中午`…).
+    periods: [&'static str; 24],
+    standalone_months: [[&'static str; 12]; 2],
+    standalone_weekdays: [[&'static str; 7]; 2],
+    standalone_periods: [&'static str; 24],
+}
+
+include!("format_locales.rs");
+
+/// A locale tag, resolved against the table.
+struct Locale {
+    language: String,
+    numbers: &'static Numbers,
+    dates: &'static Dates,
+    /// The digit zero the tag's `-u-nu-` names, when it names one.
+    explicit_zero: Option<char>,
+}
+
+impl Locale {
+    fn zero(&self) -> char {
+        self.explicit_zero.unwrap_or(self.numbers.zero)
     }
-    if lower.contains("-u-nu-") || language(locale) != "ar" {
-        return false;
-    }
-    region(locale)
-        .is_some_and(|r| !matches!(r.as_str(), "001" | "AE" | "EH" | "MA" | "LY" | "TN" | "DZ"))
 }
 
-/// `text` with its ASCII digits written as the locale writes them.
-fn localize_digits(text: String, locale: &str) -> String {
-    if !arabic_digits(locale) {
-        return text;
+/// The digit zero of a numbering system an `-u-nu-` extension names.
+fn numbering_zero(system: &str) -> Option<char> {
+    Some(match system {
+        "latn" => '0',
+        "arab" => '\u{660}',
+        "arabext" => '\u{6f0}',
+        "deva" => '\u{966}',
+        "beng" => '\u{9e6}',
+        "thai" => '\u{e50}',
+        "fullwide" => '\u{ff10}',
+        _ => return None,
+    })
+}
+
+/// `locale` read against the table: `lang-Script-REGION`, then
+/// `lang-Script`, `lang-REGION` and `lang`, then English.
+fn resolve(locale: &str) -> Locale {
+    let lower = locale.replace('_', "-").to_ascii_lowercase();
+    let (base, extension) = match lower.find("-u-") {
+        Some(at) => (&lower[..at], Some(&lower[at + 3..])),
+        None => (lower.as_str(), None),
+    };
+    let system = extension.and_then(|ext| {
+        let keys: Vec<&str> = ext.split('-').collect();
+        keys.windows(2)
+            .find(|w| w[0] == "nu")
+            .map(|w| w[1].to_string())
+    });
+    let mut parts = base.split('-');
+    let language = parts.next().unwrap_or("en").to_string();
+    let mut script = None;
+    let mut region = None;
+    for part in parts {
+        if part.len() == 4 && script.is_none() && region.is_none() {
+            let mut s = part.to_string();
+            s[..1].make_ascii_uppercase();
+            script = Some(s);
+        } else if (part.len() == 2 && part.chars().all(|c| c.is_ascii_alphabetic()))
+            || (part.len() == 3 && part.chars().all(|c| c.is_ascii_digit()))
+        {
+            region = Some(part.to_ascii_uppercase());
+            break;
+        }
+    }
+    let mut candidates = Vec::new();
+    if let (Some(s), Some(r)) = (&script, &region) {
+        candidates.push(format!("{language}-{s}-{r}"));
+    }
+    if let Some(s) = &script {
+        candidates.push(format!("{language}-{s}"));
+    }
+    if let Some(r) = &region {
+        candidates.push(format!("{language}-{r}"));
+    }
+    candidates.push(language.clone());
+    let found = candidates
+        .iter()
+        .find_map(|c| LOCALES.iter().find(|(tag, _, _)| tag == c));
+    let (language, numbers, dates) = if let Some((_, n, d)) = found {
+        (language, *n, *d)
+    } else {
+        let (_, n, d) = LOCALES[0];
+        ("en".to_string(), n, d)
+    };
+    let explicit_zero = system.as_deref().and_then(numbering_zero);
+    // A numbering system the language writes its own symbols for (Arabic's
+    // `٬` and `٫` with its digits, `,` and `.` with Latin ones).
+    let numbers = system
+        .as_deref()
+        .and_then(|s| {
+            let key = format!("{language}-u-nu-{s}");
+            NUMBERING.iter().find(|(tag, _)| *tag == key)
+        })
+        .map_or(numbers, |(_, n)| *n);
+    Locale {
+        language,
+        numbers,
+        dates,
+        explicit_zero,
+    }
+}
+
+/// `text` with its ASCII digits written from `zero`.
+fn digits_from(text: &str, zero: char) -> String {
+    if zero == '0' {
+        return text.to_string();
     }
     text.chars()
         .map(|c| match c.to_digit(10) {
-            Some(d) => char::from_u32(0x0660 + d).unwrap_or(c),
-            None => c,
+            Some(d) if c.is_ascii_digit() => char::from_u32(zero as u32 + d).unwrap_or(c),
+            _ => c,
         })
         .collect()
 }
 
-/// The digit-group and decimal marks of a locale.
-fn separators(locale: &str) -> (&'static str, &'static str) {
-    let lang = language(locale);
-    if arabic_digits(locale) {
-        return ("\u{66c}", "\u{66b}");
-    }
-    if lang == "ar"
-        && region(locale).is_some_and(|r| matches!(r.as_str(), "MA" | "LY" | "TN" | "DZ"))
-    {
-        return (".", ",");
-    }
-    match lang.as_str() {
-        "de" | "es" | "it" | "pt" | "nl" | "tr" | "id" | "da" | "el" | "ro" | "hr" | "sl" => {
-            (".", ",")
-        }
-        "fr" | "ru" | "pl" | "cs" | "sv" | "nb" | "no" | "fi" | "uk" | "hu" | "sk" | "bg" => {
-            ("\u{202f}", ",")
-        }
-        "ch" => ("’", "."),
-        _ => (",", "."),
-    }
+/// A number as the decimal digits it is written with — the shortest that
+/// reads back as the same `f64`, which is the decimal `Intl` rounds — with
+/// the point after `point` of them.
+#[derive(Debug, Clone)]
+struct Decimal {
+    digits: Vec<u8>,
+    point: i32,
 }
 
-/// The symbol a currency is written with, or its code.
-fn currency_symbol(code: &str) -> String {
-    match code {
-        "USD" => "$".to_string(),
-        "EUR" => "€".to_string(),
-        "GBP" => "£".to_string(),
-        "JPY" => "¥".to_string(),
-        "CNY" => "CN¥".to_string(),
-        "INR" => "₹".to_string(),
-        "KRW" => "₩".to_string(),
-        "CAD" => "CA$".to_string(),
-        "AUD" => "A$".to_string(),
-        "BRL" => "R$".to_string(),
-        "ILS" => "₪".to_string(),
-        "NGN" => "₦".to_string(),
-        "PHP" => "₱".to_string(),
-        "VND" => "₫".to_string(),
-        other => format!("{other}\u{a0}"),
+impl Decimal {
+    /// The magnitude of a finite number, without its sign.
+    fn of(value: f64) -> Decimal {
+        // `Display` for an `f64` is the shortest round-trip text and never
+        // an exponent.
+        let text = format!("{}", value.abs());
+        let (whole, frac) = text.split_once('.').unwrap_or((&text, ""));
+        let mut digits: Vec<u8> = whole
+            .bytes()
+            .chain(frac.bytes())
+            .map(|b| b - b'0')
+            .collect();
+        let mut point = whole.len() as i32;
+        while digits.first() == Some(&0) {
+            digits.remove(0);
+            point -= 1;
+        }
+        while digits.last() == Some(&0) {
+            digits.pop();
+        }
+        if digits.is_empty() {
+            point = 0;
+        }
+        Decimal { digits, point }
     }
-}
 
-/// `1234.5` with `places` decimals, grouped for the locale.
-pub fn number(value: f64, places: Option<usize>, locale: &str) -> String {
-    if !value.is_finite() {
-        return if value.is_nan() {
-            "NaN".to_string()
-        } else if value > 0.0 {
-            "∞".to_string()
-        } else {
-            "-∞".to_string()
+    fn is_zero(&self) -> bool {
+        self.digits.is_empty()
+    }
+
+    /// Ten to the `by` times the number.
+    fn shifted(&self, by: i32) -> Decimal {
+        if self.is_zero() {
+            return self.clone();
+        }
+        Decimal {
+            digits: self.digits.clone(),
+            point: self.point + by,
+        }
+    }
+
+    /// Kept to `keep` digits from the first, a half rounded away from zero
+    /// as `Intl` rounds it.
+    fn keep(&self, keep: i32) -> Decimal {
+        let len = self.digits.len() as i32;
+        if keep >= len {
+            return self.clone();
+        }
+        if keep < 0 {
+            return Decimal {
+                digits: Vec::new(),
+                point: 0,
+            };
+        }
+        let up = self.digits[keep as usize] >= 5;
+        let mut digits = self.digits[..keep as usize].to_vec();
+        let mut point = self.point;
+        if up {
+            let mut i = digits.len();
+            loop {
+                if i == 0 {
+                    digits.insert(0, 1);
+                    point += 1;
+                    break;
+                }
+                i -= 1;
+                if digits[i] == 9 {
+                    digits[i] = 0;
+                } else {
+                    digits[i] += 1;
+                    break;
+                }
+            }
+        }
+        while digits.last() == Some(&0) {
+            digits.pop();
+        }
+        if digits.is_empty() {
+            point = 0;
+        }
+        Decimal { digits, point }
+    }
+
+    /// Rounded to `places` decimals.
+    fn places(&self, places: usize) -> Decimal {
+        if self.is_zero() {
+            return self.clone();
+        }
+        self.keep(self.point + places as i32)
+    }
+
+    /// Rounded to `count` significant digits.
+    fn significant(&self, count: i32) -> Decimal {
+        self.keep(count)
+    }
+
+    /// The whole part's digits and the fraction's, at least `min` places.
+    fn split(&self, min: usize) -> (String, String) {
+        let digit = |i: i32| -> char {
+            if i >= 0 && (i as usize) < self.digits.len() {
+                (b'0' + self.digits[i as usize]) as char
+            } else {
+                '0'
+            }
         };
+        let whole: String = if self.point <= 0 {
+            "0".to_string()
+        } else {
+            (0..self.point).map(digit).collect()
+        };
+        let frac_len = (self.digits.len() as i32 - self.point).max(0) as usize;
+        let frac: String = (0..frac_len.max(min) as i32)
+            .map(|i| digit(self.point + i))
+            .collect();
+        (whole, frac)
+    }
+}
+
+impl Numbers {
+    /// `digits` (ASCII) grouped, with the decimal mark and the locale's
+    /// digits.
+    fn write(&self, value: &Decimal, min_places: usize, min_grouping: u8, zero: char) -> String {
+        self.write_with(
+            value,
+            min_places,
+            min_grouping,
+            zero,
+            (self.group, self.decimal),
+        )
+    }
+
+    fn write_with(
+        &self,
+        value: &Decimal,
+        min_places: usize,
+        min_grouping: u8,
+        zero: char,
+        (group, decimal): (&str, &str),
+    ) -> String {
+        let (whole, frac) = value.split(min_places);
+        let len = whole.len();
+        let mut grouped = String::new();
+        let grouping = len >= 3 + usize::from(min_grouping);
+        for (i, c) in whole.chars().enumerate() {
+            let left = len - i;
+            if i > 0 && grouping {
+                let boundary = if self.indian {
+                    left == 3 || (left > 3 && (left - 3) % 2 == 0)
+                } else {
+                    left % 3 == 0
+                };
+                if boundary {
+                    grouped.push_str(group);
+                }
+            }
+            grouped.push(c);
+        }
+        let mut out = digits_from(&grouped, zero);
+        if !frac.is_empty() {
+            out.push_str(decimal);
+            out.push_str(&digits_from(&frac, zero));
+        }
+        out
+    }
+
+    /// A pattern with its number, currency and sign put in.
+    fn fill(&self, pattern: &str, number: &str, symbol: &str) -> String {
+        let mut out = String::new();
+        let chars: Vec<char> = pattern.chars().collect();
+        for (i, c) in chars.iter().enumerate() {
+            match c {
+                '#' => out.push_str(number),
+                '-' => out.push_str(self.minus),
+                '¤' => {
+                    // A symbol of letters touching the digits is set off
+                    // from them, as ICU's currency spacing does: `SAR 12.00`.
+                    let before = i > 0 && chars[i - 1] == '#';
+                    let after = chars.get(i + 1) == Some(&'#');
+                    if before && symbol.chars().next().is_some_and(char::is_alphabetic) {
+                        out.push('\u{a0}');
+                    }
+                    out.push_str(symbol);
+                    if after && symbol.chars().last().is_some_and(char::is_alphabetic) {
+                        out.push('\u{a0}');
+                    }
+                }
+                c => out.push(*c),
+            }
+        }
+        out
+    }
+}
+
+/// What is written for a number that is not finite.
+fn not_finite(value: f64, locale: &Locale) -> String {
+    if value.is_nan() {
+        "NaN".to_string()
+    } else if value > 0.0 {
+        "∞".to_string()
+    } else {
+        format!("{}∞", locale.numbers.negative)
+    }
+}
+
+/// `1234.5` with `places` decimals (up to three, trailing zeros dropped,
+/// when `None`), grouped for the locale.
+pub fn number(value: f64, places: Option<usize>, locale: &str) -> String {
+    let locale = resolve(locale);
+    write_number(value, places, places.unwrap_or(0), &locale)
+}
+
+fn write_number(value: f64, max: Option<usize>, min: usize, locale: &Locale) -> String {
+    if !value.is_finite() {
+        return not_finite(value, locale);
     }
     // `Intl.NumberFormat` takes at most 100 fraction digits; a number of
-    // places from the data is held to that, never handed to `format!`,
-    // whose precision panics past 65,535.
-    let places = places.map(|p| p.min(100));
-    let (group, point) = separators(locale);
-    let negative = value < 0.0;
-    // Halves round away from zero, as `Intl.NumberFormat` rounds them.
-    let rounded = |p: usize| {
-        let scale = 10f64.powi(p as i32);
-        format!("{:.*}", p, (value.abs() * scale).round() / scale)
-    };
-    let text = if let Some(p) = places {
-        rounded(p)
+    // places from the data is held to that.
+    let max = max.unwrap_or(3).min(100);
+    let min = min.min(max);
+    let n = locale.numbers;
+    let text = n.write(
+        &Decimal::of(value).places(max),
+        min,
+        n.min_grouping,
+        locale.zero(),
+    );
+    if value.is_sign_negative() {
+        format!("{}{text}", n.negative)
     } else {
-        // Up to three decimals, as `Intl.NumberFormat` shows by default.
-        let t = rounded(3);
-        let t = t.trim_end_matches('0').trim_end_matches('.');
-        t.to_string()
+        text
+    }
+}
+
+fn percent(value: f64, places: usize, locale: &Locale) -> String {
+    if !value.is_finite() {
+        return not_finite(value, locale);
+    }
+    let places = places.min(100);
+    let n = locale.numbers;
+    let digits = n.write(
+        &Decimal::of(value).shifted(2).places(places),
+        places,
+        n.min_grouping,
+        locale.zero(),
+    );
+    let pattern = if value.is_sign_negative() {
+        n.percent_negative
+    } else {
+        n.percent
     };
-    let (whole, frac) = match text.split_once('.') {
-        Some((w, f)) => (w.to_string(), Some(f.to_string())),
-        None => (text, None),
+    n.fill(pattern, &digits, "")
+}
+
+/// The places a currency's amounts are written with.
+fn currency_places(code: &str) -> usize {
+    CURRENCY_DIGITS
+        .iter()
+        .find(|(c, _)| *c == code)
+        .map_or(2, |(_, d)| *d)
+}
+
+fn currency(value: f64, code: &str, locale: &Locale) -> String {
+    if !value.is_finite() {
+        return not_finite(value, locale);
+    }
+    let n = locale.numbers;
+    let places = currency_places(code);
+    let digits = n.write_with(
+        &Decimal::of(value).places(places),
+        places,
+        n.min_grouping,
+        locale.zero(),
+        (n.currency_group, n.currency_decimal),
+    );
+    let symbol = n
+        .symbols
+        .iter()
+        .find(|(c, _)| *c == code)
+        .map_or(code, |(_, s)| *s);
+    let pattern = if value.is_sign_negative() {
+        n.currency_negative
+    } else {
+        n.currency
     };
-    let mut grouped = String::new();
-    for (i, c) in whole.chars().enumerate() {
-        if i > 0 && (whole.len() - i) % 3 == 0 {
-            grouped.push_str(group);
-        }
-        grouped.push(c);
+    n.fill(pattern, &digits, symbol)
+}
+
+/// The plural form `Intl.PluralRules` gives a number the compact notation
+/// shows, for the languages whose short words change with it (Arabic's
+/// `3 آلاف` against `11 ألف`).
+fn plural(language: &str, value: &Decimal) -> &'static str {
+    if language != "ar" {
+        return "other";
     }
-    let mut out = String::new();
-    if negative && (grouped != "0" || frac.as_deref().is_some_and(|f| f.chars().any(|c| c != '0')))
-    {
-        out.push('-');
+    let (whole, frac) = value.split(0);
+    if !frac.is_empty() {
+        return "other";
     }
-    out.push_str(&grouped);
-    if let Some(f) = frac {
-        out.push_str(point);
-        out.push_str(&f);
+    let n: u64 = whole.parse().unwrap_or(0);
+    match n % 100 {
+        _ if n == 0 => "zero",
+        _ if n == 1 => "one",
+        _ if n == 2 => "two",
+        3..=10 => "few",
+        11..=99 => "many",
+        _ => "other",
     }
-    localize_digits(out, locale)
 }
 
 /// `1.2K`, `3.4M`: the compact notation.
-fn compact(value: f64, locale: &str) -> String {
-    let abs = value.abs();
-    let (scaled, suffix) = if abs >= 1e12 {
-        (value / 1e12, "T")
-    } else if abs >= 1e9 {
-        (value / 1e9, "B")
-    } else if abs >= 1e6 {
-        (value / 1e6, "M")
-    } else if abs >= 1e3 {
-        (value / 1e3, "K")
+fn compact(value: f64, locale: &Locale) -> String {
+    if !value.is_finite() {
+        return not_finite(value, locale);
+    }
+    let n = locale.numbers;
+    let mut decimal = Decimal::of(value);
+    let mut entry: Option<&Compact>;
+    let mut shown;
+    // Once more when rounding carries into the next magnitude: 999,950 is
+    // `1M`, not `1000K`.
+    let mut tries = 0;
+    loop {
+        let magnitude = decimal.point - 1;
+        entry = n
+            .compact
+            .iter()
+            .rev()
+            .find(|c| i32::from(c.magnitude) <= magnitude);
+        let scale = entry.map_or(0, |c| i32::from(c.scale));
+        let scaled = decimal.shifted(-scale);
+        // Two significant digits below ten, a whole number above.
+        shown = if scaled.point >= 2 {
+            scaled.places(0)
+        } else {
+            scaled.significant(2)
+        };
+        tries += 1;
+        if tries < 2 && !shown.is_zero() && shown.point - 1 + scale > magnitude {
+            decimal = shown.shifted(scale);
+            continue;
+        }
+        break;
+    }
+    let digits = n.write(&shown, 0, n.min_grouping.max(2), locale.zero());
+    let pattern = entry.map_or("#", |c| {
+        let form = plural(&locale.language, &shown);
+        c.forms
+            .iter()
+            .find(|(f, _)| *f == form)
+            .map_or(c.other, |(_, p)| *p)
+    });
+    let text = n.fill(pattern, &digits, "");
+    if value.is_sign_negative() {
+        format!("{}{text}", n.negative)
     } else {
-        return number(value, None, locale);
-    };
-    // One decimal below ten, none above, as Intl rounds it.
-    let places = if scaled.abs() < 10.0 {
-        Some(1)
-    } else {
-        Some(0)
-    };
-    let text = number(scaled, places, locale);
-    let (_, point) = separators(locale);
-    let text = match text.split_once(point) {
-        Some((w, f)) if f.chars().all(|c| matches!(c, '0' | '\u{660}')) => w.to_string(),
-        _ => text,
-    };
-    format!("{text}{suffix}")
+        text
+    }
+}
+
+/// Whether `locale` writes its digits as Arabic-Indic ones (`١٢٣`), as
+/// `Intl` does.
+pub fn arabic_digits(locale: &str) -> bool {
+    resolve(locale).zero() == '\u{660}'
 }
 
 /// `2024-03-05`, `2024-03-05T14:30`, `2024-03-05T14:30:00Z`, or a Unix time
@@ -357,6 +674,30 @@ pub fn iso(seconds: i64) -> String {
     )
 }
 
+/// A field a date pattern names, read as the runtime's `formatPattern`
+/// reads one: the longest of these at each place, anything else as it is.
+const FIELDS: &[&str] = &[
+    "yyyy", "yy", "MMMM", "MMM", "MM", "M", "dd", "d", "EEEE", "EEE", "HH", "H", "hh", "h", "mm",
+    "ss", "a",
+];
+
+/// The fields of the locale's own patterns, which also write a minute or
+/// a second unpadded (`12시 0분 0초`).
+const STYLE_FIELDS: &[&str] = &[
+    "yyyy", "yy", "MMMM", "MMM", "MM", "M", "dd", "d", "EEEE", "EEE", "HH", "H", "hh", "h", "mm",
+    "m", "ss", "s", "a",
+];
+
+/// The names a pattern's fields are written with.
+struct Names<'a> {
+    fields: &'static [&'static str],
+    months: [&'a [&'static str; 12]; 2],
+    weekdays: [&'a [&'static str; 7]; 2],
+    periods: &'a [&'static str; 24],
+    /// The digit zero figures are written from.
+    zero: char,
+}
+
 impl Moment {
     /// Seconds since the epoch, the moment taken as UTC.
     pub fn unix(&self) -> i64 {
@@ -378,75 +719,90 @@ impl Moment {
         self.pattern_in(pattern, "en")
     }
 
-    /// The moment written to a pattern, its month and weekday names, its
-    /// AM and PM and its digits the locale's (English where the table has
-    /// none of its own).
+    /// The moment written to a pattern of the program's own, as the
+    /// runtime writes it: its month and weekday names and its AM and PM
+    /// those `Intl` gives the locale, and its figures in the digits an
+    /// `-u-nu-` extension names (0–9 otherwise).
     pub fn pattern_in(&self, pattern: &str, locale: &str) -> String {
-        let arabic = language(locale) == "ar";
-        let months: &[&str; 12] = if !arabic {
-            &MONTHS
-        } else if region(locale)
-            .is_some_and(|r| matches!(r.as_str(), "SY" | "LB" | "JO" | "PS" | "IQ"))
-        {
-            &MONTHS_AR_LEVANT
-        } else {
-            &MONTHS_AR
+        let locale = resolve(locale);
+        let d = locale.dates;
+        let names = Names {
+            fields: FIELDS,
+            months: [&d.standalone_months[0], &d.standalone_months[1]],
+            weekdays: [&d.standalone_weekdays[0], &d.standalone_weekdays[1]],
+            periods: &d.standalone_periods,
+            zero: locale.explicit_zero.unwrap_or('0'),
         };
-        let weekdays: &[&str; 7] = if arabic { &WEEKDAYS_AR } else { &WEEKDAYS };
-        let month = months[self.month as usize - 1];
-        let weekday = weekdays[self.weekday()];
-        // An Arabic name is not cut short: `Intl`'s short month is the
-        // long one.
-        let short = |name: &str| {
-            if arabic {
-                name.to_string()
-            } else {
-                name.chars().take(3).collect::<String>()
-            }
+        self.fields(pattern, &names)
+    }
+
+    /// The moment written to one of the locale's own patterns, whose
+    /// literal text is quoted (`d' de 'MMMM`), with the names a date of
+    /// that style takes and the locale's digits.
+    fn styled(&self, pattern: &str, locale: &Locale) -> String {
+        let d = locale.dates;
+        let names = Names {
+            fields: STYLE_FIELDS,
+            months: [&d.months[0], &d.months[1]],
+            weekdays: [&d.weekdays, &d.standalone_weekdays[1]],
+            periods: &d.periods,
+            zero: locale.zero(),
         };
         let mut out = String::new();
-        let chars: Vec<char> = pattern.chars().collect();
-        let mut i = 0;
-        while i < chars.len() {
-            let c = chars[i];
-            let mut run = 1;
-            while i + run < chars.len() && chars[i + run] == c {
-                run += 1;
+        let mut rest = pattern;
+        while let Some(at) = rest.find('\'') {
+            out.push_str(&self.fields(&rest[..at], &names));
+            let quoted = &rest[at + 1..];
+            let end = quoted.find('\'').unwrap_or(quoted.len());
+            if end == 0 {
+                out.push('\'');
+            } else {
+                out.push_str(&quoted[..end]);
             }
-            let h12 = match self.hour % 12 {
-                0 => 12,
-                h => h,
-            };
-            let piece = match (c, run) {
-                ('y', 2) => format!("{:02}", self.year.rem_euclid(100)),
-                ('y', _) => format!("{}", self.year),
-                ('M', 4) => month.to_string(),
-                ('M', 3) => short(month),
-                ('M', 2) => format!("{:02}", self.month),
-                ('M', _) => format!("{}", self.month),
-                ('d', 2) => format!("{:02}", self.day),
-                ('d', _) => format!("{}", self.day),
-                ('E', 4) => weekday.to_string(),
-                ('E', _) => short(weekday),
-                ('H', 2) => format!("{:02}", self.hour),
-                ('H', _) => format!("{}", self.hour),
-                ('h', 2) => format!("{h12:02}"),
-                ('h', _) => format!("{h12}"),
-                ('m', _) => format!("{:02}", self.minute),
-                ('s', _) => format!("{:02}", self.second),
-                ('a', _) => match (arabic, self.hour < 12) {
-                    (true, true) => "ص",
-                    (true, false) => "م",
-                    (false, true) => "AM",
-                    (false, false) => "PM",
-                }
-                .to_string(),
-                _ => std::iter::repeat_n(c, run).collect(),
-            };
-            out.push_str(&piece);
-            i += run;
+            rest = quoted.get(end + 1..).unwrap_or("");
         }
-        localize_digits(out, locale)
+        out.push_str(&self.fields(rest, &names));
+        out
+    }
+
+    fn fields(&self, pattern: &str, names: &Names<'_>) -> String {
+        let h12 = match self.hour % 12 {
+            0 => 12,
+            h => h,
+        };
+        let figures = |n: String| digits_from(&n, names.zero);
+        let mut out = String::new();
+        let mut rest = pattern;
+        while let Some(c) = rest.chars().next() {
+            let Some(field) = names.fields.iter().find(|f| rest.starts_with(**f)) else {
+                out.push(c);
+                rest = &rest[c.len_utf8()..];
+                continue;
+            };
+            out.push_str(&match *field {
+                "yyyy" => figures(self.year.to_string()),
+                "yy" => figures(format!("{:02}", self.year.rem_euclid(100))),
+                "MMMM" => names.months[0][self.month as usize - 1].to_string(),
+                "MMM" => names.months[1][self.month as usize - 1].to_string(),
+                "MM" => figures(format!("{:02}", self.month)),
+                "M" => figures(self.month.to_string()),
+                "dd" => figures(format!("{:02}", self.day)),
+                "d" => figures(self.day.to_string()),
+                "EEEE" => names.weekdays[0][self.weekday()].to_string(),
+                "EEE" => names.weekdays[1][self.weekday()].to_string(),
+                "HH" => figures(format!("{:02}", self.hour)),
+                "H" => figures(self.hour.to_string()),
+                "hh" => figures(format!("{h12:02}")),
+                "h" => figures(h12.to_string()),
+                "mm" => figures(format!("{:02}", self.minute)),
+                "m" => figures(self.minute.to_string()),
+                "ss" => figures(format!("{:02}", self.second)),
+                "s" => figures(self.second.to_string()),
+                _ => names.periods[self.hour as usize % 24].to_string(),
+            });
+            rest = &rest[field.len()..];
+        }
+        out
     }
 }
 
@@ -490,6 +846,17 @@ pub fn format(
         Input::Number(n) => Some(*n),
         Input::Text(t) => t.trim().parse::<f64>().ok(),
     };
+    // The index of a `dateStyle` or `timeStyle`.
+    let style_index = |o: Option<&Input>, default: usize| match option_text(o).as_deref() {
+        Some("short") => 0,
+        Some("medium") => 1,
+        Some("long") => 2,
+        Some("full") => 3,
+        _ => default,
+    };
+    let tag = locale;
+    let resolved = resolve(tag);
+    let locale = &resolved;
     match style {
         // Text that is not a number is shown as it is: `format(label)` of
         // what a page already wrote out, `Stat(value: "$1,234.50")`.
@@ -499,92 +866,42 @@ pub fn format(
                 Input::Number(n) => n.to_string(),
             })
         }
-        None | Some("number") => Some(number(as_number(value)?, None, locale)),
-        Some("integer") => Some(number(as_number(value)?.round(), Some(0), locale)),
-        Some("decimal") => Some(number(
-            as_number(value)?,
-            Some(option_places(option, 2)),
-            locale,
-        )),
-        Some("currency") => {
-            let n = as_number(value)?;
-            let code = option_text(option).unwrap_or_else(|| "USD".to_string());
-            let places = if code == "JPY" || code == "KRW" { 0 } else { 2 };
-            let digits = number(n.abs(), Some(places), locale);
-            let symbol = currency_symbol(&code);
-            Some(if n < 0.0 {
-                format!("-{symbol}{digits}")
-            } else {
-                format!("{symbol}{digits}")
-            })
+        None | Some("number") => Some(write_number(as_number(value)?, None, 0, locale)),
+        Some("integer") => Some(write_number(as_number(value)?, Some(0), 0, locale)),
+        Some("decimal") => {
+            let places = option_places(option, 2);
+            Some(write_number(
+                as_number(value)?,
+                Some(places),
+                places,
+                locale,
+            ))
         }
-        Some("percent") => Some(format!(
-            "{}%",
-            number(
-                as_number(value)? * 100.0,
-                Some(option_places(option, 0)),
-                locale
-            )
-        )),
+        Some("currency") => {
+            let code = option_text(option).unwrap_or_else(|| "USD".to_string());
+            Some(currency(
+                as_number(value)?,
+                &code.to_ascii_uppercase(),
+                locale,
+            ))
+        }
+        Some("percent") => Some(percent(as_number(value)?, option_places(option, 0), locale)),
         Some("compact") => Some(compact(as_number(value)?, locale)),
         Some("date") => {
             let m = parse_moment(value)?;
-            let style = option_text(option);
-            Some(m.pattern_in(date_pattern(locale, style.as_deref()), locale))
+            Some(m.styled(locale.dates.date[style_index(option, 1)], locale))
         }
         Some("time") => {
             let m = parse_moment(value)?;
-            let style = option_text(option);
-            Some(m.pattern_in(time_pattern(locale, style.as_deref()), locale))
+            Some(m.styled(locale.dates.time[style_index(option, 0)], locale))
         }
         Some("datetime") => {
             let m = parse_moment(value)?;
-            let style = option_text(option);
-            let date = m.pattern_in(date_pattern(locale, style.as_deref()), locale);
-            // `Intl` gives a date and time no seconds unless asked.
-            let time = m.pattern_in(time_pattern(locale, None), locale);
-            let joiner = match (language(locale).as_str(), style.as_deref()) {
-                ("ar", Some("long" | "full")) => " في ",
-                ("ar", _) => "، ",
-                _ => ", ",
-            };
-            Some(format!("{date}{joiner}{time}"))
+            Some(m.styled(locale.dates.datetime[style_index(option, 1)], locale))
         }
         Some("relative") => ago(value, None),
         // Anything else is a date pattern.
-        Some(pattern) => Some(parse_moment(value)?.pattern_in(pattern, locale)),
-    }
-}
-
-/// The pattern `Intl.DateTimeFormat(locale, { dateStyle })` writes a date
-/// to, for the locales the table knows; English for the rest.
-fn date_pattern(locale: &str, style: Option<&str>) -> &'static str {
-    if language(locale) == "ar" {
-        // The right-to-left marks keep the slashes between the numbers.
-        return match style {
-            Some("long") => "d MMMM yyyy",
-            Some("full") => "EEEE، d MMMM yyyy",
-            _ => "d\u{200f}/M\u{200f}/yyyy",
-        };
-    }
-    match style {
-        Some("short") => "M/d/yy",
-        Some("long") => "MMMM d, yyyy",
-        Some("full") => "EEEE, MMMM d, yyyy",
-        _ => "MMM d, yyyy",
-    }
-}
-
-/// The pattern `Intl.DateTimeFormat(locale, { timeStyle })` writes a time
-/// to.
-fn time_pattern(locale: &str, style: Option<&str>) -> &'static str {
-    let maghreb = language(locale) == "ar"
-        && region(locale).is_some_and(|r| matches!(r.as_str(), "MA" | "LY" | "TN" | "DZ"));
-    match (maghreb, style) {
-        (true, Some("medium" | "long" | "full")) => "HH:mm:ss",
-        (true, _) => "HH:mm",
-        (false, Some("medium" | "long" | "full")) => "h:mm:ss a",
-        (false, _) => "h:mm a",
+        Some(pattern) => Some(parse_moment(value)?.pattern_in(pattern, tag)),
     }
 }
 
@@ -683,7 +1000,40 @@ mod tests {
         assert_eq!(format(&n(1234.5), None, None, "ar-MA").unwrap(), "1.234,5");
         assert_eq!(
             format(&n(2000.0), Some("compact"), None, "ar-EG").unwrap(),
-            "٢K"
+            "٢\u{a0}ألف"
+        );
+        assert_eq!(
+            format(&n(3000.0), Some("compact"), None, "ar").unwrap(),
+            "3\u{a0}آلاف"
+        );
+    }
+
+    /// The build wrote every currency before its amount, so a German price
+    /// was painted `€1.234,50` and became `1.234,50 €` when the page ran;
+    /// it took `ch` (Chamorro) for Swiss German, and grouped four Spanish
+    /// digits that `Intl` leaves alone.
+    #[test]
+    fn money_and_grouping_follow_the_locale() {
+        let eur =
+            |locale: &str| format(&n(1234.5), Some("currency"), Some(&t("EUR")), locale).unwrap();
+        assert_eq!(eur("de"), "1.234,50\u{a0}€");
+        assert_eq!(eur("fr"), "1\u{202f}234,50\u{a0}€");
+        assert_eq!(eur("nl"), "€\u{a0}1.234,50");
+        assert_eq!(eur("de-CH"), "EUR\u{a0}1'234.50");
+        assert_eq!(eur("en"), "€1,234.50");
+        assert_eq!(format(&n(1234.0), None, None, "es").unwrap(), "1234");
+        assert_eq!(format(&n(12345.0), None, None, "es").unwrap(), "12.345");
+        assert_eq!(
+            format(&n(-9_876_543.21), None, None, "hi").unwrap(),
+            "-98,76,543.21"
+        );
+        assert_eq!(
+            format(&n(0.25), Some("percent"), None, "tr").unwrap(),
+            "%25"
+        );
+        assert_eq!(
+            format(&n(1.005), Some("decimal"), None, "en").unwrap(),
+            "1.01"
         );
     }
 
@@ -715,7 +1065,7 @@ mod tests {
         );
         assert_eq!(
             format(&n(-0.001), Some("integer"), None, "en").unwrap(),
-            "0"
+            "-0"
         );
     }
 

@@ -50,11 +50,18 @@ fn build_fixture(name: &str) {
     );
 }
 
+/// Whether `node` is here to run the suites. On CI it must be: a missing
+/// `node` there fails, rather than passing every test that needs it.
 fn node_available() -> bool {
-    Command::new("node")
+    let found = Command::new("node")
         .arg("--version")
         .output()
-        .is_ok_and(|o| o.status.success())
+        .is_ok_and(|o| o.status.success());
+    assert!(
+        found || std::env::var_os("CI").is_none(),
+        "`node` is not on PATH, and CI is set: the runtime suites would pass without running"
+    );
+    found
 }
 
 /// The compiled bundles must run, and the pages they paint must behave.

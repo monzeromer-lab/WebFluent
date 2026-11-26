@@ -400,7 +400,7 @@ fn painted(html: &str) -> Vec<Option<String>> {
 /// What the runtime computes for each sample, as text the way a text node
 /// shows a value; `None` where node is not installed.
 fn computed() -> Option<Vec<String>> {
-    if Command::new("node").arg("--version").output().is_err() {
+    if !node_available("the method parity check") {
         return None;
     }
     let calls: Vec<String> = SAMPLES
@@ -437,7 +437,6 @@ console.log(JSON.stringify([
 #[test]
 fn the_static_paint_shows_what_the_runtime_computes() {
     let Some(runtime) = computed() else {
-        eprintln!("skipped: node is not installed");
         return;
     };
     let mut page = format!(
@@ -543,8 +542,7 @@ fn markdown_inputs() -> Vec<(String, bool, &'static str)> {
 /// them refuses is a link the other draws.
 #[test]
 fn markdown_draws_the_same_at_build_time_and_in_the_browser() {
-    if Command::new("node").arg("--version").output().is_err() {
-        eprintln!("skipped: node is not installed");
+    if !node_available("the Markdown parity check") {
         return;
     }
     let inputs = markdown_inputs();
@@ -675,5 +673,509 @@ fn no_two_runtime_modules_declare_the_same_name() {
     assert!(
         clashes.is_empty(),
         "two runtime modules declare one name, and the later silently wins: {clashes:?}"
+    );
+}
+
+/// Whether `node` can run the runtime here. A machine without it skips the
+/// tests that need it — but CI must not: there a missing `node` is a
+/// failure, not a pass that held nothing.
+fn node_available(what: &str) -> bool {
+    let found = Command::new("node")
+        .arg("--version")
+        .output()
+        .is_ok_and(|o| o.status.success());
+    if !found {
+        assert!(
+            std::env::var_os("CI").is_none(),
+            "`node` is not on PATH, and CI is set: {what} would have passed without running"
+        );
+        eprintln!("skipped: node is not installed; {what} did not run");
+    }
+    found
+}
+
+/// The locales the build's formatting is held to the browser's in.
+const FORMAT_LOCALES: &[&str] = &[
+    "en",
+    "en-US",
+    "en-GB",
+    "en-IN",
+    "de",
+    "de-DE",
+    "de-AT",
+    "de-CH",
+    "fr",
+    "fr-CA",
+    "es",
+    "es-MX",
+    "it",
+    "pt-BR",
+    "pt-PT",
+    "nl",
+    "ar",
+    "ar-EG",
+    "ar-SA",
+    "ar-MA",
+    "ar-SY",
+    "ar-u-nu-arab",
+    "ar-EG-u-nu-latn",
+    "ja",
+    "zh",
+    "zh-TW",
+    "ko",
+    "hi",
+    "ru",
+    "uk",
+    "tr",
+    "pl",
+    "sv",
+    "he",
+];
+
+type FormatCase = (
+    serde_json::Value,
+    Option<&'static str>,
+    Option<serde_json::Value>,
+);
+
+/// `(value, style, option)` for every number style.
+fn number_cases() -> Vec<FormatCase> {
+    use serde_json::json;
+    let values = [
+        "0",
+        "-0",
+        "7",
+        "-0.5",
+        "0.001",
+        "1.005",
+        "2.5",
+        "-2.5",
+        "999",
+        "1234",
+        "1234.5",
+        "12345.678",
+        "-9876543.21",
+        "999999.5",
+        "123456789.123",
+        "1e21",
+    ];
+    let compact = [
+        "999.5",
+        "1500",
+        "3000",
+        "10000",
+        "12345",
+        "99999",
+        "999999",
+        "2000000",
+        "1500000000",
+        "33000000000",
+        "1e15",
+        "-4321",
+        "0.0123",
+    ];
+    let styles: Vec<(Option<&'static str>, Option<serde_json::Value>)> = vec![
+        (None, None),
+        (Some("integer"), None),
+        (Some("decimal"), None),
+        (Some("decimal"), Some(json!(0))),
+        (Some("decimal"), Some(json!(3))),
+        (Some("currency"), None),
+        (Some("currency"), Some(json!("EUR"))),
+        (Some("currency"), Some(json!("JPY"))),
+        (Some("currency"), Some(json!("GBP"))),
+        (Some("currency"), Some(json!("SAR"))),
+        (Some("currency"), Some(json!("INR"))),
+        (Some("currency"), Some(json!("KWD"))),
+        (Some("currency"), Some(json!("CHF"))),
+        (Some("currency"), Some(json!("XYZ"))),
+        (Some("percent"), None),
+        (Some("percent"), Some(json!(1))),
+        (Some("compact"), None),
+    ];
+    let mut cases = Vec::new();
+    for v in values {
+        for (style, option) in &styles {
+            cases.push((json!({ "n": v }), *style, option.clone()));
+        }
+    }
+    for v in compact {
+        cases.push((json!({ "n": v }), Some("compact"), None));
+    }
+    for v in ["0.25", "-0.256", "1", "0.0005"] {
+        cases.push((json!({ "n": v }), Some("percent"), None));
+        cases.push((json!({ "n": v }), Some("percent"), Some(json!(2))));
+    }
+    cases
+}
+
+/// `(value, style, option)` for every date style and a few patterns.
+fn date_cases() -> Vec<FormatCase> {
+    use serde_json::json;
+    let mut cases = Vec::new();
+    for value in [
+        "2026-03-04",
+        "2026-11-14T21:30:07Z",
+        "2026-01-01T00:05:00Z",
+        "2024-02-29T12:00:00Z",
+    ] {
+        for style in ["date", "time", "datetime"] {
+            cases.push((json!(value), Some(style), None));
+            for option in ["short", "medium", "long", "full"] {
+                cases.push((json!(value), Some(style), Some(json!(option))));
+            }
+        }
+        for pattern in [
+            "yyyy-MM-dd HH:mm:ss",
+            "EEE d MMM yy, h a",
+            "EEEE MMMM",
+            "yyy MM M dd d EE hh",
+        ] {
+            cases.push((json!(value), Some(pattern), None));
+        }
+    }
+    cases
+}
+
+/// `format(value, style, option)` as the runtime computes it, in each
+/// case's locale — the browser's `Intl`, here Node's, in UTC.
+fn runtime_formats(cases: &[(String, FormatCase)]) -> Vec<String> {
+    let js_dir = root().join("tests/js");
+    let flat: Vec<_> = cases.iter().map(|(l, (v, s, o))| (l, v, s, o)).collect();
+    let script = format!(
+        r#"import {{ fullRuntime }} from {runtime:?};
+import {{ makeDom }} from {dom:?};
+const {{ window, document, Node, Element, DocumentFragment }} = makeDom();
+const WF = new Function("window", "document", "Node", "Element", "DocumentFragment", fullRuntime() + "\nreturn WF;")(window, document, Node, Element, DocumentFragment);
+const cases = {cases};
+console.log(JSON.stringify(cases.map(([locale, value, style, option]) => {{
+  document.documentElement.lang = locale;
+  const v = value !== null && typeof value === "object" ? Number(value.n) : value;
+  try {{ return WF.format(v, style ?? undefined, option ?? undefined); }}
+  catch (e) {{ return `threw: ${{e.message}}`; }}
+}})));
+"#,
+        runtime = format!("file://{}", js_dir.join("runtime.mjs").display()),
+        dom = format!("file://{}", js_dir.join("dom.mjs").display()),
+        cases = serde_json::to_string(&flat).unwrap(),
+    );
+    let file = std::env::temp_dir().join(format!(
+        "wf-agree-format-{}-{}.mjs",
+        std::process::id(),
+        cases.len()
+    ));
+    std::fs::write(&file, script).unwrap();
+    let out = Command::new("node")
+        .arg(&file)
+        .env("TZ", "UTC")
+        .output()
+        .expect("run node");
+    let _ = std::fs::remove_file(&file);
+    assert!(
+        out.status.success(),
+        "the runtime script failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    serde_json::from_slice(&out.stdout).expect("the runtime's values")
+}
+
+/// `format(value, style, option)` as the static paint writes it.
+fn build_format(
+    value: &serde_json::Value,
+    style: Option<&str>,
+    option: Option<&serde_json::Value>,
+    locale: &str,
+) -> String {
+    use webfluent::codegen::format::{Input, format};
+    let input = |v: &serde_json::Value| match v {
+        serde_json::Value::Object(o) => Input::Number(o["n"].as_str().unwrap().parse().unwrap()),
+        serde_json::Value::Number(n) => Input::Number(n.as_f64().unwrap()),
+        serde_json::Value::String(s) => Input::Text(s.clone()),
+        other => panic!("not a value: {other}"),
+    };
+    format(&input(value), style, option.map(input).as_ref(), locale)
+        .unwrap_or_else(|| "(nothing)".to_string())
+}
+
+fn hold_format_to_runtime(cases: &[FormatCase]) {
+    let all: Vec<(String, FormatCase)> = FORMAT_LOCALES
+        .iter()
+        .flat_map(|l| cases.iter().map(|c| (l.to_string(), c.clone())))
+        .collect();
+    let runtime = runtime_formats(&all);
+    assert_eq!(runtime.len(), all.len());
+    let mut wrong = Vec::new();
+    let mut count = 0;
+    // Two of each locale and style, so one mistake does not hide another.
+    let mut shown: std::collections::BTreeMap<(String, Option<&str>), usize> =
+        std::collections::BTreeMap::new();
+    for ((locale, (value, style, option)), live) in all.iter().zip(&runtime) {
+        let built = build_format(value, *style, option.as_ref(), locale);
+        if built != *live {
+            count += 1;
+            let seen = shown.entry((locale.clone(), *style)).or_default();
+            *seen += 1;
+            if *seen <= 2 && wrong.len() < 80 {
+                wrong.push(format!(
+                    "  {locale:16} format({value}, {style:?}, {option:?})\n      build:   {built:?}\n      runtime: {live:?}"
+                ));
+            }
+        }
+    }
+    assert!(
+        count == 0,
+        "{count} of {} formatted values change when the page takes the static paint over:\n{}",
+        all.len(),
+        wrong.join("\n")
+    );
+}
+
+/// `format(n, .currency)` was painted `€1.234,50` in German and became
+/// `1.234,50 €` once the page ran: every number style, in every locale the
+/// table knows, is what `Intl` writes.
+#[test]
+fn numbers_are_formatted_as_intl_formats_them_in_every_locale() {
+    if !node_available("the number-format parity check") {
+        return;
+    }
+    hold_format_to_runtime(&number_cases());
+}
+
+/// Dates, times and patterns, in every locale the table knows, are what
+/// `Intl` writes (in UTC: the static paint knows no reader's zone).
+#[test]
+fn dates_are_formatted_as_intl_formats_them_in_every_locale() {
+    if !node_available("the date-format parity check") {
+        return;
+    }
+    hold_format_to_runtime(&date_cases());
+}
+
+/// The words the runtime's highlighter colours as keywords, read from
+/// `text.js`'s `HL_KEYWORDS`.
+fn runtime_highlight_keywords() -> BTreeSet<String> {
+    let source = std::fs::read_to_string(root().join("src/web/runtime/modules/text.js")).unwrap();
+    let start = source
+        .find("const HL_KEYWORDS = new Set(")
+        .expect("the runtime's HL_KEYWORDS");
+    let rest = &source[start..];
+    let body = &rest[..rest
+        .find(".split(")
+        .expect("HL_KEYWORDS is split from a string")];
+    // The list is string literals joined with `+`: their text, run together.
+    let mut words = String::new();
+    let mut inside = false;
+    for c in body.chars() {
+        match (c, inside) {
+            ('"', _) => inside = !inside,
+            (c, true) => words.push(c),
+            _ => {}
+        }
+    }
+    words
+        .split(' ')
+        .filter(|w| !w.is_empty())
+        .map(str::to_string)
+        .collect()
+}
+
+/// The keyword list is written twice — the compiler's and the runtime's —
+/// and a word on one side only is a block whose colour changes when the
+/// page takes it over.
+#[test]
+fn the_runtime_colours_the_keywords_the_compiler_does() {
+    let compiler: BTreeSet<String> = webfluent::codegen::highlight::WF_KEYWORDS
+        .iter()
+        .map(std::string::ToString::to_string)
+        .collect();
+    let runtime = runtime_highlight_keywords();
+    assert_eq!(
+        compiler.len(),
+        webfluent::codegen::highlight::WF_KEYWORDS.len(),
+        "a keyword written twice in codegen::highlight"
+    );
+    assert_eq!(
+        runtime.difference(&compiler).collect::<Vec<_>>(),
+        Vec::<&String>::new(),
+        "keywords only the runtime colours"
+    );
+    assert_eq!(
+        compiler.difference(&runtime).collect::<Vec<_>>(),
+        Vec::<&String>::new(),
+        "keywords only the compiler colours"
+    );
+}
+
+/// `(code, language)`: what each highlighter is held to the other on.
+const HIGHLIGHT_CASES: &[(&str, &str)] = &[
+    // WebFluent.
+    ("page Home(path: \"/\") { // hi\n    state n = 0\n}", "wf"),
+    (
+        "component Card(_ title: String, open: Bool = false) { children }",
+        "wf",
+    ),
+    (
+        "store Todos {\n    state items: [Todo] = []\n    action add(t: String) { items = items.concat([t]) }\n}",
+        "wf",
+    ),
+    (
+        "Button(\"Go\", tone: .primary).lg { style { padding: $md; color: #FF0 } }",
+        "wf",
+    ),
+    ("const S = #\"a \"b\" c\"#", "wf"),
+    ("const T = ##\"a \"# b\"##", "wf"),
+    ("x = \"\"\"\n  a \"b\"\n  \"\"\"", "wf"),
+    (
+        "Text(\"Hello, {name}! \\\"quoted\\\" {count:.integer}\")",
+        "wf",
+    ),
+    ("t.title t.page item.state", "wf"),
+    (
+        "for todo, i in Todos.items by todo.id { if todo.done { Text(\"✓\") } else { Text(\"·\") } }",
+        "wf",
+    ),
+    (
+        "match users { .loading { Spinner } .failed(e) { Alert(e.message).danger } .loaded(list) { } }",
+        "wf",
+    ),
+    (
+        "derived total = items.map(i => i.price * 1.5e3).sum() // tally\n/* block */",
+        "wf",
+    ),
+    (
+        "theme Brand { color-primary: #3B82F6  radius-md: 0.5rem }",
+        "wf",
+    ),
+    (
+        "every(1000) { tick = tick + 1 }  after(3.seconds) { toast = null }",
+        "wf",
+    ),
+    ("let عدد = 3\nstate المهام = []", "wf"),
+    ("a < b && c > d || e == \"<script>\"", "wf"),
+    (
+        "test \"adds\" { click \"Add\"  expect \"1\"  expect not \"0\" }",
+        "wf",
+    ),
+    (
+        "page P(path: \"/\")\n    state n = 0\n    Button(\"+\")\n        on click\n            n = n + 1",
+        "wfx",
+    ),
+    ("\"unterminated string\nnext", "wf"),
+    ("@2026-03-14 @09:30 €12.99 $9.99 90.minutes", "wf"),
+    // JSON.
+    ("{ \"a\": [1, true], \"b\": \"x\" }", "json"),
+    (
+        "{\n  \"name\": \"My App\",\n  \"build\": { \"ssg\": false, \"budget\": null, \"n\": -1.5e-3 }\n}",
+        "json",
+    ),
+    ("[\"a\\\"b\", \"\\u00e9\", {}, [], false]", "json"),
+    ("{ \"html\": \"<b>&amp;</b>\" }", "json"),
+    // Shell.
+    ("$ wf build\n# then\nwf serve", "bash"),
+    (
+        "$ wf init my-app -t spa --locales en,ar\n$ cd my-app && wf serve",
+        "sh",
+    ),
+    ("  # indented comment\necho \"<tag>\" > out.txt", "shell"),
+    ("$", "bash"),
+    // CSS.
+    ("color: #FF0", "css"),
+    (
+        ".card:hover { background: var(--surface); padding: 1rem 2rem }",
+        "css",
+    ),
+    (
+        "@media (max-width: 768px) {\n  .a { display: none } /* hide */\n}",
+        "css",
+    ),
+    (
+        "a[href^=\"https\"]::after { content: \"↗\"; width: calc(100% - 2px) }",
+        "css",
+    ),
+    // Anything else is escaped.
+    ("a < b & c", "python"),
+    ("<script>alert(1)</script>", ""),
+];
+
+/// Code put together from the pieces the highlighters read, by a fixed
+/// sequence, for every language: the orders no case thought to write.
+fn highlight_mixtures(count: usize) -> Vec<(String, &'static str)> {
+    #[rustfmt::skip]
+    const PIECES: &[&str] = &[
+        "page", "state", " ", "  ", "\n", "Name", "name", "_x", ".flag", ":", "{", "}", "(", ")",
+        "\"", "\"a\"", "\\\"", "#", "#\"", "\"#", "##\"", "\"\"\"", "//", "/*", "*/", "$", "$ ",
+        "$md", "#FF0", "0", "1.5", "-2", "1e3", "90.minutes", "@", "<", ">", "&", "'", "→", "é",
+        "عدد", "\t", "\r\n", "true", "null", "--x", "--", "-", "=", "=>", "[", "]", ",", ";",
+        "url(", "var(", "!important", "%", "px",
+    ];
+    const LANGS: &[&str] = &["wf", "wfx", "json", "bash", "css"];
+    let mut seed: u64 = 0x2545_f491_4f6c_dd1d;
+    let mut next = move || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed as usize
+    };
+    (0..count)
+        .map(|_| {
+            let len = next() % 16 + 1;
+            let code: String = (0..len).map(|_| PIECES[next() % PIECES.len()]).collect();
+            (code, LANGS[next() % LANGS.len()])
+        })
+        .collect()
+}
+
+/// `Code(…, language:)` and a fenced block are coloured by
+/// `codegen::highlight` in the static paint and by `WF.highlight` in the
+/// browser: the two must write the same bytes.
+#[test]
+fn code_is_coloured_the_same_at_build_time_and_in_the_browser() {
+    if !node_available("the highlighter parity check") {
+        return;
+    }
+    let mut inputs: Vec<(String, &str)> = HIGHLIGHT_CASES
+        .iter()
+        .map(|(code, lang)| (code.to_string(), *lang))
+        .collect();
+    inputs.extend(highlight_mixtures(2000));
+    let js_dir = root().join("tests/js");
+    let script = format!(
+        r#"import {{ fullRuntime }} from {runtime:?};
+import {{ makeDom }} from {dom:?};
+const {{ window, document, Node, Element, DocumentFragment }} = makeDom();
+const WF = new Function("window", "document", "Node", "Element", "DocumentFragment", fullRuntime() + "\nreturn WF;")(window, document, Node, Element, DocumentFragment);
+const inputs = {inputs};
+console.log(JSON.stringify(inputs.map(([code, lang]) => WF.highlight(code, lang))));
+"#,
+        runtime = format!("file://{}", js_dir.join("runtime.mjs").display()),
+        dom = format!("file://{}", js_dir.join("dom.mjs").display()),
+        inputs = serde_json::to_string(&inputs).unwrap(),
+    );
+    let file = std::env::temp_dir().join(format!("wf-agree-hl-{}.mjs", std::process::id()));
+    std::fs::write(&file, script).unwrap();
+    let out = Command::new("node").arg(&file).output().expect("run node");
+    let _ = std::fs::remove_file(&file);
+    assert!(
+        out.status.success(),
+        "the runtime script failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let drawn: Vec<String> = serde_json::from_slice(&out.stdout).expect("the runtime's HTML");
+    assert_eq!(drawn.len(), inputs.len());
+    let wrong: Vec<String> = inputs
+        .iter()
+        .zip(&drawn)
+        .filter_map(|((code, lang), runtime)| {
+            let built = webfluent::codegen::highlight::highlight(code, lang);
+            (built != *runtime).then(|| {
+                format!("  {code:?} ({lang})\n      build:   {built:?}\n      runtime: {runtime:?}")
+            })
+        })
+        .take(30)
+        .collect();
+    assert!(
+        wrong.is_empty(),
+        "a code block is coloured one way before its script runs and another after:\n{}",
+        wrong.join("\n")
     );
 }
