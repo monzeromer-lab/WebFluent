@@ -6,12 +6,11 @@
 //! declaration's for one the author wrote. [`check`] asks, and reports
 //! every flag, prop, case, event, slot and part that resolves to nothing;
 //! [`lower`] rewrites the ones that resolve into the vocabulary the code
-//! generators have always read — the legacy modifier words, string cases,
-//! attribute arguments — so that a program in either grammar is one program
-//! by the time it is compiled.
+//! generators read — modifier words, string cases, attribute arguments —
+//! and draws the built-ins that are drawn as others as what they are made
+//! of.
 //!
-//! `lower` is idempotent, and a no-op on a program the original grammar
-//! produced.
+//! `lower` is idempotent.
 
 mod expand;
 pub(crate) mod script;

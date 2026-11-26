@@ -217,7 +217,6 @@ pub fn apply_edits_to(source: &str, file: &str, ops: &[EditOp]) -> Result<String
 
 fn apply_edits_braced(source: &str, ops: &[EditOp]) -> Result<String> {
     let program = parse_program(source)?;
-    let dialect = crate::syntax::detect_dialect(source);
 
     // id -> element, using the SAME traversal the codegen ids come from.
     let mut index: HashMap<String, &UIElement> = HashMap::new();
@@ -230,7 +229,7 @@ fn apply_edits_braced(source: &str, ops: &[EditOp]) -> Result<String> {
         let ui = index
             .get(op.node())
             .ok_or_else(|| edit_err(format!("unknown node id '{}'", op.node())))?;
-        patches.extend(compute_patches(op, ui, source, &index, dialect)?);
+        patches.extend(compute_patches(op, ui, source, &index)?);
     }
 
     let result = apply_patches(source, patches)?;
@@ -254,10 +253,8 @@ fn compute_patches(
     ui: &UIElement,
     source: &str,
     index: &HashMap<String, &UIElement>,
-    dialect: crate::syntax::Dialect,
 ) -> Result<Vec<Patch>> {
     let one = |p: Patch| Ok(vec![p]);
-    let v2 = dialect == crate::syntax::Dialect::V2;
     match op {
         EditOp::SetText { value, .. } => {
             let k = first_positional_string(ui)
@@ -282,81 +279,53 @@ fn compute_patches(
             if ui.modifiers.iter().any(|m| m == modifier) {
                 return Ok(vec![]); // already present — no-op
             }
-            if v2 {
-                // A flag, tight after the last flag, the parenthesis group
-                // or the name: `Button("x").primary` → `Button("x").primary.lg`.
-                // A word of the original grammar is respelled where the
-                // registry knows it — as a flag, or as `prop: .case` when
-                // the case alone would be ambiguous.
-                match flag_spelling(ui, modifier) {
-                    Spelling::Flag(flag) => {
-                        if ui.modifiers.contains(&flag) {
-                            return Ok(vec![]);
-                        }
-                        let at = ui
-                            .modifier_spans
-                            .iter()
-                            .map(|sp| sp.end as usize)
-                            .max()
-                            .or(ui.paren_span.map(|p| p.end as usize))
-                            .unwrap_or_else(|| ident_end(source, ui.span.start as usize));
-                        return one(Patch {
-                            start: at,
-                            end: at,
-                            text: format!(".{flag}"),
-                        });
+            // A flag, tight after the last flag, the parenthesis group
+            // or the name: `Button("x").primary` → `Button("x").primary.lg`.
+            // A modifier word of WebFluent 2 is respelled where the
+            // registry knows it — as a flag, or as `prop: .case` when
+            // the case alone would be ambiguous.
+            match flag_spelling(ui, modifier) {
+                Spelling::Flag(flag) => {
+                    if ui.modifiers.contains(&flag) {
+                        return Ok(vec![]);
                     }
-                    Spelling::Named(text) => {
-                        if let Some(paren) = ui.paren_span {
-                            let close = paren.end as usize - 1;
-                            let sep = if ui.args.is_empty() { "" } else { ", " };
-                            return one(Patch {
-                                start: close,
-                                end: close,
-                                text: format!("{sep}{text}"),
-                            });
-                        }
-                        let at = ident_end(source, ui.span.start as usize);
-                        return one(Patch {
-                            start: at,
-                            end: at,
-                            text: format!("({text})"),
-                        });
-                    }
+                    let at = ui
+                        .modifier_spans
+                        .iter()
+                        .map(|sp| sp.end as usize)
+                        .max()
+                        .or(ui.paren_span.map(|p| p.end as usize))
+                        .unwrap_or_else(|| ident_end(source, ui.span.start as usize));
+                    one(Patch {
+                        start: at,
+                        end: at,
+                        text: format!(".{flag}"),
+                    })
                 }
-            }
-            if let Some(paren) = ui.paren_span {
-                let close = paren.end as usize - 1; // the ')'
-                let empty = ui.args.is_empty() && ui.modifiers.is_empty();
-                let text = if empty {
-                    modifier.clone()
-                } else {
-                    format!(", {modifier}")
-                };
-                one(Patch {
-                    start: close,
-                    end: close,
-                    text,
-                })
-            } else {
-                // No `( … )` yet — add one right after the component name.
-                let at = ident_end(source, ui.span.start as usize);
-                one(Patch {
-                    start: at,
-                    end: at,
-                    text: format!("({modifier})"),
-                })
+                Spelling::Named(text) => {
+                    if let Some(paren) = ui.paren_span {
+                        let close = paren.end as usize - 1;
+                        let sep = if ui.args.is_empty() { "" } else { ", " };
+                        return one(Patch {
+                            start: close,
+                            end: close,
+                            text: format!("{sep}{text}"),
+                        });
+                    }
+                    let at = ident_end(source, ui.span.start as usize);
+                    one(Patch {
+                        start: at,
+                        end: at,
+                        text: format!("({text})"),
+                    })
+                }
             }
         }
         EditOp::RemoveModifier { modifier, .. } => {
-            // In the new grammar a word of the original one names the same flag.
-            let wanted = if v2 {
-                match flag_spelling(ui, modifier) {
-                    Spelling::Flag(f) => f,
-                    Spelling::Named(_) => modifier.clone(),
-                }
-            } else {
-                modifier.clone()
+            // A modifier word of WebFluent 2 names the same flag.
+            let wanted = match flag_spelling(ui, modifier) {
+                Spelling::Flag(f) => f,
+                Spelling::Named(_) => modifier.clone(),
             };
             let i = ui
                 .modifiers
@@ -367,27 +336,18 @@ fn compute_patches(
                         "remove_modifier: node has no modifier '{modifier}'"
                     ))
                 })?;
-            let (start, end) = if v2 {
-                // The flag's span already holds its dot.
-                let sp = ui.modifier_spans[i];
-                (sp.start as usize, sp.end as usize)
-            } else {
-                modifier_removal_range(source, ui.modifier_spans[i])
-            };
+            // The flag's span already holds its dot.
+            let sp = ui.modifier_spans[i];
             one(Patch {
-                start,
-                end,
+                start: sp.start as usize,
+                end: sp.end as usize,
                 text: String::new(),
             })
         }
         EditOp::SetStyle { prop, value, .. } => {
-            // A style value is raw CSS in the new grammar: a quoted value
-            // handed over from the original grammar loses its quotes.
-            let value = if v2 {
-                raw_style_value(value)
-            } else {
-                value.clone()
-            };
+            // A style value is raw CSS: a quoted value handed over in
+            // WebFluent 2's spelling loses its quotes.
+            let value = raw_style_value(value);
             if let Some(sb) = &ui.style_block {
                 if let Some(p) = sb.properties.iter().find(|p| &p.name == prop) {
                     one(replace(value_of(source, p), value))
@@ -462,11 +422,7 @@ fn compute_patches(
         EditOp::SetRuleStyle {
             rule, prop, value, ..
         } => {
-            let value = if v2 {
-                raw_style_value(value)
-            } else {
-                value.clone()
-            };
+            let value = raw_style_value(value);
             let Some(sb) = &ui.style_block else {
                 let text = format!("{} {{ {}: {} }}", rule.trim(), prop, value);
                 return one(insert_clause(ui, None, "style", &text, source));
@@ -570,15 +526,15 @@ fn compute_patches(
             })
         }
         EditOp::InsertChild { index: idx, wf, .. } => {
-            validate_snippet(wf, dialect)?;
+            validate_snippet(wf)?;
             one(insert_child_patch(ui, *idx, wf, source))
         }
         EditOp::AppendChild { wf, .. } => {
-            validate_snippet(wf, dialect)?;
+            validate_snippet(wf)?;
             one(append_child_patch(ui, wf, source))
         }
         EditOp::ReplaceNode { wf, .. } => {
-            validate_snippet(wf, dialect)?;
+            validate_snippet(wf)?;
             one(replace(ui.span, wf.clone()))
         }
         EditOp::RemoveNode { .. } => {
@@ -597,7 +553,6 @@ fn compute_patches(
             ui,
             source,
             index,
-            dialect,
         ),
         EditOp::RemoveFlag { node, flag } => compute_patches(
             &EditOp::RemoveModifier {
@@ -607,7 +562,6 @@ fn compute_patches(
             ui,
             source,
             index,
-            dialect,
         ),
         EditOp::SetProp { prop, value, .. } => {
             if let Some(k) = named_arg_index(ui, prop) {
@@ -666,7 +620,7 @@ fn compute_patches(
                 Some(p) => format!("on {event}({p})"),
                 None => format!("on {event}"),
             };
-            validate_snippet(&format!("Container {{ {head} {{ {body} }} }}"), dialect)?;
+            validate_snippet(&format!("Container {{ {head} {{ {body} }} }}"))?;
             if let Some(h) = ui.events.iter().find(|h| &h.event == event) {
                 let indent = line_indent(source, h.span.start as usize);
                 return one(replace(h.span, clause_text(&head, body, &indent)));
@@ -695,7 +649,7 @@ fn compute_patches(
             })
         }
         EditOp::SetSlot { slot, wf, .. } => {
-            validate_snippet(&format!("Container {{ {slot} {{ {wf} }} }}"), dialect)?;
+            validate_snippet(&format!("Container {{ {slot} {{ {wf} }} }}"))?;
             if let Some(f) = ui.slot_fills.iter().find(|f| &f.name == slot) {
                 let indent = line_indent(source, f.span.start as usize);
                 return one(replace(f.span, clause_text(slot, wf, &indent)));
@@ -1143,15 +1097,8 @@ fn parse_program(source: &str) -> Result<Program> {
 
 /// Validate a `.wf` child snippet by parsing it inside a throwaway page. A bad
 /// snippet is rejected here, before any bytes are patched.
-fn validate_snippet(wf: &str, dialect: crate::syntax::Dialect) -> Result<()> {
-    let wrapped = match dialect {
-        crate::syntax::Dialect::V2 => {
-            format!("page __EditValidate(path: \"/\") {{\n{wf}\n}}")
-        }
-        crate::syntax::Dialect::V1 => {
-            format!("Page __EditValidate (path: \"/\") {{\n{wf}\n}}")
-        }
-    };
+fn validate_snippet(wf: &str) -> Result<()> {
+    let wrapped = format!("page __EditValidate(path: \"/\") {{\n{wf}\n}}");
     parse_program(&wrapped)
         .map(|_| ())
         .map_err(|e| edit_err(format!("invalid wf snippet: {e}")))
