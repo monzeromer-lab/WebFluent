@@ -1338,6 +1338,9 @@ const EXAMPLE_EXEMPT: &[&str] = &[
     // T33 is a data file's, a render's or a test run's: data from outside
     // the program, which one file checked on its own has none of.
     "T33",
+    // V01 is always a name nothing declares as well: it is reported as the
+    // T13 at its place, which carries its suggestion and its fix.
+    "V01",
 ];
 
 /// Where a link written on the guide page `from` goes, as an address on the

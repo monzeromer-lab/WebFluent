@@ -441,7 +441,12 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
         let Arg::Positional(Expr::Identifier(name)) = arg else {
             continue;
         };
-        if scope.contains(name) {
+        // A name the language has (`now`, `locale`, `log`) or the browser
+        // has (`document`, `Math`) is declared, if not by the program.
+        if scope.contains(name)
+            || crate::check::sema::types::language_name(name).is_some()
+            || crate::registry::browser::browser().value(name).is_some()
+        {
             continue;
         }
         let span = &el.arg_spans[i];
@@ -575,6 +580,16 @@ mod tests {
             fixes_of(r#"page P(path: "/") { Button(xq) }"#),
             [] as [String; 0]
         );
+    }
+
+    /// What the language and the browser have is in scope without a
+    /// declaration: `Text(now)` is a moment, not a word that means nothing.
+    #[test]
+    fn the_language_s_and_the_browser_s_names_are_in_scope() {
+        for name in ["now", "locale", "viewport", "log", "document", "Math"] {
+            let w = lint(&format!(r#"page Home(path: "/") {{ Text({name}) }}"#));
+            assert!(w.is_empty(), "{name}: {w:?}");
+        }
     }
 
     #[test]
