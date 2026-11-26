@@ -4,11 +4,13 @@
   function signal(value) {
     const subs = new Set();
     const get = () => {
-      if (currentEffect) {
+      // A run starts listed nowhere, so an effect already in `subs` has
+      // read this signal before in the same run.
+      if (currentEffect && !subs.has(currentEffect)) {
         subs.add(currentEffect);
         // The effect remembers where it is listed, so that a run that no
         // longer reads this signal, and its disposal, take it off again.
-        if (currentEffect.deps) currentEffect.deps.add(subs);
+        if (currentEffect.deps) currentEffect.deps.push(subs);
       }
       return value;
     };
@@ -86,42 +88,37 @@
   let pending = null;
   let queue = null;
   let queued = 0;
-  // Whether heap entry `a` runs before `b`.
-  function _sooner(a, b) {
-    return a.o < b.o || (a.o === b.o && a.s < b.s);
-  }
+  // An entry's place is one number: an effect's age, or, for a listener
+  // with none, past every age, by when it was added.
   function _enqueue(fn) {
     if (pending.has(fn)) return;
     pending.add(fn);
-    const entry = { f: fn, o: fn.order ?? Infinity, s: queued++ };
+    const e = { k: fn.order ?? 2 ** 52 + queued++, f: fn };
     let i = queue.length;
-    queue.push(entry);
     while (i > 0) {
       const up = (i - 1) >> 1;
-      if (!_sooner(entry, queue[up])) break;
+      if (queue[up].k <= e.k) break;
       queue[i] = queue[up];
       i = up;
     }
-    queue[i] = entry;
+    queue[i] = e;
   }
   function _dequeue() {
-    const top = queue[0];
-    const last = queue.pop();
+    const head = queue[0];
+    const tail = queue.pop();
     const n = queue.length;
     if (n) {
       let i = 0;
-      for (;;) {
-        const l = 2 * i + 1;
-        if (l >= n) break;
-        const r = l + 1;
-        const c = r < n && _sooner(queue[r], queue[l]) ? r : l;
-        if (!_sooner(queue[c], last)) break;
+      let c;
+      while ((c = 2 * i + 1) < n) {
+        if (c + 1 < n && queue[c + 1].k < queue[c].k) c++;
+        if (queue[c].k >= tail.k) break;
         queue[i] = queue[c];
         i = c;
       }
-      queue[i] = last;
+      queue[i] = tail;
     }
-    return top.f;
+    return head.f;
   }
   function schedule(subs) {
     const first = pending === null;
@@ -162,37 +159,45 @@
   // got as far as reading it. Disposal takes it off every signal, so a
   // signal that outlives it — a store's state, the route — does not keep
   // it, its closure and the nodes it updates alive.
+  //
+  // What a run read is a list, new each run (`now` tells one run's reads
+  // from the next by it), holding each signal once.
+  const NO_DEPS = [];
+  function _unlist(run, deps) {
+    for (let i = 0; i < deps.length; i++) deps[i].delete(run);
+  }
   function effect(fn) {
     let cleanup = null;
     let dead = false;
-    const unlist = (deps) => { for (const subs of deps) subs.delete(run); };
     const run = () => {
       if (dead) return;
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
       if (dead) return;
       const before = run.deps;
-      unlist(before);
-      run.deps = new Set();
+      _unlist(run, before);
+      run.deps = [];
       const prev = currentEffect;
       currentEffect = run;
       let ok = false;
       try { cleanup = fn(); ok = true; } finally {
         currentEffect = prev;
         if (dead) {
-          unlist(run.deps);
-          run.deps = new Set();
+          _unlist(run, run.deps);
+          run.deps = [];
         } else if (!ok) {
-          for (const subs of before) { subs.add(run); run.deps.add(subs); }
+          for (const subs of before) {
+            if (!subs.has(run)) { subs.add(run); run.deps.push(subs); }
+          }
         }
       }
     };
-    run.deps = new Set();
+    run.deps = NO_DEPS;
     run.order = ++effectsMade;
     run.dispose = () => {
       if (dead) return;
       dead = true;
-      unlist(run.deps);
-      run.deps = new Set();
+      _unlist(run, run.deps);
+      run.deps = [];
       if (pending !== null) pending.delete(run);
       if (typeof cleanup === "function") { const c = cleanup; cleanup = null; c(); }
     };
@@ -433,7 +438,11 @@
     let selectValue;
     let iconName;
     if (attrs) {
-      for (const [k, v] of Object.entries(attrs)) {
+      // The object's own keys, in order, without a pair made for each.
+      const names = Object.keys(attrs);
+      for (let i = 0; i < names.length; i++) {
+        const k = names[i];
+        const v = attrs[k];
         // What keeps the element current, or hands it out, holds it: a
         // pre-rendered page keeps its own element in this one's place
         // only when nothing does (hydrate).
@@ -719,8 +728,13 @@
     }
   }
 
+  // Nested lists are walked where they stand: a copy flattened for every
+  // element made, most of them with no children or a few, was a list a
+  // row allocated for nothing.
   function appendChildren(el, children) {
-    for (const child of children.flat(Infinity)) {
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      if (Array.isArray(child)) { appendChildren(el, child); continue; }
       if (child == null || child === false) continue;
       if (typeof child === "string" || typeof child === "number") {
         el.appendChild(document.createTextNode(String(child)));
