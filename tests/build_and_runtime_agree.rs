@@ -1179,3 +1179,89 @@ console.log(JSON.stringify(inputs.map(([code, lang]) => WF.highlight(code, lang)
         wrong.join("\n")
     );
 }
+
+/// Markup put together from the pieces a sanitiser reads, by a fixed
+/// sequence: the orders no case thought to write — a quote left open, an
+/// entity cut short, a tag inside an attribute, a closing tag in capitals.
+fn sanitize_mixtures(count: usize) -> Vec<String> {
+    #[rustfmt::skip]
+    const PIECES: &[&str] = &[
+        "<", ">", "</", "/>", "<!--", "-->", "<!", "<?", "\"", "'", "=", " ", "\t", "\n", "\u{a0}",
+        "p", "a", "img", "script", "SCRIPT", "style", "svg", "math", "template", "b", "table",
+        " href=", " src=", " onclick=", " class=", " rel=", " target=", " title=", " xlink:href=",
+        "javascript:", "JaVa\tScRiPt:", "data:image/png;base64,AA", "data:text/html,", "/x", "https://e.com",
+        "&", "&#", "&#106;", "&#x6A;", "&#x110000;", "&#xD800;", "&amp;", "&colon;", "&quot;", ";",
+        "opener", "noopener", "_blank", "x", "İ", "😀", "alert(1)",
+    ];
+    let mut seed: u64 = 0x5851_f42d_4c95_7f2d;
+    let mut next = move || {
+        seed ^= seed << 13;
+        seed ^= seed >> 7;
+        seed ^= seed << 17;
+        seed as usize
+    };
+    (0..count)
+        .map(|_| {
+            let len = next() % 18 + 1;
+            (0..len).map(|_| PIECES[next() % PIECES.len()]).collect()
+        })
+        .collect()
+}
+
+/// `sanitize(html)` is painted at build time by `project::sanitize` and run
+/// again in the browser by `WF.sanitize`: the shared case table and a few
+/// thousand mixtures must come out the same, byte for byte — markup one
+/// side keeps and the other drops is a page that changes as it hydrates,
+/// and a door one of them leaves open.
+#[test]
+fn markup_is_sanitised_the_same_at_build_time_and_in_the_browser() {
+    if !node_available("the sanitiser parity check") {
+        return;
+    }
+    let raw = std::fs::read_to_string(root().join("tests/sanitize-cases.json")).unwrap();
+    let cases: Vec<(String, String)> = serde_json::from_str(&raw).unwrap();
+    let mut inputs: Vec<String> = cases.into_iter().map(|(html, _)| html).collect();
+    inputs.extend(sanitize_mixtures(4000));
+    let js_dir = root().join("tests/js");
+    let script = format!(
+        r#"import {{ fullRuntime }} from {runtime:?};
+import {{ makeDom }} from {dom:?};
+const {{ window, document, Node, Element, DocumentFragment }} = makeDom();
+const WF = new Function("window", "document", "Node", "Element", "DocumentFragment", fullRuntime() + "\nreturn WF;")(window, document, Node, Element, DocumentFragment);
+const inputs = {inputs};
+console.log(JSON.stringify(inputs.map((html) => {{
+  try {{ return WF.sanitize(html); }} catch (e) {{ return `threw: ${{e.message}}`; }}
+}})));
+"#,
+        runtime = format!("file://{}", js_dir.join("runtime.mjs").display()),
+        dom = format!("file://{}", js_dir.join("dom.mjs").display()),
+        inputs = serde_json::to_string(&inputs).unwrap(),
+    );
+    let file = std::env::temp_dir().join(format!("wf-agree-sanitize-{}.mjs", std::process::id()));
+    std::fs::write(&file, script).unwrap();
+    let out = Command::new("node").arg(&file).output().expect("run node");
+    let _ = std::fs::remove_file(&file);
+    assert!(
+        out.status.success(),
+        "the runtime script failed: {}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let drawn: Vec<String> = serde_json::from_slice(&out.stdout).expect("the runtime's HTML");
+    assert_eq!(drawn.len(), inputs.len());
+    let wrong: Vec<String> = inputs
+        .iter()
+        .zip(&drawn)
+        .filter_map(|(html, runtime)| {
+            let built = webfluent::codegen::sanitize::sanitize(html);
+            (built != *runtime).then(|| {
+                format!("  {html:?}\n      build:   {built:?}\n      runtime: {runtime:?}")
+            })
+        })
+        .take(30)
+        .collect();
+    assert!(
+        wrong.is_empty(),
+        "markup is sanitised one way before the script runs and another after:\n{}",
+        wrong.join("\n")
+    );
+}

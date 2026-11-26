@@ -290,7 +290,7 @@ fn attributes(rest: &str) -> Vec<(String, String)> {
             .iter()
             .collect::<String>()
             .to_ascii_lowercase();
-        while i < chars.len() && chars[i].is_whitespace() {
+        while i < chars.len() && chars[i].is_ascii_whitespace() {
             i += 1;
         }
         if chars.get(i) != Some(&'=') {
@@ -298,7 +298,7 @@ fn attributes(rest: &str) -> Vec<(String, String)> {
             continue;
         }
         i += 1;
-        while i < chars.len() && chars[i].is_whitespace() {
+        while i < chars.len() && chars[i].is_ascii_whitespace() {
             i += 1;
         }
         let value = if let Some(&q @ ('"' | '\'')) = chars.get(i) {
@@ -312,7 +312,7 @@ fn attributes(rest: &str) -> Vec<(String, String)> {
             v
         } else {
             let from = i;
-            while i < chars.len() && !chars[i].is_whitespace() {
+            while i < chars.len() && !chars[i].is_ascii_whitespace() {
                 i += 1;
             }
             chars[from..i].iter().collect()
@@ -348,10 +348,21 @@ fn unescape(value: &str) -> String {
             "quot" => Some('"'),
             "apos" | "#39" => Some('\''),
             "colon" | "#58" => Some(':'),
-            e if e.starts_with("#x") || e.starts_with("#X") => u32::from_str_radix(&e[2..], 16)
-                .ok()
-                .and_then(char::from_u32),
-            e if e.starts_with('#') => e[1..].parse().ok().and_then(char::from_u32),
+            // Digits and nothing else: `from_str_radix` would take a `+`.
+            e if (e.starts_with("#x") || e.starts_with("#X"))
+                && e.len() > 2
+                && e[2..].chars().all(|c| c.is_ascii_hexdigit()) =>
+            {
+                u32::from_str_radix(&e[2..], 16)
+                    .ok()
+                    .and_then(char::from_u32)
+            }
+            e if e.starts_with('#')
+                && e.len() > 1
+                && e[1..].chars().all(|c| c.is_ascii_digit()) =>
+            {
+                e[1..].parse().ok().and_then(char::from_u32)
+            }
             _ => None,
         };
         if let Some(c) = decoded {
@@ -454,6 +465,82 @@ mod tests {
         for (html, expected) in cases {
             assert_eq!(sanitize(&html), expected, "sanitize({html:?})");
         }
+    }
+
+    /// The words of every string literal in `source`, in order.
+    fn literal_words(source: &str) -> Vec<String> {
+        let mut words = Vec::new();
+        let mut current = String::new();
+        let mut inside = false;
+        for c in source.chars() {
+            match (c, inside) {
+                ('"', true) => {
+                    words.extend(
+                        current
+                            .split(' ')
+                            .filter(|w| !w.is_empty())
+                            .map(String::from),
+                    );
+                    current.clear();
+                    inside = false;
+                }
+                ('"', false) => inside = true,
+                (c, true) => current.push(c),
+                _ => {}
+            }
+        }
+        words
+    }
+
+    /// The text of `source` between `start` and the first `end` after it.
+    fn between<'a>(source: &'a str, start: &str, end: &str) -> &'a str {
+        let from = source
+            .find(start)
+            .unwrap_or_else(|| panic!("`{start}` in sanitize.js"))
+            + start.len();
+        let to = source[from..]
+            .find(end)
+            .unwrap_or_else(|| panic!("`{end}` after `{start}`"));
+        &source[from..from + to]
+    }
+
+    /// The allow-list is written twice — here and in the runtime's
+    /// `sanitize.js` — and a tag or attribute on one side only is markup the
+    /// static paint keeps and the page drops, or the other way round.
+    #[test]
+    fn the_runtime_allows_exactly_what_the_compiler_allows() {
+        let js = std::fs::read_to_string(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/src/web/runtime/modules/sanitize.js"
+        ))
+        .expect("the runtime's sanitiser");
+        let set = |words: Vec<String>| words.into_iter().collect::<std::collections::BTreeSet<_>>();
+        let ours = |list: &[&str]| list.iter().map(|w| (*w).to_string()).collect();
+
+        let tags = set(literal_words(between(&js, "const SAFE_TAGS", ".split(")));
+        assert_eq!(tags, ours(SAFE_TAGS), "SAFE_TAGS");
+        assert_eq!(tags.len(), SAFE_TAGS.len(), "a tag listed twice");
+
+        let global = set(literal_words(between(&js, "const GLOBAL_ATTRS", ";")));
+        assert_eq!(global, ours(GLOBAL_ATTRS), "GLOBAL_ATTRS");
+
+        let void = set(literal_words(between(&js, "const VOID_TAGS", ";")));
+        assert_eq!(void, ours(VOID), "VOID_TAGS");
+
+        let table = between(&js, "const TAG_ATTRS = {", "};");
+        let mut runtime = std::collections::BTreeMap::new();
+        for line in table.lines() {
+            let Some((tag, attrs)) = line.trim().split_once(':') else {
+                continue;
+            };
+            runtime.insert(tag.trim().to_string(), set(literal_words(attrs)));
+        }
+        let compiler: std::collections::BTreeMap<String, std::collections::BTreeSet<String>> =
+            TAG_ATTRS
+                .iter()
+                .map(|(tag, attrs)| ((*tag).to_string(), ours(attrs)))
+                .collect();
+        assert_eq!(runtime, compiler, "TAG_ATTRS");
     }
 
     #[test]

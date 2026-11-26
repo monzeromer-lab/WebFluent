@@ -82,15 +82,22 @@
       // A link that opens elsewhere does not hand it a handle on this page:
       // its `rel` has `noopener noreferrer`, whatever the author wrote, and
       // no link keeps `opener`, which would ask for the handle back.
+      // Without a target, a `rel` with no `opener` in it is kept as written.
       if (name === "a") {
         const at = kept.findIndex(([k]) => k === "rel");
         const opensElsewhere = kept.some(([k]) => k === "target");
-        if (at >= 0 || opensElsewhere) {
-          const words = at >= 0 ? kept[at][1].split(/\s+/).filter(Boolean) : [];
-          const left = words.filter((w) => !/^opener$/i.test(w) && !(opensElsewhere && /^(noopener|noreferrer)$/i.test(w)));
-          if (opensElsewhere) left.push("noopener", "noreferrer");
+        // `rel` is a list of words apart by ASCII white space, as a browser
+        // reads it.
+        const words = at >= 0 ? kept[at][1].split(/[\t\n\f\r ]+/).filter(Boolean) : [];
+        const opener = words.some((w) => /^opener$/i.test(w));
+        if (opensElsewhere) {
+          const left = words.filter((w) => !/^(opener|noopener|noreferrer)$/i.test(w));
+          left.push("noopener", "noreferrer");
           if (at < 0) kept.push(["rel", left.join(" ")]);
-          else if (left.length) kept[at] = ["rel", left.join(" ")];
+          else kept[at] = ["rel", left.join(" ")];
+        } else if (at >= 0 && opener) {
+          const left = words.filter((w) => !/^opener$/i.test(w));
+          if (left.length) kept[at] = ["rel", left.join(" ")];
           else kept.splice(at, 1);
         }
       }
@@ -117,11 +124,16 @@
 
   /// Past the closing tag of `name`, or to the end where there is none.
   function skipToClose(text, from, name) {
-    const at = text.toLowerCase().indexOf("</" + name, from);
+    // ASCII case only: a lower-cased `İ` is two code units, and would move
+    // every index after it.
+    const at = text.replace(/[A-Z]/g, (c) => c.toLowerCase()).indexOf("</" + name, from);
     if (at < 0) return text.length;
     const end = tagEnd(text, at);
     return end < 0 ? text.length : end + 1;
   }
+
+  /// The white space HTML parses a tag by: ASCII's, not Unicode's.
+  const HTML_SPACE = /[\t\n\f\r ]/;
 
   /// `name="value"` pairs from the inside of a tag, after its name.
   function attributesOf(rest) {
@@ -133,10 +145,10 @@
       while (i < rest.length && /[a-zA-Z0-9_-]/.test(rest[i])) i += 1;
       if (i === from) break;
       const key = rest.slice(from, i).toLowerCase();
-      while (i < rest.length && /\s/.test(rest[i])) i += 1;
+      while (i < rest.length && HTML_SPACE.test(rest[i])) i += 1;
       if (rest[i] !== "=") { out.push([key, ""]); continue; }
       i += 1;
-      while (i < rest.length && /\s/.test(rest[i])) i += 1;
+      while (i < rest.length && HTML_SPACE.test(rest[i])) i += 1;
       let value;
       if (rest[i] === '"' || rest[i] === "'") {
         const quote = rest[i];
@@ -147,7 +159,7 @@
         i += 1;
       } else {
         const start = i;
-        while (i < rest.length && !/\s/.test(rest[i])) i += 1;
+        while (i < rest.length && !HTML_SPACE.test(rest[i])) i += 1;
         value = rest.slice(start, i);
       }
       out.push([key, unescapeEntities(value)]);
@@ -168,11 +180,13 @@
       const entity = rest.slice(1, end);
       const named = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'", "#39": "'", colon: ":", "#58": ":" };
       let decoded = named[entity];
-      if (decoded === undefined && /^#[xX][0-9a-fA-F]+$/.test(entity)) {
-        decoded = String.fromCodePoint(parseInt(entity.slice(2), 16));
-      } else if (decoded === undefined && /^#\d+$/.test(entity)) {
-        decoded = String.fromCodePoint(parseInt(entity.slice(1), 10));
-      }
+      // A number that names no character (past U+10FFFF, or half of a
+      // surrogate pair) is left as written, as the compiler leaves it —
+      // `String.fromCodePoint` would throw on the first.
+      let code = null;
+      if (decoded === undefined && /^#[xX][0-9a-fA-F]+$/.test(entity)) code = parseInt(entity.slice(2), 16);
+      else if (decoded === undefined && /^#[0-9]+$/.test(entity)) code = parseInt(entity.slice(1), 10);
+      if (code !== null && code <= 0x10ffff && !(code >= 0xd800 && code <= 0xdfff)) decoded = String.fromCodePoint(code);
       if (decoded === undefined) { out += "&"; i += 1; continue; }
       out += decoded;
       i += end + 1;
