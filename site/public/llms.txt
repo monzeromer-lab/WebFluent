@@ -204,7 +204,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [wf generate](https://webfluent.monzeromer.dev/reference/cli/generate.md): Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings
 - [wf init](https://webfluent.monzeromer.dev/reference/cli/init.md): Create a new WebFluent project
 - [wf inspect](https://webfluent.monzeromer.dev/reference/cli/inspect.md): One page as a reader meets it, as text: landmarks, headings, links, buttons, fields, tables, and anything that failed
-- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies
+- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)
 - [wf motion](https://webfluent.monzeromer.dev/reference/cli/motion.md): The animations an element can play, the eases and speeds, the route transitions and the project's default
 - [wf registry](https://webfluent.monzeromer.dev/reference/cli/registry.md): Describe every built-in component: props, cases, flags, events, slots, parts
 - [wf render](https://webfluent.monzeromer.dev/reference/cli/render.md): Render a .wf template with JSON data
@@ -475,7 +475,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [E001 — Text the compiler cannot read](https://webfluent.monzeromer.dev/errors/E001.md): A character that begins nothing the language has, or a string, comment or splice that never closes. The file is not read past it.
 - [E002 — A syntax error](https://webfluent.monzeromer.dev/errors/E002.md): The text reads, but not as the language: a missing brace, a stray word, an argument list that does not close. The message names what was expected and…
 - [E003 — Indentation that lines up with no block](https://webfluent.monzeromer.dev/errors/E003.md): In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…
-- [E004 — A file in the WebFluent 2 grammar](https://webfluent.monzeromer.dev/errors/E004.md): WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.
+- [E004 — A file in the WebFluent 2 grammar](https://webfluent.monzeromer.dev/errors/E004.md): WebFluent reads one grammar. A WebFluent 2 project is migrated with a 7.x release's `wf migrate` first.
 - [E005 — A file the formatter will not change](https://webfluent.monzeromer.dev/errors/E005.md): `wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.
 - [E101 — A component nothing declares](https://webfluent.monzeromer.dev/errors/E101.md): An element, a `layout:` or a part names a component that no `component` declares and no built-in has. Often a misspelling.
 - [E102 — A name declared twice](https://webfluent.monzeromer.dev/errors/E102.md): Two declarations with one name in one scope: two stores, two constants, a state and a derived of one name. It compiled to a script the browser…

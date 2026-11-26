@@ -2,6 +2,7 @@
 // guide section that was renamed, and where it is now, read by
 // old-links.js.
 const OLD_LINKS = {
+ "/errors/troubleshooting#there-is-no-binary-for-linux-on-arm": "/errors/troubleshooting#the-binary-does-not-run-on-an-older-linux",
  "/docs/guide/content#a-checklist-for-being-found": "/recipes/search-and-link-previews",
  "/docs/guide/content#describe-each-page-to-search-engines-and-link-previews": "/recipes/search-and-link-previews",
  "/docs/guide/content#render-markdown-with-the-markdown-element": "/recipes/render-markdown",

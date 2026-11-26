@@ -798,7 +798,7 @@
   {
    "name": "migrate",
    "slug": "migrate",
-   "summary": "Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies",
+   "summary": "Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)",
    "writes": "the project's source files",
    "preview": "--check",
    "usage": "wf migrate [PATH] [options]",

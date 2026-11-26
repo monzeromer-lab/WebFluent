@@ -382,7 +382,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
             Link(to: "/reference/cli/migrate") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
                 Text("wf migrate", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
-                Text("Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies", class: "bp-small")
+                Text("Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)", class: "bp-small")
             }
         }
         Heading("Formatting", id: "formatting").h3
@@ -940,8 +940,8 @@ page CliRender(path: "/reference/cli/render", title: "wf render — Reference", 
     }
 }
 
-page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference", description: "wf migrate: Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf migrate", summary: "Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies", signature: "wf migrate [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "site/src/pages/reference/Cli.wf") {
+page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference", description: "wf migrate: Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first). What…") {
+    ReferenceItemShell("wf migrate", summary: "Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)", signature: "wf migrate [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "site/src/pages/reference/Cli.wf") {
         Markdown(t("cli.writes", { what: "the project's source files" }), class: "bp-prose")
         Markdown(t("cli.preview", { flag: "--check" }), class: "bp-prose")
         // ── words: migrate ── written by hand, and kept as it is when scripts/docsite/reference.py writes the rest

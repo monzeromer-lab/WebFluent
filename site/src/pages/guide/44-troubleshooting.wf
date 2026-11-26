@@ -13,9 +13,9 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Markdown("The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.\n\nPin a version instead, and run the installer again with it set: `WF_VERSION=v7.2.0`.")
 
-        Heading("There is no binary for Linux on ARM", id: "there-is-no-binary-for-linux-on-arm").h3
+        Heading("The binary does not run on an older Linux", id: "the-binary-does-not-run-on-an-older-linux").h3
 
-        Markdown("There is no prebuilt binary yet for Linux on ARM, such as a Raspberry Pi or an ARM server, so the installer stops.\n\nInstall from source with Rust:")
+        Markdown("The x86_64 Linux build needs a recent glibc; on an older distribution it stops with `GLIBC_2.39 not found`. The installer picks the static musl build by itself when the machine's glibc is older, and on Alpine. To ask for it anyway, run the installer with `WF_LIBC=musl` set. Linux on ARM (a Raspberry Pi, an ARM server) has a build of its own, which the installer picks.\n\nOr install from source with Rust:")
 
         Terminal(lines: [
                 Line(command: "cargo install webfluent")

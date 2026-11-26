@@ -31,11 +31,11 @@ The installer asks GitHub's API for the latest release, and GitHub limits reques
 
 Pin a version instead, and run the installer again with it set: `WF_VERSION=v7.2.0`.
 
-### There is no binary for Linux on ARM
+### The binary does not run on an older Linux
 
-There is no prebuilt binary yet for Linux on ARM, such as a Raspberry Pi or an ARM server, so the installer stops.
+The x86_64 Linux build needs a recent glibc; on an older distribution it stops with `GLIBC_2.39 not found`. The installer picks the static musl build by itself when the machine's glibc is older, and on Alpine. To ask for it anyway, run the installer with `WF_LIBC=musl` set. Linux on ARM (a Raspberry Pi, an ARM server) has a build of its own, which the installer picks.
 
-Install from source with Rust:
+Or install from source with Rust:
 
 ```bash
 cargo install webfluent

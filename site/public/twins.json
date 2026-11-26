@@ -467,7 +467,7 @@
   "route": "/errors/E004",
   "twin": "/errors/E004.md",
   "title": "E004 — A file in the WebFluent 2 grammar",
-  "description": "WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.",
+  "description": "WebFluent reads one grammar. A WebFluent 2 project is migrated with a 7.x release's `wf migrate` first.",
   "part": "Errors",
   "lang": "en"
  },
@@ -2851,7 +2851,7 @@
   "route": "/reference/cli/migrate",
   "twin": "/reference/cli/migrate.md",
   "title": "wf migrate",
-  "description": "Carry a project forward: WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7, each step that applies",
+  "description": "Carry a project forward: WebFluent 3 → 4, 4 → 4.2 and 6 → 7, each step that applies (a WebFluent 2 project: migrate with 7.x first)",
   "part": "Reference",
   "lang": "en"
  },

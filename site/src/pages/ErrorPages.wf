@@ -228,13 +228,13 @@ page ErrorE003(path: "/errors/E003", title: "E003 — Indentation that lines up 
     }
 }
 
-page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 grammar", description: "WebFluent 3 reads one grammar. wf migrate rewrites a WebFluent 2 project in place.") {
-    ErrorShell("E004", title: "A file in the WebFluent 2 grammar", severity: "error", family: "Syntax and structure", summary: "WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.", printed: #"error[E004]: `Page` is a WebFluent 2 declaration; this is WebFluent 3
+page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 grammar", description: "WebFluent reads one grammar. A WebFluent 2 project is migrated with a 7.x release's wf migrate first.") {
+    ErrorShell("E004", title: "A file in the WebFluent 2 grammar", severity: "error", family: "Syntax and structure", summary: "WebFluent reads one grammar, and since 8.0 no longer migrates the grammar of WebFluent 2: install a 7.x release (`cargo install webfluent --version ^7`), run its `wf migrate` over the project, then this release's `wf migrate` for the rest.", printed: #"error[E004]: `Page` is a WebFluent 2 declaration, which this WebFluent no longer reads
  --> src/App.wf:1:1
   |
 1 | Page Home (path: "/") {
   | ^^^^
-  = help: Run `wf migrate` to convert the project to the current grammar
+  = help: WebFluent 8 no longer reads the WebFluent 2 grammar: migrate the project with WebFluent 7.x first (`cargo install webfluent --version ^7`, then `wf migrate`), then run this `wf migrate` for the rest
   = docs: https://webfluent.monzeromer.dev/errors/E004"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "src/diagnostics/explain/E004.md") {
         broken { DocsCodeBlock(#"Page Home (path: "/") {
     Text("Hi")
@@ -243,7 +243,7 @@ page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 
     Heading("Hi").h1
 }"#, title: "wf") }
         note {
-            Markdown("Run `wf migrate` once; it rewrites the project in place.")
+            Markdown("WebFluent 8 no longer migrates the WebFluent 2 grammar. Install a\n7.x release (`cargo install webfluent --version ^7`), run its `wf migrate`\nover the project once — it rewrites it in place — then run this release's\n`wf migrate` for what changed since.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -315,7 +315,7 @@ page ErrorE103(path: "/errors/E103", title: "E103 — A flag, case, part, event 
   |
 3 |     Button("Save").huge
   |                   ^^^^^
-  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .dropInside, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .loading, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
+  = help: Its tones are .primary, .secondary, .success, .danger, .warning, .info; its sizes are .sm, .md, .lg; its shapes are .rounded, .pill; its widths are .full; its types are .button, .submit, .reset; it also takes .disabled, .loading, .outlined; and the animation flags every element takes
   = docs: https://webfluent.monzeromer.dev/errors/E103"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "src/diagnostics/explain/E103.md") {
         broken { DocsCodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
@@ -326,7 +326,7 @@ page ErrorE103(path: "/errors/E103", title: "E103 — A flag, case, part, event 
     Button("Save").lg
 }"#, title: "wf") }
         note {
-            Markdown("Use one the message lists — it names every flag, case, event or\nslot the component takes.")
+            Markdown("Use one the message lists — it names the component's own flags\nand cases, each enum prop's under its name, and every event or slot it\ntakes; the animation and speed flags every element takes (`.fadeIn`,\n`.fast`) are named once rather than listed.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }
@@ -3813,13 +3813,13 @@ page P(path: "/", title: "T", description: "D") {
 }
 
 page ErrorV01(path: "/errors/V01", title: "V01 — A bare word that means nothing", description: "A bare word in an argument that nothing in scope declares — a misspelled name, or a flag written without its dot.") {
-    ErrorShell("V01", title: "A bare word that means nothing", severity: "warning", family: "Vocabulary", summary: "A bare word in an argument that nothing in scope declares — a misspelled name, or a flag written without its dot.", printed: #"warning[V01]: nothing in scope declares `primary`, so it reads as nothing — a flag is written `.primary`
+    ErrorShell("V01", title: "A bare word that means nothing", severity: "warning", family: "Vocabulary", summary: "A bare word in an argument that nothing in scope declares — a misspelled name, or a flag written without its dot.", printed: #"error[T13]: nothing declares `primary`
  --> src/App.wf:3:12
   |
 3 |     Button(primary)
   |            ^^^^^^^
-  = help: did you mean `.primary`?
-  = docs: https://webfluent.monzeromer.dev/errors/V01"#, quickfix: "Write it as the flag `.primary`", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T13", title: "A name nothing declares", to: "/errors/T13")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "src/diagnostics/explain/V01.md") {
+  = help: Did you mean `.primary`? Declare it — a `state`, a `const`, an `action`, a prop — or check the spelling. In the browser it would be a ReferenceError
+  = docs: https://webfluent.monzeromer.dev/errors/T13"#, quickfix: "", lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "T13", title: "A name nothing declares", to: "/errors/T13")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "src/diagnostics/explain/V01.md") {
         broken { DocsCodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button(primary)
@@ -3829,7 +3829,7 @@ page ErrorV01(path: "/errors/V01", title: "V01 — A bare word that means nothin
     Button("Save").primary
 }"#, title: "wf") }
         note {
-            Markdown("Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however\ndeep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`,\nand a case's payload, `.failed(why) \{ … \}`, draw nothing.")
+            Markdown("Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`, and the two are one mistake: the `T13` is reported, carrying what `V01` suggests (Did you mean `.primary`?) and its fix. `V01` names the check that reads a bare word as a flag written without its dot.\n\nA name a branch binds is declared through the whole of its block, however\ndeep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`,\nand a case's payload, `.failed(why) \{ … \}`, draw nothing.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
     }

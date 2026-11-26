@@ -33,7 +33,7 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
                 Line(command: "cargo install webfluent")
             ])
 
-        Markdown("This builds `wf` from crates.io. It works everywhere Rust does, and it is how to install on Linux arm64, which has no prebuilt binary yet.")
+        Markdown("This builds `wf` from crates.io. It works everywhere Rust does.")
 
         Heading("Packages", id: "packages").h3
 

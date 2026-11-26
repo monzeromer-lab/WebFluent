@@ -43,7 +43,7 @@ Windows already has a `wf`: `C:\Windows\System32\WF.msc`, the Windows Firewall c
 cargo install webfluent
 ```
 
-This builds `wf` from crates.io. It works everywhere Rust does, and it is how to install on Linux arm64, which has no prebuilt binary yet.
+This builds `wf` from crates.io. It works everywhere Rust does.
 
 ### Packages
 
