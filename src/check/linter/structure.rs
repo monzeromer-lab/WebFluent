@@ -978,6 +978,230 @@ fn link(target: &Expr, span: Span, cx: &mut Ctx<'_>) {
 mod tests {
     use super::*;
 
+    /// What the structural lint finds in `src`, as `CODE line: message`.
+    fn lint(src: &str) -> Vec<String> {
+        lint_in(src, Some("en"))
+    }
+
+    fn lint_in(src: &str, site_lang: Option<&str>) -> Vec<String> {
+        let program = crate::syntax::parse_source(src, "t.wf").unwrap();
+        lint_structure(&program, &|_| "t.wf".into(), site_lang)
+            .iter()
+            .map(|d| format!("{} {}: {}", d.code, d.line, d.message))
+            .collect()
+    }
+
+    /// Only the findings of `code`.
+    fn with(src: &str, code: &str) -> Vec<String> {
+        lint(src)
+            .into_iter()
+            .filter(|f| f.starts_with(code))
+            .collect()
+    }
+
+    const PAGE: &str = "page Home(path: \"/\", title: \"T\", description: \"D\") {\n";
+
+    #[test]
+    fn r01_a_link_to_no_page_is_named() {
+        let src = format!(
+            "{PAGE}    Link(\"Team\", to: \"/team\")\n    Link(\"Home\", to: \"/\")\n    Button(\"Go\") {{ on click {{ navigate(\"/gone\") }} }}\n}}\npage Member(path: \"/team/:slug\", title: \"M\", description: \"D\", slug: String) {{\n    Link(\"Back\", to: \"/team/{{slug}}\")\n}}\n"
+        );
+        let found = with(&src, "R01");
+        assert_eq!(found.len(), 2, "{found:?}");
+        assert!(found[0].contains("/team"), "{found:?}");
+        assert!(found[1].contains("/gone"), "{found:?}");
+        // A link with no leading `/` resolves against the page's address.
+        let relative = with(
+            &format!("{PAGE}    Link(\"A\", to: \"about\")\n}}\n"),
+            "R01",
+        );
+        assert_eq!(relative.len(), 1, "{relative:?}");
+    }
+
+    #[test]
+    fn r02_a_route_parameter_the_page_does_not_declare() {
+        let found = with(
+            "page User(path: \"/u/:id\", title: \"U\", description: \"D\") {\n    Text(\"x\")\n}\n",
+            "R02",
+        );
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert!(found[0].contains("`:id`"), "{found:?}");
+        assert!(
+            with(
+                "page User(path: \"/u/:id\", title: \"U\", description: \"D\", id: String) {\n    Text(id)\n}\n",
+                "R02"
+            )
+            .is_empty()
+        );
+    }
+
+    #[test]
+    fn r03_an_app_draws_its_pages_in_one_router() {
+        let none = format!("app {{\n    Text(\"chrome\")\n}}\n{PAGE}    Text(\"x\")\n}}\n");
+        let found = with(&none, "R03");
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert!(found[0].contains("no `Router`"), "{found:?}");
+        let two = format!("app {{\n    Router\n    Router\n}}\n{PAGE}    Text(\"x\")\n}}\n");
+        let found = with(&two, "R03");
+        assert!(
+            found.len() == 1 && found[0].contains("2 `Router`s"),
+            "{found:?}"
+        );
+        let one = format!("app {{\n    Row {{ Router }}\n}}\n{PAGE}    Text(\"x\")\n}}\n");
+        assert!(with(&one, "R03").is_empty());
+    }
+
+    #[test]
+    fn r03_offers_the_router_where_the_app_ends() {
+        let src = format!("app {{\n    Text(\"chrome\")\n}}\n{PAGE}    Text(\"x\")\n}}\n");
+        let program = crate::syntax::parse_source(&src, "t.wf").unwrap();
+        let found = lint_structure(&program, &|_| "t.wf".into(), None);
+        let d = found.iter().find(|d| d.code == "R03").unwrap();
+        assert_eq!(d.plans.len(), 1, "{d:?}");
+    }
+
+    #[test]
+    fn r04_a_relative_address_on_a_nested_route() {
+        let src = "page Doc(path: \"/docs/intro\", title: \"D\", description: \"D\") {\n    Image(src: \"logo.png\", alt: \"Logo\")\n}\n";
+        let found = with(src, "R04");
+        assert_eq!(found.len(), 1, "{found:?}");
+        // At the root it resolves where it is meant to; site-relative is
+        // right anywhere.
+        assert!(
+            with(
+                &format!("{PAGE}    Image(src: \"logo.png\", alt: \"Logo\")\n}}\n"),
+                "R04"
+            )
+            .is_empty()
+        );
+        assert!(
+            with(
+                "page Doc(path: \"/docs/intro\", title: \"D\", description: \"D\") {\n    Image(src: \"/logo.png\", alt: \"Logo\")\n}\n",
+                "R04"
+            )
+            .is_empty()
+        );
+    }
+
+    #[test]
+    fn r05_translations_are_held_to_the_pages_they_name() {
+        let to_itself = "page Home(path: \"/\", title: \"T\", description: \"D\", translates: Home) {\n    Text(\"x\")\n}\n";
+        let found = with(to_itself, "R05");
+        assert!(
+            found.len() == 1 && found[0].contains("names itself"),
+            "{found:?}"
+        );
+        let to_nothing = "page Ar(path: \"/ar\", title: \"T\", description: \"D\", lang: \"ar\", translates: Hom) {\n    Text(\"x\")\n}\npage Home(path: \"/\", title: \"T\", description: \"D\") {\n    Text(\"x\")\n}\n";
+        let found = with(to_nothing, "R05");
+        assert!(
+            found.len() == 1 && found[0].contains("no page is named `Hom`"),
+            "{found:?}"
+        );
+        // Two in one language are two alternates for one reader; `en-GB`
+        // is `en` for this purpose.
+        let same = "page En(path: \"/en\", title: \"T\", description: \"D\", lang: \"en-GB\", translates: Home) {\n    Text(\"x\")\n}\npage Home(path: \"/\", title: \"T\", description: \"D\") {\n    Text(\"x\")\n}\n";
+        let found = with(same, "R05");
+        assert_eq!(found.len(), 1, "{found:?}");
+        let apart = "page Ar(path: \"/ar\", title: \"T\", description: \"D\", lang: \"ar\", translates: Home) {\n    Text(\"x\")\n}\npage Home(path: \"/\", title: \"T\", description: \"D\") {\n    Text(\"x\")\n}\n";
+        assert!(with(apart, "R05").is_empty(), "{:?}", with(apart, "R05"));
+    }
+
+    #[test]
+    fn d03_a_persist_every_placement_shares() {
+        let src = format!(
+            "component Panel(id: String) {{\n    persist open = false\n    Text(\"x\")\n}}\n{PAGE}    Panel(id: \"a\")\n    Panel(id: \"b\")\n}}\n"
+        );
+        let found = with(&src, "D03");
+        assert!(
+            found.len() == 1 && found[0].starts_with("D03 2:"),
+            "{found:?}"
+        );
+        // Placed once it is one value; with a key, one each.
+        let once = format!(
+            "component Panel(id: String) {{\n    persist open = false\n    Text(\"x\")\n}}\n{PAGE}    Panel(id: \"a\")\n}}\n"
+        );
+        assert!(with(&once, "D03").is_empty());
+        let keyed = format!(
+            "component Panel(id: String) {{\n    persist open = false {{ key: id }}\n    Text(\"x\")\n}}\n{PAGE}    for p in [\"a\", \"b\"] {{ Panel(id: p) }}\n}}\n"
+        );
+        assert!(with(&keyed, "D03").is_empty(), "{:?}", with(&keyed, "D03"));
+    }
+
+    #[test]
+    fn u09_an_unkeyed_list_of_stateful_items() {
+        let src = format!(
+            "component Row2(_ label: String) {{\n    state open = false\n    Text(label)\n}}\n{PAGE}    state items: [String] = [\"a\"]\n    for it in items {{ Row2(it) }}\n    for it in items by it {{ Row2(it) }}\n    for it in items {{ Text(it) }}\n}}\n"
+        );
+        let found = with(&src, "U09");
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert!(found[0].starts_with("U09 7:"), "{found:?}");
+    }
+
+    #[test]
+    fn x05_use_of_a_store_nothing_declares() {
+        let src = format!(
+            "store Cart {{ state n = 0 }}\n{PAGE}    use Cart\n    use Crat\n    Text(\"x\")\n}}\n"
+        );
+        let found = with(&src, "X05");
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert!(found[0].contains("Crat"), "{found:?}");
+    }
+
+    #[test]
+    fn c03_a_part_outside_its_owner() {
+        let src = format!(
+            "{PAGE}    state v = \"a\"\n    Select.Option(\"A\", value: \"a\")\n    Select(bind: v, label: \"V\") {{ Select.Option(\"A\", value: \"a\") }}\n}}\n"
+        );
+        let found = with(&src, "C03");
+        assert_eq!(found.len(), 1, "{found:?}");
+        assert!(found[0].starts_with("C03 3:"), "{found:?}");
+    }
+
+    #[test]
+    fn a16_a_literal_id_several_elements_share() {
+        let src = format!(
+            "{PAGE}    for n in [1, 2] {{ Text(\"x\", id: \"row\") }}\n    Text(\"y\", id: \"once\")\n}}\n"
+        );
+        let found = with(&src, "A16");
+        assert!(found.len() == 1 && found[0].contains("row"), "{found:?}");
+        let component = format!(
+            "component Tile {{\n    Text(\"t\", id: \"tile\")\n}}\n{PAGE}    Tile\n    Tile\n}}\n"
+        );
+        assert_eq!(with(&component, "A16").len(), 1);
+    }
+
+    #[test]
+    fn f04_a_checkbox_that_writes_nothing_back() {
+        let src = format!(
+            "{PAGE}    state on = false\n    Checkbox(checked: on, label: \"A\")\n    Checkbox(bind: on, label: \"B\")\n    Checkbox(checked: on, label: \"C\") {{ on change {{ on = !on }} }}\n}}\n"
+        );
+        let found = with(&src, "F04");
+        assert!(
+            found.len() == 1 && found[0].starts_with("F04 3:"),
+            "{found:?}"
+        );
+    }
+
+    #[test]
+    fn f05_a_select_that_starts_on_none_of_its_options() {
+        let src = format!(
+            "{PAGE}    state size = \"xl\"\n    state ok = \"m\"\n    Select(bind: size, label: \"Size\") {{ Select.Option(\"S\", value: \"s\") Select.Option(\"M\", value: \"m\") }}\n    Select(bind: ok, label: \"Ok\") {{ Select.Option(\"S\", value: \"s\") Select.Option(\"M\", value: \"m\") }}\n}}\n"
+        );
+        let found = with(&src, "F05");
+        assert!(
+            found.len() == 1 && found[0].starts_with("F05 4:"),
+            "{found:?}"
+        );
+    }
+
+    #[test]
+    fn a_clean_program_draws_nothing() {
+        let src = format!(
+            "app {{\n    Router\n}}\n{PAGE}    state v = \"s\"\n    Link(\"About\", to: \"/about\")\n    Select(bind: v, label: \"V\") {{ Select.Option(\"S\", value: \"s\") }}\n}}\npage About(path: \"/about\", title: \"A\", description: \"D\") {{\n    Image(src: \"/a.png\", alt: \"A\")\n}}\n"
+        );
+        assert_eq!(lint(&src), [] as [String; 0]);
+    }
+
     #[test]
     fn a_link_matches_a_route_by_its_segments() {
         let route = route_segments("/team/:slug");
