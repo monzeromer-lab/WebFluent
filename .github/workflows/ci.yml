@@ -149,6 +149,13 @@ jobs:
       - uses: taiki-e/install-action@ab49d3c64680143e184118bed66a46419fc15519 # v2.90.5
         with:
           tool: cargo-nextest
+      # Before the tests: the format parity tests hold the build's tables to
+      # this Node's `Intl`, and the runner's own Node carries an older ICU,
+      # which words some locales otherwise (Korean's `오전` for `AM`).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
       - name: Tests
         run: >-
           cargo nextest run --workspace --profile ci
@@ -479,6 +486,13 @@ jobs:
       # two files whose tests share a folder apart. The corpora and the golden
       # manifests run in release in the scaffolds job, so they are not run
       # again here in debug.
+      # Before the tests: the format parity tests hold the build's tables to
+      # this Node's `Intl`, and the runner's own Node carries an older ICU,
+      # which words some locales otherwise (Korean's `오전` for `AM`).
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
       - name: Tests
         run: >-
           cargo nextest run --workspace --profile ci
@@ -492,10 +506,6 @@ jobs:
 
       # `e2e_rendered` skips rather than fails when Node is absent, so run the
       # JavaScript suites directly too. A skip that nobody reads is a gap.
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: '22'
-
       # Every suite: the runtime modules, the network, stores, forms, motion,
       # security, interop and the cookbook's applications, on the builds the
       # Rust tests above wrote to target/. Only two of them ran here, and the

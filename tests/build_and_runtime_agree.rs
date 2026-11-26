@@ -694,6 +694,37 @@ fn node_available(what: &str) -> bool {
     found
 }
 
+/// Whether this `node` reads the CLDR the build's tables were written from
+/// (`src/project/format_locales.rs` names its ICU). Another ICU words some
+/// locales otherwise — CLDR 48 writes Korean's day period `AM` where 46
+/// wrote `오전` — so a comparison with it says nothing about the build.
+fn node_has_the_tables_icu(what: &str) -> bool {
+    if !node_available(what) {
+        return false;
+    }
+    let tables = std::fs::read_to_string(root().join("src/project/format_locales.rs")).unwrap();
+    let written = tables
+        .split("from ICU ")
+        .nth(1)
+        .and_then(|rest| rest.split(['.', ' ']).next())
+        .expect("format_locales.rs names the ICU it was written from")
+        .to_string();
+    let out = Command::new("node")
+        .args(["-p", "process.versions.icu"])
+        .output()
+        .unwrap();
+    let running = String::from_utf8_lossy(&out.stdout).trim().to_string();
+    let same = running.split('.').next() == Some(written.as_str());
+    if !same {
+        eprintln!(
+            "skipped: node has ICU {running}, the tables were written from ICU {written}; \
+             {what} did not run. Run it with that Node, or write the tables again: \
+             node tests/js/format-tables.mjs"
+        );
+    }
+    same
+}
+
 /// The locales the build's formatting is held to the browser's in.
 const FORMAT_LOCALES: &[&str] = &[
     "en",
@@ -935,7 +966,7 @@ fn hold_format_to_runtime(cases: &[FormatCase]) {
 /// table knows, is what `Intl` writes.
 #[test]
 fn numbers_are_formatted_as_intl_formats_them_in_every_locale() {
-    if !node_available("the number-format parity check") {
+    if !node_has_the_tables_icu("the number-format parity check") {
         return;
     }
     hold_format_to_runtime(&number_cases());
@@ -945,7 +976,7 @@ fn numbers_are_formatted_as_intl_formats_them_in_every_locale() {
 /// `Intl` writes (in UTC: the static paint knows no reader's zone).
 #[test]
 fn dates_are_formatted_as_intl_formats_them_in_every_locale() {
-    if !node_available("the date-format parity check") {
+    if !node_has_the_tables_icu("the date-format parity check") {
         return;
     }
     hold_format_to_runtime(&date_cases());
