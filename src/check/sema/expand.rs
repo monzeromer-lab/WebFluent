@@ -16,14 +16,69 @@ use crate::syntax::parser::ast::{
     Arg, ComponentRef, Declaration, EventHandler, Expr, Span, Statement, StatementKind, UIElement,
 };
 
+/// A rewrite the compiler wrote and could not read back: what a built-in
+/// was to be drawn as is missing from the page. Always a bug in the
+/// compiler — the printer and the parser disagree about the caller's
+/// expression — never in the program.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub(crate) struct Failure {
+    /// The built-in being expanded (`Callout`).
+    pub component: String,
+    /// Where its call is written.
+    pub span: Span,
+    /// The WebFluent the compiler wrote for it.
+    pub source: String,
+    /// What the parser said about that text.
+    pub error: String,
+}
+
+thread_local! {
+    /// What `parse` and `parse_expr` could not read, since the expansion
+    /// in hand began. The helpers are called from deep in each built-in's
+    /// rewrite, so they leave it here rather than through every signature.
+    static FAILED: std::cell::RefCell<Vec<Failure>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+fn failed(source: &str, error: String) {
+    FAILED.with(|f| {
+        f.borrow_mut().push(Failure {
+            component: String::new(),
+            span: Span::default(),
+            source: source.to_string(),
+            error,
+        });
+    });
+}
+
 /// Every built-in under `stmts` that is drawn as others, rewritten.
+///
+/// A rewrite that could not be read back is a compiler bug: a debug build
+/// stops on it, so the test suite catches it where it happens; a release
+/// build goes on without that piece, and [`expand_checked`], which the
+/// checker runs over the same program first, has already reported it as
+/// an error (`E901`), so the build does not ship the page.
 pub(super) fn expand(stmts: &mut [Statement], seq: &mut usize) {
+    let failures = expand_checked(stmts, seq);
+    debug_assert!(
+        failures.is_empty(),
+        "a built-in's rewrite did not parse: {failures:#?}"
+    );
+}
+
+/// [`expand`], returning every rewrite that could not be read back.
+pub(crate) fn expand_checked(stmts: &mut [Statement], seq: &mut usize) -> Vec<Failure> {
+    let outer = FAILED.with(|f| std::mem::take(&mut *f.borrow_mut()));
+    expand_all(stmts, seq);
+    FAILED.with(|f| std::mem::replace(&mut *f.borrow_mut(), outer))
+}
+
+fn expand_all(stmts: &mut [Statement], seq: &mut usize) {
     for stmt in stmts.iter_mut() {
         if let StatementKind::UIElement(el) = &mut stmt.kind {
             expand_element(el, seq);
         }
         for body in stmt.kind.bodies_mut() {
-            expand(body, seq);
+            expand_all(body, seq);
         }
     }
 }
@@ -31,18 +86,30 @@ pub(super) fn expand(stmts: &mut [Statement], seq: &mut usize) {
 fn expand_element(el: &mut UIElement, seq: &mut usize) {
     // Inside first: what a block holds is rewritten before its owner moves
     // it.
-    expand(&mut el.children, seq);
+    expand_all(&mut el.children, seq);
     for fill in &mut el.slot_fills {
-        expand(&mut fill.body, seq);
+        expand_all(&mut fill.body, seq);
     }
     for handler in &mut el.events {
-        expand(&mut handler.body, seq);
+        expand_all(&mut handler.body, seq);
     }
     let ComponentRef::BuiltIn(name) = &el.component else {
         return;
     };
     let name = name.clone();
-    match name.as_str() {
+    let span = el.span;
+    let before = FAILED.with(|f| f.borrow().len());
+    rewrite(el, &name, seq);
+    FAILED.with(|f| {
+        for failure in f.borrow_mut().iter_mut().skip(before) {
+            failure.component.clone_from(&name);
+            failure.span = span;
+        }
+    });
+}
+
+fn rewrite(el: &mut UIElement, name: &str, seq: &mut usize) {
+    match name {
         "Callout" => callout(el),
         "Kbd" => kbd(el),
         "EmptyState" => empty_state(el),
@@ -134,7 +201,10 @@ fn parse(src: &str) -> Vec<Statement> {
                 _ => None,
             })
             .unwrap_or_default(),
-        Err(_) => Vec::new(),
+        Err(e) => {
+            failed(src, e.to_string());
+            Vec::new()
+        }
     };
     unplace(&mut body);
     body
@@ -238,7 +308,13 @@ fn give(el: &mut UIElement, key: &str, value: &str) {
 /// `value` as an expression.
 fn parse_expr(value: &str) -> Option<Expr> {
     let wrapped = format!("const WfExpandedValue = {value}\n");
-    let program = crate::syntax::parse_source(&wrapped, "<built-in>").ok()?;
+    let program = match crate::syntax::parse_source(&wrapped, "<built-in>") {
+        Ok(program) => program,
+        Err(e) => {
+            failed(value, e.to_string());
+            return None;
+        }
+    };
     program.declarations.into_iter().find_map(|d| match d {
         Declaration::Const(c) => Some(c.value),
         _ => None,
@@ -440,7 +516,7 @@ fn code_block(el: &mut UIElement) {
     // Its copy button is one of these built-ins too.
     let mut children = parse(&out);
     let mut seq = 0;
-    expand(&mut children, &mut seq);
+    expand_all(&mut children, &mut seq);
     el.children = children;
 }
 
@@ -470,7 +546,7 @@ fn code_tabs(el: &mut UIElement, files: &Expr) {
     };
     let mut made = parse(&format!("Tabs(label: {label}) {{\n{pages}}}"));
     let mut seq = 0;
-    expand(&mut made, &mut seq);
+    expand_all(&mut made, &mut seq);
     if let Some(tabs) = element_of(&mut made) {
         let mut tabs = tabs.clone();
         tabs.span = el.span;
@@ -939,7 +1015,7 @@ fn number_input(el: &mut UIElement) {
         held = clamp(&b),
     ));
     let mut seq = 0;
-    expand(&mut children, &mut seq);
+    expand_all(&mut children, &mut seq);
     el.children = children;
 }
 
@@ -1708,4 +1784,304 @@ fn popconfirm(el: &mut UIElement) {
             src(&title)
         ),
     );
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::syntax::print::{Block, statements};
+
+    /// `body` as the page holding it is drawn after expansion, printed back.
+    fn expanded(body: &str) -> String {
+        let src = format!("page P(path: \"/\") {{\n{body}\n}}\n");
+        let program = crate::syntax::parse_source(&src, "t.wf").unwrap();
+        let mut stmts = program
+            .declarations
+            .into_iter()
+            .find_map(|d| match d {
+                Declaration::Page(p) => Some(p.body),
+                _ => None,
+            })
+            .unwrap();
+        let failures = expand_checked(&mut stmts, &mut 0);
+        assert!(failures.is_empty(), "{failures:#?}");
+        statements(&stmts, Block::Render, 0).join("\n")
+    }
+
+    /// Whether `text` holds each of `parts`, saying what it holds when not.
+    fn holds(text: &str, parts: &[&str]) {
+        for part in parts {
+            assert!(text.contains(part), "no `{part}` in:\n{text}");
+        }
+    }
+
+    /// Every built-in drawn as others, called as the reference shows it,
+    /// is rewritten into something the parser reads back whole, and is no
+    /// longer the call it was.
+    #[test]
+    fn every_expansion_reads_back() {
+        for call in EVERY {
+            let out = expanded(call);
+            assert_ne!(out.trim(), call.trim(), "`{call}` was not expanded");
+        }
+    }
+
+    #[test]
+    fn a_callout_is_a_note_with_its_title_row_and_markdown() {
+        let out = expanded(EVERY[0]);
+        holds(
+            &out,
+            &[
+                "Callout(role: \"note\", data-kind: \"tip\").tip",
+                "Callout.Title(\"Before you push\")",
+                "Icon(\"sparkle\")",
+                "Markdown(\"Run `wf check` first.\")",
+            ],
+        );
+        // Without `title:`, the kind's own word.
+        holds(
+            &expanded("Callout(\"x\").warning"),
+            &["data-kind: \"warning\"", "Callout.Title("],
+        );
+    }
+
+    #[test]
+    fn a_stat_carries_the_caller_s_expressions() {
+        let out = expanded("Stat(\"Revenue\", value: total, format: .currency, change: delta)");
+        holds(
+            &out,
+            &[
+                "Stat.Label(\"Revenue\")",
+                "Stat.Value(format(total, .currency))",
+                "data-trend: if delta < 0 { \"down\" } else { \"up\" }",
+                "VisuallyHidden(",
+            ],
+        );
+    }
+
+    #[test]
+    fn a_chip_is_a_toggle_and_its_remove_button_fires_remove() {
+        let out =
+            expanded("Chip(\"Rust\", selected: on).removable { on remove { drop(\"Rust\") } }");
+        holds(
+            &out,
+            &[
+                "Chip.Action(\"Rust\", type: \"button\", aria-pressed: if on {",
+                "Chip.Remove(type: \"button\", aria-label: \"Remove \" + \"Rust\")",
+                "on click {\n            drop(\"Rust\")",
+            ],
+        );
+        // A `Tag`-like chip, neither pressed nor removable, has no buttons
+        // to press.
+        assert!(!expanded("Chip(\"Rust\")").contains("Chip.Remove"));
+    }
+
+    #[test]
+    fn a_toggle_flips_what_it_binds() {
+        holds(
+            &expanded(EVERY[11]),
+            &["aria-pressed: if bold {", "bold = !bold", "Icon(\"type\""],
+        );
+        holds(
+            &expanded(EVERY[12]),
+            &["role: \"group\"", "roving: .x", "view = \"grid\""],
+        );
+    }
+
+    /// Each `.single` accordion is its own group: the name its items share
+    /// is numbered across the program.
+    #[test]
+    fn accordions_are_numbered_apart() {
+        let out = expanded(
+            "Accordion.single { Accordion.Item(\"A\") { Text(\"a\") } }\nAccordion.single { Accordion.Item(\"B\") { Text(\"b\") } }",
+        );
+        holds(
+            &out,
+            &[
+                "name: \"wf-accordion-1\"",
+                "name: \"wf-accordion-2\"",
+                "Accordion.Summary(\"A\")",
+                "Accordion.Panel {",
+            ],
+        );
+    }
+
+    #[test]
+    fn a_field_wraps_its_control_in_label_hint_and_error() {
+        let out =
+            expanded("Field(label: \"Plan\", hint: \"Pick one\", error: wrong) { Input(bind: x) }");
+        holds(
+            &out,
+            &[
+                "Field.Label(\"Plan\")",
+                "Input(bind: x)",
+                "Field.Hint(\"Pick one\")",
+                "Field.Error(wrong ?? \"\"",
+            ],
+        );
+    }
+
+    #[test]
+    fn pagination_steps_and_lists_the_pages_around_the_current() {
+        let out = expanded("Pagination(bind: page, pages: total)");
+        holds(
+            &out,
+            &[
+                "Pagination.Prev(",
+                "disabled: page <= 1",
+                "page = page - 1",
+                "for wfPage, wfAt in (1..=total)",
+                "aria-current: if wfPage == page { \"page\" }",
+                "disabled: page >= total",
+            ],
+        );
+    }
+
+    #[test]
+    fn a_number_input_is_held_between_its_ends() {
+        holds(
+            &expanded(EVERY[15]),
+            &[
+                "Field.Label(\"Quantity\")",
+                "qty = Math.min(99, Math.max(1, qty + 1))",
+                "NumberInput.Decrease(",
+                "disabled: qty <= 1",
+            ],
+        );
+    }
+
+    #[test]
+    fn the_last_crumb_is_the_current_page() {
+        let out = expanded(EVERY[16]);
+        holds(
+            &out,
+            &[
+                "Breadcrumb.Item(to: \"/\")",
+                "Breadcrumb.Item(aria-current: \"page\")",
+            ],
+        );
+        assert_eq!(out.matches("aria-current").count(), 1, "{out}");
+    }
+
+    #[test]
+    fn a_runtime_helper_is_a_mount() {
+        holds(
+            &expanded(EVERY[6]),
+            &["__wf.copyButton(n, () => \"x\", \"Copy link\", \"Link copied\")"],
+        );
+        holds(
+            &expanded(EVERY[17]),
+            &[
+                "ConsentSettings(\"Cookie settings\"",
+                "__wf.consentSettings(n)",
+            ],
+        );
+        holds(
+            &expanded(EVERY[18]),
+            &["data-autosize: \"true\"", "__wf.autosize(n)"],
+        );
+        // A call that already says `mount:` keeps its own.
+        assert!(
+            !expanded("Textarea(bind: n, label: \"N\", mount: m => go(m)).autosize")
+                .contains("__wf.autosize")
+        );
+    }
+
+    #[test]
+    fn a_code_block_copies_the_code_it_shows() {
+        holds(
+            &expanded(EVERY[4]),
+            &[
+                "CodeBlock.Bar(\"App.wf\")",
+                "__wf.copyButton(n, () => \"let x = 1\"",
+                "CodeBlock.Lines(",
+                "Code(\"let x = 1\", language: \"wf\", tabindex: \"0\").block",
+            ],
+        );
+    }
+
+    /// A rewrite that does not parse is reported, with the text written
+    /// and what the parser said — never dropped without a word.
+    #[test]
+    fn a_rewrite_that_does_not_parse_is_reported() {
+        let before = FAILED.with(|f| f.borrow().len());
+        assert!(parse("Text(").is_empty());
+        assert!(parse_expr("1 +").is_none());
+        let failures = FAILED.with(|f| f.borrow_mut().split_off(before));
+        assert_eq!(failures.len(), 2, "{failures:#?}");
+        assert_eq!(failures[0].source, "Text(");
+        assert!(!failures[0].error.is_empty());
+        assert_eq!(failures[1].source, "1 +");
+    }
+
+    /// What one expansion found is its own: a clean one reports nothing,
+    /// and leaves what an expansion around it found where it was.
+    #[test]
+    fn an_expansion_reports_only_its_own_failures() {
+        failed("broken(", "expected `)`".into());
+        let src = "page P(path: \"/\") {\nCallout(\"x\")\n}\n";
+        let program = crate::syntax::parse_source(src, "t.wf").unwrap();
+        let Some(Declaration::Page(mut page)) = program.declarations.into_iter().next() else {
+            unreachable!()
+        };
+        let failures = expand_checked(&mut page.body, &mut 0);
+        assert!(failures.is_empty(), "{failures:#?}");
+        let left = FAILED.with(|f| std::mem::take(&mut *f.borrow_mut()));
+        assert_eq!(left.len(), 1, "{left:#?}");
+    }
+
+    const EVERY: &[&str] = &[
+        "Callout(\"Run `wf check` first.\", title: \"Before you push\").tip",
+        "Kbd(\"mod+k\")",
+        "EmptyState(icon: \"folder\", title: \"No projects yet\", text: \"Create one.\") { Button(\"New project\").primary }",
+        "Stat(\"Revenue\", value: 12, format: .currency, change: 0.124)",
+        "CodeBlock(\"let x = 1\", language: \"wf\", title: \"App.wf\").copy.lines",
+        "Chip(\"Rust\", icon: \"code\", selected: true).removable { on remove { log(1) } }",
+        "CopyButton(\"Copy link\", value: \"x\", copied: \"Link copied\")",
+        "ThemeToggle",
+        "Accordion.single { Accordion.Item(\"Shipping\") { Text(\"a\") } }",
+        "Field(label: \"Plan\", hint: \"h\", error: \"\") { Input(bind: x) }",
+        "Fieldset(legend: \"Address\") { Text(\"a\") }",
+        "Toggle(\"Bold\", bind: bold, icon: \"type\")",
+        "ToggleGroup(bind: view, label: \"View\") { ToggleGroup.Item(\"Grid\", value: \"grid\") }",
+        "RadioGroup(bind: plan, label: \"Plan\") { RadioGroup.Option(\"Free\", value: \"free\", hint: \"Try\") }",
+        "Pagination(bind: page, pages: 10)",
+        "NumberInput(bind: qty, min: 1, max: 99, label: \"Quantity\")",
+        "Breadcrumb { Breadcrumb.Item(to: \"/\") { Text(\"Home\") } Breadcrumb.Item { Text(\"Here\") } }",
+        "ConsentSettings",
+        "Textarea(bind: note, label: \"Notes\").autosize",
+        "PrevNext { PrevNext.Prev(\"Forms\", to: \"/forms\") PrevNext.Next(\"Stores\", to: \"/stores\") }",
+        "LocaleSwitch(label: \"Language\")",
+        "InputGroup { Icon(\"search\") Input(bind: q, aria-label: \"Search\") InputGroup.Clear }",
+        "OnThisPage(levels: 2, label: \"On this page\")",
+        "Stepper(bind: step) { Stepper.Step(\"Account\") { Text(\"a\") } Stepper.Step(\"Billing\", done: billed) { Text(\"b\") } }",
+        "Listbox(bind: fruit, label: \"Fruit\") { Listbox.Option(\"Apple\", value: \"apple\") }",
+        "CommandPalette(open: palette) { CommandPalette.Group(\"Pages\") { CommandPalette.Item(\"Home\", icon: \"home\") { on select { navigate(\"/\") } } } }",
+        "CheckboxGroup(bind: picked, label: \"Toppings\", all: \"Every topping\") { CheckboxGroup.Option(\"Olives\", value: \"olives\") }",
+        "NavigationMenu(label: \"Main\") { NavigationMenu.Item(\"Products\") { Link(\"Editor\", to: \"/editor\") } NavigationMenu.Link(\"Pricing\", to: \"/pricing\") }",
+        "BottomNavigation(label: \"Sections\") { BottomNavigation.Item(\"Home\", to: \"/\", icon: \"home\") }",
+        "HoverCard(delay: 300) { Link(\"@ada\", to: \"/u/ada\") HoverCard.Content { Text(\"Ada\") } }",
+        "LoadingOverlay(visible: saving, label: \"Saving\") { Text(\"form\") }",
+        "Lightbox(label: \"Trip\") { Image(src: \"/a.jpg\", alt: \"A\") }",
+        "Tour(open: touring) { Tour.Step(target: newBtn, title: \"New\") { Text(\"Start here.\") } }",
+        "ConsentBanner(\"We would like to count visits.\", accept: \"Allow\", decline: \"No thanks\")",
+        "DescriptionList.grid { DescriptionList.Item(\"Region\", value: \"eu-west\") }",
+        "Timeline { Timeline.Item(\"7.0\", at: \"2026-01-01\") { Text(\"notes\") } }",
+        "AvatarGroup(max: 3, label: \"Team\") { Avatar(initials: \"A\") }",
+        "Item(title: \"Notifications\", description: \"Sent to your phone\") { Item.Media { Icon(\"bell\") } }",
+        "Gallery(columns: 3) { Image(src: \"/a.jpg\", alt: \"A\") }",
+        "Masonry(columns: 3) { Text(\"a\") }",
+        "CircularProgress(value: 3, max: 10, label: \"Upload\")",
+        "Meter(value: 0.5, max: 1, high: 0.9, label: \"Disk\")",
+        "Sparkline([1, 2, 3], label: \"Sign-ups\")",
+        "RelativeTime(\"2026-01-01T00:00:00Z\")",
+        "AspectRatio(ratio: 16 / 9) { Text(\"a\") }",
+        "ScrollArea(height: \"300px\", label: \"Log\") { Text(\"a\") }",
+        "Sticky(offset: \"64px\") { Text(\"a\") }",
+        "PanelGroup(bind: sizes, label: \"Resize\") { PanelGroup.Panel(min: 15) { Text(\"a\") } PanelGroup.Panel { Text(\"b\") } }",
+        "Fab(icon: \"plus\", label: \"New note\")",
+        "BackToTop(after: 600)",
+        "Popconfirm(title: \"Delete this file?\", yes: \"Delete\") { Button(\"Delete\") }",
+        "Input(bind: pass, label: \"Password\").password.reveal",
+    ];
 }

@@ -163,8 +163,40 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             findings: &mut findings,
         };
         cx.statements(body);
+        if !matches!(decl, Declaration::Store(_)) {
+            report_expansion(body, &file, &mut findings);
+        }
     }
     findings
+}
+
+/// The built-ins in `body` drawn as others, expanded on a copy as
+/// [`lower`] will expand them: a rewrite the compiler could not read back
+/// would leave a piece of the page out, so it is an error here, before
+/// anything is built.
+fn report_expansion(body: &[Statement], file: &str, findings: &mut Findings) {
+    let mut copy = body.to_vec();
+    for failure in expand::expand_checked(&mut copy, &mut 0) {
+        findings.errors.push(expansion_error(&failure, file));
+    }
+}
+
+fn expansion_error(failure: &expand::Failure, file: &str) -> Diagnostic {
+    Diagnostic::coded(
+        "E901",
+        format!(
+            "the compiler could not read back what it wrote for this `{}`, so part of it would be missing",
+            failure.component
+        ),
+        file,
+        failure.span.line as usize,
+        failure.span.col as usize,
+    )
+    .with_hint(format!(
+        "This is a bug in WebFluent, not in the program; please report it with this call. It wrote `{}`, and the parser said: {}",
+        failure.source.trim(),
+        failure.error
+    ))
 }
 
 struct Checker<'a, 'p> {
@@ -2626,6 +2658,43 @@ mod tests {
             panic!()
         };
         assert!(format!("{:?}", el.args).contains("FunctionCall(\"Date\", [])"));
+    }
+
+    /// A built-in's rewrite the compiler could not read back is an error at
+    /// the call, naming what was written, so the page is not built without
+    /// it.
+    #[test]
+    fn a_rewrite_that_did_not_parse_is_an_error_at_the_call() {
+        let failure = super::expand::Failure {
+            component: "Callout".into(),
+            span: Span {
+                line: 4,
+                col: 5,
+                ..Span::default()
+            },
+            source: "Markdown(\"x\"".into(),
+            error: "expected `)`".into(),
+        };
+        let d = super::expansion_error(&failure, "src/pages/Home.wf");
+        assert_eq!((d.code, d.line, d.column), ("E901", 4, 5));
+        assert!(d.message.contains("`Callout`"), "{}", d.message);
+        let hint = d.hint.unwrap_or_default();
+        assert!(
+            hint.contains("Markdown(\"x\"") && hint.contains("expected `)`"),
+            "{hint}"
+        );
+        // A program whose rewrites all read back has no such error.
+        let program = crate::syntax::parse_source(
+            "page P(path: \"/\") {\n    Callout(\"Run it.\").tip\n    Stat(\"Users\", value: 3)\n}\n",
+            "t.wf",
+        )
+        .unwrap();
+        let findings = super::check(&program, &|_| "t.wf".into());
+        assert!(
+            !findings.errors.iter().any(|e| e.code == "E901"),
+            "{:?}",
+            findings.errors
+        );
     }
 
     #[test]
