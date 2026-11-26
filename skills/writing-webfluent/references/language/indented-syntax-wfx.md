@@ -1,4 +1,4 @@
-### The indented layout: `.wfx`
+### Indented syntax (`.wfx`)
 
 The same grammar, with blocks written by indentation instead of braces. A
 file named `.wfx` is read that way: a line whose next line is indented

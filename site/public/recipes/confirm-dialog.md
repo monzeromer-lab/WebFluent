@@ -42,7 +42,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 - `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.
 - It declares two [events](https://webfluent.monzeromer.dev/learn/10-components.md#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.
 - `slot` declares a default [slot](https://webfluent.monzeromer.dev/learn/10-components.md#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.
-- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus).
+- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](https://webfluent.monzeromer.dev/learn/08-events.md#overlays).
 - An `AlertDialog` is one to a screen reader, read with its body. Escape closes it, and a press beside it does not: an answer is a button. Its `on close` runs however it closes, so Escape fires `cancel` too and the page clears `asking`; without it, `asking` would stay `true` and the next **Delete account** would change nothing.
 
 ## One question, from a handler

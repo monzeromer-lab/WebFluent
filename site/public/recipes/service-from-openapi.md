@@ -61,4 +61,4 @@ wf api check
 
 ## How it works
 
-A generated file is never edited — `sync` rewrites the folder whole, and refuses to touch a file in it without its marker. Customise beside it: a `type` of the program's own wins over the spec's, an endpoint the spec lacks goes in a group of your own, and `invalidations { }` and `pagination { }` go in `service.wf`. More in [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file).
+A generated file is never edited — `sync` rewrites the folder whole, and refuses to touch a file in it without its marker. Customise beside it: a `type` of the program's own wins over the spec's, an endpoint the spec lacks goes in a group of your own, and `invalidations { }` and `pagination { }` go in `service.wf`. More in [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#openapi).

@@ -11,7 +11,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("api", id: "api").h3
 
-        Markdown("A declaration that describes a service: its address, how it is reached, and its endpoints, each a typed call ([Fetching data](/learn/15-data#describe-a-service-with-api)).")
+        Markdown("A declaration that describes a service: its address, how it is reached, and its endpoints, each a typed call ([Fetching data](/learn/15-data#api-services)).")
 
         Heading("App shell", id: "app-shell").h3
 
@@ -21,7 +21,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Block", id: "block").h3
 
-        Markdown("The `\{ … \}` after an element, holding its style, transitions, handlers, slot fills and children, in that order ([Elements](/learn/06-elements#the-call-shape)).")
+        Markdown("The `\{ … \}` after an element, holding its style, transitions, handlers, slot fills and children, in that order ([Elements](/learn/06-elements#call-syntax)).")
 
         Heading("Built-in", id: "built-in").h3
 
@@ -39,7 +39,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Contract", id: "contract").h3
 
-        Markdown("What an `api` says of each endpoint — where it is, what it takes, what it answers and how it fails — which every call site, every fake and, with an OpenAPI spec, `wf api check` are held to ([Fetching data](/learn/15-data#declare-endpoints)).")
+        Markdown("What an `api` says of each endpoint — where it is, what it takes, what it answers and how it fails — which every call site, every fake and, with an OpenAPI spec, `wf api check` are held to ([Fetching data](/learn/15-data#endpoints)).")
 
         Heading("Component", id: "component").h3
 
@@ -75,7 +75,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Endpoint", id: "endpoint").h3
 
-        Markdown("One call of an `api`: a method, a name, its parameters, a path given by `at`, and its answer, `get user(id: String) at \"users/\{id\}\" -> User!` ([Fetching data](/learn/15-data#declare-endpoints)).")
+        Markdown("One call of an `api`: a method, a name, its parameters, a path given by `at`, and its answer, `get user(id: String) at \"users/\{id\}\" -> User!` ([Fetching data](/learn/15-data#endpoints)).")
 
         Heading("Enum", id: "enum").h3
 
@@ -83,7 +83,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Error enum", id: "error-enum").h3
 
-        Markdown("An enum whose cases name the statuses a service answers with, each with its body — `notFound(problem: Problem) on 404` — and one `http(error: HttpError)` case for every other failure ([Fetching data](/learn/15-data#say-how-a-call-fails)).")
+        Markdown("An enum whose cases name the statuses a service answers with, each with its body — `notFound(problem: Problem) on 404` — and one `http(error: HttpError)` case for every other failure ([Fetching data](/learn/15-data#error-enums)).")
 
         Heading("Event", id: "event").h3
 
@@ -93,7 +93,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Fake", id: "fake").h3
 
-        Markdown("What answers a group's endpoints in a test in place of the network, held to the group's contract: `fake OneUser for Backend.users \{ … \}` ([Testing](/learn/16-testing#answer-a-service-with-fakes)).")
+        Markdown("What answers a group's endpoints in a test in place of the network, held to the group's contract: `fake OneUser for Backend.users \{ … \}` ([Testing](/learn/16-testing#fakes)).")
 
         Heading("Flag", id: "flag").h3
 
@@ -129,7 +129,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Middleware", id: "middleware").h3
 
-        Markdown("A step every request of an `api` passes through, in the order written: `middleware [requestId, bearer(Session.token)]`, or one the project declares with `middleware name(req, next) \{ … \}` ([Fetching data](/learn/15-data#pass-every-request-through-middleware)).")
+        Markdown("A step every request of an `api` passes through, in the order written: `middleware [requestId, bearer(Session.token)]`, or one the project declares with `middleware name(req, next) \{ … \}` ([Fetching data](/learn/15-data#middleware)).")
 
         Heading("P", id: "p").h2
 
@@ -143,15 +143,15 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Persist", id: "persist").h3
 
-        Markdown("A state kept in the browser's storage across visits: `persist scheme = \"light\"` ([Stores](/learn/11-stores#keeping-a-value-across-visits)).")
+        Markdown("A state kept in the browser's storage across visits: `persist scheme = \"light\"` ([Stores](/learn/11-stores#persisted-state)).")
 
         Heading("Positional argument", id: "positional-argument").h3
 
-        Markdown("The one value an element takes without a name, such as a button's label or a heading's text ([Elements](/learn/06-elements#the-call-shape)).")
+        Markdown("The one value an element takes without a name, such as a button's label or a heading's text ([Elements](/learn/06-elements#call-syntax)).")
 
         Heading("Pre-rendered page", id: "pre-rendered-page").h3
 
-        Markdown("The HTML the build writes for a page from everything it can know at build time, shown before any script runs; also called the *static paint* ([Static sites and SPAs](/about/static-or-single-page#what-the-static-paint-knows)).")
+        Markdown("The HTML the build writes for a page from everything it can know at build time, shown before any script runs; also called the *static paint* ([Static sites and SPAs](/about/static-or-single-page#pre-rendering-limits)).")
 
         Heading("Project script", id: "project-script").h3
 
@@ -165,7 +165,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Read", id: "read").h3
 
-        Markdown("A request whose answer the page shows, as one value in one of three cases: `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`; a `resource` holds one ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
+        Markdown("A request whose answer the page shows, as one value in one of three cases: `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`; a `resource` holds one ([Fetching data](/learn/15-data#resources)).")
 
         Heading("Registry", id: "registry").h3
 
@@ -177,7 +177,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Resource", id: "resource").h3
 
-        Markdown("A declaration that holds a read: `resource rows: [Row] = http.get(…)` or `resource users = Backend.users.list()`, shown by a `match` on its `.loading`, `.failed(e)` and `.loaded(v)` cases ([Fetching data](/learn/15-data#show-a-request-with-resource)).")
+        Markdown("A declaration that holds a read: `resource rows: [Row] = http.get(…)` or `resource users = Backend.users.list()`, shown by a `match` on its `.loading`, `.failed(e)` and `.loaded(v)` cases ([Fetching data](/learn/15-data#resources)).")
 
         Heading("Result", id: "result").h3
 
@@ -203,7 +203,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Single-page app (SPA)", id: "single-page-app-spa").h3
 
-        Markdown("A build with one HTML shell, whose pages the script swaps without a reload ([Static sites and SPAs](/about/static-or-single-page#two-shapes-of-build)).")
+        Markdown("A build with one HTML shell, whose pages the script swaps without a reload ([Static sites and SPAs](/about/static-or-single-page#static-and-spa-builds)).")
 
         Heading("Slot", id: "slot").h3
 
@@ -219,11 +219,11 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Static build", id: "static-build").h3
 
-        Markdown("A build with `build.ssg: true`, which writes a pre-rendered HTML file for every page ([Static sites and SPAs](/about/static-or-single-page#two-shapes-of-build)).")
+        Markdown("A build with `build.ssg: true`, which writes a pre-rendered HTML file for every page ([Static sites and SPAs](/about/static-or-single-page#static-and-spa-builds)).")
 
         Heading("Static paint", id: "static-paint").h3
 
-        Markdown("Another name for the pre-rendered page: the HTML the build writes for a page before any script runs ([Static sites and SPAs](/about/static-or-single-page#what-the-static-paint-knows)).")
+        Markdown("Another name for the pre-rendered page: the HTML the build writes for a page before any script runs ([Static sites and SPAs](/about/static-or-single-page#pre-rendering-limits)).")
 
         Heading("Store", id: "store").h3
 
@@ -247,7 +247,7 @@ page GlossaryGuide(path: "/reference/glossary", title: "Glossary", description: 
 
         Heading("Validate block", id: "validate-block").h3
 
-        Markdown("A `validate x \{ … \}` block beside a state, whose rules the control bound to that state shows ([Forms](/learn/14-forms#validate-a-field)).")
+        Markdown("A `validate x \{ … \}` block beside a state, whose rules the control bound to that state shows ([Forms](/learn/14-forms#validation)).")
 
         Heading("W", id: "w").h2
 

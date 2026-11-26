@@ -1,5 +1,7 @@
 ## Slides Output (PDF Slide Decks)
 
+With `output_type: "slides"` the build writes a PDF slide deck, one `Slide` per page.
+
 ```json
 {
     "build": {

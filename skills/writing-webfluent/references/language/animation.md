@@ -1,5 +1,7 @@
 ## Animation
 
+Animation is set with props and flags on any element; the runtime plays enter, exit and reorder animations.
+
 Every element takes the universal motion props: an enter animation as a
 flag or `animate:`, `exit:`, `delay:`, `duration:`, `speed:` (`.fast`,
 `.normal`, `.slow` — the flags `.fast`, `.normal` and `.slow` are this prop),
@@ -7,7 +9,7 @@ flag or `animate:`, `exit:`, `delay:`, `duration:`, `speed:` (`.fast`,
 `.mount` or `.enterView`), `shared:` (a name it keeps across a route
 change) and `count:` (a number that counts to its new value). Beside
 them, every element also takes `class:`, `ref:`, and `mount:`/`update:`/
-`cleanup:` (see [Your own JavaScript](#your-own-javascript)).
+`cleanup:` (see [JavaScript interop](#javascript-interop)).
 
 An element that stands still plays its enter animation as a stylesheet
 rule, so a static page animates before its script has loaded. Everything

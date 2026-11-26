@@ -98,7 +98,7 @@ app {
 
 ## How it works
 
-- `Auth` [describes the service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api). `credentials: .sameOrigin` sends the session cookie with every call, so the page holds no token. `SignInError` names what a refused sign-in answers, `on 401`, and keeps `http` for every other failure.
+- `Auth` [describes the service](https://webfluent.monzeromer.dev/learn/15-data.md#api-services). `credentials: .sameOrigin` sends the session cookie with every call, so the page holds no token. `SignInError` names what a refused sign-in answers, `on 401`, and keeps `http` for every other failure.
 - The `Session` [store](https://webfluent.monzeromer.dev/learn/11-stores.md#a-first-store) holds the user, or `null`, and `signedIn` is derived from it. `load` asks the server who is signed in, `signIn` and `signOut` call the service and move the reader on with `navigate`.
 - The server sets the cookie when a sign-in succeeds, with a header such as `Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600`. `HttpOnly` keeps it from every script, `SameSite=Lax` from another site's form, and `Secure` off plaintext connections.
 - `Auth.me.invalidate()` on sign-out drops what the endpoint cached, and any `resource` over it asks again, so the next reader of the tab is not shown the last one's. Do the same for every endpoint whose answer is one reader's: an answer cached under one `Authorization` header is never served for another, but a cookie cannot be read, so the cache cannot tell one cookie's reader from the next.
@@ -106,4 +106,4 @@ app {
 - `Session.load()` at the top of `app` runs once, when the site opens: a reader who comes back with a session cookie is signed in again, and `checked` turns true when the server has answered either way.
 - The `Account` page has a [guard](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#guards). A guard is read once, when the route opens, so it lets the page through while `checked` is still false, and the `effect` sends a signed-out reader to `/sign-in` as soon as the answer arrives. Until then the page shows a `Spinner`.
 
-The session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](https://webfluent.monzeromer.dev/about/security.md#where-a-session-belongs)).
+The session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](https://webfluent.monzeromer.dev/about/security.md#sessions)).

@@ -26,18 +26,18 @@ This chapter does not cover:
 - a connection the page holds open — a socket, a stream, a channel or a peer — which is [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md);
 - values fixed for each build, which are [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
 
-## Choose how to get data
+## Ways to get data
 
 | You want… | Use | Section |
 |---|---|---|
-| Content known before the site is built | `data` | [Read a file at build time](#read-a-file-at-build-time-with-data) |
-| Data the page shows as soon as it opens | `resource` over `http.get(…)` | [Show a request](#show-a-request-with-resource) |
-| A request made when something happens: a save, a delete | `http.post(…)` in an action | [Ask on demand](#ask-on-demand-with-http) |
-| One place that describes a service, used from many pages | `api` | [Describe a service](#describe-a-service-with-api) |
+| Content known before the site is built | `data` | [Read a file at build time](#build-time-data) |
+| Data the page shows as soon as it opens | `resource` over `http.get(…)` | [Show a request](#resources) |
+| A request made when something happens: a save, a delete | `http.post(…)` in an action | [Ask on demand](#one-off-requests-with-http) |
+| One place that describes a service, used from many pages | `api` | [Describe a service](#api-services) |
 
 Start with `http`. Move to `api` when the same service is called from more than one place: the address, the types and the failures are then written once.
 
-## Show a request with resource
+## Resources
 
 A *resource* is a request the page makes when it shows, and one value that says where the request is: `.loading`, `.failed(e)` or `.loaded(value)`. Show it with `match`.
 
@@ -77,7 +77,7 @@ How it works:
 - `e.message` is something you can show. For a failed status it is the server's own words when its body has them — its `detail`, else its `title` — and `HTTP 500` when it says nothing.
 - A static build's pre-rendered page shows the `.loading` arm.
 
-### Read one fact of a resource anywhere
+### Resource members
 
 Without a `match`, a resource has members worked out from its one value. Each is live wherever you read it:
 
@@ -92,7 +92,7 @@ Without a `match`, a resource has members worked out from its one value. Each is
 
 So `Button(if plan.isLoaded { "Request approval" } else { "Deploy" })` changes its label when the plan arrives, and `if let .failed(e) = plan { Alert(e.message).danger }` shows one case without a `match`.
 
-### Fetch again when state changes
+### Refetching on state change
 
 An address that reads state is asked again whenever that state changes. A detail page follows its route parameter this way:
 
@@ -114,7 +114,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
 A value spliced into the address is URL-encoded where it stands for a value. The same holds for a body or a header that reads state. To ask less often than the reader types, splice a slower value, as [Debounce a search](https://webfluent.monzeromer.dev/recipes/debounce-a-search.md) does.
 
-## Refresh without clearing the page
+## Refreshing
 
 Asking again for the request already shown is a *refresh*: `name.reload()` asks, and so does `refresh:` on the request — `.onReconnect` (what a read does unless it says otherwise), `.onFocus`, `.every(30.seconds)` or `.never`. While a refresh runs, the read stays `.loaded` with its value, and `refreshing` is true. This page polls every 30 seconds:
 
@@ -147,7 +147,7 @@ When a request fails or changes:
 - A first load that fails is `.failed(e)`.
 - A request whose address now names something else is a first load again, shown as `.loading`, because the old value would be the wrong one. Pressing **Production** above does this. `placeholder: .previous` keeps the last value shown instead, refreshing, until the new answer arrives — for a search whose results stay while the next ones load.
 
-## Ask on demand with http
+## One-off requests with http
 
 For a request made when something happens — a save, a delete, a step in a flow — call `http` in an action: `http.get(url)`, `http.post(url, body: …)`, `http.put`, `http.patch`, `http.delete`. Its answer is a *result*: `.ok(value)`, or `.err(e)` with an `HttpError`. A failure is a value you handle, not an exception you catch.
 
@@ -192,7 +192,7 @@ page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server
 - **Options** follow the address by name: `body:` (sent as JSON), `headers:`, `timeout:`, `retry:`, `cache:`, `as: .text`.
 - `load()` at the top of the page runs once, when the page renders, and `add.pending` is `true` while `add` runs.
 
-## Describe a service with api
+## API services
 
 When a service is called from more than one place, describe it once with `api`: where it is, how it is reached, and its endpoints. Every call is then typed, and the day the server changes its contract the build says so.
 
@@ -231,7 +231,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
 A `resource` over an endpoint takes the endpoint's type, so `u.nam` is `T05`. An endpoint the service does not have is `T06`. Every call goes through the engine `http` uses. It cancels a call when its page leaves, gives up after the `timeout:` (30 seconds unset), retries a request that is safe to send twice, keeps a `GET` answer as long as the server's `Cache-Control` allows, and makes one request for two readers of one address. The settings and their rules are in [Services and requests](https://webfluent.monzeromer.dev/reference/requests.md).
 
-### Declare endpoints
+### Endpoints
 
 Each line after the settings is an endpoint:
 
@@ -244,7 +244,7 @@ Each line after the settings is an endpoint:
 
 A service's endpoints may be split into groups — `api Backend.todos { … }`, called as `Backend.todos.list()`. A group sends what its service sends: its `base`, `timeout`, `retry` and `middleware`.
 
-## Say how a call fails
+## Error enums
 
 An endpoint that names an *error enum* turns each status the service answers with into a case of its own, carrying that status's body. One case, `http(error: HttpError)`, holds everything else:
 
@@ -306,7 +306,7 @@ store People {
 
 Each has `.message`, for showing. `Problem` is RFC 9457's record — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record, as `ValidationProblem` does.
 
-## Change data
+## Writes
 
 A write is a call made from an action or a handler, never a `resource`: a resource over a write is `N02`. A write's result must be heard — matched, or passed up with `try`. One awaited on its own is `N04`.
 
@@ -355,7 +355,7 @@ page Todos(path: "/todos", title: "Todos", description: "The list.") {
 - Each name in `invalidates` is a read of the same group, and each argument is one of the write's own parameters (`N05`).
 - `Backend.todos.list.update(change)` changes what every read of `list` shows, at once, and returns what takes it back. `Drafts.add` shows the new todo before the server answers, and takes it back on a refusal.
 
-### Show a change before the server agrees
+### Optimistic updates
 
 `optimistic(holder, change)` does the same for a state you hold yourself. If anything later in the action fails — a `try` passing a failure up, or a throw — the change is taken back:
 
@@ -379,9 +379,9 @@ store Todos {
 
 The new title shows at once. If `rename` fails, `try` passes the failure up, and the old title comes back.
 
-## Long answers
+## Pagination and streaming
 
-### Load results a page at a time
+### Pagination
 
 How an endpoint pages is part of its contract, so you say it once, on the endpoint, with `pages`. A read of it then holds every page loaded so far:
 
@@ -418,7 +418,7 @@ There are three ways to page:
 | `pages .cursor(param: after, next: …)` | the cursor the last page gave | `next:` gives `null` |
 | `pages .link` | the `Link` header's `rel="next"` (RFC 8288) | no `Link` names one |
 
-### Read an answer that arrives a line at a time
+### Streamed responses
 
 An endpoint that answers one JSON value a line — a log tail, a build's output — is marked `streamed`, and declares the list its lines make:
 
@@ -439,11 +439,11 @@ store Follow {
 
 A `resource` over it is `.loaded` from the first line, and its list grows as the rest arrive. `for await line in …` runs its body for each line as it arrives. Each line is held to `LogLine`. `pages` and `streamed` are a read's: a write is sent once (`N14`).
 
-## Credentials and every request
+## Credentials and middleware
 
 A session belongs in an httpOnly cookie, which no script on the page can read. `credentials: .sameOrigin` (or `.include`, for a service on another origin) sends it with every call, and the page holds no token at all.
 
-### Pass every request through middleware
+### Middleware
 
 What every call carries — a token, the reader's language, a request ID — is *middleware*: steps each request passes through, in the order written in `middleware [ … ]`. This service refreshes the token on a `401`, sends it as a bearer token, and tags each request:
 
@@ -470,13 +470,13 @@ api Backend(base: "/api") {
 
 A step of your own is a `middleware timed(req, next) { … }` declaration that returns what `await next(req)` returns.
 
-### Call an API on another origin
+### Cross-origin APIs
 
 A page on `https://example.com` that calls `https://api.example.com` makes a *cross-origin request*. The API must answer with CORS headers — `Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if cookies go with the call — or the browser refuses the answer. The page is not told why, so the call fails as `.offline`, and the console names CORS.
 
 `wf serve` has no proxy, so an API on `localhost:8080` must allow `localhost:3000` too. One origin for both, behind a reverse proxy, needs no CORS ([Serve the API on the same origin](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)). A build that ships a content security policy lists the API's origin in `meta.connect` ([Security](https://webfluent.monzeromer.dev/about/security.md)).
 
-## Read the service from an OpenAPI file
+## OpenAPI
 
 When the server publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let it write the contract:
 
@@ -511,7 +511,7 @@ api Backend.people {
 
 For a prototype, `api Backend from "openapi.json" (base: "/api")` reads the same contract without writing files, and `wf api eject Backend` turns it into files later. [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md) walks through one.
 
-## Test it without a server
+## Testing with fakes
 
 A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network:
 
@@ -551,7 +551,7 @@ test "lists the team"(fakes: [TwoPeople]) {
 
 [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md) covers tests; [Test a page with a fake service](https://webfluent.monzeromer.dev/recipes/test-with-a-fake.md) tests a write.
 
-## Keep writes made offline
+## Offline writes
 
 With `offline` in the config, the build writes a service worker, and `"sync": true` keeps a write that failed for want of a network, to send when the connection returns:
 
@@ -565,7 +565,7 @@ With `offline` in the config, the build writes a service worker, and `"sync": tr
 
 See [Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md) and [Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md).
 
-## Read a file at build time with data
+## Build-time data
 
 For content known before the site is built — posts, a price list, a team page — `data name: T = "file.json"` reads a JSON file from the project directory or `src/` at build time. Its value is a constant, in scope in every page and component, and written into the pre-rendered page:
 
@@ -596,7 +596,7 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 
 The build holds the file to the type. A record that is not a `Post` stops the build with `T33`, naming the file and the place: `$[3].date is "March 5", not a Date`.
 
-### Render a page for each item
+### A page per item
 
 To give each post its own HTML file in a static build, list the values of the route parameter in `paths:`:
 
@@ -622,7 +622,7 @@ The build writes `posts/hello/index.html` and `posts/second/index.html`, and lis
 
 | What you see | Why, and what to do |
 |---|---|
-| The console says a response was blocked by CORS; the call fails `.offline` | The API is on another origin and does not allow yours ([Call an API on another origin](#call-an-api-on-another-origin)). |
+| The console says a response was blocked by CORS; the call fails `.offline` | The API is on another origin and does not allow yours ([Call an API on another origin](#cross-origin-apis)). |
 | `.decode(at, message)`, such as `$[1].name is missing` | The server sent another shape than the declared type. Fix the server or the `type`. |
 | A resource stays `.loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
 | The page goes back to `.loading` when state changes | The address now names something else, so it is a first load. `placeholder: .previous` keeps the last value. |

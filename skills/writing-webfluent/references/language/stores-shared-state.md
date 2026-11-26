@@ -1,6 +1,6 @@
 ### Stores (Shared State)
 
-A store is **built the first time something reads it**. Declaring one does
+A store is state shared across pages, **built the first time something reads it**. Declaring one does
 nothing, so the order stores are declared in cannot matter — a `derived`
 may read a store declared below it — and a store nothing reads costs
 nothing, in time or in bytes.

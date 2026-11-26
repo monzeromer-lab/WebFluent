@@ -27,7 +27,7 @@ lower or accept a warning; an error can't be lowered, except the six that
 cannot ship a broken page (`R01`, `C02`, `S04`, `I01`, `I02`, `I04`).
 `wf explain CODE --json` says whether a code is one (`lowerable`).
 
-## The ones models hit most
+## Most common errors
 
 | Code | What it means | The fix |
 |---|---|---|
@@ -101,7 +101,7 @@ them all.
 | a `style { }` after the children | `style` comes first in its block, then `transition`, `on …`, slot fills, children |
 | `if x { … } else if y { … }` missing a brace | `wf fmt` refuses to format a file it can't parse; the error names the line |
 
-## What the compiler doesn't catch
+## What the compiler misses
 
 These pass `wf check` and are still wrong:
 
@@ -122,7 +122,7 @@ These pass `wf check` and are still wrong:
 - **Layout by `viewport`.** It works, but the first paint is wrong. Use
   responsive values.
 
-## The wf on PATH may not be the one the docs describe
+## Version mismatch between wf and the docs
 
 `wf --version` names a release. A project's `AGENTS.md` describes the
 version that made it. If the compiler refuses something the reference shows

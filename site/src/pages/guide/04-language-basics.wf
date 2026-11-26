@@ -67,12 +67,12 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
                 Table.Row {
                     Table.Cell { Markdown("`api`") }
                     Table.Cell("An HTTP service: its address, its endpoints and what they return")
-                    Table.Cell { Markdown("[Describe a service](/learn/15-data#describe-a-service-with-api)") }
+                    Table.Cell { Markdown("[Describe a service](/learn/15-data#api-services)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`middleware`") }
                     Table.Cell { Markdown("A step every request of a service passes through, named in its `middleware [ … ]`") }
-                    Table.Cell { Markdown("[Pass every request through middleware](/learn/15-data#pass-every-request-through-middleware)") }
+                    Table.Cell { Markdown("[Pass every request through middleware](/learn/15-data#middleware)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`const`") }
@@ -82,7 +82,7 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
                 Table.Row {
                     Table.Cell { Markdown("`data`") }
                     Table.Cell("A JSON file read at build time, as a constant")
-                    Table.Cell { Markdown("[Read a file at build time](/learn/15-data#read-a-file-at-build-time-with-data)") }
+                    Table.Cell { Markdown("[Read a file at build time](/learn/15-data#build-time-data)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`image`") }
@@ -102,12 +102,12 @@ fake NoTodos for Backend { todos() { .ok([]) } }"#, title: "wf")
                 Table.Row {
                     Table.Cell { Markdown("`fake`") }
                     Table.Cell("What answers a service's endpoints in a test, in place of the network")
-                    Table.Cell { Markdown("[Answer a service with fakes](/learn/16-testing#answer-a-service-with-fakes)") }
+                    Table.Cell { Markdown("[Answer a service with fakes](/learn/16-testing#fakes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`example`") }
                     Table.Cell { Markdown("One way to use a component, which `wf docs` draws beside its source") }
-                    Table.Cell { Markdown("[Document it](/learn/10-components#document-it)") }
+                    Table.Cell { Markdown("[Document it](/learn/10-components#documentation-comments)") }
                 }
             }
         }
@@ -215,9 +215,9 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
     Text("A literal dollar: ${user.age}")     // `$` alone is plain text: "$41"
 }"#, title: "wf")
 
-        Markdown("Spliced text is live: when `user` changes, the text changes with it. A splice opens with a name, a `(` or a `[`, and closes on the same line; anything else, such as `\{key: value\}` in prose, is plain text.\n\nA splice may also say how to show its value: `\{total:.currency\}`, `\{when:.date(long)\}`. This is [formatting](/reference/expressions#showing-a-value-a-particular-way), written where the value is read.")
+        Markdown("Spliced text is live: when `user` changes, the text changes with it. A splice opens with a name, a `(` or a `[`, and closes on the same line; anything else, such as `\{key: value\}` in prose, is plain text.\n\nA splice may also say how to show its value: `\{total:.currency\}`, `\{when:.date(long)\}`. This is [formatting](/reference/expressions#format-specifiers), written where the value is read.")
 
-        Heading("Three ways to write one", id: "three-ways-to-write-one").h3
+        Heading("String forms", id: "string-forms").h3
 
         Markdown("A plain `\"…\"` string reads the escapes `\\n`, `\\t`, `\\r`, `\\\"`, `\\\\`, `\\\{` and `\\\}`, and splices `\{…\}`. For text that a plain string makes you escape over and over, there are two other forms:")
 

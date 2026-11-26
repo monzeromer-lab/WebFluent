@@ -20,7 +20,7 @@ WebFluent writes the accessible parts for you: a real `<label>` for every label,
 
 You should know how to declare `state` and an `action` ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)) and how to handle an event ([Events](https://webfluent.monzeromer.dev/learn/08-events.md)). Sending a form to a server uses an `api`, which [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md) covers in full.
 
-## Bind a control to state
+## Binding controls
 
 To keep a control and a state in step, give the control `bind:` and the state's name. Typing in the control writes the state, and changing the state updates the control.
 
@@ -64,7 +64,7 @@ For several lines of text, use a `Textarea`. With `maxLength:` it shows how many
 Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
 ```
 
-### What each control holds
+### Bound value types
 
 The checker knows the type each control writes, and refuses a `bind:` to a state of another type (`F02`):
 
@@ -73,7 +73,7 @@ The checker knows the type each control writes, and refuses a `bind:` to a state
 | `Checkbox`, `Switch` | `Bool` |
 | `Slider` | `Number` |
 | `Input.number` | `Number`, and `null` when the reader empties it |
-| `DatePicker` | [`Date?`](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it) — `null` until a date is picked |
+| `DatePicker` | [`Date?`](https://webfluent.monzeromer.dev/learn/12-types.md#built-in-types) — `null` until a date is picked |
 | `Select` | the option's `value:`, as written |
 | `Input`, `Textarea`, `Radio` | `String` |
 
@@ -81,7 +81,7 @@ A value comes back as the type it went in as. `Select.Option("Two", value: 2)` b
 
 Every control needs an accessible name: a `label:`, a `placeholder:` (on an `Input`), or an `aria-label:`. The accessibility lints (`A03`, `A04`) warn when one has none.
 
-### Bind to a store or a list item
+### Binding to stores and list items
 
 `bind:` takes anything that can be written:
 
@@ -113,7 +113,7 @@ The count at the bottom drops as you tick items. The item is written and the lis
 
 You cannot bind to a constant, a derived value, a prop or a literal: that is `F01`.
 
-## Add a label, a hint or your own error
+## Labels, hints and errors
 
 Every control takes `label:`, `hint:` and `error:`. With any of them, the control is wrapped in a field:
 
@@ -133,9 +133,9 @@ page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
 }
 ```
 
-For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validate-a-field)). Use `error:` for a message that comes from somewhere else.
+For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validation)). Use `error:` for a message that comes from somewhere else.
 
-## Group controls in a form
+## Forms
 
 To submit several controls together, put them in a `Form`. Its `on submit` handler runs when the form is submitted, and the page never navigates away. `Form(bind: form)` gives you a handle, named `form` here, that knows the state of the whole form.
 
@@ -185,16 +185,16 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
 | `form.values` | The controls' values by their `name:` attribute, as `[String: Json]`: a field's own state is the typed way to read one |
 | `form.reset()` | Clears the form, and every message it was showing |
 | `form.submit()` | Submits the form from code |
-| `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said)) |
+| `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#server-errors)) |
 | `form.element` | The `<form>` element itself |
 
-### Choose which buttons submit
+### Submit buttons
 
 A `Button` with `type: .submit` (or the `.submit` flag) submits the form, and so does Enter in a field. The browser's own constraint checks run first (`.required`, `.email` and the rest), so an invalid form never reaches `on submit`.
 
 Every other button in a form — **Add a row**, **Show password** — is `type="button"`, and does only what its `on click` says.
 
-## Validate a field
+## Validation
 
 To say what a value must be, put a `validate` block beside the state it guards. Each rule is one line. The control bound to that state shows the rules' messages itself: you write no `error:` and no `derived` value.
 
@@ -283,7 +283,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
 }
 ```
 
-### Choose when a message shows
+### When messages show
 
 `Form(show:)` sets when the messages appear:
 
@@ -297,7 +297,7 @@ The rules run either way, so `form.valid` is always true to the values, whatever
 
 A submit that fails shows every message, moves focus to the first field that has one, announces it, and does not run `on submit`.
 
-### Preview every message at once
+### Previewing messages
 
 To see a form as a failed submit would leave it, without filling it in, set `data-wf-validation="shown"` on the page's root element:
 
@@ -307,7 +307,7 @@ document.documentElement.setAttribute("data-wf-validation", "shown")
 
 Every field then shows what its rules say about its value now. Remove the attribute and the messages go again. An editor's preview sets this attribute to show a form as *Invalid*.
 
-### Let a refined type do the checking
+### Refined types as rules
 
 A *refined type* is a type with a condition, such as `Number(1..=30)`. The condition is already a rule, so you only write the rules the type does not say:
 
@@ -319,9 +319,9 @@ validate nights { required }
 - A range's open end is excluded: `Number(0..10)` does not take `10`.
 - A date's `after:` and `before:` are checked as the reader types, like `min` and `max`.
 
-See [Types](https://webfluent.monzeromer.dev/learn/12-types.md#a-condition-on-a-type) for every condition a type can carry.
+See [Types](https://webfluent.monzeromer.dev/learn/12-types.md#refined-types) for every condition a type can carry.
 
-### Read the rules as data
+### Rules as data
 
 `wf rules --json` lists, for a tool to read:
 
@@ -332,7 +332,7 @@ See [Types](https://webfluent.monzeromer.dev/learn/12-types.md#a-condition-on-a-
 
 The Rust library has the same data as `webfluent::validation` (with the `internals` feature, outside semver), which can also write a state's `validate` block back one rule at a time.
 
-### Show what the server said
+### Server errors
 
 When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to `form.apply`:
 
@@ -355,9 +355,9 @@ action join() {
 }
 ```
 
-Each message is shown on the field it names: a field a `validate` block guards shows it as its own message, and any other control of the form shows it beneath itself when its `name:` matches — announced, marked `aria-invalid`, and named by `aria-describedby`. The focus moves to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown. [Send a form to a server](#send-a-form-to-a-server) shows the whole page.
+Each message is shown on the field it names: a field a `validate` block guards shows it as its own message, and any other control of the form shows it beneath itself when its `name:` matches — announced, marked `aria-invalid`, and named by `aria-describedby`. The focus moves to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown. [Send a form to a server](#submitting-to-a-server) shows the whole page.
 
-## Upload a file
+## File uploads
 
 To let the reader pick a file, place a `FileUpload` and bind it: `bind:` holds the `File` chosen (`File?`, `null` until one is), or with `.multiple` the list of them (`[File]`). Its `change` event carries the same files, for a page that wants them as they arrive. Each is a `File`, with:
 
@@ -399,9 +399,9 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 - `FileUpload(bind: files).multiple` lets the reader pick several files, held in a `[File]`.
 
 > [!IMPORTANT]
-> `accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](https://webfluent.monzeromer.dev/about/security.md#uploads-are-checked-on-the-server)).
+> `accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](https://webfluent.monzeromer.dev/about/security.md#uploads)).
 
-## Send a form to a server
+## Submitting to a server
 
 To send a form, describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form.
 
@@ -450,7 +450,7 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 
 [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md) covers the service in full: retries, timeouts and typed errors.
 
-## Show that a request is running
+## Pending state
 
 An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to show a spinner, or to keep a button busy with `loading:`. On a store's action, read it as `Store.action.pending`:
 
@@ -481,7 +481,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
 Reading `.pending` on an action that awaits nothing is `T17`.
 
-## Choosing: toggles, groups, steps and days
+## Choosing a control
 
 Some choices are not a text field. These built-ins draw them, each with the keyboard a reader expects:
 
@@ -520,7 +520,7 @@ page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
 - `Textarea(…).autosize` grows with its text, `Input(…).password.reveal` can show what was typed, and `FileUpload(bind: files).dropzone` takes files dropped on it.
 - **`Calendar`** is a month a keyboard can work: the arrows by day and week (the other way round right to left), PageUp and PageDown by month. `.range` holds `{ start, end }`, `.multiple` a list.
 
-## Checklist for a good form
+## Form checklist
 
 - Every control has a `label:`. A placeholder is not a label.
 - Rules live in `validate` blocks, not in hand-written `derived` errors.

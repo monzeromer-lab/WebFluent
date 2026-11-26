@@ -46,7 +46,7 @@ page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: S
 
         DocsCallout("Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project produced**. Anything that arrived from outside goes through `sanitize`.", kind: .caution)
 
-        Markdown("[Security](/about/security#one-door-for-markup) says why markup has one door, and what the allow-list keeps out.")
+        Markdown("[Security](/about/security#raw-html) says why markup has one door, and what the allow-list keeps out.")
 
     }
 }

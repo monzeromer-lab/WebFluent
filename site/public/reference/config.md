@@ -334,7 +334,7 @@ The services `wf api` keeps from an OpenAPI spec, by name. Added in **7.0**. `wf
 | `out` | string | `src/api/<name>`, lower case | The folder its `service.wf` and `generated/` files are written to. |
 | `skip` | list of names | `[]` | Operations left out, by the name they would have — one whose body or answer the language cannot read. |
 
-See also: [Read the service from an OpenAPI file](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file) and [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md).
+See also: [Read the service from an OpenAPI file](https://webfluent.monzeromer.dev/learn/15-data.md#openapi) and [Call a service from its OpenAPI spec](https://webfluent.monzeromer.dev/recipes/service-from-openapi.md).
 
 ## lints
 

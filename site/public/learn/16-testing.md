@@ -13,7 +13,7 @@ You write tests in WebFluent itself, as `test "name" { … }` declarations. A te
 - A project with at least one component or page to test.
 - For a test that clicks, types or presses a key, and for `wf verify`: Chrome or Chromium on the machine, or the `WF_CHROME` environment variable pointing at one. A test that only looks needs neither.
 
-## Write a test that looks
+## Render tests
 
 To check what a component shows, place it in a test and say what the text must and must not contain. Put tests in `tests/*.wf`, or beside the code in `src/`. A test has the project's components, stores, types and constants at hand.
 
@@ -51,7 +51,7 @@ Run `wf test`, and each test prints a line; all three pass. The parts of a test 
 - `data: { … }` — values the body reads, by name. A `state` in the body starts with its initial value.
 - `t("key")` — reads the project's translations, in its default locale.
 
-### How expect reads the page
+### How expect reads text
 
 `expect` reads the text a reader sees, never the markup: a class name in the HTML does not count. It reads the text laid out as a browser lays it out:
 
@@ -67,7 +67,7 @@ In a browser, a page may still be moving — a row on its way out, a fetch on it
 
 Each render is also compared to a *snapshot*, the HTML saved in `tests/__snapshots__/<file>/<test>.html`. `wf test` writes a snapshot when it is missing and fails, with a diff, when a render no longer matches it. After a change you meant, run `wf test --update` to rewrite them.
 
-## Write a test that acts
+## Interaction tests
 
 To check what a click, a keystroke or typed text does, add steps that act. A click cannot be rendered — it runs a handler, which runs an action, which changes a store, which repaints — so a test with an action in it is compiled into a real page, served, and run in a headless browser. It uses the same compiler, the same runtime and the same output a reader gets.
 
@@ -116,7 +116,7 @@ It finds only what a reader can reach. A button in a closed `Sheet`, a branch th
 
 A test that acts takes no snapshot: its expects are the test.
 
-### The page a test that acts runs on
+### The test page
 
 The page is drawn as the built site is:
 
@@ -127,7 +127,7 @@ The page is drawn as the built site is:
 
 So a rule that hides a word, or one that names a font or an image under `public/`, behaves the same in a test as on the site. A test that only looks renders without any of them.
 
-### Test a portal
+### Testing portals
 
 A `Portal` draws its block into a node that `into:` names, and only the running page draws it. So a test whose body holds a portal — or places a component that holds one — is compiled into a page and run in the browser too, with no snapshot:
 
@@ -139,7 +139,7 @@ test "a portal draws into the element a handle names" {
 }
 ```
 
-## Seed data and stores
+## Seeding data and stores
 
 To start a test from a known state, name it in `data:`. A key that is a value's name supplies that value; a key that is a store's name seeds that store's state. Seeding works the same in a test that only looks and in one that clicks.
 
@@ -166,7 +166,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 }
 ```
 
-## Test a whole page
+## Page tests
 
 To click through a page as a reader does, place the page in a test by its name, as you would a component. This works for a page whose route takes no parameter. Its state, its stores and its handlers all run:
 
@@ -181,7 +181,7 @@ test "a task is added with Enter" {
 
 `press "Enter"` in a form's text field submits the form, as a real key does. The `spa` and `static` projects that `wf init` writes carry tests like this under `tests/`; run `wf test` in a new project to see them pass.
 
-## Answer a service with fakes
+## Fakes
 
 A page that reads from a service has nothing to show in a test until something answers it, and a test should not depend on a server being up. A `fake` answers a group's endpoints in its place. The compiler holds it to the group's contract, as it holds a call: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares.
 
@@ -290,7 +290,7 @@ A fake that does not fit its contract is `N06`, with what is wrong: an endpoint 
 
 Put fakes beside the tests that use them, under `tests/`, or in a file of their own there (`tests/fakes.wf`): a test may name a fake any file under `tests/` declares, and one beside it wins over another file's. A fake in `src/` is checked like any declaration, and a build leaves it out.
 
-## Run the tests
+## Running tests
 
 To run every test under `tests/`, and any declared in `src/`:
 
@@ -312,7 +312,7 @@ wf test --update
 
 `wf test` prints a line per test and exits non-zero when one fails, so it works as a CI step as it is. A build never includes tests.
 
-## Check every page with wf verify
+## wf verify
 
 To catch what only a running page shows, build the site and load every page of it:
 
@@ -335,7 +335,7 @@ For each route it prints the first contentful paint, the size and the requests. 
 
 [CLI](https://webfluent.monzeromer.dev/reference/cli/verify.md) has the details.
 
-## Run the checks in CI
+## CI
 
 To run the formatter, the build, the tests and `wf verify` on every push, add a workflow such as this one to `.github/workflows/check.yml`:
 
@@ -357,7 +357,7 @@ jobs:
 
 GitHub's Ubuntu runners come with Chrome, so the tests that act and `wf verify` run there as they do on your machine.
 
-## Choose what to test
+## What to test
 
 The type checker and the accessibility lints already catch a large class of mistakes. Tests are for the behaviour they cannot see:
 

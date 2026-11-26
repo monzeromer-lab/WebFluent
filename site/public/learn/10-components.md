@@ -73,7 +73,7 @@ The rules for props:
 - A `///` comment above the component or above a prop is its documentation. The editor shows it on hover, and `wf docs` writes it on the component's page.
 
 > [!NOTE]
-> **Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> **Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#root-attributes-and-handlers)). See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
 A prop that reads the caller's state stays live inside the component: a `Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass a callback or re-render anything yourself.
 
@@ -135,12 +135,12 @@ page Todos(path: "/", title: "Todos", description: "Rows that report back.") {
 }
 ```
 
-The checker holds each `emit` to the parameters its event declares (`T09`). A handler on a call must name a declared event or a DOM event; an `emit` outside a component is `E114`. A DOM event handler written on a component call, such as `on click`, attaches to the component's root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). For events in general, see [Events](https://webfluent.monzeromer.dev/learn/08-events.md).
+The checker holds each `emit` to the parameters its event declares (`T09`). A handler on a call must name a declared event or a DOM event; an `emit` outside a component is `E114`. A DOM event handler written on a component call, such as `on click`, attaches to the component's root element (see [What a call puts on the root element](#root-attributes-and-handlers)). For events in general, see [Events](https://webfluent.monzeromer.dev/learn/08-events.md).
 
 > [!NOTE]
 > **Coming from React?** A callback prop such as `onToggle={…}` becomes a declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled on the call as `on toggle(id) { … }`. The checker holds both ends to the declaration. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
-### An event with several values
+### Events with several values
 
 An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it. In this example `key` is a `String`, and `x` and `y` are `Number`s:
 
@@ -305,7 +305,7 @@ page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.")
 
 Clicking **Add Pen** changes the page's text from **0 in cart** to **1 in cart**. [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md) covers stores in full.
 
-## What a call puts on the root element
+## Root attributes and handlers
 
 A component's *root element* is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:
 
@@ -331,11 +331,11 @@ page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
 
 The `on click` still goes to the root, which here is the `Badge`.
 
-## Designing components
+## Component design
 
 A component's interface is its props, events, slots and parts. These guidelines keep it clear to callers.
 
-### A value down, an event up
+### Props down, events up
 
 A component does not take `bind:`. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:
 
@@ -361,7 +361,7 @@ Clicking **+** sets `seats` to 2, and the component shows **Seats: 2** because i
 > [!NOTE]
 > **Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own component. Take the value as a prop and fire a `change` event; the caller assigns its state in the handler. `bind:` belongs to the built-in controls. See [Coming from Vue](https://webfluent.monzeromer.dev/coming-from/vue.md) and [Coming from Svelte](https://webfluent.monzeromer.dev/coming-from/svelte.md).
 
-### Pick the right way in
+### Props, slots or parts
 
 Choose the part of the interface by what the caller wants to do:
 
@@ -375,11 +375,11 @@ Choose the part of the interface by what the caller wants to do:
 | offer a sub-element with its own props | a part, `Panel.Header` |
 | hear that something happened | an `event` |
 
-### Keep state where it is read
+### Where state lives
 
 A component's own `state` is right for what only that component cares about, such as whether its menu is open or it is hovered. What the page or other components care about comes in as a prop and goes out as an event — or lives in a store.
 
-### Document it
+### Documentation comments
 
 A `///` comment above the component, a prop or an event is shown on hover in the editor, and on the component's page of the site `wf docs` writes.
 
@@ -415,11 +415,11 @@ wf docs
 
 The site is written to `docs/` in the design of this reference, light and dark: a page a component, with its examples, props, events, slots and parts, and pages for the project's types, stores and routes. Serve the folder to read it.
 
-## Other people's code
+## Third-party code
 
 To use a JavaScript library — a chart, a map, an editor — call it from a `.js` file under `src/` and hand it an element with `mount:` and `cleanup:`. To place somebody else's custom element, use `Element("tag-name", …)`. You can also publish your components as custom elements for another framework to place. See [Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md), [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md), [Place a custom element](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md) and [Publish components as custom elements](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md).
 
-## Components in the pre-rendered page
+## Components and pre-rendering
 
 A static build pre-renders each page to HTML — the *static paint*. It expands every component call into HTML at build time: props substituted, slots filled, and loops and branches over the seeded state drawn. A page built from components is therefore a complete page before any script runs. See [Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md).
 

@@ -1,4 +1,6 @@
-### Images the build processes
+### Images
+
+An `image` declaration resizes and re-encodes a picture at build time and gives the page a responsive `<picture>`.
 
 `image hero = "media/hero.jpg"` reads the picture at build time and writes
 it again at every width a page will ask for:

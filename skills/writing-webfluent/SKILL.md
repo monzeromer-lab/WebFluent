@@ -15,7 +15,7 @@ The compiler, `wf`, is also the best documentation you have. It lists every
 component, prop, store member, token and diagnostic for the version that's
 installed. Ask it before you guess, and believe it over memory.
 
-## Pick the reference for the task
+## References by task
 
 Read this file, then [references/core.md](references/core.md): what most
 sites and apps are made of, in about 4,000 words. Then only what the task
@@ -66,7 +66,7 @@ so read a section, never the whole reference.
    Never guess a prop or a store member. A member the store doesn't have is
    `T06`, and a prop the component doesn't declare is `C02`.
 
-## The loop
+## Dev loop
 
 1. **Make the change**, the smallest that does the job.
 2. **`wf check`.**
@@ -95,7 +95,7 @@ elsewhere): use it rather than writing a server.
 
 Don't silence a finding by deleting what it's about. Fix it, or say why not.
 
-## The grammar in brief
+## Grammar summary
 
 - A file declares `page`, `component`, `store`, `type`, `enum`, `api` or
   `theme`, each named with a capital. `app { … Router }` is the shell.
@@ -146,7 +146,7 @@ page DeployList(path: "/deploys", title: "Deploys", description: "Every deploy."
 }
 ```
 
-## What catches models out
+## Common mistakes
 
 - **Flags and enum values take a dot.** Write `Button("Save").primary.lg` and
   `Row(gap: .md, justify: .between)`. Without the dot, as in `gap: md`, the
@@ -211,7 +211,7 @@ page Keys(path: "/keys", title: "Keys", description: "When the keys rotate.") {
 }
 ```
 
-## Quality in one screen
+## Quality checklist
 
 The full version, with the review checklist, is
 [references/code-quality.md](references/code-quality.md).
@@ -242,7 +242,7 @@ The full version, with the review checklist, is
   left.
 - **`///` comments say why.**
 
-## Components that place what they're given
+## Slots and children
 
 ```wf
 component Panel(_ title: String) {
@@ -298,7 +298,7 @@ keep them. A page that reads a service is tested with a `fake` of its
 endpoints (`test "…"(fakes: [OneUser]) { … }`), never the network. See
 [references/testing.md](references/testing.md).
 
-## Where things go
+## Project layout
 
 - **Folders.** `src/pages/` has one page per file, alongside `src/components/`,
   `src/stores/`, `src/types.wf`, `src/theme.wf` and
@@ -313,7 +313,7 @@ endpoints (`test "…"(fakes: [OneUser]) { … }`), never the network. See
   layout; `wf generate block sign-in` (or `pricing`, `dashboard`,
   `settings`) writes a whole page to start from.
 
-## Other shapes of project
+## Other project types
 
 - **A PDF or a deck:** `wf init report -t pdf` or `wf init deck -t slides`.
   See [references/documents.md](references/documents.md).

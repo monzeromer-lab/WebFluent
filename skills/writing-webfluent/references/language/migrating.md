@@ -1,5 +1,7 @@
 ## Migrating
 
+`wf migrate` rewrites a project written for an older major version.
+
 **WebFluent 4 → 5** needs no rewrite: 5.0 refuses what used to compile and
 then fail in the browser. Run `wf check` (it writes nothing); every finding
 has a code, a place and what to do, `wf explain CODE` prints its entry, and

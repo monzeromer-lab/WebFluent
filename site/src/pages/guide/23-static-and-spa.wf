@@ -1,9 +1,9 @@
 /// Chapter 23 of the guide. This page is its source: edit it here.
-page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, dynamic routes, and what each shape asks of a host.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and what each asks of a host.", source: "site/src/pages/guide/23-static-and-spa.wf", sections: [Anchor(id: "two-shapes-of-build", label: "Two shapes of build"), Anchor(id: "when-to-choose-each", label: "When to choose each"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "what-the-static-paint-knows", label: "What the static paint knows"), Anchor(id: "routes-with-no-single-file", label: "Routes with no single file"), Anchor(id: "what-each-shape-asks-of-a-host", label: "What each shape asks of a host")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/contributing", nextLabel: t("ch.25"))) {
+page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, dynamic routes, and what each shape asks of a host.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and what each asks of a host.", source: "site/src/pages/guide/23-static-and-spa.wf", sections: [Anchor(id: "static-and-spa-builds", label: "Static and SPA builds"), Anchor(id: "choosing-a-build", label: "Choosing a build"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "pre-rendering-limits", label: "Pre-rendering limits"), Anchor(id: "dynamic-routes", label: "Dynamic routes"), Anchor(id: "hosting-requirements", label: "Hosting requirements")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/contributing", nextLabel: t("ch.25"))) {
     Stack(gap: .lg) {
         Markdown("This essay compares the two shapes a WebFluent build takes: a static site, with a pre-rendered HTML file for every route, and a single-page app, with one shell that draws every page in the browser.\n\nThe usual framing makes this a choice of framework: one for content sites, another for apps, and a migration when a site turns out to be both. WebFluent treats it as a setting. The same source builds either shape, one key in the config, `build.ssg`, picks it, and you can change your mind on any day without touching a page. What is worth deciding is not which tool to use but what the reader should get first: the text, or the app.\n\nThe sections below say what each shape writes, how a static page comes to life, what the build can know when it pre-renders, and what each shape asks of a host.")
 
-        Heading("Two shapes of build", id: "two-shapes-of-build").h2
+        Heading("Static and SPA builds", id: "static-and-spa-builds").h2
 
         Markdown("`build.ssg` decides what `wf build` writes:")
 
@@ -51,7 +51,7 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
 
         Markdown("The source is the same either way. Only the output changes. `\"output_type\": \"static\"` means the same as `\"ssg\": true`, and a build with `ssg` set to `false`, or left out, is single-page. `wf init -t static` starts a project with `ssg` on and `wf init -t spa` one with it off; either can change its mind at any time without the source changing.")
 
-        Heading("When to choose each", id: "when-to-choose-each").h2
+        Heading("Choosing a build", id: "choosing-a-build").h2
 
         Markdown("**Choose static** for anything people find by searching or share by link: marketing sites, docs, blogs, shops. The text is in the HTML, so search engines and link previews see the real page.\n\n**Choose single-page** for an app behind a sign-in, where every page is personal and moving between pages fast matters more than the first paint. Choose it too when your host cannot serve a file per route.")
 
@@ -59,7 +59,7 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
 
         Markdown("A static page is readable before any script runs. When `app.js` arrives, it *hydrates* the page: it draws the page beside the one already there, then takes the painted one over in place.\n\nWhat happens to each part of the page:\n\n- An element nothing holds on to stays exactly as it was painted. Its attributes are brought up to date; it is never moved or drawn again.\n- An element that a handler, an effect, a `ref` or a widget holds is put where the painted one stood, inside the painted parent.\n- Text that a signal keeps current changes inside the painted element.\n\nThe reader never sees the page flash or redraw, and keeps their scroll position, their focus and anything they had selected. The page's largest paint stays the first one, which is what a search engine's speed score measures.\n\nUnder `wf serve`, the runtime compares the page it took over with the one it drew, and says so in the console when they differ. A difference is a WebFluent bug, never yours.")
 
-        Heading("What the static paint knows", id: "what-the-static-paint-knows").h2
+        Heading("Pre-rendering limits", id: "pre-rendering-limits").h2
 
         Markdown("The *static paint* is the HTML the build pre-renders for a page. To paint it, the build evaluates the page as far as it can know the values:")
 
@@ -116,11 +116,11 @@ page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Stati
 
         Markdown("For the first paint to be right, prefer what the build can see:\n\n- **Data files over requests** for content that changes only when you deploy ([Fetching data](/learn/15-data)).\n- **[Responsive values](/learn/13-styling#responsive-values) over `viewport`** for layout.")
 
-        Heading("Routes with no single file", id: "routes-with-no-single-file").h2
+        Heading("Dynamic routes", id: "dynamic-routes").h2
 
         Markdown("A page on a `:param` route, such as `/posts/:slug`, is one page in the source and any number of addresses on the site, so a static build has no single file to write for it. It can only pre-render the values it is told about, at build time: `paths:` on the page lists them — from a `data` file, a `const` or a literal list — and the build writes one painted file per value, each with its own title, and lists them in the sitemap ([Pre-render a page for each item](/recipes/pre-render-each-item)). A value nobody listed has no file, so the host answers it with the site's 404 page. A single-page build has none of this to decide: its router draws any value in the browser.\n\nThe same reasoning gives the 404 page its file. A page on the `*` route is drawn by the router for any address no page claims, and a static build also writes it as `404.html`, which most static hosts serve for a path they have no file for ([Show your own page for an unknown address](/recipes/not-found-page)).")
 
-        Heading("What each shape asks of a host", id: "what-each-shape-asks-of-a-host").h2
+        Heading("Hosting requirements", id: "hosting-requirements").h2
 
         Markdown("A static build asks almost nothing: any host that serves files serves it. A single-page build has one file, `index.html`, so every path a reader might open — `/users/42` — has to reach it, and the host needs a rule that answers every path with `index.html`. Without it the home page works, but a reload on any other address is a 404. Each host's rule is one line, and each deploy and server recipe in the [Ship recipes](/recipes#ship) has it.\n\nTwo settings adapt a build to where it is served, whichever its shape. `build.base_path` serves the site under a sub-path, such as a GitHub Pages project site, and prefixes every link, asset and route with it, so the source still writes paths from the site's root ([Deploy to GitHub Pages](/recipes/deploy-to-github-pages)). `build.clean_urls` keeps every canonical address one the host serves without redirecting `/contact` to `/contact/` ([Keep addresses from redirecting](/recipes/search-and-link-previews#keep-addresses-from-redirecting)).")
     }

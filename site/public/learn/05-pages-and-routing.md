@@ -96,7 +96,7 @@ page Guide(path: "/docs", title: "Guide", description: "The guide.") { Heading("
 page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }
 ```
 
-### The active link
+### Active links
 
 The link whose `to:` matches the current route carries the class `.active` and `aria-current="page"`, so you can style it and a screen reader announces it. Two rules widen or narrow the match:
 
@@ -107,7 +107,7 @@ The link whose `to:` matches the current route carries the class `.active` and `
 
 Write every path from the site's root, `"/about"`, even when the site is served under a sub-path. With `build.base_path` set to `"/docs"`, the compiler prefixes every `Link`, every `navigate()` and every asset for you.
 
-### Static and single-page navigation
+### Navigation in static and SPA builds
 
 How a link moves depends on the build:
 
@@ -255,7 +255,7 @@ A tag's `src:` and `href:` go through the same scheme check as every address, at
 
 `title:` and `description:` are page attributes, not head tags. From them and the config, the compiler writes the standard tags itself: charset, viewport, description, canonical, Open Graph, Twitter card and JSON-LD.
 
-## A page in another language
+## Translated pages
 
 A page written in a language other than the site's says so with `lang:`, and names the page it translates with `translates:`. This site is in English, with its home page in Arabic at `/ar`:
 
@@ -277,7 +277,7 @@ What the two attributes do:
 
 This is different from `t()` and `setLocale`, which translate one address in the browser. [Publish a page in each language](https://webfluent.monzeromer.dev/recipes/site-in-two-languages.md) compares the two.
 
-## The catch-all page
+## Catch-all routes
 
 A page with `path: "*"` answers every route no other page claims. The router shows it in the browser, and a static host serves it as `404.html`:
 
@@ -290,7 +290,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives here.",
 }
 ```
 
-## Set-up code: what runs when a page opens
+## Set-up code
 
 A page's body is a render block: it declares state, derived values and actions, and lists what to show. The top of the body runs once, when the page renders. A call written there, such as `Deploys.load(id)`, is *set-up code*: it runs once as the page opens.
 
@@ -312,7 +312,7 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
 }
 ```
 
-### The life of a page
+### Page lifecycle
 
 A page goes through these stages, in order:
 

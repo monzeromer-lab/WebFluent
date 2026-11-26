@@ -1,4 +1,6 @@
-### Somebody else's custom element
+### Custom elements
+
+`Element("tag", …)` places a third-party custom element, with attributes and event handlers.
 
 ```wf
 page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {

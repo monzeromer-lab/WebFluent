@@ -1,5 +1,7 @@
 ## PDF Output
 
+With `output_type: "pdf"` the build lays the program out on paper with its own engine and writes a PDF.
+
 ```json
 {
     "build": {
@@ -65,7 +67,7 @@ dark. `Chart` and `QrCode` draw on a web page too, as an SVG made at build
 time — there what they read must be known then (a literal, a `const`, a
 `data` file), or it is `E109`.
 
-### Breaking across pages
+### Page breaks
 
 - Paragraphs break between lines, two at least on each side (`orphans`,
   `widows`).

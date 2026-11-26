@@ -1,4 +1,6 @@
-### What a value must be
+### Validation
+
+A `validate` block declares the rules a state must meet; the control bound to it shows the messages.
 
 A `validate` block sits beside the state it guards. The control bound to
 that state then shows what the rules say — no `error:` to write, and the

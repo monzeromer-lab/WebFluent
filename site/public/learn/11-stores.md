@@ -171,7 +171,7 @@ Inside an action, a bare name is the store's own member — `items`, `error` —
 
 An action may read other stores through their names. Stores are global, so a store needs no `use`. A `derived` value may call one of the store's own actions to compute a value, but not one that assigns state: that is `X04`, because the derived value would change state every time it is read.
 
-## Keeping a value across visits
+## Persisted state
 
 `persist` declares a member whose value is kept in the browser's storage and read back on the next visit. It is stored under the store's name and the member's name, so a page and a store may each persist a `theme`. `persist` works the same way at the top of a page or a component.
 
@@ -207,10 +207,10 @@ store Cart {
 
 | Option | Meaning |
 |---|---|
-| `in:` | Where the value lives: `.local` (the default, kept across visits), `.session` (this tab), or `.app` (see [Storage the project provides](#storage-the-project-provides)) |
+| `in:` | Where the value lives: `.local` (the default, kept across visits), `.session` (this tab), or `.app` (see [Storage the project provides](#custom-storage)) |
 | `version:` | The version of the value's shape that this build writes |
 | `sync:` | `false` stops this page taking a value another tab or window wrote |
-| `key:` | Keeps one stored value per key (see [One stored value per instance](#one-stored-value-per-instance)) |
+| `key:` | Keeps one stored value per key (see [One stored value per instance](#per-instance-keys)) |
 | `migrate n -> m { … }` | Brings a value written at version `n` forward to `m` |
 
 ### Versions and migrations
@@ -230,7 +230,7 @@ The build also remembers the shape of every persisted value, in `.wf-cache/persi
 > [!WARNING]
 > A `persist` inside a `store(scope: .route)` does not reset with the route. The route change drops the store, and the next read builds it again — from storage, so the value comes straight back. The build reports this as `P03`. Use `state` for what the route owns, and a wider scope for what outlives it.
 
-### One stored value per instance
+### Per-instance keys
 
 A `persist` in a component uses one stored value for every place the component is drawn. Three `Panel`s that each persist `open` share one value, so opening one opens them all. `key:` names what tells the instances apart, and each key gets its own stored value:
 
@@ -244,7 +244,7 @@ component Panel(_ title: String) {
 
 The build warns (`D03`) about a component that persists a value with no `key:` and is placed more than once, or in a loop.
 
-### A key that follows state
+### Dynamic keys
 
 `key:` is read as state. When what it reads changes, the member takes the value kept under the new key, and writes go there. A desktop app keeps its layout per project this way. A store's key may read the store itself, or another store:
 
@@ -258,7 +258,7 @@ store Layout {
 }
 ```
 
-### Storage the project provides
+### Custom storage
 
 `in: .app` keeps the value somewhere other than the browser's two storages: a desktop app's store reached through its native bridge, or an extension's storage. It reads `window.wfStorage.app`, which a script of the project's under `src/` defines. The object has this shape: `{ get(name), set(name, text), remove?(name), watch?(name, fn) }`.
 
@@ -283,11 +283,11 @@ window.wfStorage = {
 
 See [Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md) for the rest of a desktop project.
 
-### Secrets are never persisted
+### Secrets
 
 `persist token: Secret = ""` is an error (`T12`). The point of the `Secret` type is that its value never reaches a place any script can read, and the browser's storage is such a place. Keep a session in an httpOnly cookie instead (see [Security](https://webfluent.monzeromer.dev/about/security.md)).
 
-## A connection a store holds
+## Connections in a store
 
 A store may hold a connection — a `socket`, a `stream`, a `channel`, a `peer` or a `worker` (see [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) — for every page at once. The connection opens when the store is first read and closes with the store; a `.route` store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:
 
@@ -314,7 +314,7 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 }
 ```
 
-## Loading data into a store
+## Loading data
 
 A store can own a `resource` (see [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md)). It is asked for the first time something reads the store, and lives as long as the store does — not as long as the page that happened to read it first — so another page that reads the store finds what has already arrived, and nothing is asked for again. It is abandoned with the store: a `.route` store's when its route leaves, to be asked for afresh when the route comes back.
 
@@ -346,7 +346,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 }
 ```
 
-A resource over a service's endpoint is owned the same way — `resource list = Catalog.items()` — and when the endpoint says how it pages ([Load results a page at a time](https://webfluent.monzeromer.dev/learn/15-data.md#load-results-a-page-at-a-time)), `Shelf.list.loadMore()` asks for the next page from any page that reads it. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
+A resource over a service's endpoint is owned the same way — `resource list = Catalog.items()` — and when the endpoint says how it pages ([Load results a page at a time](https://webfluent.monzeromer.dev/learn/15-data.md#pagination)), `Shelf.list.loadMore()` asks for the next page from any page that reads it. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
 
 When an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a request instead, and call the action where the data is first wanted:
 
@@ -363,11 +363,11 @@ store Feed {
 }
 ```
 
-## Stores in the pre-rendered page
+## Stores and pre-rendering
 
 A static build pre-renders each page to HTML — the *static paint*. The static paint seeds each store's state from its initial values, so `Cart.count` is painted as `0`, and a store seeded with rows paints the rows. A value an action changes at run time is corrected once the page is live.
 
-## Looking at one while it runs
+## Debugging stores
 
 `wf serve` puts a **stores** button in the corner of the page. It opens on what every store that has been built is holding, and a log of every action that has run: the arguments it was given, and the state before and after it. Clicking an entry puts the store back to what it held before that action, which is usually enough to find a bug.
 

@@ -31,7 +31,7 @@ page Signup(path: "/", title: "Sign up", description: "Make an account.") {
 
 ## How it works
 
-- Each [`validate`](https://webfluent.monzeromer.dev/learn/14-forms.md#validate-a-field) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.
+- Each [`validate`](https://webfluent.monzeromer.dev/learn/14-forms.md#validation) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.
 - `matches(password)` holds `confirm` to whatever `password` is now.
 - The control bound to a state shows that state's message. Each control shows its own message when the reader leaves it, with the accessible wiring an `error:` gets.
 - `Form(bind: form)` hands the page a handle: `form.valid` disables the button until every rule passes, and `form.reset()` clears the form after a submit.

@@ -73,7 +73,7 @@ page Typed(path: "/", title: "Typed", description: "State with declared types.")
 }
 ```
 
-## The types the language brings with it
+## Built-in types
 
 Eleven more types come with the language. Each is a **plain JSON value at run time**, with no wrapper object, so it crosses a `fetch`, a `persist`, the static paint (the HTML the build pre-renders for a page) and the template engine unchanged. `.native()` hands a real platform object to a library that wants one.
 
@@ -133,7 +133,7 @@ Everything the language **computes** is a call; everything the carrier **already
 
 Adding a month lands on a day that exists: `@2026-01-31.plus(months: 1)` is the 28th of February, not the 3rd of March. All of these methods also run at build time, so the static paint shows the answer instead of a blank that fills in when the page hydrates.
 
-### A literal is held to its type
+### Typed literals
 
 A string written where one of these types is wanted is read as that type, and checked where you wrote it. The second `state` on this page does not build:
 
@@ -162,7 +162,7 @@ page Feed(path: "/", title: "Feed", description: "What happened lately.") {
 
 Read `now` where it is shown or in a `derived` value. A `state` takes its initial value once, so `state clock = now(every: 1.seconds)` stays at the moment the page opened (`X06`; see [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)).
 
-### A condition on a type
+### Refined types
 
 Any type may say what its values must be. The compiler holds every value it can read to that condition, as it does to the three states on this page:
 
@@ -178,7 +178,7 @@ page Stay(path: "/", title: "Stay", description: "Values held to a condition.") 
 
 The conditions are `min`, `max`, `minLength`, `maxLength`, `pattern`, `after` and `before`, and a range for the two ends at once: `1..=30` includes the end, `0..10` excludes it. A value that arrives at run time — typed into a field, say — is refused by validation, from the same condition, so a refined type needs no `validate` rule for it (see [Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)).
 
-### Secret is not a string
+### Secrets
 
 A `Secret` is a string the compiler will not let escape. This page lets one escape four ways, and each is a `T12`:
 
@@ -195,7 +195,7 @@ page Login(path: "/", title: "Login", description: "Four ways a secret escapes."
 
 Joining it with `+` or handing it to a browser global such as `console`, a storage or a `fetch` address is a `T12` too, and a secret has no string members to read. Hold it in `state`, which ends with the visit; what must outlive the visit belongs on the server.
 
-### Your own name wins
+### Shadowing built-in type names
 
 A `type` the program declares takes the name back from the language. A project with its own `type Color { name: String }` means that record everywhere it writes `Color`.
 
@@ -273,7 +273,7 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
 > [!NOTE]
 > **Coming from TypeScript in React or Vue?** A union of strings such as `"idle" | "running" | "failed"` becomes an `enum`, and a field that only some states have becomes that case's payload: `.failed(reason: String)`. A `match` then has to give every case an arm. See [Coming from React](https://webfluent.monzeromer.dev/coming-from/react.md).
 
-## Shapes of map literals
+## Map literal shapes
 
 A map literal has the fields it was written with. `{ name: "", age: 0 }` has the *shape* `{ name: String, age: Number }`, and reading `form.nam` is `T05`, with the fields it does have. A shape fits a record with the same fields, and any shape it agrees with. An empty `{}` and a literal with a spread say nothing about their keys: where one is held, say what it holds — `state seen: [String: Bool] = {}` — or the checker asks (`T25`).
 
@@ -286,7 +286,7 @@ page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape
 }
 ```
 
-## What agrees with what
+## Type compatibility
 
 A value fits where a type is wanted when it *is* that type, with nothing converted on the way:
 
@@ -397,7 +397,7 @@ page Restore(path: "/", title: "Restore", description: "Settings decoded from te
 
 A result is written `T ! E` — a `T`, or an error of `E` — and `T!` for one whose error is a request's failure. An action declares one with `-> T ! E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A `match` on a result gives both `.ok` and `.err` an arm, or an `else`.
 
-## Where types come from
+## Type inference
 
 The checker reads a type from five places.
 
@@ -507,7 +507,7 @@ A list narrows too: `xs.filter(x => x != null)` is a list of the items that are 
 > [!WARNING]
 > Splicing a value that may be `null` into text shows the word `null` on the page. The checker warns (`T19`); say what to show instead with `??`, as in `Text(todo.note ?? "no note")`.
 
-## Typing data from the network
+## Typing network data
 
 The checker cannot see what a URL will return, so an `http.get` says it: annotate the resource or the local variable with the type it holds (`N11` without one). The answer is held to that type as it arrives, in every build:
 
@@ -529,7 +529,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 
 In every build — under `wf serve` and deployed alike — each response is held to its declared type as it arrives, and one that does not fit fails as `.decode(at, message)`, naming the place, such as `$[1].status is missing`.
 
-When the server publishes an OpenAPI specification, let it write the contract instead: `wf api add openapi.json --name Backend` writes every endpoint, parameter, response and error as files, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#read-the-service-from-an-openapi-file)). An `api` you write by hand types its calls the same way: `get users() at "users" -> [User]`.
+When the server publishes an OpenAPI specification, let it write the contract instead: `wf api add openapi.json --name Backend` writes every endpoint, parameter, response and error as files, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md#openapi)). An `api` you write by hand types its calls the same way: `get users() at "users" -> [User]`.
 
 ## The checks
 
@@ -566,7 +566,7 @@ The type checker reports these codes. All are errors except `T19`, which is a wa
 
 Most findings come with a hint: a conversion (`Number(value)`, `"{value}"`), the cases an enum takes, the fields a record has, or one of the narrowing forms above. `wf explain T05` prints a code's full entry, and [Diagnostics](https://webfluent.monzeromer.dev/errors.md) has every code with an example.
 
-## What the checker does not check
+## Limits of the checker
 
 - It does not check a lambda's body against a return type unless the lambda is handed to a function type, which says one.
 - It does not know what a server will send until it sends it: an `http` call names its type, or the service is described with an `api`, and what arrives is held to it at run time.

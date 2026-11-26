@@ -32,7 +32,7 @@ Build complete.
 
 To produce one PDF per invoice from data, use the same templates with [server rendering](https://webfluent.monzeromer.dev/recipes/render-a-template.md) instead.
 
-## Choose what the build writes
+## Output types
 
 `build.output_type` in `webfluent.app.json` chooses what `wf build` writes:
 
@@ -53,7 +53,7 @@ A PDF is the page, printed. The compiler renders the program to the same static 
 - **Paint.** Backgrounds (colours, linear and radial gradients with any number of stops, pictures), borders per side (solid, dashed, dotted) with rounded corners, shadows, opacity, `overflow: hidden`, `transform: rotate()`, and pictures with their transparency — PNG, JPEG (embedded as it is), WebP, GIF, and SVG, which stays vector.
 - **The file.** Fonts are embedded as subsets with the text attached, so a reader can copy and search it. The file is compressed, carries its title and author, has an outline of its headings in the reader's sidebar, and its links work.
 
-## Make a PDF document
+## PDF documents
 
 To build a PDF, set `output_type` to `pdf`. The `pdf` key sets the paper, margins (in points) and default font for every document in the project:
 
@@ -127,7 +127,7 @@ The result is a two-page PDF: the invoice on the first page, ending with `Total:
 > [!NOTE]
 > **Coming from LaTeX or Typst?** There is no document class and there are no TeX boxes: a document is laid out by CSS. `\newpage` is `PageBreak`, a `minipage` that must not split is `style { break-inside: avoid }`, and `fancyhdr` is a `Header` and a `Footer`. See [Coming from LaTeX and Typst](https://webfluent.monzeromer.dev/coming-from/latex.md).
 
-### Set the paper, headers and footers
+### Paper, headers and footers
 
 These elements shape every page of a document:
 
@@ -145,7 +145,7 @@ Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the page's n
 
 The page's background — the `html` or `body` rule's — fills every page, edge to edge, so a dark theme prints dark.
 
-### Control where pages break
+### Page breaks
 
 Content flows onto as many pages as it needs, and never breaks through the middle of a line of text. The engine follows these rules:
 
@@ -158,13 +158,13 @@ Content flows onto as many pages as it needs, and never breaks through the middl
 
 To keep a box whole — a totals block, a signature — give it `break-inside: avoid`, as the invoice's totals card does. To start a new page, place `PageBreak`.
 
-### Add a table of contents, links and an outline
+### Table of contents, links and outline
 
 `TableOfContents(levels: 2)` lists the document's headings with the page each one lands on, dotted leaders between them, and each entry a link to its heading. The engine lays the document out, learns where every heading landed, and fills in the numbers. `title:` puts a heading above the list.
 
 A `Link` is a link in the PDF too: to a URL, or `to: "#terms"` to the element whose `id:` is `terms`. Every heading appears in the reader's outline, nested by level.
 
-### Draw charts and QR codes
+### Charts and QR codes
 
 This report draws a grouped bar chart, a donut chart and a QR code from a constant list of records:
 
@@ -202,7 +202,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
 Both work on a web page too, as an SVG drawn when the page is built. There, what they read must be known at build time — a literal, a `const` or a `data` file — or the build reports `E109`.
 
-### Use your own fonts
+### Fonts
 
 The default faces are Liberation Sans, Serif and Mono — the metric twins of Helvetica, Times and Courier — built into `wf`. So `Helvetica`, `Arial`, `system-ui`, `sans-serif`, `Times`, `serif`, `Courier` and `monospace` all resolve with nothing installed, and cover Latin, Greek and Cyrillic.
 
@@ -215,13 +215,13 @@ Variable fonts are drawn at the weight a style asks for. A weight or an italic a
 
 A character no named face has is drawn from a face that has it — the project's fonts first, then the machine's. The build names, in a `note:` line, each family it took from the machine, so you can make the document the same everywhere by copying those fonts into `fonts/`. To forbid the machine's fonts, set `"system_fonts": false`. A character no font has is reported, never drawn as `?`.
 
-### Lay out a right-to-left document
+### Right-to-left documents
 
 A document whose `lang` is right to left (`ar`, `he`, `fa`, `ur`) is laid out right to left — text, flex rows, grids, table columns, list markers. A run of the other direction inside it is ordered by the Unicode bidirectional algorithm.
 
 A code or a figure written in Latin characters inside Arabic text — an invoice number like `2026-0417`, a product code — can come out with its parts in the wrong order. The bidirectional algorithm reads the hyphen as part of the right-to-left text around it. To fix it, give the code a run of its own that says it is left to right: `Text("2026-0417", class: "ltr")`, with `.ltr { direction: ltr; unicode-bidi: isolate; }` in the project's CSS. The fix works on a web page and in a PDF alike.
 
-### What a PDF does not draw
+### Unsupported elements
 
 Everything static draws. What only means something in a browser is refused where it is written, with `E109`:
 
@@ -232,7 +232,7 @@ Everything static draws. What only means something in a browser is refused where
 - elements a script draws (`Host`, `Element`, `Portal`);
 - handlers, `resource` and motion.
 
-## Make a slide deck
+## Slide decks
 
 To build a deck, set `output_type` to `slides`. The `slides` key sets the deck's size and its chrome:
 
@@ -286,7 +286,7 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 
 The `ImageSlide` reads `public/chart.png`: put a picture of your own there first. The build warns (`D01`) when the file is missing. The result is a six-page PDF, one slide per page.
 
-### Write the slides
+### Slides
 
 A deck is laid out by the same engine, one slide to a page. A slide is a box the size of the page, with `slides.margin` as its padding (a rule of the deck's own overrides it). What runs past a slide's edge is clipped, with a note naming the slide.
 
@@ -304,7 +304,7 @@ Each kind is styled by the engine's sheet, and a project's rules or a `style { }
 
 A `Presentation` holds slides, a `for` or an `if` over them, and components whose body is a slide. So a deck writes its section openers, headings and footers once, and makes a slide per item of its data. A page's `derived` values are worked out before the deck is drawn, so a slide can show a figure computed from a `data` file.
 
-### Size and frame the deck
+### Deck size and chrome
 
 These keys under `build.slides` set the deck's size and chrome:
 
@@ -328,7 +328,7 @@ These keys under `build.slides` set the deck's size and chrome:
 | A `note:` names a family taken from the machine | Copy that font into `fonts/` so the document is the same on every machine |
 | A note says a slide was clipped | Shorten the slide, or split it in two |
 | A totals block or signature is split across two pages | Add `break-inside: avoid` to its `style { }` |
-| A Latin code in Arabic text shows its parts out of order | Give it a left-to-right run (see [Lay out a right-to-left document](#lay-out-a-right-to-left-document)) |
+| A Latin code in Arabic text shows its parts out of order | Give it a left-to-right run (see [Lay out a right-to-left document](#right-to-left-documents)) |
 
 ## Common mistakes
 

@@ -15,7 +15,7 @@ In this chapter:
 - the text, heading and layout elements
 - the families of built-ins, the HTML they render, and what the compiler checks on every element
 
-## The call shape
+## Call syntax
 
 Every element call has the same five pieces, each optional except the name:
 
@@ -84,7 +84,7 @@ Every element also takes the *universal props*. The reference does not repeat th
 
 | Prop | What it does | Read more |
 |---|---|---|
-| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-your-own-stylesheet) |
+| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-stylesheets) |
 | `ref:` | Names a handle on the element: `box.focus()` | [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#element-handles) |
 | `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md) |
 | `animate:` or a flag (`.fadeIn`) | The animation it enters with | [Animate in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md#animate-an-element-in) |
@@ -127,7 +127,7 @@ An attribute's value follows these rules:
 
 The same rules apply to an attribute you write on a call of your own component, which passes it to the component's root.
 
-### Where a built-in puts them
+### Where attributes go
 
 A built-in places your attributes and `on` handlers on the element it draws:
 
@@ -197,7 +197,7 @@ page Account(path: "/account", title: "Account", description: "Your profile and 
 }
 ```
 
-Any element of your own can move the same way: `roving: .x` makes a row one stop for Tab, with the arrow keys inside it ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#moving-through-a-group-with-the-arrow-keys)).
+Any element of your own can move the same way: `roving: .x` makes a row one stop for Tab, with the arrow keys inside it ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#arrow-key-navigation-roving-focus)).
 
 ## Text and headings
 
@@ -241,9 +241,9 @@ page Dashboard(path: "/", title: "Dashboard", description: "Every layout element
 }
 ```
 
-`Header`, `Section` and `Footer` render real landmarks: `<header>`, `<section>` and `<footer>`. Use them for the page's regions, so a screen reader and a search engine can follow the page's outline. Inside a `Document`, `Header` and `Footer` mean something else: they are drawn in the margin of every printed page ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md#set-the-paper-headers-and-footers)).
+`Header`, `Section` and `Footer` render real landmarks: `<header>`, `<section>` and `<footer>`. Use them for the page's regions, so a screen reader and a search engine can follow the page's outline. Inside a `Document`, `Header` and `Footer` mean something else: they are drawn in the margin of every printed page ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md#paper-headers-and-footers)).
 
-## The families of built-ins
+## Built-in families
 
 The built-ins fall into these families:
 
@@ -252,9 +252,9 @@ The built-ins fall into these families:
 | Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
-| Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
+| Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-elements)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md), [Video and audio](https://webfluent.monzeromer.dev/recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
@@ -262,7 +262,7 @@ The built-ins fall into these families:
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#the-app-shell)) |
 
-### Content: a note, a key, a figure
+### Content elements
 
 The content built-ins are the pieces a page of text and figures is made of. Each is drawn the same on the live page, in the static paint and in a PDF:
 
@@ -298,7 +298,7 @@ page Report(path: "/", title: "Report", description: "The month, at a glance.") 
 - **`Accordion`** is native `<details>`; `.single` keeps one open at a time.
 - **`VisuallyHidden`** is words only a screen reader hears.
 
-## What an element renders
+## Rendered HTML
 
 Each built-in renders real, semantic HTML. A `Button` is a `<button>`, a `Link` an `<a>`, a `Heading(…).h2` an `<h2>`, and a `Table` a `<table>` with `<th scope="col">` cells in its head.
 
@@ -308,9 +308,9 @@ Each also carries a stable class named after it, with a modifier class for each 
 <button class="wf-btn wf-btn--primary wf-btn--large" type="button">Save</button>
 ```
 
-These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-your-own-stylesheet)). The reference names each element's class.
+These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-stylesheets)). The reference names each element's class.
 
-## What the compiler checks on every element
+## Element checks
 
 The compiler holds every element call to these rules:
 

@@ -242,8 +242,8 @@ const INSTALL_AND_START = """
 const OUTPUT_PAGES: [String: String] = {
     website: "/learn/01-getting-started",
     app: "/learn/03-tutorial-todos",
-    pdf: "/learn/17-pdf-and-slides#make-a-pdf-document",
-    slides: "/learn/17-pdf-and-slides#make-a-slide-deck",
+    pdf: "/learn/17-pdf-and-slides#pdf-documents",
+    slides: "/learn/17-pdf-and-slides#slide-decks",
     elements: "/recipes/publish-custom-elements",
     desktop: "/recipes/tauri-app"
 }

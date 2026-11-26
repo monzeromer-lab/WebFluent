@@ -898,7 +898,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     }
                 }
 
-                Markdown("See also: [Read the service from an OpenAPI file](/learn/15-data#read-the-service-from-an-openapi-file) and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).")
+                Markdown("See also: [Read the service from an OpenAPI file](/learn/15-data#openapi) and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).")
 
                 Heading("lints", id: "lints").h2
 

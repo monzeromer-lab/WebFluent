@@ -1,5 +1,5 @@
 /// Chapter 12 of the guide. This page is its source: edit it here.
-page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A strict, structural type checker that changes no output and names every mistake where you wrote it.", source: "site/src/pages/guide/12-types.wf", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "what-agrees-with-what", label: "What agrees with what"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
+page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A strict, structural type checker that changes no output and names every mistake where you wrote it.", source: "site/src/pages/guide/12-types.wf", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "built-in-types", label: "Built-in types"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "map-literal-shapes", label: "Map literal shapes"), Anchor(id: "type-compatibility", label: "Type compatibility"), Anchor(id: "dictionaries-functions-and-aliases", label: "Dictionaries, functions and aliases"), Anchor(id: "json-decoding-and-results", label: "JSON, decoding and results"), Anchor(id: "type-inference", label: "Type inference"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-network-data", label: "Typing network data"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "limits-of-the-checker", label: "Limits of the checker"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers WebFluent's types and the checker that holds a program to them. The checker runs in `wf build`, `wf check` and the editor, before any output is written. It is *strict*: every value has a type the program can name. Most are worked out for you — a literal, a record, a store member, a method's result — and what cannot be worked out (an empty list's items, an action's parameters, JSON whose shape is open) is written, or the checker says where (`T25`, `T32`, `T23`). It is also *structural*: a value fits a type when it has the right fields, whatever it was declared as. The checker changes nothing in the output; it only reports.\n\n**In this chapter**\n\n- The type language, and the types that come with the language\n- Records (`type`), enums and the shapes of map literals\n- Where the checker gets a type from, and how it infers one\n- Narrowing a value that may be `null`\n- Typing data from the network\n- The checks, and what the checker does not check")
 
@@ -106,7 +106,7 @@ page Invoices(path: "/", title: "Invoices", description: "What is owed.") {
     Button("Go") { on click { greet(name, count) } }
 }"#, title: "wf")
 
-        Heading("The types the language brings with it", id: "the-types-the-language-brings-with-it").h2
+        Heading("Built-in types", id: "built-in-types").h2
 
         Markdown("Eleven more types come with the language. Each is a **plain JSON value at run time**, with no wrapper object, so it crosses a `fetch`, a `persist`, the static paint (the HTML the build pre-renders for a page) and the template engine unchanged. `.native()` hands a real platform object to a library that wants one.")
 
@@ -244,7 +244,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
 
         Markdown("Adding a month lands on a day that exists: `@2026-01-31.plus(months: 1)` is the 28th of February, not the 3rd of March. All of these methods also run at build time, so the static paint shows the answer instead of a blank that fills in when the page hydrates.")
 
-        Heading("A literal is held to its type", id: "a-literal-is-held-to-its-type").h3
+        Heading("Typed literals", id: "typed-literals").h3
 
         Markdown("A string written where one of these types is wanted is read as that type, and checked where you wrote it. The second `state` on this page does not build:")
 
@@ -269,7 +269,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
 
         Markdown("Read `now` where it is shown or in a `derived` value. A `state` takes its initial value once, so `state clock = now(every: 1.seconds)` stays at the moment the page opened (`X06`; see [State and reactivity](/learn/07-state-and-reactivity)).")
 
-        Heading("A condition on a type", id: "a-condition-on-a-type").h3
+        Heading("Refined types", id: "refined-types").h3
 
         Markdown("Any type may say what its values must be. The compiler holds every value it can read to that condition, as it does to the three states on this page:")
 
@@ -283,7 +283,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
 
         Markdown("The conditions are `min`, `max`, `minLength`, `maxLength`, `pattern`, `after` and `before`, and a range for the two ends at once: `1..=30` includes the end, `0..10` excludes it. A value that arrives at run time — typed into a field, say — is refused by validation, from the same condition, so a refined type needs no `validate` rule for it (see [Forms](/learn/14-forms)).")
 
-        Heading("Secret is not a string", id: "secret-is-not-a-string").h3
+        Heading("Secrets", id: "secrets").h3
 
         Markdown("A `Secret` is a string the compiler will not let escape. This page lets one escape four ways, and each is a `T12`:")
 
@@ -298,7 +298,7 @@ page Stay(path: "/", title: "Stay", description: "One booking.") {
 
         Markdown("Joining it with `+` or handing it to a browser global such as `console`, a storage or a `fetch` address is a `T12` too, and a secret has no string members to read. Hold it in `state`, which ends with the visit; what must outlive the visit belongs on the server.")
 
-        Heading("Your own name wins", id: "your-own-name-wins").h3
+        Heading("Shadowing built-in type names", id: "shadowing-built-in-type-names").h3
 
         Markdown("A `type` the program declares takes the name back from the language. A project with its own `type Color \{ name: String \}` means that record everywhere it writes `Color`.")
 
@@ -362,7 +362,7 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
 
         DocsCallout("**Coming from TypeScript in React or Vue?** A union of strings such as `\"idle\" | \"running\" | \"failed\"` becomes an `enum`, and a field that only some states have becomes that case's payload: `.failed(reason: String)`. A `match` then has to give every case an arm. See [Coming from React](/coming-from/react).", kind: .note)
 
-        Heading("Shapes of map literals", id: "shapes-of-map-literals").h2
+        Heading("Map literal shapes", id: "map-literal-shapes").h2
 
         Markdown("A map literal has the fields it was written with. `\{ name: \"\", age: 0 \}` has the *shape* `\{ name: String, age: Number \}`, and reading `form.nam` is `T05`, with the fields it does have. A shape fits a record with the same fields, and any shape it agrees with. An empty `\{\}` and a literal with a spread say nothing about their keys: where one is held, say what it holds — `state seen: [String: Bool] = \{\}` — or the checker asks (`T25`).")
 
@@ -373,7 +373,7 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
     Text("{form.name} is {form.age} with {form.tags.length} tags")
 }"#, title: "wf")
 
-        Heading("What agrees with what", id: "what-agrees-with-what").h2
+        Heading("Type compatibility", id: "type-compatibility").h2
 
         Markdown("A value fits where a type is wanted when it *is* that type, with nothing converted on the way:\n\n- **A map literal is a record's** only when its fields are the record's: a field the record lacks is `T05`, a required one left out `C01`, one of the wrong type `T01` — where it is written, and when a map kept in a state is given as the record later. `\{ ...todo, done: true \}` is a `Todo` again.\n- **One value, one type.** The branches of an `if` or a `match`, a list's items and the two sides of `??` make one value: `if ok \{ 1 \} else \{ \"none\" \}` is `T27`. `null` on one side makes it `T?`.\n- **A condition is a `Bool`.** `if count` is `T29`; write what it asks, `count != 0`, `name != \"\"`, `user != null`. A `Bool?` is a condition, its `null` false. A fallback for null is `??`, not `||`.\n- **No conversions.** `+` adds two numbers, joins two strings or adds two durations; text and a number meet in a splice, `\"Total: \{n\}\"` (`T18`). A `Date` is shown through a splice that says how, `\"\{due:.date(long)\}\"`, and a `Duration` says its unit, `500.ms` (`T34`). A `Url`, an `Email`, a `Color` and a `Uuid` are strings wherever text is wanted.\n- **`Json` is matched or decoded**, never read as a record, a list or a number (`T28`): `User.decode(raw)`.")
 
@@ -464,7 +464,7 @@ page Restore(path: "/", title: "Restore", description: "Settings decoded from te
 
         Markdown("A result is written `T ! E` — a `T`, or an error of `E` — and `T!` for one whose error is a request's failure. An action declares one with `-> T ! E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A `match` on a result gives both `.ok` and `.err` an arm, or an `else`.")
 
-        Heading("Where types come from", id: "where-types-come-from").h2
+        Heading("Type inference", id: "type-inference").h2
 
         Markdown("The checker reads a type from five places.\n\nWhat another declaration, another file or a caller sees is **declared**; what only the body sees is **inferred**. So the checker never has to work one declaration out to check another, and the order declarations are written in never changes a type.\n\n**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's route parameters, a component's props, an action's, an event's and a slot's parameters (`T32` without one), and an action's result (`-> T`).\n\n**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`); a record construction; a `derived` value from its expression; a `state` from its first value, when that value says everything; a `for` binding from the list's item type; a `match` arm's binding; an `if let` binding; a lambda's parameters from what the method expects (`items.filter(item => …)` gives `item` the item type).\n\nA first value says everything when it is a number, a string, a case, a record or a list or map with items. An empty list, an empty map, `null` or open JSON says nothing of what will be kept, so the state declares it:")
 
@@ -528,7 +528,7 @@ page Narrow(path: "/", title: "Narrow", description: "Values that may be null, n
 
         DocsCallout("Splicing a value that may be `null` into text shows the word `null` on the page. The checker warns (`T19`); say what to show instead with `??`, as in `Text(todo.note ?? \"no note\")`.", kind: .warning)
 
-        Heading("Typing data from the network", id: "typing-data-from-the-network").h2
+        Heading("Typing network data", id: "typing-network-data").h2
 
         Markdown("The checker cannot see what a URL will return, so an `http.get` says it: annotate the resource or the local variable with the type it holds (`N11` without one). The answer is held to that type as it arrives, in every build:")
 
@@ -546,7 +546,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
     }
 }"#, title: "wf")
 
-        Markdown("In every build — under `wf serve` and deployed alike — each response is held to its declared type as it arrives, and one that does not fit fails as `.decode(at, message)`, naming the place, such as `$[1].status is missing`.\n\nWhen the server publishes an OpenAPI specification, let it write the contract instead: `wf api add openapi.json --name Backend` writes every endpoint, parameter, response and error as files, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file)). An `api` you write by hand types its calls the same way: `get users() at \"users\" -> [User]`.")
+        Markdown("In every build — under `wf serve` and deployed alike — each response is held to its declared type as it arrives, and one that does not fit fails as `.decode(at, message)`, naming the place, such as `$[1].status is missing`.\n\nWhen the server publishes an OpenAPI specification, let it write the contract instead: `wf api add openapi.json --name Backend` writes every endpoint, parameter, response and error as files, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](/learn/15-data#openapi)). An `api` you write by hand types its calls the same way: `get users() at \"users\" -> [User]`.")
 
         Heading("The checks", id: "the-checks").h2
 
@@ -669,7 +669,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 
         Markdown("Most findings come with a hint: a conversion (`Number(value)`, `\"\{value\}\"`), the cases an enum takes, the fields a record has, or one of the narrowing forms above. `wf explain T05` prints a code's full entry, and [Diagnostics](/errors) has every code with an example.")
 
-        Heading("What the checker does not check", id: "what-the-checker-does-not-check").h2
+        Heading("Limits of the checker", id: "limits-of-the-checker").h2
 
         Markdown("- It does not check a lambda's body against a return type unless the lambda is handed to a function type, which says one.\n- It does not know what a server will send until it sends it: an `http` call names its type, or the service is described with an `api`, and what arrives is held to it at run time.")
 

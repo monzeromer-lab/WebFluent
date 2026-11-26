@@ -1,4 +1,6 @@
-### The network as a value
+### Network status
+
+`network` is a built-in value that reports the connection: online, its type, data saving and queued writes.
 
 Like `viewport` and `theme`, read where it matters:
 

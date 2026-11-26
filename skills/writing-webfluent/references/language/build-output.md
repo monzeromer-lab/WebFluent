@@ -1,5 +1,7 @@
 ## Build output
 
+`wf build` writes HTML, a runtime-and-app `app.js`, per-page chunks and stylesheets, and gzipped copies.
+
 ```
 build/
 ├── index.html            # the shell (SPA) or the pre-rendered page (SSG)

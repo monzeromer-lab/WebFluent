@@ -106,7 +106,7 @@ The page hands `Host`'s node to `startEditor`, with two actions the script calls
 - **It can target a handle.** `Portal(into: panel)` draws into the element a `ref: panel` names, even one written further down the page. Where it goes is read once more when the drawing is over and the page is in the document, so an element of the page's own that `document.getElementById` finds is found too. A handle is not a state: an element the handle names only later, in an `if` that opens afterwards, is not followed.
 - **Its events bubble from where it is drawn.** A press inside the block bubbles through the node it is in and that node's parents, not through the elements around the place it is written. An `on click` on a `Stack` that holds the portal does not hear it. Put the handler on the portal, or inside its block.
 - **`show` does not hide it.** `show` hides what is drawn in its own place, and a portal's block is drawn somewhere else. Remove it with `if`, or keep it aside with `into: null`.
-- **The pre-rendered page has only a marker.** The *static paint* (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#test-a-portal)).
+- **The pre-rendered page has only a marker.** The *static paint* (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#testing-portals)).
 
 ## Troubleshooting
 

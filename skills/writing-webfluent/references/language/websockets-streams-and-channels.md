@@ -1,4 +1,6 @@
-### A connection the page holds open
+### WebSockets, streams and channels
+
+`socket`, `stream`, `channel` and `peer` declare a connection that stays open while the page is shown.
 
 A socket, a stream of events, a channel every tab hears, or a peer — a
 direct line to another reader's page. Each is closed when the page that
@@ -42,7 +44,9 @@ or decoded rather than read as a record (`T28`).
 A store may hold any of them too: opened when the store is first read,
 closed with it, read as `Lang.css.state` and in its actions as `css`.
 
-#### A worker
+#### Workers
+
+A `worker` runs a script from `public/` in a Web Worker and talks to it by messages and requests.
 
 `worker` runs a script of `public/` beside the page — a language service, a
 parser — held like a socket:
@@ -76,7 +80,9 @@ with no `id` is a message: `on message`, `.last(kind)` by its `type` or
 again by hand. `type: .module` for a module worker. The script is a file of
 the site (under the base path); a missing one is a `D01`.
 
-#### A peer
+#### Peer connections (WebRTC)
+
+A `peer` is a WebRTC data channel between two pages.
 
 `peer` opens a WebRTC data channel straight to another page. The language
 supplies the channel, not a server: what the two sides must tell each other

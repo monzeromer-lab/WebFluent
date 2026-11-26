@@ -1,9 +1,9 @@
 /// Chapter 6 of the guide. This page is its source: edit it here.
-page Learn06Elements(path: "/learn/06-elements", title: "Elements", description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.", layout: DocsShell("Elements", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block.", source: "site/src/pages/guide/06-elements.wf", sections: [Anchor(id: "the-call-shape", label: "The call shape"), Anchor(id: "props-cases-and-flags", label: "Props, cases and flags"), Anchor(id: "attributes", label: "Attributes"), Anchor(id: "parts", label: "Parts"), Anchor(id: "text-and-headings", label: "Text and headings"), Anchor(id: "layout-elements", label: "Layout elements"), Anchor(id: "the-families-of-built-ins", label: "The families of built-ins"), Anchor(id: "what-an-element-renders", label: "What an element renders"), Anchor(id: "what-the-compiler-checks-on-every-element", label: "What the compiler checks on every element"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Read and write any element call: `Name(value, prop: value).flag \{ block \}`", "Pick an enum prop's case by name (`gap: .md`) or as a flag (`.primary`)", "Put HTML attributes such as `aria-*`, `data-*` and `id` on an element", "Place parts inside their owner: `Card.Header`, `Table.Row`", "Know which built-in family to reach for, and what the compiler checks on each call"], prevTo: "/learn/05-pages-and-routing", prevLabel: t("ch.05"), nextTo: "/learn/07-state-and-reactivity", nextLabel: t("ch.07"))) {
+page Learn06Elements(path: "/learn/06-elements", title: "Elements", description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.", layout: DocsShell("Elements", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block.", source: "site/src/pages/guide/06-elements.wf", sections: [Anchor(id: "call-syntax", label: "Call syntax"), Anchor(id: "props-cases-and-flags", label: "Props, cases and flags"), Anchor(id: "attributes", label: "Attributes"), Anchor(id: "parts", label: "Parts"), Anchor(id: "text-and-headings", label: "Text and headings"), Anchor(id: "layout-elements", label: "Layout elements"), Anchor(id: "built-in-families", label: "Built-in families"), Anchor(id: "rendered-html", label: "Rendered HTML"), Anchor(id: "element-checks", label: "Element checks"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Read and write any element call: `Name(value, prop: value).flag \{ block \}`", "Pick an enum prop's case by name (`gap: .md`) or as a flag (`.primary`)", "Put HTML attributes such as `aria-*`, `data-*` and `id` on an element", "Place parts inside their owner: `Card.Header`, `Table.Row`", "Know which built-in family to reach for, and what the compiler checks on each call"], prevTo: "/learn/05-pages-and-routing", prevLabel: t("ch.05"), nextTo: "/learn/07-state-and-reactivity", nextLabel: t("ch.07"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers WebFluent's elements: everything a page shows, whether a built-in such as `Button` or a component you declare. Every element is written in the same shape, so once you can read one call you can read them all.\n\nIn this chapter:\n\n- the shape of an element call, and the order of its block\n- props, enum cases and flags, and the props every element takes\n- HTML attributes, and which element of a built-in receives them\n- parts, such as `Card.Header`\n- the text, heading and layout elements\n- the families of built-ins, the HTML they render, and what the compiler checks on every element")
 
-        Heading("The call shape", id: "the-call-shape").h2
+        Heading("Call syntax", id: "call-syntax").h2
 
         Markdown("Every element call has the same five pieces, each optional except the name:")
 
@@ -63,7 +63,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 Table.Row {
                     Table.Cell { Markdown("`class:`") }
                     Table.Cell("Adds classes from your own stylesheets. It adds; it never replaces")
-                    Table.Cell { Markdown("[Styling](/learn/13-styling#classes-and-your-own-stylesheet)") }
+                    Table.Cell { Markdown("[Styling](/learn/13-styling#classes-and-stylesheets)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ref:`") }
@@ -130,7 +130,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("An attribute's value follows these rules:\n\n- A value that reads state is kept in step with it.\n- `true` is written as the word: `data-open: true` renders `data-open=\"true\"`, so the selector `[data-open=\"true\"]` matches it.\n- A boolean attribute such as `hidden` or `disabled` is either present or absent.\n- `false` removes an attribute, except an `aria-*` one, which keeps the string `\"false\"` because it is a real ARIA state.\n\nThe same rules apply to an attribute you write on a call of your own component, which passes it to the component's root.")
 
-        Heading("Where a built-in puts them", id: "where-a-built-in-puts-them").h3
+        Heading("Where attributes go", id: "where-attributes-go").h3
 
         Markdown("A built-in places your attributes and `on` handlers on the element it draws:\n\n- On its root, for most built-ins: the scrolling box of a `VirtualList`, the handle of a `Splitter`, the box of a `Tabs` or a `Carousel`, the panel of a `Sidebar`, the `<nav>` of a `Breadcrumb`, the `<dialog>` of a `Modal`.\n- On its input, for a control drawn inside a box (`Switch`, `Checkbox`, `Radio`, `Slider`, `DatePicker`, `FileUpload`). The input is the control, and its own handlers are already there. `hidden`, `lang` and `dir` belong to the whole control, so they stay on its box.\n\nA `role:` or `aria-label:` you write takes the place of the one the built-in gives itself: a `Splitter`'s `separator`, a `Switch`'s `switch`, a `Breadcrumb`'s name. A `Sidebar`'s `id:` is the one its toggle points at.\n\nThis list box puts `role`, `tabindex` and `aria-activedescendant` on the `VirtualList`'s scrolling box, and a `role` and `id` on each row:")
 
@@ -185,7 +185,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
     Text("Open: {tab}")
 }"#, title: "wf")
 
-        Markdown("Any element of your own can move the same way: `roving: .x` makes a row one stop for Tab, with the arrow keys inside it ([Events](/learn/08-events#moving-through-a-group-with-the-arrow-keys)).")
+        Markdown("Any element of your own can move the same way: `roving: .x` makes a row one stop for Tab, with the arrow keys inside it ([Events](/learn/08-events#arrow-key-navigation-roving-focus)).")
 
         Heading("Text and headings", id: "text-and-headings").h2
 
@@ -223,9 +223,9 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
     Footer { Text("the last region") }
 }"#, title: "wf")
 
-        Markdown("`Header`, `Section` and `Footer` render real landmarks: `<header>`, `<section>` and `<footer>`. Use them for the page's regions, so a screen reader and a search engine can follow the page's outline. Inside a `Document`, `Header` and `Footer` mean something else: they are drawn in the margin of every printed page ([PDF and slides](/learn/17-pdf-and-slides#set-the-paper-headers-and-footers)).")
+        Markdown("`Header`, `Section` and `Footer` render real landmarks: `<header>`, `<section>` and `<footer>`. Use them for the page's regions, so a screen reader and a search engine can follow the page's outline. Inside a `Document`, `Header` and `Footer` mean something else: they are drawn in the margin of every printed page ([PDF and slides](/learn/17-pdf-and-slides#paper-headers-and-footers)).")
 
-        Heading("The families of built-ins", id: "the-families-of-built-ins").h2
+        Heading("Built-in families", id: "built-in-families").h2
 
         Markdown("The built-ins fall into these families:")
 
@@ -251,7 +251,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Content")
-                    Table.Cell { Markdown("`Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure))") }
+                    Table.Cell { Markdown("`Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-elements))") }
                 }
                 Table.Row {
                     Table.Cell("Forms")
@@ -259,7 +259,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Feedback")
-                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
+                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays))") }
                 }
                 Table.Row {
                     Table.Cell("Actions")
@@ -288,7 +288,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
             }
         }
 
-        Heading("Content: a note, a key, a figure", id: "content-a-note-a-key-a-figure").h3
+        Heading("Content elements", id: "content-elements").h3
 
         Markdown("The content built-ins are the pieces a page of text and figures is made of. Each is drawn the same on the live page, in the static paint and in a PDF:")
 
@@ -316,15 +316,15 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
 
         Markdown("- **`Callout`** is a note set apart from the text, with its kind's icon and word: `.note`, `.tip`, `.important`, `.warning`, `.caution`, or a `title:` of its own.\n- **`Stat`** says which way a figure moved, to a screen reader as well (\"Up 12.4%\").\n- **`Kbd`** writes a key combination as this system does: `⌘K` on a Mac, `Ctrl+K` elsewhere.\n- **`Chip`** can be pressed (`selected:`, a toggle button) and removed (`.removable`, its button named `Remove Rust`, firing `on remove`).\n- **`CodeBlock`** adds a bar with the file name and a copy button, and `.lines` numbers the lines.\n- **`Accordion`** is native `<details>`; `.single` keeps one open at a time.\n- **`VisuallyHidden`** is words only a screen reader hears.")
 
-        Heading("What an element renders", id: "what-an-element-renders").h2
+        Heading("Rendered HTML", id: "rendered-html").h2
 
         Markdown("Each built-in renders real, semantic HTML. A `Button` is a `<button>`, a `Link` an `<a>`, a `Heading(…).h2` an `<h2>`, and a `Table` a `<table>` with `<th scope=\"col\">` cells in its head.\n\nEach also carries a stable class named after it, with a modifier class for each flag. For example, `Button(\"Save\").primary.lg` renders:")
 
         DocsCodeBlock(#"<button class="wf-btn wf-btn--primary wf-btn--large" type="button">Save</button>"#, title: "html")
 
-        Markdown("These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](/learn/13-styling#classes-and-your-own-stylesheet)). The reference names each element's class.")
+        Markdown("These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](/learn/13-styling#classes-and-stylesheets)). The reference names each element's class.")
 
-        Heading("What the compiler checks on every element", id: "what-the-compiler-checks-on-every-element").h2
+        Heading("Element checks", id: "element-checks").h2
 
         Markdown("The compiler holds every element call to these rules:")
 

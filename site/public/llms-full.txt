@@ -458,7 +458,7 @@ type Book {
 data books: [Book] = "books.json"
 ```
 
-`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](/learn/12-types), [Fetching data](/learn/15-data#read-a-file-at-build-time-with-data).)
+`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](/learn/12-types), [Fetching data](/learn/15-data#build-time-data).)
 
 **Check it:** run `wf check`. It prints `No problems in shelf.`
 
@@ -1038,7 +1038,7 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 
 | You wrote | The idea | Read more |
 |---|---|---|
-| `type Book` and `data books` | Typed data read at build time | [Types](/learn/12-types), [Fetching data](/learn/15-data#read-a-file-at-build-time-with-data) |
+| `type Book` and `data books` | Typed data read at build time | [Types](/learn/12-types), [Fetching data](/learn/15-data#build-time-data) |
 | `store Shelf` with `persist` | Shared state kept across visits | [Stores](/learn/11-stores) |
 | `component BookCard` | A reusable component with a positional prop | [Components](/learn/10-components) |
 | `state`, `derived`, `bind:` and `for … by` on the home page | Reactivity and keyed lists | [State and reactivity](/learn/07-state-and-reactivity), [Control flow](/learn/09-control-flow) |
@@ -1631,15 +1631,15 @@ Each keyword declares one kind of thing:
 | `theme` | Design tokens: colours, spacing, radii, fonts | [Styling](/learn/13-styling) |
 | `app` | The shell every page renders inside, with the `Router` | [The app shell](/learn/05-pages-and-routing#the-app-shell) |
 | `type`, `enum` | Records and enumerations the type checker enforces | [Types](/learn/12-types) |
-| `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](/learn/15-data#describe-a-service-with-api) |
-| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](/learn/15-data#pass-every-request-through-middleware) |
+| `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](/learn/15-data#api-services) |
+| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](/learn/15-data#middleware) |
 | `const` | A value read everywhere | [Constants](/reference/expressions#constants) |
-| `data` | A JSON file read at build time, as a constant | [Read a file at build time](/learn/15-data#read-a-file-at-build-time-with-data) |
+| `data` | A JSON file read at build time, as a constant | [Read a file at build time](/learn/15-data#build-time-data) |
 | `image` | A picture the build resizes and hands to `Image` | [Add a picture](/recipes/add-a-picture) |
 | `animation` | Keyframes | [Keyframes](/recipes/keyframes) |
 | `test` | A render held to expectations and a snapshot | [Testing](/learn/16-testing) |
-| `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](/learn/16-testing#answer-a-service-with-fakes) |
-| `example` | One way to use a component, which `wf docs` draws beside its source | [Document it](/learn/10-components#document-it) |
+| `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](/learn/16-testing#fakes) |
+| `example` | One way to use a component, which `wf docs` draws beside its source | [Document it](/learn/10-components#documentation-comments) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([Call your own JavaScript](/recipes/call-your-own-script)).
 
@@ -1785,9 +1785,9 @@ page Greeting(path: "/", title: "Greeting", description: "A greeting that knows 
 
 Spliced text is live: when `user` changes, the text changes with it. A splice opens with a name, a `(` or a `[`, and closes on the same line; anything else, such as `{key: value}` in prose, is plain text.
 
-A splice may also say how to show its value: `{total:.currency}`, `{when:.date(long)}`. This is [formatting](/reference/expressions#showing-a-value-a-particular-way), written where the value is read.
+A splice may also say how to show its value: `{total:.currency}`, `{when:.date(long)}`. This is [formatting](/reference/expressions#format-specifiers), written where the value is read.
 
-### Three ways to write one
+### String forms
 
 A plain `"…"` string reads the escapes `\n`, `\t`, `\r`, `\"`, `\\`, `\{` and `\}`, and splices `{…}`. For text that a plain string makes you escape over and over, there are two other forms:
 
@@ -1967,7 +1967,7 @@ page Guide(path: "/docs", title: "Guide", description: "The guide.") { Heading("
 page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }
 ```
 
-### The active link
+### Active links
 
 The link whose `to:` matches the current route carries the class `.active` and `aria-current="page"`, so you can style it and a screen reader announces it. Two rules widen or narrow the match:
 
@@ -1978,7 +1978,7 @@ The link whose `to:` matches the current route carries the class `.active` and `
 
 Write every path from the site's root, `"/about"`, even when the site is served under a sub-path. With `build.base_path` set to `"/docs"`, the compiler prefixes every `Link`, every `navigate()` and every asset for you.
 
-### Static and single-page navigation
+### Navigation in static and SPA builds
 
 How a link moves depends on the build:
 
@@ -2126,7 +2126,7 @@ A tag's `src:` and `href:` go through the same scheme check as every address, at
 
 `title:` and `description:` are page attributes, not head tags. From them and the config, the compiler writes the standard tags itself: charset, viewport, description, canonical, Open Graph, Twitter card and JSON-LD.
 
-## A page in another language
+## Translated pages
 
 A page written in a language other than the site's says so with `lang:`, and names the page it translates with `translates:`. This site is in English, with its home page in Arabic at `/ar`:
 
@@ -2148,7 +2148,7 @@ What the two attributes do:
 
 This is different from `t()` and `setLocale`, which translate one address in the browser. [Publish a page in each language](/recipes/site-in-two-languages) compares the two.
 
-## The catch-all page
+## Catch-all routes
 
 A page with `path: "*"` answers every route no other page claims. The router shows it in the browser, and a static host serves it as `404.html`:
 
@@ -2161,7 +2161,7 @@ page NotFound(path: "*", title: "Not found", description: "Nothing lives here.",
 }
 ```
 
-## Set-up code: what runs when a page opens
+## Set-up code
 
 A page's body is a render block: it declares state, derived values and actions, and lists what to show. The top of the body runs once, when the page renders. A call written there, such as `Deploys.load(id)`, is *set-up code*: it runs once as the page opens.
 
@@ -2183,7 +2183,7 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
 }
 ```
 
-### The life of a page
+### Page lifecycle
 
 A page goes through these stages, in order:
 
@@ -2274,7 +2274,7 @@ In this chapter:
 - the text, heading and layout elements
 - the families of built-ins, the HTML they render, and what the compiler checks on every element
 
-## The call shape
+## Call syntax
 
 Every element call has the same five pieces, each optional except the name:
 
@@ -2343,7 +2343,7 @@ Every element also takes the *universal props*. The reference does not repeat th
 
 | Prop | What it does | Read more |
 |---|---|---|
-| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](/learn/13-styling#classes-and-your-own-stylesheet) |
+| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](/learn/13-styling#classes-and-stylesheets) |
 | `ref:` | Names a handle on the element: `box.focus()` | [State and reactivity](/learn/07-state-and-reactivity#element-handles) |
 | `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [Hand an element to a script](/recipes/hand-an-element-to-a-script) |
 | `animate:` or a flag (`.fadeIn`) | The animation it enters with | [Animate in and out](/recipes/animate-in-and-out#animate-an-element-in) |
@@ -2386,7 +2386,7 @@ An attribute's value follows these rules:
 
 The same rules apply to an attribute you write on a call of your own component, which passes it to the component's root.
 
-### Where a built-in puts them
+### Where attributes go
 
 A built-in places your attributes and `on` handlers on the element it draws:
 
@@ -2456,7 +2456,7 @@ page Account(path: "/account", title: "Account", description: "Your profile and 
 }
 ```
 
-Any element of your own can move the same way: `roving: .x` makes a row one stop for Tab, with the arrow keys inside it ([Events](/learn/08-events#moving-through-a-group-with-the-arrow-keys)).
+Any element of your own can move the same way: `roving: .x` makes a row one stop for Tab, with the arrow keys inside it ([Events](/learn/08-events#arrow-key-navigation-roving-focus)).
 
 ## Text and headings
 
@@ -2500,9 +2500,9 @@ page Dashboard(path: "/", title: "Dashboard", description: "Every layout element
 }
 ```
 
-`Header`, `Section` and `Footer` render real landmarks: `<header>`, `<section>` and `<footer>`. Use them for the page's regions, so a screen reader and a search engine can follow the page's outline. Inside a `Document`, `Header` and `Footer` mean something else: they are drawn in the margin of every printed page ([PDF and slides](/learn/17-pdf-and-slides#set-the-paper-headers-and-footers)).
+`Header`, `Section` and `Footer` render real landmarks: `<header>`, `<section>` and `<footer>`. Use them for the page's regions, so a screen reader and a search engine can follow the page's outline. Inside a `Document`, `Header` and `Footer` mean something else: they are drawn in the margin of every printed page ([PDF and slides](/learn/17-pdf-and-slides#paper-headers-and-footers)).
 
-## The families of built-ins
+## Built-in families
 
 The built-ins fall into these families:
 
@@ -2511,9 +2511,9 @@ The built-ins fall into these families:
 | Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` |
-| Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
+| Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-elements)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](/learn/14-forms)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `AlertDialog`, `Sheet`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner`, `ConsentSettings` ([Events](/learn/08-events#overlays)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
@@ -2521,7 +2521,7 @@ The built-ins fall into these families:
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](/learn/17-pdf-and-slides)) |
 | Routing | `Router` ([Pages](/learn/05-pages-and-routing#the-app-shell)) |
 
-### Content: a note, a key, a figure
+### Content elements
 
 The content built-ins are the pieces a page of text and figures is made of. Each is drawn the same on the live page, in the static paint and in a PDF:
 
@@ -2557,7 +2557,7 @@ page Report(path: "/", title: "Report", description: "The month, at a glance.") 
 - **`Accordion`** is native `<details>`; `.single` keeps one open at a time.
 - **`VisuallyHidden`** is words only a screen reader hears.
 
-## What an element renders
+## Rendered HTML
 
 Each built-in renders real, semantic HTML. A `Button` is a `<button>`, a `Link` an `<a>`, a `Heading(…).h2` an `<h2>`, and a `Table` a `<table>` with `<th scope="col">` cells in its head.
 
@@ -2567,9 +2567,9 @@ Each also carries a stable class named after it, with a modifier class for each 
 <button class="wf-btn wf-btn--primary wf-btn--large" type="button">Save</button>
 ```
 
-These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](/learn/13-styling#classes-and-your-own-stylesheet)). The reference names each element's class.
+These classes are part of the public surface and stay stable across releases, so your own stylesheet may target them ([Styling](/learn/13-styling#classes-and-stylesheets)). The reference names each element's class.
 
-## What the compiler checks on every element
+## Element checks
 
 The compiler holds every element call to these rules:
 
@@ -2776,9 +2776,9 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 What an action's body can hold:
 
 - **Locals.** `let x = …` declares a local of the action or handler. `let { a, b } = m` and `let [x, y] = l` destructure a map and a list.
-- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](/learn/14-forms#show-that-a-request-is-running)).
+- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](/learn/14-forms#pending-state)).
 - **Loops.** `for item in list { }`, `for item, i in list { }` and `for n in 1..=10 { }`.
-- **Errors.** A request's answer is a result: `try` gives its value or passes the failure up, in an action that says what it fails with (`-> !` here), and `match` handles each case where the call is made ([Fetching data](/learn/15-data#say-how-a-call-fails)). `try { } catch e { }` guards a call into a script that may throw.
+- **Errors.** A request's answer is a result: `try` gives its value or passes the failure up, in an action that says what it fails with (`-> !` here), and `match` handles each case where the call is made ([Fetching data](/learn/15-data#error-enums)). `try { } catch e { }` guards a call into a script that may throw.
 - **`return`.** `return` leaves the action; `return x` leaves with a value.
 
 A `let` is the action's own. After `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was; assign it back with `items = list`, or write `items.push(x)`, which gives the state a new list.
@@ -2807,7 +2807,7 @@ How it behaves:
 - The storage key is the owner's name and the state's (`Prefs.scheme`), so a page and a store may each have a value of the same name.
 - It works in a store too, where every page shares it.
 - When storage is blocked or full, the value falls back to its initial value.
-- A block after the declaration can say which storage to use, give a version with migrations, and choose whether to follow other tabs. That block and the rest of the policy are in [Stores](/learn/11-stores#keeping-a-value-across-visits).
+- A block after the declaration can say which storage to use, give a version with migrations, and choose whether to follow other tabs. That block and the rest of the policy are in [Stores](/learn/11-stores#persisted-state).
 
 ## Timers
 
@@ -2855,7 +2855,7 @@ The `ref:` declares the name; you do not declare it anywhere else. Anything the 
 
 A handle is filled once the element exists, so set-up code at the top of the body cannot use it yet. Read it in a handler, an `effect` or `after(0) { }`.
 
-## The browser as values
+## Browser values
 
 Some names are always in scope and kept current by the runtime, so a page reads the browser the way it reads its own state:
 
@@ -2890,7 +2890,7 @@ The rules:
 - Copy one into a `state` and you keep the value it had when the page opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it where it is shown, or in a `derived`.
 - The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer [responsive values](/learn/13-styling#responsive-values), which are right in the first paint.
 
-## Where values come from, in order
+## Initialization order
 
 When a body reads a name, the nearest declaration wins. The compiler looks in this order, innermost first:
 
@@ -2916,7 +2916,7 @@ So with `state name = "outer"`, `for name in items by name { Text(name) }` shows
 | `persist scheme = "light"` | a state kept across visits | [`persist`](#persist) |
 | `every(1000) { … }`, `after(3000) { … }` | a repeating timer and a one-off delay | [Timers](#timers) |
 | `ref: box` | a handle on an element | [Element handles](#element-handles) |
-| `viewport`, `query`, `hash`, `theme`, `now`, `network`, `update`, `locale`, `dir` | the browser, read as values | [The browser as values](#the-browser-as-values) |
+| `viewport`, `query`, `hash`, `theme`, `now`, `network`, `update`, `locale`, `dir` | the browser, read as values | [The browser as values](#browser-values) |
 
 [Grammar](/reference/grammar) and [Built-in functions](/reference/built-ins) are the reference for each.
 
@@ -3039,7 +3039,7 @@ To read the event, name a parameter: `on keydown(e) { … }`. It is the browser'
 
 Without a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.
 
-A DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).
+A DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#component-events)).
 
 This drop zone uses the event object twice — to allow the drop, and to read the dropped files:
 
@@ -3058,7 +3058,7 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
 }
 ```
 
-### How often a handler runs
+### Debounce and throttle
 
 An event can come far more often than its handler needs to run: a key per letter, a scroll per pixel. Say how often in the handler's parentheses:
 
@@ -3120,7 +3120,7 @@ How it listens:
 
 A combination no keyboard sends — an unknown modifier, no key — is an error (`E117`).
 
-### Shortcuts for an app
+### App shortcuts
 
 To give an app shortcuts that work on every page, write them with `mod` and declare them on `app`:
 
@@ -3170,7 +3170,7 @@ The helpers and rules it relies on:
 - **Events outside any element.** A page, a component or `app` may handle `keydown` and `keyup`, and the window's `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage` and `visibilitychange`, and the window losing and gaining focus (`blur`, `focus` — an editor saves on leaving, for example). Each listens for as long as its owner shows.
 - **A letter is also the key in its place.** On a Mac `⌥⌘P` sends `π`, and `mod+alt+p` still matches it.
 
-### Moving through a group with the arrow keys
+### Arrow-key navigation (roving focus)
 
 A tab strip, a toolbar or a row of choices is one stop for Tab: Tab enters it and leaves it, and the arrow keys move inside it. `Tabs` and `Menu` work that way already. `roving:` gives any element of yours the same:
 
@@ -3193,7 +3193,7 @@ page Editor(path: "/", title: "Editor", description: "Format the text.") {
 
 For a key of your own that follows the direction of the text, write `on key("inline-start")` or `on key("inline-end")`: ArrowLeft and ArrowRight in a left-to-right box, the other way round in a right-to-left one.
 
-## Emitting events from components
+## Component events
 
 A component declares the events it fires with `event`, and fires them with `emit`. The caller handles them like DOM events, with a name for each value the event sends — `on change(v)`, `on menu(key, x, y)`. [Components](/learn/10-components#events) covers the details. This counter tells its page every time it changes:
 
@@ -3216,7 +3216,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 }
 ```
 
-## Overlays: modals, dialogs, toasts and menus
+## Overlays
 
 An *overlay* is something a page opens over itself: a modal that asks a question, a toast that confirms, a menu of actions, a tooltip. Most are opened by a state, so the page decides when they show. This page has one of each:
 
@@ -3253,7 +3253,7 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 - **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.
 - **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.
 
-### What closes an overlay, and where the focus goes
+### Closing overlays and focus
 
 `dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:
 
@@ -3290,7 +3290,7 @@ page Shop(path: "/", title: "Shop", description: "Filters in a bottom sheet.") {
 
 On a narrow screen a `Sidebar` opens over the page as a drawer, which is a layer like these: the focus goes in and stays there, Escape or a press outside closes it, and the focus goes back to its toggle.
 
-### Toasts, questions and announcements from a handler
+### Toasts, confirmations and announcements
 
 Three functions open an overlay from code rather than from state:
 
@@ -3327,7 +3327,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
 A program that names something `toast`, `ask` or `announce` of its own keeps it; the function is then out of reach there.
 
-### Layers: popovers, menus and tooltips above everything
+### Popovers, menus and tooltips
 
 A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's *top layer*, above everything else on the page, so a box with `overflow: hidden` cannot clip them. Each is placed against its *anchor*, the element it belongs to, and flips or slides to stay on screen.
 
@@ -3374,7 +3374,7 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 
 Every option of these — `placement:`, `offset:`, `.arrow`, a menu's `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and `shortcut:` — is listed under [`Popover`](/reference/popover), [`Menu`](/reference/menu) and [`Tooltip`](/reference/tooltip). To ask before a destructive action, see [Build a confirm dialog](/recipes/confirm-dialog).
 
-## Gestures: drag, long-press, swipe and the splitter
+## Gestures
 
 The runtime turns what the pointer does over time into one event that says what it means. A mouse, a pen and a finger run the same code. A finger picks a drag up with a long press, so a plain swipe still scrolls the page.
 
@@ -3418,9 +3418,9 @@ On a call of your own component, the drag, the drop and the gestures apply to th
 > [!IMPORTANT]
 > A drag has no keyboard of its own. Give what it does a menu item or a command too (`Move left`, `Move to…`), as the platform's accessibility rules ask of every pointer action.
 
-## Listening outside the page's elements
+## Window and document events
 
-A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#shortcuts-for-an-app)). It listens for as long as its owner shows:
+A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#app-shortcuts)). It listens for as long as its owner shows:
 
 ```wf
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
@@ -3446,7 +3446,7 @@ page Selection(path: "/", title: "Selection", description: "What the reader has 
 }
 ```
 
-For the viewport's size, the network and the URL, the language already keeps values current — `viewport`, `network`, `query`, `hash` — so no listener is needed ([State](/learn/07-state-and-reactivity#the-browser-as-values)).
+For the viewport's size, the network and the URL, the language already keeps values current — `viewport`, `network`, `query`, `hash` — so no listener is needed ([State](/learn/07-state-and-reactivity#browser-values)).
 
 ## Summary
 
@@ -3454,18 +3454,18 @@ For the viewport's size, the network and the URL, the language already keeps val
 |---|---|---|
 | `on click { … }` | runs when the element fires the event | [Handlers](#handlers) |
 | `on keydown(e) { … }` | names the event object | [The event object](#the-event-object) |
-| `on input(debounce: 300.ms) { … }`, `on scroll(e, throttle: 100.ms) { … }` | runs once the events stop; at most once a while | [How often a handler runs](#how-often-a-handler-runs) |
-| `on visible { … }` | runs when the element comes into view | [How often a handler runs](#how-often-a-handler-runs) |
+| `on input(debounce: 300.ms) { … }`, `on scroll(e, throttle: 100.ms) { … }` | runs once the events stop; at most once a while | [How often a handler runs](#debounce-and-throttle) |
+| `on visible { … }` | runs when the element comes into view | [How often a handler runs](#debounce-and-throttle) |
 | `on key("Escape") { … }` | answers to one key or combination | [Keys](#keys) |
-| `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#shortcuts-for-an-app) |
-| `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#shortcuts-for-an-app) |
-| `event change(v: Number)`, `emit change(n)` | a component's own event | [Emitting events from components](#emitting-events-from-components) |
-| `Modal(visible: open, title: "…")` | a dialog opened by state | [Overlays](#overlays-modals-dialogs-toasts-and-menus) |
-| `Popover(visible:, anchor:)`, `Menu(visible:, at:)` | layers placed at a control or a point | [Layers](#layers-popovers-menus-and-tooltips-above-everything) |
-| `drag: v`, `on receive(d)`, `on dragmove(d)` | drag and drop | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
-| `on longpress(p)`, `on swipe(s)` | a held press; a sweep | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
-| `Splitter(bind: side, min:, max:)` | a handle that sizes a region | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
-| `on scroll { … }` outside any element | a window event | [Listening outside the page's elements](#listening-outside-the-page-s-elements) |
+| `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#app-shortcuts) |
+| `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#app-shortcuts) |
+| `event change(v: Number)`, `emit change(n)` | a component's own event | [Emitting events from components](#component-events) |
+| `Modal(visible: open, title: "…")` | a dialog opened by state | [Overlays](#overlays) |
+| `Popover(visible:, anchor:)`, `Menu(visible:, at:)` | layers placed at a control or a point | [Layers](#popovers-menus-and-tooltips) |
+| `drag: v`, `on receive(d)`, `on dragmove(d)` | drag and drop | [Gestures](#gestures) |
+| `on longpress(p)`, `on swipe(s)` | a held press; a sweep | [Gestures](#gestures) |
+| `Splitter(bind: side, min:, max:)` | a handle that sizes a region | [Gestures](#gestures) |
+| `on scroll { … }` outside any element | a window event | [Listening outside the page's elements](#window-and-document-events) |
 
 The [components reference](/reference) lists every event and prop of each built-in.
 
@@ -3715,7 +3715,7 @@ The rules:
 - Without an `else`, a `match` must give every case of the enum, the read or the result an arm, or it is an error (`T15`). That holds for a `match` statement and a `match` expression alike; an expression that covers every case needs no `else`.
 - An arm is drawn again when the arm changes, not when its value does. A new payload of the same case — `.failed("refused")` after `.failed("timed out")` — reaches what the arm drew in place.
 
-## Expressions that choose
+## Conditional expressions
 
 `if` and `match` are also values, and `??` picks a fallback for a value that may be null:
 
@@ -3732,7 +3732,7 @@ page Choose(path: "/", title: "Choose", description: "Values picked by a conditi
 
 An `if` value with no `else` is `null` when its condition fails. [Expressions](/reference/expressions) has the rest.
 
-## In actions and handlers
+## Control flow in actions
 
 The same statements work in an imperative block — a handler or an action — on values rather than elements, plus `try`/`catch`. This action fetches rows, matches the answer, and keeps the first hundred:
 
@@ -3776,8 +3776,8 @@ When the action only needs the value, `try` says so in one word: `let answer: Ro
 | `VirtualList(rowHeight: 32) { for … by … }` | only the rows in view | [Long lists](#long-lists) |
 | `show open { … }` | its block, hidden rather than removed | [`show`](#show) |
 | `match s { .idle { … } else { … } }` | one arm by case, or by a resource's state | [`match`](#match) |
-| `if c { a } else { b }`, `match s { … }`, `a ?? b` | a value | [Expressions that choose](#expressions-that-choose) |
-| `try { … } catch e { … }` | in an action: a guard on what may fail | [In actions and handlers](#in-actions-and-handlers) |
+| `if c { a } else { b }`, `match s { … }`, `a ?? b` | a value | [Expressions that choose](#conditional-expressions) |
+| `try { … } catch e { … }` | in an action: a guard on what may fail | [In actions and handlers](#control-flow-in-actions) |
 
 ## Common mistakes
 
@@ -3899,7 +3899,7 @@ The rules for props:
 - A `///` comment above the component or above a prop is its documentation. The editor shows it on hover, and `wf docs` writes it on the component's page.
 
 > [!NOTE]
-> **Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](/coming-from/react).
+> **Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#root-attributes-and-handlers)). See [Coming from React](/coming-from/react).
 
 A prop that reads the caller's state stays live inside the component: a `Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass a callback or re-render anything yourself.
 
@@ -3961,12 +3961,12 @@ page Todos(path: "/", title: "Todos", description: "Rows that report back.") {
 }
 ```
 
-The checker holds each `emit` to the parameters its event declares (`T09`). A handler on a call must name a declared event or a DOM event; an `emit` outside a component is `E114`. A DOM event handler written on a component call, such as `on click`, attaches to the component's root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). For events in general, see [Events](/learn/08-events).
+The checker holds each `emit` to the parameters its event declares (`T09`). A handler on a call must name a declared event or a DOM event; an `emit` outside a component is `E114`. A DOM event handler written on a component call, such as `on click`, attaches to the component's root element (see [What a call puts on the root element](#root-attributes-and-handlers)). For events in general, see [Events](/learn/08-events).
 
 > [!NOTE]
 > **Coming from React?** A callback prop such as `onToggle={…}` becomes a declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled on the call as `on toggle(id) { … }`. The checker holds both ends to the declaration. See [Coming from React](/coming-from/react).
 
-### An event with several values
+### Events with several values
 
 An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it. In this example `key` is a `String`, and `x` and `y` are `Number`s:
 
@@ -4131,7 +4131,7 @@ page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.")
 
 Clicking **Add Pen** changes the page's text from **0 in cart** to **1 in cart**. [Stores](/learn/11-stores) covers stores in full.
 
-## What a call puts on the root element
+## Root attributes and handlers
 
 A component's *root element* is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:
 
@@ -4157,11 +4157,11 @@ page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
 
 The `on click` still goes to the root, which here is the `Badge`.
 
-## Designing components
+## Component design
 
 A component's interface is its props, events, slots and parts. These guidelines keep it clear to callers.
 
-### A value down, an event up
+### Props down, events up
 
 A component does not take `bind:`. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:
 
@@ -4187,7 +4187,7 @@ Clicking **+** sets `seats` to 2, and the component shows **Seats: 2** because i
 > [!NOTE]
 > **Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own component. Take the value as a prop and fire a `change` event; the caller assigns its state in the handler. `bind:` belongs to the built-in controls. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).
 
-### Pick the right way in
+### Props, slots or parts
 
 Choose the part of the interface by what the caller wants to do:
 
@@ -4201,11 +4201,11 @@ Choose the part of the interface by what the caller wants to do:
 | offer a sub-element with its own props | a part, `Panel.Header` |
 | hear that something happened | an `event` |
 
-### Keep state where it is read
+### Where state lives
 
 A component's own `state` is right for what only that component cares about, such as whether its menu is open or it is hovered. What the page or other components care about comes in as a prop and goes out as an event — or lives in a store.
 
-### Document it
+### Documentation comments
 
 A `///` comment above the component, a prop or an event is shown on hover in the editor, and on the component's page of the site `wf docs` writes.
 
@@ -4241,11 +4241,11 @@ wf docs
 
 The site is written to `docs/` in the design of this reference, light and dark: a page a component, with its examples, props, events, slots and parts, and pages for the project's types, stores and routes. Serve the folder to read it.
 
-## Other people's code
+## Third-party code
 
 To use a JavaScript library — a chart, a map, an editor — call it from a `.js` file under `src/` and hand it an element with `mount:` and `cleanup:`. To place somebody else's custom element, use `Element("tag-name", …)`. You can also publish your components as custom elements for another framework to place. See [Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script), [Place a custom element](/recipes/place-a-custom-element) and [Publish components as custom elements](/recipes/publish-custom-elements).
 
-## Components in the pre-rendered page
+## Components and pre-rendering
 
 A static build pre-renders each page to HTML — the *static paint*. It expands every component call into HTML at build time: props substituted, slots filled, and loops and branches over the seeded state drawn. A page built from components is therefore a complete page before any script runs. See [Static sites and SPAs](/about/static-or-single-page).
 
@@ -4521,7 +4521,7 @@ Inside an action, a bare name is the store's own member — `items`, `error` —
 
 An action may read other stores through their names. Stores are global, so a store needs no `use`. A `derived` value may call one of the store's own actions to compute a value, but not one that assigns state: that is `X04`, because the derived value would change state every time it is read.
 
-## Keeping a value across visits
+## Persisted state
 
 `persist` declares a member whose value is kept in the browser's storage and read back on the next visit. It is stored under the store's name and the member's name, so a page and a store may each persist a `theme`. `persist` works the same way at the top of a page or a component.
 
@@ -4557,10 +4557,10 @@ store Cart {
 
 | Option | Meaning |
 |---|---|
-| `in:` | Where the value lives: `.local` (the default, kept across visits), `.session` (this tab), or `.app` (see [Storage the project provides](#storage-the-project-provides)) |
+| `in:` | Where the value lives: `.local` (the default, kept across visits), `.session` (this tab), or `.app` (see [Storage the project provides](#custom-storage)) |
 | `version:` | The version of the value's shape that this build writes |
 | `sync:` | `false` stops this page taking a value another tab or window wrote |
-| `key:` | Keeps one stored value per key (see [One stored value per instance](#one-stored-value-per-instance)) |
+| `key:` | Keeps one stored value per key (see [One stored value per instance](#per-instance-keys)) |
 | `migrate n -> m { … }` | Brings a value written at version `n` forward to `m` |
 
 ### Versions and migrations
@@ -4580,7 +4580,7 @@ The build also remembers the shape of every persisted value, in `.wf-cache/persi
 > [!WARNING]
 > A `persist` inside a `store(scope: .route)` does not reset with the route. The route change drops the store, and the next read builds it again — from storage, so the value comes straight back. The build reports this as `P03`. Use `state` for what the route owns, and a wider scope for what outlives it.
 
-### One stored value per instance
+### Per-instance keys
 
 A `persist` in a component uses one stored value for every place the component is drawn. Three `Panel`s that each persist `open` share one value, so opening one opens them all. `key:` names what tells the instances apart, and each key gets its own stored value:
 
@@ -4594,7 +4594,7 @@ component Panel(_ title: String) {
 
 The build warns (`D03`) about a component that persists a value with no `key:` and is placed more than once, or in a loop.
 
-### A key that follows state
+### Dynamic keys
 
 `key:` is read as state. When what it reads changes, the member takes the value kept under the new key, and writes go there. A desktop app keeps its layout per project this way. A store's key may read the store itself, or another store:
 
@@ -4608,7 +4608,7 @@ store Layout {
 }
 ```
 
-### Storage the project provides
+### Custom storage
 
 `in: .app` keeps the value somewhere other than the browser's two storages: a desktop app's store reached through its native bridge, or an extension's storage. It reads `window.wfStorage.app`, which a script of the project's under `src/` defines. The object has this shape: `{ get(name), set(name, text), remove?(name), watch?(name, fn) }`.
 
@@ -4633,11 +4633,11 @@ window.wfStorage = {
 
 See [Make a desktop or phone app with Tauri](/recipes/tauri-app) for the rest of a desktop project.
 
-### Secrets are never persisted
+### Secrets
 
 `persist token: Secret = ""` is an error (`T12`). The point of the `Secret` type is that its value never reaches a place any script can read, and the browser's storage is such a place. Keep a session in an httpOnly cookie instead (see [Security](/about/security)).
 
-## A connection a store holds
+## Connections in a store
 
 A store may hold a connection — a `socket`, a `stream`, a `channel`, a `peer` or a `worker` (see [Open a socket](/recipes/open-a-socket)) — for every page at once. The connection opens when the store is first read and closes with the store; a `.route` store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:
 
@@ -4664,7 +4664,7 @@ page Feed(path: "/", title: "Feed", description: "One line for every page.") {
 }
 ```
 
-## Loading data into a store
+## Loading data
 
 A store can own a `resource` (see [Data and APIs](/learn/15-data)). It is asked for the first time something reads the store, and lives as long as the store does — not as long as the page that happened to read it first — so another page that reads the store finds what has already arrived, and nothing is asked for again. It is abandoned with the store: a `.route` store's when its route leaves, to be asked for afresh when the route comes back.
 
@@ -4696,7 +4696,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 }
 ```
 
-A resource over a service's endpoint is owned the same way — `resource list = Catalog.items()` — and when the endpoint says how it pages ([Load results a page at a time](/learn/15-data#load-results-a-page-at-a-time)), `Shelf.list.loadMore()` asks for the next page from any page that reads it. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
+A resource over a service's endpoint is owned the same way — `resource list = Catalog.items()` — and when the endpoint says how it pages ([Load results a page at a time](/learn/15-data#pagination)), `Shelf.list.loadMore()` asks for the next page from any page that reads it. The resource is the store's to replace: `Deploys.rows = …` is an `X01`, as it is inside the store.
 
 When an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a request instead, and call the action where the data is first wanted:
 
@@ -4713,11 +4713,11 @@ store Feed {
 }
 ```
 
-## Stores in the pre-rendered page
+## Stores and pre-rendering
 
 A static build pre-renders each page to HTML — the *static paint*. The static paint seeds each store's state from its initial values, so `Cart.count` is painted as `0`, and a store seeded with rows paints the rows. A value an action changes at run time is corrected once the page is live.
 
-## Looking at one while it runs
+## Debugging stores
 
 `wf serve` puts a **stores** button in the corner of the page. It opens on what every store that has been built is holding, and a log of every action that has run: the arguments it was given, and the state before and after it. Clicking an entry puts the store back to what it held before that action, which is usually enough to find a bug.
 
@@ -4933,7 +4933,7 @@ page Typed(path: "/", title: "Typed", description: "State with declared types.")
 }
 ```
 
-## The types the language brings with it
+## Built-in types
 
 Eleven more types come with the language. Each is a **plain JSON value at run time**, with no wrapper object, so it crosses a `fetch`, a `persist`, the static paint (the HTML the build pre-renders for a page) and the template engine unchanged. `.native()` hands a real platform object to a library that wants one.
 
@@ -4993,7 +4993,7 @@ Everything the language **computes** is a call; everything the carrier **already
 
 Adding a month lands on a day that exists: `@2026-01-31.plus(months: 1)` is the 28th of February, not the 3rd of March. All of these methods also run at build time, so the static paint shows the answer instead of a blank that fills in when the page hydrates.
 
-### A literal is held to its type
+### Typed literals
 
 A string written where one of these types is wanted is read as that type, and checked where you wrote it. The second `state` on this page does not build:
 
@@ -5022,7 +5022,7 @@ page Feed(path: "/", title: "Feed", description: "What happened lately.") {
 
 Read `now` where it is shown or in a `derived` value. A `state` takes its initial value once, so `state clock = now(every: 1.seconds)` stays at the moment the page opened (`X06`; see [State and reactivity](/learn/07-state-and-reactivity)).
 
-### A condition on a type
+### Refined types
 
 Any type may say what its values must be. The compiler holds every value it can read to that condition, as it does to the three states on this page:
 
@@ -5038,7 +5038,7 @@ page Stay(path: "/", title: "Stay", description: "Values held to a condition.") 
 
 The conditions are `min`, `max`, `minLength`, `maxLength`, `pattern`, `after` and `before`, and a range for the two ends at once: `1..=30` includes the end, `0..10` excludes it. A value that arrives at run time — typed into a field, say — is refused by validation, from the same condition, so a refined type needs no `validate` rule for it (see [Forms](/learn/14-forms)).
 
-### Secret is not a string
+### Secrets
 
 A `Secret` is a string the compiler will not let escape. This page lets one escape four ways, and each is a `T12`:
 
@@ -5055,7 +5055,7 @@ page Login(path: "/", title: "Login", description: "Four ways a secret escapes."
 
 Joining it with `+` or handing it to a browser global such as `console`, a storage or a `fetch` address is a `T12` too, and a secret has no string members to read. Hold it in `state`, which ends with the visit; what must outlive the visit belongs on the server.
 
-### Your own name wins
+### Shadowing built-in type names
 
 A `type` the program declares takes the name back from the language. A project with its own `type Color { name: String }` means that record everywhere it writes `Color`.
 
@@ -5133,7 +5133,7 @@ page Enums(path: "/", title: "Enums", description: "Enums with and without paylo
 > [!NOTE]
 > **Coming from TypeScript in React or Vue?** A union of strings such as `"idle" | "running" | "failed"` becomes an `enum`, and a field that only some states have becomes that case's payload: `.failed(reason: String)`. A `match` then has to give every case an arm. See [Coming from React](/coming-from/react).
 
-## Shapes of map literals
+## Map literal shapes
 
 A map literal has the fields it was written with. `{ name: "", age: 0 }` has the *shape* `{ name: String, age: Number }`, and reading `form.nam` is `T05`, with the fields it does have. A shape fits a record with the same fields, and any shape it agrees with. An empty `{}` and a literal with a spread say nothing about their keys: where one is held, say what it holds — `state seen: [String: Bool] = {}` — or the checker asks (`T25`).
 
@@ -5146,7 +5146,7 @@ page Shapes(path: "/", title: "Shapes", description: "A map literal with a shape
 }
 ```
 
-## What agrees with what
+## Type compatibility
 
 A value fits where a type is wanted when it *is* that type, with nothing converted on the way:
 
@@ -5257,7 +5257,7 @@ page Restore(path: "/", title: "Restore", description: "Settings decoded from te
 
 A result is written `T ! E` — a `T`, or an error of `E` — and `T!` for one whose error is a request's failure. An action declares one with `-> T ! E`, and `-> ! E` (or `-> !`) when it returns nothing but may fail. A `match` on a result gives both `.ok` and `.err` an arm, or an `else`.
 
-## Where types come from
+## Type inference
 
 The checker reads a type from five places.
 
@@ -5367,7 +5367,7 @@ A list narrows too: `xs.filter(x => x != null)` is a list of the items that are 
 > [!WARNING]
 > Splicing a value that may be `null` into text shows the word `null` on the page. The checker warns (`T19`); say what to show instead with `??`, as in `Text(todo.note ?? "no note")`.
 
-## Typing data from the network
+## Typing network data
 
 The checker cannot see what a URL will return, so an `http.get` says it: annotate the resource or the local variable with the type it holds (`N11` without one). The answer is held to that type as it arrives, in every build:
 
@@ -5389,7 +5389,7 @@ page Deploys(path: "/", title: "Deploys", description: "A typed resource.") {
 
 In every build — under `wf serve` and deployed alike — each response is held to its declared type as it arrives, and one that does not fit fails as `.decode(at, message)`, naming the place, such as `$[1].status is missing`.
 
-When the server publishes an OpenAPI specification, let it write the contract instead: `wf api add openapi.json --name Backend` writes every endpoint, parameter, response and error as files, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file)). An `api` you write by hand types its calls the same way: `get users() at "users" -> [User]`.
+When the server publishes an OpenAPI specification, let it write the contract instead: `wf api add openapi.json --name Backend` writes every endpoint, parameter, response and error as files, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](/learn/15-data#openapi)). An `api` you write by hand types its calls the same way: `get users() at "users" -> [User]`.
 
 ## The checks
 
@@ -5426,7 +5426,7 @@ The type checker reports these codes. All are errors except `T19`, which is a wa
 
 Most findings come with a hint: a conversion (`Number(value)`, `"{value}"`), the cases an enum takes, the fields a record has, or one of the narrowing forms above. `wf explain T05` prints a code's full entry, and [Diagnostics](/errors) has every code with an example.
 
-## What the checker does not check
+## Limits of the checker
 
 - It does not check a lambda's body against a return type unless the lambda is handed to a function type, which says one.
 - It does not know what a server will send until it sends it: an `http` call names its type, or the service is described with an `api`, and what arrives is held to it at run time.
@@ -5549,11 +5549,11 @@ Three tools cover almost everything. Pick the narrowest one that does the job:
 
 | To change… | Use | Section |
 |---|---|---|
-| The whole site: every button, card and link | a `theme` | [Change the whole site with a theme](#change-the-whole-site-with-a-theme) |
-| One element | a `style { }` block on it | [Style one element](#style-one-element) |
-| A group of elements, or something a block cannot say | a class and a `.css` file | [Classes and your own stylesheet](#classes-and-your-own-stylesheet) |
+| The whole site: every button, card and link | a `theme` | [Change the whole site with a theme](#themes) |
+| One element | a `style { }` block on it | [Style one element](#style-blocks) |
+| A group of elements, or something a block cannot say | a class and a `.css` file | [Classes and your own stylesheet](#classes-and-stylesheets) |
 
-## Change the whole site with a theme
+## Themes
 
 To change the colours, fonts, spacing or corner radius of everything at once, declare a `theme`. A theme sets *design tokens* — named values such as `color-primary` or `radius-md` that every built-in reads.
 
@@ -5587,7 +5587,7 @@ How a theme works:
 - A theme may add tokens of its own, such as `surface-raised: #131519`. They become custom properties like the rest.
 - The breakpoints are tokens too, so moving one moves every media query the build writes (see [Responsive values](#responsive-values)).
 
-### Every built-in follows the theme
+### Built-ins and themes
 
 The built-ins draw their colours, sizes, radii, fonts and motion from the tokens and nothing else, so a theme restyles all of them. Three kinds of token are worth knowing when you change the colours:
 
@@ -5616,7 +5616,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
 The stacking scale (`z-sticky`, `z-drawer`, `z-modal`, `z-toast`, …) places a sticky header or a drawer of your own against the built-ins, and `target-min` (24px) and `target-min-touch` (44px) are the least size a control is pressed at; `style { min-block-size: $target-min }` gives a control of your own the same.
 
-### Choose and check a theme
+### Choosing and checking a theme
 
 If the project declares one theme, the build uses it. If it declares several, choose one in `webfluent.app.json`:
 
@@ -5633,7 +5633,7 @@ To keep the built-ins' layout and mechanics but drop their look — for a site t
 | `"full"` (default) | Its layout, its mechanics and its baseline look |
 | `"structural"` | Only its layout and mechanics: focus rings, overlays, the grid |
 
-## Style one element
+## Style blocks
 
 To change one element, give it a `style { }` block. The block holds CSS declarations, and they apply to that element only.
 
@@ -5670,13 +5670,13 @@ The card gets a deeper shadow on hover. **Widen** lets it fill the page, and **M
 > [!NOTE]
 > **Coming from HTML and CSS?** There is no `style="…"` attribute: `style:` as an argument is `E106`. The declarations go in the element's `style { }` block, and the build turns the parts that never change into a stylesheet rule, so a strict content security policy still holds. See [Coming from HTML and CSS](/coming-from/html-css).
 
-### Write declarations
+### Declarations
 
 - Write one declaration per line, or several on one line separated by `;`.
 - Write values as CSS, with no quotes: `padding: 2rem`, not `"2rem"`.
 - Never separate two declarations with a comma. `width: 2rem, flex: none` is `E002`, because a style block is CSS, not a map.
 
-### Use a token
+### Design tokens
 
 `$name` reads a design token. A full name, such as `$color-primary` or `$surface-raised`, works on any property. A short name is resolved by the property it is written on:
 
@@ -5691,13 +5691,13 @@ The card gets a deeper shadow on hover. **Widen** lets it fill the page, and **M
 
 A token that the theme does not declare is `V06`, an error, because the browser would drop the declaration. A property name that CSS does not have, such as `colr:`, is `V05`, a warning that suggests the nearest property.
 
-### Splice a live value
+### Live values
 
 `{expr}` puts a value into a declaration. When the value reads state, the declaration updates whenever that state changes. A splice may be the whole value (`{accent}`) or part of one (`{pct}%`).
 
 A splice that is a bare number for a length, such as `width: {pct}`, is `V07`: the browser drops a length with no unit. Write `width: {pct}%` or `width: {pct}px`.
 
-### Style a state with a nested rule
+### Nested rules for states
 
 A nested rule styles the element while it is in some state. `&` is the element itself, as in CSS nesting:
 
@@ -5726,13 +5726,13 @@ page Swatch(path: "/swatch", title: "Swatch", description: "A hover colour that 
 
 Read your own custom property with `var(--name)`. `$name` is only for design tokens.
 
-### How the build compiles a style block
+### How style blocks compile
 
 - The parts of a block that do not read state become a stylesheet rule, under a class named by the block's content. The element carries the class, so a hundred identical cards share one rule and the pre-rendered page has it before any script runs.
 - A declaration that reads state is set on the element by the runtime and updated when the state changes.
 - Nested state rules and media rules are marked `!important`, so they win over the element's base declarations while they apply. When a state rule and a media rule set the same property, the media rule wins.
 
-## Animate a style change
+## Transitions
 
 To make a property change smoothly instead of jumping, add a `transition { }` block. Each line names a property, a duration and an optional easing.
 
@@ -5754,7 +5754,7 @@ page Fade(path: "/fade", title: "Fade", description: "A card that fades in and o
 
 A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value such as `200ms ease-out`. A reader who asked their system for less motion gets no transition. Enter and exit animations, and other motion, are in [Animate an element in and out](/recipes/animate-in-and-out).
 
-## Classes and your own stylesheet
+## Classes and stylesheets
 
 To share a rule between many elements, or to write what a `style { }` block cannot say, put it in a `.css` file and add its class with `class:`.
 
@@ -5765,7 +5765,7 @@ Use a stylesheet for:
 - a class that a dozen elements share by name;
 - a rule on `html`, `body` or `::selection`.
 
-### Add a stylesheet
+### Stylesheets
 
 Every `.css` file anywhere under `src/` is part of the build. You can keep one global file, or put a file beside the component it styles:
 
@@ -5792,7 +5792,7 @@ The build reads the files in path order, minifies them and bundles them into `st
 
 To link a sheet the build does not compile — a file in `public/` or a URL — list it in `meta.stylesheets` in `webfluent.app.json`. It is linked ahead of `styles.css`.
 
-### Add a class
+### Classes
 
 `class: "name"` adds a class to the element. It does not replace the element's own classes: `Container(class: "hero")` renders `class="wf-container hero"`.
 
@@ -5836,13 +5836,13 @@ The rules for a class value:
 - A bare condition is not a class: `class: active` is `T01`. Write `{ "is-active": active }`, which says what `active` turns on.
 - When the value changes, only the classes that `class:` itself named come off. A class a script added with `classList.add` stays.
 
-### Target the built-ins
+### Selecting built-ins
 
 Each built-in wears `wf-*` classes, such as `wf-btn`, `wf-btn--primary` and `wf-card`. They are stable across releases, so a stylesheet may target them.
 
 Do not add another built-in's class to an element with `class:`. It brings that built-in's rules with it, and draws `V04`.
 
-## Override a built-in's look
+## Overriding built-in styles
 
 To decide which rule wins, know the three layers of CSS on a page. From weakest to strongest:
 
@@ -5854,9 +5854,9 @@ So choose the tool by how far the change reaches:
 
 - To restyle **one element**, use its `style { }` block.
 - To restyle **every button**, write `.wf-btn { … }` in a stylesheet, or change the tokens in a theme. Because the built-ins read tokens, `color-primary` recolours every primary button, link and focus ring at once.
-- To drop the built-ins' look entirely, set `theme.builtin: "structural"` (see [Change the whole site with a theme](#change-the-whole-site-with-a-theme)).
+- To drop the built-ins' look entirely, set `theme.builtin: "structural"` (see [Change the whole site with a theme](#themes)).
 
-## Style a component's variants
+## Component variants
 
 To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a `data-<prop>` attribute, such as `data-tone="loud"`, so one rule styles one variant. The `Note` component of [Components](/learn/10-components#enum-props) gives its root `class: "note"`, so this rule styles its loud notes and nothing else:
 
@@ -5915,7 +5915,7 @@ Every built-in reads tokens, so the dark theme reaches all of them; the built-in
 > [!WARNING]
 > Only what reads tokens switches with the theme. A colour written raw, such as `background: #FFFFFF`, stays the same in dark mode. Use tokens such as `$surface` and `$text` for anything that should change.
 
-## Lay out a page without CSS
+## Layout components
 
 Most layout needs no `style` at all. `Stack`, `Row`, `Grid`, `Container`, `Spacer` and `Divider` take `gap:`, `align:`, `justify:` and `columns:` props ([Elements](/learn/06-elements#layout-elements)).
 
@@ -5968,7 +5968,7 @@ Heading("Title").h1 {
 }
 ```
 
-### Make a layout reflow on a narrow screen
+### Reflowing on narrow screens
 
 A `Row`, `Grid` or `Column` stays as you write it at every width. To make one reflow on a narrow screen, add the `.stacks` flag, or say what it does at each width with a responsive value:
 
@@ -5988,9 +5988,9 @@ What `.stacks` does:
 
 Older versions of the engine reflowed every `Row` and `Grid` this way below 768px, with `!important`, whether you asked or not. They no longer do. `wf migrate` adds `.stacks` to every `Row`, `Grid` and `Column` of a WebFluent 2 project, so the old behaviour carries over, written where you can see and change it.
 
-Keep `viewport` ([State and reactivity](/learn/07-state-and-reactivity#the-browser-as-values)) for what changes behaviour, such as a drawer instead of a sidebar. It follows `matchMedia`, which fires once when the answer changes, not on every pixel of a drag.
+Keep `viewport` ([State and reactivity](/learn/07-state-and-reactivity#browser-values)) for what changes behaviour, such as a drawer instead of a sidebar. It follows `matchMedia`, which fires once when the answer changes, not on every pixel of a drag.
 
-## Find your styles in the build output
+## Styles in the build output
 
 The build writes your styles to two places:
 
@@ -6083,7 +6083,7 @@ WebFluent writes the accessible parts for you: a real `<label>` for every label,
 
 You should know how to declare `state` and an `action` ([State and reactivity](/learn/07-state-and-reactivity)) and how to handle an event ([Events](/learn/08-events)). Sending a form to a server uses an `api`, which [Data and APIs](/learn/15-data) covers in full.
 
-## Bind a control to state
+## Binding controls
 
 To keep a control and a state in step, give the control `bind:` and the state's name. Typing in the control writes the state, and changing the state updates the control.
 
@@ -6127,7 +6127,7 @@ For several lines of text, use a `Textarea`. With `maxLength:` it shows how many
 Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
 ```
 
-### What each control holds
+### Bound value types
 
 The checker knows the type each control writes, and refuses a `bind:` to a state of another type (`F02`):
 
@@ -6136,7 +6136,7 @@ The checker knows the type each control writes, and refuses a `bind:` to a state
 | `Checkbox`, `Switch` | `Bool` |
 | `Slider` | `Number` |
 | `Input.number` | `Number`, and `null` when the reader empties it |
-| `DatePicker` | [`Date?`](/learn/12-types#the-types-the-language-brings-with-it) — `null` until a date is picked |
+| `DatePicker` | [`Date?`](/learn/12-types#built-in-types) — `null` until a date is picked |
 | `Select` | the option's `value:`, as written |
 | `Input`, `Textarea`, `Radio` | `String` |
 
@@ -6144,7 +6144,7 @@ A value comes back as the type it went in as. `Select.Option("Two", value: 2)` b
 
 Every control needs an accessible name: a `label:`, a `placeholder:` (on an `Input`), or an `aria-label:`. The accessibility lints (`A03`, `A04`) warn when one has none.
 
-### Bind to a store or a list item
+### Binding to stores and list items
 
 `bind:` takes anything that can be written:
 
@@ -6176,7 +6176,7 @@ The count at the bottom drops as you tick items. The item is written and the lis
 
 You cannot bind to a constant, a derived value, a prop or a literal: that is `F01`.
 
-## Add a label, a hint or your own error
+## Labels, hints and errors
 
 Every control takes `label:`, `hint:` and `error:`. With any of them, the control is wrapped in a field:
 
@@ -6196,9 +6196,9 @@ page Handle(path: "/handle", title: "Handle", description: "Pick a handle.") {
 }
 ```
 
-For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validate-a-field)). Use `error:` for a message that comes from somewhere else.
+For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validation)). Use `error:` for a message that comes from somewhere else.
 
-## Group controls in a form
+## Forms
 
 To submit several controls together, put them in a `Form`. Its `on submit` handler runs when the form is submitted, and the page never navigates away. `Form(bind: form)` gives you a handle, named `form` here, that knows the state of the whole form.
 
@@ -6248,16 +6248,16 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
 | `form.values` | The controls' values by their `name:` attribute, as `[String: Json]`: a field's own state is the typed way to read one |
 | `form.reset()` | Clears the form, and every message it was showing |
 | `form.submit()` | Submits the form from code |
-| `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said)) |
+| `form.apply(errors)` | Shows what the server said, on the fields it named ([Show what the server said](#server-errors)) |
 | `form.element` | The `<form>` element itself |
 
-### Choose which buttons submit
+### Submit buttons
 
 A `Button` with `type: .submit` (or the `.submit` flag) submits the form, and so does Enter in a field. The browser's own constraint checks run first (`.required`, `.email` and the rest), so an invalid form never reaches `on submit`.
 
 Every other button in a form — **Add a row**, **Show password** — is `type="button"`, and does only what its `on click` says.
 
-## Validate a field
+## Validation
 
 To say what a value must be, put a `validate` block beside the state it guards. Each rule is one line. The control bound to that state shows the rules' messages itself: you write no `error:` and no `derived` value.
 
@@ -6346,7 +6346,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
 }
 ```
 
-### Choose when a message shows
+### When messages show
 
 `Form(show:)` sets when the messages appear:
 
@@ -6360,7 +6360,7 @@ The rules run either way, so `form.valid` is always true to the values, whatever
 
 A submit that fails shows every message, moves focus to the first field that has one, announces it, and does not run `on submit`.
 
-### Preview every message at once
+### Previewing messages
 
 To see a form as a failed submit would leave it, without filling it in, set `data-wf-validation="shown"` on the page's root element:
 
@@ -6370,7 +6370,7 @@ document.documentElement.setAttribute("data-wf-validation", "shown")
 
 Every field then shows what its rules say about its value now. Remove the attribute and the messages go again. An editor's preview sets this attribute to show a form as *Invalid*.
 
-### Let a refined type do the checking
+### Refined types as rules
 
 A *refined type* is a type with a condition, such as `Number(1..=30)`. The condition is already a rule, so you only write the rules the type does not say:
 
@@ -6382,9 +6382,9 @@ validate nights { required }
 - A range's open end is excluded: `Number(0..10)` does not take `10`.
 - A date's `after:` and `before:` are checked as the reader types, like `min` and `max`.
 
-See [Types](/learn/12-types#a-condition-on-a-type) for every condition a type can carry.
+See [Types](/learn/12-types#refined-types) for every condition a type can carry.
 
-### Read the rules as data
+### Rules as data
 
 `wf rules --json` lists, for a tool to read:
 
@@ -6395,7 +6395,7 @@ See [Types](/learn/12-types#a-condition-on-a-type) for every condition a type ca
 
 The Rust library has the same data as `webfluent::validation` (with the `internals` feature, outside semver), which can also write a state's `validate` block back one rule at a time.
 
-### Show what the server said
+### Server errors
 
 When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to `form.apply`:
 
@@ -6418,9 +6418,9 @@ action join() {
 }
 ```
 
-Each message is shown on the field it names: a field a `validate` block guards shows it as its own message, and any other control of the form shows it beneath itself when its `name:` matches — announced, marked `aria-invalid`, and named by `aria-describedby`. The focus moves to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown. [Send a form to a server](#send-a-form-to-a-server) shows the whole page.
+Each message is shown on the field it names: a field a `validate` block guards shows it as its own message, and any other control of the form shows it beneath itself when its `name:` matches — announced, marked `aria-invalid`, and named by `aria-describedby`. The focus moves to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown. [Send a form to a server](#submitting-to-a-server) shows the whole page.
 
-## Upload a file
+## File uploads
 
 To let the reader pick a file, place a `FileUpload` and bind it: `bind:` holds the `File` chosen (`File?`, `null` until one is), or with `.multiple` the list of them (`[File]`). Its `change` event carries the same files, for a page that wants them as they arrive. Each is a `File`, with:
 
@@ -6462,9 +6462,9 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 - `FileUpload(bind: files).multiple` lets the reader pick several files, held in a `[File]`.
 
 > [!IMPORTANT]
-> `accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads-are-checked-on-the-server)).
+> `accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads)).
 
-## Send a form to a server
+## Submitting to a server
 
 To send a form, describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form.
 
@@ -6513,7 +6513,7 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 
 [Data and APIs](/learn/15-data) covers the service in full: retries, timeouts and typed errors.
 
-## Show that a request is running
+## Pending state
 
 An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to show a spinner, or to keep a button busy with `loading:`. On a store's action, read it as `Store.action.pending`:
 
@@ -6544,7 +6544,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
 Reading `.pending` on an action that awaits nothing is `T17`.
 
-## Choosing: toggles, groups, steps and days
+## Choosing a control
 
 Some choices are not a text field. These built-ins draw them, each with the keyboard a reader expects:
 
@@ -6583,7 +6583,7 @@ page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
 - `Textarea(…).autosize` grows with its text, `Input(…).password.reveal` can show what was typed, and `FileUpload(bind: files).dropzone` takes files dropped on it.
 - **`Calendar`** is a month a keyboard can work: the arrows by day and week (the other way round right to left), PageUp and PageDown by month. `.range` holds `{ start, end }`, `.multiple` a list.
 
-## Checklist for a good form
+## Form checklist
 
 - Every control has a `label:`. A placeholder is not a label.
 - Rules live in `validate` blocks, not in hand-written `derived` errors.
@@ -6679,18 +6679,18 @@ This chapter does not cover:
 - a connection the page holds open — a socket, a stream, a channel or a peer — which is [Open a socket](/recipes/open-a-socket);
 - values fixed for each build, which are [Environments and secrets](/recipes/environments-and-secrets).
 
-## Choose how to get data
+## Ways to get data
 
 | You want… | Use | Section |
 |---|---|---|
-| Content known before the site is built | `data` | [Read a file at build time](#read-a-file-at-build-time-with-data) |
-| Data the page shows as soon as it opens | `resource` over `http.get(…)` | [Show a request](#show-a-request-with-resource) |
-| A request made when something happens: a save, a delete | `http.post(…)` in an action | [Ask on demand](#ask-on-demand-with-http) |
-| One place that describes a service, used from many pages | `api` | [Describe a service](#describe-a-service-with-api) |
+| Content known before the site is built | `data` | [Read a file at build time](#build-time-data) |
+| Data the page shows as soon as it opens | `resource` over `http.get(…)` | [Show a request](#resources) |
+| A request made when something happens: a save, a delete | `http.post(…)` in an action | [Ask on demand](#one-off-requests-with-http) |
+| One place that describes a service, used from many pages | `api` | [Describe a service](#api-services) |
 
 Start with `http`. Move to `api` when the same service is called from more than one place: the address, the types and the failures are then written once.
 
-## Show a request with resource
+## Resources
 
 A *resource* is a request the page makes when it shows, and one value that says where the request is: `.loading`, `.failed(e)` or `.loaded(value)`. Show it with `match`.
 
@@ -6730,7 +6730,7 @@ How it works:
 - `e.message` is something you can show. For a failed status it is the server's own words when its body has them — its `detail`, else its `title` — and `HTTP 500` when it says nothing.
 - A static build's pre-rendered page shows the `.loading` arm.
 
-### Read one fact of a resource anywhere
+### Resource members
 
 Without a `match`, a resource has members worked out from its one value. Each is live wherever you read it:
 
@@ -6745,7 +6745,7 @@ Without a `match`, a resource has members worked out from its one value. Each is
 
 So `Button(if plan.isLoaded { "Request approval" } else { "Deploy" })` changes its label when the plan arrives, and `if let .failed(e) = plan { Alert(e.message).danger }` shows one case without a `match`.
 
-### Fetch again when state changes
+### Refetching on state change
 
 An address that reads state is asked again whenever that state changes. A detail page follows its route parameter this way:
 
@@ -6767,7 +6767,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
 A value spliced into the address is URL-encoded where it stands for a value. The same holds for a body or a header that reads state. To ask less often than the reader types, splice a slower value, as [Debounce a search](/recipes/debounce-a-search) does.
 
-## Refresh without clearing the page
+## Refreshing
 
 Asking again for the request already shown is a *refresh*: `name.reload()` asks, and so does `refresh:` on the request — `.onReconnect` (what a read does unless it says otherwise), `.onFocus`, `.every(30.seconds)` or `.never`. While a refresh runs, the read stays `.loaded` with its value, and `refreshing` is true. This page polls every 30 seconds:
 
@@ -6800,7 +6800,7 @@ When a request fails or changes:
 - A first load that fails is `.failed(e)`.
 - A request whose address now names something else is a first load again, shown as `.loading`, because the old value would be the wrong one. Pressing **Production** above does this. `placeholder: .previous` keeps the last value shown instead, refreshing, until the new answer arrives — for a search whose results stay while the next ones load.
 
-## Ask on demand with http
+## One-off requests with http
 
 For a request made when something happens — a save, a delete, a step in a flow — call `http` in an action: `http.get(url)`, `http.post(url, body: …)`, `http.put`, `http.patch`, `http.delete`. Its answer is a *result*: `.ok(value)`, or `.err(e)` with an `HttpError`. A failure is a value you handle, not an exception you catch.
 
@@ -6845,7 +6845,7 @@ page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server
 - **Options** follow the address by name: `body:` (sent as JSON), `headers:`, `timeout:`, `retry:`, `cache:`, `as: .text`.
 - `load()` at the top of the page runs once, when the page renders, and `add.pending` is `true` while `add` runs.
 
-## Describe a service with api
+## API services
 
 When a service is called from more than one place, describe it once with `api`: where it is, how it is reached, and its endpoints. Every call is then typed, and the day the server changes its contract the build says so.
 
@@ -6884,7 +6884,7 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
 A `resource` over an endpoint takes the endpoint's type, so `u.nam` is `T05`. An endpoint the service does not have is `T06`. Every call goes through the engine `http` uses. It cancels a call when its page leaves, gives up after the `timeout:` (30 seconds unset), retries a request that is safe to send twice, keeps a `GET` answer as long as the server's `Cache-Control` allows, and makes one request for two readers of one address. The settings and their rules are in [Services and requests](/reference/requests).
 
-### Declare endpoints
+### Endpoints
 
 Each line after the settings is an endpoint:
 
@@ -6897,7 +6897,7 @@ Each line after the settings is an endpoint:
 
 A service's endpoints may be split into groups — `api Backend.todos { … }`, called as `Backend.todos.list()`. A group sends what its service sends: its `base`, `timeout`, `retry` and `middleware`.
 
-## Say how a call fails
+## Error enums
 
 An endpoint that names an *error enum* turns each status the service answers with into a case of its own, carrying that status's body. One case, `http(error: HttpError)`, holds everything else:
 
@@ -6959,7 +6959,7 @@ store People {
 
 Each has `.message`, for showing. `Problem` is RFC 9457's record — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record, as `ValidationProblem` does.
 
-## Change data
+## Writes
 
 A write is a call made from an action or a handler, never a `resource`: a resource over a write is `N02`. A write's result must be heard — matched, or passed up with `try`. One awaited on its own is `N04`.
 
@@ -7008,7 +7008,7 @@ page Todos(path: "/todos", title: "Todos", description: "The list.") {
 - Each name in `invalidates` is a read of the same group, and each argument is one of the write's own parameters (`N05`).
 - `Backend.todos.list.update(change)` changes what every read of `list` shows, at once, and returns what takes it back. `Drafts.add` shows the new todo before the server answers, and takes it back on a refusal.
 
-### Show a change before the server agrees
+### Optimistic updates
 
 `optimistic(holder, change)` does the same for a state you hold yourself. If anything later in the action fails — a `try` passing a failure up, or a throw — the change is taken back:
 
@@ -7032,9 +7032,9 @@ store Todos {
 
 The new title shows at once. If `rename` fails, `try` passes the failure up, and the old title comes back.
 
-## Long answers
+## Pagination and streaming
 
-### Load results a page at a time
+### Pagination
 
 How an endpoint pages is part of its contract, so you say it once, on the endpoint, with `pages`. A read of it then holds every page loaded so far:
 
@@ -7071,7 +7071,7 @@ There are three ways to page:
 | `pages .cursor(param: after, next: …)` | the cursor the last page gave | `next:` gives `null` |
 | `pages .link` | the `Link` header's `rel="next"` (RFC 8288) | no `Link` names one |
 
-### Read an answer that arrives a line at a time
+### Streamed responses
 
 An endpoint that answers one JSON value a line — a log tail, a build's output — is marked `streamed`, and declares the list its lines make:
 
@@ -7092,11 +7092,11 @@ store Follow {
 
 A `resource` over it is `.loaded` from the first line, and its list grows as the rest arrive. `for await line in …` runs its body for each line as it arrives. Each line is held to `LogLine`. `pages` and `streamed` are a read's: a write is sent once (`N14`).
 
-## Credentials and every request
+## Credentials and middleware
 
 A session belongs in an httpOnly cookie, which no script on the page can read. `credentials: .sameOrigin` (or `.include`, for a service on another origin) sends it with every call, and the page holds no token at all.
 
-### Pass every request through middleware
+### Middleware
 
 What every call carries — a token, the reader's language, a request ID — is *middleware*: steps each request passes through, in the order written in `middleware [ … ]`. This service refreshes the token on a `401`, sends it as a bearer token, and tags each request:
 
@@ -7123,13 +7123,13 @@ api Backend(base: "/api") {
 
 A step of your own is a `middleware timed(req, next) { … }` declaration that returns what `await next(req)` returns.
 
-### Call an API on another origin
+### Cross-origin APIs
 
 A page on `https://example.com` that calls `https://api.example.com` makes a *cross-origin request*. The API must answer with CORS headers — `Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if cookies go with the call — or the browser refuses the answer. The page is not told why, so the call fails as `.offline`, and the console names CORS.
 
 `wf serve` has no proxy, so an API on `localhost:8080` must allow `localhost:3000` too. One origin for both, behind a reverse proxy, needs no CORS ([Serve the API on the same origin](/recipes/api-on-the-same-origin)). A build that ships a content security policy lists the API's origin in `meta.connect` ([Security](/about/security)).
 
-## Read the service from an OpenAPI file
+## OpenAPI
 
 When the server publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let it write the contract:
 
@@ -7164,7 +7164,7 @@ api Backend.people {
 
 For a prototype, `api Backend from "openapi.json" (base: "/api")` reads the same contract without writing files, and `wf api eject Backend` turns it into files later. [Call a service from its OpenAPI spec](/recipes/service-from-openapi) walks through one.
 
-## Test it without a server
+## Testing with fakes
 
 A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network:
 
@@ -7204,7 +7204,7 @@ test "lists the team"(fakes: [TwoPeople]) {
 
 [Testing](/learn/16-testing) covers tests; [Test a page with a fake service](/recipes/test-with-a-fake) tests a write.
 
-## Keep writes made offline
+## Offline writes
 
 With `offline` in the config, the build writes a service worker, and `"sync": true` keeps a write that failed for want of a network, to send when the connection returns:
 
@@ -7218,7 +7218,7 @@ With `offline` in the config, the build writes a service worker, and `"sync": tr
 
 See [Keep writes made offline](/recipes/keep-writes-made-offline) and [Make a site work offline](/recipes/work-offline).
 
-## Read a file at build time with data
+## Build-time data
 
 For content known before the site is built — posts, a price list, a team page — `data name: T = "file.json"` reads a JSON file from the project directory or `src/` at build time. Its value is a constant, in scope in every page and component, and written into the pre-rendered page:
 
@@ -7249,7 +7249,7 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 
 The build holds the file to the type. A record that is not a `Post` stops the build with `T33`, naming the file and the place: `$[3].date is "March 5", not a Date`.
 
-### Render a page for each item
+### A page per item
 
 To give each post its own HTML file in a static build, list the values of the route parameter in `paths:`:
 
@@ -7275,7 +7275,7 @@ The build writes `posts/hello/index.html` and `posts/second/index.html`, and lis
 
 | What you see | Why, and what to do |
 |---|---|
-| The console says a response was blocked by CORS; the call fails `.offline` | The API is on another origin and does not allow yours ([Call an API on another origin](#call-an-api-on-another-origin)). |
+| The console says a response was blocked by CORS; the call fails `.offline` | The API is on another origin and does not allow yours ([Call an API on another origin](#cross-origin-apis)). |
 | `.decode(at, message)`, such as `$[1].name is missing` | The server sent another shape than the declared type. Fix the server or the `type`. |
 | A resource stays `.loading` | A path parameter is `null` or `""`, so the call is not sent. It goes out when the value arrives. |
 | The page goes back to `.loading` when state changes | The address now names something else, so it is a first load. `placeholder: .previous` keeps the last value. |
@@ -7348,7 +7348,7 @@ You write tests in WebFluent itself, as `test "name" { … }` declarations. A te
 - A project with at least one component or page to test.
 - For a test that clicks, types or presses a key, and for `wf verify`: Chrome or Chromium on the machine, or the `WF_CHROME` environment variable pointing at one. A test that only looks needs neither.
 
-## Write a test that looks
+## Render tests
 
 To check what a component shows, place it in a test and say what the text must and must not contain. Put tests in `tests/*.wf`, or beside the code in `src/`. A test has the project's components, stores, types and constants at hand.
 
@@ -7386,7 +7386,7 @@ Run `wf test`, and each test prints a line; all three pass. The parts of a test 
 - `data: { … }` — values the body reads, by name. A `state` in the body starts with its initial value.
 - `t("key")` — reads the project's translations, in its default locale.
 
-### How expect reads the page
+### How expect reads text
 
 `expect` reads the text a reader sees, never the markup: a class name in the HTML does not count. It reads the text laid out as a browser lays it out:
 
@@ -7402,7 +7402,7 @@ In a browser, a page may still be moving — a row on its way out, a fetch on it
 
 Each render is also compared to a *snapshot*, the HTML saved in `tests/__snapshots__/<file>/<test>.html`. `wf test` writes a snapshot when it is missing and fails, with a diff, when a render no longer matches it. After a change you meant, run `wf test --update` to rewrite them.
 
-## Write a test that acts
+## Interaction tests
 
 To check what a click, a keystroke or typed text does, add steps that act. A click cannot be rendered — it runs a handler, which runs an action, which changes a store, which repaints — so a test with an action in it is compiled into a real page, served, and run in a headless browser. It uses the same compiler, the same runtime and the same output a reader gets.
 
@@ -7451,7 +7451,7 @@ It finds only what a reader can reach. A button in a closed `Sheet`, a branch th
 
 A test that acts takes no snapshot: its expects are the test.
 
-### The page a test that acts runs on
+### The test page
 
 The page is drawn as the built site is:
 
@@ -7462,7 +7462,7 @@ The page is drawn as the built site is:
 
 So a rule that hides a word, or one that names a font or an image under `public/`, behaves the same in a test as on the site. A test that only looks renders without any of them.
 
-### Test a portal
+### Testing portals
 
 A `Portal` draws its block into a node that `into:` names, and only the running page draws it. So a test whose body holds a portal — or places a component that holds one — is compiled into a page and run in the browser too, with no snapshot:
 
@@ -7474,7 +7474,7 @@ test "a portal draws into the element a handle names" {
 }
 ```
 
-## Seed data and stores
+## Seeding data and stores
 
 To start a test from a known state, name it in `data:`. A key that is a value's name supplies that value; a key that is a store's name seeds that store's state. Seeding works the same in a test that only looks and in one that clicks.
 
@@ -7501,7 +7501,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
 }
 ```
 
-## Test a whole page
+## Page tests
 
 To click through a page as a reader does, place the page in a test by its name, as you would a component. This works for a page whose route takes no parameter. Its state, its stores and its handlers all run:
 
@@ -7516,7 +7516,7 @@ test "a task is added with Enter" {
 
 `press "Enter"` in a form's text field submits the form, as a real key does. The `spa` and `static` projects that `wf init` writes carry tests like this under `tests/`; run `wf test` in a new project to see them pass.
 
-## Answer a service with fakes
+## Fakes
 
 A page that reads from a service has nothing to show in a test until something answers it, and a test should not depend on a server being up. A `fake` answers a group's endpoints in its place. The compiler holds it to the group's contract, as it holds a call: every endpoint it answers is one the group has, every name it binds is one of that endpoint's parameters, and every answer is the result the endpoint declares.
 
@@ -7625,7 +7625,7 @@ A fake that does not fit its contract is `N06`, with what is wrong: an endpoint 
 
 Put fakes beside the tests that use them, under `tests/`, or in a file of their own there (`tests/fakes.wf`): a test may name a fake any file under `tests/` declares, and one beside it wins over another file's. A fake in `src/` is checked like any declaration, and a build leaves it out.
 
-## Run the tests
+## Running tests
 
 To run every test under `tests/`, and any declared in `src/`:
 
@@ -7647,7 +7647,7 @@ wf test --update
 
 `wf test` prints a line per test and exits non-zero when one fails, so it works as a CI step as it is. A build never includes tests.
 
-## Check every page with wf verify
+## wf verify
 
 To catch what only a running page shows, build the site and load every page of it:
 
@@ -7670,7 +7670,7 @@ For each route it prints the first contentful paint, the size and the requests. 
 
 [CLI](/reference/cli/verify) has the details.
 
-## Run the checks in CI
+## CI
 
 To run the formatter, the build, the tests and `wf verify` on every push, add a workflow such as this one to `.github/workflows/check.yml`:
 
@@ -7692,7 +7692,7 @@ jobs:
 
 GitHub's Ubuntu runners come with Chrome, so the tests that act and `wf verify` run there as they do on your machine.
 
-## Choose what to test
+## What to test
 
 The type checker and the accessibility lints already catch a large class of mistakes. Tests are for the behaviour they cannot see:
 
@@ -7799,7 +7799,7 @@ Build complete.
 
 To produce one PDF per invoice from data, use the same templates with [server rendering](/recipes/render-a-template) instead.
 
-## Choose what the build writes
+## Output types
 
 `build.output_type` in `webfluent.app.json` chooses what `wf build` writes:
 
@@ -7820,7 +7820,7 @@ A PDF is the page, printed. The compiler renders the program to the same static 
 - **Paint.** Backgrounds (colours, linear and radial gradients with any number of stops, pictures), borders per side (solid, dashed, dotted) with rounded corners, shadows, opacity, `overflow: hidden`, `transform: rotate()`, and pictures with their transparency — PNG, JPEG (embedded as it is), WebP, GIF, and SVG, which stays vector.
 - **The file.** Fonts are embedded as subsets with the text attached, so a reader can copy and search it. The file is compressed, carries its title and author, has an outline of its headings in the reader's sidebar, and its links work.
 
-## Make a PDF document
+## PDF documents
 
 To build a PDF, set `output_type` to `pdf`. The `pdf` key sets the paper, margins (in points) and default font for every document in the project:
 
@@ -7894,7 +7894,7 @@ The result is a two-page PDF: the invoice on the first page, ending with `Total:
 > [!NOTE]
 > **Coming from LaTeX or Typst?** There is no document class and there are no TeX boxes: a document is laid out by CSS. `\newpage` is `PageBreak`, a `minipage` that must not split is `style { break-inside: avoid }`, and `fancyhdr` is a `Header` and a `Footer`. See [Coming from LaTeX and Typst](/coming-from/latex).
 
-### Set the paper, headers and footers
+### Paper, headers and footers
 
 These elements shape every page of a document:
 
@@ -7912,7 +7912,7 @@ Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the page's n
 
 The page's background — the `html` or `body` rule's — fills every page, edge to edge, so a dark theme prints dark.
 
-### Control where pages break
+### Page breaks
 
 Content flows onto as many pages as it needs, and never breaks through the middle of a line of text. The engine follows these rules:
 
@@ -7925,13 +7925,13 @@ Content flows onto as many pages as it needs, and never breaks through the middl
 
 To keep a box whole — a totals block, a signature — give it `break-inside: avoid`, as the invoice's totals card does. To start a new page, place `PageBreak`.
 
-### Add a table of contents, links and an outline
+### Table of contents, links and outline
 
 `TableOfContents(levels: 2)` lists the document's headings with the page each one lands on, dotted leaders between them, and each entry a link to its heading. The engine lays the document out, learns where every heading landed, and fills in the numbers. `title:` puts a heading above the list.
 
 A `Link` is a link in the PDF too: to a URL, or `to: "#terms"` to the element whose `id:` is `terms`. Every heading appears in the reader's outline, nested by level.
 
-### Draw charts and QR codes
+### Charts and QR codes
 
 This report draws a grouped bar chart, a donut chart and a QR code from a constant list of records:
 
@@ -7969,7 +7969,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
 
 Both work on a web page too, as an SVG drawn when the page is built. There, what they read must be known at build time — a literal, a `const` or a `data` file — or the build reports `E109`.
 
-### Use your own fonts
+### Fonts
 
 The default faces are Liberation Sans, Serif and Mono — the metric twins of Helvetica, Times and Courier — built into `wf`. So `Helvetica`, `Arial`, `system-ui`, `sans-serif`, `Times`, `serif`, `Courier` and `monospace` all resolve with nothing installed, and cover Latin, Greek and Cyrillic.
 
@@ -7982,13 +7982,13 @@ Variable fonts are drawn at the weight a style asks for. A weight or an italic a
 
 A character no named face has is drawn from a face that has it — the project's fonts first, then the machine's. The build names, in a `note:` line, each family it took from the machine, so you can make the document the same everywhere by copying those fonts into `fonts/`. To forbid the machine's fonts, set `"system_fonts": false`. A character no font has is reported, never drawn as `?`.
 
-### Lay out a right-to-left document
+### Right-to-left documents
 
 A document whose `lang` is right to left (`ar`, `he`, `fa`, `ur`) is laid out right to left — text, flex rows, grids, table columns, list markers. A run of the other direction inside it is ordered by the Unicode bidirectional algorithm.
 
 A code or a figure written in Latin characters inside Arabic text — an invoice number like `2026-0417`, a product code — can come out with its parts in the wrong order. The bidirectional algorithm reads the hyphen as part of the right-to-left text around it. To fix it, give the code a run of its own that says it is left to right: `Text("2026-0417", class: "ltr")`, with `.ltr { direction: ltr; unicode-bidi: isolate; }` in the project's CSS. The fix works on a web page and in a PDF alike.
 
-### What a PDF does not draw
+### Unsupported elements
 
 Everything static draws. What only means something in a browser is refused where it is written, with `E109`:
 
@@ -7999,7 +7999,7 @@ Everything static draws. What only means something in a browser is refused where
 - elements a script draws (`Host`, `Element`, `Portal`);
 - handlers, `resource` and motion.
 
-## Make a slide deck
+## Slide decks
 
 To build a deck, set `output_type` to `slides`. The `slides` key sets the deck's size and its chrome:
 
@@ -8053,7 +8053,7 @@ page Deck(path: "/", title: "Q4 review", description: "The quarter in slides.") 
 
 The `ImageSlide` reads `public/chart.png`: put a picture of your own there first. The build warns (`D01`) when the file is missing. The result is a six-page PDF, one slide per page.
 
-### Write the slides
+### Slides
 
 A deck is laid out by the same engine, one slide to a page. A slide is a box the size of the page, with `slides.margin` as its padding (a rule of the deck's own overrides it). What runs past a slide's edge is clipped, with a note naming the slide.
 
@@ -8071,7 +8071,7 @@ Each kind is styled by the engine's sheet, and a project's rules or a `style { }
 
 A `Presentation` holds slides, a `for` or an `if` over them, and components whose body is a slide. So a deck writes its section openers, headings and footers once, and makes a slide per item of its data. A page's `derived` values are worked out before the deck is drawn, so a slide can show a figure computed from a `data` file.
 
-### Size and frame the deck
+### Deck size and chrome
 
 These keys under `build.slides` set the deck's size and chrome:
 
@@ -8095,7 +8095,7 @@ These keys under `build.slides` set the deck's size and chrome:
 | A `note:` names a family taken from the machine | Copy that font into `fonts/` so the document is the same on every machine |
 | A note says a slide was clipped | Shorten the slide, or split it in two |
 | A totals block or signature is split across two pages | Add `break-inside: avoid` to its `style { }` |
-| A Latin code in Arabic text shows its parts out of order | Give it a left-to-right run (see [Lay out a right-to-left document](#lay-out-a-right-to-left-document)) |
+| A Latin code in Arabic text shows its parts out of order | Give it a left-to-right run (see [Lay out a right-to-left document](#right-to-left-documents)) |
 
 ## Common mistakes
 
@@ -9951,7 +9951,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 - `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.
 - It declares two [events](/learn/10-components#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.
 - `slot` declares a default [slot](/learn/10-components#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.
-- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/learn/08-events#overlays-modals-dialogs-toasts-and-menus).
+- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/learn/08-events#overlays).
 - An `AlertDialog` is one to a screen reader, read with its body. Escape closes it, and a press beside it does not: an answer is a button. Its `on close` runs however it closes, so Escape fires `cancel` too and the page clears `asking`; without it, `asking` would stay `true` and the next **Delete account** would change nothing.
 
 ## One question, from a handler
@@ -10271,9 +10271,9 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
 
 - `typed` follows the input on every key, through `bind:`. `q` is what the page searches for, and only the handler writes it.
 - `debounce: 300.ms` runs the handler once the `input` events have stopped coming for 300 ms, so a word typed quickly is one run, with the last of them. A wait still pending when the page leaves is dropped.
-- The [resource](/learn/15-data#show-a-request-with-resource) splices `q` into its address, so it asks again each time `q` changes — once per pause, not once per key. It also asks once as the page opens, for `/api/search?q=`, before anything is typed; the `if q != ""` shows nothing of that answer, so the server only has to answer it quickly (an empty list will do).
+- The [resource](/learn/15-data#resources) splices `q` into its address, so it asks again each time `q` changes — once per pause, not once per key. It also asks once as the page opens, for `/api/search?q=`, before anything is typed; the `if q != ""` shows nothing of that answer, so the server only has to answer it quickly (an empty list will do).
 
-For something that should run while the events keep coming, only less often — a scroll position, a window being resized — write `throttle:` instead: `on scroll(e, throttle: 100.ms) { … }` runs at once, then at most once every 100 ms, and once more where the scrolling stopped. Both are in [Events](/learn/08-events#how-often-a-handler-runs).
+For something that should run while the events keep coming, only less often — a scroll position, a window being resized — write `throttle:` instead: `on scroll(e, throttle: 100.ms) { … }` runs at once, then at most once every 100 ms, and once more where the scrolling stopped. Both are in [Events](/learn/08-events#debounce-and-throttle).
 
 
 
@@ -10869,7 +10869,7 @@ A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading `env.STRIPE_SEC
 A private value is still available to [server rendering](/recipes/render-a-template), which runs on a server, where a secret stays secret. It never reaches the bundle: the build writes only public values into it.
 
 > [!CAUTION]
-> Adding a name to `public_env` publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page ([Security](/about/security#secrets-stay-out-of-the-bundle)).
+> Adding a name to `public_env` publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page ([Security](/about/security#secrets-and-env)).
 
 ## Name your own values something other than env
 
@@ -11638,7 +11638,7 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 
 The page shows the first page of items and a **Load more** button. Each press adds the next page beneath what is there, without losing the reader's place, and the button goes away once there is nothing more.
 
-- `Catalog` [describes the service](/learn/15-data#describe-a-service-with-api): its `items` endpoint takes a `page` and returns a list of `Item`, and `pages .number(param: page)` says it pages by that number ([Load results a page at a time](/learn/15-data#load-results-a-page-at-a-time)).
+- `Catalog` [describes the service](/learn/15-data#api-services): its `items` endpoint takes a `page` and returns a list of `Item`, and `pages .number(param: page)` says it pages by that number ([Load results a page at a time](/learn/15-data#pagination)).
 - `list.items` is every item loaded so far, so the `for` lists them all and `item.name` is checked against `Item`.
 - `list.loadMore()` asks for the next page, as a refresh: the items already shown stay while it runs. The read keeps the page number; nothing on the page holds it.
 - `list.pending` is true while a request runs, so the button shows it is busy and cannot ask twice. `list.hasMore` turns false when a page comes back empty, and the button goes.
@@ -11992,7 +11992,7 @@ page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
 
 ## How it works
 
-A connection is read the same way a resource is, so this recipe assumes you know how a `resource` is read with `match` and its arms ([Fetching data](/learn/15-data#show-a-request-with-resource)), and how `state` and `effect` work ([State and reactivity](/learn/07-state-and-reactivity)).
+A connection is read the same way a resource is, so this recipe assumes you know how a `resource` is read with `match` and its arms ([Fetching data](/learn/15-data#resources)), and how `state` and `effect` work ([State and reactivity](/learn/07-state-and-reactivity)).
 
 - **`socket chat = ws(…)`** opens the socket when the page is drawn and closes it when the reader leaves.
 - **`send Outgoing` and `receive Incoming`** say what goes each way: `chat.send(…)` takes an `Outgoing`, and `m` and `chat.messages` hold `Incoming`s. A socket that names neither carries `Json`, which is matched or decoded rather than read as a record.
@@ -12130,14 +12130,14 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 
 - `let before = items` keeps the list as it was. A [`let`](/learn/07-state-and-reactivity#actions-and-locals) is local to the action.
 - The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.
-- The request is [awaited](/learn/15-data#ask-on-demand-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.
+- The request is [awaited](/learn/15-data#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.
 - The action clears `error` first. A `Toast` shows once, when its branch is drawn, so without the reset a second failure would leave `error` as it was and show nothing.
 
 ## Variations
 
 ### Let the action roll itself back
 
-`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back. The action declares `-> !`, so `try` may pass the failure up ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)):
+`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back. The action declares `-> !`, so `try` may pass the failure up ([Fetching data](/learn/15-data#optimistic-updates)):
 
 ```wf
 action like(id: String) -> ! {
@@ -12220,9 +12220,9 @@ page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.")
 
 The page shows the first twenty rows with **Previous** greyed out and "Page 1 of …" between the buttons. **Next** swaps in the next twenty and counts up; on the last page **Next** is greyed out instead.
 
-- `page` and `perPage` are states, and the [resource](/learn/15-data#show-a-request-with-resource) splices both into its address.
+- `page` and `perPage` are states, and the [resource](/learn/15-data#resources) splices both into its address.
 - The server answers with the page's `items` and the number of `pages`. The `.loaded` arm lists the items and draws the buttons.
-- **Previous** and **Next** change `page`. A change of `page` changes the address, so the resource asks again ([Fetch again when state changes](/learn/15-data#fetch-again-when-state-changes)).
+- **Previous** and **Next** change `page`. A change of `page` changes the address, so the resource asks again ([Fetch again when state changes](/learn/15-data#refetching-on-state-change)).
 - Each button is disabled at its end of the list, so `page` stays between 1 and `r.pages`.
 
 To add each page below the ones already shown instead of replacing them, see [Load more as the reader asks](/recipes/load-more).
@@ -12473,7 +12473,7 @@ The page hands `Host`'s node to `startEditor`, with two actions the script calls
 - **It can target a handle.** `Portal(into: panel)` draws into the element a `ref: panel` names, even one written further down the page. Where it goes is read once more when the drawing is over and the page is in the document, so an element of the page's own that `document.getElementById` finds is found too. A handle is not a state: an element the handle names only later, in an `if` that opens afterwards, is not followed.
 - **Its events bubble from where it is drawn.** A press inside the block bubbles through the node it is in and that node's parents, not through the elements around the place it is written. An `on click` on a `Stack` that holds the portal does not hear it. Put the handler on the portal, or inside its block.
 - **`show` does not hide it.** `show` hides what is drawn in its own place, and a portal's block is drawn somewhere else. Remove it with `if`, or keep it aside with `into: null`.
-- **The pre-rendered page has only a marker.** The *static paint* (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser ([Testing](/learn/16-testing#test-a-portal)).
+- **The pre-rendered page has only a marker.** The *static paint* (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser ([Testing](/learn/16-testing#testing-portals)).
 
 ## Troubleshooting
 
@@ -12539,7 +12539,7 @@ For a post whose slug is `hello`, the build writes `posts/hello/index.html`, wit
 - A value that is not in `paths:` has no file, so a static host answers with `404.html` ([Show your own page for an unknown address](/recipes/not-found-page)).
 - A single-page build does not need `paths:` at all: the router draws the page for any value in the browser.
 
-[Static or single-page](/about/static-or-single-page#what-the-static-paint-knows) says what else the build can paint into each file.
+[Static or single-page](/about/static-or-single-page#pre-rendering-limits) says what else the build can paint into each file.
 
 
 
@@ -13124,7 +13124,7 @@ What `Markdown` supports:
 
 A paragraph's lines run together, as in CommonMark. To break a line, end it with two spaces or a `\`.
 
-Raw HTML in the text is shown as text, not run, so Markdown from a user or an API is safe to render. A link or a picture goes through the scheme check every other URL does ([Security](/about/security#what-the-compiler-guarantees)):
+Raw HTML in the text is shown as text, not run, so Markdown from a user or an API is safe to render. A link or a picture goes through the scheme check every other URL does ([Security](/about/security#guarantees)):
 
 - A link or picture whose URL a browser would run — `javascript:`, `vbscript:`, a `data:` URL — is drawn as its words, with no link and no picture.
 - A picture carried in its address (`![dot](data:image/png;base64,…)`, `data:image/svg+xml,…`) is drawn, since an `<img>` runs nothing it shows. A link to one is still drawn as its words.
@@ -13338,7 +13338,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") 
 
 On a wide window the three links sit in a row above every page. Narrow the window and they give way to a menu button; press it and the links slide down beneath it.
 
-- [`viewport.md`](/learn/07-state-and-reactivity#the-browser-as-values) is true while the window is at least the `md` breakpoint wide. The runtime updates it when a breakpoint is crossed, so the `if` swaps the row for the button as the window narrows.
+- [`viewport.md`](/learn/07-state-and-reactivity#browser-values) is true while the window is at least the `md` breakpoint wide. The runtime updates it when a breakpoint is crossed, so the `if` swaps the row for the button as the window narrows.
 - On a narrow screen, the `IconButton` toggles `open`. Its `label:` is the button's accessible name, since the icon has no text, and `aria-expanded: open` tells a screen reader whether the menu it controls (`aria-controls`, the `Stack`'s `id`) is open.
 - `show open` keeps the links in the page and hides them while `open` is false. `animate: .slideDown` plays as they appear, and a click on a link closes the menu again.
 - The navigation is in `app`, around the `Router`, so every page shows it and `open` lives on from page to page.
@@ -14029,7 +14029,7 @@ wf api check
 
 ## How it works
 
-A generated file is never edited — `sync` rewrites the folder whole, and refuses to touch a file in it without its marker. Customise beside it: a `type` of the program's own wins over the spec's, an endpoint the spec lacks goes in a group of your own, and `invalidations { }` and `pagination { }` go in `service.wf`. More in [Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file).
+A generated file is never edited — `sync` rewrites the folder whole, and refuses to touch a file in it without its marker. Customise beside it: a `type` of the program's own wins over the spec's, an endpoint the spec lacks goes in a group of your own, and `invalidations { }` and `pagination { }` go in `service.wf`. More in [Data and APIs](/learn/15-data#openapi).
 
 
 
@@ -14294,7 +14294,7 @@ page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: S
 > [!CAUTION]
 > Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project produced**. Anything that arrived from outside goes through `sanitize`.
 
-[Security](/about/security#one-door-for-markup) says why markup has one door, and what the allow-list keeps out.
+[Security](/about/security#raw-html) says why markup has one door, and what the allow-list keeps out.
 
 ## Variations
 
@@ -14434,7 +14434,7 @@ app {
 
 ## How it works
 
-- `Auth` [describes the service](/learn/15-data#describe-a-service-with-api). `credentials: .sameOrigin` sends the session cookie with every call, so the page holds no token. `SignInError` names what a refused sign-in answers, `on 401`, and keeps `http` for every other failure.
+- `Auth` [describes the service](/learn/15-data#api-services). `credentials: .sameOrigin` sends the session cookie with every call, so the page holds no token. `SignInError` names what a refused sign-in answers, `on 401`, and keeps `http` for every other failure.
 - The `Session` [store](/learn/11-stores#a-first-store) holds the user, or `null`, and `signedIn` is derived from it. `load` asks the server who is signed in, `signIn` and `signOut` call the service and move the reader on with `navigate`.
 - The server sets the cookie when a sign-in succeeds, with a header such as `Set-Cookie: session=…; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=1209600`. `HttpOnly` keeps it from every script, `SameSite=Lax` from another site's form, and `Secure` off plaintext connections.
 - `Auth.me.invalidate()` on sign-out drops what the endpoint cached, and any `resource` over it asks again, so the next reader of the tab is not shown the last one's. Do the same for every endpoint whose answer is one reader's: an answer cached under one `Authorization` header is never served for another, but a cookie cannot be read, so the cache cannot tell one cookie's reader from the next.
@@ -14442,7 +14442,7 @@ app {
 - `Session.load()` at the top of `app` runs once, when the site opens: a reader who comes back with a session cookie is signed in again, and `checked` turns true when the server has answered either way.
 - The `Account` page has a [guard](/learn/05-pages-and-routing#guards). A guard is read once, when the route opens, so it lets the page through while `checked` is still false, and the `effect` sends a signed-out reader to `/sign-in` as soon as the answer arrives. Until then the page shows a `Spinner`.
 
-The session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](/about/security#where-a-session-belongs)).
+The session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](/about/security#sessions)).
 
 
 
@@ -14966,7 +14966,7 @@ wf test
 - **Close a dialog**: `press "Escape"` closes the open `Modal` or `Dialog`; `press "Enter" in "Search"` presses a key in one named field.
 - **One file**: `wf test tests/shopping.wf` runs only that file's tests.
 - **A page that reads a service**: a `fake` answers its endpoints, held to the contract, and nothing reaches the network ([Test a page with a fake service](/recipes/test-with-a-fake)).
-- **Every page in a browser**: `wf verify` loads each route of the built site and fails on a script error, a failed request or a page that drew nothing ([Testing](/learn/16-testing#check-every-page-with-wf-verify)).
+- **Every page in a browser**: `wf verify` loads each route of the built site and fails on a script error, a failed request or a page that drew nothing ([Testing](/learn/16-testing#wf-verify)).
 - **In CI**: run `wf check`, `wf test` and `wf build` in that order ([Install wf on a build machine](/recipes/install-wf-in-ci)).
 
 A key step names a key as the browser names it (`"Enter"`, `"Escape"`, `"a"`), or a combination as `on key(…)` writes one: `press "mod+k"` holds ⌘ on a Mac and Ctrl elsewhere, so a shortcut is tested by pressing it.
@@ -15040,7 +15040,7 @@ test "says when removing fails"(fakes: [TwoPeople]) {
 
 A test that names `fakes:` runs in a browser, where the page makes its calls; nothing is sent. A call to an endpoint no fake answers fails the test and names it. With a contract from an OpenAPI spec, `fake Examples for Backend.people from examples` answers from the spec's examples. A fake that answers an endpoint the group does not have, reads a parameter it does not take, or answers with the wrong type is `N06`.
 
-A build leaves fakes out. To load every page of the site in a browser with the fakes answering — for a site whose API is elsewhere — run `wf verify --fakes tests/fakes.wf`, naming the file that holds them. More in [Testing](/learn/16-testing#answer-a-service-with-fakes).
+A build leaves fakes out. To load every page of the site in a browser with the fakes answering — for a site whose API is elsewhere — run `wf verify --fakes tests/fakes.wf`, naming the file that holds them. More in [Testing](/learn/16-testing#fakes).
 
 
 
@@ -15415,7 +15415,7 @@ page Signup(path: "/", title: "Sign up", description: "Make an account.") {
 
 ## How it works
 
-- Each [`validate`](/learn/14-forms#validate-a-field) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.
+- Each [`validate`](/learn/14-forms#validation) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.
 - `matches(password)` holds `confirm` to whatever `password` is now.
 - The control bound to a state shows that state's message. Each control shows its own message when the reader leaves it, with the accessible wiring an `error:` gets.
 - `Form(bind: form)` hands the page a handle: `form.valid` disables the button until every rule passes, and `form.reset()` clears the form after a submit.
@@ -16228,7 +16228,7 @@ Most inaccessible pages were not made that way on purpose. A `<div>` with a clic
 
 WebFluent moves as much of the checklist as it can out of your hands. The built-ins render the markup assistive technology expects, the router and forms manage focus, and the compiler reports what it can see as a finding with a code, on every build. That leaves the work no tool can do (meaning, wording, order) and frees your attention for it.
 
-## What the built-ins do
+## Built-in accessibility
 
 You get these behaviours without asking, as long as you use the built-in elements rather than rebuilding them:
 
@@ -16246,7 +16246,7 @@ You get these behaviours without asking, as long as you use the built-in element
 - **Reduced motion.** A reader who asked for it gets no animation at all, and a carousel does not play on its own ([Motion](/recipes/motion-defaults#respect-reduced-motion)).
 - **Visible focus.** Every interactive built-in shows a focus ring for the keyboard (`:focus-visible`), but not on every click.
 
-## What the compiler checks
+## Accessibility checks
 
 The compiler checks every page for the mistakes it can see in the markup, and reports each as a warning on every build and in the editor. Each code has a full entry, with a fix, in [Diagnostics](/errors#accessibility), and `wf explain CODE` prints it in your terminal.
 
@@ -16615,11 +16615,11 @@ A web page is a program you hand to a stranger's machine, and its strings come f
 
 So WebFluent does not advise. It makes the safe spelling the only one the compiler accepts, and names the one door that is not safe so a review can find it. What follows is the list of those guarantees, the places they stop, and what lies on the other side of each.
 
-## What the compiler guarantees
+## Guarantees
 
 These are properties of the output, not advice. You do not have to turn them on.
 
-- **Text is text.** Every string an element shows goes in as a text node. `"<script>"` in your data can never become a script. The one exception has `Unsafe` in its name ([One door for markup](#one-door-for-markup)). An `html:` argument on an element is an attribute called `html`, as any argument an element does not declare is (`C04`), and never markup.
+- **Text is text.** Every string an element shows goes in as a text node. `"<script>"` in your data can never become a script. The one exception has `Unsafe` in its name ([One door for markup](#raw-html)). An `html:` argument on an element is an attribute called `html`, as any argument an element does not declare is (`C04`), and never markup.
 - **No inline handlers.** Events are bound with `addEventListener`. `Button("x", onclick: expr)` is a compile error, because an `on*` attribute is the one place a browser runs an attribute's value. Write `on click { }` instead. `style:` is refused the same way (`E106`): a value from data would be the element's whole inline style. A `style { }` block sets one property at a time.
 - **An attribute holds its value.** A `class:` from data, a page title from a route parameter or front matter, a chart's or a QR code's colour: each is escaped for where it is written, and a colour must be a colour (`#0F766E`, `red`, `rgb(…)`, `var(--x)`) or the default is drawn. A design token whose value holds `<`, `{`, `}` or `;` is left out of the stylesheet, so a theme cannot close a rule and open another.
 - **No URL a browser would run.** `href:`, `src:`, `to:`, `poster:` and `navigate()` take a URL whose scheme is `http`, `https`, `mailto`, `tel`, `sms` or `ftp`, or a URL with no scheme at all. The compiler refuses a literal where you write it, and the runtime refuses a value that exists only at run time at the moment it is used. A page may never point at `javascript:`, `data:`, `vbscript:`, `blob:` or `file:`.
@@ -16630,10 +16630,10 @@ These are properties of the output, not advice. You do not have to turn them on.
 - **A page's `head { }` points nowhere a browser runs.** Its `src:` and `href:` go through the scheme check at build time and in the browser. A `script(src:)` must be written out, and a refresh may not take its address from a value (`E107`): either would let whoever controls the value choose what the page runs or where the reader goes.
 - **Markdown is escaped first.** `Markdown(text)` shows any HTML in the text instead of running it. Its links and pictures go through the same scheme check as every other URL: a link to a `javascript:` URL is drawn as its words, with no link, at build time and in the browser alike. So is one that puts a backslash before its colon (`javascript\:`), which Markdown reads as the colon it escapes. For text somebody else wrote, such as a language server's documentation, `Markdown(text).inert` draws no link or picture at all ([Render Markdown](/recipes/render-markdown)).
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string, joined with `+`, handed to a browser global (`console`, storage, a request's address), logged or persisted. Each is a `T12`, reported at the line that does it.
-- **A non-public `env` name cannot be read from a page.** See [Secrets stay out of the bundle](#secrets-stay-out-of-the-bundle).
+- **A non-public `env` name cannot be read from a page.** See [Secrets stay out of the bundle](#secrets-and-env).
 - **A build stays in its project.** `data`, `image`, `api … from` and `i18n.dir` name paths inside the project; an absolute path or a `..` is an error. A link that points out of the project, at nothing, or back on itself is left out of every walk with a warning. A `build.output` outside the project, or a link inside it, is refused unless the command line says `--allow-output-outside`, and the build removes only the `.gz` files it wrote itself. A cloned project cannot make `wf build` read or delete files elsewhere on your machine.
 
-## What it cannot guarantee
+## Limits
 
 Some decisions are outside the compiler's reach:
 
@@ -16642,7 +16642,7 @@ Some decisions are outside the compiler's reach:
 - **A dependency you add yourself.** A `<script>` in `public/`, a font from another origin, an embed — each is code you choose to trust.
 - **Your hosting.** HTTPS, HSTS, cookie flags and rate limits are the host's job.
 
-## One door for markup
+## Raw HTML
 
 Sometimes the content really is HTML: a CMS body, the output of a Markdown renderer of your own, an email. There is one way to show it, and it takes two calls, `Unsafe.Html(sanitize(body))`, because they do different jobs:
 
@@ -16653,7 +16653,7 @@ Sometimes the content really is HTML: a CMS body, the output of a Markdown rende
 
 `Unsafe.Html` without `sanitize` is for markup the project itself produced; anything that arrived from outside goes through `sanitize`. [Show HTML from outside the project](/recipes/show-html-from-outside) is a page that does it.
 
-## Where a session belongs
+## Sessions
 
 `persist` writes to `localStorage` or `sessionStorage`. **Neither is a place for a session token.** Any script that reaches your page can read both, and that is the whole payload of a cross-site scripting bug: without a readable token the bug is a defacement; with one it is an account takeover.
 
@@ -16678,7 +16678,7 @@ page Account(path: "/", title: "Account", description: "Your account.") {
 }
 ```
 
-## Secrets stay out of the bundle
+## Secrets and env
 
 `env.NAME` is replaced by its value **at build time**, and the value lands in the JavaScript the browser downloads. That is right for an API's base address and wrong for an API key. So a page, a component, a store or an `api` block may read only a name that is public: one that begins `PUBLIC_`, or one that `public_env` in the config lists. Any other name is an `E108` compile error naming the file and the line, and every build warns of each `public_env` name it bundles, since its name does not say so.
 
@@ -16686,7 +16686,7 @@ page Account(path: "/", title: "Account", description: "Your account.") {
 
 A private value is still there for `wf render`, which runs on a server where a secret stays secret ([Render a template](/recipes/render-a-template)). A secret that has to reach a third party belongs in a request your server makes, not in a page. [Use environment values, and keep secrets out](/recipes/environments-and-secrets) sets values, lists public ones, and builds once per environment.
 
-## Uploads are checked on the server
+## Uploads
 
 A `File` from `FileUpload` is a handle on a file on the reader's machine. `accept:` and `.size` help the reader pick the right file. They are **not** checks: both live in the page, and a page is the attacker's to rewrite.
 
@@ -16703,17 +16703,17 @@ A Content-Security-Policy (CSP) tells the browser which scripts, styles, images 
 
 The policy is `'self'` throughout, with no `'unsafe-inline'` for scripts: the compiler writes external files and binds events with `addEventListener`, so nothing needs it. The build widens it by exactly the origins that `meta.fonts`, `meta.stylesheets` and `meta.scripts` declare, so the policy never blocks a font or library you declared. Your own scripts under `src/` are served from the site itself and need nothing added.
 
-### Who may frame a page
+### Framing
 
 By default no other site may frame your pages. `_headers` says `frame-ancestors 'none'` and `X-Frame-Options: DENY`, and `wf serve` sends the same, so nobody can lay your page under theirs to trick a reader into clicking it.
 
 A project that frames a page of its own — a `Frame` whose `src:` is site-relative, such as `Frame(src: "/preview/", title: "Preview")` — is relaxed to its own origin and no further: `frame-ancestors 'self'` and `X-Frame-Options: SAMEORIGIN`. A `Frame` of another origin's page changes nothing here; that is `meta.frame`'s `frame-src`, below.
 
-### What else a page may reach
+### Allowed origins
 
 Anything beyond that is named, origin by origin: `meta.connect` for the origins a page sends requests to, `meta.img` for images, `meta.frame` for frames, each joining its directive of the policy, plus an app's own schemes, `meta.wasm` for WebAssembly and `meta.style_elements` for scripts that write `<style>`. Each widens the policy by exactly what it names, and no more. [Allow other origins in the security policy](/recipes/allow-other-origins) sets each one.
 
-### The build checks its own output
+### Output checks
 
 **The build holds every page to the policy it ships.** It reads each HTML file back and stops on anything the policy would block: an inline `<script>`, a `<style>`, a `style=` attribute, an `on*` attribute, a script or stylesheet from an origin the policy never named or from an address that names no place (`data:`, `javascript:`), a `<base>`, or a refresh that sends the reader to another site. It reads the HTML as a browser does — names in any case, attributes apart by white space or a `/`, values quoted or not. A policy is a promise about what a page contains; without this check, the browser would enforce it and show a blank page. A page the check refuses is removed from the output, so a deploy that ignores the failed build does not publish it.
 
@@ -16721,13 +16721,13 @@ A page's own `head { script(src: …) }` or stylesheet `link` is added on the li
 
 One thing is allowed rather than refused: a `style { }` value that **reads state** is written on the element, because it has nowhere else to go. When a build emits one, `style-src` gains `'unsafe-inline'` and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a `style { }` block is already a shared class and costs nothing.
 
-## Code you choose to trust
+## Trusted code
 
 A `.js` file under `src/` runs on every page exactly as written. The compiler reads its names; it does not rewrite or sandbox it. It is code you trust, like the rest of `src/`. What it puts in the page with `innerHTML` is markup, so markup from outside the project goes through `WF.sanitize(…)` there too.
 
 A file from another origin — a library, a stylesheet, a font — is code that origin can change after you read it. It belongs in `meta.scripts`, `meta.stylesheets` or `meta.fonts` with an integrity hash in `meta.integrity`, so a change at that origin cannot reach your readers; the build warns (`D05`) about one without ([Allow other origins in the security policy](/recipes/allow-other-origins#variations), [Load a library from a CDN](/recipes/library-from-a-cdn)).
 
-## What a review reads
+## Security audit
 
 Everything the compiler cannot refuse is something the project chose to trust, so a review starts from a list of those choices. `wf audit` prints it — every `Unsafe.*`, every script, origin and stored value, every `env` name, the policy — and never fails a build. [Review a site's security before you deploy](/recipes/review-security) reads it, and goes through the checklist for the build, the host and the server.
 
@@ -16745,7 +16745,7 @@ The usual framing makes this a choice of framework: one for content sites, anoth
 
 The sections below say what each shape writes, how a static page comes to life, what the build can know when it pre-renders, and what each shape asks of a host.
 
-## Two shapes of build
+## Static and SPA builds
 
 `build.ssg` decides what `wf build` writes:
 
@@ -16760,7 +16760,7 @@ The sections below say what each shape writes, how a static page comes to life, 
 
 The source is the same either way. Only the output changes. `"output_type": "static"` means the same as `"ssg": true`, and a build with `ssg` set to `false`, or left out, is single-page. `wf init -t static` starts a project with `ssg` on and `wf init -t spa` one with it off; either can change its mind at any time without the source changing.
 
-## When to choose each
+## Choosing a build
 
 **Choose static** for anything people find by searching or share by link: marketing sites, docs, blogs, shops. The text is in the HTML, so search engines and link previews see the real page.
 
@@ -16780,7 +16780,7 @@ The reader never sees the page flash or redraw, and keeps their scroll position,
 
 Under `wf serve`, the runtime compares the page it took over with the one it drew, and says so in the console when they differ. A difference is a WebFluent bug, never yours.
 
-## What the static paint knows
+## Pre-rendering limits
 
 The *static paint* is the HTML the build pre-renders for a page. To paint it, the build evaluates the page as far as it can know the values:
 
@@ -16802,13 +16802,13 @@ For the first paint to be right, prefer what the build can see:
 - **Data files over requests** for content that changes only when you deploy ([Fetching data](/learn/15-data)).
 - **[Responsive values](/learn/13-styling#responsive-values) over `viewport`** for layout.
 
-## Routes with no single file
+## Dynamic routes
 
 A page on a `:param` route, such as `/posts/:slug`, is one page in the source and any number of addresses on the site, so a static build has no single file to write for it. It can only pre-render the values it is told about, at build time: `paths:` on the page lists them — from a `data` file, a `const` or a literal list — and the build writes one painted file per value, each with its own title, and lists them in the sitemap ([Pre-render a page for each item](/recipes/pre-render-each-item)). A value nobody listed has no file, so the host answers it with the site's 404 page. A single-page build has none of this to decide: its router draws any value in the browser.
 
 The same reasoning gives the 404 page its file. A page on the `*` route is drawn by the router for any address no page claims, and a static build also writes it as `404.html`, which most static hosts serve for a path they have no file for ([Show your own page for an unknown address](/recipes/not-found-page)).
 
-## What each shape asks of a host
+## Hosting requirements
 
 A static build asks almost nothing: any host that serves files serves it. A single-page build has one file, `index.html`, so every path a reader might open — `/users/42` — has to reach it, and the host needs a rule that answers every path with `index.html`. Without it the home page works, but a reload on any other address is a 404. Each host's rule is one line, and each deploy and server recipe in the [Ship recipes](/recipes#ship) has it.
 
@@ -16828,7 +16828,7 @@ Most slow sites are not slow because someone chose to make them slow. They are s
 
 A compiler that reads the whole program can do better. It knows which runtime modules the code it generated calls, which built-ins' rules the pages use, and which design tokens something names, so a build ships those and nothing else. Your part is smaller: look at what it writes, set a limit that warns you when it grows, and avoid the few patterns no compiler can fix.
 
-## What the build already does
+## Built-in optimizations
 
 You get these without setting anything:
 
@@ -16841,7 +16841,7 @@ You get these without setting anything:
 - **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Add a picture](/recipes/add-a-picture)).
 - **Minified output.** `build.minify` (on by default) strips comments and white space.
 
-## See what a build weighs
+## Output sizes
 
 To see the size of everything a build writes, run the build with `--stats`:
 
@@ -16889,7 +16889,7 @@ Each build records its sizes in `.wf-sizes.json` beside the project, so the next
 
 The project's own scripts are listed by their path under `js/`, such as `js/tilt.js` ([Call your own script](/recipes/call-your-own-script)). The build copies them as written: it does not minify a file it promises to ship byte for byte.
 
-## Set a size budget
+## Size budgets
 
 To be warned when a file grows past a size, name its gzipped limit in `build.budget`:
 
@@ -16899,7 +16899,7 @@ To be warned when a file grows past a size, name its gzipped limit in `build.bud
 
 Any output may have a budget, including a page's chunk and one of your own scripts under `js/`. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.
 
-## Time pages in a browser
+## Page timing
 
 To measure how fast each page paints, build the site and run `wf verify` with a budget in milliseconds:
 
@@ -16909,7 +16909,7 @@ wf build && wf verify --budget 800
 
 `wf verify` loads every route in headless Chrome. For each route it prints the first contentful paint, the number of nodes in the document, and the bytes and requests it took. `--budget 800` fails a route whose first paint is slower than 800 ms. Lighthouse and the browser's performance panel work on the build as on any other site.
 
-## Avoid what makes a site slow
+## Common slowdowns
 
 These are the patterns that slow a WebFluent site down, and what to do instead:
 
@@ -17116,11 +17116,11 @@ page Literals(path: "/literals", title: "Literals", description: "One value of e
 
 How each kind behaves:
 
-- **Strings** are double-quoted and read the escapes `\n`, `\t`, `\r`, `\\`, `\"`, `\{` and `\}`. A raw string `#"…"#` and a block string `"""…"""` are in [Language basics](/learn/04-language-basics#three-ways-to-write-one).
+- **Strings** are double-quoted and read the escapes `\n`, `\t`, `\r`, `\\`, `\"`, `\{` and `\}`. A raw string `#"…"#` and a block string `"""…"""` are in [Language basics](/learn/04-language-basics#string-forms).
 - **Lists and maps** may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read `owner.name` and refuse a misspelled field.
 - **`null`** is the absence of a value. Only a type that ends in `?` holds it.
 
-The language's own types have literals too ([Types](/learn/12-types#the-types-the-language-brings-with-it)):
+The language's own types have literals too ([Types](/learn/12-types#built-in-types)):
 
 ```wf
 page Typed(path: "/typed", title: "Typed", description: "Literals of the built-in types.") {
@@ -17159,7 +17159,7 @@ Any expression may go inside `{…}`: a call, a method chain, an `if`, even a st
 - A splice opens with a name, a `(` or a `[`. Anything else in braces — `"{key: value}"` in prose, a fragment of code, `"{"` alone — stays text.
 - For a long expression, declare a `derived` value and splice its name, as `noun` above. It reads better and the checker names it in a message.
 
-### Showing a value a particular way
+### Format specifiers
 
 A splice may say how to show its value: `{value:.style}`, or `{value:.style(option)}`. It is `format(value, .style, option)` written where the value is read.
 
@@ -17222,7 +17222,7 @@ How they behave:
 - `a ?? b` is `b` when `a` is `null`. `a?.b`, `a?.m()` and `a?.[i]` read through a `null` and give `null` instead of failing.
 - A range is the whole numbers from `a` up to `b`, without `b` for `..` and with it for `..=`.
 
-### The types an expression must have
+### Operand types
 
 Every expression has one type the program can name, and the checker holds each place to it:
 
@@ -17242,7 +17242,7 @@ page Cart(path: "/cart", title: "Cart", description: "A count, as a condition.")
 
 Precedence, strongest first: `!`, unary `-` and `await`; then `* / %`; `+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. The full table is in [Grammar](/reference/grammar#expressions).
 
-## Choosing a value
+## Conditional expressions
 
 `if` and `match` are expressions when they stand where a value is expected. Each arm's block is its value:
 
@@ -17268,7 +17268,7 @@ The rules:
 - A `match` on an enum, as a value or as a statement, needs an arm for every case or an `else` (`T15`). One that covers every case needs no `else`.
 - A case with a payload binds one name in a `match` expression: `match status { .failed(reason) { reason } else { "" } }`.
 
-## Fields, calls and methods
+## Fields and methods
 
 A field is read with `.`, an item with `[i]`, and a method is called with `.name(…)`. This page filters, maps and joins a list of records:
 
@@ -17380,7 +17380,7 @@ What each use gives:
 - `s.match(re)` and `re.exec(s)` are a `[String]?`: the match and its groups, or `null`.
 - `s.replace(re, "x")` and `s.replaceAll(re, "x")` are a `String`; `s.split(re)` is a `[String]`; `s.search(re)` is a `Number`.
 
-## Tokens as values
+## Design tokens
 
 `$name` names a design token from the theme ([Styling](/learn/13-styling)). In a style it becomes the token's CSS variable. As a value it is a reference to that variable, so a prop or a state that takes a colour takes a token:
 
@@ -17460,12 +17460,12 @@ These functions are everything the language adds to what the browser already has
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | Tests a key event against a shortcut, and writes a shortcut for this system |
 | `every(ms) { }`, `after(ms) { }` | Timers ([State and reactivity](/learn/07-state-and-reactivity#timers)) |
 | `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](/recipes/drive-an-animation)) |
-| `optimistic(holder, change)` | Shows a change before the server agrees ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)) |
+| `optimistic(holder, change)` | Shows a change before the server agrees ([Fetching data](/learn/15-data#optimistic-updates)) |
 | `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](/recipes/send-on-unload)) |
-| `sanitize(html)` | Passes markup through an allow-list ([Security](/about/security#one-door-for-markup)) |
-| `uuid()` | Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it)) |
-| `toast(message, …)`, `await ask(question, …)`, `announce(text)` | Shows a toast, asks a yes-or-no question, says something to a screen reader ([Events](/learn/08-events#toasts-questions-and-announcements-from-a-handler)) |
-| `http.get(url, options)` | Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#ask-on-demand-with-http)) |
+| `sanitize(html)` | Passes markup through an allow-list ([Security](/about/security#raw-html)) |
+| `uuid()` | Makes a fresh `Uuid` ([Types](/learn/12-types#built-in-types)) |
+| `toast(message, …)`, `await ask(question, …)`, `announce(text)` | Shows a toast, asks a yes-or-no question, says something to a screen reader ([Events](/learn/08-events#toasts-confirmations-and-announcements)) |
+| `http.get(url, options)` | Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#one-off-requests-with-http)) |
 | `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](/recipes/open-a-socket)) |
 
 The browser's own globals need no prefix and compile to themselves, typed by the language's table of the browser: `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`, `Math`, `Date`, `Object`, `Array`, `Number`, `navigator`, `location`, `history`, `performance`, `screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and the other names [Built-ins](/reference/built-ins#browser-globals) lists. A global the table does not type — `crypto`, `Promise`, `Map`, `URL` — is a `T30`; reach it from a project script whose JSDoc types it. `fetch(…)` is gone (`N08`): a request is `http.get(…)`.
@@ -17845,7 +17845,7 @@ my-site/
 
 Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx` file under `src/`. Everything else is convention. The config is covered in [Configuration](/reference/config), and `.env` in [Environments and secrets](/recipes/environments-and-secrets).
 
-## One program, with no imports
+## No imports
 
 The compiler reads every `.wf` and `.wfx` file under `src/` and merges them into a single program. A page uses a component declared in another file, and a component uses a store, by name. There is nothing to import.
 
@@ -17871,7 +17871,7 @@ The compiler reads `App.wf` (or `App.wfx`) first, then the rest in path order. T
 
 `use Store` at the top of a page or component says that it reads that store. It documents the dependency for the reader and the editor; it does not scope anything, and a page reads a store by name with or without it. `use` of a store nothing declares is `X05`.
 
-## Names across a project
+## Names
 
 Because every file is one program, the namespace is global. Two components, two pages, two stores, two types or two constants with one name is an `E102` error, naming both places.
 
@@ -17882,7 +17882,7 @@ The conventions that keep names apart:
 - **A page's name is its identity, not its title.** Add a suffix when the name would collide with a component: `page PostPage` beside `component Post`.
 - **A component that one page uses** can live in that page's file.
 
-## Files that are not .wf
+## Other files
 
 The build reads other files too. What each becomes:
 
@@ -17897,7 +17897,7 @@ The build reads other files too. What each becomes:
 | `translations/*.json` | the `i18n.dir` | the locale tables ([Translate a site](/recipes/translate-a-site)) |
 | anything | `public/` | copied as it is to the build's root: `public/favicon.svg` is `/favicon.svg` |
 
-## Generate a starter file
+## Generating files
 
 To add a page, a component or a store with the boilerplate written for you, run `wf generate`:
 
@@ -17918,7 +17918,7 @@ Each command writes a starter declaration in the conventional folder:
 
 In a project written in `.wfx`, the files are `.wfx`. `wf generate` never overwrites a file: when one exists, it says so and stops. Add `-d DIR` to generate into a project other than the current directory.
 
-## Choose what to commit
+## Version control
 
 Commit the sources and the config:
 
@@ -17940,7 +17940,7 @@ build/
 
 `.wf-cache/` holds resized images between builds. `.wf-sizes.json` records what the last build weighed, for `wf build --stats` to compare against. `.env` holds build-time values that may be private.
 
-## Organise a growing project
+## Organising a large project
 
 As a project grows, these habits keep it readable:
 
@@ -17948,7 +17948,7 @@ As a project grows, these habits keep it readable:
 - **Put each service in one place.** Write one `api` per backend, in its own file, with the types its endpoints return beside it.
 - **Keep shared types together**, in a `types.wf` per area, so the editor's go-to-definition lands somewhere predictable.
 - **Document as you declare.** A `///` comment above a component, a prop, an event or a type shows on hover and in `wf docs`, the site that documents the project's components; an `example` beside a component is drawn there live.
-- **Hold every file to the formatter.** `wf fmt --check` in CI keeps every file in one layout ([Testing](/learn/16-testing#run-the-checks-in-ci)).
+- **Hold every file to the formatter.** `wf fmt --check` in CI keeps every file in one layout ([Testing](/learn/16-testing#ci)).
 
 ## Quick reference
 
@@ -18072,7 +18072,7 @@ Signature: `announce(text)`, `announce(text, .assertive)`
 | `text` | `String` | What to say |
 | `.assertive` | optional | Interrupts what the reader is hearing, for what cannot wait; unset, it waits its turn |
 
-Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](/learn/08-events#toasts-questions-and-announcements-from-a-handler).
+Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](/learn/08-events#toasts-confirmations-and-announcements).
 
 ```wf
 announce("{results.length} results")
@@ -18179,7 +18179,7 @@ Signature: `http.get(url, options)` → a promise of `T!`; `http.post`, `http.pu
 | `as:` | `.json` (default), `.text`, `.blob` | How the answer is read; `.text` is a `String` |
 | `timeout:`, `retry:`, `cache:`, `credentials:` | as on an `api` | This request's own |
 
-`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).
+`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#one-off-requests-with-http).
 
 ```wf
 let rows: [Row] = try await http.get("/api/rows?page={page}")
@@ -18261,7 +18261,7 @@ Signature: `optimistic(holder, change)`
 | `holder` | a state, or a store's state | What to change |
 | `change` | a lambda from the old value to the new one | The change to show |
 
-Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](/learn/15-data#show-a-change-before-the-server-agrees).
+Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](/learn/15-data#optimistic-updates).
 
 ```wf
 optimistic(Todos.items, items => items.filter(i => i.id != id))
@@ -18312,7 +18312,7 @@ Signature: `sanitize(html)` → `String`
 |---|---|---|
 | `html` | `String` | Markup from outside the project |
 
-Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#one-door-for-markup).
+Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#raw-html).
 
 ```wf
 Unsafe.Html(sanitize(post.body))
@@ -18646,7 +18646,7 @@ Eleven types come with the language. Each is a plain JSON value at run time.
 | `File` | from `FileUpload` | `.preview()`, `.name`, `.size`, `.type` |
 | `Secret` | — | none: it may not be shown, spliced, logged or persisted |
 
-`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](/learn/12-types#the-types-the-language-brings-with-it) has the rest.
+`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](/learn/12-types#built-in-types) has the rest.
 
 ```wf
 derived checkout = arrival.plus(days: nights)
@@ -19092,7 +19092,7 @@ It serves the build and nothing beside it: an address that climbs out (`/../`, w
 
 When a build fails, the last good page stays up and the error is drawn over it — file, line, message and hint — until a save fixes it. The overlay is served at `/__wf/dev.js`, and the build's state, as JSON, at `/__wf/status`.
 
-Every page the server sends also carries a **stores** button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran ([Stores](/learn/11-stores#looking-at-one-while-it-runs)). The service worker of an offline site is removed under `wf serve`, so an edit is never hidden behind its cache.
+Every page the server sends also carries a **stores** button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran ([Stores](/learn/11-stores#debugging-stores)). The service worker of an offline site is removed under `wf serve`, so an edit is never hidden behind its cache.
 
 A request that is not a navigation — an `http` or `api` call, a script, an image — for a file the build did not write gets a `404`, as a host would send, and a line in the terminal naming the file. Only a navigation gets the single-page shell. (Answering a missing API with the shell's HTML makes the page fail to parse it, far from the cause.)
 
@@ -19255,7 +19255,7 @@ wf api eject Backend
 wf api list --json
 ```
 
-Every generated file opens with a `// Code generated by …` comment that names `wf api sync` and its spec and says DO NOT EDIT, and `sync` never overwrites or removes a file in `generated/` without it. The output is the printer's, so it is the same for the same spec, and a change to the spec is the smallest diff. `wf check` warns (`N07`) when a spec has changed since its files were written. The compiler never fetches: download the spec first (`curl -o openapi.json …`). See [Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file).
+Every generated file opens with a `// Code generated by …` comment that names `wf api sync` and its spec and says DO NOT EDIT, and `sync` never overwrites or removes a file in `generated/` without it. The output is the printer's, so it is the same for the same spec, and a change to the spec is the smallest diff. `wf check` warns (`N07`) when a spec has changed since its files were written. The compiler never fetches: download the spec first (`curl -o openapi.json …`). See [Data and APIs](/learn/15-data#openapi).
 
 #### `wf fix`
 
@@ -19381,7 +19381,7 @@ The columns are the first contentful paint, the number of elements in the docume
 
 `--returning-visitor` visits every route a second time as a reader who was here before. Their storage holds what the previous build's pages kept: each `persist` value's starting value as the build before this one wrote it, which a build saves in `.wf-cache/` when it changes. A persisted shape that changed without a `version:` then shows as the broken page it would be.
 
-`--fakes tests/fakes.wf` is for a site whose API is elsewhere, or not running. It builds the project again, aside from `build/`, with the fakes that file declares answering every endpoint — the same `fake` declarations a test names ([Testing](/learn/16-testing#answer-a-service-with-fakes)) — and loads every page of that build, which sends no request to a service. A fake that does not fit its contract stops the build (`N06`). The aside build is removed when the visits are done.
+`--fakes tests/fakes.wf` is for a site whose API is elsewhere, or not running. It builds the project again, aside from `build/`, with the fakes that file declares answering every endpoint — the same `fake` declarations a test names ([Testing](/learn/16-testing#fakes)) — and loads every page of that build, which sends no request to a service. A fake that does not fit its contract stops the build (`N06`). The aside build is removed when the visits are done.
 
 The report also names **the built-ins no page drew**. A component can be in the registry, the tests and the documentation and still be broken on a page. The classes the pages carried list what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all: the list is a fact about coverage, not a failure.
 
@@ -19627,7 +19627,7 @@ wf docs
 wf docs -o component-docs
 ```
 
-A page a component: its `///` comment and header, every [`example`](/learn/10-components#document-it) of it drawn live beside its source — in a frame of the project's own build, with its theme, stylesheets and scripts — then its props (type, what it is when left out, each prop's `///`), events, slots, parts and what places it. A component with no example is drawn from its props. The types, stores and pages each have a page.
+A page a component: its `///` comment and header, every [`example`](/learn/10-components#documentation-comments) of it drawn live beside its source — in a frame of the project's own build, with its theme, stylesheets and scripts — then its props (type, what it is when left out, each prop's `///`), events, slots, parts and what places it. A component with no example is drawn from its props. The types, stores and pages each have a page.
 
 The project is checked first, and an error stops it, as a build does. Serve the folder to read it. A second run clears what the first wrote; a folder it did not write is left alone.
 
@@ -20092,7 +20092,7 @@ The services `wf api` keeps from an OpenAPI spec, by name. Added in **7.0**. `wf
 | `out` | string | `src/api/<name>`, lower case | The folder its `service.wf` and `generated/` files are written to. |
 | `skip` | list of names | `[]` | Operations left out, by the name they would have — one whose body or answer the language cannot read. |
 
-See also: [Read the service from an OpenAPI file](/learn/15-data#read-the-service-from-an-openapi-file) and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).
+See also: [Read the service from an OpenAPI file](/learn/15-data#openapi) and [Call a service from its OpenAPI spec](/recipes/service-from-openapi).
 
 ## lints
 

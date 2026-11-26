@@ -56,7 +56,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
         variations {
             Heading("Let the action roll itself back", id: "let-the-action-roll-itself-back").h3
 
-            Markdown("`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back. The action declares `-> !`, so `try` may pass the failure up ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)):")
+            Markdown("`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back. The action declares `-> !`, so `try` may pass the failure up ([Fetching data](/learn/15-data#optimistic-updates)):")
 
             DocsCodeBlock(#"action like(id: String) -> ! {
     optimistic(items, list => list.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i }))
@@ -96,7 +96,7 @@ page List(path: "/todos", title: "Todos", description: "Todos that show at once.
             Markdown("When the create succeeds, `invalidates [list]` asks for the list again, and the server's copy, with the todo's real `id`, takes the place of the one shown ([Refresh a list after a write](/recipes/refresh-after-a-write)).")
 
         }
-        Markdown("- `let before = items` keeps the list as it was. A [`let`](/learn/07-state-and-reactivity#actions-and-locals) is local to the action.\n- The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.\n- The request is [awaited](/learn/15-data#ask-on-demand-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.\n- The action clears `error` first. A `Toast` shows once, when its branch is drawn, so without the reset a second failure would leave `error` as it was and show nothing.")
+        Markdown("- `let before = items` keeps the list as it was. A [`let`](/learn/07-state-and-reactivity#actions-and-locals) is local to the action.\n- The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.\n- The request is [awaited](/learn/15-data#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.\n- The action clears `error` first. A `Toast` shows once, when its branch is drawn, so without the reset a second failure would leave `error` as it was and show nothing.")
 
     }
 }

@@ -1,5 +1,5 @@
 /// Chapter 14 of the guide. This page is its source: edit it here.
-page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "site/src/pages/guide/14-forms.wf", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "bind-a-control-to-state", label: "Bind a control to state"), Anchor(id: "add-a-label-a-hint-or-your-own-error", label: "Add a label, a hint or your own error"), Anchor(id: "group-controls-in-a-form", label: "Group controls in a form"), Anchor(id: "validate-a-field", label: "Validate a field"), Anchor(id: "upload-a-file", label: "Upload a file"), Anchor(id: "send-a-form-to-a-server", label: "Send a form to a server"), Anchor(id: "show-that-a-request-is-running", label: "Show that a request is running"), Anchor(id: "choosing-toggles-groups-steps-and-days", label: "Choosing: toggles, groups, steps and days"), Anchor(id: "checklist-for-a-good-form", label: "Checklist for a good form"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Bind any control to a state, a store member or a list item with `bind:`", "Write `validate` rules and let the bound control show their messages", "Read the whole form through `Form(bind: form)`: `form.valid`, `form.errors`, `form.apply`", "Upload a file and follow its progress", "Send a form to an `api` and show what the server answered"], prevTo: "/learn/13-styling", prevLabel: t("ch.13"), nextTo: "/learn/15-data", nextLabel: t("ch.15"))) {
+page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "site/src/pages/guide/14-forms.wf", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "binding-controls", label: "Binding controls"), Anchor(id: "labels-hints-and-errors", label: "Labels, hints and errors"), Anchor(id: "forms", label: "Forms"), Anchor(id: "validation", label: "Validation"), Anchor(id: "file-uploads", label: "File uploads"), Anchor(id: "submitting-to-a-server", label: "Submitting to a server"), Anchor(id: "pending-state", label: "Pending state"), Anchor(id: "choosing-a-control", label: "Choosing a control"), Anchor(id: "form-checklist", label: "Form checklist"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Bind any control to a state, a store member or a list item with `bind:`", "Write `validate` rules and let the bound control show their messages", "Read the whole form through `Form(bind: form)`: `form.valid`, `form.errors`, `form.apply`", "Upload a file and follow its progress", "Send a form to an `api` and show what the server answered"], prevTo: "/learn/13-styling", prevLabel: t("ch.13"), nextTo: "/learn/15-data", nextLabel: t("ch.15"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about forms in WebFluent: controls that read and write state, rules that say what each value must be, and a submit that sends the form to a server and shows what came back.\n\nYou will be able to:\n\n- bind any control to a state, in both directions;\n- validate a field with a `validate` block, without writing the error messages' markup;\n- know whether the whole form is valid, and submit it;\n- upload a file and show its progress;\n- show the errors a server sends back, and a busy state while a request runs.\n\nWebFluent writes the accessible parts for you: a real `<label>` for every label, `aria-describedby` for hints and errors, `aria-invalid`, errors announced as they appear, and focus moved to the first problem.")
 
@@ -7,7 +7,7 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
 
         Markdown("You should know how to declare `state` and an `action` ([State and reactivity](/learn/07-state-and-reactivity)) and how to handle an event ([Events](/learn/08-events)). Sending a form to a server uses an `api`, which [Data and APIs](/learn/15-data) covers in full.")
 
-        Heading("Bind a control to state", id: "bind-a-control-to-state").h2
+        Heading("Binding controls", id: "binding-controls").h2
 
         Markdown("To keep a control and a state in step, give the control `bind:` and the state's name. Typing in the control writes the state, and changing the state updates the control.\n\nThis sign-up page binds one of each kind of control:")
 
@@ -42,7 +42,7 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
 
         DocsCodeBlock(#"Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)"#, title: "wf")
 
-        Heading("What each control holds", id: "what-each-control-holds").h3
+        Heading("Bound value types", id: "bound-value-types").h3
 
         Markdown("The checker knows the type each control writes, and refuses a `bind:` to a state of another type (`F02`):")
 
@@ -68,7 +68,7 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
                 }
                 Table.Row {
                     Table.Cell { Markdown("`DatePicker`") }
-                    Table.Cell { Markdown("[`Date?`](/learn/12-types#the-types-the-language-brings-with-it) — `null` until a date is picked") }
+                    Table.Cell { Markdown("[`Date?`](/learn/12-types#built-in-types) — `null` until a date is picked") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`Select`") }
@@ -83,7 +83,7 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
 
         Markdown("A value comes back as the type it went in as. `Select.Option(\"Two\", value: 2)` binds the number `2`, not the string `\"2\"`.\n\nEvery control needs an accessible name: a `label:`, a `placeholder:` (on an `Input`), or an `aria-label:`. The accessibility lints (`A03`, `A04`) warn when one has none.")
 
-        Heading("Bind to a store or a list item", id: "bind-to-a-store-or-a-list-item").h3
+        Heading("Binding to stores and list items", id: "binding-to-stores-and-list-items").h3
 
         Markdown("`bind:` takes anything that can be written:\n\n- a state;\n- a store's member, such as `bind: Cart.note`;\n- a field of a loop's item.\n\nThis list lets the reader rename and tick off each todo in place:")
 
@@ -102,7 +102,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
 
         Markdown("The count at the bottom drops as you tick items. The item is written and the list is told it changed, so everything that reads `todos` follows:\n\n- In a keyed loop (`for … by`), the list hears of the change as the reader types.\n- In a loop with no `by`, which redraws every item when its list changes, the list hears of it when the reader leaves the field, so the row is not redrawn under the cursor.\n\nYou cannot bind to a constant, a derived value, a prop or a literal: that is `F01`.")
 
-        Heading("Add a label, a hint or your own error", id: "add-a-label-a-hint-or-your-own-error").h2
+        Heading("Labels, hints and errors", id: "labels-hints-and-errors").h2
 
         Markdown("Every control takes `label:`, `hint:` and `error:`. With any of them, the control is wrapped in a field:\n\n- the label is a real `<label for>`;\n- the hint and the error are linked to the control with `aria-describedby`;\n- the error is a string, empty when there is none. When it appears, it is announced, and it sets `aria-invalid` on the control.\n\nThis page shows an error while the handle is too short:")
 
@@ -114,9 +114,9 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
     Input(bind: handle, label: "Handle", hint: "Letters, numbers and dashes", error: problem)
 }"#, title: "wf")
 
-        Markdown("For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validate-a-field)). Use `error:` for a message that comes from somewhere else.")
+        Markdown("For a rule about the value itself, a `validate` block is usually better: it works out the error for you ([Validate a field](#validation)). Use `error:` for a message that comes from somewhere else.")
 
-        Heading("Group controls in a form", id: "group-controls-in-a-form").h2
+        Heading("Forms", id: "forms").h2
 
         Markdown("To submit several controls together, put them in a `Form`. Its `on submit` handler runs when the form is submitted, and the page never navigates away. `Form(bind: form)` gives you a handle, named `form` here, that knows the state of the whole form.\n\nThis contact form sends its fields, disables **Send** until every field is valid, and thanks the reader:")
 
@@ -190,7 +190,7 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.apply(errors)`") }
-                    Table.Cell { Markdown("Shows what the server said, on the fields it named ([Show what the server said](#show-what-the-server-said))") }
+                    Table.Cell { Markdown("Shows what the server said, on the fields it named ([Show what the server said](#server-errors))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`form.element`") }
@@ -199,11 +199,11 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
             }
         }
 
-        Heading("Choose which buttons submit", id: "choose-which-buttons-submit").h3
+        Heading("Submit buttons", id: "submit-buttons").h3
 
         Markdown("A `Button` with `type: .submit` (or the `.submit` flag) submits the form, and so does Enter in a field. The browser's own constraint checks run first (`.required`, `.email` and the rest), so an invalid form never reaches `on submit`.\n\nEvery other button in a form — **Add a row**, **Show password** — is `type=\"button\"`, and does only what its `on click` says.")
 
-        Heading("Validate a field", id: "validate-a-field").h2
+        Heading("Validation", id: "validation").h2
 
         Markdown("To say what a value must be, put a `validate` block beside the state it guards. Each rule is one line. The control bound to that state shows the rules' messages itself: you write no `error:` and no `derived` value.\n\nThis page requires an email, a password of at least eight characters with a number in it, and a matching confirmation:")
 
@@ -311,7 +311,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
     }
 }"#, title: "wf")
 
-        Heading("Choose when a message shows", id: "choose-when-a-message-shows").h3
+        Heading("When messages show", id: "when-messages-show").h3
 
         Markdown("`Form(show:)` sets when the messages appear:")
 
@@ -340,7 +340,7 @@ page Register(path: "/register", title: "Register", description: "Check an addre
 
         Markdown("The rules run either way, so `form.valid` is always true to the values, whatever the reader has seen.\n\nA submit that fails shows every message, moves focus to the first field that has one, announces it, and does not run `on submit`.")
 
-        Heading("Preview every message at once", id: "preview-every-message-at-once").h3
+        Heading("Previewing messages", id: "previewing-messages").h3
 
         Markdown("To see a form as a failed submit would leave it, without filling it in, set `data-wf-validation=\"shown\"` on the page's root element:")
 
@@ -348,20 +348,20 @@ page Register(path: "/register", title: "Register", description: "Check an addre
 
         Markdown("Every field then shows what its rules say about its value now. Remove the attribute and the messages go again. An editor's preview sets this attribute to show a form as *Invalid*.")
 
-        Heading("Let a refined type do the checking", id: "let-a-refined-type-do-the-checking").h3
+        Heading("Refined types as rules", id: "refined-types-as-rules").h3
 
         Markdown("A *refined type* is a type with a condition, such as `Number(1..=30)`. The condition is already a rule, so you only write the rules the type does not say:")
 
         DocsCodeBlock(#"state nights: Number(1..=30) = 2
 validate nights { required }"#, title: "wf")
 
-        Markdown("- A range's open end is excluded: `Number(0..10)` does not take `10`.\n- A date's `after:` and `before:` are checked as the reader types, like `min` and `max`.\n\nSee [Types](/learn/12-types#a-condition-on-a-type) for every condition a type can carry.")
+        Markdown("- A range's open end is excluded: `Number(0..10)` does not take `10`.\n- A date's `after:` and `before:` are checked as the reader types, like `min` and `max`.\n\nSee [Types](/learn/12-types#refined-types) for every condition a type can carry.")
 
-        Heading("Read the rules as data", id: "read-the-rules-as-data").h3
+        Heading("Rules as data", id: "rules-as-data").h3
 
         Markdown("`wf rules --json` lists, for a tool to read:\n\n- every rule, what it takes, its own message and the translation key that replaces it;\n- the patterns people write, by name: `a number`, `a letter` (in any script), `no spaces` …;\n- the `show:` choices;\n- every state the project holds to a rule, in order, including the rules its type implies.\n\nThe Rust library has the same data as `webfluent::validation` (with the `internals` feature, outside semver), which can also write a state's `validate` block back one rule at a time.")
 
-        Heading("Show what the server said", id: "show-what-the-server-said").h3
+        Heading("Server errors", id: "server-errors").h3
 
         Markdown("When the server rejects a value — an address already taken, a code that expired — pass its messages, by field name, to `form.apply`:")
 
@@ -382,9 +382,9 @@ action join() {
     }
 }"#, title: "wf")
 
-        Markdown("Each message is shown on the field it names: a field a `validate` block guards shows it as its own message, and any other control of the form shows it beneath itself when its `name:` matches — announced, marked `aria-invalid`, and named by `aria-describedby`. The focus moves to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown. [Send a form to a server](#send-a-form-to-a-server) shows the whole page.")
+        Markdown("Each message is shown on the field it names: a field a `validate` block guards shows it as its own message, and any other control of the form shows it beneath itself when its `name:` matches — announced, marked `aria-invalid`, and named by `aria-describedby`. The focus moves to the first one. A message stays until the reader changes that field's value. A field may also be given a list of messages; the first is shown. [Send a form to a server](#submitting-to-a-server) shows the whole page.")
 
-        Heading("Upload a file", id: "upload-a-file").h2
+        Heading("File uploads", id: "file-uploads").h2
 
         Markdown("To let the reader pick a file, place a `FileUpload` and bind it: `bind:` holds the `File` chosen (`File?`, `null` until one is), or with `.multiple` the list of them (`[File]`). Its `change` event carries the same files, for a page that wants them as they arrive. Each is a `File`, with:\n\n- `.name`, `.size` (in bytes) and `.type`;\n- `.preview()`, an object URL that shows an image before it is uploaded. It is revoked when the page leaves.\n\nThis page shows the picture the reader picks, then uploads it with a progress bar:")
 
@@ -416,9 +416,9 @@ page Avatar(path: "/avatar", title: "Your picture", description: "Change your pi
 
         Markdown("- An endpoint with a `File` parameter sends a multipart form.\n- `Backend.avatar.progress` follows the upload from 0 to 1.\n- `FileUpload(bind: files).multiple` lets the reader pick several files, held in a `[File]`.")
 
-        DocsCallout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads-are-checked-on-the-server)).", kind: .important)
+        DocsCallout("`accept:` and any size limit you show are for the reader's convenience, not checks. The server decides what it accepts ([Security](/about/security#uploads)).", kind: .important)
 
-        Heading("Send a form to a server", id: "send-a-form-to-a-server").h2
+        Heading("Submitting to a server", id: "submitting-to-a-server").h2
 
         Markdown("To send a form, describe the service once with `api`, call it from the submit handler, and hand what a `422` said back to the form.")
 
@@ -463,7 +463,7 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 
         Markdown("`unprocessableContent(problem: FieldErrors) on 422` is the case a `422` answer arrives in, its body typed `FieldErrors`, so `p.errors` is what the server sent. If the server answers `\{ \"errors\": \{ \"email\": \"That address is taken\" \} \}`, the message appears under **Email**.\n\n[Data and APIs](/learn/15-data) covers the service in full: retries, timeouts and typed errors.")
 
-        Heading("Show that a request is running", id: "show-that-a-request-is-running").h2
+        Heading("Pending state", id: "pending-state").h2
 
         Markdown("An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to show a spinner, or to keep a button busy with `loading:`. On a store's action, read it as `Store.action.pending`:")
 
@@ -488,7 +488,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
         Markdown("- **A button or a form waits for its work.** A `Button`'s `on click` or a `Form`'s `on submit` that calls an action that awaits is busy until that call ends: `aria-busy`, a press that does nothing, and, past a moment, a spinner in place of its label at the same width. The focus stays on it. Nothing has to be written for it.\n- **A double click submits once.** A call of an action with the same arguments as one still running *is* that call: the work is not done twice, and both get the same answer. A call with other arguments — the next row's save — runs beside it. An action whose every call should run, a poll, says so: `action poll() concurrent \{ … \}`.\n- **`loading:`** keeps any button busy while a value holds — another button's work, a store's state.\n\nReading `.pending` on an action that awaits nothing is `T17`.")
 
-        Heading("Choosing: toggles, groups, steps and days", id: "choosing-toggles-groups-steps-and-days").h2
+        Heading("Choosing a control", id: "choosing-a-control").h2
 
         Markdown("Some choices are not a text field. These built-ins draw them, each with the keyboard a reader expects:")
 
@@ -518,7 +518,7 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
         Markdown("- **`Toggle`** is one button that stays pressed; **`ToggleGroup`** is a row of them, one chosen (or several, `.multiple`). Tab stops once on the group, and the arrow keys move inside it.\n- **`RadioGroup`** is native radio buttons under a legend; `.cards` draws each as a card with its hint.\n- **`NumberInput`** steps with − and +, the arrow keys, and PageUp and PageDown, and stays between `min:` and `max:`.\n- **`Pagination(bind: page, pages: n)`** draws the pages of a list, with gaps for the ones it leaves out.\n- **`Stepper`** shows one step at a time and each step's state.\n- **`CheckboxGroup`** ticks the values of a list, with `all:` a box for every one; **`TagInput`** makes words chips; **`InputOTP`** takes a one-time code a digit to a box; **`Rating`** is stars a keyboard can set; `Slider(…).range` has two thumbs; **`DateRangePicker`** chooses a first and a last day in two months, or by a preset.\n- `Textarea(…).autosize` grows with its text, `Input(…).password.reveal` can show what was typed, and `FileUpload(bind: files).dropzone` takes files dropped on it.\n- **`Calendar`** is a month a keyboard can work: the arrows by day and week (the other way round right to left), PageUp and PageDown by month. `.range` holds `\{ start, end \}`, `.multiple` a list.")
 
-        Heading("Checklist for a good form", id: "checklist-for-a-good-form").h2
+        Heading("Form checklist", id: "form-checklist").h2
 
         Markdown("- Every control has a `label:`. A placeholder is not a label.\n- Rules live in `validate` blocks, not in hand-written `derived` errors.\n- The submit button is `type: .submit`, so Enter submits.\n- The submit button is disabled while the request runs: `disabled: save.pending`.\n- The page says what happened afterwards, in an `Alert` or a `Toast`.\n- Server errors go back to their fields with `form.apply`.\n- The server checks everything again. The page's rules are for the reader.")
 

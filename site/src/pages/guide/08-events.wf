@@ -1,5 +1,5 @@
 /// Chapter 8 of the guide. This page is its source: edit it here.
-page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "site/src/pages/guide/08-events.wf", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Handle a DOM event with `on click \{ \}`, and read the event with `on keydown(e) \{ \}`", "Answer a key or a chord with `on key(\"mod+k\")`, on an element or for the whole app", "Fire your component's own events with `event` and `emit`", "Open modals, menus, popovers and tooltips from state, and know how they stack", "Drag, drop, long-press, swipe and listen to the window"], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
+page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "site/src/pages/guide/08-events.wf", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "component-events", label: "Component events"), Anchor(id: "overlays", label: "Overlays"), Anchor(id: "gestures", label: "Gestures"), Anchor(id: "window-and-document-events", label: "Window and document events"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Handle a DOM event with `on click \{ \}`, and read the event with `on keydown(e) \{ \}`", "Answer a key or a chord with `on key(\"mod+k\")`, on an element or for the whole app", "Fire your component's own events with `event` and `emit`", "Open modals, menus, popovers and tooltips from state, and know how they stack", "Drag, drop, long-press, swipe and listen to the window"], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers events in WebFluent. An event handler is the code that runs when something happens: a click, a key, a drop, a component saying it changed. You write it as `on <event> \{ … \}` inside the block of the element it listens to, and its body can change state, call actions and navigate.\n\nIn this chapter:\n\n- handlers and the event object\n- keys, and shortcuts for a whole app\n- the events your own components fire\n- overlays: modals, sheets, toasts, menus, popovers and tooltips, what closes them, and how they stack\n- gestures: drag and drop, long-press, swipe and the splitter\n- listening to the window and the document")
 
@@ -29,7 +29,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Heading("The event object", id: "the-event-object").h3
 
-        Markdown("To read the event, name a parameter: `on keydown(e) \{ … \}`. It is the browser's own event object, typed by the event: `on keydown(e)` is a `KeyboardEvent` (`e.key`, `e.shiftKey`), `on click(e)` a `MouseEvent` (`e.clientX`), and `e.target` an `Element` (`e.target.value`), with `e.preventDefault()` and `e.stopPropagation()` on every one. A member the event does not have, `e.kye`, is `T30`, with the nearest name.\n\nWithout a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.\n\nA DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).\n\nThis drop zone uses the event object twice — to allow the drop, and to read the dropped files:")
+        Markdown("To read the event, name a parameter: `on keydown(e) \{ … \}`. It is the browser's own event object, typed by the event: `on keydown(e)` is a `KeyboardEvent` (`e.key`, `e.shiftKey`), `on click(e)` a `MouseEvent` (`e.clientX`), and `e.target` an `Element` (`e.target.value`), with `e.preventDefault()` and `e.stopPropagation()` on every one. A member the event does not have, `e.kye`, is `T30`, with the nearest name.\n\nWithout a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.\n\nA DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#component-events)).\n\nThis drop zone uses the event object twice — to allow the drop, and to read the dropped files:")
 
         DocsCodeBlock(#"page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
     state names: [String] = []
@@ -44,7 +44,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
     }
 }"#, title: "wf")
 
-        Heading("How often a handler runs", id: "how-often-a-handler-runs").h3
+        Heading("Debounce and throttle", id: "debounce-and-throttle").h3
 
         Markdown("An event can come far more often than its handler needs to run: a key per letter, a scroll per pixel. Say how often in the handler's parentheses:")
 
@@ -87,7 +87,7 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
 
         Markdown("How a combination is spelled:\n\n- Modifiers are `mod`, `ctrl`, `shift`, `alt` and `meta` (or `cmd`), joined with `+`. `mod` is ⌘ on a Mac and Ctrl everywhere else, so one shortcut works on both; write `ctrl` or `cmd` only when you mean exactly that key.\n- Then comes the key as the browser names it: `k`, `Enter`, `Escape` (or `esc`), `Tab`, `ArrowDown` (or `down`), `space`, `F2`.\n- `on key(\"Enter\", e)` names the event too.\n\nHow it listens:\n\n- On an element, the handler listens on that element.\n- At the top of a page or component, it listens on the document for as long as the page shows.\n- Every modifier must match exactly, so `ctrl+k` does not fire on `ctrl+shift+k`.\n\nA combination no keyboard sends — an unknown modifier, no key — is an error (`E117`).")
 
-        Heading("Shortcuts for an app", id: "shortcuts-for-an-app").h3
+        Heading("App shortcuts", id: "app-shortcuts").h3
 
         Markdown("To give an app shortcuts that work on every page, write them with `mod` and declare them on `app`:\n\n- **`mod`** is ⌘ on a Mac and Ctrl everywhere else.\n- On **`app`**, a shortcut is heard on every page for as long as the app runs.\n- A **chord** is its steps with a space between: `mod+k mod+s`. The second step must come within a second and a half of the first, and on its own it does not fire a shortcut of its own.\n\nThis app drives its shortcuts and its **View** menu from one table of commands:")
 
@@ -124,7 +124,7 @@ app {
 
         Markdown("The helpers and rules it relies on:\n\n- **`keyIs(e, \"mod+s\")`** is whether a key event is that combination — a chord's too — so one table of commands can drive the shortcuts, the menus and a palette.\n- **`keyLabel(\"mod+shift+p\")`** is how this system writes it: `⇧⌘P` on a Mac, `Ctrl+Shift+P` elsewhere. A `Menu.Item`'s and a `Tooltip`'s `shortcut:` are written the same way, and the item — or the tooltip's control — tells assistive technology with `aria-keyshortcuts`.\n- **Events outside any element.** A page, a component or `app` may handle `keydown` and `keyup`, and the window's `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage` and `visibilitychange`, and the window losing and gaining focus (`blur`, `focus` — an editor saves on leaving, for example). Each listens for as long as its owner shows.\n- **A letter is also the key in its place.** On a Mac `⌥⌘P` sends `π`, and `mod+alt+p` still matches it.")
 
-        Heading("Moving through a group with the arrow keys", id: "moving-through-a-group-with-the-arrow-keys").h3
+        Heading("Arrow-key navigation (roving focus)", id: "arrow-key-navigation-roving-focus").h3
 
         Markdown("A tab strip, a toolbar or a row of choices is one stop for Tab: Tab enters it and leaves it, and the arrow keys move inside it. `Tabs` and `Menu` work that way already. `roving:` gives any element of yours the same:")
 
@@ -140,7 +140,7 @@ app {
 
         Markdown("- `roving: .x` moves with ArrowLeft and ArrowRight, `.y` with ArrowUp and ArrowDown, `.both` with either.\n- Across a right-to-left page the next item is to the left, so ArrowLeft moves forward there.\n- Home and End go to the ends, and a letter goes to the next item whose name starts with it.\n- Tab enters at the chosen item, the one marked `aria-selected`, `aria-checked` or `aria-pressed`, or the first. A disabled item is passed over, and a key held with Alt, Ctrl or ⌘ is left to the browser.\n\nFor a key of your own that follows the direction of the text, write `on key(\"inline-start\")` or `on key(\"inline-end\")`: ArrowLeft and ArrowRight in a left-to-right box, the other way round in a right-to-left one.")
 
-        Heading("Emitting events from components", id: "emitting-events-from-components").h2
+        Heading("Component events", id: "component-events").h2
 
         Markdown("A component declares the events it fires with `event`, and fires them with `emit`. The caller handles them like DOM events, with a name for each value the event sends — `on change(v)`, `on menu(key, x, y)`. [Components](/learn/10-components#events) covers the details. This counter tells its page every time it changes:")
 
@@ -161,7 +161,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
     Text("Now {total}")
 }"#, title: "wf")
 
-        Heading("Overlays: modals, dialogs, toasts and menus", id: "overlays-modals-dialogs-toasts-and-menus").h2
+        Heading("Overlays", id: "overlays").h2
 
         Markdown("An *overlay* is something a page opens over itself: a modal that asks a question, a toast that confirms, a menu of actions, a tooltip. Most are opened by a state, so the page decides when they show. This page has one of each:")
 
@@ -188,7 +188,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 
         Markdown("- **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their `visible:` state is true.\n  - The browser traps focus and makes the rest of the page inert. Escape or a press on the backdrop closes it, and the state is set back to `false`, so it never disagrees with what is on screen.\n  - When it opens, the focus goes to what says `autofocus`, else its first control; when it closes, the focus goes back to what had it.\n  - It fades out before it goes, however it was closed.\n  - `on close` runs when it closes, however it was closed.\n  - `title:` is its heading, which names it (`A08` without one). `Modal.Footer` is the row of actions, and `.closable` adds a close button. [`Modal`](/reference/modal) lists the rest.\n- **`Toast`** shows the moment it is rendered and leaves after three seconds. It is announced politely to screen readers. Put it under a condition that turns true, or call `toast(…)` from a handler (below).\n- **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.\n- **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.")
 
-        Heading("What closes an overlay, and where the focus goes", id: "what-closes-an-overlay-and-where-the-focus-goes").h3
+        Heading("Closing overlays and focus", id: "closing-overlays-and-focus").h3
 
         Markdown("`dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:")
 
@@ -219,7 +219,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 
         Markdown("On a narrow screen a `Sidebar` opens over the page as a drawer, which is a layer like these: the focus goes in and stays there, Escape or a press outside closes it, and the focus goes back to its toggle.")
 
-        Heading("Toasts, questions and announcements from a handler", id: "toasts-questions-and-announcements-from-a-handler").h3
+        Heading("Toasts, confirmations and announcements", id: "toasts-confirmations-and-announcements").h3
 
         Markdown("Three functions open an overlay from code rather than from state:")
 
@@ -250,7 +250,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("- **`toast(message, …)`** shows a toast above everything, a modal included, and says it to a screen reader. It takes `tone:` (`.success`, `.danger`, `.warning`, `.info`), `duration:` in milliseconds, and `action:` with `onAction:` for a button on it. It waits while the pointer is on it or the focus is in it, has a close button, and no more than three show at once. `toast.promise(p, loading: …, done: …, failed: …)` follows a promise.\n- **`await ask(question, …)`** draws an alert dialog and is `true` for yes, `false` for no or Escape. It takes `detail:`, `yes:`, `no:` and `danger: true`; the focus starts on no. (`confirm` is the browser's.)\n- **`announce(text)`** says something to a screen reader with nothing on screen moving; `announce(text, .assertive)` interrupts, for what cannot wait.\n\nA program that names something `toast`, `ask` or `announce` of its own keeps it; the function is then out of reach there.")
 
-        Heading("Layers: popovers, menus and tooltips above everything", id: "layers-popovers-menus-and-tooltips-above-everything").h3
+        Heading("Popovers, menus and tooltips", id: "popovers-menus-and-tooltips").h3
 
         Markdown("A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's *top layer*, above everything else on the page, so a box with `overflow: hidden` cannot clip them. Each is placed against its *anchor*, the element it belongs to, and flips or slides to stay on screen.\n\nThis page opens a popover at a button and a context menu at the pointer:")
 
@@ -284,7 +284,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         Markdown("- **`Popover`** is open while its `visible:` state is true, placed against `anchor:`, an element's `ref:`. Escape or a press outside closes it (as `dismiss:` allows), sets `visible:` back to `false`, and `on close(reason)` hears `\"escape\"` or `\"outside\"`. Its anchor says what it opens and whether it is open (`aria-controls`, `aria-expanded`), the focus goes to its first control, and `label:` is its name (`A18` without one).\n- **`Menu`** without `trigger:` is a list that state opens, at an `anchor:` or `at:` a point. Choosing an item closes it.\n- **`ContextMenu`** does what the card above does by hand: what it wraps, and its `ContextMenu.Items` opened where a right-click or a long press happened — or, for a keyboard, at the focused element on the menu key or Shift+F10. `ContextMenu \{ Text(\"Right-click here\")  ContextMenu.Items \{ Menu.Item \{ Text(\"Rename\") \} \} \}` needs no state.\n- **`HoverCard`** previews what a link points at — `HoverCard \{ Link(\"@ada\", to: \"/u/ada\")  HoverCard.Content \{ … \} \}` — after the pointer rests on it, or at once on focus; **`Tour`** walks a reader through the page a step at a time, each `Tour.Step(target:)` lit through a cut-out in the dimmed page.\n- **`Menubar`** is a desktop app's File, Edit and View: `Menubar \{ Menubar.Menu(\"File\") \{ Menu.Item(shortcut: \"mod+n\") \{ Text(\"New\") \} \} \}`. It is one Tab stop; the arrow keys go along it, and with a menu open Left and Right open the one beside it.\n- The open layers form one stack, newest on top. Escape closes the newest layer that can be dismissed — a popover, a menu, an open `Modal` or `Dialog` — and nothing behind it hears that key. A modal opened from a popover takes the first Escape; the popover takes the next.\n- A tooltip keeps Escape only while focus is on its control. Otherwise the key goes on to the layer below, or to the element with focus.\n- A layer takes the attributes and handlers any element takes — `role:`, `aria-*`, `ref:` — on the element it draws. A `Popover` is a `dialog` unless its `role:` says otherwise.\n\nEvery option of these — `placement:`, `offset:`, `.arrow`, a menu's `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and `shortcut:` — is listed under [`Popover`](/reference/popover), [`Menu`](/reference/menu) and [`Tooltip`](/reference/tooltip). To ask before a destructive action, see [Build a confirm dialog](/recipes/confirm-dialog).")
 
-        Heading("Gestures: drag, long-press, swipe and the splitter", id: "gestures-drag-long-press-swipe-and-the-splitter").h2
+        Heading("Gestures", id: "gestures").h2
 
         Markdown("The runtime turns what the pointer does over time into one event that says what it means. A mouse, a pen and a finger run the same code. A finger picks a drag up with a long press, so a plain swipe still scrolls the page.\n\nThis list reorders its items by drag and drop:")
 
@@ -315,9 +315,9 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
         DocsCallout("A drag has no keyboard of its own. Give what it does a menu item or a command too (`Move left`, `Move to…`), as the platform's accessibility rules ask of every pointer action.", kind: .important)
 
-        Heading("Listening outside the page's elements", id: "listening-outside-the-page-s-elements").h2
+        Heading("Window and document events", id: "window-and-document-events").h2
 
-        Markdown("A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#shortcuts-for-an-app)). It listens for as long as its owner shows:")
+        Markdown("A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#app-shortcuts)). It listens for as long as its owner shows:")
 
         DocsCodeBlock(#"page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
     state y = 0
@@ -339,7 +339,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
     Text("Selected: {picked}")
 }"#, title: "wf")
 
-        Markdown("For the viewport's size, the network and the URL, the language already keeps values current — `viewport`, `network`, `query`, `hash` — so no listener is needed ([State](/learn/07-state-and-reactivity#the-browser-as-values)).")
+        Markdown("For the viewport's size, the network and the URL, the language already keeps values current — `viewport`, `network`, `query`, `hash` — so no listener is needed ([State](/learn/07-state-and-reactivity#browser-values)).")
 
         Heading("Summary", id: "summary").h2
 
@@ -365,12 +365,12 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
                 Table.Row {
                     Table.Cell { Markdown("`on input(debounce: 300.ms) \{ … \}`, `on scroll(e, throttle: 100.ms) \{ … \}`") }
                     Table.Cell("runs once the events stop; at most once a while")
-                    Table.Cell { Markdown("[How often a handler runs](#how-often-a-handler-runs)") }
+                    Table.Cell { Markdown("[How often a handler runs](#debounce-and-throttle)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`on visible \{ … \}`") }
                     Table.Cell("runs when the element comes into view")
-                    Table.Cell { Markdown("[How often a handler runs](#how-often-a-handler-runs)") }
+                    Table.Cell { Markdown("[How often a handler runs](#debounce-and-throttle)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`on key(\"Escape\") \{ … \}`") }
@@ -380,47 +380,47 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
                 Table.Row {
                     Table.Cell { Markdown("`on key(\"mod+k mod+s\") \{ … \}` on `app`") }
                     Table.Cell("an app-wide shortcut, here a chord")
-                    Table.Cell { Markdown("[Shortcuts for an app](#shortcuts-for-an-app)") }
+                    Table.Cell { Markdown("[Shortcuts for an app](#app-shortcuts)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`keyIs(e, \"mod+s\")`, `keyLabel(\"mod+s\")`") }
                     Table.Cell("test a key event; write a combination for this system")
-                    Table.Cell { Markdown("[Shortcuts for an app](#shortcuts-for-an-app)") }
+                    Table.Cell { Markdown("[Shortcuts for an app](#app-shortcuts)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`event change(v: Number)`, `emit change(n)`") }
                     Table.Cell("a component's own event")
-                    Table.Cell { Markdown("[Emitting events from components](#emitting-events-from-components)") }
+                    Table.Cell { Markdown("[Emitting events from components](#component-events)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`Modal(visible: open, title: \"…\")`") }
                     Table.Cell("a dialog opened by state")
-                    Table.Cell { Markdown("[Overlays](#overlays-modals-dialogs-toasts-and-menus)") }
+                    Table.Cell { Markdown("[Overlays](#overlays)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`Popover(visible:, anchor:)`, `Menu(visible:, at:)`") }
                     Table.Cell("layers placed at a control or a point")
-                    Table.Cell { Markdown("[Layers](#layers-popovers-menus-and-tooltips-above-everything)") }
+                    Table.Cell { Markdown("[Layers](#popovers-menus-and-tooltips)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`drag: v`, `on receive(d)`, `on dragmove(d)`") }
                     Table.Cell("drag and drop")
-                    Table.Cell { Markdown("[Gestures](#gestures-drag-long-press-swipe-and-the-splitter)") }
+                    Table.Cell { Markdown("[Gestures](#gestures)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`on longpress(p)`, `on swipe(s)`") }
                     Table.Cell("a held press; a sweep")
-                    Table.Cell { Markdown("[Gestures](#gestures-drag-long-press-swipe-and-the-splitter)") }
+                    Table.Cell { Markdown("[Gestures](#gestures)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`Splitter(bind: side, min:, max:)`") }
                     Table.Cell("a handle that sizes a region")
-                    Table.Cell { Markdown("[Gestures](#gestures-drag-long-press-swipe-and-the-splitter)") }
+                    Table.Cell { Markdown("[Gestures](#gestures)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`on scroll \{ … \}` outside any element") }
                     Table.Cell("a window event")
-                    Table.Cell { Markdown("[Listening outside the page's elements](#listening-outside-the-page-s-elements)") }
+                    Table.Cell { Markdown("[Listening outside the page's elements](#window-and-document-events)") }
                 }
             }
         }

@@ -48,7 +48,7 @@ const SAMPLE_BOOK: [Chapter] = [
 
 const SAMPLE_RECIPES: [IndexEntry] = [
     IndexEntry(label: "Fetch and show a list", to: "/blueprint/recipe"),
-    IndexEntry(label: "Refresh on a timer", to: "/learn/15-data#show-a-request-with-resource"),
+    IndexEntry(label: "Refresh on a timer", to: "/learn/15-data#resources"),
     IndexEntry(label: "Validate a sign-up form", to: "/recipes/validation-messages"),
     IndexEntry(label: "Add dark mode", to: "/recipes/dark-mode-switch"),
     IndexEntry(label: "Ship a PDF invoice", to: "/recipes/pdf-report"),

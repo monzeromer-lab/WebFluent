@@ -91,7 +91,7 @@ A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading `env.STRIPE_SEC
 A private value is still available to [server rendering](https://webfluent.monzeromer.dev/recipes/render-a-template.md), which runs on a server, where a secret stays secret. It never reaches the bundle: the build writes only public values into it.
 
 > [!CAUTION]
-> Adding a name to `public_env` publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page ([Security](https://webfluent.monzeromer.dev/about/security.md#secrets-stay-out-of-the-bundle)).
+> Adding a name to `public_env` publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page ([Security](https://webfluent.monzeromer.dev/about/security.md#secrets-and-env)).
 
 ## Name your own values something other than env
 

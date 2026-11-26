@@ -1,4 +1,6 @@
-### Drawing into somebody else's node
+### Portals
+
+A `Portal` draws its block into a DOM node that other code owns, such as an editor's widget.
 
 ```wf
 for row, i in Completions.rows by i {

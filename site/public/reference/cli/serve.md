@@ -33,7 +33,7 @@ It serves the build and nothing beside it: an address that climbs out (`/../`, w
 
 When a build fails, the last good page stays up and the error is drawn over it — file, line, message and hint — until a save fixes it. The overlay is served at `/__wf/dev.js`, and the build's state, as JSON, at `/__wf/status`.
 
-Every page the server sends also carries a **stores** button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#looking-at-one-while-it-runs)). The service worker of an offline site is removed under `wf serve`, so an edit is never hidden behind its cache.
+Every page the server sends also carries a **stores** button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#debugging-stores)). The service worker of an offline site is removed under `wf serve`, so an edit is never hidden behind its cache.
 
 A request that is not a navigation — an `http` or `api` call, a script, an image — for a file the build did not write gets a `404`, as a host would send, and a line in the terminal naming the file. Only a navigation gets the single-page shell. (Answering a missing API with the shell's HTML makes the page fail to parse it, far from the cause.)
 

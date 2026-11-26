@@ -20,7 +20,7 @@ Don't say something works until `wf test` and `wf verify` say so.
   not added", "a closed issue offers no close button".
 - **What the build ignores.** A build ignores tests.
 
-## A test that looks
+## Render tests
 
 It places a component (or a page with no route parameter) and says what the
 reader must see, and what they must not. It needs no browser.
@@ -61,7 +61,7 @@ test "a line of none says it was removed"(data: { line: { name: "Tea", qty: 0, p
 - **Snapshots.** Every looking test is also compared to its snapshot. Write
   new ones with `wf test --update`, then **read them** before you commit.
 
-## A test that acts
+## Interaction tests
 
 A test with a step that acts (`click`, `type … into`, `press`) is compiled
 into a real page and run in headless Chrome. The steps run in order, and
@@ -140,7 +140,7 @@ test "a seeded basket counts what it holds"(data: { Basket: { lines: [{ name: "T
   harmlessly outside the app, so pages that call it are still testable. See
   [tauri-apps.md](tauri-apps.md).
 
-## A page that reads a service: fakes
+## Fakes for services
 
 A test never reaches the network. A `fake` answers a group's endpoints in
 its place, held to the group's contract (`N06`): every endpoint it answers
@@ -236,7 +236,7 @@ tests on behaviour:
 Don't assert on markup, class names or structure. A test reads what a reader
 reads, so it survives a restyle.
 
-## Run them
+## Running tests
 
 ```bash
 wf test                    # every test
@@ -269,7 +269,7 @@ wf verify --json                  # for a pipeline
   from `build/`, and loads every page of that. Never point the `api` at a
   fixture to make it pass.
 
-## In CI
+## CI
 
 ```yaml
 - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash

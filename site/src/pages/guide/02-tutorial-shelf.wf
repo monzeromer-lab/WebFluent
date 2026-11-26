@@ -57,7 +57,7 @@ page Learn02TutorialShelf(path: "/learn/02-tutorial-shelf", title: "Tutorial: Sh
 
         DocsCodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
 
-        Markdown("`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](/learn/12-types), [Fetching data](/learn/15-data#read-a-file-at-build-time-with-data).)\n\n**Check it:** run `wf check`. It prints `No problems in shelf.`")
+        Markdown("`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](/learn/12-types), [Fetching data](/learn/15-data#build-time-data).)\n\n**Check it:** run `wf check`. It prints `No problems in shelf.`")
 
         Heading("Step 3: Keep the reader's shelf in a store", id: "step-3-keep-the-reader-s-shelf-in-a-store").h2
 
@@ -573,7 +573,7 @@ test "a card shows who wrote the book, and when" {
                 Table.Row {
                     Table.Cell { Markdown("`type Book` and `data books`") }
                     Table.Cell("Typed data read at build time")
-                    Table.Cell { Markdown("[Types](/learn/12-types), [Fetching data](/learn/15-data#read-a-file-at-build-time-with-data)") }
+                    Table.Cell { Markdown("[Types](/learn/12-types), [Fetching data](/learn/15-data#build-time-data)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`store Shelf` with `persist`") }

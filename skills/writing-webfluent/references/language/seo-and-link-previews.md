@@ -1,4 +1,6 @@
-## Search and Sharing
+## SEO and link previews
+
+The build writes canonical links, Open Graph tags, JSON-LD, a sitemap and `robots.txt` for every page.
 
 Set `meta.site_url` and the compiler writes everything a search engine and a link
 preview need. Without it, the tags that require an absolute URL are omitted

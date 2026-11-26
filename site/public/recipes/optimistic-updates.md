@@ -38,14 +38,14 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 
 - `let before = items` keeps the list as it was. A [`let`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals) is local to the action.
 - The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.
-- The request is [awaited](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.
+- The request is [awaited](https://webfluent.monzeromer.dev/learn/15-data.md#one-off-requests-with-http) and its result matched. If it failed, the `.err` arm puts `before` back and sets `error`, and the `Toast` tells the reader.
 - The action clears `error` first. A `Toast` shows once, when its branch is drawn, so without the reset a second failure would leave `error` as it was and show nothing.
 
 ## Variations
 
 ### Let the action roll itself back
 
-`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back. The action declares `-> !`, so `try` may pass the failure up ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-change-before-the-server-agrees)):
+`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action fails — a `try` passing its error up, or a throw — the change is taken back. The action declares `-> !`, so `try` may pass the failure up ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#optimistic-updates)):
 
 ```wf
 action like(id: String) -> ! {

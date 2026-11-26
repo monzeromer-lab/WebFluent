@@ -16,15 +16,15 @@ Layout comes first from the layout props (`Row`, `Stack`, `Grid`, `gap:`,
 ## Contents
 
 - [Tokens](#tokens)
-- [A theme, and dark mode](#a-theme-and-dark-mode)
-- [style blocks](#style-blocks)
-- [Your own stylesheets and class:](#your-own-stylesheets-and-class)
-- [Which rule wins](#which-rule-wins)
+- [Themes and dark mode](#themes-and-dark-mode)
+- [Style blocks](#style-blocks)
+- [Stylesheets and class:](#stylesheets-and-class)
+- [Cascade order](#cascade-order)
 - [Layout without CSS](#layout-without-css)
 - [Responsive](#responsive)
 - [Right to left](#right-to-left)
 - [Motion](#motion)
-- [Mistakes](#mistakes)
+- [Common mistakes](#common-mistakes)
 
 ## Tokens
 
@@ -68,7 +68,7 @@ A full name works in any property. A theme may add tokens of its own
 (`surface-raised`, `brand`), which then work everywhere, as `$surface-raised`
 and `var(--surface-raised)`.
 
-## A theme, and dark mode
+## Themes and dark mode
 
 A theme names only the tokens it changes, plus any of its own. Declare the
 light and dark themes in `src/theme.wf` and name them in the config:
@@ -128,7 +128,7 @@ theme Night {
   URL), or ships the file in `public/` with `@font-face` in a `.css` file, so
   it works offline.
 
-## style blocks
+## Style blocks
 
 ```wf
 /// A filter that says whether it is on.
@@ -177,7 +177,7 @@ component FilterChip(_ label: String, active: Bool = false, accent: String = "va
 A literal-only block compiles to one shared class rule, so a hundred
 identical cards cost one rule. Only spliced values are set on the element.
 
-## Your own stylesheets and class:
+## Stylesheets and class:
 
 What a `style { }` can't say goes in a `.css` file anywhere under `src/`:
 - a selector over several elements;
@@ -214,7 +214,7 @@ beside its files.
   Never put one in `class:` (`V04`), because it brings that built-in's rules.
 - **Read tokens** with `var(--color-primary)`, `var(--spacing-md)` and so on.
 
-## Which rule wins
+## Cascade order
 
 From weakest to strongest:
 1. the built-ins' rules;
@@ -301,7 +301,7 @@ and `style { }`:
 - **Inspect.** `wf motion` lists every animation, ease and speed, and the
   project's default (`"motion": { "duration": "180ms" }` in the config).
 
-## Mistakes
+## Common mistakes
 
 | Wrong | Right | Code |
 |---|---|---|

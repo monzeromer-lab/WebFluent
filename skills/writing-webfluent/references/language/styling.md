@@ -1,5 +1,7 @@
 ## Styling
 
+Styles are written in `style { }` blocks of CSS on an element, in `.css` files under `src/`, and in a theme of design tokens.
+
 ### Style Blocks
 
 ```wf
@@ -206,9 +208,11 @@ a file in `public/` or a URL — ahead of `styles.css`.
 
 
 A `.js` file under `src/` is part of the build the same way — see
-[Your own JavaScript](#your-own-javascript).
+[JavaScript interop](#javascript-interop).
 
 ### Themes
+
+A theme sets design tokens (colours, fonts, spacing) that every built-in and style block reads.
 
 A theme is written in WebFluent, in your own `src/`:
 

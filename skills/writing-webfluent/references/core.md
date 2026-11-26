@@ -6,7 +6,7 @@ find the section in [language.md](language.md) (an index, one line a
 section) and read that one file, or ask the compiler (`wf components Button`,
 `wf explain T05`, `wf scope src/pages/Home.wf:12`).
 
-## A project, and the loop
+## Project and dev loop
 
 ```
 my-app/
@@ -38,7 +38,7 @@ my-app/
 - `wf test` runs `tests/`; `wf verify` loads every built page in Chrome and
   fails on a thrown error or a failed request.
 
-## The config: what apps touch
+## Configuration
 
 ```json
 {
@@ -220,7 +220,7 @@ enum Status { idle, failed(reason: String), done(count: Number) }
   language's own `Date`, `DateTime`, `Duration`, `Money`, `Url`, `Email`,
   `Uuid`. `Any` and `Map` are not types.
 
-## Stores: state more than one page shares
+## Stores
 
 ```wf
 type Item { name: String, price: Number }
@@ -244,7 +244,7 @@ page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the ca
 A store is built the first time something reads it. Only the members it
 declares exist (`T06` otherwise).
 
-## Data from a server
+## Data fetching
 
 A `resource` is a read: one value in one of three cases, and a `match`
 draws each. Every part of the address that reads state is followed: when
@@ -316,7 +316,7 @@ page Note(path: "/note", title: "A note", description: "Write one down.") {
 
 A service you call from many places is an `api` block: each endpoint typed,
 with its path, retries, caching and what a write makes stale. Read
-[language/a-service-described-once.md](language/a-service-described-once.md)
+[language/api-services.md](language/api-services.md)
 when you need one. `fetch` is not in the language: use `http` or `api`.
 
 ## Control flow
@@ -360,7 +360,7 @@ them), `match`.
   `format(d, .date, "long")`, `ago(when)`. `parseInt`, `Math.*`,
   `JSON.parse`, `localStorage`, `console` are the browser's, typed.
 
-## The built-ins most pages use
+## Common built-ins
 
 `wf components Name` lists any one's props, flags, events and slots.
 
@@ -381,9 +381,9 @@ component declares exist (`E103`): tones `.primary .secondary .success
 
 `validate email { required  email }` beside a `state` makes the control bound
 to it show what's wrong; see
-[language/what-a-value-must-be.md](language/what-a-value-must-be.md).
+[language/validation.md](language/validation.md).
 
-## Elements: attributes, handlers, refs
+## Attributes, handlers and refs
 
 - `on click { … }`, `on input { … }`, `on keydown(e) { if e.key == "Enter" { … } }`,
   `on submit(e) { … }`. `on input(debounce: 300.ms) { … }` waits for a pause.
@@ -423,7 +423,7 @@ page Plans(path: "/plans", title: "Plans", description: "What it costs.") {
 - A `theme Brand { color-primary: #0F766E }` block in `src/` restyles every
   built-in.
 
-## Your own JavaScript
+## JavaScript interop
 
 Only when the language has no way. A `.js` file under `src/` is a plain
 script (no `import`/`export`), linked on every page; a function in it is
@@ -454,7 +454,7 @@ test "adding a todo shows it" {
 Steps find things by what a reader sees: a button's text, a field's label.
 More in [testing.md](testing.md).
 
-## Where the rest is
+## Further reference
 
 Read one section, not the whole reference:
 [language.md](language.md) lists each with its size. The other references

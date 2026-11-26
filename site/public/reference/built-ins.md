@@ -105,7 +105,7 @@ Signature: `announce(text)`, `announce(text, .assertive)`
 | `text` | `String` | What to say |
 | `.assertive` | optional | Interrupts what the reader is hearing, for what cannot wait; unset, it waits its turn |
 
-Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](https://webfluent.monzeromer.dev/learn/08-events.md#toasts-questions-and-announcements-from-a-handler).
+Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](https://webfluent.monzeromer.dev/learn/08-events.md#toasts-confirmations-and-announcements).
 
 ```wf
 announce("{results.length} results")
@@ -212,7 +212,7 @@ Signature: `http.get(url, options)` → a promise of `T!`; `http.post`, `http.pu
 | `as:` | `.json` (default), `.text`, `.blob` | How the answer is read; `.text` is a `String` |
 | `timeout:`, `retry:`, `cache:`, `credentials:` | as on an `api` | This request's own |
 
-`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](https://webfluent.monzeromer.dev/learn/15-data.md#ask-on-demand-with-http).
+`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](https://webfluent.monzeromer.dev/learn/15-data.md#one-off-requests-with-http).
 
 ```wf
 let rows: [Row] = try await http.get("/api/rows?page={page}")
@@ -294,7 +294,7 @@ Signature: `optimistic(holder, change)`
 | `holder` | a state, or a store's state | What to change |
 | `change` | a lambda from the old value to the new one | The change to show |
 
-Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-change-before-the-server-agrees).
+Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](https://webfluent.monzeromer.dev/learn/15-data.md#optimistic-updates).
 
 ```wf
 optimistic(Todos.items, items => items.filter(i => i.id != id))
@@ -345,7 +345,7 @@ Signature: `sanitize(html)` → `String`
 |---|---|---|
 | `html` | `String` | Markup from outside the project |
 
-Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup).
+Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](https://webfluent.monzeromer.dev/about/security.md#raw-html).
 
 ```wf
 Unsafe.Html(sanitize(post.body))
@@ -679,7 +679,7 @@ Eleven types come with the language. Each is a plain JSON value at run time.
 | `File` | from `FileUpload` | `.preview()`, `.name`, `.size`, `.type` |
 | `Secret` | — | none: it may not be shown, spliced, logged or persisted |
 
-`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](https://webfluent.monzeromer.dev/learn/12-types.md#the-types-the-language-brings-with-it) has the rest.
+`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](https://webfluent.monzeromer.dev/learn/12-types.md#built-in-types) has the rest.
 
 ```wf
 derived checkout = arrival.plus(days: nights)

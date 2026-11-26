@@ -17,15 +17,15 @@ own, `/recipes/electron-app`.
 
 ## Contents
 
-- [The shape of the project](#the-shape-of-the-project)
+- [Project layout](#project-layout)
 - [webfluent.app.json for an app](#webfluentappjson-for-an-app)
 - [src-tauri/tauri.conf.json](#src-tauritauriconfjson)
-- [The bridge: src/native.js](#the-bridge-srcnativejs)
+- [The native bridge: src/native.js](#the-native-bridge-srcnativejs)
 - [Rust commands](#rust-commands)
 - [Calling Rust from a store](#calling-rust-from-a-store)
 - [Keeping settings](#keeping-settings-persist--in-app-)
 - [Capabilities](#capabilities)
-- [One shell for every platform](#one-shell-for-every-platform)
+- [A shell for every platform](#a-shell-for-every-platform)
 - [Desktop: window chrome, menus, several windows](#desktop-window-chrome-menus-several-windows)
 - [Phone: Android and iOS](#phone-android-and-ios)
 - [Theme, language, fonts](#theme-language-fonts)
@@ -33,9 +33,9 @@ own, `/recipes/electron-app`.
 - [Testing the app](#testing-the-app)
 - [Packaging and release](#packaging-and-release)
 - [Pitfalls](#pitfalls)
-- [Checklist](#checklist-before-you-call-it-done)
+- [Checklist](#release-checklist)
 
-## The shape of the project
+## Project layout
 
 ```
 my-app/
@@ -150,7 +150,7 @@ reloads the window. On a phone too.
   builds with that `wf`, as Studio does with `bash ../build.sh`. Use it for
   both commands and drop `devUrl`.
 
-## The bridge: src/native.js
+## The native bridge: src/native.js
 
 This is the whole pattern:
 - one `callNative` that turns Tauri's rejection into an `Error` with a `code`;
@@ -625,7 +625,7 @@ desktop and the phone a file each, by `platforms`:
   reject invokes from them in the invoke handler: check the calling webview's
   label and call `invoke.resolver.reject(…)`.
 
-## One shell for every platform
+## A shell for every platform
 
 `app` draws the chrome once and asks the bridge which platform it's on:
 - **On a desktop:** a title bar of its own, and room for menus.
@@ -958,7 +958,7 @@ More that differs on a phone:
 | A shortcut breaks on an Arabic layout | A library matched `e.key`; WebFluent's `keyIs` matches by position |
 | Settings typed on a phone are lost | The OS killed the app in the background; persist as the reader types |
 
-## Checklist before you call it done
+## Release checklist
 
 - [ ] `wf check` is clean, and every bridge function has JSDoc.
 - [ ] Every wrapper answers outside the app, so `wf test` and `wf verify` pass

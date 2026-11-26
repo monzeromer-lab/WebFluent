@@ -1,5 +1,7 @@
 ### Attributes
 
+Any element accepts HTML attributes as named arguments.
+
 Any named argument a built-in does not declare is written to its root
 element as an HTML attribute, with a warning; `aria-*`, `data-*` and the
 global attributes (`id`, `role`, `tabindex`, `title`, `hidden`, `lang`,

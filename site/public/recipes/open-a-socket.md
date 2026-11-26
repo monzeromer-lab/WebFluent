@@ -34,7 +34,7 @@ page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
 
 ## How it works
 
-A connection is read the same way a resource is, so this recipe assumes you know how a `resource` is read with `match` and its arms ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource)), and how `state` and `effect` work ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)).
+A connection is read the same way a resource is, so this recipe assumes you know how a `resource` is read with `match` and its arms ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#resources)), and how `state` and `effect` work ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)).
 
 - **`socket chat = ws(…)`** opens the socket when the page is drawn and closes it when the reader leaves.
 - **`send Outgoing` and `receive Incoming`** say what goes each way: `chat.send(…)` takes an `Outgoing`, and `m` and `chat.messages` hold `Incoming`s. A socket that names neither carries `Json`, which is matched or decoded rather than read as a record.

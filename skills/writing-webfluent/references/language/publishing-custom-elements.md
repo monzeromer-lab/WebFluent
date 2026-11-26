@@ -1,4 +1,6 @@
-### Publishing the project as custom elements
+### Publishing custom elements
+
+The `elements` output type compiles chosen components into custom elements other sites can use.
 
 ```json
 { "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }

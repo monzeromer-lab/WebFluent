@@ -23,8 +23,8 @@ The table types `window`, `document`, `console`, `localStorage`,
 `screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and the
 rest of the plain functions. A global or a member it does not list —
 `navigator.bluetooth`, `crypto` — is `T30`, with the nearest name: reach it
-from a project script whose JSDoc says its types (see [Your own
-JavaScript](#your-own-javascript)).
+from a project script whose JSDoc says its types (see [JavaScript
+interop](#javascript-interop)).
 
 A handler's event is the browser's: `on keydown(e)` is a `KeyboardEvent`
 (`key`, `code`, `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `repeat`,

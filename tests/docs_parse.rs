@@ -2441,11 +2441,11 @@ fn the_search_knows_other_frameworks_words() {
         ("computed", "/learn/07-state-and-reactivity#derived"),
         ("v-for", "/learn/09-control-flow#for"),
         ("onclick", "/learn/08-events#handlers"),
-        ("classname", "/learn/13-styling#add-a-class"),
-        ("usequery", "/learn/15-data#show-a-request-with-resource"),
+        ("classname", "/learn/13-styling#classes"),
+        ("usequery", "/learn/15-data#resources"),
         (
             "\\newpage",
-            "/learn/17-pdf-and-slides#control-where-pages-break",
+            "/learn/17-pdf-and-slides#page-breaks",
         ),
     ] {
         assert_eq!(led_to(word), [route], "`{word}`");

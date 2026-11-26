@@ -1,36 +1,36 @@
 ## CLI
 
 ```bash
-wf init <name> -t spa|static|pdf|slides [--locales en,ar]   # Create a project (with this AGENTS.md in it); --locales: translated, the default first
-wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings] [--allow-output-outside]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
-wf check [-d DIR] [--format F] [--deny-warnings] [--allow-output-outside]  # Every finding, nothing written
-wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
-wf config schema [--json] | get PATH | set PATH VALUE | unset PATH   # Every setting; edit webfluent.app.json keeping its shape
-wf commands [--json]                      # Every command, its options, what it writes and its preview flag, as data
-wf assets [--unused] [--plan /a.png] [--json]  # public/: each file's kind, size, dimensions and uses; what the image pipeline makes of one
-wf theme [--json]                         # The theme: every token, declared or inherited, its uses, the contrast pairs
-wf motion [--json]                        # The animations, eases, speeds and route transitions, and the default
-wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
-wf scope FILE:LINE[:COL] [--data D] [--json]  # What can be read there: each name in scope, its type, where it comes from
-wf translations [--missing L] [--unused] [--plurals] [--json] # The translations table: what each locale lacks, what nothing names
-wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld; --guide full: the whole language reference
-wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
-wf api add SPEC [--name N] [--out DIR] | sync [N] [--skip OP] | check [N] | eject N [--out DIR] | list [--json]  # A service's contract as files, from its OpenAPI spec
-wf explain [CODE] [--json]                       # A diagnostic's entry: meaning, example, fix
-wf serve [-d DIR] [--host ADDR] [--allow-output-outside]  # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
-wf start [-d DIR] [--port N] [--host ADDR] [--proxy /api=https://HOST/api]  # Serve a build in production: $PORT, its headers and .gz files, a single-page build's shell for every route; --proxy forwards a path to an API elsewhere
-wf inspect ROUTE|URL [--do STEP]… [--mobile] [--screenshot [FILE]] [--proxy …] [--fakes FILE] [--json]  # One page as a reader meets it, in text: landmarks, headings, links, buttons, fields, tables, and what threw or failed to load; --do 'click "Name"' acts first
-wf generate page|component|store|block <name> [-d DIR]  # Scaffold a file, in the project's layout; a block is a whole page: sign-in, pricing, dashboard, settings
-wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
-wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
-wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
-wf docs [-d DIR] [-o OUT]                 # The project's components documented, each `example` drawn live, in the reference's design
-wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, 4 → 4.2 (`external` rewritten) and 6 → 7
-wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
-wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
-wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE]  # A template rendered with JSON data (see Template Engine)
-wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
-wf types [path] [--json] [--holes]        # What a project declares: enums, types, components, stores, pages; --holes: every place a type is unknown, and why
+wf init <name> -t spa|static|pdf|slides [--locales en,ar] # Create a project (writes AGENTS.md); --locales: start translated, first is default
+wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings] [--allow-output-outside] # Compile (--stats: print output sizes; --cache: rebuild changed pages only; --studio: write nodes.json for editors)
+wf check [-d DIR] [--format F] [--deny-warnings] [--allow-output-outside] # Report all diagnostics; write nothing
+wf fix [-d DIR] [--code C] [--dry-run]   # Apply known fixes (all, or one code's)
+wf config schema [--json] | get PATH | set PATH VALUE | unset PATH # List settings; read or edit webfluent.app.json
+wf commands [--json]                     # List commands and their options as data
+wf assets [--unused] [--plan /a.png] [--json] # List public/ files: kind, size, dimensions, uses; preview image processing
+wf theme [--json]                        # List design tokens, their uses and contrast pairs
+wf motion [--json]                       # List animations, easings, speeds and route transitions
+wf rules [--json]                        # List validation rules and the states they guard
+wf scope FILE:LINE[:COL] [--data D] [--json] # List the names in scope at a position, with types
+wf translations [--missing L] [--unused] [--plurals] [--json] # Report missing, unused and plural translation keys
+wf context [--open FILE] [--guide full] [--json] # Print the context an agent gets (private env withheld); --guide full: whole reference
+wf components [--json]                   # List components (built-in and project): props, events, slots, parts
+wf api add SPEC [--name N] [--out DIR] | sync [N] [--skip OP] | check [N] | eject N [--out DIR] | list [--json] # Generate and sync an API contract from an OpenAPI spec
+wf explain [CODE] [--json]               # Explain a diagnostic code: meaning, example, fix
+wf serve [-d DIR] [--host ADDR] [--allow-output-outside] # Dev server on localhost:3000 with live reload and an error overlay (--host 0.0.0.0 for a phone)
+wf start [-d DIR] [--port N] [--host ADDR] [--proxy /api=https://HOST/api] # Serve a build in production on $PORT; --proxy forwards a path to an API
+wf inspect ROUTE|URL [--do STEP]… [--mobile] [--screenshot [FILE]] [--proxy …] [--fakes FILE] [--json] # Print a page as text (landmarks, headings, controls, errors); --do acts first
+wf generate page|component|store|block <name> [-d DIR] # Scaffold a page, component, store or block (sign-in, pricing, dashboard, settings)
+wf fmt [path] [--check] [--stdout]       # Format sources (--check: fail if anything would change)
+wf fmt --to wfx|wf [path] [--stdout]     # Convert a project between .wf and .wfx
+wf test [path] [--update]                # Run the tests under tests/
+wf docs [-d DIR] [-o OUT]                # Generate a documentation site for the project's components
+wf migrate [path] [--check] [--stdout] [--wfx] # Migrate WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7
+wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside] # Load every page in headless Chrome: errors, failed requests, paint timing
+wf audit [path] [--json]                 # Report what the project trusts: markup, origins, storage, env, CSP, dependencies
+wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE] # Render a template with JSON data (see Template Engine)
+wf registry [--json]                     # List every built-in: props, cases, flags, events, slots, parts
+wf types [path] [--json] [--holes]       # List the project's declarations; --holes: where a type is unknown
 ```
 
 `wf verify` builds nothing — it loads what `wf build` already wrote. It

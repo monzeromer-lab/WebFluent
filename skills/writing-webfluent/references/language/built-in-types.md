@@ -1,4 +1,6 @@
-### The types the language brings with it
+### Built-in types
+
+The language has eleven built-in value types for dates, times, durations, money, URLs, emails, colours, ids, files and secrets.
 
 Eleven types come with the language. Each is a **plain JSON value at run
 time** — no wrapper — so it crosses a request, a `persist`, the static

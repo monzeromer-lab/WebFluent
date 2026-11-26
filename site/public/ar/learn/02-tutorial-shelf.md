@@ -92,7 +92,7 @@ type Book {
 data books: [Book] = "books.json"
 ```
 
-`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة `book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل الصفحة. ([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)، [جلب البيانات](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data).)
+`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة `book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل الصفحة. ([الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)، [جلب البيانات](https://webfluent.monzeromer.dev/learn/15-data.md#build-time-data).)
 
 **تحقّق:** شغّل `wf check`. يطبع `No problems in shelf.`
 
@@ -672,7 +672,7 @@ Shelf موقع كامل، وكل جزء منه يستخدم فكرة واحدة 
 
 | ما كتبته | الفكرة | اقرأ المزيد |
 |---|---|---|
-| `type Book` و`data books` | بيانات ذات أنواع تُقرأ وقت البناء | [الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)، [جلب البيانات](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data) |
+| `type Book` و`data books` | بيانات ذات أنواع تُقرأ وقت البناء | [الأنواع](https://webfluent.monzeromer.dev/learn/12-types.md)، [جلب البيانات](https://webfluent.monzeromer.dev/learn/15-data.md#build-time-data) |
 | `store Shelf` مع `persist` | حالة مشتركة تُحفظ عبر الزيارات | [المخازن](https://webfluent.monzeromer.dev/learn/11-stores.md) |
 | `component BookCard` | مكوّن يُعاد استخدامه بخاصية موضعية | [المكوّنات](https://webfluent.monzeromer.dev/learn/10-components.md) |
 | `state` و`derived` و`bind:` و`for … by` في الصفحة الرئيسية | التفاعلية والقوائم ذات المفاتيح | [الحالة والتفاعلية](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md)، [التحكم في التدفق](https://webfluent.monzeromer.dev/learn/09-control-flow.md) |

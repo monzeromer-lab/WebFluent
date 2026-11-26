@@ -76,7 +76,7 @@ origin, everything kept on the reader's machine,
 every `env` name and whether it is public, the policy this build ships, and
 what the compiler depends on. `--json` for a tool; it never fails a build.
 
-### Headers and the policy
+### Security headers and CSP
 
 `"build": { "csp": true }` — on for a project `wf init` creates — emits a
 `Content-Security-Policy` meta tag — right after `<meta charset>`, before

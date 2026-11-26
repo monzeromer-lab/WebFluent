@@ -34,7 +34,7 @@ page PostPage(path: "/p/:slug", title: "Post", description: "One post.", slug: S
 > [!CAUTION]
 > Use `Unsafe.Html(raw)` without `sanitize` only for markup **your project produced**. Anything that arrived from outside goes through `sanitize`.
 
-[Security](https://webfluent.monzeromer.dev/about/security.md#one-door-for-markup) says why markup has one door, and what the allow-list keeps out.
+[Security](https://webfluent.monzeromer.dev/about/security.md#raw-html) says why markup has one door, and what the allow-list keeps out.
 
 ## Variations
 

@@ -49,15 +49,15 @@ Each keyword declares one kind of thing:
 | `theme` | Design tokens: colours, spacing, radii, fonts | [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md) |
 | `app` | The shell every page renders inside, with the `Router` | [The app shell](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#the-app-shell) |
 | `type`, `enum` | Records and enumerations the type checker enforces | [Types](https://webfluent.monzeromer.dev/learn/12-types.md) |
-| `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api) |
-| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](https://webfluent.monzeromer.dev/learn/15-data.md#pass-every-request-through-middleware) |
+| `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](https://webfluent.monzeromer.dev/learn/15-data.md#api-services) |
+| `middleware` | A step every request of a service passes through, named in its `middleware [ … ]` | [Pass every request through middleware](https://webfluent.monzeromer.dev/learn/15-data.md#middleware) |
 | `const` | A value read everywhere | [Constants](https://webfluent.monzeromer.dev/reference/expressions.md#constants) |
-| `data` | A JSON file read at build time, as a constant | [Read a file at build time](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data) |
+| `data` | A JSON file read at build time, as a constant | [Read a file at build time](https://webfluent.monzeromer.dev/learn/15-data.md#build-time-data) |
 | `image` | A picture the build resizes and hands to `Image` | [Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md) |
 | `animation` | Keyframes | [Keyframes](https://webfluent.monzeromer.dev/recipes/keyframes.md) |
 | `test` | A render held to expectations and a snapshot | [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md) |
-| `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes) |
-| `example` | One way to use a component, which `wf docs` draws beside its source | [Document it](https://webfluent.monzeromer.dev/learn/10-components.md#document-it) |
+| `fake` | What answers a service's endpoints in a test, in place of the network | [Answer a service with fakes](https://webfluent.monzeromer.dev/learn/16-testing.md#fakes) |
+| `example` | One way to use a component, which `wf docs` draws beside its source | [Document it](https://webfluent.monzeromer.dev/learn/10-components.md#documentation-comments) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)).
 
@@ -203,9 +203,9 @@ page Greeting(path: "/", title: "Greeting", description: "A greeting that knows 
 
 Spliced text is live: when `user` changes, the text changes with it. A splice opens with a name, a `(` or a `[`, and closes on the same line; anything else, such as `{key: value}` in prose, is plain text.
 
-A splice may also say how to show its value: `{total:.currency}`, `{when:.date(long)}`. This is [formatting](https://webfluent.monzeromer.dev/reference/expressions.md#showing-a-value-a-particular-way), written where the value is read.
+A splice may also say how to show its value: `{total:.currency}`, `{when:.date(long)}`. This is [formatting](https://webfluent.monzeromer.dev/reference/expressions.md#format-specifiers), written where the value is read.
 
-### Three ways to write one
+### String forms
 
 A plain `"…"` string reads the escapes `\n`, `\t`, `\r`, `\"`, `\\`, `\{` and `\}`, and splices `{…}`. For text that a plain string makes you escape over and over, there are two other forms:
 

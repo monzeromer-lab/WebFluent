@@ -32,7 +32,7 @@ What `Markdown` supports:
 
 A paragraph's lines run together, as in CommonMark. To break a line, end it with two spaces or a `\`.
 
-Raw HTML in the text is shown as text, not run, so Markdown from a user or an API is safe to render. A link or a picture goes through the scheme check every other URL does ([Security](https://webfluent.monzeromer.dev/about/security.md#what-the-compiler-guarantees)):
+Raw HTML in the text is shown as text, not run, so Markdown from a user or an API is safe to render. A link or a picture goes through the scheme check every other URL does ([Security](https://webfluent.monzeromer.dev/about/security.md#guarantees)):
 
 - A link or picture whose URL a browser would run — `javascript:`, `vbscript:`, a `data:` URL — is drawn as its words, with no link and no picture.
 - A picture carried in its address (`![dot](data:image/png;base64,…)`, `data:image/svg+xml,…`) is drawn, since an `<img>` runs nothing it shows. A link to one is still drawn as its words.

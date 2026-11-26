@@ -1,5 +1,7 @@
 ## SSG (Static Site Generation)
 
+With `ssg: true` the build pre-renders each page to HTML, and JavaScript takes it over in the browser.
+
 ```json
 { "build": { "ssg": true, "base_path": "/my-site" } }
 ```

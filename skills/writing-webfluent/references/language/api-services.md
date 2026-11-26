@@ -1,4 +1,6 @@
-### A service, described once
+### API services
+
+An `api` declaration describes an HTTP service once — its base URL, endpoints, types and errors — so every call is typed.
 
 `api` is where a service lives: its address, how it is reached, and what it
 has. Every call site is then typed, cached and cancellable, and the day the

@@ -138,9 +138,9 @@ page Todos(path: "/", title: "To-dos", description: "Actions that change a list.
 What an action's body can hold:
 
 - **Locals.** `let x = …` declares a local of the action or handler. `let { a, b } = m` and `let [x, y] = l` destructure a map and a list.
-- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#show-that-a-request-is-running)).
+- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#pending-state)).
 - **Loops.** `for item in list { }`, `for item, i in list { }` and `for n in 1..=10 { }`.
-- **Errors.** A request's answer is a result: `try` gives its value or passes the failure up, in an action that says what it fails with (`-> !` here), and `match` handles each case where the call is made ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#say-how-a-call-fails)). `try { } catch e { }` guards a call into a script that may throw.
+- **Errors.** A request's answer is a result: `try` gives its value or passes the failure up, in an action that says what it fails with (`-> !` here), and `match` handles each case where the call is made ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#error-enums)). `try { } catch e { }` guards a call into a script that may throw.
 - **`return`.** `return` leaves the action; `return x` leaves with a value.
 
 A `let` is the action's own. After `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was; assign it back with `items = list`, or write `items.push(x)`, which gives the state a new list.
@@ -169,7 +169,7 @@ How it behaves:
 - The storage key is the owner's name and the state's (`Prefs.scheme`), so a page and a store may each have a value of the same name.
 - It works in a store too, where every page shares it.
 - When storage is blocked or full, the value falls back to its initial value.
-- A block after the declaration can say which storage to use, give a version with migrations, and choose whether to follow other tabs. That block and the rest of the policy are in [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#keeping-a-value-across-visits).
+- A block after the declaration can say which storage to use, give a version with migrations, and choose whether to follow other tabs. That block and the rest of the policy are in [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#persisted-state).
 
 ## Timers
 
@@ -217,7 +217,7 @@ The `ref:` declares the name; you do not declare it anywhere else. Anything the 
 
 A handle is filled once the element exists, so set-up code at the top of the body cannot use it yet. Read it in a handler, an `effect` or `after(0) { }`.
 
-## The browser as values
+## Browser values
 
 Some names are always in scope and kept current by the runtime, so a page reads the browser the way it reads its own state:
 
@@ -252,7 +252,7 @@ The rules:
 - Copy one into a `state` and you keep the value it had when the page opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it where it is shown, or in a `derived`.
 - The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer [responsive values](https://webfluent.monzeromer.dev/learn/13-styling.md#responsive-values), which are right in the first paint.
 
-## Where values come from, in order
+## Initialization order
 
 When a body reads a name, the nearest declaration wins. The compiler looks in this order, innermost first:
 
@@ -278,7 +278,7 @@ So with `state name = "outer"`, `for name in items by name { Text(name) }` shows
 | `persist scheme = "light"` | a state kept across visits | [`persist`](#persist) |
 | `every(1000) { … }`, `after(3000) { … }` | a repeating timer and a one-off delay | [Timers](#timers) |
 | `ref: box` | a handle on an element | [Element handles](#element-handles) |
-| `viewport`, `query`, `hash`, `theme`, `now`, `network`, `update`, `locale`, `dir` | the browser, read as values | [The browser as values](#the-browser-as-values) |
+| `viewport`, `query`, `hash`, `theme`, `now`, `network`, `update`, `locale`, `dir` | the browser, read as values | [The browser as values](#browser-values) |
 
 [Grammar](https://webfluent.monzeromer.dev/reference/grammar.md) and [Built-in functions](https://webfluent.monzeromer.dev/reference/built-ins.md) are the reference for each.
 

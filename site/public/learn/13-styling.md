@@ -45,11 +45,11 @@ Three tools cover almost everything. Pick the narrowest one that does the job:
 
 | To change… | Use | Section |
 |---|---|---|
-| The whole site: every button, card and link | a `theme` | [Change the whole site with a theme](#change-the-whole-site-with-a-theme) |
-| One element | a `style { }` block on it | [Style one element](#style-one-element) |
-| A group of elements, or something a block cannot say | a class and a `.css` file | [Classes and your own stylesheet](#classes-and-your-own-stylesheet) |
+| The whole site: every button, card and link | a `theme` | [Change the whole site with a theme](#themes) |
+| One element | a `style { }` block on it | [Style one element](#style-blocks) |
+| A group of elements, or something a block cannot say | a class and a `.css` file | [Classes and your own stylesheet](#classes-and-stylesheets) |
 
-## Change the whole site with a theme
+## Themes
 
 To change the colours, fonts, spacing or corner radius of everything at once, declare a `theme`. A theme sets *design tokens* — named values such as `color-primary` or `radius-md` that every built-in reads.
 
@@ -83,7 +83,7 @@ How a theme works:
 - A theme may add tokens of its own, such as `surface-raised: #131519`. They become custom properties like the rest.
 - The breakpoints are tokens too, so moving one moves every media query the build writes (see [Responsive values](#responsive-values)).
 
-### Every built-in follows the theme
+### Built-ins and themes
 
 The built-ins draw their colours, sizes, radii, fonts and motion from the tokens and nothing else, so a theme restyles all of them. Three kinds of token are worth knowing when you change the colours:
 
@@ -112,7 +112,7 @@ page Home(path: "/", title: "Home", description: "A light primary on a dark page
 
 The stacking scale (`z-sticky`, `z-drawer`, `z-modal`, `z-toast`, …) places a sticky header or a drawer of your own against the built-ins, and `target-min` (24px) and `target-min-touch` (44px) are the least size a control is pressed at; `style { min-block-size: $target-min }` gives a control of your own the same.
 
-### Choose and check a theme
+### Choosing and checking a theme
 
 If the project declares one theme, the build uses it. If it declares several, choose one in `webfluent.app.json`:
 
@@ -129,7 +129,7 @@ To keep the built-ins' layout and mechanics but drop their look — for a site t
 | `"full"` (default) | Its layout, its mechanics and its baseline look |
 | `"structural"` | Only its layout and mechanics: focus rings, overlays, the grid |
 
-## Style one element
+## Style blocks
 
 To change one element, give it a `style { }` block. The block holds CSS declarations, and they apply to that element only.
 
@@ -166,13 +166,13 @@ The card gets a deeper shadow on hover. **Widen** lets it fill the page, and **M
 > [!NOTE]
 > **Coming from HTML and CSS?** There is no `style="…"` attribute: `style:` as an argument is `E106`. The declarations go in the element's `style { }` block, and the build turns the parts that never change into a stylesheet rule, so a strict content security policy still holds. See [Coming from HTML and CSS](https://webfluent.monzeromer.dev/coming-from/html-css.md).
 
-### Write declarations
+### Declarations
 
 - Write one declaration per line, or several on one line separated by `;`.
 - Write values as CSS, with no quotes: `padding: 2rem`, not `"2rem"`.
 - Never separate two declarations with a comma. `width: 2rem, flex: none` is `E002`, because a style block is CSS, not a map.
 
-### Use a token
+### Design tokens
 
 `$name` reads a design token. A full name, such as `$color-primary` or `$surface-raised`, works on any property. A short name is resolved by the property it is written on:
 
@@ -187,13 +187,13 @@ The card gets a deeper shadow on hover. **Widen** lets it fill the page, and **M
 
 A token that the theme does not declare is `V06`, an error, because the browser would drop the declaration. A property name that CSS does not have, such as `colr:`, is `V05`, a warning that suggests the nearest property.
 
-### Splice a live value
+### Live values
 
 `{expr}` puts a value into a declaration. When the value reads state, the declaration updates whenever that state changes. A splice may be the whole value (`{accent}`) or part of one (`{pct}%`).
 
 A splice that is a bare number for a length, such as `width: {pct}`, is `V07`: the browser drops a length with no unit. Write `width: {pct}%` or `width: {pct}px`.
 
-### Style a state with a nested rule
+### Nested rules for states
 
 A nested rule styles the element while it is in some state. `&` is the element itself, as in CSS nesting:
 
@@ -222,13 +222,13 @@ page Swatch(path: "/swatch", title: "Swatch", description: "A hover colour that 
 
 Read your own custom property with `var(--name)`. `$name` is only for design tokens.
 
-### How the build compiles a style block
+### How style blocks compile
 
 - The parts of a block that do not read state become a stylesheet rule, under a class named by the block's content. The element carries the class, so a hundred identical cards share one rule and the pre-rendered page has it before any script runs.
 - A declaration that reads state is set on the element by the runtime and updated when the state changes.
 - Nested state rules and media rules are marked `!important`, so they win over the element's base declarations while they apply. When a state rule and a media rule set the same property, the media rule wins.
 
-## Animate a style change
+## Transitions
 
 To make a property change smoothly instead of jumping, add a `transition { }` block. Each line names a property, a duration and an optional easing.
 
@@ -250,7 +250,7 @@ page Fade(path: "/fade", title: "Fade", description: "A card that fades in and o
 
 A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value such as `200ms ease-out`. A reader who asked their system for less motion gets no transition. Enter and exit animations, and other motion, are in [Animate an element in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md).
 
-## Classes and your own stylesheet
+## Classes and stylesheets
 
 To share a rule between many elements, or to write what a `style { }` block cannot say, put it in a `.css` file and add its class with `class:`.
 
@@ -261,7 +261,7 @@ Use a stylesheet for:
 - a class that a dozen elements share by name;
 - a rule on `html`, `body` or `::selection`.
 
-### Add a stylesheet
+### Stylesheets
 
 Every `.css` file anywhere under `src/` is part of the build. You can keep one global file, or put a file beside the component it styles:
 
@@ -288,7 +288,7 @@ The build reads the files in path order, minifies them and bundles them into `st
 
 To link a sheet the build does not compile — a file in `public/` or a URL — list it in `meta.stylesheets` in `webfluent.app.json`. It is linked ahead of `styles.css`.
 
-### Add a class
+### Classes
 
 `class: "name"` adds a class to the element. It does not replace the element's own classes: `Container(class: "hero")` renders `class="wf-container hero"`.
 
@@ -332,13 +332,13 @@ The rules for a class value:
 - A bare condition is not a class: `class: active` is `T01`. Write `{ "is-active": active }`, which says what `active` turns on.
 - When the value changes, only the classes that `class:` itself named come off. A class a script added with `classList.add` stays.
 
-### Target the built-ins
+### Selecting built-ins
 
 Each built-in wears `wf-*` classes, such as `wf-btn`, `wf-btn--primary` and `wf-card`. They are stable across releases, so a stylesheet may target them.
 
 Do not add another built-in's class to an element with `class:`. It brings that built-in's rules with it, and draws `V04`.
 
-## Override a built-in's look
+## Overriding built-in styles
 
 To decide which rule wins, know the three layers of CSS on a page. From weakest to strongest:
 
@@ -350,9 +350,9 @@ So choose the tool by how far the change reaches:
 
 - To restyle **one element**, use its `style { }` block.
 - To restyle **every button**, write `.wf-btn { … }` in a stylesheet, or change the tokens in a theme. Because the built-ins read tokens, `color-primary` recolours every primary button, link and focus ring at once.
-- To drop the built-ins' look entirely, set `theme.builtin: "structural"` (see [Change the whole site with a theme](#change-the-whole-site-with-a-theme)).
+- To drop the built-ins' look entirely, set `theme.builtin: "structural"` (see [Change the whole site with a theme](#themes)).
 
-## Style a component's variants
+## Component variants
 
 To style each variant of your own component from a stylesheet, use its enum props. A component writes each enum prop to its root element as a `data-<prop>` attribute, such as `data-tone="loud"`, so one rule styles one variant. The `Note` component of [Components](https://webfluent.monzeromer.dev/learn/10-components.md#enum-props) gives its root `class: "note"`, so this rule styles its loud notes and nothing else:
 
@@ -411,7 +411,7 @@ Every built-in reads tokens, so the dark theme reaches all of them; the built-in
 > [!WARNING]
 > Only what reads tokens switches with the theme. A colour written raw, such as `background: #FFFFFF`, stays the same in dark mode. Use tokens such as `$surface` and `$text` for anything that should change.
 
-## Lay out a page without CSS
+## Layout components
 
 Most layout needs no `style` at all. `Stack`, `Row`, `Grid`, `Container`, `Spacer` and `Divider` take `gap:`, `align:`, `justify:` and `columns:` props ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md#layout-elements)).
 
@@ -464,7 +464,7 @@ Heading("Title").h1 {
 }
 ```
 
-### Make a layout reflow on a narrow screen
+### Reflowing on narrow screens
 
 A `Row`, `Grid` or `Column` stays as you write it at every width. To make one reflow on a narrow screen, add the `.stacks` flag, or say what it does at each width with a responsive value:
 
@@ -484,9 +484,9 @@ What `.stacks` does:
 
 Older versions of the engine reflowed every `Row` and `Grid` this way below 768px, with `!important`, whether you asked or not. They no longer do. `wf migrate` adds `.stacks` to every `Row`, `Grid` and `Column` of a WebFluent 2 project, so the old behaviour carries over, written where you can see and change it.
 
-Keep `viewport` ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#the-browser-as-values)) for what changes behaviour, such as a drawer instead of a sidebar. It follows `matchMedia`, which fires once when the answer changes, not on every pixel of a drag.
+Keep `viewport` ([State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#browser-values)) for what changes behaviour, such as a drawer instead of a sidebar. It follows `matchMedia`, which fires once when the answer changes, not on every pixel of a drag.
 
-## Find your styles in the build output
+## Styles in the build output
 
 The build writes your styles to two places:
 

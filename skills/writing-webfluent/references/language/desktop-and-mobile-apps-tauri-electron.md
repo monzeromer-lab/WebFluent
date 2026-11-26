@@ -1,4 +1,6 @@
-### A desktop or phone app (Tauri, Electron)
+### Desktop and mobile apps (Tauri, Electron)
+
+A WebFluent build can be the front end of a Tauri or Electron app with no change to the language.
 
 The `build/` folder is what a Tauri or Electron window shows; nothing in
 the language changes. Leave out what only a website needs, and let the

@@ -42,7 +42,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") 
 
 On a wide window the three links sit in a row above every page. Narrow the window and they give way to a menu button; press it and the links slide down beneath it.
 
-- [`viewport.md`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#the-browser-as-values) is true while the window is at least the `md` breakpoint wide. The runtime updates it when a breakpoint is crossed, so the `if` swaps the row for the button as the window narrows.
+- [`viewport.md`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#browser-values) is true while the window is at least the `md` breakpoint wide. The runtime updates it when a breakpoint is crossed, so the `if` swaps the row for the button as the window narrows.
 - On a narrow screen, the `IconButton` toggles `open`. Its `label:` is the button's accessible name, since the icon has no text, and `aria-expanded: open` tells a screen reader whether the menu it controls (`aria-controls`, the `Stack`'s `id`) is open.
 - `show open` keeps the links in the page and hides them while `open` is false. `animate: .slideDown` plays as they appear, and a click on a link closes the menu again.
 - The navigation is in `app`, around the `Router`, so every page shows it and `open` lives on from page to page.

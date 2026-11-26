@@ -89,7 +89,7 @@ type Book {
 data books: [Book] = "books.json"
 ```
 
-`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](https://webfluent.monzeromer.dev/learn/12-types.md), [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data).)
+`type Book` is a record that the type checker holds every use to: writing `book.titel` is an error where you write it. `data books` reads the file **at build time** and makes it a constant every page can read, so nothing is fetched when the page loads. ([Types](https://webfluent.monzeromer.dev/learn/12-types.md), [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#build-time-data).)
 
 **Check it:** run `wf check`. It prints `No problems in shelf.`
 
@@ -669,7 +669,7 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 
 | You wrote | The idea | Read more |
 |---|---|---|
-| `type Book` and `data books` | Typed data read at build time | [Types](https://webfluent.monzeromer.dev/learn/12-types.md), [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#read-a-file-at-build-time-with-data) |
+| `type Book` and `data books` | Typed data read at build time | [Types](https://webfluent.monzeromer.dev/learn/12-types.md), [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#build-time-data) |
 | `store Shelf` with `persist` | Shared state kept across visits | [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md) |
 | `component BookCard` | A reusable component with a positional prop | [Components](https://webfluent.monzeromer.dev/learn/10-components.md) |
 | `state`, `derived`, `bind:` and `for … by` on the home page | Reactivity and keyed lists | [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md), [Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md) |

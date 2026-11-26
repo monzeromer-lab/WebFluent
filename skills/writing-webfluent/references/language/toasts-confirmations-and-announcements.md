@@ -1,4 +1,6 @@
-### Toasts, questions and announcements
+### Toasts, confirmations and announcements
+
+`toast`, `ask` and `announce` show a notification, ask a yes/no question and speak to screen readers.
 
 ```wf
 toast("Conversation archived", action: "Undo", onAction: restore)   // tone:, duration:, closable:

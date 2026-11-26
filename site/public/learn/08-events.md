@@ -50,7 +50,7 @@ To read the event, name a parameter: `on keydown(e) { … }`. It is the browser'
 
 Without a parameter, the event is still in scope as `event` — unless the program has an `event` of its own (a loop's item, a state, an action), which wins. Name the parameter to read the event there.
 
-A DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#emitting-events-from-components)).
+A DOM event sends one value, the event, so a handler names one name at most: `on click(e, x)` is an error (`T22`). Read what you want from the event, `e.clientX`. Several names are for a component's own events, which send what they declare ([below](#component-events)).
 
 This drop zone uses the event object twice — to allow the drop, and to read the dropped files:
 
@@ -69,7 +69,7 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
 }
 ```
 
-### How often a handler runs
+### Debounce and throttle
 
 An event can come far more often than its handler needs to run: a key per letter, a scroll per pixel. Say how often in the handler's parentheses:
 
@@ -131,7 +131,7 @@ How it listens:
 
 A combination no keyboard sends — an unknown modifier, no key — is an error (`E117`).
 
-### Shortcuts for an app
+### App shortcuts
 
 To give an app shortcuts that work on every page, write them with `mod` and declare them on `app`:
 
@@ -181,7 +181,7 @@ The helpers and rules it relies on:
 - **Events outside any element.** A page, a component or `app` may handle `keydown` and `keyup`, and the window's `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage` and `visibilitychange`, and the window losing and gaining focus (`blur`, `focus` — an editor saves on leaving, for example). Each listens for as long as its owner shows.
 - **A letter is also the key in its place.** On a Mac `⌥⌘P` sends `π`, and `mod+alt+p` still matches it.
 
-### Moving through a group with the arrow keys
+### Arrow-key navigation (roving focus)
 
 A tab strip, a toolbar or a row of choices is one stop for Tab: Tab enters it and leaves it, and the arrow keys move inside it. `Tabs` and `Menu` work that way already. `roving:` gives any element of yours the same:
 
@@ -204,7 +204,7 @@ page Editor(path: "/", title: "Editor", description: "Format the text.") {
 
 For a key of your own that follows the direction of the text, write `on key("inline-start")` or `on key("inline-end")`: ArrowLeft and ArrowRight in a left-to-right box, the other way round in a right-to-left one.
 
-## Emitting events from components
+## Component events
 
 A component declares the events it fires with `event`, and fires them with `emit`. The caller handles them like DOM events, with a name for each value the event sends — `on change(v)`, `on menu(key, x, y)`. [Components](https://webfluent.monzeromer.dev/learn/10-components.md#events) covers the details. This counter tells its page every time it changes:
 
@@ -227,7 +227,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
 }
 ```
 
-## Overlays: modals, dialogs, toasts and menus
+## Overlays
 
 An *overlay* is something a page opens over itself: a modal that asks a question, a toast that confirms, a menu of actions, a tooltip. Most are opened by a state, so the page decides when they show. This page has one of each:
 
@@ -264,7 +264,7 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 - **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.
 - **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.
 
-### What closes an overlay, and where the focus goes
+### Closing overlays and focus
 
 `dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:
 
@@ -301,7 +301,7 @@ page Shop(path: "/", title: "Shop", description: "Filters in a bottom sheet.") {
 
 On a narrow screen a `Sidebar` opens over the page as a drawer, which is a layer like these: the focus goes in and stays there, Escape or a press outside closes it, and the focus goes back to its toggle.
 
-### Toasts, questions and announcements from a handler
+### Toasts, confirmations and announcements
 
 Three functions open an overlay from code rather than from state:
 
@@ -338,7 +338,7 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
 
 A program that names something `toast`, `ask` or `announce` of its own keeps it; the function is then out of reach there.
 
-### Layers: popovers, menus and tooltips above everything
+### Popovers, menus and tooltips
 
 A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's *top layer*, above everything else on the page, so a box with `overflow: hidden` cannot clip them. Each is placed against its *anchor*, the element it belongs to, and flips or slides to stay on screen.
 
@@ -385,7 +385,7 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 
 Every option of these — `placement:`, `offset:`, `.arrow`, a menu's `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and `shortcut:` — is listed under [`Popover`](https://webfluent.monzeromer.dev/reference/popover.md), [`Menu`](https://webfluent.monzeromer.dev/reference/menu.md) and [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip.md). To ask before a destructive action, see [Build a confirm dialog](https://webfluent.monzeromer.dev/recipes/confirm-dialog.md).
 
-## Gestures: drag, long-press, swipe and the splitter
+## Gestures
 
 The runtime turns what the pointer does over time into one event that says what it means. A mouse, a pen and a finger run the same code. A finger picks a drag up with a long press, so a plain swipe still scrolls the page.
 
@@ -429,9 +429,9 @@ On a call of your own component, the drag, the drop and the gestures apply to th
 > [!IMPORTANT]
 > A drag has no keyboard of its own. Give what it does a menu item or a command too (`Move left`, `Move to…`), as the platform's accessibility rules ask of every pointer action.
 
-## Listening outside the page's elements
+## Window and document events
 
-A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#shortcuts-for-an-app)). It listens for as long as its owner shows:
+A handler on an element hears that element. For the window, write the handler at the top of the page, a component or `app`, outside any element — `resize`, `scroll`, `hashchange`, `popstate`, `online`, `offline`, `message`, `storage`, `visibilitychange`, `blur` and `focus` are heard there ([Shortcuts for an app](#app-shortcuts)). It listens for as long as its owner shows:
 
 ```wf
 page Scrolled(path: "/", title: "Scrolled", description: "How far down the reader is.") {
@@ -457,7 +457,7 @@ page Selection(path: "/", title: "Selection", description: "What the reader has 
 }
 ```
 
-For the viewport's size, the network and the URL, the language already keeps values current — `viewport`, `network`, `query`, `hash` — so no listener is needed ([State](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#the-browser-as-values)).
+For the viewport's size, the network and the URL, the language already keeps values current — `viewport`, `network`, `query`, `hash` — so no listener is needed ([State](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#browser-values)).
 
 ## Summary
 
@@ -465,18 +465,18 @@ For the viewport's size, the network and the URL, the language already keeps val
 |---|---|---|
 | `on click { … }` | runs when the element fires the event | [Handlers](#handlers) |
 | `on keydown(e) { … }` | names the event object | [The event object](#the-event-object) |
-| `on input(debounce: 300.ms) { … }`, `on scroll(e, throttle: 100.ms) { … }` | runs once the events stop; at most once a while | [How often a handler runs](#how-often-a-handler-runs) |
-| `on visible { … }` | runs when the element comes into view | [How often a handler runs](#how-often-a-handler-runs) |
+| `on input(debounce: 300.ms) { … }`, `on scroll(e, throttle: 100.ms) { … }` | runs once the events stop; at most once a while | [How often a handler runs](#debounce-and-throttle) |
+| `on visible { … }` | runs when the element comes into view | [How often a handler runs](#debounce-and-throttle) |
 | `on key("Escape") { … }` | answers to one key or combination | [Keys](#keys) |
-| `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#shortcuts-for-an-app) |
-| `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#shortcuts-for-an-app) |
-| `event change(v: Number)`, `emit change(n)` | a component's own event | [Emitting events from components](#emitting-events-from-components) |
-| `Modal(visible: open, title: "…")` | a dialog opened by state | [Overlays](#overlays-modals-dialogs-toasts-and-menus) |
-| `Popover(visible:, anchor:)`, `Menu(visible:, at:)` | layers placed at a control or a point | [Layers](#layers-popovers-menus-and-tooltips-above-everything) |
-| `drag: v`, `on receive(d)`, `on dragmove(d)` | drag and drop | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
-| `on longpress(p)`, `on swipe(s)` | a held press; a sweep | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
-| `Splitter(bind: side, min:, max:)` | a handle that sizes a region | [Gestures](#gestures-drag-long-press-swipe-and-the-splitter) |
-| `on scroll { … }` outside any element | a window event | [Listening outside the page's elements](#listening-outside-the-page-s-elements) |
+| `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#app-shortcuts) |
+| `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#app-shortcuts) |
+| `event change(v: Number)`, `emit change(n)` | a component's own event | [Emitting events from components](#component-events) |
+| `Modal(visible: open, title: "…")` | a dialog opened by state | [Overlays](#overlays) |
+| `Popover(visible:, anchor:)`, `Menu(visible:, at:)` | layers placed at a control or a point | [Layers](#popovers-menus-and-tooltips) |
+| `drag: v`, `on receive(d)`, `on dragmove(d)` | drag and drop | [Gestures](#gestures) |
+| `on longpress(p)`, `on swipe(s)` | a held press; a sweep | [Gestures](#gestures) |
+| `Splitter(bind: side, min:, max:)` | a handle that sizes a region | [Gestures](#gestures) |
+| `on scroll { … }` outside any element | a window event | [Listening outside the page's elements](#window-and-document-events) |
 
 The [components reference](https://webfluent.monzeromer.dev/reference.md) lists every event and prop of each built-in.
 

@@ -1,5 +1,7 @@
 ### Data Fetching
 
+A `resource` declares a request whose result a page shows; it is one value with three cases: loading, failed and loaded.
+
 ```wf
 resource users: [User] = http.get("/api/users")
 match users {

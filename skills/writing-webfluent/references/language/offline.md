@@ -1,5 +1,7 @@
 ### Offline
 
+The `offline` config setting makes the build write a service worker that caches the site and queues writes.
+
 Name `offline` in the config and `wf build` writes a service worker, `sw.js`,
 that stores the site for when the network is gone:
 

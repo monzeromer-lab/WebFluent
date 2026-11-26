@@ -1,4 +1,6 @@
-### A library from somewhere else
+### External libraries
+
+A script from another origin is listed in `meta.scripts` and called from your own scripts.
 
 The compiler never fetches anything, so a library on another origin is a URL
 in the config, used from your own scripts:

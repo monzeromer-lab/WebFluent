@@ -8,7 +8,7 @@ the headings become the outline.
 
 Start one with `wf init report -t pdf` or `wf init deck -t slides`.
 
-## How a good document is written
+## Writing guidelines
 
 - **Data in, layout out.**
   - The figures come from a `data` file (`data inv = "invoice.json"`) or a
@@ -33,7 +33,7 @@ Start one with `wf init report -t pdf` or `wf init deck -t slides`.
   - `Chart` and `QrCode` draw as vectors, and on a web page they need data
     known at build time.
 
-## A document
+## Documents
 
 ```wf
 /// Revenue by month, in thousands.
@@ -119,7 +119,7 @@ A document in Arabic (`lang: "ar"`) is laid out right to left, with the text
 shaped and joined. Give a Latin code inside it its own LTR run
 (`class: "ltr"`).
 
-## A deck
+## Slide decks
 
 One `Slide` is one page. A deck is a `Presentation` inside a page.
 - **Components for repeated slides.** Write the repeated slides as components

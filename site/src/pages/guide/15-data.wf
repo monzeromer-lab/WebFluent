@@ -1,5 +1,5 @@
 /// Chapter 15 of the guide. This page is its source: edit it here.
-page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Show a request with resource and match, ask with http in an action, describe a service once with api, handle each failure, and read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: show a request's cases, ask from an action, describe a service once, and read files at build time.", source: "site/src/pages/guide/15-data.wf", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "refresh-without-clearing-the-page", label: "Refresh without clearing the page"), Anchor(id: "ask-on-demand-with-http", label: "Ask on demand with http"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "say-how-a-call-fails", label: "Say how a call fails"), Anchor(id: "change-data", label: "Change data"), Anchor(id: "long-answers", label: "Long answers"), Anchor(id: "credentials-and-every-request", label: "Credentials and every request"), Anchor(id: "read-the-service-from-an-openapi-file", label: "Read the service from an OpenAPI file"), Anchor(id: "test-it-without-a-server", label: "Test it without a server"), Anchor(id: "keep-writes-made-offline", label: "Keep writes made offline"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a read's three cases — `.loading`, `.failed(e)`, `.loaded(value)` — with `resource` and `match`", "Tell a refresh (`refreshing`, the value stays) from a first load (`.loading`)", "Ask on demand with `http` in an action, and handle its result with `match` or `try`", "Describe a service once with `api`, and say how each call fails with an error enum", "Make a write refresh the reads it changes, and show a change before the server agrees", "Test a page against a `fake`, and read a JSON file at build time with `data`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
+page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Show a request with resource and match, ask with http in an action, describe a service once with api, handle each failure, and read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: show a request's cases, ask from an action, describe a service once, and read files at build time.", source: "site/src/pages/guide/15-data.wf", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "ways-to-get-data", label: "Ways to get data"), Anchor(id: "resources", label: "Resources"), Anchor(id: "refreshing", label: "Refreshing"), Anchor(id: "one-off-requests-with-http", label: "One-off requests with http"), Anchor(id: "api-services", label: "API services"), Anchor(id: "error-enums", label: "Error enums"), Anchor(id: "writes", label: "Writes"), Anchor(id: "pagination-and-streaming", label: "Pagination and streaming"), Anchor(id: "credentials-and-middleware", label: "Credentials and middleware"), Anchor(id: "openapi", label: "OpenAPI"), Anchor(id: "testing-with-fakes", label: "Testing with fakes"), Anchor(id: "offline-writes", label: "Offline writes"), Anchor(id: "build-time-data", label: "Build-time data"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a read's three cases — `.loading`, `.failed(e)`, `.loaded(value)` — with `resource` and `match`", "Tell a refresh (`refreshing`, the value stays) from a first load (`.loading`)", "Ask on demand with `http` in an action, and handle its result with `match` or `try`", "Describe a service once with `api`, and say how each call fails with an error enum", "Make a write refresh the reads it changes, and show a change before the server agrees", "Test a page against a `fake`, and read a JSON file at build time with `data`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about getting data onto a WebFluent page and sending data back. It starts with a single request and grows to a whole service.\n\nYou will be able to:\n\n- show a request's `.loading`, `.failed(e)` and `.loaded(value)` cases with `resource` and `match`;\n- refresh data without the page going blank;\n- ask from an action with `http`, and handle what comes back;\n- describe a service once with `api`, and say how each call fails;\n- make a write refresh what it changed, page through long answers, and test a page without a server;\n- read a JSON file at build time and render one page per item in it.\n\nEvery option this chapter mentions, and the ones it leaves out, is in [Services and requests](/reference/requests).")
 
@@ -7,7 +7,7 @@ page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "S
 
         Markdown("You should know `state` and `action` ([State and reactivity](/learn/07-state-and-reactivity)), `match` ([Control flow](/learn/09-control-flow)) and how to declare a `type` ([Types](/learn/12-types)).\n\nThis chapter does not cover:\n\n- a connection the page holds open — a socket, a stream, a channel or a peer — which is [Open a socket](/recipes/open-a-socket);\n- values fixed for each build, which are [Environments and secrets](/recipes/environments-and-secrets).")
 
-        Heading("Choose how to get data", id: "choose-how-to-get-data").h2
+        Heading("Ways to get data", id: "ways-to-get-data").h2
 
         Table(caption: "Choose how to get data") {
             Table.Head {
@@ -21,29 +21,29 @@ page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "S
                 Table.Row {
                     Table.Cell("Content known before the site is built")
                     Table.Cell { Markdown("`data`") }
-                    Table.Cell { Markdown("[Read a file at build time](#read-a-file-at-build-time-with-data)") }
+                    Table.Cell { Markdown("[Read a file at build time](#build-time-data)") }
                 }
                 Table.Row {
                     Table.Cell("Data the page shows as soon as it opens")
                     Table.Cell { Markdown("`resource` over `http.get(…)`") }
-                    Table.Cell { Markdown("[Show a request](#show-a-request-with-resource)") }
+                    Table.Cell { Markdown("[Show a request](#resources)") }
                 }
                 Table.Row {
                     Table.Cell("A request made when something happens: a save, a delete")
                     Table.Cell { Markdown("`http.post(…)` in an action") }
-                    Table.Cell { Markdown("[Ask on demand](#ask-on-demand-with-http)") }
+                    Table.Cell { Markdown("[Ask on demand](#one-off-requests-with-http)") }
                 }
                 Table.Row {
                     Table.Cell("One place that describes a service, used from many pages")
                     Table.Cell { Markdown("`api`") }
-                    Table.Cell { Markdown("[Describe a service](#describe-a-service-with-api)") }
+                    Table.Cell { Markdown("[Describe a service](#api-services)") }
                 }
             }
         }
 
         Markdown("Start with `http`. Move to `api` when the same service is called from more than one place: the address, the types and the failures are then written once.")
 
-        Heading("Show a request with resource", id: "show-a-request-with-resource").h2
+        Heading("Resources", id: "resources").h2
 
         Markdown("A *resource* is a request the page makes when it shows, and one value that says where the request is: `.loading`, `.failed(e)` or `.loaded(value)`. Show it with `match`.\n\nThis page lists recent deploys, with a spinner while they load and an alert if the request fails:")
 
@@ -68,7 +68,7 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 
         Markdown("How it works:\n\n- `resource name: T = http.get(url)` starts the request when the page renders, and cancels it when the page leaves.\n- The annotation, `: [Deploy]`, says what the answer is. A read of `http.get` must have one (`N11`). The answer is checked against it in every build: a server that sends another shape fails as `.decode(at, message)`, `$[1].status is missing`.\n- The three cases:\n\n  | Case | When | |---|---| | `.loading` | nothing to show yet | | `.failed(e)` | the first load failed; `e` is an `HttpError` | | `.loaded(value, refreshing, stale)` | something to show; `refreshing` while it is asked again; `stale` the failure of a refresh, else `null` |\n\n  An arm names as many of its case's places as it uses: `.loaded(rows)`. A `match` with no `.failed` arm and no `else` is `T21`; one that leaves out another case is `T15`.\n- `e.message` is something you can show. For a failed status it is the server's own words when its body has them — its `detail`, else its `title` — and `HTTP 500` when it says nothing.\n- A static build's pre-rendered page shows the `.loading` arm.")
 
-        Heading("Read one fact of a resource anywhere", id: "read-one-fact-of-a-resource-anywhere").h3
+        Heading("Resource members", id: "resource-members").h3
 
         Markdown("Without a `match`, a resource has members worked out from its one value. Each is live wherever you read it:")
 
@@ -109,7 +109,7 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 
         Markdown("So `Button(if plan.isLoaded \{ \"Request approval\" \} else \{ \"Deploy\" \})` changes its label when the plan arrives, and `if let .failed(e) = plan \{ Alert(e.message).danger \}` shows one case without a `match`.")
 
-        Heading("Fetch again when state changes", id: "fetch-again-when-state-changes").h3
+        Heading("Refetching on state change", id: "refetching-on-state-change").h3
 
         Markdown("An address that reads state is asked again whenever that state changes. A detail page follows its route parameter this way:")
 
@@ -129,7 +129,7 @@ page PostPage(path: "/posts/:slug", title: "Post", description: "One post.", slu
 
         Markdown("A value spliced into the address is URL-encoded where it stands for a value. The same holds for a body or a header that reads state. To ask less often than the reader types, splice a slower value, as [Debounce a search](/recipes/debounce-a-search) does.")
 
-        Heading("Refresh without clearing the page", id: "refresh-without-clearing-the-page").h2
+        Heading("Refreshing", id: "refreshing").h2
 
         Markdown("Asking again for the request already shown is a *refresh*: `name.reload()` asks, and so does `refresh:` on the request — `.onReconnect` (what a read does unless it says otherwise), `.onFocus`, `.every(30.seconds)` or `.never`. While a refresh runs, the read stays `.loaded` with its value, and `refreshing` is true. This page polls every 30 seconds:")
 
@@ -154,7 +154,7 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
 
         Markdown("The `.loaded` arm is drawn again only when the case changes; inside it, the new value is drawn in place. A row whose key is still in the list keeps its nodes, its focus and what was typed into it, and an answer that changed nothing redraws nothing.\n\nWhen a request fails or changes:\n\n- A refresh that fails stays `.loaded` with the old value, and its failure is `stale` until the next answer.\n- A first load that fails is `.failed(e)`.\n- A request whose address now names something else is a first load again, shown as `.loading`, because the old value would be the wrong one. Pressing **Production** above does this. `placeholder: .previous` keeps the last value shown instead, refreshing, until the new answer arrives — for a search whose results stay while the next ones load.")
 
-        Heading("Ask on demand with http", id: "ask-on-demand-with-http").h2
+        Heading("One-off requests with http", id: "one-off-requests-with-http").h2
 
         Markdown("For a request made when something happens — a save, a delete, a step in a flow — call `http` in an action: `http.get(url)`, `http.post(url, body: …)`, `http.put`, `http.patch`, `http.delete`. Its answer is a *result*: `.ok(value)`, or `.err(e)` with an `HttpError`. A failure is a value you handle, not an exception you catch.\n\nThis page loads todos and adds one, each with a request:")
 
@@ -192,7 +192,7 @@ page Todos(path: "/todos", title: "Todos", description: "Todos saved to a server
 
         Markdown("- **The type is named where the answer goes.** `todos = try await http.get(…)` is a `[Todo]` because `todos` is; `let saved: Todo!` names a whole result. A `get` whose answer goes nowhere that says what it is is `N11`.\n- **`match`** gives each case an arm, as `add` does. **`try`** gives the value, or ends the action with the failure as its own, so `load` says what it fails with: `-> !` is nothing, or an `HttpError`.\n- **Options** follow the address by name: `body:` (sent as JSON), `headers:`, `timeout:`, `retry:`, `cache:`, `as: .text`.\n- `load()` at the top of the page runs once, when the page renders, and `add.pending` is `true` while `add` runs.")
 
-        Heading("Describe a service with api", id: "describe-a-service-with-api").h2
+        Heading("API services", id: "api-services").h2
 
         Markdown("When a service is called from more than one place, describe it once with `api`: where it is, how it is reached, and its endpoints. Every call is then typed, and the day the server changes its contract the build says so.")
 
@@ -229,11 +229,11 @@ page Users(path: "/users", title: "Users", description: "Everyone.") {
 
         Markdown("A `resource` over an endpoint takes the endpoint's type, so `u.nam` is `T05`. An endpoint the service does not have is `T06`. Every call goes through the engine `http` uses. It cancels a call when its page leaves, gives up after the `timeout:` (30 seconds unset), retries a request that is safe to send twice, keeps a `GET` answer as long as the server's `Cache-Control` allows, and makes one request for two readers of one address. The settings and their rules are in [Services and requests](/reference/requests).")
 
-        Heading("Declare endpoints", id: "declare-endpoints").h3
+        Heading("Endpoints", id: "endpoints").h3
 
         Markdown("Each line after the settings is an endpoint:\n\n- **The verb** is the method: `get`, `post`, `put`, `patch`, `delete`.\n- **`at`** is where the server answers, below `base`. Every `\{name\}` in it is one of the endpoint's parameters (`N01`).\n- **Parameters** the path names go in the path. One called `body` is the request body. The rest go in the query string, or where `in header \"…\"` or `in cookie` says.\n- **A call** passes them by name, the first without its name if you like: `Backend.user(\"7\")`.\n- **`->`** says what a success returns and how a call fails: `-> T!` is a `T` or an `HttpError`, `-> T ! E` a `T` or a case of the error enum `E`, and `-> !` nothing, but it may fail.\n- A path parameter that is `null`, `\"\"`, `.` or `..` is not sent, since `users/` would be the whole collection. The call ends `.cancelled`, and a read over it stays `.loading` until the value arrives.\n\nA service's endpoints may be split into groups — `api Backend.todos \{ … \}`, called as `Backend.todos.list()`. A group sends what its service sends: its `base`, `timeout`, `retry` and `middleware`.")
 
-        Heading("Say how a call fails", id: "say-how-a-call-fails").h2
+        Heading("Error enums", id: "error-enums").h2
 
         Markdown("An endpoint that names an *error enum* turns each status the service answers with into a case of its own, carrying that status's body. One case, `http(error: HttpError)`, holds everything else:")
 
@@ -313,7 +313,7 @@ store People {
 
         Markdown("Each has `.message`, for showing. `Problem` is RFC 9457's record — `type`, `title`, `status`, `detail`, `instance`, `extensions` — and a project extends it like any record, as `ValidationProblem` does.")
 
-        Heading("Change data", id: "change-data").h2
+        Heading("Writes", id: "writes").h2
 
         Markdown("A write is a call made from an action or a handler, never a `resource`: a resource over a write is `N02`. A write's result must be heard — matched, or passed up with `try`. One awaited on its own is `N04`.\n\nAfter a write, the lists that show what it changed are out of date. `invalidates` names them, on the write. When the write succeeds, every resource on the page over one of them is refreshed, drawn in place:")
 
@@ -357,7 +357,7 @@ page Todos(path: "/todos", title: "Todos", description: "The list.") {
 
         Markdown("- Each name in `invalidates` is a read of the same group, and each argument is one of the write's own parameters (`N05`).\n- `Backend.todos.list.update(change)` changes what every read of `list` shows, at once, and returns what takes it back. `Drafts.add` shows the new todo before the server answers, and takes it back on a refusal.")
 
-        Heading("Show a change before the server agrees", id: "show-a-change-before-the-server-agrees").h3
+        Heading("Optimistic updates", id: "optimistic-updates").h3
 
         Markdown("`optimistic(holder, change)` does the same for a state you hold yourself. If anything later in the action fails — a `try` passing a failure up, or a throw — the change is taken back:")
 
@@ -379,9 +379,9 @@ store Todos {
 
         Markdown("The new title shows at once. If `rename` fails, `try` passes the failure up, and the old title comes back.")
 
-        Heading("Long answers", id: "long-answers").h2
+        Heading("Pagination and streaming", id: "pagination-and-streaming").h2
 
-        Heading("Load results a page at a time", id: "load-results-a-page-at-a-time").h3
+        Heading("Pagination", id: "pagination").h3
 
         Markdown("How an endpoint pages is part of its contract, so you say it once, on the endpoint, with `pages`. A read of it then holds every page loaded so far:")
 
@@ -432,7 +432,7 @@ page Feed(path: "/feed", title: "Feed", description: "What is new, a page at a t
             }
         }
 
-        Heading("Read an answer that arrives a line at a time", id: "read-an-answer-that-arrives-a-line-at-a-time").h3
+        Heading("Streamed responses", id: "streamed-responses").h3
 
         Markdown("An endpoint that answers one JSON value a line — a log tail, a build's output — is marked `streamed`, and declares the list its lines make:")
 
@@ -451,11 +451,11 @@ store Follow {
 
         Markdown("A `resource` over it is `.loaded` from the first line, and its list grows as the rest arrive. `for await line in …` runs its body for each line as it arrives. Each line is held to `LogLine`. `pages` and `streamed` are a read's: a write is sent once (`N14`).")
 
-        Heading("Credentials and every request", id: "credentials-and-every-request").h2
+        Heading("Credentials and middleware", id: "credentials-and-middleware").h2
 
         Markdown("A session belongs in an httpOnly cookie, which no script on the page can read. `credentials: .sameOrigin` (or `.include`, for a service on another origin) sends it with every call, and the page holds no token at all.")
 
-        Heading("Pass every request through middleware", id: "pass-every-request-through-middleware").h3
+        Heading("Middleware", id: "middleware").h3
 
         Markdown("What every call carries — a token, the reader's language, a request ID — is *middleware*: steps each request passes through, in the order written in `middleware [ … ]`. This service refreshes the token on a `401`, sends it as a bearer token, and tags each request:")
 
@@ -478,11 +478,11 @@ api Backend(base: "/api") {
 
         Markdown("`refreshOn401` goes before `bearer`, so the request sent again carries the new token. Requests that hear `401` at the same time share one run of the action. The other built-in steps are `header(name, value)` and `log`.\n\nA step of your own is a `middleware timed(req, next) \{ … \}` declaration that returns what `await next(req)` returns.")
 
-        Heading("Call an API on another origin", id: "call-an-api-on-another-origin").h3
+        Heading("Cross-origin APIs", id: "cross-origin-apis").h3
 
         Markdown("A page on `https://example.com` that calls `https://api.example.com` makes a *cross-origin request*. The API must answer with CORS headers — `Access-Control-Allow-Origin`, and `Access-Control-Allow-Credentials` if cookies go with the call — or the browser refuses the answer. The page is not told why, so the call fails as `.offline`, and the console names CORS.\n\n`wf serve` has no proxy, so an API on `localhost:8080` must allow `localhost:3000` too. One origin for both, behind a reverse proxy, needs no CORS ([Serve the API on the same origin](/recipes/api-on-the-same-origin)). A build that ships a content security policy lists the API's origin in `meta.connect` ([Security](/about/security)).")
 
-        Heading("Read the service from an OpenAPI file", id: "read-the-service-from-an-openapi-file").h2
+        Heading("OpenAPI", id: "openapi").h2
 
         Markdown("When the server publishes an OpenAPI spec (3.0 or 3.1, JSON or YAML), let it write the contract:")
 
@@ -515,7 +515,7 @@ api Backend.people {
 
         Markdown("For a prototype, `api Backend from \"openapi.json\" (base: \"/api\")` reads the same contract without writing files, and `wf api eject Backend` turns it into files later. [Call a service from its OpenAPI spec](/recipes/service-from-openapi) walks through one.")
 
-        Heading("Test it without a server", id: "test-it-without-a-server").h2
+        Heading("Testing with fakes", id: "testing-with-fakes").h2
 
         Markdown("A page that reads a service has nothing to show in a test until something answers. A `fake` answers a group's endpoints in place of the network:")
 
@@ -548,7 +548,7 @@ test "lists the team"(fakes: [TwoPeople]) {
 
         Markdown("- A fake is held to the group's contract (`N06`); one that answers `.err(.status(503, null))` tests a failure.\n- A test that names `fakes:` runs in a browser and sends nothing. A call no fake answers fails the test.\n- `fake Examples for Backend.people from examples` answers every endpoint it does not answer itself with the spec's example of a success.\n- `wf verify --fakes tests/fakes.wf` loads every page of the site with the fakes answering. A build leaves fakes out.\n\n[Testing](/learn/16-testing) covers tests; [Test a page with a fake service](/recipes/test-with-a-fake) tests a write.")
 
-        Heading("Keep writes made offline", id: "keep-writes-made-offline").h2
+        Heading("Offline writes", id: "offline-writes").h2
 
         Markdown("With `offline` in the config, the build writes a service worker, and `\"sync\": true` keeps a write that failed for want of a network, to send when the connection returns:")
 
@@ -556,7 +556,7 @@ test "lists the team"(fakes: [TwoPeople]) {
 
         Markdown("- Only a write safe to send twice is kept: a `PUT`, a `DELETE`, or a `POST` or `PATCH` whose endpoint is marked `idempotent`. Another `POST` may have reached the server, and sent again would be a second order, so it fails `.offline(queued: false)`.\n- A kept write's call fails `.offline(queued: true)`: no answer came, and the write waits, so the page should not show it as done.\n- `network.queued` counts what waits. Once a kept write is sent, what its endpoint `invalidates` is asked again.\n\nSee [Keep writes made offline](/recipes/keep-writes-made-offline) and [Make a site work offline](/recipes/work-offline).")
 
-        Heading("Read a file at build time with data", id: "read-a-file-at-build-time-with-data").h2
+        Heading("Build-time data", id: "build-time-data").h2
 
         Markdown("For content known before the site is built — posts, a price list, a team page — `data name: T = \"file.json\"` reads a JSON file from the project directory or `src/` at build time. Its value is a constant, in scope in every page and component, and written into the pre-rendered page:")
 
@@ -583,7 +583,7 @@ page Blog(path: "/", title: "Blog", description: "Every post.") {
 
         Markdown("The build holds the file to the type. A record that is not a `Post` stops the build with `T33`, naming the file and the place: `$[3].date is \"March 5\", not a Date`.")
 
-        Heading("Render a page for each item", id: "render-a-page-for-each-item").h3
+        Heading("A page per item", id: "a-page-per-item").h3
 
         Markdown("To give each post its own HTML file in a static build, list the values of the route parameter in `paths:`:")
 
@@ -615,7 +615,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("The console says a response was blocked by CORS; the call fails `.offline`") }
-                    Table.Cell { Markdown("The API is on another origin and does not allow yours ([Call an API on another origin](#call-an-api-on-another-origin)).") }
+                    Table.Cell { Markdown("The API is on another origin and does not allow yours ([Call an API on another origin](#cross-origin-apis)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.decode(at, message)`, such as `$[1].name is missing`") }

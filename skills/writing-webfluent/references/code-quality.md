@@ -24,7 +24,7 @@ you to it.**
 - [Components](#components)
 - [State: state, derived, stores](#state-state-derived-stores)
 - [Actions](#actions)
-- [Data from a server](#data-from-a-server)
+- [Data fetching](#data-fetching)
 - [Accessibility](#accessibility)
 - [Translations](#translations)
 - [Performance](#performance)
@@ -294,7 +294,7 @@ know the query, so draw every item and hide the ones that don't match.
 - **Show a change before the server agrees.** `optimistic(holder, change)`
   rolls itself back if the action throws.
 
-## Data from a server
+## Data fetching
 
 - **Describe the service once** in an `api` block: its base, timeout, retry,
   credentials and `middleware [ … ]`, then its endpoints, split into groups

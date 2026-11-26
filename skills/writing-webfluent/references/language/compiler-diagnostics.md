@@ -1,5 +1,7 @@
 ## Compiler diagnostics
 
+Every finding the compiler reports has a code, a severity, a location, a hint and, often, a fix.
+
 `wf build`, `wf check`, `wf serve` and the editor report the same findings, from one
 pipeline (`diagnostics::check::check_project`). Every stage runs whatever
 the one before it found, and every file is read even when another does not

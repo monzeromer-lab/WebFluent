@@ -1,4 +1,6 @@
-### Showing a change before the server agrees
+### Optimistic updates
+
+An optimistic update shows a change before the server confirms it and undoes it if the action fails.
 
 `optimistic(holder, change)` shows it at once. If anything later in the
 action fails — a `try` passing its error up, or a throw — what was shown is

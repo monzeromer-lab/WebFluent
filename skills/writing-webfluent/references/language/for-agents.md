@@ -3,7 +3,7 @@
 The grammar, the idioms a model reaches for, and the mistakes it makes
 most; the rest of this file is the reference.
 
-### The grammar in brief
+### Grammar summary
 
 - A file declares `page Name(path: "/x", title: "…") { … }`,
   `component Name(_ first: String, other: Bool = false) { … }` or
@@ -161,7 +161,7 @@ component Banner(tone: Tone = .calm) {
 }
 ```
 
-### The mistakes made most
+### Common mistakes
 
 - **T06, a member the store does not have** (`Cart.total` for `sum`): read
   the store before you call one; never guess a name.
@@ -178,7 +178,7 @@ component Banner(tone: Tone = .calm) {
 
 A diagnostic's code is in "Compiler diagnostics", with its fix.
 
-### A page, whole
+### A complete page
 
 ```wf
 type Deploy { id: String, service: String, status: String }

@@ -60,7 +60,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
 
         DocsCodeBlock("/// One book on the list.\ntype Book \{\n    slug: String\n    title: String\n    author: String\n    year: Number\n    pages: Number\n    summary: String\n    tags: [String] = []\n\}\n\ndata books: [Book] = \"books.json\"", title: "wf")
 
-        Markdown("`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة `book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل الصفحة. ([الأنواع](/learn/12-types)، [جلب البيانات](/learn/15-data#read-a-file-at-build-time-with-data).)\n\n**تحقّق:** شغّل `wf check`. يطبع `No problems in shelf.`")
+        Markdown("`type Book` سجلّ يُلزم مدقق الأنواع كل استخدام له: كتابة `book.titel` خطأ في الموضع الذي تكتبه فيه. يقرأ `data books` الملف **وقت البناء** ويجعله ثابتًا تقرؤه كل صفحة، فلا يُجلب شيء عند تحميل الصفحة. ([الأنواع](/learn/12-types)، [جلب البيانات](/learn/15-data#build-time-data).)\n\n**تحقّق:** شغّل `wf check`. يطبع `No problems in shelf.`")
 
         Heading("الخطوة 3: احفظ رفّ القارئ في مخزن", id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن").h2
 
@@ -576,7 +576,7 @@ test "a card shows who wrote the book, and when" {
                 Table.Row {
                     Table.Cell { Markdown("`type Book` و`data books`") }
                     Table.Cell("بيانات ذات أنواع تُقرأ وقت البناء")
-                    Table.Cell { Markdown("[الأنواع](/learn/12-types)، [جلب البيانات](/learn/15-data#read-a-file-at-build-time-with-data)") }
+                    Table.Cell { Markdown("[الأنواع](/learn/12-types)، [جلب البيانات](/learn/15-data#build-time-data)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`store Shelf` مع `persist`") }

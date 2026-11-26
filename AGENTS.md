@@ -26,36 +26,36 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ## CLI
 
 ```bash
-wf init <name> -t spa|static|pdf|slides [--locales en,ar]   # Create a project (with this AGENTS.md in it); --locales: translated, the default first
-wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings] [--allow-output-outside]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
-wf check [-d DIR] [--format F] [--deny-warnings] [--allow-output-outside]  # Every finding, nothing written
-wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
-wf config schema [--json] | get PATH | set PATH VALUE | unset PATH   # Every setting; edit webfluent.app.json keeping its shape
-wf commands [--json]                      # Every command, its options, what it writes and its preview flag, as data
-wf assets [--unused] [--plan /a.png] [--json]  # public/: each file's kind, size, dimensions and uses; what the image pipeline makes of one
-wf theme [--json]                         # The theme: every token, declared or inherited, its uses, the contrast pairs
-wf motion [--json]                        # The animations, eases, speeds and route transitions, and the default
-wf rules [--json]                         # The validate rules, named patterns, and every state held to a rule
-wf scope FILE:LINE[:COL] [--data D] [--json]  # What can be read there: each name in scope, its type, where it comes from
-wf translations [--missing L] [--unused] [--plurals] [--json] # The translations table: what each locale lacks, what nothing names
-wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld; --guide full: the whole language reference
-wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
-wf api add SPEC [--name N] [--out DIR] | sync [N] [--skip OP] | check [N] | eject N [--out DIR] | list [--json]  # A service's contract as files, from its OpenAPI spec
-wf explain [CODE] [--json]                       # A diagnostic's entry: meaning, example, fix
-wf serve [-d DIR] [--host ADDR] [--allow-output-outside]  # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
-wf start [-d DIR] [--port N] [--host ADDR] [--proxy /api=https://HOST/api]  # Serve a build in production: $PORT, its headers and .gz files, a single-page build's shell for every route; --proxy forwards a path to an API elsewhere
-wf inspect ROUTE|URL [--do STEP]… [--mobile] [--screenshot [FILE]] [--proxy …] [--fakes FILE] [--json]  # One page as a reader meets it, in text: landmarks, headings, links, buttons, fields, tables, and what threw or failed to load; --do 'click "Name"' acts first
-wf generate page|component|store|block <name> [-d DIR]  # Scaffold a file, in the project's layout; a block is a whole page: sign-in, pricing, dashboard, settings
-wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
-wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
-wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
-wf docs [-d DIR] [-o OUT]                 # The project's components documented, each `example` drawn live, in the reference's design
-wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, 4 → 4.2 (`external` rewritten) and 6 → 7
-wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
-wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
-wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE]  # A template rendered with JSON data (see Template Engine)
-wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
-wf types [path] [--json] [--holes]        # What a project declares: enums, types, components, stores, pages; --holes: every place a type is unknown, and why
+wf init <name> -t spa|static|pdf|slides [--locales en,ar] # Create a project (writes AGENTS.md); --locales: start translated, first is default
+wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings] [--allow-output-outside] # Compile (--stats: print output sizes; --cache: rebuild changed pages only; --studio: write nodes.json for editors)
+wf check [-d DIR] [--format F] [--deny-warnings] [--allow-output-outside] # Report all diagnostics; write nothing
+wf fix [-d DIR] [--code C] [--dry-run]   # Apply known fixes (all, or one code's)
+wf config schema [--json] | get PATH | set PATH VALUE | unset PATH # List settings; read or edit webfluent.app.json
+wf commands [--json]                     # List commands and their options as data
+wf assets [--unused] [--plan /a.png] [--json] # List public/ files: kind, size, dimensions, uses; preview image processing
+wf theme [--json]                        # List design tokens, their uses and contrast pairs
+wf motion [--json]                       # List animations, easings, speeds and route transitions
+wf rules [--json]                        # List validation rules and the states they guard
+wf scope FILE:LINE[:COL] [--data D] [--json] # List the names in scope at a position, with types
+wf translations [--missing L] [--unused] [--plurals] [--json] # Report missing, unused and plural translation keys
+wf context [--open FILE] [--guide full] [--json] # Print the context an agent gets (private env withheld); --guide full: whole reference
+wf components [--json]                   # List components (built-in and project): props, events, slots, parts
+wf api add SPEC [--name N] [--out DIR] | sync [N] [--skip OP] | check [N] | eject N [--out DIR] | list [--json] # Generate and sync an API contract from an OpenAPI spec
+wf explain [CODE] [--json]               # Explain a diagnostic code: meaning, example, fix
+wf serve [-d DIR] [--host ADDR] [--allow-output-outside] # Dev server on localhost:3000 with live reload and an error overlay (--host 0.0.0.0 for a phone)
+wf start [-d DIR] [--port N] [--host ADDR] [--proxy /api=https://HOST/api] # Serve a build in production on $PORT; --proxy forwards a path to an API
+wf inspect ROUTE|URL [--do STEP]… [--mobile] [--screenshot [FILE]] [--proxy …] [--fakes FILE] [--json] # Print a page as text (landmarks, headings, controls, errors); --do acts first
+wf generate page|component|store|block <name> [-d DIR] # Scaffold a page, component, store or block (sign-in, pricing, dashboard, settings)
+wf fmt [path] [--check] [--stdout]       # Format sources (--check: fail if anything would change)
+wf fmt --to wfx|wf [path] [--stdout]     # Convert a project between .wf and .wfx
+wf test [path] [--update]                # Run the tests under tests/
+wf docs [-d DIR] [-o OUT]                # Generate a documentation site for the project's components
+wf migrate [path] [--check] [--stdout] [--wfx] # Migrate WebFluent 2 → 3, 3 → 4, 4 → 4.2 and 6 → 7
+wf verify [path] [--json] [--budget MS] [--returning-visitor] [--fakes FILE] [--allow-output-outside] # Load every page in headless Chrome: errors, failed requests, paint timing
+wf audit [path] [--json]                 # Report what the project trusts: markup, origins, storage, env, CSP, dependencies
+wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L] [--theme T] [--token NAME=VALUE] # Render a template with JSON data (see Template Engine)
+wf registry [--json]                     # List every built-in: props, cases, flags, events, slots, parts
+wf types [path] [--json] [--holes]       # List the project's declarations; --holes: where a type is unknown
 ```
 
 `wf verify` builds nothing — it loads what `wf build` already wrote. It
@@ -562,6 +562,8 @@ Entry("row-1") { on menu(key, x, y) { Menus.open(key, x, y) } }
 
 ### Types and enums
 
+`type` declares a record and `enum` a set of cases; both are checked everywhere they are used.
+
 ```wf
 enum Tone { calm, loud }
 type Todo { id: String, title: String, done: Bool = false, tone: Tone = .calm, note: String? = null }
@@ -572,7 +574,9 @@ store Todos {
 }
 ```
 
-### The types the language brings with it
+### Built-in types
+
+The language has eleven built-in value types for dates, times, durations, money, URLs, emails, colours, ids, files and secrets.
 
 Eleven types come with the language. Each is a **plain JSON value at run
 time** — no wrapper — so it crosses a request, a `persist`, the static
@@ -768,7 +772,9 @@ String]` (`query.tab ?? "all"`), a page's `params` a record of its own
 route parameters, `locale` and `dir` `String`s, and a form handle's
 `errors` and `touched` `[String: String]` and `[String: Bool]`, by field.
 
-### Images the build processes
+### Images
+
+An `image` declaration resizes and re-encodes a picture at build time and gives the page a responsive `<picture>`.
 
 `image hero = "media/hero.jpg"` reads the picture at build time and writes
 it again at every width a page will ask for:
@@ -856,6 +862,8 @@ We make *things*.
 ```
 
 ### Attributes
+
+Any element accepts HTML attributes as named arguments.
 
 Any named argument a built-in does not declare is written to its root
 element as an HTML attribute, with a warning; `aria-*`, `data-*` and the
@@ -959,7 +967,7 @@ own chrome.
 <!-- core -->
 ### Stores (Shared State)
 
-A store is **built the first time something reads it**. Declaring one does
+A store is state shared across pages, **built the first time something reads it**. Declaring one does
 nothing, so the order stores are declared in cannot matter — a `derived`
 may read a store declared below it — and a store nothing reads costs
 nothing, in time or in bytes.
@@ -1162,7 +1170,9 @@ by field name, `form.touched`, `form.pending` (an async rule is still
 asking), `form.values` by field `name:`, `form.reset()`, `form.submit()`,
 and `form.apply(serverErrors)` for what a 422 said.
 
-### What a value must be
+### Validation
+
+A `validate` block declares the rules a state must meet; the control bound to it shows the messages.
 
 A `validate` block sits beside the state it guards. The control bound to
 that state then shows what the rules say — no `error:` to write, and the
@@ -1300,8 +1310,8 @@ The table types `window`, `document`, `console`, `localStorage`,
 `screen`, the timers, `parseInt`, `parseFloat`, `encodeURIComponent` and the
 rest of the plain functions. A global or a member it does not list —
 `navigator.bluetooth`, `crypto` — is `T30`, with the nearest name: reach it
-from a project script whose JSDoc says its types (see [Your own
-JavaScript](#your-own-javascript)).
+from a project script whose JSDoc says its types (see [JavaScript
+interop](#javascript-interop)).
 
 A handler's event is the browser's: `on keydown(e)` is a `KeyboardEvent`
 (`key`, `code`, `shiftKey`, `ctrlKey`, `altKey`, `metaKey`, `repeat`,
@@ -1429,6 +1439,8 @@ match tone {
 
 ### Data Fetching
 
+A `resource` declares a request whose result a page shows; it is one value with three cases: loading, failed and loaded.
+
 ```wf
 resource users: [User] = http.get("/api/users")
 match users {
@@ -1529,7 +1541,9 @@ match data {
 
 Reserved words (`action`, `token`, `error`, `state`, etc.) work as map keys.
 
-### A service, described once
+### API services
+
+An `api` declaration describes an HTTP service once — its base URL, endpoints, types and errors — so every call is typed.
 
 `api` is where a service lives: its address, how it is reached, and what it
 has. Every call site is then typed, cached and cancellable, and the day the
@@ -1892,7 +1906,9 @@ whole it is the full list; `for await line in …` in an action or a handler
 walks the lines as they arrive. Each is a `get` (`N14`); 6.x's `paginate:`
 on a call is `N08`.
 
-### A connection the page holds open
+### WebSockets, streams and channels
+
+`socket`, `stream`, `channel` and `peer` declare a connection that stays open while the page is shown.
 
 A socket, a stream of events, a channel every tab hears, or a peer — a
 direct line to another reader's page. Each is closed when the page that
@@ -1936,7 +1952,9 @@ or decoded rather than read as a record (`T28`).
 A store may hold any of them too: opened when the store is first read,
 closed with it, read as `Lang.css.state` and in its actions as `css`.
 
-#### A worker
+#### Workers
+
+A `worker` runs a script from `public/` in a Web Worker and talks to it by messages and requests.
 
 `worker` runs a script of `public/` beside the page — a language service, a
 parser — held like a socket:
@@ -1970,7 +1988,9 @@ with no `id` is a message: `on message`, `.last(kind)` by its `type` or
 again by hand. `type: .module` for a module worker. The script is a file of
 the site (under the base path); a missing one is a `D01`.
 
-#### A peer
+#### Peer connections (WebRTC)
+
+A `peer` is a WebRTC data channel between two pages.
 
 `peer` opens a WebRTC data channel straight to another page. The language
 supplies the channel, not a server: what the two sides must tell each other
@@ -2008,7 +2028,9 @@ servers that help two readers behind different networks find each other —
 none by default, which connects readers on the same network only. A page
 that leaves closes its peer, and the other side reads `closed` at once.
 
-### The network as a value
+### Network status
+
+`network` is a built-in value that reports the connection: online, its type, data saving and queued writes.
 
 Like `viewport` and `theme`, read where it matters:
 
@@ -2021,6 +2043,8 @@ Image(hero, alt: "…", loading: if network.saveData { "lazy" } else { "eager" }
 and `.queued` — the writes waiting for the connection (see Offline).
 
 ### Offline
+
+The `offline` config setting makes the build write a service worker that caches the site and queues writes.
 
 Name `offline` in the config and `wf build` writes a service worker, `sw.js`,
 that stores the site for when the network is gone:
@@ -2084,7 +2108,9 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 the first install, and not twice for one update. Under `wf serve` the
 worker takes itself away, so an edit is never hidden behind its own cache.
 
-### Showing a change before the server agrees
+### Optimistic updates
+
+An optimistic update shows a change before the server confirms it and undoes it if the action fails.
 
 `optimistic(holder, change)` shows it at once. If anything later in the
 action fails — a `try` passing its error up, or a throw — what was shown is
@@ -2097,7 +2123,9 @@ action rename(id: String, name: String) -> ! {
 }
 ```
 
-### Your own JavaScript
+### JavaScript interop
+
+Plain `.js` files under `src/` are linked on every page, and their top-level functions can be called from `.wf` code.
 
 A `.js` file under `src/` is part of the project, as a `.css` file is: a
 **plain browser script** — no `export`, no `import`, no build step — copied
@@ -2172,7 +2200,9 @@ page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean."
 is the same lifetime on a bare node (`div` · `span` · `canvas` · `svg` ·
 `section` · `figure` · `pre` · `p` · `ul` · `table`).
 
-### Drawing into somebody else's node
+### Portals
+
+A `Portal` draws its block into a DOM node that other code owns, such as an editor's widget.
 
 ```wf
 for row, i in Completions.rows by i {
@@ -2198,7 +2228,9 @@ Events bubble from the node it is drawn in, not from where it is written,
 and `show` does not hide it (its block is not in `show`'s place): use `if`,
 or `into: null`.
 
-### A library from somewhere else
+### External libraries
+
+A script from another origin is listed in `meta.scripts` and called from your own scripts.
 
 The compiler never fetches anything, so a library on another origin is a URL
 in the config, used from your own scripts:
@@ -2228,7 +2260,9 @@ until the reader accepts in a `ConsentBanner` (then on every visit after).
 None of these can be a module or have `globals` (`E111`). Their origins join
 `script-src`, and one without an integrity hash draws a warning.
 
-### Somebody else's custom element
+### Custom elements
+
+`Element("tag", …)` places a third-party custom element, with attributes and event handlers.
 
 ```wf
 page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
@@ -2245,7 +2279,9 @@ argument is an attribute and follows state; `class:`, `style { }` and
 `mount:` work as anywhere. `external` — 4.1's typed declaration of a module
 or element — is gone; `wf migrate` rewrites it.
 
-### Publishing the project as custom elements
+### Publishing custom elements
+
+The `elements` output type compiles chosen components into custom elements other sites can use.
 
 ```json
 { "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }
@@ -2261,7 +2297,9 @@ component made goes when the element leaves the document. React, Vue,
 Svelte, Rails, WordPress and a plain page can all place a tag, which is why
 this is one output rather than an adapter per framework.
 
-### A desktop or phone app (Tauri, Electron)
+### Desktop and mobile apps (Tauri, Electron)
+
+A WebFluent build can be the front end of a Tauri or Electron app with no change to the language.
 
 The `build/` folder is what a Tauri or Electron window shows; nothing in
 the language changes. Leave out what only a website needs, and let the
@@ -2305,12 +2343,16 @@ back. Capabilities are split by `"platforms"`, and a phone-only plugin
 
 ### Navigation
 
+`navigate()` changes the route from code; `Link` does it from markup.
+
 ```wf
 navigate("/path")                    // Programmatic; an address on another origin is refused
 Link("About", to: "/about")          // Declarative
 ```
 
-### Toasts, questions and announcements
+### Toasts, confirmations and announcements
+
+`toast`, `ask` and `announce` show a notification, ask a yes/no question and speak to screen readers.
 
 ```wf
 toast("Conversation archived", action: "Undo", onAction: restore)   // tone:, duration:, closable:
@@ -2328,7 +2370,7 @@ yes and `false` for no or Escape (`confirm` is the browser's). A program's
 own `toast`, `ask` or `announce` — a state, an action — keeps its name; the
 function is then out of reach there.
 
-### The indented layout: `.wfx`
+### Indented syntax (`.wfx`)
 
 The same grammar, with blocks written by indentation instead of braces. A
 file named `.wfx` is read that way: a line whose next line is indented
@@ -2744,6 +2786,8 @@ the flag's look follows it.
 
 ## Animation
 
+Animation is set with props and flags on any element; the runtime plays enter, exit and reorder animations.
+
 Every element takes the universal motion props: an enter animation as a
 flag or `animate:`, `exit:`, `delay:`, `duration:`, `speed:` (`.fast`,
 `.normal`, `.slow` — the flags `.fast`, `.normal` and `.slow` are this prop),
@@ -2751,7 +2795,7 @@ flag or `animate:`, `exit:`, `delay:`, `duration:`, `speed:` (`.fast`,
 `.mount` or `.enterView`), `shared:` (a name it keeps across a route
 change) and `count:` (a number that counts to its new value). Beside
 them, every element also takes `class:`, `ref:`, and `mount:`/`update:`/
-`cleanup:` (see [Your own JavaScript](#your-own-javascript)).
+`cleanup:` (see [JavaScript interop](#javascript-interop)).
 
 An element that stands still plays its enter animation as a stylesheet
 rule, so a static page animates before its script has loaded. Everything
@@ -2845,6 +2889,8 @@ what an animation does when the element says nothing:
 ```
 
 ## Styling
+
+Styles are written in `style { }` blocks of CSS on an element, in `.css` files under `src/`, and in a theme of design tokens.
 
 ### Style Blocks
 
@@ -3052,9 +3098,11 @@ a file in `public/` or a URL — ahead of `styles.css`.
 
 
 A `.js` file under `src/` is part of the build the same way — see
-[Your own JavaScript](#your-own-javascript).
+[JavaScript interop](#javascript-interop).
 
 ### Themes
+
+A theme sets design tokens (colours, fonts, spacing) that every built-in and style block reads.
 
 A theme is written in WebFluent, in your own `src/`:
 
@@ -3131,6 +3179,8 @@ For values a machine supplies (a deploy pipeline injecting a brand colour),
 ```
 
 ## Build output
+
+`wf build` writes HTML, a runtime-and-app `app.js`, per-page chunks and stylesheets, and gzipped copies.
 
 ```
 build/
@@ -3233,6 +3283,8 @@ element sets `loading:` itself.
 
 ## Runtime
 
+The runtime is the JavaScript library the compiled pages call, exposed as `window.WF`.
+
 `app.js` opens with the runtime, reachable as `window.WF` from the console,
 a `script`, or the studio. The compiled pages call it; a hand-written script
 may too. Its surface:
@@ -3259,7 +3311,9 @@ may too. Its surface:
 | Gestures | `gesture(node, name, fn)`, `draggable(node, value, options)`, `dropTarget(node, options)`, `splitter(node, read, write, options)` — what `on longpress`, `on swipe`, `drag:`, `on receive` and `Splitter` compile to |
 | Values | `caseOf(v)`, `payload(v)` read an enum case and its payload, `readOf(v)` a read's one value; `dateOf`, `timeOf`, `urlWith`, `urlQuery` are the scalar helpers behind `.date()`, `.time()`, `.with()` and `.query()` |
 
-## Search and Sharing
+## SEO and link previews
+
+The build writes canonical links, Open Graph tags, JSON-LD, a sitemap and `robots.txt` for every page.
 
 Set `meta.site_url` and the compiler writes everything a search engine and a link
 preview need. Without it, the tags that require an absolute URL are omitted
@@ -3397,7 +3451,7 @@ origin, everything kept on the reader's machine,
 every `env` name and whether it is public, the policy this build ships, and
 what the compiler depends on. `--json` for a tool; it never fails a build.
 
-### Headers and the policy
+### Security headers and CSP
 
 `"build": { "csp": true }` — on for a project `wf init` creates — emits a
 `Content-Security-Policy` meta tag — right after `<meta charset>`, before
@@ -3440,6 +3494,8 @@ has none. The build never fetches the file to work the hash out.
 
 ## i18n (Internationalization)
 
+Translations are JSON files per locale, read with `t("key")`; right-to-left locales get `dir="rtl"`.
+
 ### Translation files
 
 ```json
@@ -3462,7 +3518,7 @@ has none. The build never fetches the file to work the hash out.
 }
 ```
 
-### Starting translated
+### Translated starter projects
 
 `wf init my-app --locales en,ar` (spa or static; the first is the
 default) writes the `i18n` config above with `meta.lang` the default, every
@@ -3513,6 +3569,8 @@ unicode-bidi: isolate; }` in the project's CSS.
 
 ## SSG (Static Site Generation)
 
+With `ssg: true` the build pre-renders each page to HTML, and JavaScript takes it over in the browser.
+
 ```json
 { "build": { "ssg": true, "base_path": "/my-site" } }
 ```
@@ -3525,6 +3583,8 @@ unicode-bidi: isolate; }` in the project's CSS.
 - Dynamic content (state, if/for, a `resource`) handled by JS after hydration
 
 ## PDF Output
+
+With `output_type: "pdf"` the build lays the program out on paper with its own engine and writes a PDF.
 
 ```json
 {
@@ -3591,7 +3651,7 @@ dark. `Chart` and `QrCode` draw on a web page too, as an SVG made at build
 time — there what they read must be known then (a literal, a `const`, a
 `data` file), or it is `E109`.
 
-### Breaking across pages
+### Page breaks
 
 - Paragraphs break between lines, two at least on each side (`orphans`,
   `widows`).
@@ -3669,6 +3729,8 @@ elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, mot
 Everything static draws.
 
 ## Slides Output (PDF Slide Decks)
+
+With `output_type: "slides"` the build writes a PDF slide deck, one `Slide` per page.
 
 ```json
 {
@@ -3758,6 +3820,8 @@ page Deck(path: "/", title: "Q1 Review", description: "The quarter.") {
 
 ## Strings
 
+Strings come in three forms: plain `"…"` with escapes and splices, raw `#"…"#`, and indented block `"""…"""`.
+
 A plain `"…"` string reads the escapes `\n \t \r \\ \" \{ \}` and `{…}`
 splices. Two other forms exist for text a plain string makes you spell
 twice:
@@ -3791,6 +3855,8 @@ A splice opens with a name, a `(` or a `[`, and closes on the same line;
 anything else — `"{key: value}"` in prose, `"{"` alone — is text.
 
 ## Compiler diagnostics
+
+Every finding the compiler reports has a code, a severity, a location, a hint and, often, a fix.
 
 `wf build`, `wf check`, `wf serve` and the editor report the same findings, from one
 pipeline (`diagnostics::check::check_project`). Every stage runs whatever
@@ -4049,6 +4115,8 @@ The heading-outline rules (`A11`, `A12`) do not apply to `Presentation` or
 `Document` output, where an `h1` per slide or per section is correct.
 
 ## Migrating
+
+`wf migrate` rewrites a project written for an older major version.
 
 **WebFluent 4 → 5** needs no rewrite: 5.0 refuses what used to compile and
 then fail in the browser. Run `wf check` (it writes nothing); every finding
@@ -4320,7 +4388,7 @@ Arabic is fetched when a document has it. The Rust side is
 `webfluent::memory::compile_files`, which builds a map of path → contents
 natively too.
 
-### Template Data Context
+### Template data
 
 Data is a JSON object. The page says what it takes, as its parameters:
 every render holds the data to them first, and data that does not fit is
@@ -4389,7 +4457,7 @@ out — and a `class:` from the data is escaped.
 The grammar, the idioms a model reaches for, and the mistakes it makes
 most; the rest of this file is the reference.
 
-### The grammar in brief
+### Grammar summary
 
 - A file declares `page Name(path: "/x", title: "…") { … }`,
   `component Name(_ first: String, other: Bool = false) { … }` or
@@ -4547,7 +4615,7 @@ component Banner(tone: Tone = .calm) {
 }
 ```
 
-### The mistakes made most
+### Common mistakes
 
 - **T06, a member the store does not have** (`Cart.total` for `sum`): read
   the store before you call one; never guess a name.
@@ -4564,7 +4632,7 @@ component Banner(tone: Tone = .calm) {
 
 A diagnostic's code is in "Compiler diagnostics", with its fix.
 
-### A page, whole
+### A complete page
 
 ```wf
 type Deploy { id: String, service: String, status: String }

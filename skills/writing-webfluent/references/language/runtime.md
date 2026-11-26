@@ -1,5 +1,7 @@
 ## Runtime
 
+The runtime is the JavaScript library the compiled pages call, exposed as `window.WF`.
+
 `app.js` opens with the runtime, reachable as `window.WF` from the console,
 a `script`, or the studio. The compiled pages call it; a hand-written script
 may too. Its surface:

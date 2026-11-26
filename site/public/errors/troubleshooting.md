@@ -246,7 +246,7 @@ Name the dark theme: `"theme": { "name": "Light", "dark": "Night" }`. Write colo
 
 The API is on another origin, and that server does not allow requests from yours.
 
-Allow your origin on the server, or serve the API from the same origin ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#call-an-api-on-another-origin), [Deploying](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)).
+Allow your origin on the server, or serve the API from the same origin ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#cross-origin-apis), [Deploying](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md)).
 
 ### env.MY_VALUE is a compile error
 

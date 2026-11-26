@@ -10,7 +10,7 @@ Most slow sites are not slow because someone chose to make them slow. They are s
 
 A compiler that reads the whole program can do better. It knows which runtime modules the code it generated calls, which built-ins' rules the pages use, and which design tokens something names, so a build ships those and nothing else. Your part is smaller: look at what it writes, set a limit that warns you when it grows, and avoid the few patterns no compiler can fix.
 
-## What the build already does
+## Built-in optimizations
 
 You get these without setting anything:
 
@@ -23,7 +23,7 @@ You get these without setting anything:
 - **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md)).
 - **Minified output.** `build.minify` (on by default) strips comments and white space.
 
-## See what a build weighs
+## Output sizes
 
 To see the size of everything a build writes, run the build with `--stats`:
 
@@ -71,7 +71,7 @@ Each build records its sizes in `.wf-sizes.json` beside the project, so the next
 
 The project's own scripts are listed by their path under `js/`, such as `js/tilt.js` ([Call your own script](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)). The build copies them as written: it does not minify a file it promises to ship byte for byte.
 
-## Set a size budget
+## Size budgets
 
 To be warned when a file grows past a size, name its gzipped limit in `build.budget`:
 
@@ -81,7 +81,7 @@ To be warned when a file grows past a size, name its gzipped limit in `build.bud
 
 Any output may have a budget, including a page's chunk and one of your own scripts under `js/`. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.
 
-## Time pages in a browser
+## Page timing
 
 To measure how fast each page paints, build the site and run `wf verify` with a budget in milliseconds:
 
@@ -91,7 +91,7 @@ wf build && wf verify --budget 800
 
 `wf verify` loads every route in headless Chrome. For each route it prints the first contentful paint, the number of nodes in the document, and the bytes and requests it took. `--budget 800` fails a route whose first paint is slower than 800 ms. Lighthouse and the browser's performance panel work on the build as on any other site.
 
-## Avoid what makes a site slow
+## Common slowdowns
 
 These are the patterns that slow a WebFluent site down, and what to do instead:
 

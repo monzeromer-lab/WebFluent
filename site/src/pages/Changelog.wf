@@ -8,7 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
-                ReleaseNotes(version: "7.2.0", id: "7.2.0"),
+                ReleaseNotes(version: "7.2.0", id: "7.2.0", date: "2026-11-23"),
                 ReleaseNotes(version: "7.1.1", id: "7.1.1", date: "2026-11-18"),
                 ReleaseNotes(version: "7.1.0", id: "7.1.0", date: "2026-11-18"),
                 ReleaseNotes(version: "7.0.1", id: "7.0.1", date: "2026-11-17"),
@@ -79,7 +79,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                 }
             }
 
-            ReleaseEntry(ReleaseNotes(version: "7.2.0", id: "7.2.0", summary: #"Two commands for checking a site as a host and a reader meet it, keyed
+            ReleaseEntry(ReleaseNotes(version: "7.2.0", id: "7.2.0", date: "2026-11-23", when: "23 November 2026", summary: #"Two commands for checking a site as a host and a reader meet it, keyed
 lists that move only what moved, a baseline palette that meets WCAG AA, and
 the fixes twelve new apps and a migrated studio turned up."#, sections: [
                 NotesSection(title: #"`wf start` and `wf inspect`"#, id: "7.2.0-wf-start-and-wf-inspect", items: [
@@ -162,7 +162,7 @@ without a package, Lighthouse, build times, runtime speed, PDFs, and what
 an AI agent spends to build an app — each a script under `bench/` with
 its raw results."#)
                 ])
-            ], count: 15))
+            ], count: 15), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "7.1.1", id: "7.1.1", date: "2026-11-18", when: "18 November 2026", summary: #"A fix to the language server.
 
@@ -172,7 +172,7 @@ its raw results."#)
   any Arabic, which the docs site is full of — ended the server. It reads
   them by character now, and a name's edges are any script's letters, so
   in `{أname}` the Arabic letter belongs to the name.
-- The VS Code and Zed extensions fetch wf-lsp 7.1.1."#, count: 0), latest: true)
+- The VS Code and Zed extensions fetch wf-lsp 7.1.1."#, count: 0))
 
             ReleaseEntry(ReleaseNotes(version: "7.1.0", id: "7.1.0", date: "2026-11-18", when: "18 November 2026", summary: #"A project's components documented as the reference documents the
 built-ins, each drawn live; editors that know all of 7.0, and a script's
@@ -1739,20 +1739,20 @@ modal's own heading and close button, source maps, a translated
 `wf init`, and icons; and tests that find a control by the name a reader
 hears, each test file with its own declarations."#, sections: [
                 NotesSection(title: #"Additions"#, id: "5.11.0-additions", items: [
-                    Change(text: #"**A handler names each value its event sends** ([chapter 9](/learn/08-events#emitting-events-from-components)).
+                    Change(text: #"**A handler names each value its event sends** ([chapter 9](/learn/08-events#component-events)).
 A component that declares `event menu(key: String, x: Number, y: Number)`
 and `emit menu(k, x, y)` is handled with `on menu(key, x, y) { … }`, each
 name typed as the event declares it. A handler may name fewer values
 than the event sends, never more: a name past the last one is the new
 error T22, which says what the event sends. The same holds for an api's
 hooks and a connection's handlers."#),
-                    Change(text: #"**Gestures on a component's call** ([chapter 9](/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter)).
+                    Change(text: #"**Gestures on a component's call** ([chapter 9](/learn/08-events#gestures)).
 `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`,
 `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written
 on a component's call land on its root element, as `class:` and
 `on contextmenu` already did. A component whose body is not one element
 has nothing for them to land on, which is the new error C07."#),
-                    Change(text: #"**`Modal.Title` and `.closable`** ([chapter 9](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)).
+                    Change(text: #"**`Modal.Title` and `.closable`** ([chapter 9](/learn/08-events#overlays)).
 `Modal.Title { … }` (and `Dialog.Title`) is drawn in the heading in place
 of `title:`'s words, so a heading can set a name apart in code;
 `title:` stays the dialog's name. `.closable` puts a close button,
@@ -1791,7 +1791,7 @@ type and completion offers them, where hovering `e` in
 several names."#)
                 ]),
                 NotesSection(title: #"Fixes"#, id: "5.11.0-fixes", items: [
-                    Change(text: #"**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#write-a-test-that-acts)).
+                    Change(text: #"**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#the-test-page)).
 What is `aria-hidden` (a menu item's shortcut, a glyph) is left out of
 a name, so `click "Paste"` finds an item that shows Ctrl+V. A submenu's
 entry is named by its label, not by its items: `WF.submenu` points the
@@ -1843,15 +1843,15 @@ fields, and `tests/app.wf` and `tests/tasks.wf`. `wf init static` has a
 validated contact form with a required agreement `Checkbox`, English and
 Arabic translations, and `tests/site.wf`. `wf test` passes in a new
 project."#),
-                    Change(text: #"**A test can place a whole page** ([chapter 24](/learn/16-testing#test-a-whole-page))
+                    Change(text: #"**A test can place a whole page** ([chapter 24](/learn/16-testing#the-test-page))
 by its name, as it places a component (`Tasks`, then `click "Add"`),
 with its state, stores and handlers running. This works for a page with
 no route parameter whose name no component also has. In a test that
 acts, `press "Enter"` in a form's text field submits the form, and
 `click "Name"` also finds, by its name, an element whose role is a link,
 a tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a
-checkbox or a radio ([chapter 24](/learn/16-testing#write-a-test-that-acts))."#),
-                    Change(text: #"**`on blur` and `on focus` on a page** ([chapter 9](/learn/08-events#shortcuts-for-an-app)).
+checkbox or a radio ([chapter 24](/learn/16-testing#the-test-page))."#),
+                    Change(text: #"**`on blur` and `on focus` on a page** ([chapter 9](/learn/08-events#app-shortcuts)).
 A page, a component or `app` hears the window lose and gain focus for as
 long as it shows, for example to save when the window is left. Both
 listen on the window; `on keydown` and `on keyup` still listen on the
@@ -1869,11 +1869,11 @@ it."#),
 `help-circle`, `collapse-all`, `chevron-up`, `globe`, `external-link`,
 `panel-down` and `panel-up`. They go wherever an icon name does and are
 drawn in `currentColor`."#),
-                    Change(text: #"**`Menu.Item.danger`** ([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)),
+                    Change(text: #"**`Menu.Item.danger`** ([chapter 9](/learn/08-events#popovers-menus-and-tooltips)),
 or `danger: true`, draws an item that cannot be undone, such as Delete
 or Discard, in the danger colour."#),
                     Change(text: #"**A `Tooltip`'s `shortcut:` reaches its control**
-([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)):
+([chapter 9](/learn/08-events#popovers-menus-and-tooltips)):
 `Tooltip("Save", shortcut: "mod+s") { Button("Save") }` also gives the
 button `aria-keyshortcuts` in ARIA's spelling (`Control+S`, or
 `Meta+S` on Apple's systems), unless it has one."#),
@@ -1961,7 +1961,7 @@ Enter in the SPA starter. A handler that reads `key` now gets
 every kind of handler; a state, a loop item or a parameter of that name
 is left alone."#),
                     Change(text: #"**A layer that starts open no longer stops the page drawing**
-([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)).
+([chapter 9](/learn/08-events#popovers-menus-and-tooltips)).
 A `Modal`, `Dialog`, `Popover` or state-opened `Menu` whose `visible:`
 was `true` from the start asked to open before it was in the document,
 and threw; each now opens once it is there. A layer anchored to an
@@ -1969,7 +1969,7 @@ element stayed clamped to the window's edge once the element scrolled
 away; it now hides with it (`data-anchor-hidden`), stays open and shows
 again when the element comes back. The Escape that closes an open
 `Modal` or `Dialog` no longer reaches the page behind it."#),
-                    Change(text: #"**Menus and tooltips** ([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)).
+                    Change(text: #"**Menus and tooltips** ([chapter 9](/learn/08-events#popovers-menus-and-tooltips)).
 `Menu(label:)` is the list's accessible name; the button's words come
 from `trigger:` (a `Dropdown`'s still from `label:`), so a menu that
 `visible:` opens no longer draws a stray button. Each menu and each
@@ -1977,7 +1977,7 @@ tooltip drawn gets its own id at run time (`WF.uid`), where every copy a
 `for` or a component drew shared one, so `aria-controls` and
 `aria-describedby` could name another copy's. A menu keeps its `class:`
 and its `style { }` class as it opens and closes."#),
-                    Change(text: #"**Forms ask their rules** ([chapter 16](/learn/14-forms#choose-when-a-message-shows)).
+                    Change(text: #"**Forms ask their rules** ([chapter 16](/learn/14-forms#when-messages-show)).
 A `Form` with no `bind:` in a page or component with `validate` rules
 ran `on submit` anyway; it now stops on a failing rule and shows the
 messages. Each page and each copy of a component has its own form
@@ -1986,7 +1986,7 @@ a component shared one form. A validated `Checkbox` or `Switch` shows
 its message beneath it, announced and tied to the control
 (`aria-describedby`, `aria-invalid`). A field's character count follows
 a value the program sets, such as a reset."#),
-                    Change(text: #"**Controls given a value work** ([chapter 16](/learn/14-forms#bind-a-control-to-state)).
+                    Change(text: #"**Controls given a value work** ([chapter 16](/learn/14-forms#binding-controls)).
 `Switch(checked: value)` without `bind:` drew no input; it now follows
 the value, and its `on change` hears the click. A `Switch`'s `on change`
 was never attached. A bound `Checkbox` or `Radio` with its own
@@ -2010,7 +2010,7 @@ follows it, where it kept its first value. The built script declares
 each store after the stores it `use`s, so a read made while the script
 starts never meets a store not declared yet."#),
                     Change(text: #"**The pre-render paints what the live page draws**
-([chapter 26](/about/static-or-single-page#what-the-static-paint-knows)).
+([chapter 26](/about/static-or-single-page#static-and-spa-builds)).
 A `Checkbox`, `Radio` or `Switch` is its `<label>` and `<input>`, ticked
 and disabled as its state starts, where only the labels' words showed.
 A `Menu` or `Dropdown` is its button and a hidden list, where its
@@ -2022,7 +2022,7 @@ and `controls` are written only when `true`, here and in the template
 engine, so `Button("Go", disabled: false)` is not a dead button.
 `.pop()` and `.shift()` are evaluated on a list the build knows."#),
                     Change(text: #"**A test that looks reads the page as a reader does**
-([chapter 24](/learn/16-testing#write-a-test-that-looks)). The template
+([chapter 24](/learn/16-testing#the-test-page)). The template
 engine draws a `Menu` or `Dropdown` as its button and hidden list,
 `keyLabel("mod+shift+p")` as the build writes it (`Ctrl+Shift+P`), and
 a `t()` with a count in the default locale's CLDR form. `expect` decodes
@@ -2052,7 +2052,7 @@ served `X-Frame-Options: SAMEORIGIN` by `wf serve`, and its `_headers`
 says the same with `frame-ancestors 'self'`; every other project keeps
 `DENY` and `'none'`."#),
                     Change(text: #"**An `Avatar`'s `src:` is checked** like any other `src:`
-([chapter 23](/about/security#what-the-compiler-guarantees)): a
+([chapter 23](/about/security#guarantees)): a
 run-time value goes through `WF.safeUrl`."#),
                     Change(text: #"**Long keyed lists no longer stall as they grow**
 ([chapter 20](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)). A keyed `for` read the place
@@ -2060,11 +2060,11 @@ of every item it kept before each change, so a 960-line log appended
 line by line froze the page for 3.5 s. Only items whose index changes
 are measured now; a list that only grows at its end measures nothing."#),
                     Change(text: #"**A `Splitter` moves from where it is drawn**
-([chapter 9](/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter)).
+([chapter 9](/learn/08-events#gestures)).
 A drag or an arrow key starts from the region's drawn size, not the
 bound value, and a reset writes `reset:` as given, so `reset: 0` can
 mean the region's default share."#),
-                    Change(text: #"**`() => …` takes no arguments** ([chapter 14](/reference/expressions#fields-calls-and-methods)).
+                    Change(text: #"**`() => …` takes no arguments** ([chapter 14](/reference/expressions#fields-and-methods)).
 It was typed as taking one, so it could fail to fit a script parameter
 whose JSDoc says `() => boolean`."#),
                     Change(text: #"**`webfluent` on Windows** ([chapter 2](/learn/01-getting-started#windows-powershell)).
@@ -2092,7 +2092,7 @@ punctuation draws that character (`\*` is `*`, not emphasis), as
 CommonMark has it, and the build and the browser draw Markdown alike,
 line breaks and white space included."#),
                     Change(text: #"**Escape goes to the newest layer that can take it**
-([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)).
+([chapter 9](/learn/08-events#popovers-menus-and-tooltips)).
 A tooltip under the pointer no longer takes Escape from the page (an
 editor's completion list behind a toolbar button lost it); it hides and
 lets the key go on. An open `Modal` or `Dialog` is the newest layer, so
@@ -2116,7 +2116,7 @@ it drew about forty and trimmed them a frame later."#),
 draws it, not as a `title=` tooltip; an `IconButton`'s own `title:` wins
 over its label on every page."#),
                     Change(text: #"**A test reads a page as a reader does**
-([chapter 24](/learn/16-testing#write-a-test-that-looks)). `expect` reads
+([chapter 24](/learn/16-testing#the-test-page)). `expect` reads
 a plain render as a browser lays it out: elements that touch read as
 touching, where the render's line breaks put a space between them. A
 test run in a browser loads the project's own stylesheets and serves
@@ -2146,18 +2146,18 @@ match the live page are what a project may notice. On Windows, type
 and the compiler as a library an editor, a visual builder or an agent
 builds on, each piece also a `wf` command."#, sections: [
                 NotesSection(title: #"Additions"#, id: "5.9.0-additions", items: [
-                    Change(text: #"**Layers** ([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)). `Popover`, a `Menu` at
+                    Change(text: #"**Layers** ([chapter 9](/learn/08-events#popovers-menus-and-tooltips)). `Popover`, a `Menu` at
 its button, at an anchor or at a point (`at:`, for a context menu), with
 submenus, and `Tooltip`, drawn in the browser's top layer, so nothing
 clips or covers them. Each flips and slides to stay on screen; Escape
 closes the top one, a press outside closes what it is outside of, and
 focus goes back where it was."#),
-                    Change(text: #"**Shortcuts for an app** ([chapter 9](/learn/08-events#shortcuts-for-an-app)). `mod` is ⌘
+                    Change(text: #"**Shortcuts for an app** ([chapter 9](/learn/08-events#app-shortcuts)). `mod` is ⌘
 on Apple's systems and Ctrl elsewhere; chords (`"mod+k mod+s"`);
 `keyIs(e, …)` and `keyLabel(…)` for a table of commands that drives
 menus and a palette; a page, a component or `app` hears `keydown` and the
 window's events itself; `trapFocus` keeps focus inside a panel."#),
-                    Change(text: #"**Gestures** ([chapter 9](/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter)). `drag:` and
+                    Change(text: #"**Gestures** ([chapter 9](/learn/08-events#gestures)). `drag:` and
 `on receive(d)` with a ghost, edge scroll and Escape; `on longpress`,
 `on swipe`; and `Splitter` between two regions, with its size kept."#),
                     Change(text: #"**`VirtualList`** ([chapter 37](/reference)): a

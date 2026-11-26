@@ -109,7 +109,7 @@ Arabic is fetched when a document has it. The Rust side is
 `webfluent::memory::compile_files`, which builds a map of path → contents
 natively too.
 
-### Template Data Context
+### Template data
 
 Data is a JSON object. The page says what it takes, as its parameters:
 every render holds the data to them first, and data that does not fit is

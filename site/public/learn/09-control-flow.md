@@ -201,7 +201,7 @@ The rules:
 - Without an `else`, a `match` must give every case of the enum, the read or the result an arm, or it is an error (`T15`). That holds for a `match` statement and a `match` expression alike; an expression that covers every case needs no `else`.
 - An arm is drawn again when the arm changes, not when its value does. A new payload of the same case — `.failed("refused")` after `.failed("timed out")` — reaches what the arm drew in place.
 
-## Expressions that choose
+## Conditional expressions
 
 `if` and `match` are also values, and `??` picks a fallback for a value that may be null:
 
@@ -218,7 +218,7 @@ page Choose(path: "/", title: "Choose", description: "Values picked by a conditi
 
 An `if` value with no `else` is `null` when its condition fails. [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md) has the rest.
 
-## In actions and handlers
+## Control flow in actions
 
 The same statements work in an imperative block — a handler or an action — on values rather than elements, plus `try`/`catch`. This action fetches rows, matches the answer, and keeps the first hundred:
 
@@ -262,8 +262,8 @@ When the action only needs the value, `try` says so in one word: `let answer: Ro
 | `VirtualList(rowHeight: 32) { for … by … }` | only the rows in view | [Long lists](#long-lists) |
 | `show open { … }` | its block, hidden rather than removed | [`show`](#show) |
 | `match s { .idle { … } else { … } }` | one arm by case, or by a resource's state | [`match`](#match) |
-| `if c { a } else { b }`, `match s { … }`, `a ?? b` | a value | [Expressions that choose](#expressions-that-choose) |
-| `try { … } catch e { … }` | in an action: a guard on what may fail | [In actions and handlers](#in-actions-and-handlers) |
+| `if c { a } else { b }`, `match s { … }`, `a ?? b` | a value | [Expressions that choose](#conditional-expressions) |
+| `try { … } catch e { … }` | in an action: a guard on what may fail | [In actions and handlers](#control-flow-in-actions) |
 
 ## Common mistakes
 

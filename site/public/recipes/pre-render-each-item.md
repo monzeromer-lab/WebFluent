@@ -36,4 +36,4 @@ For a post whose slug is `hello`, the build writes `posts/hello/index.html`, wit
 - A value that is not in `paths:` has no file, so a static host answers with `404.html` ([Show your own page for an unknown address](https://webfluent.monzeromer.dev/recipes/not-found-page.md)).
 - A single-page build does not need `paths:` at all: the router draws the page for any value in the browser.
 
-[Static or single-page](https://webfluent.monzeromer.dev/about/static-or-single-page.md#what-the-static-paint-knows) says what else the build can paint into each file.
+[Static or single-page](https://webfluent.monzeromer.dev/about/static-or-single-page.md#pre-rendering-limits) says what else the build can paint into each file.

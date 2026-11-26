@@ -14,7 +14,7 @@ A named function of a page, component or store whose body changes state or does 
 
 ### api
 
-A declaration that describes a service: its address, how it is reached, and its endpoints, each a typed call ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#describe-a-service-with-api)).
+A declaration that describes a service: its address, how it is reached, and its endpoints, each a typed call ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#api-services)).
 
 ### App shell
 
@@ -24,7 +24,7 @@ The `app { }` declaration: what every page is drawn inside, with a `Router` wher
 
 ### Block
 
-The `{ … }` after an element, holding its style, transitions, handlers, slot fills and children, in that order ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md#the-call-shape)).
+The `{ … }` after an element, holding its style, transitions, handlers, slot fills and children, in that order ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md#call-syntax)).
 
 ### Built-in
 
@@ -42,7 +42,7 @@ A page's own script and stylesheet, written to their own files and loaded the fi
 
 ### Contract
 
-What an `api` says of each endpoint — where it is, what it takes, what it answers and how it fails — which every call site, every fake and, with an OpenAPI spec, `wf api check` are held to ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#declare-endpoints)).
+What an `api` says of each endpoint — where it is, what it takes, what it answers and how it fails — which every call site, every fake and, with an OpenAPI spec, `wf api check` are held to ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#endpoints)).
 
 ### Component
 
@@ -78,7 +78,7 @@ Anything a page draws by a capitalised name — a built-in such as `Button`, or 
 
 ### Endpoint
 
-One call of an `api`: a method, a name, its parameters, a path given by `at`, and its answer, `get user(id: String) at "users/{id}" -> User!` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#declare-endpoints)).
+One call of an `api`: a method, a name, its parameters, a path given by `at`, and its answer, `get user(id: String) at "users/{id}" -> User!` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#endpoints)).
 
 ### Enum
 
@@ -86,7 +86,7 @@ A type with a fixed set of cases, declared `enum Tone { calm, loud }` ([Types](h
 
 ### Error enum
 
-An enum whose cases name the statuses a service answers with, each with its body — `notFound(problem: Problem) on 404` — and one `http(error: HttpError)` case for every other failure ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#say-how-a-call-fails)).
+An enum whose cases name the statuses a service answers with, each with its body — `notFound(problem: Problem) on 404` — and one `http(error: HttpError)` case for every other failure ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#error-enums)).
 
 ### Event
 
@@ -96,7 +96,7 @@ Something that happens — a click, a key, or an event a component declares and 
 
 ### Fake
 
-What answers a group's endpoints in a test in place of the network, held to the group's contract: `fake OneUser for Backend.users { … }` ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#answer-a-service-with-fakes)).
+What answers a group's endpoints in a test in place of the network, held to the group's contract: `fake OneUser for Backend.users { … }` ([Testing](https://webfluent.monzeromer.dev/learn/16-testing.md#fakes)).
 
 ### Flag
 
@@ -132,7 +132,7 @@ A rule the compiler checks beyond whether the program can work, such as an acces
 
 ### Middleware
 
-A step every request of an `api` passes through, in the order written: `middleware [requestId, bearer(Session.token)]`, or one the project declares with `middleware name(req, next) { … }` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#pass-every-request-through-middleware)).
+A step every request of an `api` passes through, in the order written: `middleware [requestId, bearer(Session.token)]`, or one the project declares with `middleware name(req, next) { … }` ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#middleware)).
 
 ## P
 
@@ -146,15 +146,15 @@ A sub-element called under its owner's name: `Card.Header`, `Panel.Footer` ([Com
 
 ### Persist
 
-A state kept in the browser's storage across visits: `persist scheme = "light"` ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#keeping-a-value-across-visits)).
+A state kept in the browser's storage across visits: `persist scheme = "light"` ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md#persisted-state)).
 
 ### Positional argument
 
-The one value an element takes without a name, such as a button's label or a heading's text ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md#the-call-shape)).
+The one value an element takes without a name, such as a button's label or a heading's text ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md#call-syntax)).
 
 ### Pre-rendered page
 
-The HTML the build writes for a page from everything it can know at build time, shown before any script runs; also called the *static paint* ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#what-the-static-paint-knows)).
+The HTML the build writes for a page from everything it can know at build time, shown before any script runs; also called the *static paint* ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#pre-rendering-limits)).
 
 ### Project script
 
@@ -168,7 +168,7 @@ A value a component or built-in takes, passed by name — or, for the one marked
 
 ### Read
 
-A request whose answer the page shows, as one value in one of three cases: `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`; a `resource` holds one ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource)).
+A request whose answer the page shows, as one value in one of three cases: `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)`; a `resource` holds one ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#resources)).
 
 ### Registry
 
@@ -180,7 +180,7 @@ The body of a page, component or element, which describes what to show and the s
 
 ### Resource
 
-A declaration that holds a read: `resource rows: [Row] = http.get(…)` or `resource users = Backend.users.list()`, shown by a `match` on its `.loading`, `.failed(e)` and `.loaded(v)` cases ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#show-a-request-with-resource)).
+A declaration that holds a read: `resource rows: [Row] = http.get(…)` or `resource users = Backend.users.list()`, shown by a `match` on its `.loading`, `.failed(e)` and `.loaded(v)` cases ([Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md#resources)).
 
 ### Result
 
@@ -206,7 +206,7 @@ A reactive value, which is what a `state` is underneath: whatever reads it updat
 
 ### Single-page app (SPA)
 
-A build with one HTML shell, whose pages the script swaps without a reload ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#two-shapes-of-build)).
+A build with one HTML shell, whose pages the script swaps without a reload ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#static-and-spa-builds)).
 
 ### Slot
 
@@ -222,11 +222,11 @@ A value of a page, component or store that the page shows and that changes: `sta
 
 ### Static build
 
-A build with `build.ssg: true`, which writes a pre-rendered HTML file for every page ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#two-shapes-of-build)).
+A build with `build.ssg: true`, which writes a pre-rendered HTML file for every page ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#static-and-spa-builds)).
 
 ### Static paint
 
-Another name for the pre-rendered page: the HTML the build writes for a page before any script runs ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#what-the-static-paint-knows)).
+Another name for the pre-rendered page: the HTML the build writes for a page before any script runs ([Static sites and SPAs](https://webfluent.monzeromer.dev/about/static-or-single-page.md#pre-rendering-limits)).
 
 ### Store
 
@@ -250,7 +250,7 @@ A record declared with `type`, or any of the types a value can have; every value
 
 ### Validate block
 
-A `validate x { … }` block beside a state, whose rules the control bound to that state shows ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#validate-a-field)).
+A `validate x { … }` block beside a state, whose rules the control bound to that state shows ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md#validation)).
 
 ## W
 

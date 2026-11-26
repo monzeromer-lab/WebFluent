@@ -1,5 +1,5 @@
 /// Chapter 9 of the guide. This page is its source: edit it here.
-page Learn09ControlFlow(path: "/learn/09-control-flow", title: "Control flow", description: "if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.", layout: DocsShell("Control flow", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes.", source: "site/src/pages/guide/09-control-flow.wf", sections: [Anchor(id: "if-else-if-else", label: "if / else if / else"), Anchor(id: "if-let", label: "if let"), Anchor(id: "for", label: "for"), Anchor(id: "show", label: "show"), Anchor(id: "match", label: "match"), Anchor(id: "expressions-that-choose", label: "Expressions that choose"), Anchor(id: "in-actions-and-handlers", label: "In actions and handlers"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a branch with `if`, and read a value that may be null with `if let`", "Draw a list with `for … by`, keyed so items keep their state", "Window a long list with `VirtualList`", "Hide without removing with `show`", "Draw one arm per case with `match`, payloads included"], prevTo: "/learn/08-events", prevLabel: t("ch.08"), nextTo: "/learn/10-components", nextLabel: t("ch.10"))) {
+page Learn09ControlFlow(path: "/learn/09-control-flow", title: "Control flow", description: "if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.", layout: DocsShell("Control flow", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes.", source: "site/src/pages/guide/09-control-flow.wf", sections: [Anchor(id: "if-else-if-else", label: "if / else if / else"), Anchor(id: "if-let", label: "if let"), Anchor(id: "for", label: "for"), Anchor(id: "show", label: "show"), Anchor(id: "match", label: "match"), Anchor(id: "conditional-expressions", label: "Conditional expressions"), Anchor(id: "control-flow-in-actions", label: "Control flow in actions"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a branch with `if`, and read a value that may be null with `if let`", "Draw a list with `for … by`, keyed so items keep their state", "Window a long list with `VirtualList`", "Hide without removing with `show`", "Draw one arm per case with `match`, payloads included"], prevTo: "/learn/08-events", prevLabel: t("ch.08"), nextTo: "/learn/10-components", nextLabel: t("ch.10"))) {
     Stack(gap: .lg) {
         Markdown("This chapter covers the five statements that decide what a page shows: `if`, `if let`, `for`, `show` and `match`. Each one follows the state it reads, adding and removing elements as its condition changes, so you never update the page by hand. Each animates when you ask it to ([Animate an element in and out](/recipes/animate-in-and-out)).\n\nIn this chapter:\n\n- `if`, `else if` and `else`, and `if let` for a value that may be null\n- `for` over a list, with a key — and `VirtualList` for thousands of rows\n- `show`, which hides elements without removing them\n- `match`, which shows one arm by an enum's case\n- `if` and `match` as values, and the same statements in actions\n\nThe statements in this chapter appear in a *render block* — the body of a page, component or element, which says what to draw. The last section shows them in an *imperative block* — a handler or an action, which runs code.")
 
@@ -130,7 +130,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
 
         Markdown("Over a **resource** it chooses by the read's case — `.loading`, `.failed(e)` or `.loaded(value, refreshing, stale)` — and over a **result** by `.ok(value)` or `.err(error)` ([Fetching data](/learn/15-data)). A `match` over a read with neither a `.failed` arm nor an `else` is an error (`T21`): a request that fails would show nothing.\n\nThe rules:\n\n- An arm binds one name per part of the payload: `.failed(reason)`.\n- `else` covers every case without an arm of its own.\n- Without an `else`, a `match` must give every case of the enum, the read or the result an arm, or it is an error (`T15`). That holds for a `match` statement and a `match` expression alike; an expression that covers every case needs no `else`.\n- An arm is drawn again when the arm changes, not when its value does. A new payload of the same case — `.failed(\"refused\")` after `.failed(\"timed out\")` — reaches what the arm drew in place.")
 
-        Heading("Expressions that choose", id: "expressions-that-choose").h2
+        Heading("Conditional expressions", id: "conditional-expressions").h2
 
         Markdown("`if` and `match` are also values, and `??` picks a fallback for a value that may be null:")
 
@@ -145,7 +145,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
 
         Markdown("An `if` value with no `else` is `null` when its condition fails. [Expressions](/reference/expressions) has the rest.")
 
-        Heading("In actions and handlers", id: "in-actions-and-handlers").h2
+        Heading("Control flow in actions", id: "control-flow-in-actions").h2
 
         Markdown("The same statements work in an imperative block — a handler or an action — on values rather than elements, plus `try`/`catch`. This action fetches rows, matches the answer, and keeps the first hundred:")
 
@@ -225,12 +225,12 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
                 Table.Row {
                     Table.Cell { Markdown("`if c \{ a \} else \{ b \}`, `match s \{ … \}`, `a ?? b`") }
                     Table.Cell("a value")
-                    Table.Cell { Markdown("[Expressions that choose](#expressions-that-choose)") }
+                    Table.Cell { Markdown("[Expressions that choose](#conditional-expressions)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`try \{ … \} catch e \{ … \}`") }
                     Table.Cell("in an action: a guard on what may fail")
-                    Table.Cell { Markdown("[In actions and handlers](#in-actions-and-handlers)") }
+                    Table.Cell { Markdown("[In actions and handlers](#control-flow-in-actions)") }
                 }
             }
         }

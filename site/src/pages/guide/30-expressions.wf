@@ -1,5 +1,5 @@
 /// Chapter 30 of the guide. This page is its source: edit it here.
-page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", description: "Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.", layout: DocsShell("Expressions", kind: .reference, chapter: t("nav.group.reference"), blurb: "The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await.", source: "site/src/pages/guide/30-expressions.wf", sections: [Anchor(id: "a-first-example", label: "A first example"), Anchor(id: "literals", label: "Literals"), Anchor(id: "interpolation", label: "Interpolation"), Anchor(id: "operators", label: "Operators"), Anchor(id: "choosing-a-value", label: "Choosing a value"), Anchor(id: "fields-calls-and-methods", label: "Fields, calls and methods"), Anchor(id: "format-and-ago", label: "format and ago"), Anchor(id: "regular-expressions", label: "Regular expressions"), Anchor(id: "tokens-as-values", label: "Tokens as values"), Anchor(id: "await", label: "await"), Anchor(id: "constants", label: "Constants"), Anchor(id: "built-in-functions", label: "Built-in functions"), Anchor(id: "summary", label: "Summary")], nextTo: "/reference/project", nextLabel: t("ch.31"))) {
+page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", description: "Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.", layout: DocsShell("Expressions", kind: .reference, chapter: t("nav.group.reference"), blurb: "The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await.", source: "site/src/pages/guide/30-expressions.wf", sections: [Anchor(id: "a-first-example", label: "A first example"), Anchor(id: "literals", label: "Literals"), Anchor(id: "interpolation", label: "Interpolation"), Anchor(id: "operators", label: "Operators"), Anchor(id: "conditional-expressions", label: "Conditional expressions"), Anchor(id: "fields-and-methods", label: "Fields and methods"), Anchor(id: "format-and-ago", label: "format and ago"), Anchor(id: "regular-expressions", label: "Regular expressions"), Anchor(id: "design-tokens", label: "Design tokens"), Anchor(id: "await", label: "await"), Anchor(id: "constants", label: "Constants"), Anchor(id: "built-in-functions", label: "Built-in functions"), Anchor(id: "summary", label: "Summary")], nextTo: "/reference/project", nextLabel: t("ch.31"))) {
     Stack(gap: .lg) {
         Markdown("An expression is anything that has a value: a prop's value, a condition, the right side of a `state` or a `derived`, or the inside of `\{…\}` in a string. Remember one thing: wherever WebFluent wants a value, any expression in this chapter can stand there, and it stays live when it reads state.\n\nIn this chapter:\n\n- literals, including the literals of the language's own types;\n- interpolation, and how a splice formats its value;\n- operators, the types they take, and their precedence;\n- `if` and `match` used as values;\n- fields, calls, lambdas and the methods of strings, lists and numbers;\n- `format` and `ago`, regular expressions, design tokens as values;\n- `await`, constants, and the functions the language adds.")
 
@@ -38,7 +38,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
     Text("{note ?? \"none\"} {slug.test(label)} {accent}")
 }"#, title: "wf")
 
-        Markdown("How each kind behaves:\n\n- **Strings** are double-quoted and read the escapes `\\n`, `\\t`, `\\r`, `\\\\`, `\\\"`, `\\\{` and `\\\}`. A raw string `#\"…\"#` and a block string `\"\"\"…\"\"\"` are in [Language basics](/learn/04-language-basics#three-ways-to-write-one).\n- **Lists and maps** may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read `owner.name` and refuse a misspelled field.\n- **`null`** is the absence of a value. Only a type that ends in `?` holds it.\n\nThe language's own types have literals too ([Types](/learn/12-types#the-types-the-language-brings-with-it)):")
+        Markdown("How each kind behaves:\n\n- **Strings** are double-quoted and read the escapes `\\n`, `\\t`, `\\r`, `\\\\`, `\\\"`, `\\\{` and `\\\}`. A raw string `#\"…\"#` and a block string `\"\"\"…\"\"\"` are in [Language basics](/learn/04-language-basics#string-forms).\n- **Lists and maps** may span lines and take a trailing comma. A map literal has the shape it was written with, so the checker can read `owner.name` and refuse a misspelled field.\n- **`null`** is the absence of a value. Only a type that ends in `?` holds it.\n\nThe language's own types have literals too ([Types](/learn/12-types#built-in-types)):")
 
         DocsCodeBlock(#"page Typed(path: "/typed", title: "Typed", description: "Literals of the built-in types.") {
     state due: Date = @2026-03-14             // a Date
@@ -67,7 +67,7 @@ page ExpressionsGuide(path: "/reference/expressions", title: "Expressions", desc
 
         Markdown("The page shows `Hello, Sam`, `You have 3 items`, `Total: $29.97` and `Next: 4`.\n\nAny expression may go inside `\{…\}`: a call, a method chain, an `if`, even a string of its own. `\"\{nickname ?? \"none\"\}\"` and `\"\{if ok \{ \"yes\" \} else \{ \"no\" \}\}\"` both work. The rules:\n\n- The group must close on the same line.\n- A splice opens with a name, a `(` or a `[`. Anything else in braces — `\"\{key: value\}\"` in prose, a fragment of code, `\"\{\"` alone — stays text.\n- For a long expression, declare a `derived` value and splice its name, as `noun` above. It reads better and the checker names it in a message.")
 
-        Heading("Showing a value a particular way", id: "showing-a-value-a-particular-way").h3
+        Heading("Format specifiers", id: "format-specifiers").h3
 
         Markdown("A splice may say how to show its value: `\{value:.style\}`, or `\{value:.style(option)\}`. It is `format(value, .style, option)` written where the value is read.")
 
@@ -147,7 +147,7 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
 
         Markdown("How they behave:\n\n- `+` adds two numbers or joins two strings. A string and a number are not joined: `\"Total: \" + n` is a `T18`, and a splice says how the number shows, `\"Total: \{n\}\"`. Arithmetic on anything but numbers is a `T18` too.\n- `!`, `&&` and `||` take a `Bool` (a `Bool?` counts, its `null` false). A number, a string or a value that may be null is a `T29`: write what the condition asks — `count != 0`, `name != \"\"`, `user != null` — and use `??`, not `||`, for a fallback.\n- `==` compares values. Two records with the same fields are not `==` unless they are the same object, so compare their ids.\n- Against a `null` literal, `==` and `!=` also match a value that is absent, such as a query key the address does not have.\n- `a ?? b` is `b` when `a` is `null`. `a?.b`, `a?.m()` and `a?.[i]` read through a `null` and give `null` instead of failing.\n- A range is the whole numbers from `a` up to `b`, without `b` for `..` and with it for `..=`.")
 
-        Heading("The types an expression must have", id: "the-types-an-expression-must-have").h3
+        Heading("Operand types", id: "operand-types").h3
 
         Markdown("Every expression has one type the program can name, and the checker holds each place to it:\n\n- **A condition is a `Bool`.** `if`, `show`, `!`, `&&` and `||` read a `Bool`; `if count \{ … \}` is a `T29`, whose fix writes `if count != 0`.\n- **A value made of several has one type.** The branches of an `if` or a `match`, the items of a list and the two sides of `??` must agree: `if ok \{ 1 \} else \{ \"none\" \}` is a `T27`. `null` on one side makes the value `T?`.\n- **No conversion happens by itself.** A `Date`, `Time` or `DateTime` where a `String` is wanted is a `T34`, because it has more than one spelling: `Text(due)` becomes `Text(\"\{due\}\")` or `Text(\"\{due:.date(long)\}\")`. A `Duration` and a `Number` do not mix either: `3.seconds + 500` is a `T34`, and `3.seconds + 500.ms` adds.")
 
@@ -161,7 +161,7 @@ page Scores(path: "/scores", title: "Scores", description: "Two numbers compared
 
         Markdown("Precedence, strongest first: `!`, unary `-` and `await`; then `* / %`; `+ -`; the comparisons; `==` and `!=`; `&&`; `||`; `??`; and ranges last. So `1..n + 1` is `1..(n + 1)`, and `a ?? b || c` is `a ?? (b || c)`. The full table is in [Grammar](/reference/grammar#expressions).")
 
-        Heading("Choosing a value", id: "choosing-a-value").h2
+        Heading("Conditional expressions", id: "conditional-expressions").h2
 
         Markdown("`if` and `match` are expressions when they stand where a value is expected. Each arm's block is its value:")
 
@@ -179,7 +179,7 @@ page Grades(path: "/grades", title: "Grades", description: "A score, graded.") {
 
         Markdown("The rules:\n\n- Every arm gives the same type, or `null` (`T27`).\n- An `if` with no `else` is `null` when its condition fails.\n- `if let x = v \{ a \} else \{ b \}` binds `x` when `v` is not `null`.\n- A `match` on an enum, as a value or as a statement, needs an arm for every case or an `else` (`T15`). One that covers every case needs no `else`.\n- A case with a payload binds one name in a `match` expression: `match status \{ .failed(reason) \{ reason \} else \{ \"\" \} \}`.")
 
-        Heading("Fields, calls and methods", id: "fields-calls-and-methods").h2
+        Heading("Fields and methods", id: "fields-and-methods").h2
 
         Markdown("A field is read with `.`, an item with `[i]`, and a method is called with `.name(…)`. This page filters, maps and joins a list of records:")
 
@@ -310,7 +310,7 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
 
         Markdown("What each use gives:\n\n- `re.test(s)` is a `Bool`.\n- `s.match(re)` and `re.exec(s)` are a `[String]?`: the match and its groups, or `null`.\n- `s.replace(re, \"x\")` and `s.replaceAll(re, \"x\")` are a `String`; `s.split(re)` is a `[String]`; `s.search(re)` is a `Number`.")
 
-        Heading("Tokens as values", id: "tokens-as-values").h2
+        Heading("Design tokens", id: "design-tokens").h2
 
         Markdown("`$name` names a design token from the theme ([Styling](/learn/13-styling)). In a style it becomes the token's CSS variable. As a value it is a reference to that variable, so a prop or a state that takes a colour takes a token:")
 
@@ -412,7 +412,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`optimistic(holder, change)`") }
-                    Table.Cell { Markdown("Shows a change before the server agrees ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees))") }
+                    Table.Cell { Markdown("Shows a change before the server agrees ([Fetching data](/learn/15-data#optimistic-updates))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`beacon(url, data)`") }
@@ -420,19 +420,19 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sanitize(html)`") }
-                    Table.Cell { Markdown("Passes markup through an allow-list ([Security](/about/security#one-door-for-markup))") }
+                    Table.Cell { Markdown("Passes markup through an allow-list ([Security](/about/security#raw-html))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`uuid()`") }
-                    Table.Cell { Markdown("Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it))") }
+                    Table.Cell { Markdown("Makes a fresh `Uuid` ([Types](/learn/12-types#built-in-types))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`toast(message, …)`, `await ask(question, …)`, `announce(text)`") }
-                    Table.Cell { Markdown("Shows a toast, asks a yes-or-no question, says something to a screen reader ([Events](/learn/08-events#toasts-questions-and-announcements-from-a-handler))") }
+                    Table.Cell { Markdown("Shows a toast, asks a yes-or-no question, says something to a screen reader ([Events](/learn/08-events#toasts-confirmations-and-announcements))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`http.get(url, options)`") }
-                    Table.Cell { Markdown("Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#ask-on-demand-with-http))") }
+                    Table.Cell { Markdown("Sends a request, through the same engine as `api`, and is a promise of a result; `post`, `put`, `patch` and `delete` too ([Ask on demand](/learn/15-data#one-off-requests-with-http))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)`") }

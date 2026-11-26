@@ -1,4 +1,6 @@
-### Your own JavaScript
+### JavaScript interop
+
+Plain `.js` files under `src/` are linked on every page, and their top-level functions can be called from `.wf` code.
 
 A `.js` file under `src/` is part of the project, as a `.css` file is: a
 **plain browser script** — no `export`, no `import`, no build step — copied

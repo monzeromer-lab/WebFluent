@@ -10,7 +10,7 @@ Most inaccessible pages were not made that way on purpose. A `<div>` with a clic
 
 WebFluent moves as much of the checklist as it can out of your hands. The built-ins render the markup assistive technology expects, the router and forms manage focus, and the compiler reports what it can see as a finding with a code, on every build. That leaves the work no tool can do (meaning, wording, order) and frees your attention for it.
 
-## What the built-ins do
+## Built-in accessibility
 
 You get these behaviours without asking, as long as you use the built-in elements rather than rebuilding them:
 
@@ -28,7 +28,7 @@ You get these behaviours without asking, as long as you use the built-in element
 - **Reduced motion.** A reader who asked for it gets no animation at all, and a carousel does not play on its own ([Motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md#respect-reduced-motion)).
 - **Visible focus.** Every interactive built-in shows a focus ring for the keyboard (`:focus-visible`), but not on every click.
 
-## What the compiler checks
+## Accessibility checks
 
 The compiler checks every page for the mistakes it can see in the markup, and reports each as a warning on every build and in the editor. Each code has a full entry, with a fix, in [Diagnostics](https://webfluent.monzeromer.dev/errors.md#accessibility), and `wf explain CODE` prints it in your terminal.
 

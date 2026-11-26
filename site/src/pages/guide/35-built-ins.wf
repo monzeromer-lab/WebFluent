@@ -240,7 +240,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](/learn/08-events#toasts-questions-and-announcements-from-a-handler).")
+        Markdown("Returns nothing. Where: actions, handlers and effects. See [Toasts, questions and announcements](/learn/08-events#toasts-confirmations-and-announcements).")
 
         DocsCodeBlock(#"announce("{results.length} results")"#, title: "wf")
 
@@ -445,7 +445,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#ask-on-demand-with-http).")
+        Markdown("`T` is named where the answer goes — `let rows: [Row] = try await http.get(url)`, `let got: [Row]! = await http.get(url)`, `resource rows: [Row] = http.get(url)`; a `get` with nowhere that says is `N11`. The error is an `HttpError`. Where: `await` in an action or a handler, or as a `resource`, which adds `refresh:`, `placeholder:` and the other options of a resource. `fetch` is gone (`N08`); `window.fetch` is the browser's own, untouched. See [Ask on demand with `http`](/learn/15-data#one-off-requests-with-http).")
 
         DocsCodeBlock(#"let rows: [Row] = try await http.get("/api/rows?page={page}")"#, title: "wf")
 
@@ -580,7 +580,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](/learn/15-data#show-a-change-before-the-server-agrees).")
+        Markdown("Returns a handle with `rollback()`. Where: actions. See [Show a change before the server agrees](/learn/15-data#optimistic-updates).")
 
         DocsCodeBlock(#"optimistic(Todos.items, items => items.filter(i => i.id != id))"#, title: "wf")
 
@@ -670,7 +670,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#one-door-for-markup).")
+        Markdown("Returns the markup without scripts, styles, frames, forms, `on*` attributes, or an `href` or `src` a browser would run. It runs at build time and in the browser from the same list. Where: anywhere. See [Show markup you did not write](/about/security#raw-html).")
 
         DocsCodeBlock(#"Unsafe.Html(sanitize(post.body))"#, title: "wf")
 
@@ -1263,7 +1263,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](/learn/12-types#the-types-the-language-brings-with-it) has the rest.")
+        Markdown("`.plus` and `.minus` take `years`, `months`, `weeks`, `days`, `hours`, `minutes`, `seconds` and `ms`. A duration is written with `ms`, `seconds`, `minutes`, `hours`, `days` or `weeks`. What the language computes is a call (`due.year()`); what the value already carries is a field (`price.amount`). [Types](/learn/12-types#built-in-types) has the rest.")
 
         DocsCodeBlock(#"derived checkout = arrival.plus(days: nights)"#, title: "wf")
 

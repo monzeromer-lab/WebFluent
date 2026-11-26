@@ -2,8 +2,8 @@
  {
   "version": "7.2.0",
   "id": "7.2.0",
-  "date": "",
-  "when": "",
+  "date": "2026-11-23",
+  "when": "23 November 2026",
   "summary": "Two commands for checking a site as a host and a reader meet it, keyed\nlists that move only what moved, a baseline palette that meets WCAG AA, and\nthe fixes twelve new apps and a migrated studio turned up.",
   "sections": [
    {
@@ -2803,17 +2803,17 @@
     "intro": "",
     "items": [
      {
-      "text": "**A handler names each value its event sends** ([chapter 9](/learn/08-events#emitting-events-from-components)).\nA component that declares `event menu(key: String, x: Number, y: Number)`\nand `emit menu(k, x, y)` is handled with `on menu(key, x, y) { … }`, each\nname typed as the event declares it. A handler may name fewer values\nthan the event sends, never more: a name past the last one is the new\nerror T22, which says what the event sends. The same holds for an api's\nhooks and a connection's handlers.",
+      "text": "**A handler names each value its event sends** ([chapter 9](/learn/08-events#component-events)).\nA component that declares `event menu(key: String, x: Number, y: Number)`\nand `emit menu(k, x, y)` is handled with `on menu(key, x, y) { … }`, each\nname typed as the event declares it. A handler may name fewer values\nthan the event sends, never more: a name past the last one is the new\nerror T22, which says what the event sends. The same holds for an api's\nhooks and a connection's handlers.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Gestures on a component's call** ([chapter 9](/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter)).\n`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`,\n`on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written\non a component's call land on its root element, as `class:` and\n`on contextmenu` already did. A component whose body is not one element\nhas nothing for them to land on, which is the new error C07.",
+      "text": "**Gestures on a component's call** ([chapter 9](/learn/08-events#gestures)).\n`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`,\n`on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written\non a component's call land on its root element, as `class:` and\n`on contextmenu` already did. A component whose body is not one element\nhas nothing for them to land on, which is the new error C07.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**`Modal.Title` and `.closable`** ([chapter 9](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)).\n`Modal.Title { … }` (and `Dialog.Title`) is drawn in the heading in place\nof `title:`'s words, so a heading can set a name apart in code;\n`title:` stays the dialog's name. `.closable` puts a close button,\nnamed Close, in the heading row. It closes the dialog as Escape does, so\n`on close` runs and `visible:` follows. Both work in the live page, the\npre-render and the template engine.",
+      "text": "**`Modal.Title` and `.closable`** ([chapter 9](/learn/08-events#overlays)).\n`Modal.Title { … }` (and `Dialog.Title`) is drawn in the heading in place\nof `title:`'s words, so a heading can set a name apart in code;\n`title:` stays the dialog's name. `.closable` puts a close button,\nnamed Close, in the heading row. It closes the dialog as Escape does, so\n`on close` runs and `visible:` follows. Both work in the live page, the\npre-render and the template engine.",
       "points": [],
       "after": ""
      },
@@ -2869,7 +2869,7 @@
     "intro": "",
     "items": [
      {
-      "text": "**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#write-a-test-that-acts)).\nWhat is `aria-hidden` (a menu item's shortcut, a glyph) is left out of\na name, so `click \"Paste\"` finds an item that shows Ctrl+V. A submenu's\nentry is named by its label, not by its items: `WF.submenu` points the\nentry's `aria-labelledby` at its label, for a screen reader and for\n`click \"File\"`.",
+      "text": "**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#the-test-page)).\nWhat is `aria-hidden` (a menu item's shortcut, a glyph) is left out of\na name, so `click \"Paste\"` finds an item that shows Ctrl+V. A submenu's\nentry is named by its label, not by its items: `WF.submenu` points the\nentry's `aria-labelledby` at its label, for a screen reader and for\n`click \"File\"`.",
       "points": [],
       "after": ""
      },
@@ -2939,12 +2939,12 @@
       "after": ""
      },
      {
-      "text": "**A test can place a whole page** ([chapter 24](/learn/16-testing#test-a-whole-page))\nby its name, as it places a component (`Tasks`, then `click \"Add\"`),\nwith its state, stores and handlers running. This works for a page with\nno route parameter whose name no component also has. In a test that\nacts, `press \"Enter\"` in a form's text field submits the form, and\n`click \"Name\"` also finds, by its name, an element whose role is a link,\na tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a\ncheckbox or a radio ([chapter 24](/learn/16-testing#write-a-test-that-acts)).",
+      "text": "**A test can place a whole page** ([chapter 24](/learn/16-testing#the-test-page))\nby its name, as it places a component (`Tasks`, then `click \"Add\"`),\nwith its state, stores and handlers running. This works for a page with\nno route parameter whose name no component also has. In a test that\nacts, `press \"Enter\"` in a form's text field submits the form, and\n`click \"Name\"` also finds, by its name, an element whose role is a link,\na tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a\ncheckbox or a radio ([chapter 24](/learn/16-testing#the-test-page)).",
       "points": [],
       "after": ""
      },
      {
-      "text": "**`on blur` and `on focus` on a page** ([chapter 9](/learn/08-events#shortcuts-for-an-app)).\nA page, a component or `app` hears the window lose and gain focus for as\nlong as it shows, for example to save when the window is left. Both\nlisten on the window; `on keydown` and `on keyup` still listen on the\ndocument.",
+      "text": "**`on blur` and `on focus` on a page** ([chapter 9](/learn/08-events#app-shortcuts)).\nA page, a component or `app` hears the window lose and gain focus for as\nlong as it shows, for example to save when the window is left. Both\nlisten on the window; `on keydown` and `on keyup` still listen on the\ndocument.",
       "points": [],
       "after": ""
      },
@@ -2959,12 +2959,12 @@
       "after": ""
      },
      {
-      "text": "**`Menu.Item.danger`** ([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)),\nor `danger: true`, draws an item that cannot be undone, such as Delete\nor Discard, in the danger colour.",
+      "text": "**`Menu.Item.danger`** ([chapter 9](/learn/08-events#popovers-menus-and-tooltips)),\nor `danger: true`, draws an item that cannot be undone, such as Delete\nor Discard, in the danger colour.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**A `Tooltip`'s `shortcut:` reaches its control**\n([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)):\n`Tooltip(\"Save\", shortcut: \"mod+s\") { Button(\"Save\") }` also gives the\nbutton `aria-keyshortcuts` in ARIA's spelling (`Control+S`, or\n`Meta+S` on Apple's systems), unless it has one.",
+      "text": "**A `Tooltip`'s `shortcut:` reaches its control**\n([chapter 9](/learn/08-events#popovers-menus-and-tooltips)):\n`Tooltip(\"Save\", shortcut: \"mod+s\") { Button(\"Save\") }` also gives the\nbutton `aria-keyshortcuts` in ARIA's spelling (`Control+S`, or\n`Meta+S` on Apple's systems), unless it has one.",
       "points": [],
       "after": ""
      },
@@ -3055,22 +3055,22 @@
       "after": ""
      },
      {
-      "text": "**A layer that starts open no longer stops the page drawing**\n([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)).\nA `Modal`, `Dialog`, `Popover` or state-opened `Menu` whose `visible:`\nwas `true` from the start asked to open before it was in the document,\nand threw; each now opens once it is there. A layer anchored to an\nelement stayed clamped to the window's edge once the element scrolled\naway; it now hides with it (`data-anchor-hidden`), stays open and shows\nagain when the element comes back. The Escape that closes an open\n`Modal` or `Dialog` no longer reaches the page behind it.",
+      "text": "**A layer that starts open no longer stops the page drawing**\n([chapter 9](/learn/08-events#popovers-menus-and-tooltips)).\nA `Modal`, `Dialog`, `Popover` or state-opened `Menu` whose `visible:`\nwas `true` from the start asked to open before it was in the document,\nand threw; each now opens once it is there. A layer anchored to an\nelement stayed clamped to the window's edge once the element scrolled\naway; it now hides with it (`data-anchor-hidden`), stays open and shows\nagain when the element comes back. The Escape that closes an open\n`Modal` or `Dialog` no longer reaches the page behind it.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Menus and tooltips** ([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)).\n`Menu(label:)` is the list's accessible name; the button's words come\nfrom `trigger:` (a `Dropdown`'s still from `label:`), so a menu that\n`visible:` opens no longer draws a stray button. Each menu and each\ntooltip drawn gets its own id at run time (`WF.uid`), where every copy a\n`for` or a component drew shared one, so `aria-controls` and\n`aria-describedby` could name another copy's. A menu keeps its `class:`\nand its `style { }` class as it opens and closes.",
+      "text": "**Menus and tooltips** ([chapter 9](/learn/08-events#popovers-menus-and-tooltips)).\n`Menu(label:)` is the list's accessible name; the button's words come\nfrom `trigger:` (a `Dropdown`'s still from `label:`), so a menu that\n`visible:` opens no longer draws a stray button. Each menu and each\ntooltip drawn gets its own id at run time (`WF.uid`), where every copy a\n`for` or a component drew shared one, so `aria-controls` and\n`aria-describedby` could name another copy's. A menu keeps its `class:`\nand its `style { }` class as it opens and closes.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Forms ask their rules** ([chapter 16](/learn/14-forms#choose-when-a-message-shows)).\nA `Form` with no `bind:` in a page or component with `validate` rules\nran `on submit` anyway; it now stops on a failing rule and shows the\nmessages. Each page and each copy of a component has its own form\nhandles: a page's carried into the next page compiled, and every copy of\na component shared one form. A validated `Checkbox` or `Switch` shows\nits message beneath it, announced and tied to the control\n(`aria-describedby`, `aria-invalid`). A field's character count follows\na value the program sets, such as a reset.",
+      "text": "**Forms ask their rules** ([chapter 16](/learn/14-forms#when-messages-show)).\nA `Form` with no `bind:` in a page or component with `validate` rules\nran `on submit` anyway; it now stops on a failing rule and shows the\nmessages. Each page and each copy of a component has its own form\nhandles: a page's carried into the next page compiled, and every copy of\na component shared one form. A validated `Checkbox` or `Switch` shows\nits message beneath it, announced and tied to the control\n(`aria-describedby`, `aria-invalid`). A field's character count follows\na value the program sets, such as a reset.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Controls given a value work** ([chapter 16](/learn/14-forms#bind-a-control-to-state)).\n`Switch(checked: value)` without `bind:` drew no input; it now follows\nthe value, and its `on change` hears the click. A `Switch`'s `on change`\nwas never attached. A bound `Checkbox` or `Radio` with its own\n`on change` lost the binding's write; the binding now writes first and\nthe handler runs after it.",
+      "text": "**Controls given a value work** ([chapter 16](/learn/14-forms#binding-controls)).\n`Switch(checked: value)` without `bind:` drew no input; it now follows\nthe value, and its `on change` hears the click. A `Switch`'s `on change`\nwas never attached. A bound `Checkbox` or `Radio` with its own\n`on change` lost the binding's write; the binding now writes first and\nthe handler runs after it.",
       "points": [],
       "after": ""
      },
@@ -3085,12 +3085,12 @@
       "after": ""
      },
      {
-      "text": "**The pre-render paints what the live page draws**\n([chapter 26](/about/static-or-single-page#what-the-static-paint-knows)).\nA `Checkbox`, `Radio` or `Switch` is its `<label>` and `<input>`, ticked\nand disabled as its state starts, where only the labels' words showed.\nA `Menu` or `Dropdown` is its button and a hidden list, where its\nentries lay in the page, and a menu that state opens is its list alone.\nA part written with flags carries their\nclasses (`Menu.Item.danger`), and `Column(span: 8)` its `wf-col--8`,\nwhere every column was painted the same width. `disabled`, `required`\nand `controls` are written only when `true`, here and in the template\nengine, so `Button(\"Go\", disabled: false)` is not a dead button.\n`.pop()` and `.shift()` are evaluated on a list the build knows.",
+      "text": "**The pre-render paints what the live page draws**\n([chapter 26](/about/static-or-single-page#static-and-spa-builds)).\nA `Checkbox`, `Radio` or `Switch` is its `<label>` and `<input>`, ticked\nand disabled as its state starts, where only the labels' words showed.\nA `Menu` or `Dropdown` is its button and a hidden list, where its\nentries lay in the page, and a menu that state opens is its list alone.\nA part written with flags carries their\nclasses (`Menu.Item.danger`), and `Column(span: 8)` its `wf-col--8`,\nwhere every column was painted the same width. `disabled`, `required`\nand `controls` are written only when `true`, here and in the template\nengine, so `Button(\"Go\", disabled: false)` is not a dead button.\n`.pop()` and `.shift()` are evaluated on a list the build knows.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**A test that looks reads the page as a reader does**\n([chapter 24](/learn/16-testing#write-a-test-that-looks)). The template\nengine draws a `Menu` or `Dropdown` as its button and hidden list,\n`keyLabel(\"mod+shift+p\")` as the build writes it (`Ctrl+Shift+P`), and\na `t()` with a count in the default locale's CLDR form. `expect` decodes\nevery numeric entity and the common named ones, so `expect \"It isn't\"`\nmatches. In a test that acts, `expect` treats any run of white space as\none space, as a test that looks already did.",
+      "text": "**A test that looks reads the page as a reader does**\n([chapter 24](/learn/16-testing#the-test-page)). The template\nengine draws a `Menu` or `Dropdown` as its button and hidden list,\n`keyLabel(\"mod+shift+p\")` as the build writes it (`Ctrl+Shift+P`), and\na `t()` with a count in the default locale's CLDR form. `expect` decodes\nevery numeric entity and the common named ones, so `expect \"It isn't\"`\nmatches. In a test that acts, `expect` treats any run of white space as\none space, as a test that looks already did.",
       "points": [],
       "after": ""
      },
@@ -3115,7 +3115,7 @@
       "after": ""
      },
      {
-      "text": "**An `Avatar`'s `src:` is checked** like any other `src:`\n([chapter 23](/about/security#what-the-compiler-guarantees)): a\nrun-time value goes through `WF.safeUrl`.",
+      "text": "**An `Avatar`'s `src:` is checked** like any other `src:`\n([chapter 23](/about/security#guarantees)): a\nrun-time value goes through `WF.safeUrl`.",
       "points": [],
       "after": ""
      },
@@ -3125,12 +3125,12 @@
       "after": ""
      },
      {
-      "text": "**A `Splitter` moves from where it is drawn**\n([chapter 9](/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter)).\nA drag or an arrow key starts from the region's drawn size, not the\nbound value, and a reset writes `reset:` as given, so `reset: 0` can\nmean the region's default share.",
+      "text": "**A `Splitter` moves from where it is drawn**\n([chapter 9](/learn/08-events#gestures)).\nA drag or an arrow key starts from the region's drawn size, not the\nbound value, and a reset writes `reset:` as given, so `reset: 0` can\nmean the region's default share.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**`() => …` takes no arguments** ([chapter 14](/reference/expressions#fields-calls-and-methods)).\nIt was typed as taking one, so it could fail to fit a script parameter\nwhose JSDoc says `() => boolean`.",
+      "text": "**`() => …` takes no arguments** ([chapter 14](/reference/expressions#fields-and-methods)).\nIt was typed as taking one, so it could fail to fit a script parameter\nwhose JSDoc says `() => boolean`.",
       "points": [],
       "after": ""
      },
@@ -3155,7 +3155,7 @@
       "after": ""
      },
      {
-      "text": "**Escape goes to the newest layer that can take it**\n([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)).\nA tooltip under the pointer no longer takes Escape from the page (an\neditor's completion list behind a toolbar button lost it); it hides and\nlets the key go on. An open `Modal` or `Dialog` is the newest layer, so\nits Escape comes before a popover's beneath it, and a press inside it no\nlonger closes that popover. `on close` on a modal is its event, with no\n`V09`.",
+      "text": "**Escape goes to the newest layer that can take it**\n([chapter 9](/learn/08-events#popovers-menus-and-tooltips)).\nA tooltip under the pointer no longer takes Escape from the page (an\neditor's completion list behind a toolbar button lost it); it hides and\nlets the key go on. An open `Modal` or `Dialog` is the newest layer, so\nits Escape comes before a popover's beneath it, and a press inside it no\nlonger closes that popover. `on close` on a modal is its event, with no\n`V09`.",
       "points": [],
       "after": ""
      },
@@ -3175,7 +3175,7 @@
       "after": ""
      },
      {
-      "text": "**A test reads a page as a reader does**\n([chapter 24](/learn/16-testing#write-a-test-that-looks)). `expect` reads\na plain render as a browser lays it out: elements that touch read as\ntouching, where the render's line breaks put a space between them. A\ntest run in a browser loads the project's own stylesheets and serves\n`public/` beside the page, as the built page does.",
+      "text": "**A test reads a page as a reader does**\n([chapter 24](/learn/16-testing#the-test-page)). `expect` reads\na plain render as a browser lays it out: elements that touch read as\ntouching, where the render's line breaks put a space between them. A\ntest run in a browser loads the project's own stylesheets and serves\n`public/` beside the page, as the built page does.",
       "points": [],
       "after": ""
      },
@@ -3220,17 +3220,17 @@
     "intro": "",
     "items": [
      {
-      "text": "**Layers** ([chapter 9](/learn/08-events#layers-popovers-menus-and-tooltips-above-everything)). `Popover`, a `Menu` at\nits button, at an anchor or at a point (`at:`, for a context menu), with\nsubmenus, and `Tooltip`, drawn in the browser's top layer, so nothing\nclips or covers them. Each flips and slides to stay on screen; Escape\ncloses the top one, a press outside closes what it is outside of, and\nfocus goes back where it was.",
+      "text": "**Layers** ([chapter 9](/learn/08-events#popovers-menus-and-tooltips)). `Popover`, a `Menu` at\nits button, at an anchor or at a point (`at:`, for a context menu), with\nsubmenus, and `Tooltip`, drawn in the browser's top layer, so nothing\nclips or covers them. Each flips and slides to stay on screen; Escape\ncloses the top one, a press outside closes what it is outside of, and\nfocus goes back where it was.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Shortcuts for an app** ([chapter 9](/learn/08-events#shortcuts-for-an-app)). `mod` is ⌘\non Apple's systems and Ctrl elsewhere; chords (`\"mod+k mod+s\"`);\n`keyIs(e, …)` and `keyLabel(…)` for a table of commands that drives\nmenus and a palette; a page, a component or `app` hears `keydown` and the\nwindow's events itself; `trapFocus` keeps focus inside a panel.",
+      "text": "**Shortcuts for an app** ([chapter 9](/learn/08-events#app-shortcuts)). `mod` is ⌘\non Apple's systems and Ctrl elsewhere; chords (`\"mod+k mod+s\"`);\n`keyIs(e, …)` and `keyLabel(…)` for a table of commands that drives\nmenus and a palette; a page, a component or `app` hears `keydown` and the\nwindow's events itself; `trapFocus` keeps focus inside a panel.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Gestures** ([chapter 9](/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter)). `drag:` and\n`on receive(d)` with a ghost, edge scroll and Escape; `on longpress`,\n`on swipe`; and `Splitter` between two regions, with its size kept.",
+      "text": "**Gestures** ([chapter 9](/learn/08-events#gestures)). `drag:` and\n`on receive(d)` with a ghost, edge scroll and Escape; `on longpress`,\n`on swipe`; and `Splitter` between two regions, with its size kept.",
       "points": [],
       "after": ""
      },

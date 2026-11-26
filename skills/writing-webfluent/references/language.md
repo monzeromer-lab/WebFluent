@@ -1,43 +1,43 @@
 # The WebFluent 7.2.0 reference, a file a section
 
-Read [core.md](core.md) first: it covers most sites and apps. For anything else, read only the section you need — every file you read stays in your context for the rest of the session, and the whole reference is about 251 kB. Or ask the compiler: `wf components Name`, `wf explain CODE`, `wf scope FILE:LINE`, `wf config schema`.
+Read [core.md](core.md) first: it covers most sites and apps. For anything else, read only the section you need — every file you read stays in your context for the rest of the session, and the whole reference is about 253 kB. Or ask the compiler: `wf components Name`, `wf explain CODE`, `wf scope FILE:LINE`, `wf config schema`.
 
 - [Project Structure](language/project-structure.md) — 2 kB
-- [CLI](language/cli.md) — 18 kB
+- [CLI](language/cli.md) — 17 kB
 - [Core Syntax](language/core-syntax.md) — 1 kB
   - [Pages](language/pages.md) — 4 kB
   - [Components](language/components.md) — 5 kB
   - [Types and enums](language/types-and-enums.md) — 1 kB
-  - [The types the language brings with it](language/the-types-the-language-brings-with-it.md) — 6 kB
+  - [Built-in types](language/built-in-types.md) — 6 kB
   - [Dictionaries, functions, aliases, JSON and results](language/dictionaries-functions-aliases-json-and-results.md) — 4 kB
   - [Constants and `env`](language/constants-and-env.md) — 2 kB
-  - [Images the build processes](language/images-the-build-processes.md) — 4 kB
+  - [Images](language/images.md) — 4 kB
   - [Attributes](language/attributes.md) — 3 kB
   - [App (Router + Layout)](language/app-router-layout.md) — 2 kB
   - [Stores (Shared State)](language/stores-shared-state.md) — 2 kB
   - [State & Reactivity](language/state-reactivity.md) — 3 kB
   - [Events](language/events.md) — 6 kB
-  - [What a value must be](language/what-a-value-must-be.md) — 3 kB
+  - [Validation](language/validation.md) — 3 kB
   - [Actions, `let`, `return` and `await`](language/actions-let-return-and-await.md) — 2 kB
   - [Browser Globals](language/browser-globals.md) — 3 kB
   - [Expressions](language/expressions.md) — 2 kB
   - [Formatting](language/formatting.md) — 2 kB
   - [Control Flow](language/control-flow.md) — 2 kB
   - [Data Fetching](language/data-fetching.md) — 5 kB
-  - [A service, described once](language/a-service-described-once.md) — 19 kB
-  - [A connection the page holds open](language/a-connection-the-page-holds-open.md) — 5 kB
-  - [The network as a value](language/the-network-as-a-value.md) — 1 kB
+  - [API services](language/api-services.md) — 19 kB
+  - [WebSockets, streams and channels](language/websockets-streams-and-channels.md) — 6 kB
+  - [Network status](language/network-status.md) — 1 kB
   - [Offline](language/offline.md) — 4 kB
-  - [Showing a change before the server agrees](language/showing-a-change-before-the-server-agrees.md) — 1 kB
-  - [Your own JavaScript](language/your-own-javascript.md) — 4 kB
-  - [Drawing into somebody else's node](language/drawing-into-somebody-else-s-node.md) — 2 kB
-  - [A library from somewhere else](language/a-library-from-somewhere-else.md) — 2 kB
-  - [Somebody else's custom element](language/somebody-else-s-custom-element.md) — 1 kB
-  - [Publishing the project as custom elements](language/publishing-the-project-as-custom-elements.md) — 1 kB
-  - [A desktop or phone app (Tauri, Electron)](language/a-desktop-or-phone-app-tauri-electron.md) — 3 kB
+  - [Optimistic updates](language/optimistic-updates.md) — 1 kB
+  - [JavaScript interop](language/javascript-interop.md) — 4 kB
+  - [Portals](language/portals.md) — 2 kB
+  - [External libraries](language/external-libraries.md) — 2 kB
+  - [Custom elements](language/custom-elements.md) — 1 kB
+  - [Publishing custom elements](language/publishing-custom-elements.md) — 1 kB
+  - [Desktop and mobile apps (Tauri, Electron)](language/desktop-and-mobile-apps-tauri-electron.md) — 3 kB
   - [Navigation](language/navigation.md) — 1 kB
-  - [Toasts, questions and announcements](language/toasts-questions-and-announcements.md) — 1 kB
-  - [The indented layout: `.wfx`](language/the-indented-layout-wfx.md) — 3 kB
+  - [Toasts, confirmations and announcements](language/toasts-confirmations-and-announcements.md) — 2 kB
+  - [Indented syntax (`.wfx`)](language/indented-syntax-wfx.md) — 3 kB
 - [Built-in Components](language/built-in-components.md) — 1 kB
   - [Layout](language/layout.md) — 5 kB
   - [Navigation](language/navigation-2.md) — 5 kB
@@ -55,7 +55,7 @@ Read [core.md](core.md) first: it covers most sites and apps. For anything else,
 - [Styling](language/styling.md) — 11 kB
 - [Build output](language/build-output.md) — 6 kB
 - [Runtime](language/runtime.md) — 6 kB
-- [Search and Sharing](language/search-and-sharing.md) — 3 kB
+- [SEO and link previews](language/seo-and-link-previews.md) — 4 kB
 - [Security](language/security.md) — 7 kB
 - [i18n (Internationalization)](language/i18n-internationalization.md) — 4 kB
 - [SSG (Static Site Generation)](language/ssg-static-site-generation.md) — 1 kB

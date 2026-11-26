@@ -291,7 +291,7 @@ New in 4.2:
 - **`meta.scripts`** loads a library from a CDN, imports a module with `as:`, and names its `globals`.
 - **`mount:`, `update:`, `cleanup:` on any element**, and a `wf:render` event for a script that finds elements itself.
 - **`Element("tag-name", …)`** places any custom element.
-- **`class:` takes a map and a list**: `{ "is-done": done }`, `["card", tone, if open { "is-open" }]`. An `if` with no `else` is `null` when its condition fails ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-your-own-stylesheet)).
+- **`class:` takes a map and a list**: `{ "is-done": done }`, `["card", tone, if open { "is-open" }]`. An `if` with no `else` is `null` when its condition fails ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-stylesheets)).
 - **`V04`** warns about a `class:` that borrows one of the built-ins' `wf-` classes.
 
 Fixed in 4.2: what an `if` branch, a `match` arm, a list item or a slot fill made — a timer, an effect, a `Host`'s cleanup — now goes when its page does. A route change used to leave it running.

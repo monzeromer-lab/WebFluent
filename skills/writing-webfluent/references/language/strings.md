@@ -1,5 +1,7 @@
 ## Strings
 
+Strings come in three forms: plain `"…"` with escapes and splices, raw `#"…"#`, and indented block `"""…"""`.
+
 A plain `"…"` string reads the escapes `\n \t \r \\ \" \{ \}` and `{…}`
 splices. Two other forms exist for text a plain string makes you spell
 twice:

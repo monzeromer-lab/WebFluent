@@ -1,13 +1,13 @@
 /// Chapter 22 of the guide. This page is its source: edit it here.
-page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a build ships", description: "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.", layout: DocsShell("What a build ships", kind: .explanation, chapter: t("nav.group.about"), blurb: "Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.", source: "site/src/pages/guide/22-performance.wf", sections: [Anchor(id: "what-the-build-already-does", label: "What the build already does"), Anchor(id: "see-what-a-build-weighs", label: "See what a build weighs"), Anchor(id: "set-a-size-budget", label: "Set a size budget"), Anchor(id: "time-pages-in-a-browser", label: "Time pages in a browser"), Anchor(id: "avoid-what-makes-a-site-slow", label: "Avoid what makes a site slow")], prevTo: "/about/security", prevLabel: t("ch.21"), nextTo: "/about/static-or-single-page", nextLabel: t("ch.23"))) {
+page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a build ships", description: "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.", layout: DocsShell("What a build ships", kind: .explanation, chapter: t("nav.group.about"), blurb: "Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.", source: "site/src/pages/guide/22-performance.wf", sections: [Anchor(id: "built-in-optimizations", label: "Built-in optimizations"), Anchor(id: "output-sizes", label: "Output sizes"), Anchor(id: "size-budgets", label: "Size budgets"), Anchor(id: "page-timing", label: "Page timing"), Anchor(id: "common-slowdowns", label: "Common slowdowns")], prevTo: "/about/security", prevLabel: t("ch.21"), nextTo: "/about/static-or-single-page", nextLabel: t("ch.23"))) {
     Stack(gap: .lg) {
         Markdown("This essay is about what `wf build` writes, and why a WebFluent site is fast by default rather than by effort.\n\nMost slow sites are not slow because someone chose to make them slow. They are slow because every library, component and font arrived for a good reason, and nothing ever weighed the total. A framework cannot weigh it for you: it does not know which of its features your program uses, so it ships them all and leaves the pruning to a bundler that reads JavaScript it did not write.\n\nA compiler that reads the whole program can do better. It knows which runtime modules the code it generated calls, which built-ins' rules the pages use, and which design tokens something names, so a build ships those and nothing else. Your part is smaller: look at what it writes, set a limit that warns you when it grows, and avoid the few patterns no compiler can fix.")
 
-        Heading("What the build already does", id: "what-the-build-already-does").h2
+        Heading("Built-in optimizations", id: "built-in-optimizations").h2
 
         Markdown("You get these without setting anything:\n\n- **Only the runtime you use.** The *runtime* is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches, and of those only the functions its calls reach. A build of one page of static text, with no `app` (so no router), is an `app.js` of about 5 kB, 1.9 kB gzipped; an `app` with a `Router` adds the router, about 4 kB gzipped more.\n- **Short names.** A minified build shortens the runtime's own names, its top-level ones and each function's locals. What your pages call keeps its name.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown. A site of one page is not split: its code is all in `app.js`.\n- **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at build time, so the first paint needs no script.\n- **One pruned stylesheet.** It holds the rules of only the built-ins you use, and only the design tokens something names.\n- **Precompressed files.** A `.gz` file sits beside every text file, for a host that serves it. `wf serve` sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.\n- **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Add a picture](/recipes/add-a-picture)).\n- **Minified output.** `build.minify` (on by default) strips comments and white space.")
 
-        Heading("See what a build weighs", id: "see-what-a-build-weighs").h2
+        Heading("Output sizes", id: "output-sizes").h2
 
         Markdown("To see the size of everything a build writes, run the build with `--stats`:")
 
@@ -45,7 +45,7 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
 
         Markdown("Read it in three parts:\n\n- **What it weighs** lists every text file with its gzipped size. The starter's form brings in `form` and `field`, its store brings in `store` and `keep`, its second page brings in `router`, and its entry animations bring in `motion`.\n- **Runtime** lists each module with what the build kept of it — the functions the program reaches — and what reached it. When a module you did not expect is in the build, look here first.\n- **Tokens** counts the design tokens the build left out because nothing names them.\n\nEach build records its sizes in `.wf-sizes.json` beside the project, so the next `--stats` shows how each file moved since the last build (for example, `+20 B`).\n\nThe project's own scripts are listed by their path under `js/`, such as `js/tilt.js` ([Call your own script](/recipes/call-your-own-script)). The build copies them as written: it does not minify a file it promises to ship byte for byte.")
 
-        Heading("Set a size budget", id: "set-a-size-budget").h2
+        Heading("Size budgets", id: "size-budgets").h2
 
         Markdown("To be warned when a file grows past a size, name its gzipped limit in `build.budget`:")
 
@@ -53,7 +53,7 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
 
         Markdown("Any output may have a budget, including a page's chunk and one of your own scripts under `js/`. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.")
 
-        Heading("Time pages in a browser", id: "time-pages-in-a-browser").h2
+        Heading("Page timing", id: "page-timing").h2
 
         Markdown("To measure how fast each page paints, build the site and run `wf verify` with a budget in milliseconds:")
 
@@ -63,7 +63,7 @@ page AboutWhatABuildShips(path: "/about/what-a-build-ships", title: "What a buil
 
         Markdown("`wf verify` loads every route in headless Chrome. For each route it prints the first contentful paint, the number of nodes in the document, and the bytes and requests it took. `--budget 800` fails a route whose first paint is slower than 800 ms. Lighthouse and the browser's performance panel work on the build as on any other site.")
 
-        Heading("Avoid what makes a site slow", id: "avoid-what-makes-a-site-slow").h2
+        Heading("Common slowdowns", id: "common-slowdowns").h2
 
         Markdown("These are the patterns that slow a WebFluent site down, and what to do instead:")
 

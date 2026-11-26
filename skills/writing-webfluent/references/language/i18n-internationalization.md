@@ -1,5 +1,7 @@
 ## i18n (Internationalization)
 
+Translations are JSON files per locale, read with `t("key")`; right-to-left locales get `dir="rtl"`.
+
 ### Translation files
 
 ```json
@@ -22,7 +24,7 @@
 }
 ```
 
-### Starting translated
+### Translated starter projects
 
 `wf init my-app --locales en,ar` (spa or static; the first is the
 default) writes the `i18n` config above with `meta.lang` the default, every
