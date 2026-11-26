@@ -1301,14 +1301,14 @@ fn a_routes_title_is_filled_once_as_the_router_fills_it() {
     let dir = static_site(
         "title-once",
         "const PAIRS = [{ a: #\"x{b}\"#, b: \"7\" }, { a: \"one\", b: \"two\" }]\n\
-         page Pair(path: \"/p/:a/:b\", a: String, b: String, title: \"{a} and {b} {c}\", description: \"About {a}.\", paths: PAIRS) {\n\
+         page Pair(path: \"/p/:a/:b\", a: String, b: String, title: \"{a} and {b} \\{c\\}\", description: \"About {a}.\", paths: PAIRS) {\n\
          \x20   Heading(a).h1\n\
          }\n\
          page Home(path: \"/\", title: \"Home\", description: \"Home.\") { Heading(\"Home\").h1 }\n",
     );
     for (a, b) in [("x{b}", "7"), ("one", "two")] {
-        // What the router does: `{name}` of a parameter, once, and anything
-        // else left as it is.
+        // What the router does: `{name}` of a parameter, once; an escaped
+        // brace is a brace.
         let routed = format!("{a} and {b} {{c}}");
         let encoded = a.replace('{', "%7B").replace('}', "%7D");
         let file = ["build/p", &encoded, b, "index.html"].join("/");
@@ -1324,5 +1324,58 @@ fn a_routes_title_is_filled_once_as_the_router_fills_it() {
         assert_eq!(title, routed_html, "{file}");
         assert!(html.contains(&format!("About {a}.")), "{html}");
     }
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A title that splices only a constant's name — `"{SITE}"` — was taken for
+/// a route parameter's and left as its source, in the file and in the tab.
+#[test]
+fn a_title_that_names_a_constant_is_worked_out() {
+    let dir = static_site(
+        "title-const",
+        "const SITE = \"Halyard\"\n\
+         app { Router }\n\
+         page Home(path: \"/\", title: \"{SITE}\", description: \"Home.\") { Heading(\"Home\").h1 }\n\
+         page About(path: \"/about\", title: \"About — {SITE}\", description: \"About.\") { Heading(\"About\").h1 }\n",
+    );
+    for (file, want) in [
+        ("build/index.html", "<title>Halyard</title>"),
+        ("build/about/index.html", "<title>About — Halyard</title>"),
+    ] {
+        let html = std::fs::read_to_string(dir.join(file)).unwrap();
+        assert!(html.contains(want), "{file}: {html}");
+    }
+    // The router works it out too, rather than showing `{SITE}`.
+    let chunk = std::fs::read_to_string(dir.join("build/pages/About.js")).unwrap();
+    assert!(chunk.contains("`About — ${SITE}`"), "{chunk}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
+
+/// A title is worked out where the route table is, so a name it splices
+/// must be a parameter, a constant or a store: anything else would be a
+/// `ReferenceError` when the route is visited.
+#[test]
+fn a_title_naming_what_the_route_cannot_see_is_t13() {
+    let dir = std::env::temp_dir().join(format!("wf-agree-title-t13-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "t" }"#).unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "page P(path: \"/\", title: \"{count} items\", description: \"x\") { state count = 1  Heading(\"P {count}\").h1 }\n",
+    )
+    .unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["check", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    let text = format!(
+        "{}{}",
+        String::from_utf8_lossy(&out.stdout),
+        String::from_utf8_lossy(&out.stderr)
+    );
+    assert!(!out.status.success(), "{text}");
+    assert!(text.contains("T13") && text.contains("`count`"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
 }

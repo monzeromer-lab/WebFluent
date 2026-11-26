@@ -1329,6 +1329,13 @@ pub fn documented(d: Option<&str>, text: &str, indent: usize) -> String {
 /// written — a page's title, a path: a splice of a plain name is written
 /// as it is, any other brace escaped.
 fn text_with_names(text: &str) -> String {
+    text_with_names_of(text, &|_| true)
+}
+
+/// [`text_with_names`], writing `{name}` as a splice only for the names
+/// `keep` accepts and escaping the rest — a page's title with no
+/// expression splices its route parameters alone.
+fn text_with_names_of(text: &str, keep: &dyn Fn(&str) -> bool) -> String {
     let mut out = String::from("\"");
     let chars: Vec<char> = text.chars().collect();
     let mut i = 0;
@@ -1341,7 +1348,7 @@ fn text_with_names(text: &str) -> String {
                 .map(|n| i + 1 + n);
             if let Some(close) = close {
                 let inner: String = chars[i + 1..close].iter().collect();
-                if is_name(&inner) {
+                if is_name(&inner) && keep(&inner) {
                     out.push('{');
                     out.push_str(&inner);
                     out.push('}');
@@ -1490,7 +1497,7 @@ pub fn page_header(p: &PageDecl) -> String {
     let mut attrs: Vec<String> = vec![format!("path: {}", text_with_names(&p.path))];
     let text = |s: &str, e: &Option<Expr>| match e {
         Some(e) => expr(e),
-        None => text_with_names(s),
+        None => text_with_names_of(s, &|name| p.params.iter().any(|q| q.name == name)),
     };
     if let Some(t) = &p.title {
         attrs.push(format!("title: {}", text(t, &p.title_expr)));

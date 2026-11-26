@@ -700,14 +700,8 @@ impl ParserV2 {
                             _ => None,
                         };
                         page.title = Some(self.expect_string("the page's title")?);
-                        // A splice that is only a parameter's name is filled
-                        // in as text; anything more is worked out.
-                        page.title_expr = expr.filter(|e| match e {
-                            Expr::InterpolatedString(parts) => parts.iter().any(|p| {
-                                matches!(p, StringPart::Expression(x) if !matches!(x, Expr::Identifier(_)))
-                            }),
-                            _ => false,
-                        });
+                        // Decided once the parameters are known.
+                        page.title_expr = expr;
                     }
                     "description" => {
                         let expr = match self.kind() {
@@ -715,12 +709,7 @@ impl ParserV2 {
                             _ => None,
                         };
                         page.description = Some(self.expect_string("the description")?);
-                        page.description_expr = expr.filter(|e| match e {
-                            Expr::InterpolatedString(parts) => parts.iter().any(|p| {
-                                matches!(p, StringPart::Expression(x) if !matches!(x, Expr::Identifier(_)))
-                            }),
-                            _ => false,
-                        });
+                        page.description_expr = expr;
                     }
                     "image" => {
                         let expr = match self.kind() {
@@ -813,6 +802,27 @@ impl ParserV2 {
                 }
             }
             self.expect(&TokenType::CloseParen, "`)`")?;
+        }
+        // A splice that is only a route parameter's name is filled in as
+        // text; anything more — a constant's name too, `"{SITE}"` — is
+        // worked out.
+        let worked_out = |e: &Option<Expr>| {
+            e.as_ref().is_some_and(|e| match e {
+                Expr::InterpolatedString(parts) => parts.iter().any(|p| match p {
+                    StringPart::Expression(Expr::Identifier(name)) => {
+                        !page.params.iter().any(|param| &param.name == name)
+                    }
+                    StringPart::Expression(_) => true,
+                    _ => false,
+                }),
+                _ => false,
+            })
+        };
+        if !worked_out(&page.title_expr) {
+            page.title_expr = None;
+        }
+        if !worked_out(&page.description_expr) {
+            page.description_expr = None;
         }
         page.header_span = self.span_since(mark);
         let (mut body, body_span) = self.parse_render_block(Body::Page)?;

@@ -716,6 +716,17 @@ pub fn check_sources_with<'s>(
                     cx.current_span = layout.span;
                     cx.layout(layout);
                 }
+                // The header is worked out where the route table is — by the
+                // build for each file, by the router on each visit — so it
+                // reads the parameters, the constants and the stores, never
+                // the body's state.
+                for e in [&p.title_expr, &p.description_expr, &p.image_expr, &p.guard]
+                    .into_iter()
+                    .flatten()
+                {
+                    cx.current_span = p.header_span;
+                    cx.infer(e, None);
+                }
                 cx.bound = bound_names(&p.body);
                 cx.written = written_names(&p.body);
                 cx.declare_hoisted(&p.body);
