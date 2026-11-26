@@ -1775,7 +1775,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             if needle.is_empty() {
                 continue;
             }
-            if let Some(at) = text.find(needle) {
+            if let Some(at) = find_word(text, needle) {
                 let before = &text[..at];
                 let line = span.line as usize + before.matches('\n').count();
                 let col = match before.rfind('\n') {
@@ -1792,6 +1792,29 @@ impl<'a, 'p> Checker<'a, 'p> {
         }
         span
     }
+}
+
+/// Where `needle` first stands in `text` as a whole name: an edge of the
+/// needle that is part of a name (a letter, a digit, `_`, `$`) must not
+/// run on into more of one, so `a` is found as `a` and never inside
+/// `data`. An edge that is punctuation (`.angry`, `sel?.title`) needs no
+/// boundary of its own.
+fn find_word(text: &str, needle: &str) -> Option<usize> {
+    let word = |c: char| c.is_alphanumeric() || c == '_' || c == '$';
+    let first = needle.chars().next()?;
+    let last = needle.chars().next_back()?;
+    let mut from = 0;
+    while let Some(found) = text[from..].find(needle) {
+        let at = from + found;
+        let end = at + needle.len();
+        let open = !word(first) || !text[..at].chars().next_back().is_some_and(word);
+        let close = !word(last) || !text[end..].chars().next().is_some_and(word);
+        if open && close {
+            return Some(at);
+        }
+        from = at + first.len_utf8();
+    }
+    None
 }
 
 /// What a read of an endpoint holds: its answer, a result's value apart
@@ -1881,6 +1904,38 @@ fn answer_of(ty: Type) -> Type {
     match ty {
         Type::Result(value, _) => *value,
         other => other,
+    }
+}
+
+#[cfg(test)]
+mod place {
+    use super::find_word;
+
+    #[test]
+    fn a_name_is_found_whole() {
+        assert_eq!(find_word("Text(data + a)", "a"), Some(12));
+        assert_eq!(find_word("Text(data)", "a"), None);
+        assert_eq!(find_word("nam + name", "name"), Some(6));
+        assert_eq!(find_word("x_a + a", "a"), Some(6));
+        assert_eq!(find_word("tone == .angry", ".angry"), Some(8));
+        assert_eq!(find_word("x.angry", ".angry"), Some(1));
+        assert_eq!(find_word("sel?.title.length", "sel?.title"), Some(0));
+    }
+
+    /// The error points at the field it is about, not at the same letters
+    /// inside another name earlier on the line.
+    #[test]
+    fn a_missing_field_is_placed_on_itself() {
+        let src = "type Rec { b: Number }\npage P(path: \"/\") {\n    state data = 1\n    state r = Rec(b: 1)\n    Text(\"{data} {r.a}\")\n}\n";
+        let program = crate::syntax::parser::v2::parse_v2(src, "t").unwrap();
+        let info = super::check_in(&program, &|_| "t".into(), &|_| Some(src.into()));
+        let e = info
+            .findings
+            .errors
+            .iter()
+            .find(|e| e.message.contains("`a`"))
+            .unwrap_or_else(|| panic!("{:?}", info.findings.errors));
+        assert_eq!((e.line, e.column), (5, 21), "{e:?}");
     }
 }
 
