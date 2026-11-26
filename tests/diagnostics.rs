@@ -938,3 +938,43 @@ fn a_head_script_whose_origin_the_config_declares_is_allowed() {
         .collect();
     assert_eq!(refused, vec![4], "{found:#?}");
 }
+
+/// A `///` above a statement in an action was a syntax error that lost the
+/// whole store; the pages that used it reported it missing, before the
+/// syntax error that caused it. It is a comment now, and a syntax error
+/// that does lose a declaration is printed first.
+#[test]
+fn a_doc_comment_in_a_body_is_a_comment_and_syntax_errors_lead() {
+    let page = "page P(path: \"/\", title: \"P\", description: \"D\") {\n    use Dex\n    Heading(\"P {Dex.n}\").h1\n    Button(\"Go\") { on click { Dex.go(1) } }\n}\n";
+    let dir = project(
+        "doc-in-body",
+        r#"{ "name": "d" }"#,
+        &[
+            ("src/App.wf", page),
+            (
+                "src/Dex.wf",
+                "store Dex {\n    state n = 0\n    action go(id: Number) -> Number {\n        /// One more than asked.\n        let x = id + 1\n        return x\n    }\n}\n",
+            ),
+        ],
+    );
+    let (code, out, err) = wf(&dir, &["check"]);
+    assert_eq!(code, 0, "{out}{err}");
+
+    let dir = project(
+        "doc-in-args",
+        r#"{ "name": "d" }"#,
+        &[
+            ("src/App.wf", page),
+            (
+                "src/Dex.wf",
+                "store Dex {\n    state n = 0\n    action go(id: Number) -> Number {\n        let x = max(\n            /// odd\n            id, 1)\n        return x\n    }\n}\n",
+            ),
+        ],
+    );
+    let (code, _, err) = wf(&dir, &["check"]);
+    assert_eq!(code, 1, "{err}");
+    let syntax = err.find("error[E002]").expect(&err);
+    let missing = err.find("error[X05]").expect(&err);
+    assert!(syntax < missing, "{err}");
+    assert!(err.contains("got a `///` comment"), "{err}");
+}

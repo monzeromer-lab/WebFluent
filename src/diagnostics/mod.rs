@@ -320,7 +320,8 @@ impl fmt::Display for Diagnostic {
 }
 
 /// Drop the second and later of any finding with one code at one place
-/// saying one thing, and order the rest by file and place. Two checks that
+/// saying one thing, and order the rest: syntax errors first, then by file
+/// and place. Two checks that
 /// both see one mistake used to print it two or three times.
 ///
 /// A name nothing declares, given as an argument (`Text(nme)`), is one
@@ -334,8 +335,18 @@ pub fn dedupe(diagnostics: &mut Vec<Diagnostic>) {
     let mut seen = std::collections::HashSet::new();
     diagnostics
         .retain(|d| seen.insert((d.code, d.file.clone(), d.line, d.column, d.message.clone())));
+    // A file that does not parse loses the declaration it was in, and every
+    // file that names it then reports it missing: what the reader must fix
+    // first comes first, so the syntax errors lead.
+    let syntax = |d: &Diagnostic| !matches!(d.code, "E001" | "E002" | "E003" | "E004");
     diagnostics.sort_by(|a, b| {
-        (&a.file, a.line, a.column, a.severity).cmp(&(&b.file, b.line, b.column, b.severity))
+        (syntax(a), &a.file, a.line, a.column, a.severity).cmp(&(
+            syntax(b),
+            &b.file,
+            b.line,
+            b.column,
+            b.severity,
+        ))
     });
 }
 

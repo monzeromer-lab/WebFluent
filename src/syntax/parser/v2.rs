@@ -420,6 +420,9 @@ impl ParserV2 {
             TokenType::RawValue(v) => format!("the value `{v}`"),
             TokenType::RawSelector(v) => format!("the selector `{v}`"),
             TokenType::StyleProp(v) => format!("the property `{v}`"),
+            TokenType::DocComment(_) => {
+                "a `///` comment, which documents the declaration or member below it".to_string()
+            }
             other => format!("`{other}`"),
         }
     }
@@ -3769,6 +3772,11 @@ impl ParserV2 {
         let mut statements = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             if self.eat(&TokenType::Semicolon) {
+                continue;
+            }
+            // `///` above a statement documents nothing a reader can see,
+            // so it is a comment: an agent writes one above a `let`.
+            if self.take_docs().is_some() {
                 continue;
             }
             // `let { a, b } = m` and `let [x, y] = l` are several locals:
