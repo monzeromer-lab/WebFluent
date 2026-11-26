@@ -1451,7 +1451,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
         }
         Step::Click { target, .. } => {
             let name = text(target);
-            let done = page.eval(&step_script("click", &name, ""))?;
+            let done = act_when_reachable(page, &step_script("click", &name, ""))?;
             if done.as_str() != Some("ok") {
                 return Ok(Err(cannot_act(
                     done.as_str(),
@@ -1466,7 +1466,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
         } => {
             let what = text(what);
             let into = text(into);
-            let done = page.eval(&step_script("type", &into, &what))?;
+            let done = act_when_reachable(page, &step_script("type", &into, &what))?;
             match done.as_str() {
                 Some("ok") => {}
                 Some("no-option") => {
@@ -2032,6 +2032,25 @@ const ACT: &str = r#"
 /// Why a step found nothing to act on: nothing by the name, only hidden
 /// ones (in a closed dialog, a hidden branch), or several a reader could
 /// mean.
+/// Runs a step that acts on what a name finds, trying again for up to a
+/// second and a half while nothing a reader can reach is called that — as
+/// `expect` waits for its text. A slow machine draws a control a moment
+/// after the step before it, and a step that looked once failed there. Two
+/// controls of the name, or a list without the option, is an answer, not a
+/// wait.
+fn act_when_reachable(page: &mut dyn Page, script: &str) -> Result<serde_json::Value> {
+    let until = std::time::Instant::now() + std::time::Duration::from_millis(1500);
+    loop {
+        let done = page.eval(script)?;
+        let settled = matches!(done.as_str(), Some("ok" | "no-option"))
+            || done.as_str().is_some_and(|a| a.starts_with("many:"));
+        if settled || std::time::Instant::now() >= until {
+            return Ok(done);
+        }
+        page.settle(50)?;
+    }
+}
+
 fn cannot_act(answer: Option<&str>, none: &str, name: &str) -> String {
     match answer.and_then(|a| a.split_once(':')) {
         Some(("hidden", n)) => format!(
