@@ -319,12 +319,79 @@ impl fmt::Display for Diagnostic {
 /// Drop the second and later of any finding with one code at one place
 /// saying one thing, and order the rest by file and place. Two checks that
 /// both see one mistake used to print it two or three times.
+///
+/// A name nothing declares, given as an argument (`Text(nme)`), is one
+/// mistake that two checks see: the type checker's `T13` and the
+/// vocabulary's `V01`. The `T13` is kept; the `V01` at its place, about the
+/// same name, is dropped, and what it suggests — a flag written without
+/// its dot, a nearer name — goes to the `T13` when that has nothing to
+/// suggest of its own.
 pub fn dedupe(diagnostics: &mut Vec<Diagnostic>) {
+    merge_undeclared(diagnostics);
     let mut seen = std::collections::HashSet::new();
     diagnostics
         .retain(|d| seen.insert((d.code, d.file.clone(), d.line, d.column, d.message.clone())));
     diagnostics.sort_by(|a, b| {
         (&a.file, a.line, a.column, a.severity).cmp(&(&b.file, b.line, b.column, b.severity))
+    });
+}
+
+/// The first name a message quotes: `nme` in "nothing declares `nme`".
+fn quoted(message: &str) -> Option<&str> {
+    let open = message.find('`')?;
+    let rest = &message[open + 1..];
+    Some(&rest[..rest.find('`')?])
+}
+
+/// Each `V01` that a `T13` at its place already reports, folded into it.
+fn merge_undeclared(diagnostics: &mut Vec<Diagnostic>) {
+    let same = |a: &Diagnostic, b: &Diagnostic| {
+        a.file == b.file
+            && a.line == b.line
+            && a.column == b.column
+            && quoted(&a.message).is_some()
+            && quoted(&a.message) == quoted(&b.message)
+    };
+    let mut dropped = vec![false; diagnostics.len()];
+    for v in 0..diagnostics.len() {
+        if diagnostics[v].code != "V01" {
+            continue;
+        }
+        let Some(t) = (0..diagnostics.len())
+            .find(|&t| diagnostics[t].code == "T13" && same(&diagnostics[t], &diagnostics[v]))
+        else {
+            continue;
+        };
+        dropped[v] = true;
+        let (hint, fixes, plans) = {
+            let d = &mut diagnostics[v];
+            (
+                d.hint.take(),
+                std::mem::take(&mut d.fixes),
+                std::mem::take(&mut d.plans),
+            )
+        };
+        let target = &mut diagnostics[t];
+        if target.fixes.is_empty() && target.plans.is_empty() {
+            target.fixes = fixes;
+            target.plans = plans;
+        }
+        let suggests = |h: &str| h.to_ascii_lowercase().starts_with("did you mean");
+        if let Some(hint) = hint.filter(|h| suggests(h))
+            && !target.hint.as_deref().is_some_and(suggests)
+        {
+            let mut said = String::from("D");
+            said.push_str(&hint[1..]);
+            target.hint = Some(match target.hint.take() {
+                Some(own) => format!("{said} {own}"),
+                None => said,
+            });
+        }
+    }
+    let mut at = 0;
+    diagnostics.retain(|_| {
+        at += 1;
+        !dropped[at - 1]
     });
 }
 
@@ -373,6 +440,61 @@ pub(crate) fn finding(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// An undeclared name in an argument is said once, as the `T13`, with
+    /// the flag the `V01` would have suggested when the `T13` had none.
+    #[test]
+    fn an_undeclared_name_is_reported_once() {
+        let t13 = |name: &str, line: usize, hint: &str| {
+            Diagnostic::coded(
+                "T13",
+                format!("nothing declares `{name}`"),
+                "a.wf",
+                line,
+                10,
+            )
+            .with_hint(hint)
+        };
+        let v01 = |name: &str, line: usize, hint: &str| {
+            let mut d = Diagnostic::coded(
+                "V01",
+                format!("nothing in scope declares `{name}`, so it reads as nothing — a flag is written `.{name}`"),
+                "a.wf",
+                line,
+                10,
+            )
+            .with_hint(hint);
+            d.fixes.push(Fix {
+                title: format!("Write it as the flag `.{name}`"),
+                edits: Vec::new(),
+            });
+            d
+        };
+        let mut list = vec![
+            t13("nme", 4, "Did you mean `name`? Declare it"),
+            v01("nme", 4, "did you mean `name`?"),
+            t13("center", 5, "Declare it"),
+            v01("center", 5, "did you mean `.center`?"),
+            // A V01 about another name, or at another place, stays.
+            v01("other", 5, ""),
+            v01("lone", 6, ""),
+        ];
+        list[4].column = 20;
+        dedupe(&mut list);
+        let codes: Vec<(&str, usize)> = list.iter().map(|d| (d.code, d.line)).collect();
+        assert_eq!(codes, [("T13", 4), ("T13", 5), ("V01", 5), ("V01", 6)]);
+        // The T13 that had a suggestion keeps its own words.
+        assert_eq!(
+            list[0].hint.as_deref(),
+            Some("Did you mean `name`? Declare it")
+        );
+        // The one that had none takes the V01's, and its fix.
+        assert_eq!(
+            list[1].hint.as_deref(),
+            Some("Did you mean `.center`? Declare it")
+        );
+        assert_eq!(list[1].fixes.len(), 1);
+    }
 
     #[test]
     fn a_code_brings_its_severity_and_tags() {

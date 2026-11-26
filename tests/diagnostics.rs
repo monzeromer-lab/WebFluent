@@ -588,8 +588,10 @@ fn each_fix_applied_makes_its_finding_go() {
             "enum Tone { calm, loud, quiet }\nPAGE    state t: Tone = .calm\n    Heading(\"Hi\").h1\n    match t {\n        .calm { Text(\"c\") }\n    }\n}\n",
             ".quiet { }",
         ),
+        // The flag a bare word means: V01's fix, carried by the T13 that
+        // reports the same word.
         (
-            "V01",
+            "T13",
             "PAGE    Heading(\"Hi\").h1\n    Button(outline) { on click { log(1) } }\n}\n",
             "Button.outlined {",
         ),

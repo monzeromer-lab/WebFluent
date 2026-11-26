@@ -901,8 +901,10 @@ fn an_if_let_binding_is_a_name_in_the_whole_of_its_branch() {
              }"
         )
     );
-    let found = with(&src, "V01");
-    // The one word nothing declares, and none of the bindings.
+    // The one word nothing declares, and none of the bindings: said once,
+    // as the T13 (the V01 at its place is folded into it).
+    assert!(with(&src, "V01").is_empty(), "{:?}", with(&src, "V01"));
+    let found = with(&src, "T13");
     assert_eq!(found.len(), 1, "{found:?}");
     assert!(found[0].contains("`nope`"), "{found:?}");
 }
