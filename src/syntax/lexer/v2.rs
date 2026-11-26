@@ -1,6 +1,6 @@
 //! The lexer for WebFluent 3 (`spec/SYNTAX_V2.md`).
 //!
-//! It differs from the original lexer in what it *does not* do: no word is
+//! It differs from WebFluent 2's lexer in what it *does not* do: no word is
 //! a keyword here. `page`, `state`, `if`, `Button` are all identifiers, and
 //! the parser reserves words by position, so `type:` is an ordinary prop
 //! name and `Page` an ordinary page name. What it adds:
@@ -22,7 +22,7 @@
 //! wrote, layout is free, as it is in a `.wf` file.
 //!
 //! Spans are byte offsets, lines and columns count from 1, columns in
-//! characters — the same three coordinate systems as the original lexer.
+//! characters.
 
 use super::token::{StringKind, StringLit, Token, TokenType};
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};

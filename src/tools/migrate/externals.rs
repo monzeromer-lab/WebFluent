@@ -12,7 +12,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::syntax::lexer::{Lexer, Token, TokenType};
+use crate::syntax::lexer::{LexerV2, Token, TokenType};
 
 /// What the step decided, for the CLI to write and report.
 #[derive(Debug, Default)]
@@ -105,8 +105,10 @@ pub fn migrate(project_dir: &Path, files: &[(PathBuf, String)]) -> Outcome {
     out
 }
 
+/// The tokens of a 4.x file. Every word is an identifier to this lexer,
+/// `external`, `element` and `fn` included.
 fn tokens(text: &str, file: &str) -> Vec<Token> {
-    Lexer::new(text, file).tokenize().unwrap_or_default()
+    LexerV2::for_file(text, file).tokenize().unwrap_or_default()
 }
 
 fn string_of(t: &Token) -> Option<String> {
@@ -116,12 +118,13 @@ fn string_of(t: &Token) -> Option<String> {
     }
 }
 
-/// A name: an identifier, or a word that has since become a built-in's
-/// (`external Chart` predates the `Chart` element).
+/// A name: an identifier, which is every word to this lexer — one that
+/// has since become a built-in's (`external Chart` predates the `Chart`
+/// element) too.
 fn ident_of(t: &Token) -> Option<&str> {
     match &t.token_type {
         TokenType::Identifier(w) => Some(w.as_str()),
-        other => crate::syntax::lexer::token::component_name(other),
+        _ => None,
     }
 }
 

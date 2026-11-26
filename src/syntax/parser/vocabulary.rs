@@ -1,6 +1,6 @@
 //! The modifier vocabulary as data (studio ask A-3, first slice).
 //!
-//! This set used to live only inside `parser::Parser::is_modifier` as a match
+//! This set used to live only inside the WebFluent 2 parser's `is_modifier` as a match
 //! arm, hand-copied into the LSP's completion list and the studio's language
 //! card — three copies across two repositories, and the first two had already
 //! drifted by nine keywords. The parser now consults this table, so there is

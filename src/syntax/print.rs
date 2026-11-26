@@ -1082,8 +1082,8 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                 body(&f.body, block, indent)
             )
         }
-        // Only the WebFluent 2 parser makes one, for `wf migrate`, which
-        // spells it itself; the current grammar has no way to write it.
+        // Only the WebFluent 2 parser made one; the current grammar has no
+        // way to write it.
         StatementKind::Fetch(_) => String::new(),
         StatementKind::Show(sh) => format!(
             "show {}{}",

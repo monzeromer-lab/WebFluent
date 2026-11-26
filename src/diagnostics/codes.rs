@@ -92,7 +92,7 @@ pub static CODES: &[CodeInfo] = &[
         "E004",
         Error,
         "A file in the WebFluent 2 grammar",
-        "WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.",
+        "WebFluent reads one grammar, and since 8.0 no longer migrates the grammar of WebFluent 2: install a 7.x release (`cargo install webfluent --version ^7`), run its `wf migrate` over the project, then this release's `wf migrate` for the rest.",
     ),
     code(
         "E005",

@@ -1,9 +1,9 @@
 //! The parser for WebFluent 3 (`spec/SYNTAX_V2.md`).
 //!
-//! It produces the same [`Program`] the original parser does, so every code
-//! generator and lint reads both grammars; what the new grammar can say that
-//! the old one could not lands in the fields the AST gained for it (enum
-//! cases, tokens, events, slots, resources, `match`, keys, bindings).
+//! It produces the [`Program`] every code generator and lint reads; what
+//! this grammar can say that WebFluent 2's could not lands in the fields
+//! the AST gained for it (enum cases, tokens, events, slots, resources,
+//! `match`, keys, bindings).
 //!
 //! The grammar is LL(1) over the tokens of [`crate::syntax::lexer::LexerV2`]: no
 //! word is a keyword to the lexer, so this parser reserves words by
@@ -638,8 +638,9 @@ impl ParserV2 {
                     return Err(self.error_with_hint(
                         format!("`{word}` is a WebFluent 2 declaration"),
                         &format!(
-                            "WebFluent 3 spells it `{}`; run `wf migrate` to convert the project",
-                            word.to_lowercase()
+                            "It is spelled `{}` now. {}",
+                            word.to_lowercase(),
+                            crate::syntax::WF2_MIGRATION
                         ),
                     ));
                 }

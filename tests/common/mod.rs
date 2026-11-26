@@ -74,25 +74,6 @@ pub(crate) fn page(body: &str) -> String {
     format!("page P(path: \"/\", title: \"T\") {{\n{body}\n}}\n")
 }
 
-/// The same source in the new grammar, as `wf migrate` writes it. A source
-/// the migrator cannot rewrite is a bug in the migrator, so this panics.
-#[allow(
-    dead_code,
-    reason = "used by some of the test binaries that share this module"
-)]
-pub(crate) fn migrated(src: &str) -> String {
-    let files = vec![(std::path::PathBuf::from("<test>.wf"), src.to_string())];
-    let (_, result) = webfluent::migrate::migrate_project(&files).remove(0);
-    let out = result.unwrap_or_else(|e| panic!("migration failed for:\n{src}\n{e}"));
-    assert_eq!(
-        webfluent::detect_dialect(&out.text),
-        webfluent::Dialect::V2,
-        "not migrated:\n{}",
-        out.text
-    );
-    out.text
-}
-
 pub(crate) fn parse_program(src: &str) -> Result<Program, String> {
     parse_program_as(src, "<test>")
 }

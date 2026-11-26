@@ -18,9 +18,7 @@
 //! that borrowed a font from the machine, or found none for a character,
 //! writes a PDF that differs from one machine to the next: its manifest says
 //! `"machine_fonts": true` and records its PDFs as `machine-dependent`, and
-//! every other file it writes is held as usual. The
-//! WebFluent 2 projects under `tests/migrate/corpus/` are left out: a build
-//! refuses them by design.
+//! every other file it writes is held as usual.
 
 use std::collections::BTreeMap;
 use std::fmt::Write as _;

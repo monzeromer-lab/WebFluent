@@ -3,15 +3,14 @@
 //! Every consumer of a `.wf` file — the build, the template engine, the
 //! structured editor, the studio, the language server — goes through here.
 //!
-//! WebFluent 3 has one grammar (see `spec/SYNTAX_V2.md`), written with
+//! WebFluent has one grammar (see `spec/SYNTAX_V2.md`), written with
 //! braces in a `.wf` file and by indentation in a `.wfx` file
-//! (`crate::syntax::lexer::v2::Layout`). The grammar
-//! WebFluent 2 had is read by `wf migrate` alone, through
-//! `wf migrate`; a file written in it is refused here with a pointer
-//! to the migration. The dialect is read from a file's first word: the
-//! declarations of WebFluent 3 are lowercase (`page`, `component`,
-//! `store`, `theme`, `app`, `type`, `enum`); the old grammar's were
-//! capitalised.
+//! (`crate::syntax::lexer::v2::Layout`). A file in the grammar WebFluent 2
+//! had is refused here (`E004`) with the release whose `wf migrate` still
+//! reads it ([`WF2_MIGRATION`]). The dialect is read from a file's first
+//! word: the declarations of the current grammar are lowercase (`page`,
+//! `component`, `store`, `theme`, `app`, `type`, `enum`); the old
+//! grammar's were capitalised.
 
 pub mod fmt;
 pub mod js_scan;
@@ -34,12 +33,16 @@ use crate::syntax::parser::Program;
 /// Which grammar a source text is written in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Dialect {
-    /// The grammar of WebFluent 2: `Page Home (path: "/") { … }`. Read by
-    /// `wf migrate` only.
+    /// The grammar of WebFluent 2: `Page Home (path: "/") { … }`. Nothing
+    /// reads it any more; a file in it is told how to migrate.
     V1,
     /// WebFluent 3: `page Home(path: "/") { … }`.
     V2,
 }
+
+/// What to do with a file in the grammar of WebFluent 2: this release no
+/// longer migrates it, the 7.x releases do, and then this one takes over.
+pub const WF2_MIGRATION: &str = "WebFluent 8 no longer reads the WebFluent 2 grammar: migrate the project with WebFluent 7.x first (`cargo install webfluent --version ^7`, then `wf migrate`), then run this `wf migrate` for the rest";
 
 /// Whether `path` is a WebFluent source file: `.wf`, or `.wfx` for the
 /// indented layout.
@@ -101,14 +104,14 @@ pub fn parse_source(source: &str, file: &str) -> Result<Program> {
                 Diagnostic::coded(
                     "E004",
                     format!(
-                        "`{}` is a WebFluent 2 declaration; this is WebFluent 3",
+                        "`{}` is a WebFluent 2 declaration, which this WebFluent no longer reads",
                         first_word(source).unwrap_or("Page")
                     ),
                     file,
                     line,
                     col,
                 )
-                .with_hint("Run `wf migrate` to convert the project to the current grammar"),
+                .with_hint(WF2_MIGRATION),
             )))
         }
         Dialect::V2 => {

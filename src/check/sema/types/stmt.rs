@@ -580,7 +580,7 @@ impl Checker<'_, '_> {
                 self.statements(&f.body, body);
                 self.pop_scope();
             }
-            // Only the WebFluent 2 parser makes one, for `wf migrate`.
+            // Only the WebFluent 2 parser made one; nothing does now.
             StatementKind::Fetch(_) => {}
             StatementKind::Show(s) => {
                 let cond = self.infer(&s.condition, Some(&Type::Bool));

@@ -1,5 +1,0 @@
-Component ThemeToggle () {
-    state isDark = false
-
-    Switch(bind: isDark, label: "Dark Mode")
-}

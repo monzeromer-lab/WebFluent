@@ -300,15 +300,21 @@ fn a_test_in_a_browser_is_drawn_with_the_projects_own_styles() {
 
 #[test]
 fn a_migration_is_planned_in_memory_and_then_written() {
+    // A 4.1 project: an `external` element, which 4.2 places by its tag.
     let dir = scratch("migrate");
-    let corpus = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/migrate/corpus/dashboard");
-    copy(&corpus, &dir);
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "external element Stripe(\"stripe-pricing-table\") {\n    prop publishableKey: String\n}\npage P(path: \"/\", title: \"T\", description: \"d\") {\n    Heading(\"x\").h1\n    Stripe(publishableKey: \"pk\")\n}\n",
+    )
+    .unwrap();
     let before = std::fs::read_to_string(dir.join("src/App.wf")).unwrap();
     let plan = webfluent::migrate::project::plan(&dir, false).unwrap();
-    assert!(plan.changed().count() > 0, "{plan:?}");
+    assert!(
+        plan.four_two.as_ref().is_some_and(|s| s.anything()),
+        "{plan:?}"
+    );
     assert_eq!(plan.failed().count(), 0);
     assert!(plan.four.is_some());
-    assert!(plan.four_two.is_some());
     // Nothing is written until it is applied.
     assert_eq!(
         std::fs::read_to_string(dir.join("src/App.wf")).unwrap(),
@@ -316,9 +322,15 @@ fn a_migration_is_planned_in_memory_and_then_written() {
     );
     let written = webfluent::migrate::project::apply(&plan).unwrap();
     assert_ne!(written, [] as [std::path::PathBuf; 0]);
+    assert!(
+        std::fs::read_to_string(dir.join("src/App.wf"))
+            .unwrap()
+            .contains("Element(\"stripe-pricing-table\", publishableKey: \"pk\")")
+    );
     // Carried forward, the project has nothing left to migrate.
     let again = webfluent::migrate::project::plan(&dir, false).unwrap();
     assert_eq!(again.changed().count(), 0, "{again:?}");
+    assert!(!again.four_two.as_ref().is_some_and(|s| s.anything()));
 }
 
 #[test]
@@ -380,19 +392,6 @@ fn verify_finds_the_routes_of_a_build_and_what_no_page_drew() {
         r#"{"title":"About","fcp":250,"elements":12,"text":5,"drew":["wf-heading"],"images":[]}"#,
     );
     assert_eq!((visit.first_contentful_paint, visit.text), (250, 5));
-}
-
-fn copy(from: &Path, to: &Path) {
-    for entry in std::fs::read_dir(from).unwrap() {
-        let path = entry.unwrap().path();
-        let dest = to.join(path.file_name().unwrap());
-        if path.is_dir() {
-            std::fs::create_dir_all(&dest).unwrap();
-            copy(&path, &dest);
-        } else {
-            std::fs::write(&dest, std::fs::read(&path).unwrap()).unwrap();
-        }
-    }
 }
 
 /// A page whose row is on its way out: it shows "Leaving" for the first

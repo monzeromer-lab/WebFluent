@@ -1,6 +1,0 @@
-Component Panel (title: String) {
-    Card(outlined) {
-        Heading(title, h2)
-        children
-    }
-}

@@ -123,12 +123,12 @@ mod language_4_0;
 mod language_4_2;
 #[path = "layers.rs"]
 mod layers;
+#[path = "layout_equivalence.rs"]
+mod layout_equivalence;
 #[path = "list_folds.rs"]
 mod list_folds;
 #[path = "markdown.rs"]
 mod markdown;
-#[path = "migrate_equivalence.rs"]
-mod migrate_equivalence;
 mod migrate_seven;
 #[path = "module_layers.rs"]
 mod module_layers;
