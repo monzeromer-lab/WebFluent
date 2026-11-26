@@ -1,5 +1,5 @@
 {
- "count": 87,
+ "count": 88,
  "sections": [
   "project",
   "theme",
@@ -286,6 +286,14 @@
    "type": "boolean",
    "default": "true",
    "summary": "Let the machine's fonts stand in for a family or a character the project's fonts lack."
+  },
+  {
+   "path": "build.pdf.tagged",
+   "slug": "build-pdf-tagged",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Tag the PDF for screen readers: headings, paragraphs, lists, tables and pictures. On by default."
   },
   {
    "path": "build.slides.size",

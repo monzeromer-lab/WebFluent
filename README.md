@@ -269,7 +269,7 @@ git clone https://github.com/monzeromer-lab/WebFluent.git
 cd WebFluent && cargo install --path .
 ```
 
-Contributions are welcome, and the documentation most of all: a second pair of eyes on the guide's wording is the most useful help there is. See [Contributing](https://webfluent.monzeromer.dev/about/contributing) for how the project is laid out and tested, and [AGENTS.md](AGENTS.md) for what the language promises.
+Contributions are welcome, and the documentation most of all: a second pair of eyes on the guide's wording is the most useful help there is. See [CONTRIBUTING.md](CONTRIBUTING.md) for the checks a change needs and [Contributing](https://webfluent.monzeromer.dev/about/contributing) for how the project is laid out and tested, and [AGENTS.md](AGENTS.md) for what the language promises.
 
 ## License
 

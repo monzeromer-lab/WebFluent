@@ -74,7 +74,8 @@ This block is what a config holding only a name means. The compiler's test suite
       "default_font_size": 12.0,
       "output_filename": null,
       "fonts": [],
-      "system_fonts": true
+      "system_fonts": true,
+      "tagged": true
     },
     "slides": {
       "size": "16:9",
@@ -183,6 +184,7 @@ The page and type of a PDF build ([PDF and slides](https://webfluent.monzeromer.
 | `output_filename` | string | the project's name | The file written. |
 | `fonts` | list of paths | `[]` | Font files or directories, read as well as the project's `fonts/`, `src/fonts/` and `public/fonts/`, which are always read. |
 | `system_fonts` | boolean | `true` | Whether this machine's fonts may stand in for a family or a character nothing in the project has. The build names each one it uses. |
+| `tagged` | boolean | `true` | Whether the PDF is tagged for a screen reader: its headings, paragraphs, lists, tables, pictures with their alt text, links and language. Off, the file is smaller. |
 
 ### build.slides
 

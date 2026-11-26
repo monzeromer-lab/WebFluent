@@ -33,7 +33,8 @@
             "default_font_size": 12,
             "output_filename": null,
             "fonts": [],
-            "system_fonts": true
+            "system_fonts": true,
+            "tagged": true
         },
         "slides": {
             "size": "16:9",

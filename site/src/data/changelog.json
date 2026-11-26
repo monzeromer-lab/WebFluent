@@ -2,8 +2,8 @@
  {
   "version": "8.0.0",
   "id": "8.0.0",
-  "date": "",
-  "when": "",
+  "date": "2026-11-26",
+  "when": "26 November 2026",
   "summary": "The first long-term release. For all of 8.x the language does not break:\nsyntax, semantics, the built-ins and their props, the config keys and the\nCLI stay as they are, and a minor release only adds. 8.x gets fixes for at\nleast twelve months after 9.0, and 9.0 comes no sooner than nine months\nafter 8.0. [STABILITY.md](https://github.com/monzeromer-lab/WebFluent/blob/master/STABILITY.md) is the whole promise.",
   "sections": [
    {
@@ -55,7 +55,7 @@
       "after": ""
      },
      {
-      "text": "**Every PDF is tagged**: headings, paragraphs, lists, tables, figures\nwith their alt text, links and the document's language, so a screen\nreader and reflow work. A repeated table header now also repeats when a\nrow lands exactly at the top of a page.",
+      "text": "**Every PDF is tagged**: headings, paragraphs, lists, tables, figures\nwith their alt text, links and the document's language, so a screen\nreader and reflow work; `\"build\": { \"pdf\": { \"tagged\": false } }` leaves\nthe tags out, for a smaller file. A repeated table header now also repeats when a\nrow lands exactly at the top of a page.",
       "points": [],
       "after": ""
      }
@@ -132,6 +132,11 @@
       "text": "A composite built-in whose expansion fails is reported (`E901`) rather\nthan drawn as nothing.",
       "points": [],
       "after": ""
+     },
+     {
+      "text": "A page's `title:`, `description:`, `image:` and `guard:` are checked:\neach reads the route's parameters, the constants and the stores, and a\nname nothing there declares is a `T13` (the router would have thrown on\nit). A title that splices only a constant, `\"{SITE}\"`, is now worked\nout rather than shown as written. A literal brace is `\\{`.",
+      "points": [],
+      "after": ""
      }
     ],
     "after": ""
@@ -168,7 +173,7 @@
     "after": ""
    }
   ],
-  "count": 21
+  "count": 22
  },
  {
   "version": "7.2.0",

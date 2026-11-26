@@ -2,7 +2,7 @@
 // edit the compiler or the script, not this file.
 
 /// How many settings `webfluent.app.json` has.
-const CONFIG_COUNT = 87
+const CONFIG_COUNT = 88
 
 /// How many tokens the baseline theme has.
 const TOKEN_COUNT = 87

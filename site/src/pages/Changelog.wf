@@ -8,7 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
-                ReleaseNotes(version: "8.0.0", id: "8.0.0"),
+                ReleaseNotes(version: "8.0.0", id: "8.0.0", date: "2026-11-26"),
                 ReleaseNotes(version: "7.2.0", id: "7.2.0", date: "2026-11-23"),
                 ReleaseNotes(version: "7.1.1", id: "7.1.1", date: "2026-11-18"),
                 ReleaseNotes(version: "7.1.0", id: "7.1.0", date: "2026-11-18"),
@@ -80,7 +80,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                 }
             }
 
-            ReleaseEntry(ReleaseNotes(version: "8.0.0", id: "8.0.0", summary: #"The first long-term release. For all of 8.x the language does not break:
+            ReleaseEntry(ReleaseNotes(version: "8.0.0", id: "8.0.0", date: "2026-11-26", when: "26 November 2026", summary: #"The first long-term release. For all of 8.x the language does not break:
 syntax, semantics, the built-ins and their props, the config keys and the
 CLI stay as they are, and a minor release only adds. 8.x gets fixes for at
 least twelve months after 9.0, and 9.0 comes no sooner than nine months
@@ -115,7 +115,8 @@ right-to-left text, and `text-shadow` is drawn."#),
 note naming it."#),
                     Change(text: #"**Every PDF is tagged**: headings, paragraphs, lists, tables, figures
 with their alt text, links and the document's language, so a screen
-reader and reflow work. A repeated table header now also repeats when a
+reader and reflow work; `"build": { "pdf": { "tagged": false } }` leaves
+the tags out, for a smaller file. A repeated table header now also repeats when a
 row lands exactly at the top of a page."#)
                 ]),
                 NotesSection(title: #"The static paint and the browser agree"#, id: "8.0.0-the-static-paint-and-the-browser-agree", items: [
@@ -147,7 +148,12 @@ false `V01`."#),
 animation flag."#),
                     Change(text: #"An error lands on the exact name it quotes, never inside a longer word."#),
                     Change(text: #"A composite built-in whose expansion fails is reported (`E901`) rather
-than drawn as nothing."#)
+than drawn as nothing."#),
+                    Change(text: #"A page's `title:`, `description:`, `image:` and `guard:` are checked:
+each reads the route's parameters, the constants and the stores, and a
+name nothing there declares is a `T13` (the router would have thrown on
+it). A title that splices only a constant, `"{SITE}"`, is now worked
+out rather than shown as written. A literal brace is `\{`."#)
                 ]),
                 NotesSection(title: #"Installing"#, id: "8.0.0-installing", items: [
                     Change(text: #"Linux arm64 and a static musl build (any distribution, Alpine, a
@@ -164,7 +170,7 @@ points into the bundled skill."#),
                     Change(text: #"The README lists every command, and the Node package says MPL-2.0, as
 the rest of WebFluent does."#)
                 ])
-            ], count: 21))
+            ], count: 22), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "7.2.0", id: "7.2.0", date: "2026-11-23", when: "23 November 2026", summary: #"Two commands for checking a site as a host and a reader meet it, keyed
 lists that move only what moved, a baseline palette that meets WCAG AA, and
@@ -249,7 +255,7 @@ without a package, Lighthouse, build times, runtime speed, PDFs, and what
 an AI agent spends to build an app — each a script under `bench/` with
 its raw results."#)
                 ])
-            ], count: 15), latest: true)
+            ], count: 15))
 
             ReleaseEntry(ReleaseNotes(version: "7.1.1", id: "7.1.1", date: "2026-11-18", when: "18 November 2026", summary: #"A fix to the language server.
 

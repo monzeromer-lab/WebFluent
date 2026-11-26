@@ -13,7 +13,8 @@ With `output_type: "pdf"` the build lays the program out on paper with its own e
             "default_font_size": 12,
             "output_filename": "report.pdf",
             "fonts": [],
-            "system_fonts": true
+            "system_fonts": true,
+            "tagged": true
         }
     }
 }
@@ -44,7 +45,9 @@ and CSS a template renders, and that is laid out on paper:
   PNG, JPEG (embedded as it is), WebP, GIF, and SVG kept vector.
 - **The file.** Fonts embedded as subsets with the text attached (copy and
   search work), compressed, with title and author, an outline of the
-  headings, and links that work.
+  headings, and links that work. Tagged for a screen reader — headings,
+  paragraphs, lists, tables, pictures with their `alt`, links and the
+  language; `"tagged": false` leaves the tags out for a smaller file.
 
 ### Document elements
 

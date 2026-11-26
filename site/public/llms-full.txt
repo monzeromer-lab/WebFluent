@@ -7813,11 +7813,11 @@ To produce one PDF per invoice from data, use the same templates with [server re
 
 A PDF is the page, printed. The compiler renders the program to the same static HTML and CSS a template renders, then lays that HTML out on paper itself, with no browser and no external tool. The engine covers five areas:
 
-- **The page's own stylesheet.** The engine's rules for every built-in, the theme's tokens, every `.css` file under `src/` and every `style { }` block go through a real CSS cascade. It supports selectors with descendant, child and sibling combinators, attribute selectors, `:first-child`/`:nth-child`, `:not()`, `:is()` and `:where()`; specificity; inheritance; `var()`; and `em`, `rem` and `%`. A `Card` in a PDF looks like the `Card` on the page, and a class of your own (`class: "callout"`) brings its rules with it. `@media print` applies; rules only a screen has (`:hover`, a media query on width) do not.
+- **The page's own stylesheet.** The engine's rules for every built-in, the theme's tokens, every `.css` file under `src/` and every `style { }` block go through a real CSS cascade. It supports selectors with descendant, child and sibling combinators, attribute selectors, `:first-child`/`:nth-child`, `:not()`, `:is()` and `:where()`; specificity; inheritance; `var()`; and `em`, `rem` and `%`. A `Card` in a PDF looks like the `Card` on the page, and a class of your own (`class: "callout"`) brings its rules with it. `@media print`, `all` and a width or orientation query (answered against the page area) apply; a rule only a screen has (`@media screen`, `:hover`) does not, and `@page` sets the paper and its margins.
 - **Layout.** Block, flex and grid work as CSS defines them — `Row`, `Stack`, `Grid` and `Column` sit side by side exactly as on the web — with absolute positioning, `gap`, `min-`/`max-` sizes, `aspect-ratio`, inline-blocks on a line of text (a badge in a sentence), tables sized by their content, and list markers.
 - **Text.** Every run is shaped (ligatures, kerning, Arabic joining, combining marks), set right to left where the language is, broken at Unicode's line-break opportunities, and aligned or justified. A word too long for its line is cut rather than overflowing.
 - **Paint.** Backgrounds (colours, linear and radial gradients with any number of stops, pictures), borders per side (solid, dashed, dotted) with rounded corners, shadows, opacity, `overflow: hidden`, `transform: rotate()`, and pictures with their transparency — PNG, JPEG (embedded as it is), WebP, GIF, and SVG, which stays vector.
-- **The file.** Fonts are embedded as subsets with the text attached, so a reader can copy and search it. The file is compressed, carries its title and author, has an outline of its headings in the reader's sidebar, and its links work.
+- **The file.** Fonts are embedded as subsets with the text attached, so a reader can copy and search it. The file is compressed, carries its title and author, has an outline of its headings in the reader's sidebar, and its links work. It is tagged for a screen reader: headings, paragraphs, lists, tables, pictures with their alt text, links and the document's language. `"tagged": false` in `build.pdf` leaves the tags out, for a smaller file.
 
 ## PDF documents
 
@@ -19821,7 +19821,8 @@ This block is what a config holding only a name means. The compiler's test suite
       "default_font_size": 12.0,
       "output_filename": null,
       "fonts": [],
-      "system_fonts": true
+      "system_fonts": true,
+      "tagged": true
     },
     "slides": {
       "size": "16:9",
@@ -19930,6 +19931,7 @@ The page and type of a PDF build ([PDF and slides](/learn/17-pdf-and-slides)).
 | `output_filename` | string | the project's name | The file written. |
 | `fonts` | list of paths | `[]` | Font files or directories, read as well as the project's `fonts/`, `src/fonts/` and `public/fonts/`, which are always read. |
 | `system_fonts` | boolean | `true` | Whether this machine's fonts may stand in for a family or a character nothing in the project has. The build names each one it uses. |
+| `tagged` | boolean | `true` | Whether the PDF is tagged for a screen reader: its headings, paragraphs, lists, tables, pictures with their alt text, links and language. Off, the file is smaller. |
 
 ### build.slides
 

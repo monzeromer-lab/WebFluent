@@ -38,7 +38,8 @@ after 8.0. [STABILITY.md](STABILITY.md) is the whole promise.
   note naming it.
 - **Every PDF is tagged**: headings, paragraphs, lists, tables, figures
   with their alt text, links and the document's language, so a screen
-  reader and reflow work. A repeated table header now also repeats when a
+  reader and reflow work; `"build": { "pdf": { "tagged": false } }` leaves
+  the tags out, for a smaller file. A repeated table header now also repeats when a
   row lands exactly at the top of a page.
 
 ## The static paint and the browser agree
@@ -74,6 +75,11 @@ after 8.0. [STABILITY.md](STABILITY.md) is the whole promise.
 - An error lands on the exact name it quotes, never inside a longer word.
 - A composite built-in whose expansion fails is reported (`E901`) rather
   than drawn as nothing.
+- A page's `title:`, `description:`, `image:` and `guard:` are checked:
+  each reads the route's parameters, the constants and the stores, and a
+  name nothing there declares is a `T13` (the router would have thrown on
+  it). A title that splices only a constant, `"{SITE}"`, is now worked
+  out rather than shown as written. A literal brace is `\{`.
 
 ## Installing
 
