@@ -2446,10 +2446,7 @@ fn the_search_knows_other_frameworks_words() {
         ("onclick", "/learn/08-events#handlers"),
         ("classname", "/learn/13-styling#classes"),
         ("usequery", "/learn/15-data#resources"),
-        (
-            "\\newpage",
-            "/learn/17-pdf-and-slides#page-breaks",
-        ),
+        ("\\newpage", "/learn/17-pdf-and-slides#page-breaks"),
     ] {
         assert_eq!(led_to(word), [route], "`{word}`");
     }
