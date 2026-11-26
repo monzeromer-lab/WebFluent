@@ -1265,3 +1265,64 @@ console.log(JSON.stringify(inputs.map((html) => {{
         wrong.join("\n")
     );
 }
+
+/// Builds `src` as a static site in a directory of its own, and gives back
+/// that directory.
+fn static_site(name: &str, src: &str) -> std::path::PathBuf {
+    let dir = std::env::temp_dir().join(format!("wf-agree-{name}-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "t", "build": { "ssg": true } }"#,
+    )
+    .unwrap();
+    std::fs::write(dir.join("src/App.wf"), src).unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["build", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    dir
+}
+
+/// A `:param` page's title was filled by replacing each `{name}` in turn,
+/// so a value holding `{other}` was filled again — and which one came first
+/// hung on a hash map's order. It is worked out in one pass, each name
+/// read through the static evaluator, as the router fills it on the live
+/// page: what the file says is what the tab says once the page runs.
+#[test]
+fn a_routes_title_is_filled_once_as_the_router_fills_it() {
+    let dir = static_site(
+        "title-once",
+        "const PAIRS = [{ a: #\"x{b}\"#, b: \"7\" }, { a: \"one\", b: \"two\" }]\n\
+         page Pair(path: \"/p/:a/:b\", a: String, b: String, title: \"{a} and {b} {c}\", description: \"About {a}.\", paths: PAIRS) {\n\
+         \x20   Heading(a).h1\n\
+         }\n\
+         page Home(path: \"/\", title: \"Home\", description: \"Home.\") { Heading(\"Home\").h1 }\n",
+    );
+    for (a, b) in [("x{b}", "7"), ("one", "two")] {
+        // What the router does: `{name}` of a parameter, once, and anything
+        // else left as it is.
+        let routed = format!("{a} and {b} {{c}}");
+        let encoded = a.replace('{', "%7B").replace('}', "%7D");
+        let file = ["build/p", &encoded, b, "index.html"].join("/");
+        let html = std::fs::read_to_string(dir.join(&file))
+            .or_else(|_| std::fs::read_to_string(dir.join(format!("build/p/{a}/{b}/index.html"))))
+            .unwrap_or_else(|e| panic!("{file}: {e}"));
+        let title = html
+            .split("<title>")
+            .nth(1)
+            .and_then(|t| t.split("</title>").next())
+            .unwrap();
+        let routed_html = routed.replace('&', "&amp;").replace('<', "&lt;");
+        assert_eq!(title, routed_html, "{file}");
+        assert!(html.contains(&format!("About {a}.")), "{html}");
+    }
+    let _ = std::fs::remove_dir_all(&dir);
+}

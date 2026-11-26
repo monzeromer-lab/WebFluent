@@ -38,18 +38,6 @@ pub fn render_page_html_with_params(
     // The file is one concrete route: its canonical link, its sharing card
     // and its asset paths are that route's, not the pattern's.
     seeded.path = route.to_string();
-    // `title: "{slug} — Posts"`: a parameter named in the title or the
-    // description is that route's value, so each file has its own.
-    let fill = |text: &str| {
-        let mut out = text.to_string();
-        for (k, v) in params {
-            out = out.replace(&format!("{{{k}}}"), &v.to_text());
-        }
-        out
-    };
-    seeded.title = seeded.title.as_deref().map(fill);
-    seeded.description = seeded.description.as_deref().map(fill);
-    seeded.image = seeded.image.as_deref().map(fill);
     // Seed as declarations at the top of the body: `params` as a map, and
     // each parameter as a constant of the page.
     let mut extra: Vec<Statement> = Vec::new();
@@ -86,10 +74,54 @@ pub fn render_page_html_with_params(
     }
     extra.append(&mut seeded.body);
     seeded.body = extra;
+    // `title: "{slug} — Posts"`: a parameter named in the title, the
+    // description or the image is that route's value, worked out by the
+    // static evaluator in the page's own scope — so each file has its own,
+    // spelled as the page spells the value. One pass over the text, as the
+    // router fills it (`{name}`, `name` a word): a value that itself holds
+    // `{other}` is not filled again, and the order the parameters come in
+    // cannot change the result. A splice that is more than a name is
+    // `title_expr`'s, worked out in `render_page_html_studio`.
+    let scope = site.page_scope(&seeded.body);
+    let fill = |text: &str| fill_params(text, params, &scope);
+    seeded.title = seeded.title.as_deref().map(fill);
+    seeded.description = seeded.description.as_deref().map(fill);
+    seeded.image = seeded.image.as_deref().map(fill);
     match site.node_map {
         Some(map) => render_page_html_studio(&seeded, site, true, map),
         None => render_page_html_studio(&seeded, site, false, &NodeMap::default()),
     }
+}
+
+/// `text` with each `{name}` that names one of the route's parameters
+/// replaced by its value, read through the static evaluator; any other
+/// `{…}` is left as written, as the router leaves it.
+fn fill_params(text: &str, params: &HashMap<String, Static>, scope: &Scope) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(open) = rest.find('{') {
+        out.push_str(&rest[..open]);
+        let after = &rest[open + 1..];
+        let name_len = after
+            .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_'))
+            .unwrap_or(after.len());
+        let name = &after[..name_len];
+        let closes = after[name_len..].starts_with('}');
+        match params.get(name) {
+            Some(value) if closes && !name.is_empty() => {
+                let shown = eval(&Expr::Identifier(name.to_string()), scope)
+                    .unwrap_or_else(|| value.clone());
+                out.push_str(&shown.to_text());
+                rest = &after[name_len + 1..];
+            }
+            _ => {
+                out.push('{');
+                rest = after;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
 }
 
 /// The most pages one `paths:` may name: a list from data can be any
