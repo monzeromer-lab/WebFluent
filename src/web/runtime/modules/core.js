@@ -72,24 +72,69 @@
   // An effect that writes what it reads comes back into the run. One that
   // settles does so once or twice; past `MAX_REENTRY` runs in one change
   // it stops, and under `wf serve` says so.
+  //
+  // What waits is a set (an effect is in it once) beside a binary heap of
+  // it, oldest first; a listener with no age (`subscribe`) comes after
+  // every effect, and among those, and among equals, the one added first
+  // runs first. An effect taken out of the set (disposed, or run early by
+  // a `computed` read) stays in the heap until it reaches the top, where
+  // it is passed over. Picking the oldest by looking at every waiting
+  // effect made a change that reached a thousand rows cost a million
+  // comparisons.
   const MAX_REENTRY = 100;
   let effectsMade = 0;
   let pending = null;
+  let queue = null;
+  let queued = 0;
+  // Whether heap entry `a` runs before `b`.
+  function _sooner(a, b) {
+    return a.o < b.o || (a.o === b.o && a.s < b.s);
+  }
+  function _enqueue(fn) {
+    if (pending.has(fn)) return;
+    pending.add(fn);
+    const entry = { f: fn, o: fn.order ?? Infinity, s: queued++ };
+    let i = queue.length;
+    queue.push(entry);
+    while (i > 0) {
+      const up = (i - 1) >> 1;
+      if (!_sooner(entry, queue[up])) break;
+      queue[i] = queue[up];
+      i = up;
+    }
+    queue[i] = entry;
+  }
+  function _dequeue() {
+    const top = queue[0];
+    const last = queue.pop();
+    const n = queue.length;
+    if (n) {
+      let i = 0;
+      for (;;) {
+        const l = 2 * i + 1;
+        if (l >= n) break;
+        const r = l + 1;
+        const c = r < n && _sooner(queue[r], queue[l]) ? r : l;
+        if (!_sooner(queue[c], last)) break;
+        queue[i] = queue[c];
+        i = c;
+      }
+      queue[i] = last;
+    }
+    return top.f;
+  }
   function schedule(subs) {
     const first = pending === null;
-    if (first) pending = new Set();
-    for (const fn of subs) pending.add(fn);
+    if (first) { pending = new Set(); queue = []; queued = 0; }
+    for (const fn of subs) _enqueue(fn);
     if (!first) return;
     const runs = new Map();
     let failed = false;
     let error;
     try {
-      while (pending.size) {
-        let next = null;
-        for (const fn of pending) {
-          if (next === null || (fn.order ?? Infinity) < (next.order ?? Infinity)) next = fn;
-        }
-        pending.delete(next);
+      while (queue.length) {
+        const next = _dequeue();
+        if (!pending.delete(next)) continue;
         const n = (runs.get(next) || 0) + 1;
         runs.set(next, n);
         if (n > MAX_REENTRY) {
@@ -102,6 +147,7 @@
       }
     } finally {
       pending = null;
+      queue = null;
     }
     if (failed) throw error;
   }
