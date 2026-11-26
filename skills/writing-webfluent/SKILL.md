@@ -37,8 +37,9 @@ so read a section, never the whole reference.
 ## Before you write
 
 1. **Check the version.** Run `wf --version`.
-   - A project's own `AGENTS.md` is `core.md` for the version that made it,
-     with the skill it came with beside it. Don't read both.
+   - A project's own `AGENTS.md` is a short summary (dev loop, grammar,
+     idioms, common mistakes) for the version that made it. The skill beside
+     it has the rest.
    - This skill is the reference of WebFluent 7.2.0.
    - If the compiler and the reference disagree, the compiler is right. Say so.
    - A project written for WebFluent 6 is refused by 7 until it's migrated:

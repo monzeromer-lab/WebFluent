@@ -2,7 +2,7 @@
 
 ```
 project/
-├── AGENTS.md                 # This reference — `wf init` writes it, for the version that made the project
+├── AGENTS.md                 # A short reference `wf init` writes, for the version that made the project
 ├── webfluent.app.json        # Config: theme, build, i18n, meta
 ├── src/
 │   ├── App.wf                # Root: navbar, router, footer

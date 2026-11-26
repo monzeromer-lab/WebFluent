@@ -542,28 +542,49 @@ pub fn locale_name(locale: &str) -> String {
 /// The repository's `AGENTS.md`, as this `wf` was built with it.
 const AGENTS: &str = include_str!("../../AGENTS.md");
 
-/// `AGENTS.md` for a new project: the core of the language
-/// (`references/core.md` of the skill), headed by the version it describes,
-/// its links pointing into the skill's folder, where the rest of the
-/// reference is, a file a section. Many agents read `AGENTS.md` into every
-/// turn, so it holds what most work needs and no more.
+/// `AGENTS.md` for a new project: the layout, the dev loop, and the
+/// reference's grammar summary, ten idioms and common mistakes (its
+/// `## For agents` sections), then where the rest is in the skill. Many
+/// agents read `AGENTS.md` into every turn, so it stays short.
 pub fn agents_md() -> String {
-    let version = env!("CARGO_PKG_VERSION");
-    let core = include_str!("../../skills/writing-webfluent/references/core.md");
-    let core = core
+    let template = include_str!("init/agents-template.md");
+    template
+        .replace("{{version}}", env!("CARGO_PKG_VERSION"))
+        .replace("{{grammar}}", &for_agents_section("Grammar summary"))
+        .replace("{{idioms}}", &for_agents_section("Ten idioms"))
         .replace(
-            "](language",
-            "](.agents/skills/writing-webfluent/references/language",
+            "{{mistakes}}",
+            &for_agents_section("Common mistakes").replace(
+                "A diagnostic's code is in \"Compiler diagnostics\", with its fix.",
+                "`wf explain CODE` prints a code's meaning and its fix.",
+            ),
         )
-        .replace(
-            "](testing.md",
-            "](.agents/skills/writing-webfluent/references/testing.md",
-        );
-    format!(
-        "<!-- The core of WebFluent {version}, written by `wf init`. The whole \
-         reference, a file a section: .agents/skills/writing-webfluent/references/language.md. \
-         A newer wf brings a newer one. -->\n\n{core}"
-    )
+}
+
+/// A `###` section of the reference's `## For agents`, from its heading to
+/// the next heading, raised to `##`.
+fn for_agents_section(title: &str) -> String {
+    let start = AGENTS
+        .find("\n## For agents\n")
+        .and_then(|at| {
+            AGENTS[at..]
+                .find(&format!("\n### {title}\n"))
+                .map(|s| at + s + 1)
+        })
+        .unwrap_or_else(|| panic!("AGENTS.md has no `### {title}` under `## For agents`"));
+    let body = &AGENTS[start + "### ".len() + title.len() + 1..];
+    let mut end = 0;
+    let mut fenced = false;
+    for line in body.split_inclusive('\n') {
+        if line.trim_start().starts_with("```") {
+            fenced = !fenced;
+        }
+        if !fenced && line.starts_with('#') && end > 0 {
+            break;
+        }
+        end += line.len();
+    }
+    format!("## {title}\n{}", body[..end].trim_end())
 }
 
 // ═══════════════════════════════════════════════════════════
