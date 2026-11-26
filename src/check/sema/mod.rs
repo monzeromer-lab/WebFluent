@@ -18,7 +18,7 @@ pub(crate) mod script;
 pub mod types;
 
 use crate::diagnostics::error::Diagnostic;
-use crate::registry::{self, ComponentSig, Flag, Legacy, PropType, Sink};
+use crate::registry::{self, ComponentSig, Flag, Legacy, PropType, Sink, UNIVERSAL_PROPS};
 use crate::syntax::parser::ast::{
     AnimateConfig, Arg, ArmPattern, ComponentDecl, ComponentRef, Declaration, EnumDecl,
     EventHandler, Expr, IfStmt, Program, Span, Statement, StatementKind, StringPart, StyleBlock,
@@ -168,6 +168,59 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
         }
     }
     findings
+}
+
+/// `Its tones are .primary, …; its sizes are .sm, .md, .lg; it also takes
+/// .full, .pill; and the animation flags every element takes`.
+fn flag_summary(sig: &'static ComponentSig) -> String {
+    let own = sig.positional.iter().chain(sig.props.iter());
+    let mut groups: Vec<String> = Vec::new();
+    let mut switches: Vec<String> = Vec::new();
+    for p in own.filter(|p| p.shorthand) {
+        match p.ty {
+            PropType::Bool => switches.push(format!(".{}", p.name)),
+            PropType::Enum(cases) => {
+                let words: Vec<String> = cases
+                    .iter()
+                    .filter(|c| !c.name.is_empty())
+                    .map(|c| format!(".{}", c.name))
+                    .collect();
+                if !words.is_empty() {
+                    let plural = if p.name.ends_with('s') {
+                        p.name.to_string()
+                    } else {
+                        format!("{}s", p.name)
+                    };
+                    groups.push(format!("its {plural} are {}", words.join(", ")));
+                }
+            }
+            _ => {}
+        }
+    }
+    switches.sort();
+    switches.dedup();
+    let mut parts = groups;
+    if !switches.is_empty() {
+        let lead = if parts.is_empty() {
+            "it takes"
+        } else {
+            "it also takes"
+        };
+        parts.push(format!("{lead} {}", switches.join(", ")));
+    }
+    let universal = UNIVERSAL_PROPS.iter().any(|p| p.shorthand);
+    let mut out = match (parts.is_empty(), universal) {
+        (true, true) => return "It takes only the animation flags every element takes".to_string(),
+        (true, false) => return "It takes no flags".to_string(),
+        (false, _) => parts.join("; "),
+    };
+    if universal {
+        out.push_str("; and the animation flags every element takes");
+    }
+    let mut chars = out.chars();
+    chars
+        .next()
+        .map_or_else(String::new, |c| c.to_uppercase().chain(chars).collect())
 }
 
 /// The built-ins in `body` drawn as others, expanded on a copy as
@@ -848,13 +901,11 @@ impl Checker<'_, '_> {
         }
     }
 
+    /// The flags a built-in takes, said briefly: its own, each enum prop's
+    /// cases under the prop's name, then its switches; the animation and
+    /// speed flags every element takes are named once, not listed.
     fn flag_hint(&self, sig: &'static ComponentSig) -> String {
-        let words = self.flag_words(sig);
-        if words.is_empty() {
-            "It takes no flags".to_string()
-        } else {
-            format!("Its flags are {}", words.join(", "))
-        }
+        flag_summary(sig)
     }
 
     /// Every flag a built-in takes, `.`-prefixed and sorted.
@@ -2658,6 +2709,49 @@ mod tests {
             panic!()
         };
         assert!(format!("{:?}", el.args).contains("FunctionCall(\"Date\", [])"));
+    }
+
+    /// A flag the component does not take is answered with the one meant
+    /// and the component's own flags, grouped by what they set; the
+    /// animation and speed flags every element takes are named once.
+    #[test]
+    fn an_unknown_flag_lists_the_component_s_own_flags_briefly() {
+        let program = crate::syntax::parse_source(
+            "page P(path: \"/\") {\n    Button(\"Go\").primry\n    Divider.huge\n}\n",
+            "t.wf",
+        )
+        .unwrap();
+        let findings = super::check(&program, &|_| "t.wf".into());
+        let hints: Vec<&str> = findings
+            .errors
+            .iter()
+            .filter(|e| e.code == "E103")
+            .filter_map(|e| e.hint.as_deref())
+            .collect();
+        assert_eq!(hints.len(), 2, "{:?}", findings.errors);
+        let button = hints[0];
+        assert!(
+            button.starts_with("Did you mean `.primary`? Its tones are .primary, "),
+            "{button}"
+        );
+        assert!(
+            button.contains("; its sizes are .sm, .md, .lg;"),
+            "{button}"
+        );
+        assert!(
+            button.ends_with("; and the animation flags every element takes"),
+            "{button}"
+        );
+        for universal in [".fadeIn", ".slideUp", ".fast", ".slow", ".trapFocus"] {
+            assert!(!button.contains(universal), "{universal} in {button}");
+        }
+        // The fix still offers the flag meant.
+        let fix = findings.errors.iter().find(|e| e.code == "E103").unwrap();
+        assert_eq!(fix.plans.len(), 1);
+        assert_eq!(
+            hints[1],
+            "It takes only the animation flags every element takes"
+        );
     }
 
     /// A built-in's rewrite the compiler could not read back is an error at
