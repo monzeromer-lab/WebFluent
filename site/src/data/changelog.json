@@ -86,6 +86,11 @@
       "text": "A theme's breakpoints (`screen-md`) and the motion tokens the runtime\nreads by name are no longer pruned from the sheet, so `viewport.md` and\nan animation's defaults follow the theme.",
       "points": [],
       "after": ""
+     },
+     {
+      "text": "A list or string helper called through `?.` — `byId[key]?.first()`,\n`nums?.sum()`, a date's `?.plus(…)` — is the runtime's, as it is\nwithout `?.`. It was written as a plain method call, which painted at\nbuild time and threw in the browser.",
+      "points": [],
+      "after": ""
      }
     ],
     "after": ""
@@ -137,6 +142,11 @@
       "text": "A page's `title:`, `description:`, `image:` and `guard:` are checked:\neach reads the route's parameters, the constants and the stores, and a\nname nothing there declares is a `T13` (the router would have thrown on\nit). A title that splices only a constant, `\"{SITE}\"`, is now worked\nout rather than shown as written. A literal brace is `\\{`.",
       "points": [],
       "after": ""
+     },
+     {
+      "text": "A `///` comment above a statement in an action or a handler is a\ncomment. It was a syntax error that lost the declaration it was in, and\na syntax error is now printed before what it causes elsewhere.",
+      "points": [],
+      "after": ""
      }
     ],
     "after": ""
@@ -173,7 +183,7 @@
     "after": ""
    }
   ],
-  "count": 22
+  "count": 24
  },
  {
   "version": "7.2.0",

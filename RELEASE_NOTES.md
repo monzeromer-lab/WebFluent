@@ -56,6 +56,10 @@ after 8.0. [STABILITY.md](STABILITY.md) is the whole promise.
 - A theme's breakpoints (`screen-md`) and the motion tokens the runtime
   reads by name are no longer pruned from the sheet, so `viewport.md` and
   an animation's defaults follow the theme.
+- A list or string helper called through `?.` — `byId[key]?.first()`,
+  `nums?.sum()`, a date's `?.plus(…)` — is the runtime's, as it is
+  without `?.`. It was written as a plain method call, which painted at
+  build time and threw in the browser.
 
 ## Faster lists and reactivity
 
@@ -80,6 +84,9 @@ after 8.0. [STABILITY.md](STABILITY.md) is the whole promise.
   name nothing there declares is a `T13` (the router would have thrown on
   it). A title that splices only a constant, `"{SITE}"`, is now worked
   out rather than shown as written. A literal brace is `\{`.
+- A `///` comment above a statement in an action or a handler is a
+  comment. It was a syntax error that lost the declaration it was in, and
+  a syntax error is now printed before what it causes elsewhere.
 
 ## Installing
 
