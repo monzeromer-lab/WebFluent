@@ -75,3 +75,39 @@ fn a_program_with_no_theme_choice_carries_nothing_for_one() {
     assert!(!read(&dir, "index.html").contains("theme.js"));
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// The runtime reads a breakpoint by a name it puts together
+/// (`getPropertyValue("--screen-" + step)`), so a theme's `screen-md` must
+/// stay in the sheet whenever `viewport` is read, or `viewport.md` falls
+/// back to 768px while the sheet's queries say 900px.
+#[test]
+fn a_themes_breakpoint_reaches_viewport() {
+    let dir = std::env::temp_dir().join(format!("wf-theme-boot-breakpoint-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src")).unwrap();
+    std::fs::write(
+        dir.join("webfluent.app.json"),
+        r#"{ "name": "Site", "build": { "output": "build" } }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/App.wf"),
+        "theme Brand { screen-md: 900px }\napp { Router }\npage Home(path: \"/\", title: \"Home\", description: \"D.\") {\n    Heading(\"Home\").h1\n    Text(if viewport.md { \"wide\" } else { \"narrow\" })\n}\n",
+    )
+    .unwrap();
+    let out = Command::new(env!("CARGO_BIN_EXE_wf"))
+        .args(["build", "-d"])
+        .arg(&dir)
+        .output()
+        .unwrap();
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let css = read(&dir, "styles.css");
+    assert!(
+        css.contains("--screen-md:900px"),
+        "the breakpoint was pruned: {css}"
+    );
+}

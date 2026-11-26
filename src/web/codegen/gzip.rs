@@ -7,8 +7,8 @@
 //! serve` sends it, so a Lighthouse run against the dev server sees the
 //! bytes a real host would send.
 //!
-//! The project carries no compression dependency, so this is a DEFLATE
-//! encoder of its own: LZ77 over a 32 KiB window with hash chains and lazy
+//! This is a DEFLATE encoder of its own (`miniz_oxide`, which the PDF
+//! engine uses to read compressed fonts, is not used here): LZ77 over a 32 KiB window with hash chains and lazy
 //! matching, and one dynamic-Huffman block per 64 K tokens, as RFC 1951
 //! describes. It trades a little ratio against zlib's best level for being
 //! three hundred lines with no surprises; a decoder — every browser, and the

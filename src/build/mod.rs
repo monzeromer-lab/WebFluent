@@ -1648,7 +1648,27 @@ fn prune_root_tokens(output_dir: &Path) -> Result<usize> {
             &rest[..rest.find(ends_name).unwrap_or(rest.len())]
         })
         .collect();
+    // A script may read a token by a name it puts together, as the runtime
+    // reads a breakpoint: `getPropertyValue("--screen-" + step)`. A quoted
+    // `"--…` is such a read, of every token whose name starts with it.
+    let spelled: std::collections::BTreeSet<&str> = ['"', '\'', '`']
+        .into_iter()
+        .flat_map(|quote| {
+            let opening = format!("{quote}--");
+            elsewhere
+                .match_indices(&opening)
+                .map(|(at, found)| {
+                    let rest = &elsewhere[at + found.len()..];
+                    &rest[..rest.find(quote).unwrap_or(0)]
+                })
+                .filter(|name| !name.is_empty() && !name.contains(ends_name))
+                .collect::<Vec<_>>()
+        })
+        .collect();
     let named_elsewhere = |token: &str| {
+        if spelled.iter().any(|prefix| token.starts_with(prefix)) {
+            return true;
+        }
         if token.contains(ends_name) {
             return named(&elsewhere, token);
         }
