@@ -859,6 +859,29 @@ fn a_pdf_is_tagged_with_its_structure_and_language() {
 }
 
 #[test]
+fn build_pdf_tagged_false_writes_an_untagged_and_smaller_file() {
+    let src = r#"page P(path: "/") { Document { Heading("Invoice").h1  Text("Total: 12") } }"#;
+    let render = |tagged: bool| {
+        Template::from_str(src)
+            .unwrap()
+            .with_pdf(PdfConfig {
+                tagged,
+                ..PdfConfig::default()
+            })
+            .render_pdf(&json!({}))
+            .unwrap()
+    };
+    let (on, off) = (render(true), render(false));
+    assert!(String::from_utf8_lossy(&on).contains("/StructTreeRoot"));
+    assert!(!String::from_utf8_lossy(&off).contains("/StructTreeRoot"));
+    assert!(off.len() < on.len(), "{} < {}", off.len(), on.len());
+    // And from the configuration file.
+    let config: PdfConfig = serde_json::from_str(r#"{ "tagged": false }"#).unwrap();
+    assert!(!config.tagged);
+    assert!(PdfConfig::default().tagged);
+}
+
+#[test]
 fn the_reference_documents_are_tagged() {
     let (out, tmp) = build_document("invoice");
     let pdf = std::fs::read_dir(tmp.join("documents/invoice/build"))

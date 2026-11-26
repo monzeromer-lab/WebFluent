@@ -549,6 +549,7 @@ pub webfluent::config::project::PdfConfig::margins: webfluent::PdfMargins
 pub webfluent::config::project::PdfConfig::output_filename: core::option::Option<alloc::string::String>
 pub webfluent::config::project::PdfConfig::page_size: alloc::string::String
 pub webfluent::config::project::PdfConfig::system_fonts: bool
+pub webfluent::config::project::PdfConfig::tagged: bool
 impl core::clone::Clone for webfluent::PdfConfig
 pub fn webfluent::PdfConfig::clone(&self) -> Self
 impl core::default::Default for webfluent::PdfConfig
@@ -5977,6 +5978,7 @@ pub webfluent::PdfConfig::margins: webfluent::PdfMargins
 pub webfluent::PdfConfig::output_filename: core::option::Option<alloc::string::String>
 pub webfluent::PdfConfig::page_size: alloc::string::String
 pub webfluent::PdfConfig::system_fonts: bool
+pub webfluent::PdfConfig::tagged: bool
 impl core::clone::Clone for webfluent::PdfConfig
 pub fn webfluent::PdfConfig::clone(&self) -> Self
 impl core::default::Default for webfluent::PdfConfig

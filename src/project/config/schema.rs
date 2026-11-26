@@ -291,6 +291,11 @@ pub const FIELDS: &[Field] = &[
         Bool,
         "Let the machine's fonts stand in for a family or a character the project's fonts lack.",
     ),
+    f(
+        "build.pdf.tagged",
+        Bool,
+        "Tag the PDF for screen readers: headings, paragraphs, lists, tables and pictures. On by default.",
+    ),
     // ── Slides ──
     f(
         "build.slides.size",

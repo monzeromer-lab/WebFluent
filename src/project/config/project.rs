@@ -448,6 +448,11 @@ pub struct PdfConfig {
     /// nothing in the project has.
     #[serde(default = "default_true")]
     pub system_fonts: bool,
+    /// Whether the PDF is tagged: its headings, paragraphs, lists, tables
+    /// and pictures named for a screen reader. On by default; a tagged
+    /// file is larger.
+    #[serde(default = "default_true")]
+    pub tagged: bool,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -564,6 +569,7 @@ impl Default for PdfConfig {
             output_filename: None,
             fonts: Vec::new(),
             system_fonts: true,
+            tagged: true,
         }
     }
 }

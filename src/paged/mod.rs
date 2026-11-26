@@ -984,9 +984,7 @@ impl<'a> Options<'a> {
             vfs,
             font_dirs: font_dirs_via(vfs, root, &config.fonts),
             system_fonts: config.system_fonts,
-            // Every PDF is tagged: the configuration has no setting for it
-            // yet (`build.pdf.tagged` would be one).
-            tagged: true,
+            tagged: config.tagged,
         }
     }
 
