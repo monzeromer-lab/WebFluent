@@ -89,13 +89,13 @@
         // `rel` is a list of words apart by ASCII white space, as a browser
         // reads it.
         const words = at >= 0 ? kept[at][1].split(/[\t\n\f\r ]+/).filter(Boolean) : [];
-        const opener = words.some((w) => /^opener$/i.test(w));
+        const namesOpener = words.some((w) => /^opener$/i.test(w));
         if (opensElsewhere) {
           const left = words.filter((w) => !/^(opener|noopener|noreferrer)$/i.test(w));
           left.push("noopener", "noreferrer");
           if (at < 0) kept.push(["rel", left.join(" ")]);
           else kept[at] = ["rel", left.join(" ")];
-        } else if (at >= 0 && opener) {
+        } else if (at >= 0 && namesOpener) {
           const left = words.filter((w) => !/^opener$/i.test(w));
           if (left.length) kept[at] = ["rel", left.join(" ")];
           else kept.splice(at, 1);

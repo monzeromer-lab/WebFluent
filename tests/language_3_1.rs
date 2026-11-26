@@ -297,7 +297,11 @@ fn format_and_ago_speak_the_locale_at_build_time_and_in_the_browser() {
         body,
         &json!({ "n": 1234.5, "share": 0.256, "d": "2024-03-05T14:07:00Z", "now": "2024-03-07T14:07:00Z", "locale": "de" }),
     );
-    assert!(html.contains(">$1.234,50<"), "the data's locale: {html}");
+    // As `Intl` writes it in German: the symbol after the amount.
+    assert!(
+        html.contains(">1.234,50\u{a0}$<"),
+        "the data's locale: {html}"
+    );
     assert!(html.contains(">2 days ago<"), "{html}");
     // A page's own `format` action is its own.
     let src = page("state n = 1\n action format(x: Number) { return \"{x}!\" }\n Text(format(n))");
