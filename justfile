@@ -254,6 +254,14 @@ editors-bump:
     git submodule update --remote
     git status --short editors
 
+# Raise both editor extensions' server pin to TAG (a release already out,
+# with its SHA256SUMS); then commit and release each from its repository
+editors-pin-server tag:
+    gh release view {{tag}} --json assets --jq '.assets[].name' | grep -qx SHA256SUMS
+    sed -i -E 's/^(export const SERVER_VERSION = )"v[0-9.]+";/\1"{{tag}}";/' editors/vscode/src/server.ts
+    sed -i -E 's/^(const SERVER_VERSION: &str = )"v[0-9.]+";/\1"{{tag}}";/' editors/zed/src/webfluent.rs
+    @grep -H 'SERVER_VERSION = \|SERVER_VERSION: &str' editors/vscode/src/server.ts editors/zed/src/webfluent.rs
+
 # Install the tree-sitter CLI the grammars are generated with
 grammar-setup:
     cd {{grammar_dir}} && npm ci --no-audit --no-fund

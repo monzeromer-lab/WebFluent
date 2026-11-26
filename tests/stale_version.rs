@@ -162,3 +162,36 @@ fn the_check_tells_an_upgrade_path_from_a_stale_claim() {
         [r#"webfluent = { version = "4" }"#]
     );
 }
+
+/// Every package the project publishes says the licence the repository
+/// has. The Node package said MIT for a while, beside an MPL-2.0 crate.
+#[test]
+fn every_published_package_names_the_repositorys_licence() {
+    let manifest = fs::read_to_string(root().join("Cargo.toml")).unwrap();
+    let licence = manifest
+        .lines()
+        .find_map(|l| l.strip_prefix("license = \""))
+        .and_then(|l| l.strip_suffix('"'))
+        .expect("the workspace's licence");
+    let mut wrong = Vec::new();
+    for (file, field) in [
+        (
+            "bindings/node/package.json",
+            format!("\"license\": \"{licence}\""),
+        ),
+        (
+            "skills/writing-webfluent/SKILL.md",
+            format!("license: {licence}"),
+        ),
+    ] {
+        let text = fs::read_to_string(root().join(file)).unwrap();
+        if !text.contains(&field) {
+            wrong.push(file);
+        }
+    }
+    let node_readme = fs::read_to_string(root().join("bindings/node/README.md")).unwrap();
+    if !node_readme.contains(licence) {
+        wrong.push("bindings/node/README.md");
+    }
+    assert!(wrong.is_empty(), "these do not say {licence}: {wrong:?}");
+}

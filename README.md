@@ -1,7 +1,3 @@
-# Help Needed:
-
-If you are an open-source contributor and find this project helpful and have experience writing docs, I need help writing the docs for the language, as it's currently pure AI generated.
-
 # WebFluent
 
 **One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
@@ -90,12 +86,12 @@ Studio is a separate, closed-source app at **0.1**. Linux, macOS and Windows com
 ## What you get
 
 - **Reactivity without a framework** — signals update the exact DOM node that changed. No virtual DOM, no diffing.
-- **50+ components, already designed** — layout, navigation, tables, forms, modals, media. Styled by design tokens you can retheme in ten lines.
+- **About 150 components, already designed** — layout, navigation, tables, forms, modals, media. Styled by design tokens you can retheme in ten lines.
 - **A compiler that actually checks your work** — types, props, flags, slots and events, plus lints for accessibility, SEO and dead code. A typo is an error with a line number, never a silent no-op.
 - **Ships small** — the build keeps only the runtime modules your program reaches, splits a chunk per page, and precompresses everything. A page of static text ships under 4 kB of script, gzipped.
 - **Four targets, one language** — SPA, pre-rendered static site, PDF, or a slide deck, by one config flag.
 - **PDFs without a browser** — a paged layout engine in the binary: the same CSS cascade, flexbox and grid as the page, text shaped with kerning and ligatures, Arabic and right-to-left, tables that break between rows with their header repeated, a table of contents with page numbers, fonts embedded as searchable subsets. [Invoices, reports and résumés]({H}/showcase) in the gallery are real output.
-- **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
+- **Batteries included** — routing, stores, forms and validation, typed `api` services (written by hand or from an OpenAPI spec), i18n with automatic RTL, animations, dark mode.
 - **A template engine for Rust and Node** — render a `.wf` template with your own data to HTML, a fragment or a PDF: `Template::from_dir("templates")?.page("Invoice")?.render_pdf(&invoice)` with any `Serialize` struct, or `npm install webfluent`. Untrusted data is escaped, and a URL that would run script is dropped.
 - **Your own JavaScript, by name** — a plain `.js` file under `src/` is linked as written, and `.wf` code calls its functions directly, checked against their JSDoc. Libraries load from a CDN through `meta.scripts`; any element can be handed to a script with `mount:` and `cleanup:`.
 - **Editor support** — a language server for [Zed](https://github.com/monzeromer-lab/webfluent-zed) and [VS Code](https://github.com/monzeromer-lab/webfluent-vscode): completion, hover, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting, quick fixes. Or all of it in one window, with a preview and a designer: [WebFluent Studio](#webfluent-studio).
@@ -130,7 +126,9 @@ A `.flag` sets a boolean prop or picks an enum case. A flag the component does n
 <summary><b>Data fetching</b></summary>
 
 ```wf
-resource users = fetch("/api/users")
+type User { id: String, name: String, role: String }
+
+resource users: [User] = http.get("/api/users")
 
 match users {
     .loading      { Spinner }
@@ -199,21 +197,37 @@ Set `"output_type": "slides"` (or `"pdf"`) and `wf build` writes the PDF, laid o
 ## CLI
 
 ```
-wf init <name> [-t spa|static|pdf|slides]   Create a project
-wf build [-d DIR] [--stats] [--cache]       Compile; --stats prints what it weighs, --cache renders only what an edit changed
-wf check [--format json|sarif|github]       Every finding, nothing written; --deny-warnings for CI
-wf explain [CODE]                           What a diagnostic means, and the fix
-wf serve [-d DIR]                           Dev server with live reload
-wf generate page|component|store|block <name>  Scaffold a file, or a whole page
-wf fmt [path] [--check] [--to wfx|wf]       Format, or switch layout
-wf test [path] [--update]                   Run the project's tests, in a browser when one acts
-wf verify [path] [--json] [--budget MS]     Visit every route in a headless browser (--returning-visitor: again, with storage)
-wf docs [-d DIR] [-o OUT]                   Document the components, each example drawn live
-wf render <tpl|dir> [--data f.json] [-f pdf] [--page P]   Use WebFluent as a template engine
-wf audit [path] [--json]                    What the project trusts
-wf registry|types [--json]                  The registry, and what a project declares
-wf migrate [path] [--check] [--wfx]         Bring an older project up to date (WebFluent 2 onward)
+Start and build
+  wf init <name> [-t spa|static|pdf|slides]      Create a project (--locales en,ar to start translated)
+  wf serve [-d DIR]                               Dev server: rebuilds on save, reloads the page
+  wf build [-d DIR] [--stats] [--cache]           Compile the site, PDF, deck or custom elements
+  wf start [-d DIR] [--proxy /api=URL]            Serve a build as a host would
+  wf generate page|component|store|block <name>   Scaffold a file, or a whole page
+
+Check and fix
+  wf check [--format json|sarif|github]           Every finding, nothing written (--deny-warnings for CI)
+  wf fix [--code C] [--dry-run]                   Apply each finding's fix
+  wf explain [CODE]                               What a diagnostic means, and its fix
+  wf fmt [path] [--check] [--to wfx|wf]           Format, or switch between .wf and .wfx
+  wf test [path] [--update]                       Run the project's tests (in a browser when one acts)
+  wf verify [path] [--budget MS]                  Load every route in headless Chrome
+  wf inspect ROUTE [--do STEP]                    One page as a reader meets it, as text
+  wf audit [path]                                 What the project trusts: markup, origins, storage, env
+  wf migrate [path] [--check]                     Bring a project from an older major up to date
+
+Look up
+  wf components | registry | types                Components, built-ins, and what the project declares
+  wf theme | motion | rules | assets              Tokens, animations, validation rules, public/ files
+  wf scope FILE:LINE | translations | context     Names in scope, the translations table, the agent context
+  wf commands | config schema|get|set|unset       Every command, every setting
+
+More
+  wf render TEMPLATE [--data D] [-f pdf]          Use WebFluent as a template engine
+  wf api add|sync|check|eject|list                Keep a service's contract from its OpenAPI spec
+  wf docs [-o OUT]                                Document the project's components, examples drawn live
 ```
+
+Every command takes `--json` where it prints data; [the CLI reference](https://webfluent.monzeromer.dev/reference/cli) has each option.
 
 ## Documentation
 
@@ -237,11 +251,16 @@ A PDF or a deck is the page, printed: the program is rendered to the static HTML
 
 ## How it's built
 
-WebFluent is AI-written and human-directed: the language, its design and every decision are mine; most of the code is written with AI under that direction. What keeps it honest is checked, not promised — every code block in the guide is parsed, type-checked and compiled by the test suite, CI builds every `wf init` template and the documentation site, and each release is gated on it.
+WebFluent is designed and directed by one person, and most of its code is written with AI under that direction. What keeps it honest is checked, not promised:
+
+- about 2,000 tests, plus browser suites that drive real pages in headless Chrome, and fuzzing of the lexer, parser, layout and formatter;
+- every code block in the guide and the agent skill is parsed, type-checked and compiled by the test suite;
+- CI builds every `wf init` template and the documentation site, and the build reads every script it writes back before shipping it;
+- the [benchmarks](bench/README.md) are scripts with their raw results beside them, and they publish where WebFluent is behind.
 
 ## Stability
 
-**5.x is the stable line.** From the first launch video until four weeks after it, releases are patch-only and batched at most weekly — no syntax changes and no breaking changes — so the code in the videos keeps compiling on the latest release.
+**8.x is the long-term line.** For all of 8.x the language does not break: syntax, semantics, the built-in components and their props, the config keys and the CLI's commands and flags stay as they are. Minor releases add; they never take away. 8.x gets fixes for at least twelve months after 9.0 ships, and 9.0 comes no sooner than nine months after 8.0. [STABILITY.md](STABILITY.md) has the whole promise, and what it does not cover.
 
 To build the compiler from a clone — for an unreleased change, or to work on it:
 
@@ -250,7 +269,7 @@ git clone https://github.com/monzeromer-lab/WebFluent.git
 cd WebFluent && cargo install --path .
 ```
 
-Contributions welcome — see [Contributing](https://webfluent.monzeromer.dev/about/contributing) for how the project is laid out and tested, and [AGENTS.md](AGENTS.md) for what the language promises.
+Contributions are welcome, and the documentation most of all: a second pair of eyes on the guide's wording is the most useful help there is. See [Contributing](https://webfluent.monzeromer.dev/about/contributing) for how the project is laid out and tested, and [AGENTS.md](AGENTS.md) for what the language promises.
 
 ## License
 

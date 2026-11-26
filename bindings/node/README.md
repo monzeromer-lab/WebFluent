@@ -77,4 +77,4 @@ in the guide.
 The package's version is the compiler's it was released with; a newer `wf`
 renders the same templates.
 
-MIT licensed.
+[MPL-2.0](https://github.com/monzeromer-lab/WebFluent/blob/master/LICENSE), as WebFluent is.

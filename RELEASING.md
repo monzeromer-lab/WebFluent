@@ -9,7 +9,7 @@ release's diff.
 Write the version's section at the top of `RELEASE_NOTES.md`, then:
 
 ```bash
-just ship 5.3.2
+just ship 8.0.1
 ```
 
 It does every step below, in order, and asks before it pushes anything:
@@ -17,12 +17,17 @@ CI and the checks on the commit being released, the Zed pin, the bump, the
 docs site, the preflight, the commit, the push and the tag. By hand:
 
 ```bash
-just bump 5.3.2            # both crates and the lock file
-# write `# WebFluent v5.3.2 Release Notes` at the top of RELEASE_NOTES.md
-just preflight v5.3.2      # what the release workflow checks first
-git commit -am "Release 5.3.2" && git push
-git tag -a v5.3.2 -m "WebFluent 5.3.2" && git push origin v5.3.2
+just bump 8.0.1            # the crates, the Node binding, the skill and the lock file
+# write `# WebFluent v8.0.1 Release Notes` at the top of RELEASE_NOTES.md
+just preflight v8.0.1      # what the release workflow checks first
+git commit -am "Release 8.0.1" && git push
+git tag -a v8.0.1 -m "WebFluent 8.0.1" && git push origin v8.0.1
 ```
+
+**The 8.x line is long-term.** Before tagging an 8.x minor, read
+[STABILITY.md](STABILITY.md): a minor adds and fixes, it never removes or
+renames, and a new diagnostic is a warning. CI's semver job checks the
+Rust API against 8.0.0; the rest of the promise is checked by review.
 
 The tag does the rest (`.github/workflows/release.yml`): the preflight
 checks (the tag must be `vX.Y.Z`), the binaries for every platform, a
@@ -40,7 +45,7 @@ anyone can check that a file was built by this repository's release
 workflow from the tagged commit:
 
 ```bash
-gh attestation verify wf-v5.15.0-x86_64-linux.tar.gz --repo monzeromer-lab/WebFluent
+gh attestation verify wf-v8.0.1-x86_64-linux.tar.gz --repo monzeromer-lab/WebFluent
 sha256sum --check --ignore-missing SHA256SUMS
 ```
 
@@ -117,9 +122,12 @@ both bumped submodules here.
 Neither extension downloads the latest release: each pins the WebFluent
 release whose server it runs (`SERVER_VERSION` in webfluent-vscode's
 `src/server.ts` and webfluent-zed's `src/webfluent.rs`) and checks the
-download against that release's `SHA256SUMS`. After a compiler release,
-raise both pins to the new tag and release both extensions; until then
-they keep serving the server they pin. A pin must name a release that has
+download against that release's `SHA256SUMS`. A pin can only name a
+release that is already out, so it trails the compiler until the
+extensions are released again: once a compiler release's assets are up,
+`just editors-pin-server vX.Y.Z` raises both pins, then commit and release
+each extension from its repository. Until then they keep serving the
+server they pin. A pin must name a release that has
 `SHA256SUMS` (5.15.0 or later).
 
 - **VS Code** — [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode). Tag `v<version>` there (its own version, in its

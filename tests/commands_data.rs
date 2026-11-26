@@ -170,3 +170,44 @@ fn a_command_line_built_from_the_data_runs() {
         }
     }
 }
+
+/// The README's CLI section names every command the binary has, so it
+/// cannot fall behind again: it once listed fifteen of twenty-nine.
+#[test]
+fn the_readme_names_every_command() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let (code, out, err) = wf(root, &["commands", "--json"]);
+    assert_eq!(code, 0, "{err}");
+    let data: Value = serde_json::from_str(&out).unwrap();
+    let readme = std::fs::read_to_string(root.join("README.md")).unwrap();
+    let section = readme
+        .split("## CLI\n")
+        .nth(1)
+        .and_then(|s| s.split("\n## ").next())
+        .expect("the README has a CLI section");
+    let mut missing: Vec<String> = data["commands"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .map(|c| {
+            c["name"]
+                .as_str()
+                .unwrap()
+                .split(' ')
+                .next()
+                .unwrap()
+                .to_string()
+        })
+        .filter(|name| {
+            !section.contains(&format!("wf {name}"))
+                && !section.contains(&format!(" {name} "))
+                && !section.contains(&format!("| {name}"))
+                && !section.contains(&format!("{name} |"))
+        })
+        .collect();
+    missing.dedup();
+    assert!(
+        missing.is_empty(),
+        "the README's CLI section leaves out {missing:?}"
+    );
+}
