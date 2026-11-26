@@ -12,6 +12,7 @@
 //!
 //! `lower` is idempotent.
 
+mod deprecated;
 mod expand;
 pub(crate) mod script;
 pub mod types;
@@ -155,11 +156,21 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
             | Declaration::Fake(_)
             | Declaration::Data(_) => continue,
         };
+        // What is written at the top of the body, where an element is
+        // drawn once, when the page or component is.
+        let top = body
+            .iter()
+            .filter_map(|s| match &s.kind {
+                StatementKind::UIElement(el) => Some(el.span.start),
+                _ => None,
+            })
+            .collect();
         let mut cx = Checker {
             decls: &decls,
             file: &file,
             component,
             findings: &mut findings,
+            top,
         };
         cx.statements(body);
         if !matches!(decl, Declaration::Store(_)) {
@@ -257,6 +268,8 @@ struct Checker<'a, 'p> {
     /// The component whose body is being checked, for `emit`.
     component: Option<&'p ComponentDecl>,
     findings: &'a mut Findings,
+    /// Where each element at the top of the body starts.
+    top: Vec<u32>,
 }
 
 impl Checker<'_, '_> {
@@ -553,6 +566,19 @@ impl Checker<'_, '_> {
 
     fn builtin(&mut self, el: &UIElement, sig: &'static ComponentSig, span: Span) {
         let name = sig.qualified();
+        // A built-in on its way out, said once at its call: its parts are
+        // rewritten with it.
+        if let Some(dep) = &sig.deprecated
+            && sig.owner.is_none()
+            && dep.applies(&el.modifiers)
+        {
+            let top = self.top.contains(&el.span.start);
+            let found = deprecated::finding(sig.name, dep, el, top);
+            self.warning(span, "V13", found.message, &found.hint);
+            if let Some((title, plan)) = found.fix {
+                self.plan_last_warning(title, plan);
+            }
+        }
         for (i, word) in el.modifiers.iter().enumerate() {
             let at = el.modifier_spans.get(i).copied().unwrap_or(span);
             match sig.flag(word) {

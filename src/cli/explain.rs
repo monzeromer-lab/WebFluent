@@ -84,6 +84,7 @@ pub(crate) fn entry(code: &str) -> serde_json::Value {
         "summary": info.summary,
         "lowerable": codes::lowerable(info.code),
         "unnecessary": info.unnecessary,
+        "deprecated": info.deprecated,
         "description": codes::description(info.code).unwrap_or_else(|| info.summary.to_string()),
         "section": section(info.code).unwrap_or_default(),
         "source": format!("{}/{}.md", codes::EXPLAIN_DIR, info.code),

@@ -34,6 +34,14 @@ pub enum Plan {
         end: usize,
         text: String,
     },
+    /// The bytes at `start` of the finding's file, which read `from`,
+    /// become `to` — a name the finder knows the place of. Text that no
+    /// longer reads `from` there yields no fix.
+    Swap {
+        start: usize,
+        from: String,
+        to: String,
+    },
     /// `text` goes in at the finding's start — `await ` before a call.
     Insert { text: String },
     /// `text` goes in just before the first `anchor` at or after the
@@ -472,6 +480,15 @@ fn edits(d: &Diagnostic, source: &str, plan: &Plan) -> Option<Vec<Edit>> {
                 return None;
             }
             Some(vec![edit(d, source, *start, *end, text.clone())])
+        }
+        Plan::Swap {
+            start: at,
+            from,
+            to,
+        } => {
+            let end = at.checked_add(from.len())?;
+            (source.get(*at..end) == Some(from.as_str()))
+                .then(|| vec![edit(d, source, *at, end, to.clone())])
         }
         Plan::Insert { text } => Some(vec![edit(d, source, start, start, text.clone())]),
         Plan::InsertBefore { anchor, text } => {

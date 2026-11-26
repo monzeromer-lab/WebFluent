@@ -55,6 +55,7 @@ pub(crate) fn run_migrate(
     print_four(&plan, check)?;
     if failed == 0 {
         print_seven(&plan, check)?;
+        print_eight(&plan, check)?;
     }
     if failed > 0 {
         return Err(WebFluentError::io(format!(
@@ -107,6 +108,40 @@ fn print_seven(plan: &Plan, check: bool) -> Result<()> {
     println!("\n  Changes that need no edit, and are worth knowing:");
     for line in crate::migrate::seven::WITHOUT_AN_EDIT {
         println!("    {line}");
+    }
+    Ok(())
+}
+
+/// The step to 8: every deprecated built-in whose rewrite is exact,
+/// rewritten (`V13`, the fixes `wf fix --code V13` applies); then those
+/// left for a person, by place. With `check`, what it would rewrite.
+fn print_eight(plan: &Plan, check: bool) -> Result<()> {
+    let Some(dir) = &plan.project_dir else {
+        return Ok(()); // a lone file
+    };
+    let done = crate::migrate::seven::fix(dir, &|d| d.code == "V13", check)?;
+    println!("\n  WebFluent 7 → 8:");
+    if done.total() == 0 {
+        println!("    no deprecated built-in to rewrite");
+    } else {
+        println!(
+            "    {} {} deprecated built-in(s) in {} file(s)",
+            if check { "would rewrite" } else { "rewrote" },
+            done.total(),
+            done.by_file.len()
+        );
+        for file in done.by_file.keys() {
+            println!("      {file}");
+        }
+    }
+    if !check && !done.left.is_empty() {
+        println!(
+            "\n  {} deprecated built-in(s) left, which a person rewrites (they work until 9.0):",
+            done.left.len()
+        );
+        for d in &done.left {
+            println!("    {}:{}: {}", d.file, d.line, d.message);
+        }
     }
     Ok(())
 }

@@ -629,6 +629,16 @@ fn builtin_doc(project: &Project, sig: &'static ComponentSig) -> String {
         None => format!("{} component", sig.group),
     };
     let mut out = format!("**{full}** — {what}\n\n{}\n", sig.summary);
+    // On its way out: what to write instead, before anything else.
+    if let Some(d) = &sig.deprecated {
+        out.push_str(&format!(
+            "\n**Deprecated** since {}: write `{}`; {} is removed in 9.0. {}\n",
+            d.since,
+            d.replacement,
+            d.spelling(&full),
+            d.note
+        ));
+    }
 
     // A PDF or a deck draws less than a page: say so where it is written.
     let output = project.output_type;

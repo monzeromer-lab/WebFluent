@@ -164,6 +164,7 @@ fn rewrite(el: &mut UIElement, name: &str, seq: &mut usize) {
         "Gallery" => gallery(el),
         "Masonry" => masonry(el),
         "CircularProgress" => circular_progress(el),
+        "Progress" => progress(el),
         "Meter" => meter(el),
         "Sparkline" => sparkline(el),
         "RelativeTime" => relative_time(el),
@@ -1628,6 +1629,22 @@ fn circular_progress(el: &mut UIElement) {
     );
 }
 
+/// `Progress(value: 40, label: "Upload").circular`: the ring a
+/// `CircularProgress` draws, drawn as one; a bar's `label:` is its name.
+fn progress(el: &mut UIElement) {
+    match take_flag(el, "circular") {
+        Some(Expr::BoolLiteral(true)) => {
+            el.component = ComponentRef::BuiltIn("CircularProgress".to_string());
+            circular_progress(el);
+        }
+        _ => {
+            if let Some(label) = take(el, "label") {
+                give(el, "aria-label", &src(&label));
+            }
+        }
+    }
+}
+
 /// `Meter(value: used, max: 1, high: 0.9, label: "Disk")`.
 fn meter(el: &mut UIElement) {
     if let Some(label) = take(el, "label") {
@@ -1824,6 +1841,23 @@ mod tests {
             let out = expanded(call);
             assert_ne!(out.trim(), call.trim(), "`{call}` was not expanded");
         }
+    }
+
+    /// `Progress(…).circular` is drawn as `CircularProgress` is, block and
+    /// all, so every output draws the one ring.
+    #[test]
+    fn a_circular_progress_is_the_ring() {
+        let ring =
+            expanded("Progress(value: done, max: 10, label: \"Upload\").circular { Text(\"3\") }");
+        let old =
+            expanded("CircularProgress(value: done, max: 10, label: \"Upload\") { Text(\"3\") }");
+        assert_eq!(ring, old);
+        let turning = expanded("Progress.circular");
+        assert_eq!(turning, expanded("CircularProgress"));
+        holds(
+            &expanded("Progress(value: 3, label: \"Upload\")"),
+            &["Progress(", "aria-label: \"Upload\""],
+        );
     }
 
     #[test]
@@ -2072,6 +2106,8 @@ mod tests {
         "Gallery(columns: 3) { Image(src: \"/a.jpg\", alt: \"A\") }",
         "Masonry(columns: 3) { Text(\"a\") }",
         "CircularProgress(value: 3, max: 10, label: \"Upload\")",
+        "Progress(value: 3, max: 10, label: \"Upload\").circular { Text(\"3\") }",
+        "Progress(value: 3, max: 10, label: \"Upload\")",
         "Meter(value: 0.5, max: 1, high: 0.9, label: \"Disk\")",
         "Sparkline([1, 2, 3], label: \"Sign-ups\")",
         "RelativeTime(\"2026-01-01T00:00:00Z\")",

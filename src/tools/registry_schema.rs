@@ -54,6 +54,21 @@ pub struct Component {
     /// The tag and class its root is written with, for a built-in.
     pub tag: Option<&'static str>,
     pub class: Option<&'static str>,
+    /// What replaces a built-in on its way out.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecated: Option<Deprecated>,
+}
+
+/// A deprecated built-in: what a call writes instead, since when, and
+/// what differs.
+#[derive(Debug, Clone, Serialize, PartialEq)]
+pub struct Deprecated {
+    pub replacement: &'static str,
+    pub since: &'static str,
+    pub note: &'static str,
+    /// The flag whose use alone is deprecated: `block` on `Code`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flag: Option<&'static str>,
 }
 
 /// One prop.
@@ -295,6 +310,12 @@ fn builtin_of(sig: &'static ComponentSig) -> Component {
         },
         tag: tag.filter(|t| !t.is_empty()),
         class: class.filter(|c| !c.is_empty()),
+        deprecated: sig.deprecated.map(|d| Deprecated {
+            replacement: d.replacement,
+            since: d.since,
+            note: d.note,
+            flag: (!d.flag.is_empty()).then_some(d.flag),
+        }),
     }
 }
 
@@ -529,6 +550,7 @@ pub fn project(c: &ComponentDecl, program: &Program, file: Option<String>) -> Co
         attributes: vec!["global", "aria", "data"],
         tag: None,
         class: None,
+        deprecated: None,
     }
 }
 

@@ -531,6 +531,87 @@ fn v05_v06_the_nearest_property_and_token() {
     assert!(out.contains("$color-primary"), "{out}");
 }
 
+/// Each deprecated built-in, rewritten to what replaces it — its parts,
+/// its label and its flag with it — and warned of no more.
+#[test]
+fn v13_a_deprecated_built_in_is_its_replacement() {
+    let cases: &[(&str, &str, &str)] = &[
+        (
+            "    state open = false\n    Dialog(visible: open, title: \"Sure?\").closable {\n        Dialog.Title { Text(\"Really\") }\n        Text(\"Body\")\n    }",
+            "    state open = false\n    Modal(visible: open, title: \"Sure?\").closable {\n        Modal.Title { Text(\"Really\") }\n        Text(\"Body\")\n    }",
+            "Write `Modal`",
+        ),
+        (
+            "    Dropdown(\"Actions\") {\n        Dropdown.Item { Text(\"One\") }\n        Dropdown.Divider\n    }",
+            "    Menu(trigger: \"Actions\") {\n        Menu.Item { Text(\"One\") }\n        Menu.Divider\n    }",
+            "Write `Menu(trigger: …)`",
+        ),
+        (
+            "    Dropdown(label: \"Sort\") { Dropdown.Item { Text(\"Newest\") } }",
+            "    Menu(trigger: \"Sort\") { Menu.Item { Text(\"Newest\") } }",
+            "Write `Menu(trigger: …)`",
+        ),
+        ("    Tag(\"beta\")", "    Chip(\"beta\")", "Write `Chip`"),
+        (
+            "    Toast(\"Saved\").success",
+            "    toast(\"Saved\", tone: .success)",
+            "Write `toast(…)`",
+        ),
+        (
+            "    Code(\"let x = 1\", language: \"wf\").block",
+            "    CodeBlock(\"let x = 1\", language: \"wf\")",
+            "Write `CodeBlock(…)`",
+        ),
+        (
+            "    CircularProgress(value: 3, max: 10, label: \"Up\") { Text(\"3\") }",
+            "    Progress(value: 3, max: 10, label: \"Up\").circular { Text(\"3\") }",
+            "Write `Progress(…).circular`",
+        ),
+        (
+            "    CircularProgress.fadeIn",
+            "    Progress.circular.fadeIn",
+            "Write `Progress(…).circular`",
+        ),
+    ];
+    for (old, new, title) in cases {
+        let src = page(old);
+        assert_eq!(fixes_it(&src, "V13", &page(new)), *title, "{old}");
+    }
+}
+
+/// Where the rewrite would change what the page does, the finding says so
+/// and offers none: a toast a branch draws, a tag with a handler.
+#[test]
+fn v13_a_rewrite_that_is_not_exact_is_not_offered() {
+    for body in [
+        "    state saved = false\n    if saved { Toast(\"Saved\").success }",
+        "    Tag(\"beta\") { on click { log(\"x\") } }",
+        "    Dropdown(\"A\", label: \"B\") { Dropdown.Item { Text(\"x\") } }",
+    ] {
+        let all = findings(&page(body));
+        let d = all
+            .iter()
+            .find(|d| d.code == "V13")
+            .unwrap_or_else(|| panic!("no V13 for {body}"));
+        assert!(d.fixes.is_empty(), "{body}: {:?}", d.fixes);
+        assert!(
+            d.hint
+                .as_deref()
+                .unwrap_or("")
+                .contains("not rewritten for you"),
+            "{:?}",
+            d.hint
+        );
+        assert!(d.tags.contains(&webfluent::diagnostics::Tag::Deprecated));
+    }
+    // `Code` without `.block` is not deprecated.
+    assert!(
+        !findings(&page("    Text { Code(\"wf serve\") }"))
+            .iter()
+            .any(|d| d.code == "V13")
+    );
+}
+
 // ─── Fix-all ───────────────────────────────────────────────────────────
 
 #[test]

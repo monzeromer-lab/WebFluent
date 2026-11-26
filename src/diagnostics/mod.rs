@@ -171,6 +171,9 @@ impl Diagnostic {
             if info.unnecessary && !self.tags.contains(&Tag::Unnecessary) {
                 self.tags.push(Tag::Unnecessary);
             }
+            if info.deprecated && !self.tags.contains(&Tag::Deprecated) {
+                self.tags.push(Tag::Deprecated);
+            }
         }
     }
 

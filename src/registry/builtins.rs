@@ -136,6 +136,7 @@ const fn comp(
         css: &[],
         paper: Paper::Undecided,
         slots: &[],
+        deprecated: None,
     }
 }
 
@@ -170,6 +171,7 @@ const fn part(
         css: &[],
         paper: Paper::Undecided,
         slots: &[],
+        deprecated: None,
     }
 }
 
@@ -1637,7 +1639,12 @@ pub const COMPONENTS: &[ComponentSig] = &[
     )
     .html("div", "wf-circular-progress")
     .css(&["Circular Progress"])
-    .not_on_paper(NOT_ON_PAPER),
+    .not_on_paper(NOT_ON_PAPER)
+    .deprecated(
+        "Progress(…).circular",
+        "8.0",
+        "`Progress(…).circular` draws the same ring, with its block in the middle.",
+    ),
     comp(
         "Meter",
         "Feedback",
@@ -2157,7 +2164,12 @@ pub const COMPONENTS: &[ComponentSig] = &[
     )
     .html("span", "wf-tag")
     .css(&["Tag"])
-    .on_paper(),
+    .on_paper()
+    .deprecated(
+        "Chip",
+        "8.0",
+        "A `Chip` with no `selected:`, `.removable` or `on click` is the same static label, drawn as a pill at least 24px tall.",
+    ),
     comp(
         "Avatar",
         "Data display",
@@ -2524,7 +2536,12 @@ pub const COMPONENTS: &[ComponentSig] = &[
     )
     .html("div", "wf-toast")
     .css(&["Toast", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
-    .not_on_paper(NOT_ON_PAPER),
+    .not_on_paper(NOT_ON_PAPER)
+    .deprecated(
+        "toast(…)",
+        "8.0",
+        "The element shows its toast each time it is drawn; call `toast(\"…\", tone: .success)` where what it shows becomes true — the handler or action that sets it.",
+    ),
     ComponentSig {
         events: &["close"],
         ..comp(
@@ -2606,7 +2623,12 @@ pub const COMPONENTS: &[ComponentSig] = &[
     }
     .html("dialog", "wf-dialog")
     .css(&["Button", "Dialog"])
-    .not_on_paper(NOT_ON_PAPER),
+    .not_on_paper(NOT_ON_PAPER)
+    .deprecated(
+        "Modal",
+        "8.0",
+        "It takes the same props, events and `Title` part. A `Modal` is drawn wider (500px against 400px) with its heading and body padded apart; `class:` or `style { width: … }` sizes it.",
+    ),
     part(
         "Dialog",
         "Title",
@@ -2616,7 +2638,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .deprecated("Modal.Title", "8.0", ""),
     ComponentSig {
         events: &["close"],
         ..comp(
@@ -2726,15 +2749,21 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Progress",
         "Feedback",
-        "Progress bar; a `value` that reads state moves with it.",
+        "Progress bar; a `value` that reads state moves with it. `.circular` draws it as a ring that fills, its block in the middle.",
         None,
         &[
             special("value", PropType::Num, "Current value"),
             attr("max", PropType::Num, "Value at 100%"),
+            special("label", PropType::Str, "What is progressing, for a screen reader"),
+            special(
+                "circular",
+                PropType::Bool,
+                "A ring that fills, its block drawn in the middle; with no `value:` it turns",
+            ),
         ],
         &[],
         G,
-        Children::None,
+        Children::Elements,
     )
     .html("progress", "wf-progress")
     .css(&["Progress", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
@@ -2898,7 +2927,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         ..comp(
             "Chip",
             "Content",
-            "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (`selected:`, with `on click`), and be removed (`.removable`, with `on remove`). `Tag` is the one that does none of it.",
+            "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (`selected:`, with `on click`), and be removed (`.removable`, with `on remove`). With none of it, it is a static label.",
             Some(required(special("label", PropType::Str, "Its words"))),
             &[
                 special("icon", PropType::Str, "An icon before the words"),
@@ -3653,7 +3682,12 @@ pub const COMPONENTS: &[ComponentSig] = &[
     )
     .html("div", "wf-dropdown")
     .css(&["Button", "Dropdown", "Layer"])
-    .not_on_paper("interactive elements are not supported in PDF"),
+    .not_on_paper("interactive elements are not supported in PDF")
+    .deprecated(
+        "Menu(trigger: …)",
+        "8.0",
+        "Its label is the menu's `trigger:`, and its parts are `Menu.Item` and `Menu.Divider`. A `Menu` draws and behaves as it does, under `.wf-menu` classes: a stylesheet's `.wf-dropdown` rules are written for `.wf-menu`.",
+    ),
     part(
         "Dropdown",
         "Item",
@@ -3663,7 +3697,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .deprecated("Menu.Item", "8.0", ""),
     part(
         "Dropdown",
         "Divider",
@@ -3673,7 +3708,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .deprecated("Menu.Divider", "8.0", ""),
     // ─── Media ────────────────────────────────────────────────────────────
     comp(
         "Image",
@@ -3917,10 +3953,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
     comp(
         "Code",
         "Typography",
-        "Inline code, or a code block with `block`; `language:` colours it.",
+        "Code in a line of text; `language:` colours it. A block of code is a `CodeBlock`.",
         Some(special("content", PropType::Ty("String or Number or Bool"), "The code")),
         &[
-            flag("block", "block", "A multi-line block"),
+            flag("block", "block", "A multi-line block — deprecated since 8.0: write `CodeBlock(…)`"),
             special(
                 "language",
                 PropType::Str,
@@ -3933,7 +3969,13 @@ pub const COMPONENTS: &[ComponentSig] = &[
     )
     .html("code", "wf-code")
     .css(&["Code", "Highlight"])
-    .on_paper(),
+    .on_paper()
+    .deprecated_flag(
+        "block",
+        "CodeBlock(…)",
+        "8.0",
+        "`CodeBlock` draws the same code in a box of its own that a keyboard can scroll, and takes `title:`, `.copy` and `.lines`. `Code` stays for code in a line of text.",
+    ),
     comp(
         "Markdown",
         "Typography",

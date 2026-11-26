@@ -38,6 +38,9 @@ pub struct CodeInfo {
     /// Whether what it points at is code nothing needs, which an editor
     /// greys out.
     pub unnecessary: bool,
+    /// Whether what it points at is on its way out of the language, which
+    /// an editor strikes through.
+    pub deprecated: bool,
 }
 
 const fn code(
@@ -52,6 +55,7 @@ const fn code(
         title,
         summary,
         unnecessary: false,
+        deprecated: false,
     }
 }
 
@@ -62,6 +66,18 @@ const fn unused(code: &'static str, title: &'static str, summary: &'static str) 
         title,
         summary,
         unnecessary: true,
+        deprecated: false,
+    }
+}
+
+const fn deprecated(code: &'static str, title: &'static str, summary: &'static str) -> CodeInfo {
+    CodeInfo {
+        code,
+        severity: Severity::Warning,
+        title,
+        summary,
+        unnecessary: false,
+        deprecated: true,
     }
 }
 
@@ -997,6 +1013,11 @@ pub static CODES: &[CodeInfo] = &[
         Info,
         "A component named like a built-in",
         "A component the project declares takes the place of a built-in of its name: every call of the name draws the project's own, so the built-in cannot be placed in that project. A new built-in never changes what an existing project draws.",
+    ),
+    deprecated(
+        "V13",
+        "A deprecated built-in",
+        "A built-in on its way out: it still draws as it always has through 8.x, and is removed in 9.0. The finding names what replaces it, and `wf fix` rewrites it where the rewrite is exact.",
     ),
 ];
 

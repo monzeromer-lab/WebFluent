@@ -316,6 +316,42 @@ pub struct ComponentSig {
     /// The named blocks it takes, each a function of what it is handed:
     /// a `Tree`'s `row(item) { … }`, a `DataTable`'s `empty { … }`.
     pub slots: &'static [&'static str],
+    /// Set when the built-in is on its way out: it still draws as it
+    /// always has, a call of it is warned of (`V13`) with its replacement,
+    /// and `wf fix` rewrites it where the rewrite is exact.
+    pub deprecated: Option<Deprecation>,
+}
+
+/// What replaces a deprecated built-in, and since when.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Deprecation {
+    /// What a call writes instead: `Modal`, `Progress(…).circular`.
+    pub replacement: &'static str,
+    /// The release that deprecated it: `8.0`.
+    pub since: &'static str,
+    /// What differs, or what the rewrite cannot do for a reader: a
+    /// sentence, or empty.
+    pub note: &'static str,
+    /// The flag that makes a call the deprecated one, when only that use
+    /// of the built-in is on its way out (`Code(…).block`); empty when
+    /// the whole built-in is.
+    pub flag: &'static str,
+}
+
+impl Deprecation {
+    /// Whether a call written with `modifiers` is the deprecated use.
+    pub fn applies(&self, modifiers: &[String]) -> bool {
+        self.flag.is_empty() || modifiers.iter().any(|m| m == self.flag)
+    }
+
+    /// The deprecated use, as a call writes it: `Dialog`, `Code(…).block`.
+    pub fn spelling(&self, name: &str) -> String {
+        if self.flag.is_empty() {
+            format!("`{name}`")
+        } else {
+            format!("`{name}(…).{}`", self.flag)
+        }
+    }
 }
 
 /// What a paged output — a PDF, a slide deck — does with a built-in.
@@ -364,6 +400,44 @@ impl ComponentSig {
     /// This entry, taking these named blocks.
     pub(crate) const fn slots(self, slots: &'static [&'static str]) -> Self {
         Self { slots, ..self }
+    }
+
+    /// This entry, deprecated in favour of `replacement` since `since`.
+    pub(crate) const fn deprecated(
+        self,
+        replacement: &'static str,
+        since: &'static str,
+        note: &'static str,
+    ) -> Self {
+        Self {
+            deprecated: Some(Deprecation {
+                replacement,
+                since,
+                note,
+                flag: "",
+            }),
+            ..self
+        }
+    }
+
+    /// This entry, its `flag` use deprecated in favour of `replacement`:
+    /// `Code(…).block` is `CodeBlock(…)`, and `Code(…)` stays.
+    pub(crate) const fn deprecated_flag(
+        self,
+        flag: &'static str,
+        replacement: &'static str,
+        since: &'static str,
+        note: &'static str,
+    ) -> Self {
+        Self {
+            deprecated: Some(Deprecation {
+                replacement,
+                since,
+                note,
+                flag,
+            }),
+            ..self
+        }
     }
 
     /// This entry, drawn in a PDF and a deck.

@@ -185,10 +185,16 @@ fn validate_ui_element(
         }
     };
 
-    if !drawn_in_pdf(&name) {
-        let reason = refusal(&name).to_string();
+    // A ring is the page's script's to draw, as `CircularProgress`'s is.
+    let ring = name == "Progress" && ui.modifiers.iter().any(|m| m == "circular");
+    if ring || !drawn_in_pdf(&name) {
+        let reason = refusal(if ring { "CircularProgress" } else { &name }).to_string();
         errors.push(PdfValidationError {
-            component: name.clone(),
+            component: if ring {
+                "Progress(…).circular".to_string()
+            } else {
+                name.clone()
+            },
             context: context.to_string(),
             reason,
             decl,

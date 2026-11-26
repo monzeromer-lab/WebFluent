@@ -22,8 +22,8 @@
 //! Nothing is offered inside a string or a comment.
 
 use lsp_types::{
-    CompletionItem, CompletionItemKind, Documentation, InsertTextFormat, MarkupContent, MarkupKind,
-    Position,
+    CompletionItem, CompletionItemKind, CompletionItemTag, Documentation, InsertTextFormat,
+    MarkupContent, MarkupKind, Position,
 };
 use webfluent::config::OutputType;
 use webfluent::linter;
@@ -2357,14 +2357,25 @@ fn flags(project: &Project, name: &str) -> Vec<CompletionItem> {
                 continue;
             }
             match prop.ty {
-                PropType::Bool => items.push(CompletionItem {
-                    label: prop.name.to_string(),
-                    kind: Some(CompletionItemKind::ENUM_MEMBER),
-                    detail: Some(format!("{}: true", prop.name)),
-                    documentation: Some(Documentation::String(sig.says(prop).to_string())),
-                    sort_text: Some(format!("{}{}", rank(prop), prop.name)),
-                    ..Default::default()
-                }),
+                PropType::Bool => {
+                    // `Code(…).block`: the flag's use is on its way out.
+                    let gone = sig.deprecated.filter(|d| d.flag == prop.name);
+                    items.push(CompletionItem {
+                        label: prop.name.to_string(),
+                        kind: Some(CompletionItemKind::ENUM_MEMBER),
+                        detail: Some(match gone {
+                            Some(d) => format!(
+                                "{}: true — deprecated: write `{}`",
+                                prop.name, d.replacement
+                            ),
+                            None => format!("{}: true", prop.name),
+                        }),
+                        documentation: Some(Documentation::String(sig.says(prop).to_string())),
+                        sort_text: Some(format!("{}{}", rank(prop), prop.name)),
+                        tags: struck(gone.is_some()),
+                        ..Default::default()
+                    });
+                }
                 PropType::Enum(cases) => {
                     for case in cases.iter().filter(|c| !c.name.is_empty()) {
                         items.push(CompletionItem {
@@ -2434,12 +2445,32 @@ fn parts(owner: &str) -> Vec<CompletionItem> {
         .map(|part| CompletionItem {
             label: part.name.to_string(),
             kind: Some(CompletionItemKind::CLASS),
-            detail: Some(format!("{}.{} — part of {}", owner, part.name, owner)),
+            detail: Some(match &part.deprecated {
+                Some(d) => format!(
+                    "{}.{} — deprecated: write `{}`",
+                    owner, part.name, d.replacement
+                ),
+                None => format!("{}.{} — part of {}", owner, part.name, owner),
+            }),
             documentation: Some(Documentation::String(part.summary.to_string())),
             sort_text: Some(format!("0{}", part.name)),
+            tags: struck(part.deprecated.is_some()),
             ..Default::default()
         })
         .collect()
+}
+
+/// The tag an editor strikes a deprecated name through with.
+fn struck(deprecated: bool) -> Option<Vec<CompletionItemTag>> {
+    deprecated.then(|| vec![CompletionItemTag::DEPRECATED])
+}
+
+/// Whether the whole of a built-in is on its way out — not only one
+/// flag's use of it (`Code(…).block`).
+fn deprecated_whole(sig: &ComponentSig) -> Option<&'static str> {
+    sig.deprecated
+        .filter(|d| d.flag.is_empty())
+        .map(|d| d.replacement)
 }
 
 /// The cases the prop `key` of `element` takes, offered after `key: .`.
@@ -3366,10 +3397,21 @@ fn components_in(project: &Project, enclosing: Option<&ComponentRef>) -> Vec<Com
             // On a web page the paper-only elements come last.
             let paper_only =
                 !paged(project) && matches!(c.group, "PDF" | "Slides") && c.name != "Section";
-            let detail = if paper_only {
+            let gone = deprecated_whole(c);
+            let detail = if let Some(instead) = gone {
+                format!("{} — deprecated: write `{instead}`", c.group)
+            } else if paper_only {
                 format!("{} — {} (drawn in a PDF or a deck)", c.group, c.summary)
             } else {
                 format!("{} — {}", c.group, c.summary)
+            };
+            // What is on its way out is offered last, and struck through.
+            let rank = if gone.is_some() {
+                5
+            } else if paper_only {
+                3
+            } else {
+                1
             };
             CompletionItem {
                 label: c.name.to_string(),
@@ -3377,7 +3419,8 @@ fn components_in(project: &Project, enclosing: Option<&ComponentRef>) -> Vec<Com
                 detail: Some(detail),
                 insert_text: Some(builtin_snippet(c)),
                 insert_text_format: Some(InsertTextFormat::SNIPPET),
-                sort_text: Some(format!("{}{}", if paper_only { 3 } else { 1 }, c.name)),
+                sort_text: Some(format!("{rank}{}", c.name)),
+                tags: struck(gone.is_some()),
                 ..Default::default()
             }
         })

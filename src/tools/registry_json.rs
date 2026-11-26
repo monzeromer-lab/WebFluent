@@ -69,6 +69,14 @@ fn component_json(sig: &'static ComponentSig) -> Value {
             Children::None => Vec::<&str>::new(),
             Children::Elements => vec!["children"],
         },
+        // On its way out: what replaces it, since when, and — when only a
+        // flag's use is — which flag.
+        "deprecated": sig.deprecated.map(|d| json!({
+            "replacement": d.replacement,
+            "since": d.since,
+            "note": d.note,
+            "flag": (!d.flag.is_empty()).then_some(d.flag),
+        })),
     })
 }
 
