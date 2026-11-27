@@ -63,6 +63,39 @@ the data are escaped, and a URL from the data a browser would run
 (`javascript:`, `data:`) is dropped from `href`/`src`. `const`s and `data`
 files are in scope; components expand in HTML, PDF and slides alike.
 
+### In an axum or Actix Web server
+
+`tpl.respond(&data, Format::Html)` renders to a `Rendered`: the bytes and
+their `Content-Type` (`Format::Html`, `Fragment`, `Pdf`, `Slides`), and
+`.download("invoice.pdf")` or `.inline(…)` for a `Content-Disposition`. The
+`axum` feature makes a `Rendered` an `IntoResponse` and a `WebFluentError` a
+`500`; `actix` makes them a `Responder` and a `ResponseError`. So the
+template is the server's state as it is, and a handler returns
+`Result<Rendered, WebFluentError>`. `webfluent::axum::render` and
+`webfluent::actix::render` run the render on the runtime's blocking pool,
+since a PDF takes tens of milliseconds. A failed render's `500` says what
+went wrong in a debug build, and only that it failed in a release one.
+
+```toml
+webfluent = { version = "8", default-features = false, features = ["axum"] }  # or "actix"
+```
+
+```rust
+use axum::{Router, extract::{Path, State}, routing::get};
+use webfluent::{Format, Rendered, Template, WebFluentError};
+
+async fn invoice(State(tpl): State<Template>, Path(n): Path<String>) -> Result<Rendered, WebFluentError> {
+    let data = serde_json::json!({ "number": n });
+    Ok(webfluent::axum::render(&tpl, &data, Format::Pdf).await?.inline(&format!("invoice-{n}.pdf")))
+}
+
+let tpl = Template::from_dir("templates")?.page("Invoice")?;
+let app = Router::new().route("/invoices/{n}", get(invoice)).with_state(tpl);
+```
+
+With Actix Web the template goes in `web::Data<Template>` and the handler
+calls `webfluent::actix::render`; everything else is the same.
+
 ### Node.js API
 
 ```javascript

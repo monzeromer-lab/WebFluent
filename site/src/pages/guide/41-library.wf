@@ -178,7 +178,7 @@ fn main() -> webfluent::Result<()> {
             }
         }
 
-        Markdown("The data is held to the page's parameters before anything is drawn: data that does not fit is refused as `T33`, naming the place (`$.items[0].price is missing`), in `WebFluentError::Diagnostics`.\n\nA template is the static part of the language. [Render a template](/recipes/render-a-template) shows what one may use, and [Render from Rust](/recipes/render-from-rust) how to render from a web server.")
+        Markdown("The data is held to the page's parameters before anything is drawn: data that does not fit is refused as `T33`, naming the place (`$.items[0].price is missing`), in `WebFluentError::Diagnostics`.\n\nA template is the static part of the language. [Render a template](/recipes/render-a-template) shows what one may use, and [Render from Rust](/recipes/render-from-rust) how to render from a web server.\n\nIn a server, `respond(&data, format)` renders to a `Rendered` — the bytes and their `Content-Type` — and the `axum` and `actix` features make that the framework's response and a `WebFluentError` its `500`, with `webfluent::axum::render` and `webfluent::actix::render` laying a PDF out on the blocking pool. [Use it in a server](/recipes/render-from-rust#use-it-in-a-server) has both.")
 
         Heading("Builds", id: "builds").h3
 
@@ -324,11 +324,10 @@ webfluent = { version = "=7.0.0", default-features = false, features = ["interna
 
         Heading("Node: the webfluent package", id: "node-the-webfluent-package").h2
 
-        Markdown("The package renders templates from Node.js. It is a wrapper around `wf render`: each render runs `wf` once and sends the data on standard input, so `wf` must be installed too. Its source is [`bindings/node/`](https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node), and its version is the compiler's it was released with.\n\nIt is not on the npm registry yet, so install it from a clone of the repository:")
+        Markdown("The package renders templates from Node.js. It is a wrapper around `wf render`: each render runs `wf` once and sends the data on standard input, so `wf` must be installed too. Its source is [`bindings/node/`](https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node), and its version is the compiler's it was released with.")
 
         Terminal(lines: [
-                Line(command: "git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git"),
-                Line(command: "npm install ./WebFluent/bindings/node")
+                Line(command: "npm install webfluent")
             ])
 
         Markdown("This script renders one page of a directory of templates in a request handler, without blocking the event loop:")

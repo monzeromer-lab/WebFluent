@@ -179,7 +179,78 @@ fn main() -> webfluent::Result<()> {
 
         Heading("Use it in a server", id: "use-it-in-a-server").h2
 
-        Markdown("A `Template` is `Send + Sync` and cheap to clone, because the parsed program is shared. Keep it in your framework's state — an `Arc`, or a clone per handler — and render from any thread. A render takes tens of microseconds.")
+        Markdown("A `Template` is `Send + Sync` and cheap to clone, because the parsed program is shared. Keep it in your framework's state as it is, and render from any thread. An HTML render takes tens of microseconds; a PDF takes tens of milliseconds, so an async server lays it out on its blocking pool rather than on the workers that answer requests.\n\n`respond(&data, format)` renders to a `Rendered`: the bytes and the `Content-Type` they need, for `Format::Html`, `Format::Fragment`, `Format::Pdf` or `Format::Slides`. `.download(\"invoice.pdf\")` makes the browser save it, and `.inline(\"invoice.pdf\")` shows it with that name; a name from a request is cut to what a header may carry. Two features turn a `Rendered` into a response your framework sends as it is:")
+
+        Heading("axum", id: "axum").h3
+
+        Markdown("Turn on the `axum` feature. A `Rendered` is then an `IntoResponse`, and a `WebFluentError` is a `500`, so a handler returns `Result<Rendered, WebFluentError>` and uses `?`. `webfluent::axum::render` runs the render on tokio's blocking pool:")
+        DocsCodeBlock(#"[dependencies]
+webfluent = { version = "8.1", default-features = false, features = ["axum"] }
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+serde = { version = "1", features = ["derive"] }"#, title: "toml")
+        DocsCodeBlock(#"use axum::{Router, extract::{Path, State}, routing::get};
+use webfluent::{Format, Rendered, Template, WebFluentError};
+
+async fn invoice(
+    State(tpl): State<Template>,
+    Path(number): Path<String>,
+) -> Result<Rendered, WebFluentError> {
+    let invoice = load_invoice(&number).await; // your own: an `Invoice`, as above
+    if let Some(n) = number.strip_suffix(".pdf") {
+        let pdf = webfluent::axum::render(&tpl, &invoice, Format::Pdf).await?;
+        return Ok(pdf.download(&format!("invoice-{n}.pdf")));
+    }
+    tpl.respond(&invoice, Format::Html)
+}
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let tpl = Template::from_dir("templates")?.page("Invoice")?;
+    let app = Router::new()
+        .route("/invoices/{number}", get(invoice))
+        .with_state(tpl);
+    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
+    axum::serve(listener, app).await?;
+    Ok(())
+}"#, title: "rust")
+
+        Heading("Actix Web", id: "actix-web").h3
+
+        Markdown("Turn on the `actix` feature. A `Rendered` is then a `Responder`, and a `WebFluentError` a `ResponseError` that answers `500`. The template goes in the app's data, and `webfluent::actix::render` runs the render on Actix's blocking pool:")
+        DocsCodeBlock(#"[dependencies]
+webfluent = { version = "8.1", default-features = false, features = ["actix"] }
+actix-web = "4"
+serde = { version = "1", features = ["derive"] }"#, title: "toml")
+        DocsCodeBlock(#"use actix_web::{App, HttpServer, get, web};
+use webfluent::{Format, Rendered, Template, WebFluentError};
+
+#[get("/invoices/{number}")]
+async fn invoice(
+    tpl: web::Data<Template>,
+    number: web::Path<String>,
+) -> Result<Rendered, WebFluentError> {
+    let number = number.into_inner();
+    let invoice = load_invoice(&number).await; // your own: an `Invoice`, as above
+    if let Some(n) = number.strip_suffix(".pdf") {
+        let pdf = webfluent::actix::render(&tpl, &invoice, Format::Pdf).await?;
+        return Ok(pdf.download(&format!("invoice-{n}.pdf")));
+    }
+    tpl.respond(&invoice, Format::Html)
+}
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
+    let tpl = web::Data::new(
+        Template::from_dir("templates").and_then(|t| t.page("Invoice")).expect("the templates load"),
+    );
+    HttpServer::new(move || App::new().app_data(tpl.clone()).service(invoice))
+        .bind(("127.0.0.1", 3000))?
+        .run()
+        .await
+}"#, title: "rust")
+
+        Markdown("A render that fails — data that is not what the page takes, most often — answers `500` in plain text. A debug build says what went wrong (`$.items[0].price is missing`); a release build says only that the page could not be rendered, since the message names your data's shape. To answer otherwise, match the `Result` yourself.\n\nAnother framework sends a `Rendered` from its parts: `body()` or `into_body()`, `content_type()`, and `content_disposition()`.")
 
         DocsCallout("Every value the data supplies is escaped as text. A URL from the data that a browser would run — `javascript:`, `data:` — is dropped from `href` and `src`, as the browser build drops it. An `Image`'s `src` keeps a picture carried in its address (`data:image/png;base64,…`), as the browser build keeps it.\n\nA value the data puts in a `style \{ \}` block is one value, as the live page sets one property at a time: a piece with a `;`, a brace or a backslash, or one that fetches something (`url(…)`, `image-set(…)`), leaves its declaration out. What the template writes around a splice — `background: url(\{img\})` — is the template's own. A `class:` from the data is escaped inside its attribute.", kind: .note)
 

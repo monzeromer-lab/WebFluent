@@ -98,6 +98,8 @@ The data is held to the page's parameters before anything is drawn: data that do
 
 A template is the static part of the language. [Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md) shows what one may use, and [Render from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md) how to render from a web server.
 
+In a server, `respond(&data, format)` renders to a `Rendered` — the bytes and their `Content-Type` — and the `axum` and `actix` features make that the framework's response and a `WebFluentError` its `500`, with `webfluent::axum::render` and `webfluent::actix::render` laying a PDF out on the blocking pool. [Use it in a server](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#use-it-in-a-server) has both.
+
 ### Builds
 
 `build::build` is `wf build`, and `build::check` is `wf check`. Both read the project through a `Vfs` and return a `BuildReport`: every line the command prints, every finding as a `Diagnostic`, every page's route, and where the site was written. A build that stops returns a `BuildFailure` holding the report so far and the error:
@@ -235,11 +237,8 @@ webfluent = { version = "=7.0.0", default-features = false, features = ["interna
 
 The package renders templates from Node.js. It is a wrapper around `wf render`: each render runs `wf` once and sends the data on standard input, so `wf` must be installed too. Its source is [`bindings/node/`](https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node), and its version is the compiler's it was released with.
 
-It is not on the npm registry yet, so install it from a clone of the repository:
-
 ```bash
-git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
-npm install ./WebFluent/bindings/node
+npm install webfluent
 ```
 
 This script renders one page of a directory of templates in a request handler, without blocking the event loop:
