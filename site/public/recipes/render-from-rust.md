@@ -178,6 +178,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 ```
 
+A complete server is [`examples/axum_server.rs`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/axum_server.rs) in the repository: an invoice as a page and as a PDF to download, and a `404` for one it does not have. Run it from a clone and open `http://127.0.0.1:3000/invoices/1042`:
+
+```bash
+cargo run --example axum_server --features axum
+```
+
 ### Actix Web
 
 Turn on the `actix` feature. A `Rendered` is then a `Responder`, and a `WebFluentError` a `ResponseError` that answers `500`. The template goes in the app's data, and `webfluent::actix::render` runs the render on Actix's blocking pool:
@@ -217,6 +223,12 @@ async fn main() -> std::io::Result<()> {
         .run()
         .await
 }
+```
+
+The same server in Actix Web is [`examples/actix_server.rs`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/actix_server.rs):
+
+```bash
+cargo run --example actix_server --features actix
 ```
 
 A render that fails — data that is not what the page takes, most often — answers `500` in plain text. A debug build says what went wrong (`$.items[0].price is missing`); a release build says only that the page could not be rendered, since the message names your data's shape. To answer otherwise, match the `Result` yourself.

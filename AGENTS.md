@@ -4388,7 +4388,9 @@ let app = Router::new().route("/invoices/{n}", get(invoice)).with_state(tpl);
 ```
 
 With Actix Web the template goes in `web::Data<Template>` and the handler
-calls `webfluent::actix::render`; everything else is the same.
+calls `webfluent::actix::render`; everything else is the same. A whole
+server of each is in the repository: `cargo run --example axum_server
+--features axum`, and `actix_server` with `--features actix`.
 
 ### Node.js API
 

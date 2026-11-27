@@ -98,7 +98,7 @@ The data is held to the page's parameters before anything is drawn: data that do
 
 A template is the static part of the language. [Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md) shows what one may use, and [Render from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md) how to render from a web server.
 
-In a server, `respond(&data, format)` renders to a `Rendered` — the bytes and their `Content-Type` — and the `axum` and `actix` features make that the framework's response and a `WebFluentError` its `500`, with `webfluent::axum::render` and `webfluent::actix::render` laying a PDF out on the blocking pool. [Use it in a server](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#use-it-in-a-server) has both.
+In a server, `respond(&data, format)` renders to a `Rendered` — the bytes and their `Content-Type` — and the `axum` and `actix` features make that the framework's response and a `WebFluentError` its `500`, with `webfluent::axum::render` and `webfluent::actix::render` laying a PDF out on the blocking pool. [Use it in a server](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#use-it-in-a-server) has both, and the repository runs each: `cargo run --example axum_server --features axum`, or `actix_server` with `--features actix`.
 
 ### Builds
 

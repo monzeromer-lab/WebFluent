@@ -65,6 +65,6 @@ Read [core.md](core.md) first: it covers most sites and apps. For anything else,
 - [Compiler diagnostics](language/compiler-diagnostics.md) — 25 kB
 - [Migrating](language/migrating.md) — 4 kB
 - [Configuration Reference (webfluent.app.json)](language/configuration-reference-webfluent-app-json.md) — 4 kB
-- [Template Engine (Server-Side Rendering)](language/template-engine-server-side-rendering.md) — 9 kB
+- [Template Engine (Server-Side Rendering)](language/template-engine-server-side-rendering.md) — 10 kB
 - [For agents](language/for-agents.md) — 6 kB
 - [Key Rules](language/key-rules.md) — 4 kB
