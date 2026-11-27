@@ -62,8 +62,9 @@ mod walk;
 internal! {
     pub use handles::{browser_value_type, form_names, form_type, image_type, ref_names};
 }
-/// `wf types --holes`, which only the command line reads.
-#[cfg(feature = "cli")]
+/// `wf types --holes`, which only the command line (and, through the
+/// internals, the tests) reads.
+#[cfg(any(feature = "cli", feature = "internals"))]
 pub use holes::of_project as holes_of;
 pub use holes::{Hole, HoleKind};
 pub use jsdoc::jsdoc_type;

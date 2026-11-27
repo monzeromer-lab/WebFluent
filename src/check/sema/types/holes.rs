@@ -533,6 +533,7 @@ fn has_any(ty: &Type) -> bool {
 ///
 /// What reading the project fails with: a missing `src/`, a file that
 /// cannot be read or does not parse.
+#[cfg(any(feature = "cli", feature = "internals"))]
 pub fn of_project(project_dir: &std::path::Path) -> crate::diagnostics::error::Result<Vec<Hole>> {
     let (program, files) = crate::project::sources::read_project(project_dir)?;
     let mut texts: std::collections::HashMap<&str, Option<String>> =
