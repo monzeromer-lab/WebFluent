@@ -129,6 +129,9 @@ fn check(root: &Path, args: &[String]) -> Result<(), String> {
             "clippy",
             "--workspace",
             "--all-targets",
+            // The framework modules and their examples.
+            "--features",
+            "webfluent/axum,webfluent/actix",
             "--",
             "-D",
             "warnings",

@@ -5,7 +5,7 @@
 //!     cargo run --example invoice
 //!
 //! In your own project, the engine alone is
-//! `webfluent = { version = "4", default-features = false }`.
+//! `webfluent = { version = "8", default-features = false }`.
 
 use serde::Serialize;
 use webfluent::{PdfConfig, Template};

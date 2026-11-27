@@ -261,6 +261,16 @@ qrcode = { version = "0.14", default-features = false }
 name = "it"
 path = "tests/it.rs"
 
+# Templates served by a web framework; each needs its feature:
+# `cargo run --example axum_server --features axum`.
+[[example]]
+name = "axum_server"
+required-features = ["axum"]
+
+[[example]]
+name = "actix_server"
+required-features = ["actix"]
+
 [dev-dependencies]
 # The tests reach the internals.
 webfluent = { path = ".", features = ["internals", "axum", "actix"] }

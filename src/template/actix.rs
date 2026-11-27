@@ -34,6 +34,10 @@
 //!     .await?;
 //! # Ok(()) }
 //! ```
+//!
+//! A whole server — an invoice as a page and as a PDF download, and a
+//! `404` — is the repository's `examples/actix_server.rs`:
+//! `cargo run --example actix_server --features actix`.
 
 use super::{Format, Rendered, Template};
 use crate::diagnostics::error::{Result, WebFluentError};

@@ -459,9 +459,10 @@ jobs:
 
       # `--workspace` so the language server is compiled, and `--all-targets` so
       # tests and examples are linted too. Warnings are errors here because the
-      # tree is at zero and staying there is easier than getting back.
+      # tree is at zero and staying there is easier than getting back. The
+      # framework features are on so their modules and examples are linted.
       - name: Clippy
-        run: cargo clippy --workspace --all-targets -- -D warnings
+        run: cargo clippy --workspace --all-targets --features webfluent/axum,webfluent/actix -- -D warnings
 
       - name: Build
         run: cargo build --workspace

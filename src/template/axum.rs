@@ -30,6 +30,10 @@
 //! axum::serve(listener, app).await?;
 //! # Ok(()) }
 //! ```
+//!
+//! A whole server — an invoice as a page and as a PDF download, and a
+//! `404` — is the repository's `examples/axum_server.rs`:
+//! `cargo run --example axum_server --features axum`.
 
 use super::{Format, Rendered, Template};
 use crate::diagnostics::error::{Result, WebFluentError};
