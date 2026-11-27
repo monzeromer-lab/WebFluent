@@ -29,7 +29,7 @@ Open a new terminal. Or run `wf` by its full path, `~/.webfluent/bin/wf`.
 
 The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.
 
-Pin a version instead, and run the installer again with it set: `WF_VERSION=v8.0.0`.
+Pin a version instead, and run the installer again with it set: `WF_VERSION=v8.1.0`.
 
 ### The binary does not run on an older Linux
 

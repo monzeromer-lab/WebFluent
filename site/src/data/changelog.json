@@ -1,5 +1,76 @@
 [
  {
+  "version": "8.1.0",
+  "id": "8.1.0",
+  "date": "",
+  "when": "",
+  "summary": "Templates in a Rust web server take a few lines: the `axum` and `actix`\nfeatures make a render the framework's own response. This release also\nfixes Korean times in the static paint and makes `wf test` steadier on a\nslow machine. Nothing is removed or renamed ([STABILITY.md](https://github.com/monzeromer-lab/WebFluent/blob/master/STABILITY.md)).",
+  "sections": [
+   {
+    "title": "Templates in axum and Actix Web",
+    "id": "8.1.0-templates-in-axum-and-actix-web",
+    "intro": "",
+    "items": [
+     {
+      "text": "**`Template::respond(&data, Format)`** renders to a `Rendered`: the\nbytes and their `Content-Type`, for `Format::Html`, `Fragment`, `Pdf` or\n`Slides`. `.download(\"invoice.pdf\")` makes the browser save it, and\n`.inline(…)` shows it under that name; a name from a request is cut to\nwhat a header may carry.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The `axum` feature** makes a `Rendered` an `IntoResponse` and a\n`WebFluentError` a `500`, so a handler returns\n`Result<Rendered, WebFluentError>` and uses `?`.\n`webfluent::axum::render` lays the page out on tokio's blocking pool,\nsince a PDF takes tens of milliseconds.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The `actix` feature** does the same for Actix Web: a `Responder`, a\n`ResponseError`, and `webfluent::actix::render` on its blocking pool.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A failed render's `500` says what went wrong in a debug build\n(`$.items[0].price is missing`), and only that it failed in a release\none.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Two example servers**: `cargo run --example axum_server --features\naxum`, and `actix_server` with `--features actix`, each serving an\ninvoice as a page and as a PDF download. The\n[Render from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust#use-it-in-a-server)\nrecipe walks through both.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": "```toml\nwebfluent = { version = \"8.1\", default-features = false, features = [\"axum\"] }\n```"
+   },
+   {
+    "title": "Fixes",
+    "id": "8.1.0-fixes",
+    "intro": "",
+    "items": [
+     {
+      "text": "**Korean times** were painted `AM`/`PM` at build time and changed to\n`오전`/`오후` when the page took over. The build's format tables are now\nread from ICU 78.3, which formats Korean as Chrome does.\nKnown: ICU 78.3 groups Swiss French (`fr-CH`) thousands with `'`, where\nChrome 158 still writes a narrow space, so those numbers change when the\npage takes over until the browsers move to the same data.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`wf test`**: a `click` or a `type` step waits up to a second and a half\nfor its target to be reachable, as `expect` already waited for its text.\nOn a slow machine a control drawn a moment late failed the test.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A library build (`default-features = false`) no longer prints a warning.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The Node package is on npm: `npm install webfluent`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   }
+  ],
+  "count": 9
+ },
+ {
   "version": "8.0.0",
   "id": "8.0.0",
   "date": "2026-11-26",

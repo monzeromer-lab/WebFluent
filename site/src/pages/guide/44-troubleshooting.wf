@@ -11,7 +11,7 @@ page TroubleshootingGuide(path: "/errors/troubleshooting", title: "Troubleshooti
 
         Heading("The installer cannot find the latest version", id: "the-installer-cannot-find-the-latest-version").h3
 
-        Markdown("The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.\n\nPin a version instead, and run the installer again with it set: `WF_VERSION=v8.0.0`.")
+        Markdown("The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.\n\nPin a version instead, and run the installer again with it set: `WF_VERSION=v8.1.0`.")
 
         Heading("The binary does not run on an older Linux", id: "the-binary-does-not-run-on-an-older-linux").h3
 

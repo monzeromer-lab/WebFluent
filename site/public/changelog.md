@@ -4,6 +4,54 @@
 
 The page: https://webfluent.monzeromer.dev/changelog
 
+Templates in a Rust web server take a few lines: the `axum` and `actix`
+features make a render the framework's own response. This release also
+fixes Korean times in the static paint and makes `wf test` steadier on a
+slow machine. Nothing is removed or renamed ([STABILITY.md](STABILITY.md)).
+
+## Templates in axum and Actix Web
+
+- **`Template::respond(&data, Format)`** renders to a `Rendered`: the
+  bytes and their `Content-Type`, for `Format::Html`, `Fragment`, `Pdf` or
+  `Slides`. `.download("invoice.pdf")` makes the browser save it, and
+  `.inline(…)` shows it under that name; a name from a request is cut to
+  what a header may carry.
+- **The `axum` feature** makes a `Rendered` an `IntoResponse` and a
+  `WebFluentError` a `500`, so a handler returns
+  `Result<Rendered, WebFluentError>` and uses `?`.
+  `webfluent::axum::render` lays the page out on tokio's blocking pool,
+  since a PDF takes tens of milliseconds.
+- **The `actix` feature** does the same for Actix Web: a `Responder`, a
+  `ResponseError`, and `webfluent::actix::render` on its blocking pool.
+- A failed render's `500` says what went wrong in a debug build
+  (`$.items[0].price is missing`), and only that it failed in a release
+  one.
+- **Two example servers**: `cargo run --example axum_server --features
+  axum`, and `actix_server` with `--features actix`, each serving an
+  invoice as a page and as a PDF download. The
+  [Render from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust#use-it-in-a-server)
+  recipe walks through both.
+
+```toml
+webfluent = { version = "8.1", default-features = false, features = ["axum"] }
+```
+
+## Fixes
+
+- **Korean times** were painted `AM`/`PM` at build time and changed to
+  `오전`/`오후` when the page took over. The build's format tables are now
+  read from ICU 78.3, which formats Korean as Chrome does.
+  Known: ICU 78.3 groups Swiss French (`fr-CH`) thousands with `'`, where
+  Chrome 158 still writes a narrow space, so those numbers change when the
+  page takes over until the browsers move to the same data.
+- **`wf test`**: a `click` or a `type` step waits up to a second and a half
+  for its target to be reachable, as `expect` already waited for its text.
+  On a slow machine a control drawn a moment late failed the test.
+- A library build (`default-features = false`) no longer prints a warning.
+- The Node package is on npm: `npm install webfluent`.
+
+# WebFluent v8.0.0 Release Notes
+
 The first long-term release. For all of 8.x the language does not break:
 syntax, semantics, the built-ins and their props, the config keys and the
 CLI stay as they are, and a minor release only adds. 8.x gets fixes for at

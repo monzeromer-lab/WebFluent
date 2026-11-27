@@ -2551,7 +2551,7 @@ dependencies = [
 
 [[package]]
 name = "webfluent"
-version = "8.0.0"
+version = "8.1.0"
 dependencies = [
  "actix-web",
  "axum",
@@ -2602,7 +2602,7 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 
 [[package]]
 name = "wf-lsp"
-version = "8.0.0"
+version = "8.1.0"
 dependencies = [
  "dashmap 6.2.1",
  "lsp-types",
@@ -2615,7 +2615,7 @@ dependencies = [
 
 [[package]]
 name = "wf-wasm"
-version = "8.0.0"
+version = "8.1.0"
 dependencies = [
  "cc",
  "libm",
