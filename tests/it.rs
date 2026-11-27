@@ -81,6 +81,8 @@ mod fmt_corpus;
 #[path = "focus.rs"]
 mod focus;
 mod forms2;
+#[path = "frameworks.rs"]
+mod frameworks;
 #[path = "frontend_fixes.rs"]
 mod frontend_fixes;
 #[path = "fs_security.rs"]

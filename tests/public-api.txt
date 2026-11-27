@@ -5444,6 +5444,31 @@ pub fn webfluent::syntax::parse_source(&str, &str) -> webfluent::diagnostics::er
 pub fn webfluent::syntax::parse_source_recovering(&str, &str) -> (webfluent::syntax::parser::Program, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
 pub fn webfluent::syntax::prefer_own_components(&mut webfluent::syntax::parser::Program)
 pub mod webfluent::template
+#[non_exhaustive] pub enum webfluent::template::Format
+pub webfluent::template::Format::Fragment
+pub webfluent::template::Format::Html
+pub webfluent::template::Format::Pdf
+pub webfluent::template::Format::Slides
+impl webfluent::Format
+pub fn webfluent::Format::content_type(self) -> &'static str
+impl core::clone::Clone for webfluent::Format
+pub fn webfluent::Format::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::Format
+impl core::cmp::PartialEq for webfluent::Format
+pub fn webfluent::Format::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::Format
+pub fn webfluent::Format::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for webfluent::Format
+pub fn webfluent::Format::hash<__H: core::hash::Hasher>(&self, &mut __H)
+impl core::marker::Copy for webfluent::Format
+impl core::marker::StructuralPartialEq for webfluent::Format
+impl core::marker::Freeze for webfluent::Format
+impl core::marker::Send for webfluent::Format
+impl core::marker::Sync for webfluent::Format
+impl core::marker::Unpin for webfluent::Format
+impl core::marker::UnsafeUnpin for webfluent::Format
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::Format
+impl core::panic::unwind_safe::UnwindSafe for webfluent::Format
 pub struct webfluent::template::PdfReport
 pub webfluent::template::PdfReport::bytes: alloc::vec::Vec<u8>
 pub webfluent::template::PdfReport::notes: alloc::vec::Vec<alloc::string::String>
@@ -5460,6 +5485,31 @@ impl core::marker::Unpin for webfluent::template::PdfReport
 impl core::marker::UnsafeUnpin for webfluent::template::PdfReport
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::template::PdfReport
 impl core::panic::unwind_safe::UnwindSafe for webfluent::template::PdfReport
+pub struct webfluent::template::Rendered
+impl webfluent::Rendered
+pub fn webfluent::Rendered::body(&self) -> &[u8]
+pub fn webfluent::Rendered::content_disposition(&self) -> core::option::Option<&str>
+pub fn webfluent::Rendered::content_type(&self) -> &'static str
+pub fn webfluent::Rendered::download(self, &str) -> Self
+pub fn webfluent::Rendered::format(&self) -> webfluent::Format
+pub fn webfluent::Rendered::inline(self, &str) -> Self
+pub fn webfluent::Rendered::into_body(self) -> alloc::vec::Vec<u8>
+pub fn webfluent::Rendered::new(alloc::vec::Vec<u8>, webfluent::Format) -> Self
+impl core::clone::Clone for webfluent::Rendered
+pub fn webfluent::Rendered::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::Rendered
+impl core::cmp::PartialEq for webfluent::Rendered
+pub fn webfluent::Rendered::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::Rendered
+pub fn webfluent::Rendered::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::Rendered
+impl core::marker::Freeze for webfluent::Rendered
+impl core::marker::Send for webfluent::Rendered
+impl core::marker::Sync for webfluent::Rendered
+impl core::marker::Unpin for webfluent::Rendered
+impl core::marker::UnsafeUnpin for webfluent::Rendered
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::Rendered
+impl core::panic::unwind_safe::UnwindSafe for webfluent::Rendered
 pub struct webfluent::template::Template
 impl webfluent::template::Template
 pub fn webfluent::template::Template::from_dir(impl core::convert::AsRef<std::path::Path>) -> webfluent::diagnostics::error::diagnostic::Result<Self>
@@ -5483,6 +5533,8 @@ pub fn webfluent::template::Template::with_slides(self, webfluent::SlidesConfig)
 pub fn webfluent::template::Template::with_studio(self, bool) -> Self
 pub fn webfluent::template::Template::with_theme(self, &str) -> Self
 pub fn webfluent::template::Template::with_tokens(self, &[(&str, &str)]) -> Self
+impl webfluent::template::Template
+pub fn webfluent::template::Template::respond<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T, webfluent::Format) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::Rendered>
 impl core::clone::Clone for webfluent::template::Template
 pub fn webfluent::template::Template::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::template::Template
@@ -5795,6 +5847,31 @@ impl core::marker::Unpin for webfluent::EditOp
 impl core::marker::UnsafeUnpin for webfluent::EditOp
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::EditOp
 impl core::panic::unwind_safe::UnwindSafe for webfluent::EditOp
+#[non_exhaustive] pub enum webfluent::Format
+pub webfluent::Format::Fragment
+pub webfluent::Format::Html
+pub webfluent::Format::Pdf
+pub webfluent::Format::Slides
+impl webfluent::Format
+pub fn webfluent::Format::content_type(self) -> &'static str
+impl core::clone::Clone for webfluent::Format
+pub fn webfluent::Format::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::Format
+impl core::cmp::PartialEq for webfluent::Format
+pub fn webfluent::Format::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::Format
+pub fn webfluent::Format::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for webfluent::Format
+pub fn webfluent::Format::hash<__H: core::hash::Hasher>(&self, &mut __H)
+impl core::marker::Copy for webfluent::Format
+impl core::marker::StructuralPartialEq for webfluent::Format
+impl core::marker::Freeze for webfluent::Format
+impl core::marker::Send for webfluent::Format
+impl core::marker::Sync for webfluent::Format
+impl core::marker::Unpin for webfluent::Format
+impl core::marker::UnsafeUnpin for webfluent::Format
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::Format
+impl core::panic::unwind_safe::UnwindSafe for webfluent::Format
 #[non_exhaustive] pub enum webfluent::WebFluentError
 pub webfluent::WebFluentError::CodegenError(webfluent::diagnostics::error::diagnostic::CodegenError)
 pub webfluent::WebFluentError::ConfigError(webfluent::diagnostics::error::diagnostic::ConfigError)
@@ -6034,6 +6111,31 @@ impl core::marker::Unpin for webfluent::template::PdfReport
 impl core::marker::UnsafeUnpin for webfluent::template::PdfReport
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::template::PdfReport
 impl core::panic::unwind_safe::UnwindSafe for webfluent::template::PdfReport
+pub struct webfluent::Rendered
+impl webfluent::Rendered
+pub fn webfluent::Rendered::body(&self) -> &[u8]
+pub fn webfluent::Rendered::content_disposition(&self) -> core::option::Option<&str>
+pub fn webfluent::Rendered::content_type(&self) -> &'static str
+pub fn webfluent::Rendered::download(self, &str) -> Self
+pub fn webfluent::Rendered::format(&self) -> webfluent::Format
+pub fn webfluent::Rendered::inline(self, &str) -> Self
+pub fn webfluent::Rendered::into_body(self) -> alloc::vec::Vec<u8>
+pub fn webfluent::Rendered::new(alloc::vec::Vec<u8>, webfluent::Format) -> Self
+impl core::clone::Clone for webfluent::Rendered
+pub fn webfluent::Rendered::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::Rendered
+impl core::cmp::PartialEq for webfluent::Rendered
+pub fn webfluent::Rendered::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::Rendered
+pub fn webfluent::Rendered::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::Rendered
+impl core::marker::Freeze for webfluent::Rendered
+impl core::marker::Send for webfluent::Rendered
+impl core::marker::Sync for webfluent::Rendered
+impl core::marker::Unpin for webfluent::Rendered
+impl core::marker::UnsafeUnpin for webfluent::Rendered
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::Rendered
+impl core::panic::unwind_safe::UnwindSafe for webfluent::Rendered
 pub struct webfluent::SlidesConfig
 pub webfluent::SlidesConfig::background_color: core::option::Option<alloc::string::String>
 pub webfluent::SlidesConfig::chrome_color: core::option::Option<alloc::string::String>
@@ -6088,6 +6190,8 @@ pub fn webfluent::template::Template::with_slides(self, webfluent::SlidesConfig)
 pub fn webfluent::template::Template::with_studio(self, bool) -> Self
 pub fn webfluent::template::Template::with_theme(self, &str) -> Self
 pub fn webfluent::template::Template::with_tokens(self, &[(&str, &str)]) -> Self
+impl webfluent::template::Template
+pub fn webfluent::template::Template::respond<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T, webfluent::Format) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::Rendered>
 impl core::clone::Clone for webfluent::template::Template
 pub fn webfluent::template::Template::clone(&self) -> Self
 impl core::fmt::Debug for webfluent::template::Template

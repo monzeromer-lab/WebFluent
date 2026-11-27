@@ -37,6 +37,11 @@ keywords = ["web", "language", "compiler", "template-engine", "pdf"]
 categories = ["compilers", "template-engine", "web-programming"]
 rust-version.workspace = true
 
+# docs.rs documents the library a server links, with its framework modules.
+[package.metadata.docs.rs]
+no-default-features = true
+features = ["axum", "actix"]
+
 [package.metadata.deb]
 maintainer = "Monzer Omer"
 copyright = "2026 Monzer Omer"
@@ -78,6 +83,11 @@ bundled-fonts = []
 # repository's own tools (the language server, the WebAssembly build, the
 # tests). Not covered by semver; anything there may change in any release.
 internals = []
+# A template as a response in an axum server (`webfluent::axum`), and in an
+# Actix Web one (`webfluent::actix`): a render is the framework's response,
+# an error its 500, and a PDF is laid out on its blocking pool.
+axum = ["dep:axum-core", "dep:http", "dep:tokio"]
+actix = ["dep:actix-web"]
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 webp = { version = "0.3.1", default-features = false }
@@ -209,6 +219,11 @@ rustls-native-certs = { version = "0.8", optional = true }
 # values on every core, which the system's allocator serialises on a lock.
 # The library leaves the allocator to the program that links it.
 mimalloc = { version = "0.1", default-features = false, optional = true }
+# The `axum` and `actix` features.
+axum-core = { version = "0.5", optional = true }
+http = { version = "1", optional = true }
+tokio = { version = "1", default-features = false, features = ["rt"], optional = true }
+actix-web = { version = "4", default-features = false, optional = true }
 # Regex literals evaluated at build time, in the static paint and the template engine.
 regex = "1"
 # The image pipeline: decoding, resizing and re-encoding four formats is not
@@ -248,9 +263,13 @@ path = "tests/it.rs"
 
 [dev-dependencies]
 # The tests reach the internals.
-webfluent = { path = ".", features = ["internals"] }
+webfluent = { path = ".", features = ["internals", "axum", "actix"] }
 # The golden-output test hashes every file a build writes.
 sha2 = "0.11"
+# The framework features' examples and tests run real servers.
+axum = "0.8"
+tokio = { version = "1", features = ["macros", "net", "rt-multi-thread"] }
+actix-web = { version = "4", default-features = false, features = ["macros"] }
 
 # Dependencies are built optimised even in a debug build. The slow tests
 # (the corpora, PDF layout, pictures) spend their time in them, while the

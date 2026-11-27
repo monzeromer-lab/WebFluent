@@ -234,5 +234,9 @@ pub use diagnostics::error::{Diagnostic, Result, WebFluentError};
 pub use project::config::project::{PdfConfig, PdfMargins, SlidesConfig};
 pub use syntax::node_id::{NodeInfo, NodeMap};
 pub use syntax::{Dialect, detect_dialect, parse_source};
-pub use template::{PdfReport, Template};
+#[cfg(feature = "actix")]
+pub use template::actix;
+#[cfg(feature = "axum")]
+pub use template::axum;
+pub use template::{Format, PdfReport, Rendered, Template};
 pub use tools::studio::{CompiledPage, CompiledSite, ThemeInfo, compile_studio};
